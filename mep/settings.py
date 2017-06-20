@@ -95,3 +95,38 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+ANNOTATOR_ANNOTATION_MODEL = 'annotation.Annotation'
+
+##################
+# LOCAL SETTINGS #
+##################
+
+# (local settings import logic adapted from mezzanine)
+
+# Allow any settings to be defined in local_settings.py which should be
+# ignored in your version control system allowing for settings to be
+# defined per machine.
+
+# Instead of doing "from .local_settings import *", we use exec so that
+# local_settings has full access to everything defined in this module.
+# Also force into sys.modules so it's visible to Django's autoreload.
+
+f = os.path.join(BASE_DIR, "mep", "local_settings.py")
+if os.path.exists(f):
+    import sys
+    import imp
+    module_name = "mep.local_settings"
+    module = imp.new_module(module_name)
+    module.__file__ = f
+    sys.modules[module_name] = module
+    exec(open(f, "rb").read())
+
+# if in debug mode and django-debug-toolbar is available, add to installed apps
+if DEBUG:
+    try:
+        import debug_toolbar
+        INSTALLED_APPS.append('debug_toolbar')
+        MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+    except ImportError:
+        pass
