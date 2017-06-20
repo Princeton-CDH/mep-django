@@ -2,7 +2,7 @@ import pytest
 
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-
+from django.contrib.auth import get_user_model
 from .models import Named, Notable, DateRange
 
 
@@ -61,3 +61,16 @@ class TestDateRange(TestCase):
         # exclude set
         DateRange(start_year=1901, end_year=1900).clean_fields(exclude=['start_year'])
         DateRange(start_year=1901, end_year=1900).clean_fields(exclude=['end_year'])
+
+
+class TestDatabaseConnection(TestCase):
+    '''Simple temporary test case to make sure MySQL is talking on Travis-CI'''
+
+    def test_database_connection(self):
+        # Grab the user model
+        User = get_user_model()
+
+        # Create a user and make sure it is returned
+        user = User.objects.create_user('foo', 'foo@bar.com', 'terriblepass')
+        assert user
+        assert isinstance(user, User)
