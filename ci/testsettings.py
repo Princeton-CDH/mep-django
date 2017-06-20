@@ -11,8 +11,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         # Django needs to make databases in the test mysql server
-        'NAME': 'root',
-        'USER': 'travismep',
+        'NAME': 'travismep',
+        'USER': 'root',
         'PASSWORD': '',
         'HOST': '127.0.0.1',
         'OPTIONS': {
