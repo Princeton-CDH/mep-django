@@ -1,6 +1,9 @@
-==========================================
-Mapping Expatriate Paris - Web Application
-==========================================
+
+mep-django
+==========
+
+.. sphinx-start-marker-do-not-remove
+
 
 This Github respository houses the Django web interface of the `Mapping Expatriate
 Paris <https://github.com/Princeton-CDH/mapping-expatriate-paris>`_ project, which

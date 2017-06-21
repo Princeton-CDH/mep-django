@@ -1,0 +1,4 @@
+.. _CHANGELOG:
+
+CHANGELOG
+=========
