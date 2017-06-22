@@ -5,6 +5,23 @@ from django.core.exceptions import ValidationError
 # used as mix-ins
 
 
+class AliasIntegerField(models.IntegerField):
+    '''Alias field adapted from https://djangosnippets.org/snippets/10440/
+    to allow accessing an existing db field by a different name, both
+    for user display and in model and queryset use.
+    '''
+
+    def contribute_to_class(self, cls, name, virtual_only=False):
+        super(AliasIntegerField, self).contribute_to_class(cls, name, virtual_only=True)
+        setattr(cls, name, self)
+
+    def __get__(self, instance, instance_type=None):
+        return getattr(instance, self.db_column)
+
+    def __set__(self, instance, value, instance_type=None):
+        return setattr(instance, self.db_column, value)
+
+
 class Named(models.Model):
     '''Abstract model with a 'name' field; by default, name is used as
     the string display.'''
