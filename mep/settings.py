@@ -15,15 +15,27 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Default debug to False, override locally
+DEBUG = False
+
+# Override in local settings, if using DEBUG = True locally, 'localhost'
+# and variations allowed
+ALLOWED_HOSTS = []
+
 # Application definition
 
 INSTALLED_APPS = [
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_cas_ng',
+    'pucas',
+    # local apps
+    'mep.common',
 ]
 
 MIDDLEWARE = [
@@ -36,12 +48,19 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'django_cas_ng.backends.CASBackend',
+)
+
 ROOT_URLCONF = 'mep.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, "templates")
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -49,6 +68,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'mep.context_extras',
+                'mep.context_processors.template_settings',
             ],
         },
     },
@@ -56,6 +77,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mep.wsgi.application'
 
+GRAPPELLI_ADMIN_TITLE = 'MEP Admin'
 
 
 # Password validation
@@ -96,7 +118,24 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-ANNOTATOR_ANNOTATION_MODEL = 'annotation.Annotation'
+# pucas configuration that is not expected to change across deploys
+# and does not reference local server configurations or fields
+PUCAS_LDAP = {
+    # basic user profile attributes
+    'ATTRIBUTES': ['givenName', 'sn', 'mail'],
+    'ATTRIBUTE_MAP': {
+        'first_name': 'givenName',
+        'last_name': 'sn',
+        'email': 'mail',
+    },
+}
+
+# Additional locations of static files
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'sitemedia'),
+]
+
+
 
 ##################
 # LOCAL SETTINGS #

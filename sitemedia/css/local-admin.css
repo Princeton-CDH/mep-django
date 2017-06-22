@@ -1,0 +1,6 @@
+/* canvas link button for annotation */
+/* tweak grappelli styles so link displays next to input */
+ul.canvas-link {
+    top: 0px;
+    padding-left: 5px;
+}
