@@ -25,30 +25,30 @@ Current development status
 --------------------------
 
 .. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=development+in+progress&title=In+Progress
-   :target: http://waffle.io/Princeton-CDH/mep-django
-   :alt: In Progress
+    :target: http://waffle.io/Princeton-CDH/mep-django
+    :alt: In Progress
 .. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=development+complete&title=Development+Complete
-   :target: http://waffle.io/Princeton-CDH/mep-django
-   :alt: Development Complete
+    :target: http://waffle.io/Princeton-CDH/mep-django
+    :alt: Development Complete
 .. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=awaiting+testing&title=Awaiting+Testing
-   :target: http://waffle.io/Princeton-CDH/mep-django
-   :alt: Awaiting Testing
+    :target: http://waffle.io/Princeton-CDH/mep-django
+    :alt: Awaiting Testing
 
 Development instructions
 ------------------------
 
 Initial setup and installation:
 
--  recommended: create and activate a python 3.5 virtualenv::
-  virtualenv mep -p python3.5
-  source mep/bin/activate
+- recommended: create and activate a python 3.5 virtualenv::
+    virtualenv mep -p python3.5
+    source mep/bin/activate
 
--  pip install required python dependencies::
-  pip install -r requirements.txt
-  pip install -r dev-requirements.txt
+- pip install required python dependencies::
+    pip install -r requirements.txt
+    pip install -r dev-requirements.txt
 
--  copy sample local settings and configure for your environment::
-  cp mep/local_settings.py.sample mep/local_settings.py
+- copy sample local settings and configure for your environment::
+    cp mep/local_settings.py.sample mep/local_settings.py
 
 **Remember to add a ``SECRET_KEY`` setting!**
 
