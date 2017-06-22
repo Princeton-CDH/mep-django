@@ -11,11 +11,75 @@ examines the archives of Sylvia Beach's Shakespeare and Company lending library.
 
 See the project's `page <http://mep.princeton.edu/>`_ for more details.
 
-This repository uses `git-flow <https://github.com/nvie/gitflow>`_ conventions for its
-branches. Pull requests and the most active code on the main branch  can be found on the
-`develop <https://github.com/Princeton-CDH/mep-django/tree/develop>`_ tree.
+Python 3.5 / Django 1.11
 
-Please use ``develop`` for all pull requests.
+.. image:: https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=develop
+    :target: https://travis-ci.org/Princeton-CDH/mep-django
+    :alt: Build status
+
+.. image:: https://codecov.io/gh/Princeton-CDH/mep-django/branch/develop/graph/badge.svg
+    :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/develop
+    :alt: Code coverage
+
+Current development status
+--------------------------
+
+.. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=development+in+progress&title=In+Progress
+   :target: http://waffle.io/Princeton-CDH/mep-django
+   :alt: In Progress
+.. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=development+complete&title=Development+Complete
+   :target: http://waffle.io/Princeton-CDH/mep-django
+   :alt: Development Complete
+.. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=awaiting+testing&title=Awaiting+Testing
+   :target: http://waffle.io/Princeton-CDH/mep-django
+   :alt: Awaiting Testing
+
+Development instructions
+------------------------
+
+Initial setup and installation:
+
+-  recommended: create and activate a python 3.5 virtualenv::
+  virtualenv mep -p python3.5
+  source mep/bin/activate
+
+-  pip install required python dependencies::
+  pip install -r requirements.txt
+  pip install -r dev-requirements.txt
+
+-  copy sample local settings and configure for your environment::
+  cp mep/local_settings.py.sample mep/local_settings.py
+
+**Remember to add a ``SECRET_KEY`` setting!**
+
+
+Unit Tests
+----------
+
+Unit tests are written with `py.test <http://doc.pytest.org/>`__ but use
+Django fixture loading and convenience testing methods when that makes
+things easier. To run them, first install development requirements::
+
+    pip install -r dev-requirements.txt
+
+Run tests using py.test::
+
+    py.test
+
+Documentation
+-------------
+
+Documentation is generated using `sphinx <http://www.sphinx-doc.org/>`__
+To generate documentation them, first install development requirements::
+
+    pip install -r dev-requirements.txt
+
+Then build documentation using the customized make file in the `docs`
+directory::
+
+    cd docs
+    make html
+
 
 License
 -------
