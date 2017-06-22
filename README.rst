@@ -53,10 +53,10 @@ Initial setup and installation:
 
 - copy sample local settings and configure for your environment::
 
-  
+
     cp mep/local_settings.py.sample mep/local_settings.py
 
-**Remember to add a ``SECRET_KEY`` setting!**
+Remember to add a ``SECRET_KEY`` setting!
 
 
 Unit Tests
