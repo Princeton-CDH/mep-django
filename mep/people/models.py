@@ -43,8 +43,12 @@ class Person(Notable, DateRange):
         return '<Person %s>' % self.__dict__
 
     def __str__(self):
-        fullname = '%s, %s' % (self.last_name, self.first_name)
-        return fullname.strip()
+        entry_name = '%s, %s' % (self.last_name, self.first_name)
+        return entry_name.strip()
+
+    @property
+    def full_name(self):
+        return ('%s %s' % (self.first_name, self.last_name)).strip()
 
     class Meta:
         verbose_name_plural = 'People'
@@ -74,3 +78,21 @@ class Profession(Named, Notable):
 
     def __str__(self):
         return self.name
+
+
+class Relationship(models.Model):
+    """Through model for ``Person.relationships``"""
+    from_person = models.ForeignKey('RelationshipType')
+    to_person = models.ForegnKey('RelationshipType')
+    relationship_type = models.ForeignKey('RelationshipType')
+
+    def __str__(self):
+        return '%s is a %s to %s' % (
+            self.from_person.full_name,
+            self.relationship_type.name,
+            self.to_person.full_name
+            )
+
+
+class RelationshipType(Named, Notable):
+    """ Stock model for relationship types"""
