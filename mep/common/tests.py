@@ -2,7 +2,7 @@ import pytest
 
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from .models import Named, Notable, DateRange
+from .models import AliasIntegerField, Named, Notable, DateRange
 
 
 class TestNamed(TestCase):
@@ -60,3 +60,34 @@ class TestDateRange(TestCase):
         # exclude set
         DateRange(start_year=1901, end_year=1900).clean_fields(exclude=['start_year'])
         DateRange(start_year=1901, end_year=1900).clean_fields(exclude=['end_year'])
+
+
+class TestAliasIntegerField(TestCase):
+
+    def test_aliasing(self):
+        class TestModel(DateRange):
+            foo_year = AliasIntegerField(db_column='start_year')
+            bar_year = AliasIntegerField(db_column='end_year')
+
+        # Should pass the exact same tests as date range with the new fields
+        with pytest.raises(ValidationError):
+            TestModel(foo_year=1901, bar_year=1900).clean_fields()
+
+        # should not raise exception
+        # - same year is ok (single year range)
+        TestModel(foo_year=1901, bar_year=1901).clean_fields()
+        # - end after start
+        TestModel(foo_year=1901, bar_year=1905).clean_fields()
+        # - only one date set
+        TestModel(foo_year=1901).clean_fields()
+        TestModel(bar_year=1901).clean_fields()
+        # exclude set (still using old attributes in exclude since we're just
+        # linking here)
+        TestModel(
+            foo_year=1901,
+            bar_year=1900
+        ).clean_fields(exclude=['start_year'])
+        TestModel(
+            foo_year=1901,
+            bar_year=1900
+        ).clean_fields(exclude=['end_year'])
