@@ -1,7 +1,7 @@
 
 from django.db import models
 
-from mep.common.models import AliasIntegerField, DateRange, Notable
+from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 
 
 class Person(Notable, DateRange):
@@ -37,6 +37,7 @@ class Person(Notable, DateRange):
     # but want to ask.
     title = models.CharField(blank=True, max_length=255)
     # TODO: Add foreign_key to profession
+    nationalities = models.ManyToManyField('Country', blank=True)
 
     def __repr__(self):
         return '<Person: %s>' % self.__dict__
@@ -44,3 +45,12 @@ class Person(Notable, DateRange):
     def __str__(self):
         fullname = '%s, %s' % (self.last_name, self.first_name)
         return fullname.strip()
+
+    class Meta:
+        verbose_name_plural = 'People'
+
+
+class Country(Named):
+    """Django model for countries"""
+
+    code = models.CharField(max_length=3, blank=True)
