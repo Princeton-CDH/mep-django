@@ -1,4 +1,5 @@
 import pytest
+import re
 
 from django.test import TestCase
 from django.core.exceptions import ValidationError
@@ -6,6 +7,11 @@ from .models import AliasIntegerField, Named, Notable, DateRange
 
 
 class TestNamed(TestCase):
+
+    def test_repr(self):
+        named_obj = Named(name='foo')
+        overall = re.compile(r'<Named \{.+\}>')
+        assert re.search(overall, repr(named_obj))
 
     def test_str(self):
         named_obj = Named(name='foo')

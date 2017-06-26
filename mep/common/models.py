@@ -33,6 +33,9 @@ class Named(models.Model):
         abstract = True
         ordering = ['name']
 
+    def __repr__(self):
+        return '<%s %s>' % (self.__class__.__name__, self.__dict__)
+
     def __str__(self):
         return self.name
 
