@@ -70,11 +70,14 @@ class TestDateRange(TestCase):
 
 class TestAliasIntegerField(TestCase):
 
-    def test_aliasing(self):
+    def setUp(self):
         class TestModel(DateRange):
             foo_year = AliasIntegerField(db_column='start_year')
             bar_year = AliasIntegerField(db_column='end_year')
+        self.TestModel = TestModel
 
+    def test_aliasing(self):
+        TestModel = self.TestModel
         # Should pass the exact same tests as date range with the new fields
         with pytest.raises(ValidationError):
             TestModel(foo_year=1901, bar_year=1900).clean_fields()
@@ -97,3 +100,10 @@ class TestAliasIntegerField(TestCase):
             foo_year=1901,
             bar_year=1900
         ).clean_fields(exclude=['end_year'])
+
+    def test_error_on_create_non_field(self):
+        with pytest.raises(AttributeError) as e:
+            # simulate passing a None because the object didn't set right
+            AliasIntegerField.__get__(AliasIntegerField(), None)
+        assert ('Are you trying to set a field that does not '
+                'exist on the aliased model?') in str(e)
