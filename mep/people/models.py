@@ -59,12 +59,6 @@ class Country(Named):
 
     code = models.CharField(max_length=3, blank=True)
 
-    def __repr__(self):
-        return '<Country %s>' % self.__dict__
-
-    def __str_(self):
-        return self.name
-
     class Meta:
         verbose_name_plural = 'Countries'
 
@@ -73,17 +67,11 @@ class Profession(Named, Notable):
     """Model holder for named professions"""
     pass
 
-    def __repr__(self):
-        return '<Profession %s>' % self.__dict__
-
-    def __str__(self):
-        return self.name
-
 
 class Relationship(models.Model):
     """Through model for ``Person.relationships``"""
-    from_person = models.ForeignKey('RelationshipType', related_name='from_person')
-    to_person = models.ForeignKey('RelationshipType', related_name='to_person')
+    from_person = models.ForeignKey('Person', related_name='from_person')
+    to_person = models.ForeignKey('Person', related_name='to_person')
     relationship_type = models.ForeignKey('RelationshipType')
 
     def __str__(self):

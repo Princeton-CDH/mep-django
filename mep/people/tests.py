@@ -2,7 +2,7 @@ import re
 
 from django.test import TestCase
 
-from .models import Country, Person, Profession
+from .models import Country, Person, Profession, Relationship, RelationshipType
 
 
 class TestPerson(TestCase):
@@ -28,30 +28,10 @@ class TestPerson(TestCase):
         foo = Person(last_name='Foo', first_name='Bar')
         assert foo.full_name == 'Bar Foo'
 
-class TestCountry(TestCase):
-
-    def test_repr(self):
-        country = Country(name='Foolandia')
-        # Using self.__dict__ so relying on method being correct
-        # Testing for form of "<Country {'k':v, ...}>""
-        overall = re.compile(r'<Country \{.+\}>')
-        assert re.search(overall, repr(country))
-
-        # Sample specific field behavior
-        assert "'name': 'Foolandia'" in repr(country)
-        assert "'code': ''" in repr(country)
-        # Add a code
-        country.code = 'foo'
-        assert "'code': 'foo'" in repr(country)
-
-    def test_str(self):
-        assert str(Country(name='Foolandia')) == 'Foolandia'
-
 
 class TestProfession(TestCase):
 
     def test_repr(self):
-        # No special handling, simple test
         carpenter = Profession(name='carpenter')
         overall = re.compile(r'<Profession \{.+\}>')
         assert re.search(overall, repr(carpenter))
@@ -59,3 +39,33 @@ class TestProfession(TestCase):
     def test_str(self):
         carpenter = Profession(name='carpenter')
         assert str(carpenter) == 'carpenter'
+
+
+class TestRelationship(TestCase):
+
+    def setUp(self):
+        self.foo = Person.objects.create(last_name='Foo')
+        self.foo_bro = Person.objects.create(last_name='Bar')
+        self.relationshiptype = RelationshipType.objects.create(name='sibling')
+        self.relationship = Relationship.objects.create(
+            from_person=self.foo,
+            to_person=self.foo_bro,
+            relationship_type=self.relationshiptype
+        )
+
+    def test_relationship_str(self):
+        assert str(self.relationship) == 'Foo is a sibling to Bar.'
+
+    def test_relationship_repr(self):
+        pass
+
+
+class TestRelationshipType(TestCase):
+    def test_repr(self):
+        sib = RelationshipType(name='sibling')
+        overall = re.compile(r'<RelationshipType \{.+\}>')
+        assert re.search(overall, repr(sib))
+
+    def test_str(self):
+        sib = RelationshipType(name='sibling')
+        assert str(sib) == 'sibling'
