@@ -36,11 +36,11 @@ class Person(Notable, DateRange):
     # QUESTION: Do we want this to be constrained vocabulary? Probably not,
     # but want to ask.
     title = models.CharField(blank=True, max_length=255)
-    # TODO: Add foreign_key to profession
+    profession = models.ForeignKey('Profession', blank=True, null=True)
     nationalities = models.ManyToManyField('Country', blank=True)
 
     def __repr__(self):
-        return '<Person: %s>' % self.__dict__
+        return '<Person %s>' % self.__dict__
 
     def __str__(self):
         fullname = '%s, %s' % (self.last_name, self.first_name)
@@ -54,3 +54,23 @@ class Country(Named):
     """Django model for countries"""
 
     code = models.CharField(max_length=3, blank=True)
+
+    def __repr__(self):
+        return '<Country %s>' % self.__dict__
+
+    def __str_(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Countries'
+
+
+class Profession(Named, Notable):
+    """Model holder for named professions"""
+    pass
+
+    def __repr__(self):
+        return '<Profession %s>' % self.__dict__
+
+    def __str__(self):
+        return self.name

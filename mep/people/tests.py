@@ -2,7 +2,7 @@ import re
 
 from django.test import TestCase
 
-from .models import Country, Person
+from .models import Country, Person, Profession
 
 
 class TestPerson(TestCase):
@@ -53,8 +53,6 @@ class TestPerson(TestCase):
         assert zanzibar in queryset
 
 
-
-
 class TestCountry(TestCase):
 
     def test_repr(self):
@@ -85,3 +83,16 @@ class TestCountry(TestCase):
         # Check the reverse relationship
         assert foolandia.person_set.first() == person
         assert zanzibar.person_set.first() == person
+
+
+class TestProfession(TestCase):
+
+    def test_repr(self):
+        # No special handling, simple test
+        carpenter = Profession(name='carpenter')
+        overall = re.compile(r'<Profession \{.+\}>')
+        assert re.search(overall, repr(carpenter))
+
+    def test_str(self):
+        carpenter = Profession(name='carpenter')
+        assert str(carpenter) == 'carpenter'
