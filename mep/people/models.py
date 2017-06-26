@@ -82,8 +82,8 @@ class Profession(Named, Notable):
 
 class Relationship(models.Model):
     """Through model for ``Person.relationships``"""
-    from_person = models.ForeignKey('RelationshipType')
-    to_person = models.ForegnKey('RelationshipType')
+    from_person = models.ForeignKey('RelationshipType', related_name='from_person')
+    to_person = models.ForeignKey('RelationshipType', related_name='to_person')
     relationship_type = models.ForeignKey('RelationshipType')
 
     def __str__(self):
