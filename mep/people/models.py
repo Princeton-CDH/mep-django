@@ -75,7 +75,7 @@ class Relationship(models.Model):
     relationship_type = models.ForeignKey('RelationshipType')
 
     def __str__(self):
-        return '%s is a %s to %s' % (
+        return '%s is a %s to %s.' % (
             self.from_person.full_name,
             self.relationship_type.name,
             self.to_person.full_name
