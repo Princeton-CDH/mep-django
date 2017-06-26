@@ -34,5 +34,4 @@ class TestPerson(TestCase):
         assert "'end_year': None" in repr(foo)
         assert "'sex': ''" in repr(foo)
 
-    def test_validate_years(self):
-        foo = Person(last_name='Foo', birth_year=1900)
+    
