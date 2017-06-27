@@ -63,6 +63,7 @@ class TestRelationship(TestCase):
             "'relationship_type': <RelationshipType sibling>}>"
         )
 
+
 class TestRelationshipType(TestCase):
     def test_repr(self):
         sib = RelationshipType(name='sibling')
@@ -72,3 +73,46 @@ class TestRelationshipType(TestCase):
     def test_str(self):
         sib = RelationshipType(name='sibling')
         assert str(sib) == 'sibling'
+
+
+class TestRelationshipM2M(TestCase):
+
+    def setUp(self):
+        self.foo = Person.objects.create(last_name='Foo')
+        self.bar = Person.objects.create(last_name='Bar')
+        self.parent = RelationshipType.objects.create(name='parent')
+        Relationship.objects.create(
+            from_person=self.foo,
+            to_person=self.bar,
+            relationship_type=self.parent
+        )
+
+        self.baz = Person.objects.create(last_name='Baz')
+        self.partner = RelationshipType.objects.create(name='business partner')
+
+        Relationship.objects.create(
+            from_person=self.foo,
+            to_person=self.baz,
+            relationship_type=self.partner
+        )
+
+    def test_m2m_relationships(self):
+        # Relationship is one sided based on from_person and to_person
+        # With the relationship 'parent'
+
+        # Should get Foo
+        assert (Person.objects.get(from_person__relationship_type=self.parent)
+                == self.foo)
+        # Should get Bar
+        assert (Person.objects.get(to_person__relationship_type=self.parent)
+                == self.bar)
+        # Should get Baz
+        assert (Person.objects.get(to_person__relationship_type=self.partner)
+                == self.baz)
+
+        # Should be Bar and Baz, so length of 2
+        assert len(self.foo.relations.all()) == 2
+        # Should still be two if we filter out only Bar and Baz
+        # Short way to check if both and only both are in the query set
+        assert (len(self.foo.relations.filter(last_name__in=['Baz', 'Bar']))
+                == 2)
