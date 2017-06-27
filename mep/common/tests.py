@@ -70,14 +70,10 @@ class TestDateRange(TestCase):
 
 class TestAliasIntegerField(TestCase):
 
-    def setUp(self):
+    def test_aliasing(self):
         class TestModel(DateRange):
             foo_year = AliasIntegerField(db_column='start_year')
             bar_year = AliasIntegerField(db_column='end_year')
-        self.TestModel = TestModel
-
-    def test_aliasing(self):
-        TestModel = self.TestModel
         # Should pass the exact same tests as date range with the new fields
         with pytest.raises(ValidationError):
             TestModel(foo_year=1901, bar_year=1900).clean_fields()
