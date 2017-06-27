@@ -74,6 +74,17 @@ class Relationship(models.Model):
     to_person = models.ForeignKey('Person', related_name='to_person')
     relationship_type = models.ForeignKey('RelationshipType')
 
+    def __repr__(self):
+        """Custom method to produce a more human useable representation
+        than dict in this case
+        """
+
+        return ("<Relationship {'from_person': <Person %s>, "
+                "'to_person': <Person %s>, 'relationship_type': "
+                "<RelationshipType %s>}>") % (self.from_person.full_name,
+                                             self.to_person.full_name,
+                                             self.relationship_type.name)
+
     def __str__(self):
         return '%s is a %s to %s.' % (
             self.from_person.full_name,

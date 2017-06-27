@@ -57,8 +57,11 @@ class TestRelationship(TestCase):
         assert str(self.relationship) == 'Foo is a sibling to Bar.'
 
     def test_relationship_repr(self):
-        pass
-
+        assert repr(self.relationship) == (
+            "<Relationship {'from_person': <Person Foo>, "
+            "'to_person': <Person Bar>, "
+            "'relationship_type': <RelationshipType sibling>}>"
+        )
 
 class TestRelationshipType(TestCase):
     def test_repr(self):
