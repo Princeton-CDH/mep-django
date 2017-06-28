@@ -93,6 +93,18 @@ class Event(Notable):
         return 'Event for account #%s' % (self.account.pk)
 
 
+USD = 'USD'
+FRF = 'FRF'
+GBP = 'GBP'
+# NOTE: Tentative set for testing
+CURRENCY_CHOICES = (
+    ('', '----'),
+    (USD, 'US Dollar'),
+    (FRF, 'French Franc'),
+    (GBP, 'British Pound')
+)
+
+
 class Subscribe(Event):
     # QUESTION: How big does this need to be? PositiveSmallIntegerField
     # is probably appropriate.
@@ -107,17 +119,6 @@ class Subscribe(Event):
         decimal_places=2,
         blank=True,
         null=True
-     )
-
-    USD = 'USD'
-    FRF = 'FRF'
-    GBP = 'GBP'
-    # NOTE: Tentative set for testing
-    CURRENCY_CHOICES = (
-        ('', '----'),
-        (USD, 'US Dollar'),
-        (FRF, 'French Franc'),
-        (GBP, 'British Pound')
     )
     currency = models.CharField(max_length=3, blank=True)
     # NOTE: What are some good test types?
@@ -139,3 +140,35 @@ class Subscribe(Event):
 
     def __str__(self):
         return 'Subscription event for account #%s' % self.account.pk
+
+
+class Borrow(Event):
+    '''Inherited table indicating borrow events'''
+    # NOTE: Renamed to avoid field conflict with the table inheritences
+    # The related_name should keep related queries consistently framed
+    purchase_id = models.ForeignKey(
+        'Purchase',
+        blank=True,
+        verbose_name='purchase',
+        related_name='purchase'
+    )
+
+
+class Purchase(Event):
+    '''Inherited table indicating purchases and linking to borrow'''
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    currency = models.CharField(
+        max_length=3,
+        blank=True,
+        choices=CURRENCY_CHOICES
+    )
+
+
+class Reimbursement(Event):
+
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    currency = models.CharField(
+        max_length=3,
+        blank=True,
+        choices=CURRENCY_CHOICES
+    )
