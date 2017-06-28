@@ -35,8 +35,9 @@ INSTALLED_APPS = [
     'django_cas_ng',
     'pucas',
     # local apps
-    'mep.common',
     'mep.accounts',
+    'mep.books',
+    'mep.common',
     'mep.people',
 ]
 

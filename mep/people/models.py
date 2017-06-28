@@ -48,7 +48,7 @@ class Person(Notable, DateRange):
         return ('%s %s' % (self.first_name, self.last_name)).strip()
 
     class Meta:
-        verbose_name_plural = 'People'
+        verbose_name_plural = 'people'
 
 
 class Country(Named):
@@ -57,7 +57,7 @@ class Country(Named):
     code = models.CharField(max_length=3, blank=True)
 
     class Meta:
-        verbose_name_plural = 'Countries'
+        verbose_name_plural = 'countries'
 
 
 class Profession(Named, Notable):

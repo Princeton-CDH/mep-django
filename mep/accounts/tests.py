@@ -3,7 +3,7 @@ import re
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from .models import Account, AccountAddress, Address
+from .models import Account, AccountAddress, Address, Event, Subscribe
 
 
 class TestAccount(TestCase):
@@ -69,3 +69,41 @@ class TestAccountAddress(TestCase):
             'Account #%s - Address #%s' %
             (self.account.pk, self.address.pk)
         )
+
+
+class TestEvent(TestCase):
+
+    def setUp(self):
+        self.account = Account.objects.create()
+        self.event = Event.objects.create(account=self.account)
+
+    def test_repr(self):
+        # Using self.__dict__ so relying on method being correct
+        # Testing for form of "<Account {"k":v, ...}>"
+        overall = re.compile(r"<Event \{.+\}>")
+        assert re.search(overall, repr(self.event))
+
+    def test_str(self):
+        assert str(self.event) == 'Event for account #%s' % self.account.pk
+
+
+class TestSubscribe(TestCase):
+
+    def setUp(self):
+        self.account = Account.objects.create()
+        self.subscribe = Subscribe.objects.create(
+            account=self.account,
+            duration=1,
+            volumes=2,
+            price_paid=3.20
+        )
+
+    def test_repr(self):
+        # Using self.__dict__ so relying on method being correct
+        # Testing for form of "<Account {"k":v, ...}>"
+        overall = re.compile(r"<Subscribe \{.+\}>")
+        assert re.search(overall, repr(self.subscribe))
+
+    def test_str(self):
+        assert str(self.subscribe) == ('Subscription event for account #%s' %
+                                        self.subscribe.account.pk)

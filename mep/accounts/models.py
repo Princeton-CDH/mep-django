@@ -77,3 +77,65 @@ class AccountAddress(Notable):
     def __str__(self):
         '''This is a through model, so the str representation is minimal'''
         return 'Account #%s - Address #%s' % (self.account.pk, self.address.pk)
+
+
+class Event(Notable):
+    '''Base table for events in the Shakespeare and Co. Lending Library'''
+    account = models.ForeignKey('Account')
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+
+    def __repr__(self):
+        return '<Event %s>' % self.__dict__
+
+    def __str__(self):
+        '''This is a through model, so the str representation is minimal'''
+        return 'Event for account #%s' % (self.account.pk)
+
+
+class Subscribe(Event):
+    # QUESTION: How big does this need to be? PositiveSmallIntegerField
+    # is probably appropriate.
+    duration = models.PositiveSmallIntegerField()
+    volumes = models.PositiveIntegerField()
+    sub_type = models.CharField(max_length=255, verbose_name='type')
+    # NOTE: Using decimal field to take advantage of Python's decimal handling
+    # Can store up to 99999999.99 -- which is *probably* safe.
+    price_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    deposit = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+     )
+
+    USD = 'USD'
+    FRF = 'FRF'
+    GBP = 'GBP'
+    # NOTE: Tentative set for testing
+    CURRENCY_CHOICES = (
+        ('', '----'),
+        (USD, 'US Dollar'),
+        (FRF, 'French Franc'),
+        (GBP, 'British Pound')
+    )
+    currency = models.CharField(max_length=3, blank=True)
+    # NOTE: What are some good test types?
+    FOO = 'f'
+    BAR = 'b'
+    MODIFICATION_CHOICES = (
+        ('', '----'),
+        (FOO, 'Foo'),
+        (BAR, 'Bar'),
+    )
+    modification = models.CharField(
+        max_length=50,
+        blank=True,
+        choices=MODIFICATION_CHOICES
+    )
+
+    def __repr__(self):
+        return '<Subscribe %s>' % self.__dict__
+
+    def __str__(self):
+        return 'Subscription event for account #%s' % self.account.pk
