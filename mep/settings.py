@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'pucas',
     # local apps
     'mep.common',
+    'mep.accounts',
     'mep.people',
 ]
 
