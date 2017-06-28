@@ -5,7 +5,7 @@ from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 
 
 class Person(Notable, DateRange):
-    """Model for people in the MEP dataset"""
+    '''Model for people in the MEP dataset'''
 
     # Identifiers
     mep_id = models.CharField(max_length=255, blank=True)
@@ -52,7 +52,7 @@ class Person(Notable, DateRange):
 
 
 class Country(Named):
-    """Django model for countries"""
+    '''Django model for countries'''
 
     code = models.CharField(max_length=3, blank=True)
 
@@ -61,12 +61,12 @@ class Country(Named):
 
 
 class Profession(Named, Notable):
-    """Model holder for named professions"""
+    '''Model holder for named professions'''
     pass
 
 
 class Relationship(models.Model):
-    """Through model for ``Person.relationships``"""
+    '''Through model for ``Person.relationships``'''
     from_person = models.ForeignKey('Person', related_name='from_person')
     to_person = models.ForeignKey('Person', related_name='to_person')
     relationship_type = models.ForeignKey('RelationshipType')
@@ -91,4 +91,4 @@ class Relationship(models.Model):
 
 
 class RelationshipType(Named, Notable):
-    """ Stock model for relationship types"""
+    '''Stock model for relationship types'''
