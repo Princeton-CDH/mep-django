@@ -85,12 +85,14 @@ class Event(Notable):
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
 
+    # These provide generic string representation for the Event class
+    # and its subclasses
     def __repr__(self):
-        return '<Event %s>' % self.__dict__
+        return '<%s %s>' % (self.__class__.__name__, self.__dict__)
 
     def __str__(self):
-        '''This is a through model, so the str representation is minimal'''
-        return 'Event for account #%s' % (self.account.pk)
+        return '%s for account #%s' % (self.__class__.__name__,
+                                       self.account.pk)
 
 
 USD = 'USD'
@@ -135,12 +137,6 @@ class Subscribe(Event):
         choices=MODIFICATION_CHOICES
     )
 
-    def __repr__(self):
-        return '<Subscribe %s>' % self.__dict__
-
-    def __str__(self):
-        return 'Subscription event for account #%s' % self.account.pk
-
 
 class Borrow(Event):
     '''Inherited table indicating borrow events'''
@@ -149,6 +145,7 @@ class Borrow(Event):
     purchase_id = models.ForeignKey(
         'Purchase',
         blank=True,
+        null=True,
         verbose_name='purchase',
         related_name='purchase'
     )
@@ -165,7 +162,7 @@ class Purchase(Event):
 
 
 class Reimbursement(Event):
-
+    '''Inherited table indicating purchases and linking to borrow'''
     price = models.DecimalField(max_digits=8, decimal_places=2)
     currency = models.CharField(
         max_length=3,

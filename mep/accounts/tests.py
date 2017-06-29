@@ -3,7 +3,8 @@ import re
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from .models import Account, AccountAddress, Address, Event, Subscribe
+from .models import Account, AccountAddress, Address
+from .models import Borrow, Event, Purchase, Reimbursement, Subscribe
 
 
 class TestAccount(TestCase):
@@ -105,5 +106,66 @@ class TestSubscribe(TestCase):
         assert re.search(overall, repr(self.subscribe))
 
     def test_str(self):
-        assert str(self.subscribe) == ('Subscription event for account #%s' %
-                                        self.subscribe.account.pk)
+        assert str(self.subscribe) == ('Subscribe for account #%s' %
+                                       self.subscribe.account.pk)
+
+
+class TestPurchase(TestCase):
+
+    def setUp(self):
+        self.account = Account.objects.create()
+        self.purchase = Purchase.objects.create(
+            account=self.account,
+            price=2.30,
+            currency='USD'
+        )
+
+    def test_repr(self):
+        # Using self.__dict__ so relying on method being correct
+        # Testing for form of "<Account {"k":v, ...}>"
+        overall = re.compile(r"<Purchase \{.+\}>")
+        assert re.search(overall, repr(self.purchase))
+
+    def test_str(self):
+        assert str(self.purchase) == ('Purchase for account #%s' %
+                                      self.purchase.account.pk)
+
+
+class TestReimbursement(TestCase):
+
+    def setUp(self):
+        self.account = Account.objects.create()
+        self.reimbursement = Reimbursement.objects.create(
+            account=self.account,
+            price=2.30,
+            currency='USD'
+        )
+
+    def test_repr(self):
+        # Using self.__dict__ so relying on method being correct
+        # Testing for form of "<Account {"k":v, ...}>"
+        overall = re.compile(r"<Reimbursement \{.+\}>")
+        assert re.search(overall, repr(self.reimbursement))
+
+    def test_str(self):
+        assert str(self.reimbursement) == ('Reimbursement for account #%s' %
+                                           self.reimbursement.account.pk)
+
+
+class TestBorrow(TestCase):
+
+    def setUp(self):
+        self.account = Account.objects.create()
+        self.borrow = Borrow.objects.create(
+            account=self.account
+        )
+
+    def test_repr(self):
+        # Using self.__dict__ so relying on method being correct
+        # Testing for form of "<Account {"k":v, ...}>"
+        overall = re.compile(r"<Borrow \{.+\}>")
+        assert re.search(overall, repr(self.borrow))
+
+    def test_str(self):
+        assert str(self.borrow) == ('Borrow for account #%s' %
+                                    self.borrow.account.pk)
