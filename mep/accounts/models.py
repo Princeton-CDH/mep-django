@@ -1,12 +1,6 @@
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from mep.common.models import Notable
-
-
-def verify_latlon(value):
-    if not -180 <= value <= 180:
-        raise ValidationError('Lat/Lon must be between -180 and 180 degrees.')
-
+from mep.validators import verify_latlon
 
 class Account(models.Model):
     '''Central model for all account and related information, M2M explicity to

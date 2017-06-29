@@ -1,3 +1,50 @@
 from django.db import models
+from mep.common.models import Named, Notable
+from mep.validators import verify_latlon, valid_year
 
-# Create your models here.
+
+class Item(Notable):
+    '''Primary model for Books module, also used for journals, etc.'''
+    mep_id = models.CharField(max_length=255, blank=True)
+    title = models.CharField(max_length=255, blank=True)
+    volume = models.PositiveSmallIntegerField()
+    number = models.PositiveSmallIntegerField()
+    year = models.PositiveSmallIntegerField(
+        validators=[valid_year],
+        blank=True,
+        null=True
+    )
+    season = models.CharField(max_length=255, blank=True)
+    edition = models.CharField(max_length=255, blank=True)
+    viaf_id = models.URLField(blank=True)
+    # Creator fields - three M2Ms to people
+    authors = models.ManyToManyField('people.Person', related_name='authors')
+    editors = models.ManyToManyField('people.Person', related_name='editors')
+    translators = models.ManyToManyField('people.Person',
+                                         related_name='translators')
+    # QUESTION: On the diagram these are labeled as FK, but they seem to imply
+    # M2M (i.e. more than one publisher or more than one pub place?)
+    publishers = models.ManyToManyField('Publisher', blank=True)
+    pub_places = models.ManyToManyField('PublisherPlace', blank=True)
+
+
+class PublisherPlace(Named, Notable):
+    '''Model for place where publishers are located'''
+    # NOTE: Using decimal field here to set precision on the head
+    # FloatField uses float, which can introduce unexpected rounding.
+    # This would let us have measurements down to the tree level, if necessary
+    latitude = models.DecimalField(
+        max_digits=8,
+        decimal_places=5,
+        validators=[verify_latlon]
+    )
+    longitude = models.DecimalField(
+        max_digits=8,
+        decimal_places=5,
+        validators=[verify_latlon]
+    )
+
+
+class Publisher(Named, Notable):
+    '''Model for publishers'''
+    pass
