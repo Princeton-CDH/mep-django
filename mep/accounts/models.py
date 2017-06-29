@@ -1,4 +1,4 @@
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from mep.common.models import Notable
 
@@ -11,6 +11,7 @@ def verify_latlon(value):
 class Account(models.Model):
     '''Central model for all account and related information, M2M explicity to
     ``people.Person``'''
+
     persons = models.ManyToManyField('people.Person', blank=True)
     addresses = models.ManyToManyField(
         'Address',
@@ -24,6 +25,62 @@ class Account(models.Model):
     def __str__(self):
         # QUESTION: Better way to do this for str? Can't count on any fields.
         return 'Account #%s' % self.pk
+
+    def add_event(self, etype='event', **kwargs):
+        '''Helper function to add an ``Event`` or subclass to an ``Account`` object.
+           Requires that the ``Account`` object be saved first (so it has a
+           set primary key). This provides functionality normally in the
+           ``self.*_set`` functionality, but not provided with subclassed
+           table inheritence.
+
+           etype - one of ``borrow``, ``event``, ``subscribe``,
+           ``purchase``, ``reimbursement``
+        '''
+        # Catch an invalid class of event or subevent
+        etype = etype.lower()
+        if etype not in ['borrow', 'event', 'subscribe',
+                         'purchase', 'reimbursement']:
+            raise ValueError('etype must be one of borrow, event, purchase,'
+                             ' subscribe, or reimbursement')
+
+        str_to_model = {
+            'borrow': Borrow,
+            'reimbursement': Reimbursement,
+            'event': Event,
+            'purchase': Purchase,
+            'subscribe': Subscribe
+        }
+        str_to_model[etype].objects.create(account=self, **kwargs)
+
+    def get_events(self, etype='event', **kwargs):
+        '''Helper function to retrieve related events of any valid type for
+        ``self.add_event()``. This provides functionality normally in the
+        ``self.*_set`` functionality, but not provided with subclassed
+        table inheritence.
+        etype - one of ``borrow``, ``event``, ``subscribe``,
+        ``purchase``, ``reimbursement``
+        kwargs - if none, _set.all(), otherwise _set.filter(**kwargs)
+        '''
+        # Catch an invalid class of event or subevent
+        etype = etype.lower()
+        if etype not in ['borrow', 'event', 'subscribe',
+                         'purchase', 'reimbursement']:
+            raise ValueError('etype must be one of borrow, event, purchase,'
+                             ' subscribe, or reimbursement')
+
+        str_to_model = {
+            'borrow': Borrow,
+            'reimbursement': Reimbursement,
+            'event': Event,
+            'purchase': Purchase,
+            'subscribe': Subscribe
+        }
+
+        if not kwargs:
+            return str_to_model[etype].objects.filter(account=self)
+
+        return str_to_model[etype].objects.filter(account=self, **kwargs)
+
 
 
 class Address(Notable):

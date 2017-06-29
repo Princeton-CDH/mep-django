@@ -1,7 +1,7 @@
 import pytest
 import re
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.test import TestCase
 from .models import Account, AccountAddress, Address
 from .models import Borrow, Event, Purchase, Reimbursement, Subscribe
@@ -19,6 +19,52 @@ class TestAccount(TestCase):
     def test_str(self):
         account = Account()
         assert str(account) == "Account #%s" % account.pk
+
+    def test_add_event(self):
+
+        # Make a saved Account object
+        account = Account.objects.create()
+        account.add_event('reimbursement', **{'price': 2.32})
+
+        # Look at the relationship from the other side via Reimbursement
+        # should find the event we just saved
+        reimbursement = Reimbursement.objects.get(account=account)
+        assert float(reimbursement.price) == 2.32
+
+        # Saving with a not saved object should raise ValueError
+        with pytest.raises(ValueError):
+            unsaved_account = Account()
+            unsaved_account.add_event('reimbursement', **{'price': 2.32})
+
+        # Providing a dud event type should raise ValueError
+        with pytest.raises(ValueError):
+            account.add_event('foo')
+
+    def test_get_events(self):
+        # Make a saved Account object
+        account = Account.objects.create()
+        account.add_event('reimbursement', **{'price': 2.32})
+        account.add_event(
+            'subscribe',
+            **{'duration': 1, 'volumes': 2, 'price_paid': 4.56}
+        )
+
+        # Access them as events only
+        assert len(account.get_events()) == 2
+        assert isinstance(account.get_events()[0], Event)
+
+        # Now access as a subclass with related properties
+        reimbursements = account.get_events('reimbursement')
+        assert len(reimbursements) == 1
+        assert float(reimbursements[0].price) == 2.32
+
+        # Try filtering so that we get no reimbursements and empty qs
+        reimbursements = account.get_events('reimbursement', price=2.45)
+        assert not reimbursements
+
+        # Providing a dud event type should raise ValueError
+        with pytest.raises(ValueError):
+            account.add_event('foo')
 
 
 class TestAddress(TestCase):
