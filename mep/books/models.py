@@ -4,7 +4,8 @@ from mep.common.validators import verify_latlon
 
 
 class Item(Notable):
-    '''Primary model for Books module, also used for journals, etc.'''
+    '''Primary model for :module:`books` module, also used for journals,
+    and other media types.'''
     mep_id = models.CharField(max_length=255, blank=True)
     title = models.CharField(max_length=255, blank=True)
     volume = models.PositiveSmallIntegerField(blank=True, null=True)

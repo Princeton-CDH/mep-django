@@ -86,6 +86,9 @@ directory::
     cd docs
     make html
 
+When building for a release ``make docs`` will create a folder called ``docs``,
+build the HTML documents and static assets, and force add it to the commit for
+use with Github Pages.
 
 License
 -------

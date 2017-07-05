@@ -5,7 +5,7 @@ from mep.common.validators import verify_latlon
 
 class Account(models.Model):
     '''Central model for all account and related information, M2M explicity to
-    ``people.Person``'''
+    :class:`people.Person`'''
 
     persons = models.ManyToManyField('people.Person', blank=True)
     addresses = models.ManyToManyField(
@@ -22,14 +22,16 @@ class Account(models.Model):
         return 'Account #%s' % self.pk
 
     def add_event(self, etype='event', **kwargs):
-        '''Helper function to add an ``Event`` or subclass to an ``Account`` object.
-           Requires that the ``Account`` object be saved first (so it has a
-           set primary key). This provides functionality normally in the
-           ``self.*_set`` functionality, but not provided with subclassed
-           table inheritence.
+        '''Helper function to add a :class:`Event` or subclass to an
+        instance of :class:`Account`. Requires that the :class:`Account`
+        object be saved first (so it has a set primary key).
+        This provides functionality normally in the ``self.*_set``
+        functionality of Django, but not provided with subclassed
+        table inheritence.
 
-           etype - one of ``borrow``, ``event``, ``subscribe``,
-           ``purchase``, ``reimbursement``
+       :param etype: ``str``
+            One of ``borrow``, ``event``, ``subscribe``,
+            ``purchase``, ``reimbursement``
         '''
         # Catch an invalid class of event or subevent
         etype = etype.lower()
@@ -49,12 +51,18 @@ class Account(models.Model):
 
     def get_events(self, etype='event', **kwargs):
         '''Helper function to retrieve related events of any valid type for
-        ``self.add_event()``. This provides functionality normally in the
+        :class:`Account.add_event()`. This provides functionality normally in the
         ``self.*_set`` functionality, but not provided with subclassed
         table inheritence.
-        etype - one of ``borrow``, ``event``, ``subscribe``,
-        ``purchase``, ``reimbursement``
-        kwargs - if none, _set.all(), otherwise _set.filter(**kwargs)
+
+        :param etype: ``str``
+            One of ``borrow``, ``event``, ``subscribe``,
+            ``purchase``, ``reimbursement``
+
+        :Keyword Arguments:
+            Any valid query kwargs for :class:`Account`, defaults to equivalent
+            of ``Foo.objects.all()``.
+
         '''
         # Catch an invalid class of event or subevent
         etype = etype.lower()
@@ -116,7 +124,8 @@ class Address(Notable):
 
 
 class AccountAddress(Notable):
-    '''Addresses associated with an account and optional information'''
+    '''Through model for :class:`Account` and :class:`Address` that supplies
+    start and end dates, as well as a c/o person.'''
     care_of_person = models.ForeignKey('people.Person', blank=True, null=True)
     account = models.ForeignKey('Account')
     address = models.ForeignKey('Address')
@@ -160,6 +169,7 @@ CURRENCY_CHOICES = (
 
 
 class Subscribe(Event):
+    '''Records subscription events in the MEP database'''
     # QUESTION: How big does this need to be? PositiveSmallIntegerField
     # is probably appropriate.
     duration = models.PositiveSmallIntegerField()
@@ -204,7 +214,7 @@ class Borrow(Event):
 
 
 class Purchase(Event):
-    '''Inherited table indicating purchases and linking to borrow'''
+    '''Inherited table indicating purchase events'''
     price = models.DecimalField(max_digits=8, decimal_places=2)
     currency = models.CharField(
         max_length=3,
@@ -214,7 +224,7 @@ class Purchase(Event):
 
 
 class Reimbursement(Event):
-    '''Inherited table indicating purchases and linking to borrow'''
+    '''Inherited table indicating reimbursement events'''
     price = models.DecimalField(max_digits=8, decimal_places=2)
     currency = models.CharField(
         max_length=3,

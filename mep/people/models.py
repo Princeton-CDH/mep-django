@@ -66,15 +66,15 @@ class Profession(Named, Notable):
 
 
 class Relationship(models.Model):
-    '''Through model for ``Person.relationships``'''
+    '''Through model for :class:`Person` to ``self``'''
     from_person = models.ForeignKey('Person', related_name='from_person')
     to_person = models.ForeignKey('Person', related_name='to_person')
     relationship_type = models.ForeignKey('RelationshipType')
 
     def __repr__(self):
-        """Custom method to produce a more human useable representation
+        '''Custom method to produce a more human useable representation
         than dict in this case
-        """
+        '''
 
         return ("<Relationship {'from_person': <Person %s>, "
                 "'to_person': <Person %s>, 'relationship_type': "
@@ -92,3 +92,4 @@ class Relationship(models.Model):
 
 class RelationshipType(Named, Notable):
     '''Stock model for relationship types'''
+    pass

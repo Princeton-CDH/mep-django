@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'mep.books',
     'mep.common',
     'mep.people',
+    'mep.footnotes',
 ]
 
 MIDDLEWARE = [
