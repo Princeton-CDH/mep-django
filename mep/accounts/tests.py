@@ -93,6 +93,11 @@ class TestAddress(TestCase):
             address.clean_fields()
         assert "Lat/Lon must be between -180 and 180 degrees." in str(err)
 
+        # String should error out too, Django handles the message
+        address = Address(latitude="foo", longitude="bar")
+        with pytest.raises(ValidationError):
+            address.clean_fields()
+
 
 class TestAccountAddress(TestCase):
 

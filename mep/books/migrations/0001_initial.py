@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import mep.validators
+import mep.common.validators
 
 
 class Migration(migrations.Migration):
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(blank=True, max_length=255)),
                 ('volume', models.PositiveSmallIntegerField()),
                 ('number', models.PositiveSmallIntegerField()),
-                ('year', models.PositiveSmallIntegerField(blank=True, null=True, validators=[mep.validators.valid_year])),
+                ('year', models.PositiveSmallIntegerField(blank=True, null=True)),
                 ('season', models.CharField(blank=True, max_length=255)),
                 ('edition', models.CharField(blank=True, max_length=255)),
                 ('viaf_id', models.URLField(blank=True)),
@@ -53,8 +53,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=255, unique=True)),
                 ('notes', models.TextField(blank=True)),
-                ('latitude', models.DecimalField(decimal_places=5, max_digits=8, validators=[mep.validators.verify_latlon])),
-                ('longitude', models.DecimalField(decimal_places=5, max_digits=8, validators=[mep.validators.verify_latlon])),
+                ('latitude', models.DecimalField(decimal_places=5, max_digits=8, validators=[mep.common.validators.verify_latlon])),
+                ('longitude', models.DecimalField(decimal_places=5, max_digits=8, validators=[mep.common.validators.verify_latlon])),
             ],
             options={
                 'abstract': False,

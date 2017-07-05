@@ -4,6 +4,7 @@ import re
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from .models import AliasIntegerField, Named, Notable, DateRange
+from .validators import verify_latlon
 
 
 class TestNamed(TestCase):
@@ -103,3 +104,25 @@ class TestAliasIntegerField(TestCase):
             AliasIntegerField.__get__(AliasIntegerField(), None)
         assert ('Are you trying to set a field that does not '
                 'exist on the aliased model?') in str(e)
+
+
+class TestVerifyLatLon(TestCase):
+
+    def test_verifylatlon(self):
+
+        # Django catches wrong type input already, so we can be safe that it
+        # will be integer or float
+
+        # OK
+        verify_latlon(156.677)
+        # Also OK
+        verify_latlon(-156.23)
+        # Not OK
+        with pytest.raises(ValidationError) as err:
+            verify_latlon(-181)
+        assert 'Lat/Lon must be between -180 and 180 degrees.' in str(err)
+
+        # Still not OK
+        with pytest.raises(ValidationError) as err:
+            verify_latlon(200)
+        assert 'Lat/Lon must be between -180 and 180 degrees.' in str(err)
