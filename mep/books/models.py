@@ -10,7 +10,6 @@ class Item(Notable):
     volume = models.PositiveSmallIntegerField(blank=True, null=True)
     number = models.PositiveSmallIntegerField(blank=True, null=True)
     year = models.PositiveSmallIntegerField(
-        validators=[valid_year],
         blank=True,
         null=True
     )
