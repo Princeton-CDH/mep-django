@@ -221,6 +221,7 @@ class Purchase(Event):
         blank=True,
         choices=CURRENCY_CHOICES
     )
+    item = models.ForeignKey('books.Item')
 
 
 class Reimbursement(Event):
