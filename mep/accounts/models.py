@@ -1,6 +1,7 @@
 from django.db import models
 from mep.common.models import Notable
-from mep.validators import verify_latlon
+from mep.common.validators import verify_latlon
+
 
 class Account(models.Model):
     '''Central model for all account and related information, M2M explicity to

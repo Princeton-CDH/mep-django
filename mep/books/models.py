@@ -1,6 +1,6 @@
 from django.db import models
 from mep.common.models import Named, Notable
-from mep.validators import verify_latlon, valid_year
+from mep.common.validators import verify_latlon
 
 
 class Item(Notable):
