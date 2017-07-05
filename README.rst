@@ -19,7 +19,11 @@ Python 3.5 / Django 1.11
 
 .. image:: https://codecov.io/gh/Princeton-CDH/mep-django/branch/develop/graph/badge.svg
     :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/develop
-    :alt: Code coverage
+    :alt: Code coverage   
+    
+.. image:: https://landscape.io/github/Princeton-CDH/mep-django/develop/landscape.svg?style=flat
+   :target: https://landscape.io/github/Princeton-CDH/mep-django/develop
+   :alt: Code Health
 
 Current development status
 --------------------------
