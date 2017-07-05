@@ -7,8 +7,8 @@ class Item(Notable):
     '''Primary model for Books module, also used for journals, etc.'''
     mep_id = models.CharField(max_length=255, blank=True)
     title = models.CharField(max_length=255, blank=True)
-    volume = models.PositiveSmallIntegerField()
-    number = models.PositiveSmallIntegerField()
+    volume = models.PositiveSmallIntegerField(blank=True, null=True)
+    number = models.PositiveSmallIntegerField(blank=True, null=True)
     year = models.PositiveSmallIntegerField(
         validators=[valid_year],
         blank=True,
@@ -27,12 +27,26 @@ class Item(Notable):
     publishers = models.ManyToManyField('Publisher', blank=True)
     pub_places = models.ManyToManyField('PublisherPlace', blank=True)
 
+    def __repr__(self):
+        return '<Item %s>' % self.__dict__
+
+    def __str__(self):
+        year_str = ''
+        if self.year:
+            year_str = '(%s)' % self.year
+        str_value = ('%s %s' % (self.title, year_str)).strip()
+        if str_value:
+            return str_value
+        return '(No title, year)'
+
 
 class PublisherPlace(Named, Notable):
     '''Model for place where publishers are located'''
     # NOTE: Using decimal field here to set precision on the head
     # FloatField uses float, which can introduce unexpected rounding.
     # This would let us have measurements down to the tree level, if necessary
+
+    # QUESTION: Do we want to add a Geonames ID for this?
     latitude = models.DecimalField(
         max_digits=8,
         decimal_places=5,
