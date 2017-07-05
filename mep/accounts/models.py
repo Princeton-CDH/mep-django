@@ -85,7 +85,6 @@ class Account(models.Model):
         return str_to_model[etype].objects.filter(account=self, **kwargs)
 
 
-
 class Address(Notable):
     '''Addresses associated with accounts in the MEP database'''
     address_line_1 = models.CharField(max_length=255, blank=True)

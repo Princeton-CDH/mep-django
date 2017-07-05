@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.test import TestCase
 from .models import Account, AccountAddress, Address
 from .models import Borrow, Event, Purchase, Reimbursement, Subscribe
-
+from mep.books.models import Item
 
 class TestAccount(TestCase):
 
@@ -165,10 +165,14 @@ class TestPurchase(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
+        self.item = Item.objects.create(
+            title='Foobar'
+        )
         self.purchase = Purchase.objects.create(
             account=self.account,
             price=2.30,
-            currency='USD'
+            currency='USD',
+            item=self.item,
         )
 
     def test_repr(self):
