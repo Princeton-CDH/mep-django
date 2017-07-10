@@ -44,7 +44,7 @@ Models
     :members:
 
 Footnotes
---------
+---------
 .. automodule:: mep.footnotes
     :members:
 
