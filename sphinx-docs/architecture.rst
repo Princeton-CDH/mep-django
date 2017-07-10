@@ -27,6 +27,9 @@ People Detail (0004)
     :target: _static/people-module-004.png
     :alt: People Module Detail
 
+*ERRATA: :class:`~mep.people.models.InfoURL` now includes a required ``name`` field*
+
+
 Books Detail (0004)
 ^^^^^^^^^^^^^^^^^^^^
 .. image:: _static/books-module-004.png

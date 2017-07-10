@@ -52,14 +52,3 @@ Models
 ^^^^^^
 .. automodule:: mep.footnotes.models
     :members:
-
-
-
-
-
-.. automodule:: mep.books.models
-    :members:
-
-
-.. automodule:: mep.footnotes.models
-    :members:
