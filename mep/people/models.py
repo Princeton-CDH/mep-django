@@ -12,6 +12,11 @@ class Person(Notable, DateRange):
     first_name = models.CharField(max_length=255, blank=True)
     last_name = models.CharField(max_length=255)
     viaf_id = models.URLField(blank=True)
+    other_URLs = models.ManyToManyField(
+        'InfoURL',
+        blank=True,
+        help_text='Other non-VIAF URLs with information about the person.'
+        )
 
     # Vital statistics
     birth_year = AliasIntegerField(db_column='start_year',
@@ -93,3 +98,15 @@ class Relationship(models.Model):
 class RelationshipType(Named, Notable):
     '''Stock model for relationship types'''
     pass
+
+
+class InfoURL(Notable):
+    '''Other non-VIAF informational urls associated with a person, i.e.
+    Wikipedia or other'''
+    url = models.URLField()
+
+    def __repr__(self):
+        return ("<InfoURL %s>" % self.__dict__)
+
+    def __str__(self):
+        return self.url
