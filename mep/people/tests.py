@@ -6,21 +6,6 @@ from .models import (InfoURL, Person, Profession, Relationship,
                      RelationshipType)
 
 
-class TestInfoURL(TestCase):
-
-    def test_repr(self):
-
-        link = InfoURL(url='http://www.wikipedia.org')
-        # Using self.__dict__ so relying on method being correct
-        # Testing for form of "<InfoURL {'k':v, ...}>""
-        overall = re.compile(r'<InfoURL \{.+\}>')
-        assert re.search(overall, repr(link))
-
-    def test_str(self):
-        link = InfoURL(url='http://www.wikipedia.org')
-        assert str(link) == 'http://www.wikipedia.org'
-
-
 class TestPerson(TestCase):
 
     def test_str(self):
