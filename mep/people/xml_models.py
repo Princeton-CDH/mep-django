@@ -8,6 +8,39 @@ class Nationality(xmlmap.XmlObject):
     label = xmlmap.StringField('text()')
 
 
+class Residence(xmlmap.XmlObject):
+    ROOT_NAMESPACES = {
+        't': 'http://www.tei-c.org/ns/1.0'
+    }
+    name = xmlmap.StringField('t:address/t:name')
+    street = xmlmap.StringField('t:address/t:street')
+    postcode = xmlmap.StringField('t:address/t:postCode')
+    city = xmlmap.StringField('t:address/t:settlement')
+    # lat/long are in a single <geo> field, separated by a comma
+    geo = xmlmap.StringField('t:geo')
+    latitude = xmlmap.FloatField('substring-before(t:geo, ",")')
+    longitude = xmlmap.FloatField('substring-after(t:geo, ",")')
+
+    def db_address(self):
+        '''Get the corresponding :class:`mep.people.models.Address` in the
+        database, creating a new address if it does not exist.'''
+        addr, created = models.Address.objects.get_or_create(
+            address_line_1=self.name or '',
+            address_line_2=self.street or '',
+            city_town=self.city or '',
+            postal_code=self.postcode or '',
+            # NOTE: including lat/long in the get or create call
+            # results in a new address getting created with the same values.
+            defaults={
+                'latitude': self.latitude,
+                'longitude': self.longitude,
+            }
+        )
+
+        # NOTE: if an existing address is found, could check
+        # and warn if lat/long do not match
+        return addr
+
 class Person(xmlmap.XmlObject):
     ROOT_NAMESPACES = {
         't': 'http://www.tei-c.org/ns/1.0'
@@ -25,6 +58,7 @@ class Person(xmlmap.XmlObject):
     nationalities = xmlmap.NodeListField('t:nationality', Nationality)
     # todo: handle ref target in notes
     # todo: residence addresses
+    residences = xmlmap.NodeListField('t:residence', Residence)
 
     def is_imported(self):
         return models.Person.objects.filter(mep_id=self.mep_id).exists()
@@ -48,6 +82,7 @@ class Person(xmlmap.XmlObject):
         # record must be saved before adding relations to other tables
         db_person.save()
 
+        # handle nationalities; could be multiple
         for nation in self.nationalities:
             try:
                 # if a country has already been created, find it
@@ -59,9 +94,15 @@ class Person(xmlmap.XmlObject):
 
             db_person.nationalities.add(country)
 
-        # todo: nationalities, urls, addresses
+        # handle URLs included in notes
+        for link in self.urls:
+            db_person.urls.add(models.InfoURL.objects.create(url=link,
+                notes='URL from XML import'))
 
-        # db_person.save()  ??
+        # handle residence addresses
+        for res in self.residences:
+            db_person.addresses.add(res.db_address())
+
         return db_person
 
 

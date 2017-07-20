@@ -4,7 +4,9 @@ from django.conf import settings
 from django.test import TestCase
 
 from mep.people import models
-from mep.people.xml_models import Person, Personography, Nationality
+from mep.people.xml_models import Person, Personography, Nationality, \
+    Residence
+
 
 FIXTURE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'fixtures')
 XML_FIXTURE = os.path.join(FIXTURE_DIR, 'sample-personography.xml')
@@ -19,6 +21,46 @@ class TestPersonography(TestCase):
         assert len(personog.people) == 3
         assert isinstance(personog.people[0], Person)
         assert personog.people[0].mep_id == 'alde.pa'
+
+
+class TestAddress(TestCase):
+
+    def test_properties(self):
+        person = Personography.from_file(XML_FIXTURE).people[2]
+        # third person in the fixture has a complete address
+        assert isinstance(person.residences[0], Residence)
+        res = person.residences[0]
+        assert res.name == "École normale supérieure"
+        assert res.street == "45 Rue d'Ulm"
+        assert res.postcode == "75005"
+        assert res.city == "Paris"
+        assert res.geo == '48.841837, 2.344035'  # sanity check
+        assert res.latitude == 48.841837
+        assert res.longitude == 2.344035
+
+        # lat/long without geo
+        res.geo = ''   # element present but empty
+        assert res.latitude is None
+        assert res.longitude is None
+
+        del res.geo   # no element present
+        assert res.latitude is None
+        assert res.longitude is None
+
+    def test_db_address(self):
+        # address for third person in the fixture
+        res = Personography.from_file(XML_FIXTURE).people[2].residences[0]
+        db_address = res.db_address()
+        assert isinstance(db_address, models.Address)
+        assert db_address.address_line_1 == res.name
+        assert db_address.address_line_2 == res.street
+        assert db_address.city_town == res.city
+        assert db_address.postal_code == res.postcode
+        assert db_address.latitude == res.latitude
+        assert db_address.longitude == res.longitude
+
+        # running again should return the same item
+        assert db_address.pk == res.db_address().pk
 
 
 class TestPerson(TestCase):
@@ -65,8 +107,12 @@ class TestPerson(TestCase):
         country = db_person.nationalities.first()
         assert country.code == 'us'
         assert country.name == 'United States of America'
-
-        # todo: addresses, urls
+        # urls
+        assert db_person.urls.first().url == xml_person.urls[0]
+        assert db_person.urls.first().notes == 'URL from XML import'
+        # residence addresses
+        assert db_person.addresses.first().address_line_2 == \
+            xml_person.residences[0].street
 
         # test with a incomplete record
         xml_person = Personography.from_file(XML_FIXTURE).people[1]
