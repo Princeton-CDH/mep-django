@@ -6,8 +6,9 @@ from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 
 class Country(Named):
     '''Countries, for documenting nationalities of a :class:`Person`'''
-
-    code = models.CharField(max_length=3, blank=True)
+    code = models.CharField(max_length=3, unique=True,
+        help_text='ISO two-letter country code')
+    # TODO: should we enforce lower case to keep consistent?
 
     class Meta:
         verbose_name_plural = 'countries'

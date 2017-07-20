@@ -3,6 +3,11 @@ from eulxml import xmlmap
 from mep.people import models
 
 
+class Nationality(xmlmap.XmlObject):
+    code = xmlmap.StringField('@key')
+    label = xmlmap.StringField('text()')
+
+
 class Person(xmlmap.XmlObject):
     ROOT_NAMESPACES = {
         't': 'http://www.tei-c.org/ns/1.0'
@@ -14,10 +19,10 @@ class Person(xmlmap.XmlObject):
     first_name = xmlmap.StringField('t:persName/t:forename')
     birth = xmlmap.IntegerField('t:birth')
     death = xmlmap.IntegerField('t:death')
-    nationality_id = xmlmap.StringField('t:nationality/@key')
-    nationality_label = xmlmap.StringField('t:nationality')
     sex = xmlmap.StringField('t:sex/@value')
     notes = xmlmap.StringListField('t:note')
+    urls = xmlmap.StringListField('.//t:ref/@target')
+    nationalities = xmlmap.NodeListField('t:nationality', Nationality)
     # todo: handle ref target in notes
     # todo: residence addresses
 
@@ -35,8 +40,26 @@ class Person(xmlmap.XmlObject):
             birth_year=self.birth or None,
             death_year=self.death or None,
             sex=self.sex or ''
-            )
-        # todo: notes, addresses, urls
+        )
+        # Combine any non-empty notes from the xml and put them in the
+        # database notes field. (URLs are handled elsewhere)
+        db_person.notes = '\n'.join(note for note in self.notes
+                                    if note.strip())
+        # record must be saved before adding relations to other tables
+        db_person.save()
+
+        for nation in self.nationalities:
+            try:
+                # if a country has already been created, find it
+                country = models.Country.objects.get(code=nation.code)
+            except models.Country.DoesNotExist:
+                # otherwise, create a new country entry
+                country = models.Country.objects.create(code=nation.code,
+                    name=nation.label)
+
+            db_person.nationalities.add(country)
+
+        # todo: nationalities, urls, addresses
 
         # db_person.save()  ??
         return db_person

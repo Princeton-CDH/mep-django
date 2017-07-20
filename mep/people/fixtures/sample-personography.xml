@@ -15,7 +15,7 @@
     <text>
         <body>
             <listPerson xml:id="expats">
-
+                <!-- sample complete record with viaf + birth/death dates -->
                 <person xml:id="alde.pa">
                     <idno type="viaf">42635145</idno>
                     <persName>
@@ -36,7 +36,10 @@
                     </residence>
                     <note><ref target="http://en.wikipedia.org/wiki/Pauline_Alderman"/></note>
                     <note>test second note</note>
+                    <note>test third note</note>
                 </person>
+
+                <!-- sample incomplete record -->
                 <person xml:id="kaop">
                     <persName>
                         <surname>Kaopeitzer</surname>
@@ -53,6 +56,32 @@
                     <note>This is most like a Chinese student known as Kao-Pei-Tzer</note>
                     <note><ref target="https://goo.gl/4sxT9e"/></note>
                 </person>
+
+                <!-- sample record with multiple nationalities -->
+                <person xml:id="cesa.ai">
+                    <idno type="viaf">109520593</idno>
+                    <persName>
+                        <surname>Césaire</surname>
+                        <forename>Aimé</forename>
+                    </persName>
+                    <birth>1913</birth>
+                    <death>2008</death>
+                    <sex value="M"/>
+                    <nationality key="mq">Martinique</nationality>
+                    <nationality key="fr">France</nationality>
+                    <residence>
+                        <address>
+                            <name>École normale supérieure</name>
+                            <street>45 Rue d'Ulm</street>
+                            <postCode>75005</postCode>
+                            <settlement>Paris</settlement>
+                        </address>
+                        <geo>48.841837, 2.344035</geo>
+                    </residence>
+                    <note><ref target="https://en.wikipedia.org/wiki/Aim%C3%A9_C%C3%A9saire"
+                        /></note>
+                </person>
+
             </listPerson>
         </body>
     </text>
