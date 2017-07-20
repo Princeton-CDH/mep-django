@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from .models import Person, Country, Address
+from mep.common.admin import NamedNotableAdmin
+from .models import Person, Country, Address, Profession
+
+class CountryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code')
+    search_fields = ('name', 'code')
 
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('last_name', 'first_name', 'birth_year', 'death_year',
@@ -19,5 +24,6 @@ class PersonAdmin(admin.ModelAdmin):
 
 # enable default admin to see imported data
 admin.site.register(Person, PersonAdmin)
-admin.site.register(Country)
+admin.site.register(Country, CountryAdmin)
 admin.site.register(Address)
+admin.site.register(Profession, NamedNotableAdmin)
