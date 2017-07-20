@@ -1,0 +1,59 @@
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title>Sample from Personography for Mapping Expatriate Paris</title>
+            </titleStmt>
+            <publicationStmt>
+                <p>Publication Information</p>
+            </publicationStmt>
+            <sourceDesc>
+                <p>Born digital.</p>
+            </sourceDesc>
+        </fileDesc>
+    </teiHeader>
+    <text>
+        <body>
+            <listPerson xml:id="expats">
+
+                <person xml:id="alde.pa">
+                    <idno type="viaf">42635145</idno>
+                    <persName>
+                        <surname>Alderman</surname>
+                        <forename>Pauline</forename>
+                    </persName>
+                    <birth>1893</birth>
+                    <death>1983</death>
+                    <sex value="F"/>
+                    <nationality key="us">United States of America</nationality>
+                    <residence>
+                        <address>
+                            <street>21 Rue Jacob</street>
+                            <postCode>75006</postCode>
+                            <settlement>Paris</settlement>
+                        </address>
+                        <geo>48.854980, 2.334605</geo>
+                    </residence>
+                    <note><ref target="http://en.wikipedia.org/wiki/Pauline_Alderman"/></note>
+                    <note>test second note</note>
+                </person>
+                <person xml:id="kaop">
+                    <persName>
+                        <surname>Kaopeitzer</surname>
+                    </persName>
+                    <residence>
+                        <address>
+                            <street>12 Rue Thouin</street>
+                            <postCode>75005</postCode>
+                            <settlement>Paris</settlement>
+                        </address>
+                        <geo>48.844934, 2.348896</geo>
+                    </residence>
+                    <note>incomplete</note>
+                    <note>This is most like a Chinese student known as Kao-Pei-Tzer</note>
+                    <note><ref target="https://goo.gl/4sxT9e"/></note>
+                </person>
+            </listPerson>
+        </body>
+    </text>
+</TEI>

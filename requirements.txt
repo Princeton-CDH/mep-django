@@ -1,6 +1,7 @@
-Django~=1.11
+Django>=1.11
 mysqlclient
 django-grappelli
-
-# Pinned to 0.5 until pypl release
+# Pinned to 0.5 until pypi release
 git+https://github.com/Princeton-CDH/django-pucas.git@0.5#egg=pucas
+eulxml
+
