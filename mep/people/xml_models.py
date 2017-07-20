@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from eulxml import xmlmap
 
 from mep.people import models
@@ -5,17 +6,17 @@ from mep.people import models
 
 class Nationality(xmlmap.XmlObject):
     code = xmlmap.StringField('@key')
-    label = xmlmap.StringField('text()')
+    label = xmlmap.StringField('normalize-space(.)')
 
 
 class Residence(xmlmap.XmlObject):
     ROOT_NAMESPACES = {
         't': 'http://www.tei-c.org/ns/1.0'
     }
-    name = xmlmap.StringField('t:address/t:name')
-    street = xmlmap.StringField('t:address/t:street')
-    postcode = xmlmap.StringField('t:address/t:postCode')
-    city = xmlmap.StringField('t:address/t:settlement')
+    name = xmlmap.StringField('t:address/t:name|t:address/t:name', normalize=True)
+    street = xmlmap.StringField('t:address/t:street', normalize=True)
+    postcode = xmlmap.StringField('t:address/t:postCode', normalize=True)
+    city = xmlmap.StringField('t:address/t:settlement', normalize=True)
     # lat/long are in a single <geo> field, separated by a comma
     geo = xmlmap.StringField('t:geo')
     latitude = xmlmap.FloatField('substring-before(t:geo, ",")')

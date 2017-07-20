@@ -40,6 +40,9 @@ class Address(Notable):
     )
     country = models.ForeignKey(Country, blank=True, null=True)
 
+    class Meta:
+        verbose_name_plural = 'addresses'
+
     def __repr__(self):
         return '<Address %s>' % self.__dict__
 
