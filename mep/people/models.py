@@ -2,7 +2,7 @@
 from django.db import models
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
-
+from mep.common.validators import verify_latlon
 
 class Country(Named):
     '''Countries, for documenting nationalities of a :class:`Person`'''
@@ -12,6 +12,43 @@ class Country(Named):
 
     class Meta:
         verbose_name_plural = 'countries'
+
+
+class Address(Notable):
+    '''Addresses associated with accounts in the MEP database'''
+    address_line_1 = models.CharField(max_length=255, blank=True)
+    address_line_2 = models.CharField(max_length=255, blank=True)
+    city_town = models.CharField(max_length=255, blank=True)
+    # CharField for UK Addresses
+    postal_code = models.CharField(max_length=25, blank=True)
+    # NOTE: Using decimal field here to set precision on the head
+    # FloatField uses float, which can introduce unexpected rounding.
+    # This would let us have measurements down to the tree level, if necessary
+    latitude = models.DecimalField(
+        max_digits=8,
+        decimal_places=5,
+        blank=True,
+        null=True,
+        validators=[verify_latlon]
+    )
+    longitude = models.DecimalField(
+        max_digits=8,
+        decimal_places=5,
+        blank=True,
+        null=True,
+        validators=[verify_latlon]
+    )
+    country = models.ForeignKey(Country, blank=True, null=True)
+
+    def __repr__(self):
+        return '<Address %s>' % self.__dict__
+
+    def __str__(self):
+        if self.address_line_1 or self.city_town:
+            return('%s, %s' %
+                   (self.address_line_1, self.city_town)).strip(', ')
+        else:
+            return('Address, no street or city given')
 
 
 class Profession(Named, Notable):
@@ -38,11 +75,8 @@ class Person(Notable, DateRange):
     first_name = models.CharField(max_length=255, blank=True)
     last_name = models.CharField(max_length=255)
     viaf_id = models.URLField(blank=True)
-    other_URLs = models.ManyToManyField(
-        InfoURL,
-        blank=True,
-        help_text='Other non-VIAF URLs with information about the person.'
-        )
+    urls = models.ManyToManyField(InfoURL, blank=True,
+        help_text='Additional (non-VIAF) URLs with information about the person.')
 
     # Vital statistics
     birth_year = AliasIntegerField(db_column='start_year',
@@ -61,6 +95,7 @@ class Person(Notable, DateRange):
     title = models.CharField(blank=True, max_length=255)
     profession = models.ForeignKey(Profession, blank=True, null=True)
     nationalities = models.ManyToManyField(Country, blank=True)
+    addresses = models.ManyToManyField(Address, blank=True)
     relations = models.ManyToManyField(
         'self',
         through='Relationship',
@@ -85,6 +120,7 @@ class Person(Notable, DateRange):
 class RelationshipType(Named, Notable):
     '''Types of relationships between one :class:`Person` and another'''
     pass
+
 
 class Relationship(models.Model):
     '''Through model for :class:`Person` to ``self``'''
