@@ -43,7 +43,7 @@ class Address(Notable):
     class Meta:
         verbose_name_plural = 'addresses'
 
-    def __repr__(self):
+    def __re__(self):
         return '<Address %s>' % self.__dict__
 
     def __str__(self):
@@ -73,32 +73,42 @@ class InfoURL(Notable):
 class Person(Notable, DateRange):
     '''Model for people in the MEP dataset'''
 
-    # Identifiers
-    mep_id = models.CharField(max_length=255, blank=True)
+    #: MEP xml id
+    mep_id = models.CharField('MEP id', max_length=255, blank=True,
+        help_text='Identifier from XML personography')
+    #: optional first name
     first_name = models.CharField(max_length=255, blank=True)
+    #: last name
     last_name = models.CharField(max_length=255)
-    viaf_id = models.URLField(blank=True)
+    #: viaf identifiers
+    viaf_id = models.URLField('VIAF id', blank=True)
+    #: related urls - :class:`InfoURL`
     urls = models.ManyToManyField(InfoURL, blank=True,
         help_text='Additional (non-VIAF) URLs with information about the person.')
-
-    # Vital statistics
+    #: birth year
     birth_year = AliasIntegerField(db_column='start_year',
         blank=True, null=True)
+    #: death year
     death_year = AliasIntegerField(db_column='end_year',
         blank=True, null=True)
 
     MALE = 'M'
     FEMALE = 'F'
     SEX_CHOICES = (
-        ('', '----'),
         (FEMALE, 'Female'),
         (MALE, 'Male'),
     )
+    #: sex
     sex = models.CharField(blank=True, max_length=1, choices=SEX_CHOICES)
+    #: title
     title = models.CharField(blank=True, max_length=255)
+    #: :class:`Profession`
     profession = models.ForeignKey(Profession, blank=True, null=True)
+    #: nationalities, link to :class:`Country`
     nationalities = models.ManyToManyField(Country, blank=True)
+    #: known addresses, link to :class:`Address1
     addresses = models.ManyToManyField(Address, blank=True)
+    #: relationships to other people, via :class:`Relationship`
     relations = models.ManyToManyField(
         'self',
         through='Relationship',
@@ -118,6 +128,7 @@ class Person(Notable, DateRange):
 
     class Meta:
         verbose_name_plural = 'people'
+        ordering = ['last_name', 'first_name']
 
 
 class RelationshipType(Named, Notable):
