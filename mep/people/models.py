@@ -4,6 +4,31 @@ from django.db import models
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 
 
+class Country(Named):
+    '''Countries, for documenting nationalities of a :class:`Person`'''
+
+    code = models.CharField(max_length=3, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'countries'
+
+
+class Profession(Named, Notable):
+    '''Profession for a :class:`Person`'''
+    pass
+
+
+class InfoURL(Notable):
+    '''Informational urls (other than VIAF) associated with a :class:`Person`,
+    e.g. Wikipedia page.'''
+    url = models.URLField()
+
+    def __repr__(self):
+        return "<InfoURL %s>" % self.__dict__
+
+    def __str__(self):
+        return self.url
+
 class Person(Notable, DateRange):
     '''Model for people in the MEP dataset'''
 
@@ -13,7 +38,7 @@ class Person(Notable, DateRange):
     last_name = models.CharField(max_length=255)
     viaf_id = models.URLField(blank=True)
     other_URLs = models.ManyToManyField(
-        'InfoURL',
+        InfoURL,
         blank=True,
         help_text='Other non-VIAF URLs with information about the person.'
         )
@@ -33,8 +58,8 @@ class Person(Notable, DateRange):
     )
     sex = models.CharField(blank=True, max_length=1, choices=SEX_CHOICES)
     title = models.CharField(blank=True, max_length=255)
-    profession = models.ForeignKey('Profession', blank=True, null=True)
-    nationalities = models.ManyToManyField('Country', blank=True)
+    profession = models.ForeignKey(Profession, blank=True, null=True)
+    nationalities = models.ManyToManyField(Country, blank=True)
     relations = models.ManyToManyField(
         'self',
         through='Relationship',
@@ -56,31 +81,20 @@ class Person(Notable, DateRange):
         verbose_name_plural = 'people'
 
 
-class Country(Named):
-    '''Django model for countries'''
-
-    code = models.CharField(max_length=3, blank=True)
-
-    class Meta:
-        verbose_name_plural = 'countries'
-
-
-class Profession(Named, Notable):
-    '''Model holder for named professions'''
+class RelationshipType(Named, Notable):
+    '''Types of relationships between one :class:`Person` and another'''
     pass
-
 
 class Relationship(models.Model):
     '''Through model for :class:`Person` to ``self``'''
-    from_person = models.ForeignKey('Person', related_name='from_person')
-    to_person = models.ForeignKey('Person', related_name='to_person')
-    relationship_type = models.ForeignKey('RelationshipType')
+    from_person = models.ForeignKey(Person, related_name='from_person')
+    to_person = models.ForeignKey(Person, related_name='to_person')
+    relationship_type = models.ForeignKey(RelationshipType)
 
     def __repr__(self):
         '''Custom method to produce a more human useable representation
         than dict in this case
         '''
-
         return ("<Relationship {'from_person': <Person %s>, "
                 "'to_person': <Person %s>, 'relationship_type': "
                 "<RelationshipType %s>}>") % (self.from_person.full_name,
@@ -95,18 +109,5 @@ class Relationship(models.Model):
             )
 
 
-class RelationshipType(Named, Notable):
-    '''Stock model for relationship types'''
-    pass
 
 
-class InfoURL(Notable):
-    '''Other non-VIAF informational urls associated with a person, i.e.
-    Wikipedia or other'''
-    url = models.URLField()
-
-    def __repr__(self):
-        return ("<InfoURL %s>" % self.__dict__)
-
-    def __str__(self):
-        return self.url
