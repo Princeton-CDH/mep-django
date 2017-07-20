@@ -5,7 +5,7 @@ mep-django
 .. sphinx-start-marker-do-not-remove
 
 
-This Github respository houses the Django web interface of the `Mapping Expatriate
+This Github repository houses the Django web interface of the `Mapping Expatriate
 Paris <https://github.com/Princeton-CDH/mapping-expatriate-paris>`_ project, which
 examines the archives of Sylvia Beach's Shakespeare and Company lending library.
 
@@ -19,8 +19,8 @@ Python 3.5 / Django 1.11
 
 .. image:: https://codecov.io/gh/Princeton-CDH/mep-django/branch/develop/graph/badge.svg
     :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/develop
-    :alt: Code coverage   
-    
+    :alt: Code coverage
+
 .. image:: https://landscape.io/github/Princeton-CDH/mep-django/develop/landscape.svg?style=flat
    :target: https://landscape.io/github/Princeton-CDH/mep-django/develop
    :alt: Code Health
