@@ -2,8 +2,8 @@ import re
 
 from django.test import TestCase
 
-from .models import (InfoURL, Person, Profession, Relationship,
-                     RelationshipType)
+from mep.people.models import InfoURL, Person, Profession, Relationship, \
+    RelationshipType
 
 
 class TestPerson(TestCase):
