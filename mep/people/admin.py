@@ -44,7 +44,7 @@ class AddressAdmin(admin.ModelAdmin):
         ('latitude', 'longitude'),
         'notes')
     list_filter = ('country',)
-    inlines = [ResidenceInline]
+    inlines = [ResidenceInline, FootnoteInline]
 
 
 # enable default admin to see imported data

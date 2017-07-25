@@ -18,14 +18,19 @@ class Country(Named):
 
 class Address(Notable):
     '''Addresses associated with accounts in the MEP database'''
+    #: address line 1
     address_line_1 = models.CharField(max_length=255, blank=True)
+    #: address line 2
     address_line_2 = models.CharField(max_length=255, blank=True)
+    #: city or town
     city_town = models.CharField(max_length=255, blank=True)
-    # CharField for UK Addresses
+    #: postal code; character rather than integer to support
+    # UK addresses and other non-numeric postal codes
     postal_code = models.CharField(max_length=25, blank=True)
     # NOTE: Using decimal field here to set precision on the head
     # FloatField uses float, which can introduce unexpected rounding.
     # This would let us have measurements down to the tree level, if necessary
+    #: latitude
     latitude = models.DecimalField(
         max_digits=8,
         decimal_places=5,
@@ -33,6 +38,7 @@ class Address(Notable):
         null=True,
         validators=[verify_latlon]
     )
+    #: longitude
     longitude = models.DecimalField(
         max_digits=8,
         decimal_places=5,
@@ -40,7 +46,12 @@ class Address(Notable):
         null=True,
         validators=[verify_latlon]
     )
+    #: :class:`Country`
     country = models.ForeignKey(Country, blank=True, null=True)
+
+    #: footnotes (:class:`~mep.footnotes.models.Footnote`)
+    footnotes = GenericRelation(Footnote)
+
 
     class Meta:
         verbose_name_plural = 'addresses'
@@ -106,9 +117,8 @@ class Person(Notable, DateRange):
         symmetrical=False
     )
 
-    #
+    #: footnotes (:class:`~mep.footnotes.models.Footnote`)
     footnotes = GenericRelation(Footnote)
-
 
     def __repr__(self):
         return '<Person %s>' % self.__dict__
