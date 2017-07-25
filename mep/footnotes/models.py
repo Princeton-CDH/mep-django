@@ -58,7 +58,8 @@ class Footnote(Notable):
         'supports the information in the system, False if it contradicts.')
 
     def __str__(self):
-        return 'Footnote on %s' % (self.content_object)
+        return 'Footnote on %s (%s)' % (self.content_object,
+            ' '.join([str(i) for i in [self.bibliography, self.location] if i]))
 
     # NOTE: for convenient access from other models, add a
     # reverse generic relation

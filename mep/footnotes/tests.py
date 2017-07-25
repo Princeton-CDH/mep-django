@@ -35,3 +35,22 @@ class TestBibliography(TestCase):
         Footnote.objects.create(bibliography=bibl, content_type=content_type,
             object_id=1, is_agree=False)
         assert bibl.footnote_count() == 1
+
+class TestFootnote(TestCase):
+
+    def test_str(self):
+        src_type = SourceType.objects.create(name='website')
+        bibl = Bibliography.objects.create(bibliographic_note='citation',
+            source_type=src_type)
+        # find an arbitrary content type to attach a footnote to
+        content_type = ContentType.objects.first()
+        fn = Footnote.objects.create(bibliography=bibl, content_type=content_type,
+            object_id=1, is_agree=False)
+
+
+        assert 'Footnote on %s' % fn.content_object in str(fn)
+
+        assert '(%s)' % bibl in str(fn)
+        fn.location = 'http://so.me/url/'
+        assert '(%s %s)' % (bibl, fn.location) in str(fn)
+
