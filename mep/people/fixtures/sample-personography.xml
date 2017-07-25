@@ -19,6 +19,7 @@
                 <person xml:id="alde.pa">
                     <idno type="viaf">42635145</idno>
                     <persName>
+                        <roleName>Ms</roleName>
                         <surname>Alderman</surname>
                         <forename>Pauline</forename>
                     </persName>

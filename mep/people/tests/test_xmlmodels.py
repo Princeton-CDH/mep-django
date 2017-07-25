@@ -71,6 +71,7 @@ class TestPerson(TestCase):
         assert person.viaf_id == "42635145"
         assert person.last_name == "Alderman"
         assert person.first_name == "Pauline"
+        assert person.title == "Ms"
         assert person.birth == 1893
         assert person.death == 1983
         assert person.sex == "F"
@@ -95,6 +96,7 @@ class TestPerson(TestCase):
         db_person = xml_person.to_db_person()
         assert isinstance(db_person, models.Person)
         assert db_person.mep_id == xml_person.mep_id
+        assert db_person.title == xml_person.title
         assert db_person.viaf_id == xml_person.viaf_id  # todo: needs viaf uri
         assert db_person.first_name == xml_person.first_name
         assert db_person.last_name == xml_person.last_name

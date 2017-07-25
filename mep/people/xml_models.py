@@ -49,6 +49,7 @@ class Person(xmlmap.XmlObject):
 
     mep_id = xmlmap.StringField('@xml:id')
     viaf_id = xmlmap.StringField('t:idno[@type="viaf"]')
+    title = xmlmap.StringField('t:persName/t:roleName')
     last_name = xmlmap.StringField('t:persName/t:surname')
     first_name = xmlmap.StringField('t:persName/t:forename')
     birth = xmlmap.IntegerField('t:birth')
@@ -69,6 +70,7 @@ class Person(xmlmap.XmlObject):
         and populate based on data in the xml.'''
         db_person = models.Person(
             mep_id=self.mep_id,
+            title=self.title or '',
             first_name=self.first_name or '',
             last_name=self.last_name,
             viaf_id=self.viaf_id or '',  # todo: convert to uri
