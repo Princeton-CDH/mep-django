@@ -2,10 +2,11 @@ import os
 
 from django.conf import settings
 from django.test import TestCase
+from eulxml.xmlmap import load_xmlobject_from_string
 
 from mep.people import models
-from mep.people.xml_models import Person, Personography, Nationality, \
-    Residence
+from mep.people.xml_models import Person, PersonName, Personography, \
+    Nationality, Residence
 
 
 FIXTURE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'fixtures')
@@ -63,6 +64,30 @@ class TestAddress(TestCase):
         assert db_address.pk == res.db_address().pk
 
 
+class TestPersonName(TestCase):
+
+    def test_first_name(self):
+        # two first name tags with sort attribute
+        pname = load_xmlobject_from_string('''<persName xmlns="http://www.tei-c.org/ns/1.0">
+            <surname type="birth">Ellerman</surname>
+            <forename sort="1">Anne</forename>
+            <forename sort="2">Winifred</forename>
+        </persName>''', xmlclass=PersonName)
+        assert pname.first_name() == 'Anne Winifred'
+
+        # initials
+        pname = load_xmlobject_from_string('''<persName xmlns="http://www.tei-c.org/ns/1.0">
+            <surname>Collins</surname>
+            <forename sort="1" full="init">R</forename>
+            <forename sort="2" full="init">F</forename>
+        </persName>''', xmlclass=PersonName)
+        assert pname.first_name() == 'R. F.'
+
+        # if period is included in xml, shouldn't get duplicated
+        pname.first_names[0].value = 'R.'
+        assert pname.first_name() == 'R. F.'
+
+
 class TestPerson(TestCase):
 
     def test_properties(self):
@@ -97,7 +122,7 @@ class TestPerson(TestCase):
         assert isinstance(db_person, models.Person)
         assert db_person.mep_id == xml_person.mep_id
         assert db_person.title == xml_person.title
-        assert db_person.viaf_id == xml_person.viaf_id  # todo: needs viaf uri
+        assert db_person.viaf_id == 'http://viaf.org/viaf/%s' % xml_person.viaf_id
         assert db_person.first_name == xml_person.first_name
         assert db_person.last_name == xml_person.last_name
         assert db_person.birth_year == xml_person.birth

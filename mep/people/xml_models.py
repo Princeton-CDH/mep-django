@@ -4,15 +4,17 @@ from eulxml import xmlmap
 from mep.people import models
 
 
-class Nationality(xmlmap.XmlObject):
+class TeiXmlObject(xmlmap.XmlObject):
+    ROOT_NAMESPACES = {
+        't': 'http://www.tei-c.org/ns/1.0'
+    }
+
+class Nationality(TeiXmlObject):
     code = xmlmap.StringField('@key')
     label = xmlmap.StringField('normalize-space(.)')
 
 
-class Residence(xmlmap.XmlObject):
-    ROOT_NAMESPACES = {
-        't': 'http://www.tei-c.org/ns/1.0'
-    }
+class Residence(TeiXmlObject):
     name = xmlmap.StringField('t:address/t:name|t:address/t:name', normalize=True)
     street = xmlmap.StringField('t:address/t:street', normalize=True)
     postcode = xmlmap.StringField('t:address/t:postCode', normalize=True)
@@ -42,14 +44,38 @@ class Residence(xmlmap.XmlObject):
         # and warn if lat/long do not match
         return addr
 
-class Person(xmlmap.XmlObject):
-    ROOT_NAMESPACES = {
-        't': 'http://www.tei-c.org/ns/1.0'
-    }
+class Name(TeiXmlObject):
+    name_type = xmlmap.StringField('@type')
+    sort = xmlmap.StringField('@sort')
+    full = xmlmap.StringField('@full')
+    value = xmlmap.StringField('text()')
 
+    def __str__(self):
+        if self.full == 'init':
+            return '%s.' % self.value.strip('.')
+        return self.value
+
+
+class PersonName(TeiXmlObject):
+    last_names = xmlmap.NodeListField('t:surname', Name)
+    first_names = xmlmap.NodeListField('t:forename', Name)
+
+    def last_name(self):
+        # TODO: handle sort & birth/married attributes
+        # for now, simply return the first last name in the doc
+        return str(self.last_names[0])
+
+    def first_name(self):
+        # handle multiple first names
+        sorted_names = sorted(self.first_names, key=lambda n: n.sort or 0)
+        return ' '.join([str(n) for n in sorted_names])
+
+
+class Person(TeiXmlObject):
     mep_id = xmlmap.StringField('@xml:id')
     viaf_id = xmlmap.StringField('t:idno[@type="viaf"]')
     title = xmlmap.StringField('t:persName/t:roleName')
+    names = xmlmap.NodeListField('t:persName', PersonName)
     last_name = xmlmap.StringField('t:persName/t:surname')
     first_name = xmlmap.StringField('t:persName/t:forename')
     birth = xmlmap.IntegerField('t:birth')
@@ -70,13 +96,19 @@ class Person(xmlmap.XmlObject):
         db_person = models.Person(
             mep_id=self.mep_id,
             title=self.title or '',
-            first_name=self.first_name or '',
-            last_name=self.last_name,
-            viaf_id=self.viaf_id or '',  # todo: convert to uri
+            # use first name in xml doc for
+            first_name=self.names[0].first_name() or '',
+            last_name=self.names[0].last_name(),
+            # viaf_id=self.viaf_id or '',  # todo: convert to uri
             birth_year=self.birth or None,
             death_year=self.death or None,
             sex=self.sex or ''
         )
+
+        # temporary; should be in viaf code eventually
+        if self.viaf_id:
+            db_person.viaf_id = "http://viaf.org/viaf/%s" % self.viaf_id
+
         # Combine any non-empty notes from the xml and put them in the
         # database notes field. (URLs are handled elsewhere)
         db_person.notes = '\n'.join(note for note in self.notes
