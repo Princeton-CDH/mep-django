@@ -4,4 +4,4 @@ anywhere in the project..
 '''
 
 
-default_app_config = 'mep.footnotes.apps.CommonConfig'
+default_app_config = 'mep.footnotes.apps.FootnotesConfig'
