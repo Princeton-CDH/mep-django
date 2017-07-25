@@ -59,7 +59,6 @@ class Person(xmlmap.XmlObject):
     urls = xmlmap.StringListField('.//t:ref/@target')
     nationalities = xmlmap.NodeListField('t:nationality', Nationality)
     # todo: handle ref target in notes
-    # todo: residence addresses
     residences = xmlmap.NodeListField('t:residence', Residence)
 
     def is_imported(self):
@@ -100,7 +99,7 @@ class Person(xmlmap.XmlObject):
         # handle URLs included in notes
         for link in self.urls:
             db_person.urls.add(models.InfoURL.objects.create(url=link,
-                notes='URL from XML import'))
+                person=db_person, notes='URL from XML import'))
 
         # handle residence addresses
         for res in self.residences:

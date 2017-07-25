@@ -47,6 +47,8 @@ class Address(Notable):
         return '<Address %s>' % self.__dict__
 
     def __str__(self):
+        return ', '.join([part for part in [self.address_line_1, self.address_line_2, self.city_town] if part])
+
         if self.address_line_1 or self.city_town:
             return('%s, %s' %
                    (self.address_line_1, self.city_town)).strip(', ')
@@ -59,16 +61,6 @@ class Profession(Named, Notable):
     pass
 
 
-class InfoURL(Notable):
-    '''Informational urls (other than VIAF) associated with a :class:`Person`,
-    e.g. Wikipedia page.'''
-    url = models.URLField()
-
-    def __repr__(self):
-        return "<InfoURL %s>" % self.__dict__
-
-    def __str__(self):
-        return self.url
 
 class Person(Notable, DateRange):
     '''Model for people in the MEP dataset'''
@@ -82,9 +74,6 @@ class Person(Notable, DateRange):
     last_name = models.CharField(max_length=255)
     #: viaf identifiers
     viaf_id = models.URLField('VIAF id', blank=True)
-    #: related urls - :class:`InfoURL`
-    urls = models.ManyToManyField(InfoURL, blank=True,
-        help_text='Additional (non-VIAF) URLs with information about the person.')
     #: birth year
     birth_year = AliasIntegerField(db_column='start_year',
         blank=True, null=True)
@@ -129,6 +118,20 @@ class Person(Notable, DateRange):
     class Meta:
         verbose_name_plural = 'people'
         ordering = ['last_name', 'first_name']
+
+
+class InfoURL(Notable):
+    '''Informational urls (other than VIAF) associated with a :class:`Person`,
+    e.g. Wikipedia page.'''
+    url = models.URLField(
+        help_text='Additional (non-VIAF) URLs for a person.')
+    person = models.ForeignKey(Person, related_name='urls')
+
+    def __repr__(self):
+        return "<InfoURL %s>" % self.__dict__
+
+    def __str__(self):
+        return self.url
 
 
 class RelationshipType(Named, Notable):
