@@ -47,13 +47,13 @@ class Address(Notable):
         return '<Address %s>' % self.__dict__
 
     def __str__(self):
-        return ', '.join([part for part in [self.address_line_1, self.address_line_2, self.city_town] if part])
-
-        if self.address_line_1 or self.city_town:
-            return('%s, %s' %
-                   (self.address_line_1, self.city_town)).strip(', ')
+        # preliminary; may adjust if we add a 'name' field for e.g.
+        # hotels and the like
+        str_parts = [self.address_line_1, self.address_line_2, self.city_town]
+        if any(str_parts):
+            return ', '.join([part for part in str_parts if part])
         else:
-            return('Address, no street or city given')
+            return '[no street or city]'
 
 
 class Profession(Named, Notable):

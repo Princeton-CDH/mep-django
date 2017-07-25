@@ -1,9 +1,11 @@
 import re
 
+from django.core.exceptions import ValidationError
 from django.test import TestCase
+import pytest
 
 from mep.people.models import InfoURL, Person, Profession, Relationship, \
-    RelationshipType
+    RelationshipType, Address
 
 
 class TestPerson(TestCase):
@@ -97,7 +99,7 @@ class TestRelationshipM2M(TestCase):
             relationship_type=self.partner
         )
 
-    def test_m2m_relationships(self):
+    def test_relationships(self):
         # Relationship is one sided based on from_person and to_person
         # With the relationship 'parent'
 
@@ -117,3 +119,40 @@ class TestRelationshipM2M(TestCase):
         # Short way to check if both and only both are in the query set
         assert (len(self.foo.relations.filter(last_name__in=['Baz', 'Bar']))
                 == 2)
+
+
+class TestAddress(TestCase):
+
+    def test_str(self):
+        # Just an address
+        address = Address(address_line_1="La Hotel")
+        assert str(address) == "La Hotel"
+
+        address = Address(address_line_2="1 Rue Le Foo")
+        assert str(address) == "1 Rue Le Foo"
+
+        # Just now with a city
+        address.city_town = "Paris"
+        assert str(address) == "1 Rue Le Foo, Paris"
+
+        # With nothing
+        address = Address()
+        assert str(address) == "[no street or city]"
+
+    def test_latlon_validate(self):
+        # Valid, should pass clean fields
+        address = Address(latitude=180, longitude=-180)
+        address.clean_fields()
+
+        # Not valid, should error out
+        with pytest.raises(ValidationError) as err:
+            address.latitude = -500
+            address.clean_fields()
+        assert "Lat/Lon must be between -180 and 180 degrees." in str(err)
+
+        # String should error out too, Django handles the message
+        address = Address(latitude="foo", longitude="bar")
+        with pytest.raises(ValidationError):
+            address.clean_fields()
+
+

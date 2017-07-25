@@ -1,11 +1,11 @@
 import pytest
 import re
 
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.test import TestCase
 from .models import Account, AccountAddress, Address
 from .models import Borrow, Event, Purchase, Reimbursement, Subscribe
 from mep.books.models import Item
+
 
 class TestAccount(TestCase):
 
@@ -66,37 +66,6 @@ class TestAccount(TestCase):
         with pytest.raises(ValueError):
             account.add_event('foo')
 
-
-class TestAddress(TestCase):
-
-    def test_str(self):
-        # Just an address
-        address = Address(address_line_1="1 Rue Le Foo")
-        assert str(address) == "1 Rue Le Foo"
-
-        # Just now with a city
-        address.city_town = "Paris"
-        assert str(address) == "1 Rue Le Foo, Paris"
-
-        # With nothing
-        address = Address()
-        assert str(address) == "Address, no street or city given"
-
-    def test_latlon_validate(self):
-        # Valid, should pass clean fields
-        address = Address(latitude=180, longitude=-180)
-        address.clean_fields()
-
-        # Not valid, should error out
-        with pytest.raises(ValidationError) as err:
-            address.latitude = -500
-            address.clean_fields()
-        assert "Lat/Lon must be between -180 and 180 degrees." in str(err)
-
-        # String should error out too, Django handles the message
-        address = Address(latitude="foo", longitude="bar")
-        with pytest.raises(ValidationError):
-            address.clean_fields()
 
 
 class TestAccountAddress(TestCase):
