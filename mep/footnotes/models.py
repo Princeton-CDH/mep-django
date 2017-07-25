@@ -48,9 +48,10 @@ class Footnote(Notable):
         # restrict choices to "content" models (exclude django/admin models)
         # and models that are available in django admin
         # (otherwise, lookup is not possible)
-        # TODO: Guessing at app labels. This needs to be set.
-        limit_choices_to=models.Q(app_label='accounts') |
-             models.Q(app_label='books') | models.Q(app_label='people'))
+        # TODO: add items here as the application expands
+        limit_choices_to=models.Q(app_label='people',
+            model__in=['country', 'person', 'address', 'profession'])
+        )
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     is_agree = models.BooleanField(help_text='True if the evidence ' +
