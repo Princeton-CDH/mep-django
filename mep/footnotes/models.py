@@ -64,6 +64,6 @@ class Footnote(Notable):
     # reverse generic relation
     #
     # from django.contrib.contenttypes.fields import GenericRelation
-    # from derrida.footnoter.models import Footnote
+    # from mep.footnotes.models import Footnote
     #
     # footnotes = GenericRelation(Footnote)

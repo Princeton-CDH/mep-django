@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
+from mep.footnotes.admin import FootnoteInline
 from .models import Person, Country, Address, Profession, InfoURL
 
 
@@ -29,9 +30,10 @@ class PersonAdmin(admin.ModelAdmin):
         'notes')
     filter_horizontal = ('nationalities', 'addresses')
     readonly_fields = ('mep_id', )
+    # FIXME: something is hiding VIAF url link. (grappelli maybe?)
     search_fields = ('mep_id', 'first_name', 'last_name', 'notes')
     list_filter = ('sex', 'profession', 'nationalities')
-    inlines = [InfoURLInline]
+    inlines = [InfoURLInline, FootnoteInline]
 
 
 class AddressAdmin(admin.ModelAdmin):

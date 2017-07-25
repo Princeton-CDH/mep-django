@@ -1,8 +1,10 @@
-
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.validators import verify_latlon
+from mep.footnotes.models import Footnote
+
 
 class Country(Named):
     '''Countries, for documenting nationalities of a :class:`Person`'''
@@ -103,6 +105,10 @@ class Person(Notable, DateRange):
         through='Relationship',
         symmetrical=False
     )
+
+    #
+    footnotes = GenericRelation(Footnote)
+
 
     def __repr__(self):
         return '<Person %s>' % self.__dict__
