@@ -65,27 +65,106 @@ class TestAddress(TestCase):
 
 
 class TestPersonName(TestCase):
+    # xml snippets for testing
+    two_firstnames = '''<persName xmlns="http://www.tei-c.org/ns/1.0">
+        <surname type="birth">Ellerman</surname>
+        <forename sort="1">Anne</forename>
+        <forename sort="2">Winifred</forename>
+    </persName>'''
+
+    initials = '''<persName xmlns="http://www.tei-c.org/ns/1.0">
+        <surname>Collins</surname>
+        <forename sort="1" full="init">R</forename>
+        <forename sort="2" full="init">F</forename>
+    </persName>'''
+
+    married_birth = '''<persName xmlns="http://www.tei-c.org/ns/1.0">
+        <surname type="married">Teissier</surname>
+        <surname type="birth">Delpech</surname>
+        <forename>Jeanine</forename>
+    </persName>'''
+
+    multiple = '''<persName xmlns="http://www.tei-c.org/ns/1.0">
+        <surname type="married">Hepp</surname>
+        <surname type="birth">Saint-René Taillandier</surname>
+        <forename sort="1">Henriette</forename>
+        <forename sort="2">Sophie</forename>
+        <forename sort="3">Marianne</forename>
+    </persName>'''
+
+    namelink = '''<persName xmlns="http://www.tei-c.org/ns/1.0">
+        <surname sort="1" type="married">Perron</surname>
+        <surname sort="2" type="birth">Roos</surname>
+        <forename>Elisabeth</forename>
+        <nameLink type="married">du</nameLink>
+        <nameLink type="birth">de</nameLink>
+    </persName>'''
+
+    lastname_only = '''<persName xmlns="http://www.tei-c.org/ns/1.0">
+        <surname>Kaopeitzer</surname>
+    </persName>'''
 
     def test_first_name(self):
         # two first name tags with sort attribute
-        pname = load_xmlobject_from_string('''<persName xmlns="http://www.tei-c.org/ns/1.0">
-            <surname type="birth">Ellerman</surname>
-            <forename sort="1">Anne</forename>
-            <forename sort="2">Winifred</forename>
-        </persName>''', xmlclass=PersonName)
+        pname = load_xmlobject_from_string(self.two_firstnames,
+            xmlclass=PersonName)
         assert pname.first_name() == 'Anne Winifred'
+        # uses sort attributes
+        pname.first_names[0].sort = 2
+        pname.first_names[1].sort = 1
+        assert pname.first_name() == 'Winifred Anne'
 
         # initials
-        pname = load_xmlobject_from_string('''<persName xmlns="http://www.tei-c.org/ns/1.0">
-            <surname>Collins</surname>
-            <forename sort="1" full="init">R</forename>
-            <forename sort="2" full="init">F</forename>
-        </persName>''', xmlclass=PersonName)
+        pname = load_xmlobject_from_string(self.initials,
+            xmlclass=PersonName)
         assert pname.first_name() == 'R. F.'
-
         # if period is included in xml, shouldn't get duplicated
         pname.first_names[0].value = 'R.'
         assert pname.first_name() == 'R. F.'
+
+    def test_full_name(self):
+        # two first name tags with sort attribute
+        pname = load_xmlobject_from_string(self.two_firstnames,
+            xmlclass=PersonName)
+        assert pname.full_name() == 'Anne Winifred Ellerman'
+
+        pname = load_xmlobject_from_string(self.married_birth,
+            xmlclass=PersonName)
+        assert pname.full_name() == 'Jeanine (Delpech) Teissier'
+
+        pname = load_xmlobject_from_string(self.multiple,
+            xmlclass=PersonName)
+        assert pname.full_name() == 'Henriette Sophie Marianne (Saint-René Taillandier) Hepp'
+
+        pname = load_xmlobject_from_string(self.namelink,
+            xmlclass=PersonName)
+        assert pname.full_name() == 'Elisabeth (de Roos) du Perron'
+
+        pname = load_xmlobject_from_string(self.lastname_only,
+            xmlclass=PersonName)
+        assert pname.full_name() == 'Kaopeitzer'
+
+    def test_sort_name(self):
+        # two first name tags with sort attribute
+        pname = load_xmlobject_from_string(self.two_firstnames,
+            xmlclass=PersonName)
+        assert pname.sort_name() == 'Ellerman, Anne Winifred'
+
+        pname = load_xmlobject_from_string(self.married_birth,
+            xmlclass=PersonName)
+        assert pname.sort_name() == 'Teissier, Jeanine (Delpech)'
+
+        pname = load_xmlobject_from_string(self.multiple,
+            xmlclass=PersonName)
+        assert pname.sort_name() == 'Hepp, Henriette Sophie Marianne (Saint-René Taillandier)'
+
+        pname = load_xmlobject_from_string(self.namelink,
+            xmlclass=PersonName)
+        assert pname.sort_name() == 'du Perron, Elisabeth (de Roos)'
+
+        pname = load_xmlobject_from_string(self.lastname_only,
+            xmlclass=PersonName)
+        assert pname.sort_name() == 'Kaopeitzer'
 
 
 class TestPerson(TestCase):
@@ -123,9 +202,8 @@ class TestPerson(TestCase):
         assert db_person.mep_id == xml_person.mep_id
         assert db_person.title == xml_person.title
         assert db_person.viaf_id == 'http://viaf.org/viaf/%s' % xml_person.viaf_id
-        # TODO revision to full/sort name
-        # assert db_person.first_name == xml_person.first_name
-        # assert db_person.last_name == xml_person.last_name
+        assert db_person.name == 'Pauline Alderman'
+        assert db_person.sort_name == 'Alderman, Pauline'
         assert db_person.birth_year == xml_person.birth
         assert db_person.death_year == xml_person.death
         assert db_person.sex == xml_person.sex
@@ -145,9 +223,8 @@ class TestPerson(TestCase):
         # test with a incomplete record
         xml_person = Personography.from_file(XML_FIXTURE).people[1]
         db_person = xml_person.to_db_person()
-        # TODO revise full/sort name
-        # assert db_person.last_name == 'Kaopeitzer'
-        # for unknown_field in ['first_name', 'viaf_id', 'sex']:
+        assert db_person.name == 'Kaopeitzer'
+        assert db_person.sort_name == 'Kaopeitzer'
         for unknown_field in ['viaf_id', 'sex']:
             assert getattr(db_person, unknown_field) == ''
         for unknown_field in ['birth_year', 'death_year']:

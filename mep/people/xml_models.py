@@ -59,11 +59,53 @@ class Name(TeiXmlObject):
 class PersonName(TeiXmlObject):
     last_names = xmlmap.NodeListField('t:surname', Name)
     first_names = xmlmap.NodeListField('t:forename', Name)
+    married_name = xmlmap.NodeField('t:surname[@type="married"]', Name)
+    birth_name = xmlmap.NodeField('t:surname[@type="birth"]', Name)
+
+    namelink = xmlmap.StringField('t:nameLink')
+    birth_namelink = xmlmap.StringField('t:nameLink[@type="birth"]')
+    married_namelink = xmlmap.StringField('t:nameLink[@type="married"]')
+
+    def full_name(self):
+        '''Combine first and last names into "firstname lastname" or
+        "firstname (birth name) married name".  Handles multiple first names,
+        initials, etc.'''
+        return ' '.join(
+            # exclude any empty values
+            [name for name in
+                [self.first_name(), self.display_birthname(), self.last_name()]
+            if name])
+
+    def sort_name(self):
+        '''Combine first and last names into "lastname, firstname" or
+        "married name, firstname (birth name)".  Handles multiple first names,
+        initials, etc.'''
+        first_name = ' '.join(
+            [name for name in [self.first_name(), self.display_birthname()]
+             if name])
+        return ', '.join([n for n in [self.last_name(), first_name] if n])
+
+    def display_birthname(self):
+        # in some cases only one name is present but it is tagged as birth name
+        if self.birth_name and self.married_name:
+            birth_name = ' '.join([self.birth_namelink or '',
+                                   str(self.birth_name)])
+            return '(%s)' % birth_name.strip()
+        return ''
 
     def last_name(self):
-        # TODO: handle sort & birth/married attributes
-        # for now, simply return the first last name in the doc
-        return str(self.last_names[0])
+        # if married name is set, return that
+        if self.married_name:
+            lastname = str(self.married_name)
+        # otherwise, just use the first last name
+        else:
+            lastname = str(self.last_names[0])
+
+        # if a namelink is present (de, du, de la, etc - include it)
+        if self.married_namelink or self.namelink:
+            return ' '.join([self.married_namelink or self.namelink, lastname])
+
+        return lastname
 
     def first_name(self):
         # handle multiple first names
@@ -96,15 +138,16 @@ class Person(TeiXmlObject):
         db_person = models.Person(
             mep_id=self.mep_id,
             title=self.title or '',
-            # use first name in xml doc for
-            # TODO: full name and sort name
-            # first_name=self.names[0].first_name() or '',
-            # last_name=self.names[0].last_name(),
-            # viaf_id=self.viaf_id or '',  # todo: convert to uri
             birth_year=self.birth or None,
             death_year=self.death or None,
             sex=self.sex or ''
         )
+
+        # handle names
+        # - simple case: only one name in the xml
+        if len(self.names) == 1:
+            db_person.name = self.names[0].full_name()
+            db_person.sort_name = self.names[0].sort_name()
 
         # temporary; should be in viaf code eventually
         if self.viaf_id:
