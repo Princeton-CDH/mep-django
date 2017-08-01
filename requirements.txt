@@ -1,7 +1,7 @@
 Django>=1.11
 mysqlclient
 django-grappelli
-# Pinned to 0.5 until pypi release
-git+https://github.com/Princeton-CDH/django-pucas.git@0.5#egg=pucas
+pucas
 eulxml
-
+# develop version of viapy until we have a release
+git+https://github.com/Princeton-CDH/viapy.git@develop#egg=viapy

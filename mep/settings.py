@@ -34,6 +34,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_cas_ng',
     'pucas',
+    'dal',
+    'dal_select2',
+    'viapy',
     # local apps
     'mep.common',
     'mep.people',

@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from viapy.widgets import ViafWidget
 
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 from mep.footnotes.admin import FootnoteInline
@@ -19,7 +21,24 @@ class ResidenceInline(CollapsibleTabularInline):
     model = Person.addresses.through
 
 
+class PersonAdminForm(forms.ModelForm):
+    '''Custom model form for Person editing; used to add VIAF lookup'''
+    class Meta:
+        model = Person
+        exclude = []
+        widgets = {
+                'viaf_id': ViafWidget(
+                    url='viaf:person-lookup',
+                    attrs={
+                        'data-placeholder': 'Type a name to search VIAF',
+                        'data-minimum-input-length': 3
+                    }
+                )
+        }
+
+
 class PersonAdmin(admin.ModelAdmin):
+    form = PersonAdminForm
     list_display = ('sort_name', 'name', 'birth_year', 'death_year',
         'sex', 'profession', 'viaf_id', 'mep_id', 'has_notes')
     fields = ('mep_id', 'title',
@@ -34,6 +53,7 @@ class PersonAdmin(admin.ModelAdmin):
     search_fields = ('mep_id', 'first_name', 'last_name', 'notes')
     list_filter = ('sex', 'profession', 'nationalities')
     inlines = [InfoURLInline, FootnoteInline]
+
 
 
 class AddressAdmin(admin.ModelAdmin):

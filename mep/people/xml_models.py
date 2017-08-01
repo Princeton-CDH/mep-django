@@ -197,6 +197,10 @@ class Person(TeiXmlObject):
 
         # handle nationalities; could be multiple
         for nation in self.nationalities:
+            # special case: "stateless" (only occurs once)
+            # if nation.label == 'stateless':
+            # TODO: handle after switch to geonames
+
             try:
                 # if a country has already been created, find it
                 country = models.Country.objects.get(code=nation.code)

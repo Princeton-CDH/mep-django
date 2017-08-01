@@ -23,6 +23,6 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(pattern_name='admin:index'), name='site-index'),
     url(r'^admin/', admin.site.urls),
     url(r'^grappelli/', include('grappelli.urls')),
-    url(r'^accounts/', include('pucas.cas_urls'))
-
+    url(r'^accounts/', include('pucas.cas_urls')),
+    url(r'^viaf/', include('viapy.urls', namespace='viaf')),
 ]
