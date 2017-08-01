@@ -33,11 +33,6 @@ class Command(BaseCommand):
         for xml_person in personog.people:
             # only import if person is not already in the database
             if not xml_person.is_imported():
-                # for now, skip if no last name
-                if not xml_person.last_name:
-                    self.stderr.write('No last name for %s; skipping' % xml_person.mep_id)
-                    continue
-
                 xml_person.to_db_person()
 
         # report how many items were added

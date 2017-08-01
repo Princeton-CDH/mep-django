@@ -19,7 +19,7 @@ class TestPersonography(TestCase):
         personog = Personography.from_file(XML_FIXTURE)
         assert isinstance(personog, Personography)
         # fixture currently includes one personog
-        assert len(personog.people) == 3
+        assert len(personog.people) == 4
         assert isinstance(personog.people[0], Person)
         assert personog.people[0].mep_id == 'alde.pa'
 
@@ -244,4 +244,10 @@ class TestPerson(TestCase):
         assert country.code == 'fr'
         assert country.name == 'France'
 
+        # no name
+        xml_person = Personography.from_file(XML_FIXTURE).people[3]
+        db_person = xml_person.to_db_person()
+        assert db_person.name == '[Friend of Renoir]'
+        assert db_person.title == ''
+        assert db_person.sex == 'M'
 

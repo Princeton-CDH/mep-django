@@ -83,6 +83,14 @@
                         /></note>
                 </person>
 
+                <!-- no name -->
+                <person xml:id="friendofrenoir">
+                    <persName>
+                        <roleName>Friend of Renoir </roleName>
+                    </persName>
+                    <sex value="M"/>
+                </person>
+
             </listPerson>
         </body>
     </text>

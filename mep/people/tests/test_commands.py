@@ -1,7 +1,7 @@
 from io import StringIO
 
 from django.test import TestCase
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import CommandError
 import pytest
 
 from mep.people.management.commands import import_personography
@@ -24,8 +24,8 @@ class TestImportPersonography(TestCase):
         output = self.cmd.stdout.getvalue()
         # inspect output
         expected_text = [
-            'Found 3 people in XML personography',
-            '3 people added',
+            'Found 4 people in XML personography',
+            '4 people added',
             '3 addresses added',
             '3 countries added',
             '3 urls added'

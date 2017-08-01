@@ -97,6 +97,9 @@ class PersonName(TeiXmlObject):
         # if married name is set, return that
         if self.married_name:
             lastname = str(self.married_name)
+        # special case: one person with no name
+        elif not self.last_names:
+            return ''
         # otherwise, just use the first last name
         else:
             lastname = str(self.last_names[0])
@@ -146,8 +149,14 @@ class Person(TeiXmlObject):
         # handle names
         # - simple case: only one name in the xml
         if len(self.names) == 1:
-            db_person.name = self.names[0].full_name()
-            db_person.sort_name = self.names[0].sort_name()
+            # special case: one entry with no name ("friend of renoir")
+            if not self.names[0].last_name():
+                db_person.name = '[%s]' % self.title.strip()
+                db_person.title = ''
+
+            else:
+                db_person.name = self.names[0].full_name()
+                db_person.sort_name = self.names[0].sort_name()
 
         # temporary; should be in viaf code eventually
         if self.viaf_id:
