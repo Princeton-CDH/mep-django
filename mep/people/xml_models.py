@@ -28,9 +28,9 @@ class Residence(TeiXmlObject):
         '''Get the corresponding :class:`mep.people.models.Address` in the
         database, creating a new address if it does not exist.'''
         addr, created = models.Address.objects.get_or_create(
-            address_line_1=self.name or '',
-            address_line_2=self.street or '',
-            city_town=self.city or '',
+            name=self.name or '',
+            street_address=self.street or '',
+            city=self.city or '',
             postal_code=self.postcode or '',
             # NOTE: including lat/long in the get or create call
             # results in a new address getting created with the same values.
@@ -97,8 +97,9 @@ class Person(TeiXmlObject):
             mep_id=self.mep_id,
             title=self.title or '',
             # use first name in xml doc for
-            first_name=self.names[0].first_name() or '',
-            last_name=self.names[0].last_name(),
+            # TODO: full name and sort name
+            # first_name=self.names[0].first_name() or '',
+            # last_name=self.names[0].last_name(),
             # viaf_id=self.viaf_id or '',  # todo: convert to uri
             birth_year=self.birth or None,
             death_year=self.death or None,

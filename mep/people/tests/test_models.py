@@ -11,25 +11,21 @@ from mep.people.models import InfoURL, Person, Profession, Relationship, \
 class TestPerson(TestCase):
 
     def test_str(self):
-        # Last name should appear as lastname,
-        foo = Person(last_name='Foo')
-        assert str(foo) == 'Foo,'
+        # Use name if sort name is not set
+        person_foo = Person(name='Foo')
+        assert str(person_foo) == 'Foo'
 
-        # Full name should be Foo, Bar
-        foo_bar = Person(last_name='Foo', first_name='Bar')
-        assert str(foo_bar) == 'Foo, Bar'
+        # Use sort name if available
+        foo_bar = Person(name='Foo Bar', sort_name='Bar, Foo')
+        assert str(foo_bar) == 'Bar, Foo'
 
     def test_repr(self):
         # Foo Bar, born 1900
-        foo = Person(last_name='Foo', first_name='Bar', birth_year=1900)
+        person_foo = Person(name='Foo', sort_name='Bar, Foo', birth_year=1900)
         # Using self.__dict__ so relying on method being correct
         # Testing for form of "<Person {'k':v, ...}>""
         overall = re.compile(r'<Person \{.+\}>')
-        assert re.search(overall, repr(foo))
-
-    def test_full_name(self):
-        foo = Person(last_name='Foo', first_name='Bar')
-        assert foo.full_name == 'Bar Foo'
+        assert re.search(overall, repr(person_foo))
 
 
 class TestProfession(TestCase):
@@ -47,8 +43,8 @@ class TestProfession(TestCase):
 class TestRelationship(TestCase):
 
     def setUp(self):
-        self.foo = Person.objects.create(last_name='Foo')
-        self.foo_bro = Person.objects.create(last_name='Bar')
+        self.foo = Person.objects.create(name='Foo')
+        self.foo_bro = Person.objects.create(name='Bar')
         self.relationshiptype = RelationshipType.objects.create(name='sibling')
         self.relationship = Relationship.objects.create(
             from_person=self.foo,
@@ -81,8 +77,8 @@ class TestRelationshipType(TestCase):
 class TestRelationshipM2M(TestCase):
 
     def setUp(self):
-        self.foo = Person.objects.create(last_name='Foo')
-        self.bar = Person.objects.create(last_name='Bar')
+        self.foo = Person.objects.create(name='Foo')
+        self.bar = Person.objects.create(name='Bar')
         self.parent = RelationshipType.objects.create(name='parent')
         Relationship.objects.create(
             from_person=self.foo,
@@ -90,7 +86,7 @@ class TestRelationshipM2M(TestCase):
             relationship_type=self.parent
         )
 
-        self.baz = Person.objects.create(last_name='Baz')
+        self.baz = Person.objects.create(name='Baz')
         self.partner = RelationshipType.objects.create(name='business partner')
 
         Relationship.objects.create(
@@ -117,31 +113,33 @@ class TestRelationshipM2M(TestCase):
         assert len(self.foo.relations.all()) == 2
         # Should still be two if we filter out only Bar and Baz
         # Short way to check if both and only both are in the query set
-        assert (len(self.foo.relations.filter(last_name__in=['Baz', 'Bar']))
+        assert (len(self.foo.relations.filter(name__in=['Baz', 'Bar']))
                 == 2)
 
 
 class TestAddress(TestCase):
 
     def test_str(self):
-        # Just an address
-        address = Address(address_line_1="La Hotel")
-        assert str(address) == "La Hotel"
+        # Name and city only
+        address = Address(name="La Hotel", city="Paris")
+        assert str(address) == "La Hotel, Paris"
 
-        address = Address(address_line_2="1 Rue Le Foo")
-        assert str(address) == "1 Rue Le Foo"
-
-        # Just now with a city
-        address.city_town = "Paris"
+        # street and city only
+        address = Address(street_address="1 Rue Le Foo", city="Paris")
         assert str(address) == "1 Rue Le Foo, Paris"
 
-        # With nothing
-        address = Address()
-        assert str(address) == "[no street or city]"
+        # Name, street, and city
+        address = Address(street_address="1 Rue Le Foo", city="Paris",
+            name="La Hotel")
+        assert str(address) == "La Hotel, 1 Rue Le Foo, Paris"
+
+        # city only
+        address = Address(city="Paris")
+        assert str(address) == "Paris"
 
     def test_latlon_validate(self):
         # Valid, should pass clean fields
-        address = Address(latitude=180, longitude=-180)
+        address = Address(latitude=180, longitude=-180, city="Paris")
         address.clean_fields()
 
         # Not valid, should error out

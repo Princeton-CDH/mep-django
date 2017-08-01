@@ -18,12 +18,15 @@ class Country(Named):
 
 class Address(Notable):
     '''Addresses associated with accounts in the MEP database'''
-    #: address line 1
-    address_line_1 = models.CharField(max_length=255, blank=True)
-    #: address line 2
-    address_line_2 = models.CharField(max_length=255, blank=True)
+    #: optional name of the location (e.g., hotel)
+    name = models.CharField(max_length=255, blank=True)
+    #: optional person who the mail was "in care of"
+    care_of = models.ForeignKey('Person', null=True, blank=True,
+        help_text='Associated person for "in care of" addresses')
+    #: street address
+    street_address = models.CharField(max_length=255, blank=True)
     #: city or town
-    city_town = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=255)
     #: postal code; character rather than integer to support
     # UK addresses and other non-numeric postal codes
     postal_code = models.CharField(max_length=25, blank=True)
@@ -60,13 +63,8 @@ class Address(Notable):
         return '<Address %s>' % self.__dict__
 
     def __str__(self):
-        # preliminary; may adjust if we add a 'name' field for e.g.
-        # hotels and the like
-        str_parts = [self.address_line_1, self.address_line_2, self.city_town]
-        if any(str_parts):
-            return ', '.join([part for part in str_parts if part])
-        else:
-            return '[no street or city]'
+        str_parts = [self.name, self.street_address, self.city]
+        return ', '.join([part for part in str_parts if part])
 
 
 class Profession(Named, Notable):
@@ -81,10 +79,13 @@ class Person(Notable, DateRange):
     #: MEP xml id
     mep_id = models.CharField('MEP id', max_length=255, blank=True,
         help_text='Identifier from XML personography')
-    #: optional first name
-    first_name = models.CharField(max_length=255, blank=True)
-    #: last name
-    last_name = models.CharField(max_length=255)
+    #: names (first middle last)
+    name = models.CharField(max_length=255,
+        help_text='''Name as firstname lastname, firstname (birthname) married name,
+        or psuedonym (real name)''')
+    #: sort name; authorized name for people with VIAF
+    sort_name = models.CharField(max_length=255,
+        help_text='Sort name in lastname, firstname format; VIAF authorized name if available')
     #: viaf identifiers
     viaf_id = models.URLField('VIAF id', blank=True)
     #: birth year
@@ -124,16 +125,13 @@ class Person(Notable, DateRange):
         return '<Person %s>' % self.__dict__
 
     def __str__(self):
-        entry_name = '%s, %s' % (self.last_name, self.first_name)
-        return entry_name.strip()
-
-    @property
-    def full_name(self):
-        return ('%s %s' % (self.first_name, self.last_name)).strip()
+        '''String representation; use sort name if available with fall back
+        to name'''
+        return self.sort_name or self.name
 
     class Meta:
         verbose_name_plural = 'people'
-        ordering = ['last_name', 'first_name']
+        ordering = ['sort_name']
 
 
 class InfoURL(Notable):
@@ -167,15 +165,15 @@ class Relationship(models.Model):
         '''
         return ("<Relationship {'from_person': <Person %s>, "
                 "'to_person': <Person %s>, 'relationship_type': "
-                "<RelationshipType %s>}>") % (self.from_person.full_name,
-                                              self.to_person.full_name,
+                "<RelationshipType %s>}>") % (self.from_person.name,
+                                              self.to_person.name,
                                               self.relationship_type.name)
 
     def __str__(self):
         return '%s is a %s to %s.' % (
-            self.from_person.full_name,
+            self.from_person.name,
             self.relationship_type.name,
-            self.to_person.full_name
+            self.to_person.name
             )
 
 

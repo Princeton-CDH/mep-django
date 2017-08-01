@@ -53,9 +53,9 @@ class TestAddress(TestCase):
         res = Personography.from_file(XML_FIXTURE).people[2].residences[0]
         db_address = res.db_address()
         assert isinstance(db_address, models.Address)
-        assert db_address.address_line_1 == res.name
-        assert db_address.address_line_2 == res.street
-        assert db_address.city_town == res.city
+        assert db_address.name == res.name
+        assert db_address.street_address == res.street
+        assert db_address.city == res.city
         assert db_address.postal_code == res.postcode
         assert db_address.latitude == res.latitude
         assert db_address.longitude == res.longitude
@@ -123,8 +123,9 @@ class TestPerson(TestCase):
         assert db_person.mep_id == xml_person.mep_id
         assert db_person.title == xml_person.title
         assert db_person.viaf_id == 'http://viaf.org/viaf/%s' % xml_person.viaf_id
-        assert db_person.first_name == xml_person.first_name
-        assert db_person.last_name == xml_person.last_name
+        # TODO revision to full/sort name
+        # assert db_person.first_name == xml_person.first_name
+        # assert db_person.last_name == xml_person.last_name
         assert db_person.birth_year == xml_person.birth
         assert db_person.death_year == xml_person.death
         assert db_person.sex == xml_person.sex
@@ -138,14 +139,16 @@ class TestPerson(TestCase):
         assert db_person.urls.first().url == xml_person.urls[0]
         assert db_person.urls.first().notes == 'URL from XML import'
         # residence addresses
-        assert db_person.addresses.first().address_line_2 == \
+        assert db_person.addresses.first().street_address == \
             xml_person.residences[0].street
 
         # test with a incomplete record
         xml_person = Personography.from_file(XML_FIXTURE).people[1]
         db_person = xml_person.to_db_person()
-        assert db_person.last_name == 'Kaopeitzer'
-        for unknown_field in ['first_name', 'viaf_id', 'sex']:
+        # TODO revise full/sort name
+        # assert db_person.last_name == 'Kaopeitzer'
+        # for unknown_field in ['first_name', 'viaf_id', 'sex']:
+        for unknown_field in ['viaf_id', 'sex']:
             assert getattr(db_person, unknown_field) == ''
         for unknown_field in ['birth_year', 'death_year']:
             assert getattr(db_person, unknown_field) is  None

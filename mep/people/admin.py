@@ -20,10 +20,10 @@ class ResidenceInline(CollapsibleTabularInline):
 
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'birth_year', 'death_year',
+    list_display = ('sort_name', 'name', 'birth_year', 'death_year',
         'sex', 'profession', 'viaf_id', 'mep_id', 'has_notes')
     fields = ('mep_id', 'title',
-        ('last_name', 'first_name'),
+        ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
         'sex', 'profession', 'nationalities', 'addresses',
@@ -37,9 +37,9 @@ class PersonAdmin(admin.ModelAdmin):
 
 
 class AddressAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'address_line_1', 'address_line_2', 'city_town',
+    list_display = ('__str__', 'name', 'street_address', 'city',
         'country', 'has_notes')
-    fields = ('address_line_1', 'address_line_2', 'city_town', 'postal_code',
+    fields = ('name', 'street_address', 'city', 'postal_code',
         'country',
         ('latitude', 'longitude'),
         'notes')
