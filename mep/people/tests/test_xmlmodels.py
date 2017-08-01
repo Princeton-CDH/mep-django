@@ -160,7 +160,7 @@ class TestPersonName(TestCase):
 
         pname = load_xmlobject_from_string(self.namelink,
             xmlclass=PersonName)
-        assert pname.sort_name() == 'du Perron, Elisabeth (de Roos)'
+        assert pname.sort_name() == 'Perron, Elisabeth (de Roos) du'
 
         pname = load_xmlobject_from_string(self.lastname_only,
             xmlclass=PersonName)

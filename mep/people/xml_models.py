@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from eulxml import xmlmap
+from viapy.api import ViafEntity
 
 from mep.people import models
 
@@ -82,9 +83,10 @@ class PersonName(TeiXmlObject):
         "married name, firstname (birth name)".  Handles multiple first names,
         initials, etc.'''
         first_name = ' '.join(
-            [name for name in [self.first_name(), self.display_birthname()]
+            [name for name in [self.first_name(), self.display_birthname(),
+                               self.married_namelink or self.namelink]
              if name])
-        return ', '.join([n for n in [self.last_name(), first_name] if n])
+        return ', '.join([n for n in [self.last_name(sort=True), first_name] if n])
 
     def display_birthname(self):
         # in some cases only one name is present but it is tagged as birth name
@@ -94,7 +96,7 @@ class PersonName(TeiXmlObject):
             return '(%s)' % birth_name.strip()
         return ''
 
-    def last_name(self):
+    def last_name(self, sort=False):
         # if married name is set, return that
         if self.married_name:
             lastname = str(self.married_name)
@@ -105,8 +107,9 @@ class PersonName(TeiXmlObject):
         else:
             lastname = str(self.last_names[0])
 
-        # if a namelink is present (de, du, de la, etc - include it)
-        if self.married_namelink or self.namelink:
+        # in non-sorting mode, if a namelink is present (de, du, de la, etc)
+        # include it
+        if not sort and (self.married_namelink or self.namelink):
             return ' '.join([self.married_namelink or self.namelink, lastname])
 
         return lastname
@@ -188,9 +191,16 @@ class Person(TeiXmlObject):
         if self.nickname:
             db_person.notes += '\nNickname: %s' % self.nickname
 
-        # temporary; should be in viaf code eventually
+        # Set VIAF information if available
         if self.viaf_id:
-            db_person.viaf_id = "http://viaf.org/viaf/%s" % self.viaf_id
+            viaf_record = ViafEntity(self.viaf_id)
+            db_person.viaf_id = viaf_record.uri
+            # birth/death dates from xml take precedence; but if they are
+            # not set, set them from viaf
+            if db_person.birth_year is None:
+                db_person.birth_year = viaf_record.birthyear
+            if db_person.death_year is None:
+                db_person.death_year = viaf_record.deathyear
 
         # record must be saved before adding relations to other tables
         db_person.save()
