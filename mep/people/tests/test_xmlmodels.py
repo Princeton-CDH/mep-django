@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test import TestCase
@@ -221,19 +222,25 @@ class TestPerson(TestCase):
         xml_person.to_db_person().save()
         assert xml_person.is_imported()
 
-    def test_to_db_person(self):
+    @patch('mep.people.xml_models.ViafEntity')
+    def test_to_db_person(self, mockviafentity):
         # test with a fairly complete record
         xml_person = Personography.from_file(XML_FIXTURE).people[0]
+        mockviaf_record = mockviafentity.return_value
+        mockviaf_record.uri = 'http://viaf.org/viaf/%s' % xml_person.viaf_id
+        mockviaf_record.birthyear = 1800
+        mockviaf_record.deathyear = 1850
+
         db_person = xml_person.to_db_person()
         assert isinstance(db_person, models.Person)
         assert db_person.mep_id == xml_person.mep_id
         assert db_person.title == xml_person.title
-        assert db_person.viaf_id == 'http://viaf.org/viaf/%s' % xml_person.viaf_id
         assert db_person.name == 'Pauline Alderman'
         assert db_person.sort_name == 'Alderman, Pauline'
         assert db_person.birth_year == xml_person.birth
         assert db_person.death_year == xml_person.death
         assert db_person.sex == xml_person.sex
+
         # first xml note should be ignored because it has no text content
         assert '\n'.join(list(xml_person.notes)[1:]) in db_person.notes
         assert 'Nickname: Polly' in db_person.notes
@@ -248,8 +255,24 @@ class TestPerson(TestCase):
         assert db_person.addresses.first().street_address == \
             xml_person.residences[0].street
 
-        # test with a incomplete record
+        # check viaf handling
+        mockviafentity.assert_called_with(xml_person.viaf_id)
+        assert db_person.viaf_id == mockviafentity.return_value.uri
+        # xml birth/death dates should be used rather than viaf
+        assert db_person.birth_year != mockviaf_record.birthyear
+        assert db_person.death_year != mockviaf_record.deathyear
+
+        # simulate viaf id with no birth/death date in xml
+        del xml_person.birth
+        del xml_person.death
+        db_person = xml_person.to_db_person()
+        # birth/death dates in db should be set from viaf
+        assert db_person.birth_year == mockviaf_record.birthyear
+        assert db_person.death_year == mockviaf_record.deathyear
+
+        # test with an incomplete record
         xml_person = Personography.from_file(XML_FIXTURE).people[1]
+        mockviafentity.reset_mock()
         db_person = xml_person.to_db_person()
         assert db_person.name == 'Kaopeitzer'
         assert db_person.sort_name == 'Kaopeitzer'
@@ -257,6 +280,8 @@ class TestPerson(TestCase):
             assert getattr(db_person, unknown_field) == ''
         for unknown_field in ['birth_year', 'death_year']:
             assert getattr(db_person, unknown_field) is  None
+
+        mockviafentity.assert_not_called()
 
         # last xml note should be ignored because it has no text content
         assert db_person.notes == '\n'.join(list(xml_person.notes)[:-1])

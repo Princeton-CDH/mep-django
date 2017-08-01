@@ -202,6 +202,9 @@ class Person(TeiXmlObject):
             if db_person.death_year is None:
                 db_person.death_year = viaf_record.deathyear
 
+            # TODO: possible to get authorized name from VIAF?
+            # NOTE: could also get wikidata or other sameAs urls for some
+
         # record must be saved before adding relations to other tables
         db_person.save()
 
