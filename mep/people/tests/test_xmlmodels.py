@@ -202,6 +202,7 @@ class TestPerson(TestCase):
         assert person.mep_id == "alde.pa"
         assert person.viaf_id == "42635145"
         assert person.title == "Ms"
+        assert person.nickname == 'Polly'
         assert person.birth == 1893
         assert person.death == 1983
         assert person.sex == "F"
@@ -234,7 +235,8 @@ class TestPerson(TestCase):
         assert db_person.death_year == xml_person.death
         assert db_person.sex == xml_person.sex
         # first xml note should be ignored because it has no text content
-        assert db_person.notes == '\n'.join(list(xml_person.notes)[1:])
+        assert '\n'.join(list(xml_person.notes)[1:]) in db_person.notes
+        assert 'Nickname: Polly' in db_person.notes
         # nationality should create country, add relation
         country = db_person.nationalities.first()
         assert country.code == 'us'

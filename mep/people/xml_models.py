@@ -123,6 +123,7 @@ class Person(TeiXmlObject):
     title = xmlmap.StringField('t:persName/t:roleName')
     names = xmlmap.NodeListField('t:persName', PersonName)
     pseudonyms = xmlmap.NodeListField('t:persName[@type="pseudo"]', PersonName)
+    nickname = xmlmap.StringField('./t:persName/t:addName[@type="nickname"]')
     birth = xmlmap.IntegerField('t:birth')
     death = xmlmap.IntegerField('t:death')
     sex = xmlmap.StringField('t:sex/@value')
@@ -182,6 +183,10 @@ class Person(TeiXmlObject):
                     # document any pseudonyms in the notes
                     db_person.notes += '\nPseudonym(s): %s' % \
                         ', '.join([str(n) for n in self.pseudonyms])
+
+        # add nickname to notes, if any
+        if self.nickname:
+            db_person.notes += '\nNickname: %s' % self.nickname
 
         # temporary; should be in viaf code eventually
         if self.viaf_id:

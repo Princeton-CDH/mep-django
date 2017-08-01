@@ -14,7 +14,7 @@
     </teiHeader>
     <text>
         <body>
-            <listPerson xml:id="expats">
+            <listPerson>
                 <!-- sample complete record with viaf + birth/death dates -->
                 <person xml:id="alde.pa">
                     <idno type="viaf">42635145</idno>
@@ -22,6 +22,7 @@
                         <roleName>Ms</roleName>
                         <surname>Alderman</surname>
                         <forename>Pauline</forename>
+                        <addName type="nickname">Polly</addName> <!-- made up for testing -->
                     </persName>
                     <birth>1893</birth>
                     <death>1983</death>
