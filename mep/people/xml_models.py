@@ -46,7 +46,7 @@ class Residence(TeiXmlObject):
 
 class Name(TeiXmlObject):
     name_type = xmlmap.StringField('@type')
-    sort = xmlmap.StringField('@sort')
+    sort = xmlmap.IntegerField('@sort')
     full = xmlmap.StringField('@full')
     value = xmlmap.StringField('text()')
 
@@ -61,6 +61,7 @@ class PersonName(TeiXmlObject):
     first_names = xmlmap.NodeListField('t:forename', Name)
     married_name = xmlmap.NodeField('t:surname[@type="married"]', Name)
     birth_name = xmlmap.NodeField('t:surname[@type="birth"]', Name)
+    sort = xmlmap.IntegerField('@sort')
 
     namelink = xmlmap.StringField('t:nameLink')
     birth_namelink = xmlmap.StringField('t:nameLink[@type="birth"]')
@@ -121,8 +122,7 @@ class Person(TeiXmlObject):
     viaf_id = xmlmap.StringField('t:idno[@type="viaf"]')
     title = xmlmap.StringField('t:persName/t:roleName')
     names = xmlmap.NodeListField('t:persName', PersonName)
-    last_name = xmlmap.StringField('t:persName/t:surname')
-    first_name = xmlmap.StringField('t:persName/t:forename')
+    pseudonyms = xmlmap.NodeListField('t:persName[@type="pseudo"]', PersonName)
     birth = xmlmap.IntegerField('t:birth')
     death = xmlmap.IntegerField('t:death')
     sex = xmlmap.StringField('t:sex/@value')
@@ -145,6 +145,10 @@ class Person(TeiXmlObject):
             death_year=self.death or None,
             sex=self.sex or ''
         )
+        # Combine any non-empty notes from the xml and put them in the
+        # database notes field. (URLs are handled elsewhere)
+        db_person.notes = '\n'.join(note for note in self.notes
+                                    if note.strip())
 
         # handle names
         # - simple case: only one name in the xml
@@ -158,14 +162,31 @@ class Person(TeiXmlObject):
                 db_person.name = self.names[0].full_name()
                 db_person.sort_name = self.names[0].sort_name()
 
+        # handle multiple names
+        else:
+            # check for pseudonym
+            if self.pseudonyms:
+                # pseudonym is primary name
+                if self.pseudonyms[0].sort == 1:
+                    db_person.name = '%s (%s)' % \
+                        (self.pseudonyms[0], self.names[0].full_name())
+                    db_person.sort_name = self.pseudonyms[0].sort_name() \
+                        or str(self.pseudonyms[0])
+
+                # pseudonym is not primary
+                else:
+                    # use the first name
+                    db_person.name = self.names[0].full_name()
+                    db_person.sort_name = self.names[0].sort_name()
+
+                    # document any pseudonyms in the notes
+                    db_person.notes += '\nPseudonym(s): %s' % \
+                        ', '.join([str(n) for n in self.pseudonyms])
+
         # temporary; should be in viaf code eventually
         if self.viaf_id:
             db_person.viaf_id = "http://viaf.org/viaf/%s" % self.viaf_id
 
-        # Combine any non-empty notes from the xml and put them in the
-        # database notes field. (URLs are handled elsewhere)
-        db_person.notes = '\n'.join(note for note in self.notes
-                                    if note.strip())
         # record must be saved before adding relations to other tables
         db_person.save()
 

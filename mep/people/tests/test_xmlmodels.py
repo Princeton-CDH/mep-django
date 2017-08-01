@@ -169,12 +169,38 @@ class TestPersonName(TestCase):
 
 class TestPerson(TestCase):
 
+    pseudonym = '''<person xml:id="elle.an" xmlns="http://www.tei-c.org/ns/1.0">
+        <idno type="viaf">111923629</idno>
+        <persName sort="2">
+            <surname type="birth">Ellerman</surname>
+            <forename sort="1">Anne</forename>
+            <forename sort="2">Winifred</forename>
+        </persName>
+        <persName type="pseudo" sort="1">Bryher</persName>
+        <birth>1894</birth>
+        <death>1983</death>
+        <sex value="F"/>
+        <nationality key="gb">United Kingdom of Great Britain and Northern
+            Ireland</nationality>
+        <note>no address in cards</note>
+    </person>'''
+
+    pseudonym_nonprimary = ''' <person xml:id="desc.an" xmlns="http://www.tei-c.org/ns/1.0">
+        <idno type="viaf">1900525</idno>
+        <persName>
+            <surname>Desclos</surname>
+            <forename>Anne</forename>
+        </persName>
+        <persName type="pseudo">Dominique Aury</persName>
+        <persName type="pseudo"><forename>Pauline</forename> <surname>Réage</surname></persName>
+        <note target="https://en.wikipedia.org/wiki/Anne_Desclos"/>
+        <note>daughter of Auguste Desclos</note>
+    </person>'''
+
     def test_properties(self):
         person = Personography.from_file(XML_FIXTURE).people[0]
         assert person.mep_id == "alde.pa"
         assert person.viaf_id == "42635145"
-        assert person.last_name == "Alderman"
-        assert person.first_name == "Pauline"
         assert person.title == "Ms"
         assert person.birth == 1893
         assert person.death == 1983
@@ -250,4 +276,18 @@ class TestPerson(TestCase):
         assert db_person.name == '[Friend of Renoir]'
         assert db_person.title == ''
         assert db_person.sex == 'M'
+
+        # pseudonym
+        xml_person = load_xmlobject_from_string(self.pseudonym, xmlclass=Person)
+        db_person = xml_person.to_db_person()
+        assert db_person.name == 'Bryher (Anne Winifred Ellerman)'
+        assert db_person.sort_name == 'Bryher'
+
+        # pseudonyms, but not primary name
+        xml_person = load_xmlobject_from_string(self.pseudonym_nonprimary,
+            xmlclass=Person)
+        db_person = xml_person.to_db_person()
+        assert db_person.name == 'Anne Desclos'
+        assert db_person.sort_name == 'Desclos, Anne'
+        assert 'Pseudonym(s): Dominique Aury, Pauline Réage' in db_person.notes
 
