@@ -302,6 +302,19 @@ class PersonName(TeiXmlObject):
         sorted_names = sorted(self.first_names, key=lambda n: n.sort or 0)
         return ' '.join([str(n) for n in sorted_names])
 
+class Note(TeiXmlObject):
+
+    def __str__(self):
+        # check for included person name with ref id
+        for node in self.node:
+            if node.tag == '{http://www.tei-c.org/ns/1.0}persName':
+                # if ref is set, add it to the text after the person name
+                ref = node.get('ref')
+                if ref:
+                    node.tail = '%s [%s]' % (node.tail, ref)
+
+        # output note text normally, now including ref id
+        return self.node.xpath("normalize-space(.)")
 
 class Person(TeiXmlObject):
     mep_id = xmlmap.StringField('@xml:id')
@@ -313,7 +326,7 @@ class Person(TeiXmlObject):
     birth = xmlmap.IntegerField('t:birth')
     death = xmlmap.IntegerField('t:death')
     sex = xmlmap.StringField('t:sex/@value')
-    notes = xmlmap.StringListField('t:note')
+    notes = xmlmap.NodeListField('t:note', Note)
     urls = xmlmap.StringListField('.//t:ref/@target')
     nationalities = xmlmap.NodeListField('t:nationality', Nationality)
     # todo: handle ref target in notes
@@ -335,8 +348,8 @@ class Person(TeiXmlObject):
         )
         # Combine any non-empty notes from the xml and put them in the
         # database notes field. (URLs are handled elsewhere)
-        db_person.notes = '\n'.join(note for note in self.notes
-                                    if note.strip())
+        db_person.notes = '\n'.join(str(note) for note in self.notes
+                                    if str(note).strip())
 
         # handle names
         # - simple case: only one name in the xml

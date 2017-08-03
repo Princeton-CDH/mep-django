@@ -7,7 +7,7 @@ from eulxml.xmlmap import load_xmlobject_from_string
 from mep.people import models
 from mep.people.geonames import GeoNamesAPI
 from mep.people.xml_models import Person, PersonName, Personography, \
-    Nationality, Residence
+    Nationality, Residence, Note
 
 
 FIXTURE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'fixtures')
@@ -215,6 +215,17 @@ class TestPersonName(TestCase):
         assert pname.sort_name() == 'Kaopeitzer'
 
 
+class TestNote(TestCase):
+    note_ref = '''<note xmlns="http://www.tei-c.org/ns/1.0">I'm not sure if this is
+    the daughter of <persName ref="#dufo.ch"><forename>Charles</forename>
+        <surname>Dufour</surname></persName>
+    </note>'''
+
+    def test_str(self):
+        note = load_xmlobject_from_string(self.note_ref, xmlclass=Note)
+        assert 'daughter of Charles Dufour [#dufo.ch]' in str(note)
+
+
 class TestPerson(TestCase):
 
     pseudonym = '''<person xml:id="elle.an" xmlns="http://www.tei-c.org/ns/1.0">
@@ -267,7 +278,7 @@ class TestPerson(TestCase):
         assert person.nationalities[0].code == "us"
         assert person.nationalities[0].label == "United States of America"
         assert len(person.notes) == 3
-        assert person.notes[1] == 'test second note'
+        assert str(person.notes[1]) == 'test second note'
 
     def test_is_imported(self):
         # fixture is not yet in the database
@@ -308,7 +319,7 @@ class TestPerson(TestCase):
         assert db_person.sex == xml_person.sex
 
         # first xml note should be ignored because it has no text content
-        assert '\n'.join(list(xml_person.notes)[1:]) in db_person.notes
+        assert '\n'.join(list([str(n) for n in xml_person.notes])[1:]) in db_person.notes
         assert 'Nickname: Polly' in db_person.notes
         # nationality should create country, add relation
         country = db_person.nationalities.first()
@@ -350,7 +361,7 @@ class TestPerson(TestCase):
         mockviafentity.assert_not_called()
 
         # last xml note should be ignored because it has no text content
-        assert db_person.notes == '\n'.join(list(xml_person.notes)[:-1])
+        assert db_person.notes == '\n'.join(list([str(n) for n in xml_person.notes])[:-1])
 
         # third person in fixture has two nationalities
         xml_person = Personography.from_file(XML_FIXTURE).people[2]
