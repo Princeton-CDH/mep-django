@@ -32,11 +32,13 @@ class Nationality(TeiXmlObject):
             # no geonames id or code
             name = '[no country]'
             geo_id = ''
+            code = ''
 
         elif self.code.upper() in geonamesapi.countries_by_code:
             geoname = geonamesapi.countries_by_code[self.code.upper()]
             name = geoname['countryName']
             geo_id = GeoNamesAPI.uri_from_id(geoname['geonameId'])
+            code = geoname['countryCode']
 
         else:
             logger.warn('country code %s not found', self.code.upper())
@@ -45,7 +47,8 @@ class Nationality(TeiXmlObject):
         # get existing country or add if not yet present
         country, created = models.Country.objects.get_or_create(
             geonames_id=geo_id,
-            name=name
+            name=name,
+            code=code
         )
         return country
 
@@ -213,12 +216,14 @@ class Residence(TeiXmlObject):
         )
         # city has a known country, add that
         if self.city in self.city_country:
+            # TODO: move country from geonames code logic into db model
             geonamesapi = GeoNamesAPI()
             geoname = geonamesapi.countries_by_code[self.city_country[self.city]]
             # get existing country or add if not yet present
             country, created = models.Country.objects.get_or_create(
                 geonames_id=GeoNamesAPI.uri_from_id(geoname['geonameId']),
-                name=geoname['countryName']
+                name=geoname['countryName'],
+                code=geoname['countryCode']
             )
             addr.country = country
 

@@ -97,7 +97,7 @@ class TestImportPersonography(TestCase):
         # add a few more things
         Person.objects.create(name='another')
         Person.objects.create(name='fourth')
-        Country.objects.create(name='Utopia', geonames_id=12345)
+        Country.objects.create(name='Utopia', geonames_id=12345, code='UT')
         # check new summary
         self.cmd.summarize(new_totals)
         output = self.cmd.stdout.getvalue()

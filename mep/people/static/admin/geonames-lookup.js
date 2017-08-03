@@ -1,10 +1,11 @@
+/* NOTE: this logic is currently specific to country editing */
 $(document).on('select2:select', function(evt) {   // fixme: restrict to .geonames-lookup ?
-    console.log('selected');
     var data = evt.params.data;
     // update link display and target
     $('#geonames_uri').text(data.id).attr('href', data.id);
-    // set name from geonames data
+    // set name & code from geonames data
     $('input[name="name"]').val(data.name);
+    $('input[name="code"]').val(data.country_code);
 });
 
 var map, marker;

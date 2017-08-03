@@ -20,7 +20,8 @@ class TestPeopleViews(TestCase):
         # abbreviated sample return with fields currently in use
         mock_response = [
             {'name': 'New York City', 'geonameId': 5128581,
-             'countryName': 'USA', 'lat': 40.71427, 'lng': -74.00597}
+             'countryName': 'USA', 'lat': 40.71427, 'lng': -74.00597,
+             'countryCode': 'US'}
         ]
         mockgeonamesapi.return_value.search.return_value = mock_response
         # patch in real uri from id logic

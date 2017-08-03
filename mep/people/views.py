@@ -30,6 +30,7 @@ class GeoNamesLookup(autocomplete.Select2ListView):
                 id=geo_api.uri_from_id(item['geonameId']),
                 text=self.get_label(item),
                 name=item['name'],
+                country_code=item['countryCode'],
                 # lat & long included in data to make them available for
                 # javascript to populateform fields
                 lat=item['lat'],

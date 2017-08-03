@@ -11,7 +11,9 @@ class Country(Named):
     or location of an :class:`Address`'''
     geonames_id = models.URLField('GeoNames ID', unique=True, blank=True,
         help_text='GeoNames identifier')
-    # optional to support no country/stateless
+    code = models.CharField('Country Code', unique=True, blank=True,
+        help_text='Two-letter country code', max_length=2)
+    # id & code are optional to support no country/stateless
 
     class Meta:
         verbose_name_plural = 'countries'

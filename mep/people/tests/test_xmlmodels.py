@@ -54,9 +54,9 @@ class TestAddress(TestCase):
         mockgeonames.uri_from_id = GeoNamesAPI.uri_from_id
         # mock geonames country codes (minimal subset)
         mockgeonames.return_value.countries_by_code = {
-            'US': {'geonameId': 6252001, 'countryName': 'United States'},
-            'MQ': {'geonameId': 3570311, 'countryName': 'Martinique'},
-            'FR': {'geonameId': 3017382, 'countryName': 'France'},
+            'US': {'geonameId': 6252001, 'countryName': 'United States', 'countryCode': 'US'},
+            'MQ': {'geonameId': 3570311, 'countryName': 'Martinique', 'countryCode': 'MQ'},
+            'FR': {'geonameId': 3017382, 'countryName': 'France', 'countryCode': 'FR'},
         }
 
         # address for third person in the fixture
@@ -84,9 +84,9 @@ class TestNationality(TestCase):
         mockgeonames.uri_from_id = GeoNamesAPI.uri_from_id
         # mock geonames country codes (minimal subset)
         mockgeonames.return_value.countries_by_code = {
-            'US': {'geonameId': 6252001, 'countryName': 'United States'},
-            'MQ': {'geonameId': 3570311, 'countryName': 'Martinique'},
-            'FR': {'geonameId': 3017382, 'countryName': 'France'},
+            'US': {'geonameId': 6252001, 'countryName': 'United States', 'countryCode': 'US'},
+            'MQ': {'geonameId': 3570311, 'countryName': 'Martinique', 'countryCode': 'MQ'},
+            'FR': {'geonameId': 3017382, 'countryName': 'France', 'countryCode': 'FR'},
         }
 
         # normal
@@ -303,9 +303,9 @@ class TestPerson(TestCase):
         mockgeonames.uri_from_id = GeoNamesAPI.uri_from_id
         # mock geonames country codes (minimal subset)
         mockgeonames.return_value.countries_by_code = {
-            'US': {'geonameId': 6252001, 'countryName': 'United States'},
-            'MQ': {'geonameId': 3570311, 'countryName': 'Martinique'},
-            'FR': {'geonameId': 3017382, 'countryName': 'France'},
+            'US': {'geonameId': 6252001, 'countryName': 'United States', 'countryCode': 'US'},
+            'MQ': {'geonameId': 3570311, 'countryName': 'Martinique', 'countryCode': 'MQ'},
+            'FR': {'geonameId': 3017382, 'countryName': 'France', 'countryCode': 'FR'},
         }
 
         db_person = xml_person.to_db_person()
@@ -325,6 +325,7 @@ class TestPerson(TestCase):
         country = db_person.nationalities.first()
         assert country.geonames_id == 'http://sws.geonames.org/6252001/'
         assert country.name == 'United States'
+        assert country.code == 'US'
         # urls
         assert db_person.urls.first().url == xml_person.urls[0]
         assert db_person.urls.first().notes == 'URL from XML import'
