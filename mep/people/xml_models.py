@@ -21,6 +21,8 @@ class Nationality(TeiXmlObject):
     '''Nationality associated with a :class:`Person`'''
     code = xmlmap.StringField('@key')
     label = xmlmap.StringField('normalize-space(.)')
+    not_after = xmlmap.StringField('@notAfter')
+    not_before = xmlmap.StringField('@notBefore')
 
     def db_country(self):
         geonamesapi = GeoNamesAPI()
@@ -395,6 +397,20 @@ class Person(TeiXmlObject):
             country = nation.db_country()
             if country:
                 db_person.nationalities.add(country)
+
+        # special case: add note for not after/before
+        if self.nationalities and \
+          (self.nationalities[0].not_after or self.nationalities[0].not_before):
+            note_text = ['Nationality:  ']
+            for nation in self.nationalities:
+                if nation.not_after:
+                    note_text.append('%s notAfter %s' % \
+                        (nation.label, nation.not_after))
+                if nation.not_before:
+                    note_text.append('%s notBefore %s' % \
+                        (nation.label, nation.not_before))
+
+            db_person.notes += ' '.join(note_text)
 
         # handle URLs included in notes
         for link in self.urls:

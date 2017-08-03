@@ -245,6 +245,15 @@ class TestPerson(TestCase):
         <note>daughter of Auguste Desclos</note>
     </person>'''
 
+    before_after_nationality = '''<person xml:id="benj.wa" xmlns="http://www.tei-c.org/ns/1.0">
+        <persName>
+            <surname>Benjamin</surname>
+            <forename>Walter</forename>
+        </persName>
+        <nationality notAfter="1935-09-15" key="de">German</nationality>
+        <nationality notBefore="1935-09-15" key="xxa">stateless</nationality>
+    </person>'''
+
     def test_properties(self):
         person = Personography.from_file(XML_FIXTURE).people[0]
         assert person.mep_id == "alde.pa"
@@ -377,4 +386,14 @@ class TestPerson(TestCase):
         assert db_person.name == 'Anne Desclos'
         assert db_person.sort_name == 'Desclos, Anne'
         assert 'Pseudonym(s): Dominique Aury, Pauline Réage' in db_person.notes
+
+        # nationality before/after note
+        xml_person = load_xmlobject_from_string(self.before_after_nationality,
+            xmlclass=Person)
+        db_person = xml_person.to_db_person()
+        print(db_person.notes)
+        assert 'Nationality: ' in db_person.notes
+        assert 'German notAfter 1935-09-15' in db_person.notes
+        assert 'stateless notBefore 1935-09-15' in db_person.notes
+
 
