@@ -6,3 +6,4 @@ pucas
 eulxml
 # develop version of viapy until we have a release
 git+https://github.com/Princeton-CDH/viapy.git@develop#egg=viapy
+django-autocomplete-light
