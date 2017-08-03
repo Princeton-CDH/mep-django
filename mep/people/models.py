@@ -14,6 +14,7 @@ class Country(Named):
 
     class Meta:
         verbose_name_plural = 'countries'
+        ordering = ('name',)
 
 
 class Address(Notable):
