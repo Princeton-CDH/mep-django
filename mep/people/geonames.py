@@ -8,6 +8,14 @@ import requests
 logger = logging.getLogger(__name__)
 
 
+class GeoNamesError(Exception):
+    pass
+
+class GeoNamesUnauthorized(GeoNamesError):
+
+    pass
+
+
 # NOTE: geonames code copied/adapted from winthrop project; will need
 # to be spun off into its own library at some point down ther oad
 
@@ -24,10 +32,33 @@ class GeoNamesAPI(object):
     def __init__(self):
         self.username = getattr(settings, "GEONAMES_USERNAME", None)
 
+    def call_api(self, method, params=None):
+        api_url = '/'.join([self.api_base, method])
+        if params is None:
+            params = {}
+        params['username'] = self.username
+        response = requests.get(api_url, params=params)
+        logger.debug('GeoNames %s: %s %s, %0.2f sec',
+                     method, response.status_code, response.reason,
+                     response.elapsed.total_seconds())
+        if response.status_code == requests.codes.ok:
+            # Unfortunately geonames api returns 200 codes for what
+            # should be errors, with message and status code in the response.
+            # See exception documentation for list of codes
+            # http://www.geonames.org/export/webservice-exception.html
+            data = response.json()
+            if 'status' in data:
+                if data['status']['value'] == 10:
+                    raise GeoNamesUnauthorized(data['status']['message'])
+                else:
+                    raise GeoNamesError(data['status']['message'])
+
+            return data
+
     def search(self, query, max_rows=None, feature_class=None,
         feature_code=None):
         '''Search for places and return the list of results'''
-        api_url = '%s/%s' % (self.api_base, 'searchJSON')
+        api_method = 'searchJSON'
         # NOTE: for autocomplete, name_startsWith might be better
         params = {'username': self.username, 'q': query}
         if max_rows is not None:
@@ -36,12 +67,8 @@ class GeoNamesAPI(object):
             params['featureClass'] = feature_class
         if feature_code is not None:
             params['featureCode'] = feature_code
-        response = requests.get(api_url, params=params)
-        logger.debug('GeoNames search \'%s\': %s %s, %0.2f sec',
-                     query, response.status_code, response.reason,
-                     response.elapsed.total_seconds())
-        # return the list of results (present even when empty)
-        return response.json()['geonames']
+
+        return self.call_api(api_method, params)['geonames']
 
     @classmethod
     def uri_from_id(cls, geonames_id):
@@ -52,13 +79,8 @@ class GeoNamesAPI(object):
     def countries(self):
         '''Country information as returned by countryInfoJSON.'''
         if GeoNamesAPI._countries is None:
-            api_url = '%s/%s' % (self.api_base, 'countryInfoJSON')
-            response = requests.get(api_url, params={'username': self.username})
-            logger.debug('GeoNames countryInfoJSON: %s %s, %0.2f sec',
-                         response.status_code, response.reason,
-                         response.elapsed.total_seconds())
-            if response.status_code == requests.codes.ok:
-                GeoNamesAPI._countries = response.json().get('geonames', [])
+            api_method = 'countryInfoJSON'
+            GeoNamesAPI._countries = self.call_api(api_method)['geonames']
 
         return GeoNamesAPI._countries
 

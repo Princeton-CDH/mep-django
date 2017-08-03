@@ -1,9 +1,11 @@
 from unittest.mock import patch
 from django.test import TestCase, override_settings
 
+import pytest
 import requests
 
-from mep.people.geonames import GeoNamesAPI
+from mep.people.geonames import GeoNamesAPI, GeoNamesError, \
+    GeoNamesUnauthorized
 
 
 # test geonames api username for test (not an actual username)
@@ -40,11 +42,14 @@ class TestGeonamesApi(TestCase):
 
     @patch('mep.people.geonames.requests')
     def test_search(self, mockrequests):
+        mock_result = {'geonames': []}
+        mockrequests.get.return_value.json.return_value = mock_result
+        mockrequests.codes = requests.codes
+        mockrequests.get.return_value.status_code = requests.codes.ok
+        mockrequests.get.return_value.reason = 'OK'
+
         geo_api = GeoNamesAPI()
 
-        mock_result = {'geonames': []}
-
-        mockrequests.get.return_value.json.return_value = mock_result
         result = geo_api.search('amsterdam')
         assert result == []
         mockrequests.get.assert_called_with('http://api.geonames.org/searchJSON',
@@ -65,6 +70,7 @@ class TestGeonamesApi(TestCase):
         mockrequests.get.return_value.json.return_value = self.mock_countryinfo
         mockrequests.codes = requests.codes
         mockrequests.get.return_value.status_code = requests.codes.ok
+        mockrequests.get.return_value.reason = 'OK'
 
         geo_api = GeoNamesAPI()
 
@@ -82,6 +88,7 @@ class TestGeonamesApi(TestCase):
         mockrequests.get.return_value.json.return_value = self.mock_countryinfo
         mockrequests.codes = requests.codes
         mockrequests.get.return_value.status_code = requests.codes.ok
+        mockrequests.get.return_value.reason = 'OK'
 
         geo_api = GeoNamesAPI()
         assert 'AD' in geo_api.countries_by_code
@@ -89,3 +96,38 @@ class TestGeonamesApi(TestCase):
         assert 'AE' in geo_api.countries_by_code
         assert geo_api.countries_by_code['AE']['geonameId'] == 290557
 
+    @patch('mep.people.geonames.requests')
+    def test_errors(self, mockrequests):
+        mockrequests.codes = requests.codes
+        mockrequests.get.return_value.status_code = requests.codes.ok
+        mockrequests.get.return_value.reason = 'OK'
+
+        # no result found
+        error_message = {
+            "status": {
+              "message": "no administrative country subdivision for latitude and longitude :51.03,-20.0",
+              "value": 15
+            }
+        }
+        mockrequests.get.return_value.json.return_value = error_message
+        geo_api = GeoNamesAPI()
+        # generic error
+        with pytest.raises(GeoNamesError) as geo_err:
+            geo_api.call_api('testmethod')
+
+        # exception text should include geonames api message
+        assert error_message['status']['message'] in str(geo_err)
+
+        # unauthorized error
+        error_message = {
+            "status": {
+              "message": "invalid username or no username supplied",
+              "value": 10
+            }
+        }
+        mockrequests.get.return_value.json.return_value = error_message
+        # unauthorized error
+        with pytest.raises(GeoNamesUnauthorized) as geo_err:
+            geo_api.call_api('testmethod')
+
+        assert error_message['status']['message'] in str(geo_err)
