@@ -6,7 +6,8 @@ from mep.people.geonames import GeoNamesAPI
 
 class GeoNamesLookup(autocomplete.Select2ListView):
     '''GeoNames ajax lookup for use as autocomplete.
-    Currently restricted to staff only.'''
+    Optional mode parameter to restrict to countries only.
+    '''
 
     mode = None
 

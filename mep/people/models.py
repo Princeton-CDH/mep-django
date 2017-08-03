@@ -7,7 +7,8 @@ from mep.footnotes.models import Footnote
 
 
 class Country(Named):
-    '''Countries, for documenting nationalities of a :class:`Person`'''
+    '''Countries, for documenting nationalities of a :class:`Person`
+    or location of an :class:`Address`'''
     geonames_id = models.URLField('GeoNames ID', unique=True, blank=True,
         help_text='GeoNames identifier')
     # optional to support no country/stateless
@@ -18,7 +19,7 @@ class Country(Named):
 
 
 class Address(Notable):
-    '''Addresses associated with accounts in the MEP database'''
+    '''Addresses associated with people and accounts'''
     #: optional name of the location (e.g., hotel)
     name = models.CharField(max_length=255, blank=True)
     #: street address
@@ -107,7 +108,7 @@ class Person(Notable, DateRange):
     profession = models.ForeignKey(Profession, blank=True, null=True)
     #: nationalities, link to :class:`Country`
     nationalities = models.ManyToManyField(Country, blank=True)
-    #: known addresses, link to :class:`Address1
+    #: known addresses, many-to-many link to :class:`Address`
     addresses = models.ManyToManyField(Address, blank=True)
     #: relationships to other people, via :class:`Relationship`
     relations = models.ManyToManyField(

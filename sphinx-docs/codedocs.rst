@@ -43,6 +43,29 @@ Models
 .. automodule:: mep.people.models
     :members:
 
+XML Models
+^^^^^^^^^^
+.. automodule:: mep.people.xml_models
+    :members:
+
+Views
+^^^^^
+.. automodule:: mep.people.views
+    :members:
+
+GeoNames
+^^^^^^^^
+.. automodule:: mep.people.geonames
+    :members:
+
+Manage Commands
+^^^^^^^^^^^^^^^
+
+import personography
+~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: mep.people.management.commands.import_personography
+
 Footnotes
 ---------
 .. automodule:: mep.footnotes

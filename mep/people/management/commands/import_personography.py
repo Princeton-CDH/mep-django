@@ -1,3 +1,17 @@
+'''
+Manage command to import personography from MEP XML.  Example usage::
+
+    python manage.py import_personography  /path/to/personography.xml
+
+If a person has already been imported
+(based on :attr:`~mep.people.models.Person.mep_id`), they will skipped
+when the import script is run again.
+
+See :meth:`mep.people.xml_model.Person.to_db_person` for more
+specifics on import logic.
+'''
+
+
 from django.core.management.base import BaseCommand, CommandError
 
 from mep.people.models import Person, Address, Country, InfoURL
