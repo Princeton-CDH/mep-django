@@ -1,9 +1,8 @@
-from collections import defaultdict
-
 from django.core.management.base import BaseCommand, CommandError
 
 from mep.people.models import Person, Address, Country, InfoURL
 from mep.people.xml_models import Personography
+
 
 class Command(BaseCommand):
     '''Import personography data from TEI file'''
@@ -22,12 +21,7 @@ class Command(BaseCommand):
         self.stdout.write('Found %d people in XML personography' % len(personog.people))
 
         # get totals from the database before adding anything
-        start_totals = {
-            'people': Person.objects.count(),
-            'addresses': Address.objects.count(),
-            'countries': Country.objects.count(),
-            'urls': InfoURL.objects.count(),
-        }
+        start_totals = self.get_totals()
 
         # loop through people in the personograpy and create records in the db
         for xml_person in personog.people:
@@ -36,12 +30,21 @@ class Command(BaseCommand):
                 xml_person.to_db_person()
 
         # report how many items were added
-        new_totals = {
+        self.summarize(start_totals)
+
+    def get_totals(self):
+        '''Dictionary with total number of each type of models included in
+        import.'''
+        return {
             'people': Person.objects.count(),
             'addresses': Address.objects.count(),
             'countries': Country.objects.count(),
             'urls': InfoURL.objects.count(),
         }
+
+    def summarize(self, start_totals):
+        '''Summarize what changed in the database'''
+        new_totals = self.get_totals()
         for i in ['people', 'addresses', 'countries', 'urls']:
             self.stdout.write('%d %s added (%d total)' % \
                 (new_totals[i] - start_totals[i], i, new_totals[i]))
