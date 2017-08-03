@@ -16,11 +16,38 @@ class TeiXmlObject(xmlmap.XmlObject):
     }
 
 class Nationality(TeiXmlObject):
+    '''Nationality associated with a :class:`Person`'''
     code = xmlmap.StringField('@key')
     label = xmlmap.StringField('normalize-space(.)')
 
+    def db_country(self):
+        geonamesapi = GeoNamesAPI()
+
+        # special case: "stateless" (only occurs once)
+        if self.label == 'stateless':
+            # no geonames id or code
+            name = '[no country]'
+            geo_id = ''
+
+        elif self.code.upper() in geonamesapi.countries_by_code:
+            geoname = geonamesapi.countries_by_code[self.code.upper()]
+            name = geoname['countryName']
+            geo_id = GeoNamesAPI.uri_from_id(geoname['geonameId'])
+
+        else:
+            logger.warn('country code %s not found', self.code.upper())
+            return
+
+        # get existing country or add if not yet present
+        country, created = models.Country.objects.get_or_create(
+            geonames_id=geo_id,
+            name=name
+        )
+        return country
+
 
 class Residence(TeiXmlObject):
+    '''Residence associated with a :class:`Person`'''
     name = xmlmap.StringField('t:address/t:name|t:address/t:name', normalize=True)
     street = xmlmap.StringField('t:address/t:street', normalize=True)
     postcode = xmlmap.StringField('t:address/t:postCode', normalize=True)
@@ -214,28 +241,11 @@ class Person(TeiXmlObject):
         # record must be saved before adding relations to other tables
         db_person.save()
 
-        geonamesapi = GeoNamesAPI()
-
         # handle nationalities; could be multiple
         for nation in self.nationalities:
-            # special case: "stateless" (only occurs once)
-            if nation.label == 'stateless':
-                # no geonames id or code
-                country, created = models.Country.objects.get_or_create(name='[no country]')
+            country = nation.db_country()
+            if country:
                 db_person.nationalities.add(country)
-
-            elif nation.code.upper() in geonamesapi.countries_by_code:
-                geoname = geonamesapi.countries_by_code[nation.code.upper()]
-                geo_uri = GeoNamesAPI.uri_from_id(geoname['geonameId'])
-                # get existing country or add if not yet present
-                country, created = models.Country.objects.get_or_create(
-                    geonames_id=geo_uri,
-                    name=geoname['countryName']
-                )
-                db_person.nationalities.add(country)
-
-            else:
-                logger.warn('country code %s not found', nation.code.upper())
 
         # handle URLs included in notes
         for link in self.urls:

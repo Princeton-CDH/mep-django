@@ -65,6 +65,41 @@ class TestAddress(TestCase):
         assert db_address.pk == res.db_address().pk
 
 
+class TestNationality(TestCase):
+
+    @patch('mep.people.xml_models.GeoNamesAPI')
+    def test_db_country(self, mockgeonames):
+        mockgeonames.uri_from_id = GeoNamesAPI.uri_from_id
+        # mock geonames country codes (minimal subset)
+        mockgeonames.return_value.countries_by_code = {
+            'US': {'geonameId': 6252001, 'countryName': 'United States'},
+            'MQ': {'geonameId': 3570311, 'countryName': 'Martinique'},
+            'FR': {'geonameId': 3017382, 'countryName': 'France'},
+        }
+
+        # normal
+        nation = load_xmlobject_from_string(
+            '''<nationality xmlns="http://www.tei-c.org/ns/1.0" key="fr">France</nationality>''',
+            xmlclass=Nationality)
+        country = nation.db_country()
+        assert country.name == 'France'
+        assert country.geonames_id == 'http://sws.geonames.org/3017382/'
+
+        # stateless
+        nation = load_xmlobject_from_string(
+            '''<nationality xmlns="http://www.tei-c.org/ns/1.0" key="xx">stateless</nationality>''',
+            xmlclass=Nationality)
+        country = nation.db_country()
+        assert country.name == '[no country]'
+        assert country.geonames_id == ''
+
+        # no match
+        nation = load_xmlobject_from_string(
+            '''<nationality xmlns="http://www.tei-c.org/ns/1.0" key="gb">United Kingdom</nationality>''',
+            xmlclass=Nationality)
+        assert nation.db_country() is None
+
+
 class TestPersonName(TestCase):
     # xml snippets for testing
     two_firstnames = '''<persName xmlns="http://www.tei-c.org/ns/1.0">
