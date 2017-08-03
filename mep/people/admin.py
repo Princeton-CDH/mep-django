@@ -1,5 +1,8 @@
+from dal import autocomplete
 from django import forms
+from django.conf import settings
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from viapy.widgets import ViafWidget
 
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
@@ -12,9 +15,52 @@ class InfoURLInline(CollapsibleTabularInline):
     fields = ('url', 'notes')
 
 
+class GeonamesLookupWidget(autocomplete.Select2):
+    '''Customize autocomplete select widget to display Geonames URI
+    as a link and render a map for the selected location.'''
+
+    def render(self, name, value, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs['class'] = 'geonames-lookup'
+        widget = super(GeonamesLookupWidget, self).render(name, value, attrs)
+        return mark_safe((u'<div id="geonames_map"></div>' +
+            u'%s<p><a id="geonames_uri" target="_blank" href="%s">%s</a></p>') % \
+            (widget, value or '', value or ''))
+
+
+class MapWidget(forms.NumberInput):
+
+    def render(self, name, value, attrs=None):
+        widget = super(MapWidget, self).render(name, value, attrs)
+        return mark_safe(u'<div id="geonames_map"></div>%s' % widget)
+
+
+class CountryAdminForm(forms.ModelForm):
+    '''Custom model form for Place editing, used to add geonames lookup.'''
+
+    #: add a hidden field to pass in a mapbox access token from local settings
+    # mapbox_token = forms.CharField(initial=getattr(settings, 'MAPBOX_ACCESS_TOKEN', ''),
+        # widget=forms.HiddenInput)
+
+    class Meta:
+        model = Country
+        exclude = []
+        widgets = {
+            'geonames_id': GeonamesLookupWidget(url='people:country-lookup',
+                attrs={'data-placeholder': 'Type location name to search...',
+                       'data-minimum-input-length': 3})
+        }
+
+
 class CountryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code')
-    search_fields = ('name', 'code')
+    form = CountryAdminForm
+    list_display = ('name', 'geonames_id')
+    search_fields = ('name', 'geonames_id')
+    fields = ['geonames_id', 'name']
+
+    class Media:
+        js = ['admin/geonames-lookup.js']
 
 
 class ResidenceInline(CollapsibleTabularInline):
@@ -50,21 +96,44 @@ class PersonAdmin(admin.ModelAdmin):
     filter_horizontal = ('nationalities', 'addresses')
     readonly_fields = ('mep_id', )
     # FIXME: something is hiding VIAF url link. (grappelli maybe?)
-    search_fields = ('mep_id', 'first_name', 'last_name', 'notes')
+    search_fields = ('mep_id', 'name', 'sort_name', 'notes')
     list_filter = ('sex', 'profession', 'nationalities')
     inlines = [InfoURLInline, FootnoteInline]
 
 
+class AddressAdminForm(forms.ModelForm):
+    '''Custom model form for Address editing.'''
+
+    #: add a hidden field to pass in a mapbox access token from local settings
+    mapbox_token = forms.CharField(initial=getattr(settings, 'MAPBOX_ACCESS_TOKEN', ''),
+        widget=forms.HiddenInput)
+
+    class Meta:
+        model = Address
+        exclude = []
+        widgets = {
+            'longitude': MapWidget
+        }
+
 
 class AddressAdmin(admin.ModelAdmin):
+    form = AddressAdminForm
     list_display = ('__str__', 'name', 'street_address', 'city',
         'country', 'has_notes')
     fields = ('name', 'street_address', 'city', 'postal_code',
         'country',
-        ('latitude', 'longitude'),
+        'latitude', 'longitude', 'mapbox_token',
         'notes')
     list_filter = ('country',)
     inlines = [ResidenceInline, FootnoteInline]
+    class Media:
+        css = {
+            'all': ['https://unpkg.com/leaflet@1.0.2/dist/leaflet.css',
+                    'admin/geonames.css']
+        }
+        js = ['admin/geonames-lookup.js',
+             'https://unpkg.com/leaflet@1.0.2/dist/leaflet.js']
+
 
 
 # enable default admin to see imported data

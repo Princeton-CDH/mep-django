@@ -1,6 +1,7 @@
 Django>=1.11
 mysqlclient
 django-grappelli
+cached_property
 pucas
 eulxml
 # develop version of viapy until we have a release

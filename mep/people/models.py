@@ -8,9 +8,9 @@ from mep.footnotes.models import Footnote
 
 class Country(Named):
     '''Countries, for documenting nationalities of a :class:`Person`'''
-    code = models.CharField(max_length=3, unique=True,
-        help_text='ISO two-letter country code')
-    # TODO: should we enforce lower case to keep consistent?
+    geonames_id = models.URLField('GeoNames ID', unique=True, blank=True,
+        help_text='GeoNames identifier')
+    # optional to support no country/stateless
 
     class Meta:
         verbose_name_plural = 'countries'
@@ -20,9 +20,6 @@ class Address(Notable):
     '''Addresses associated with accounts in the MEP database'''
     #: optional name of the location (e.g., hotel)
     name = models.CharField(max_length=255, blank=True)
-    #: optional person who the mail was "in care of"
-    care_of = models.ForeignKey('Person', null=True, blank=True,
-        help_text='Associated person for "in care of" addresses')
     #: street address
     street_address = models.CharField(max_length=255, blank=True)
     #: city or town

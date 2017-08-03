@@ -246,8 +246,8 @@ class TestPerson(TestCase):
         assert 'Nickname: Polly' in db_person.notes
         # nationality should create country, add relation
         country = db_person.nationalities.first()
-        assert country.code == 'us'
-        assert country.name == 'United States of America'
+        assert country.geonames_id == 'http://sws.geonames.org/6252001/'
+        assert country.name == 'United States'
         # urls
         assert db_person.urls.first().url == xml_person.urls[0]
         assert db_person.urls.first().notes == 'URL from XML import'
@@ -291,10 +291,10 @@ class TestPerson(TestCase):
         db_person = xml_person.to_db_person()
         assert db_person.nationalities.count() == 2
         country = db_person.nationalities.first()
-        assert country.code == 'mq'
+        assert country.geonames_id == 'http://sws.geonames.org/3570311/'
         assert country.name == 'Martinique'
         country = db_person.nationalities.last()
-        assert country.code == 'fr'
+        assert country.geonames_id == 'http://sws.geonames.org/3017382/'
         assert country.name == 'France'
 
         # no name

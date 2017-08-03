@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^accounts/', include('pucas.cas_urls')),
     url(r'^viaf/', include('viapy.urls', namespace='viaf')),
+    url(r'^', include('mep.people.urls', namespace='people')),
 ]

@@ -1,8 +1,13 @@
+import logging
+
 from django.core.exceptions import ObjectDoesNotExist
 from eulxml import xmlmap
 from viapy.api import ViafEntity
 
 from mep.people import models
+from mep.people.geonames import GeoNamesAPI
+
+logger = logging.getLogger(__name__)
 
 
 class TeiXmlObject(xmlmap.XmlObject):
@@ -142,6 +147,7 @@ class Person(TeiXmlObject):
     def to_db_person(self):
         '''Create a new :class:`mep.people.models.Person` database record
         and populate based on data in the xml.'''
+
         db_person = models.Person(
             mep_id=self.mep_id,
             title=self.title or '',
@@ -208,21 +214,28 @@ class Person(TeiXmlObject):
         # record must be saved before adding relations to other tables
         db_person.save()
 
+        geonamesapi = GeoNamesAPI()
+
         # handle nationalities; could be multiple
         for nation in self.nationalities:
             # special case: "stateless" (only occurs once)
-            # if nation.label == 'stateless':
-            # TODO: handle after switch to geonames
+            if nation.label == 'stateless':
+                # no geonames id or code
+                country, created = models.Country.objects.get_or_create(name='[no country]')
+                db_person.nationalities.add(country)
 
-            try:
-                # if a country has already been created, find it
-                country = models.Country.objects.get(code=nation.code)
-            except models.Country.DoesNotExist:
-                # otherwise, create a new country entry
-                country = models.Country.objects.create(code=nation.code,
-                    name=nation.label)
+            elif nation.code.upper() in geonamesapi.countries_by_code:
+                geoname = geonamesapi.countries_by_code[nation.code.upper()]
+                geo_uri = GeoNamesAPI.uri_from_id(geoname['geonameId'])
+                # get existing country or add if not yet present
+                country, created = models.Country.objects.get_or_create(
+                    geonames_id=geo_uri,
+                    name=geoname['countryName']
+                )
+                db_person.nationalities.add(country)
 
-            db_person.nationalities.add(country)
+            else:
+                logger.warn('country code %s not found', nation.code.upper())
 
         # handle URLs included in notes
         for link in self.urls:
