@@ -254,7 +254,6 @@ class TestPerson(TestCase):
         assert '\n'.join(list(xml_person.notes)[1:]) in db_person.notes
         assert 'Nickname: Polly' in db_person.notes
         # nationality should create country, add relation
-        print(db_person.nationalities.all())
         country = db_person.nationalities.first()
         assert country.geonames_id == 'http://sws.geonames.org/6252001/'
         assert country.name == 'United States'

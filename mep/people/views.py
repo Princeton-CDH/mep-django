@@ -4,9 +4,11 @@ from dal import autocomplete
 
 from mep.people.geonames import GeoNamesAPI
 
-class GeonamesLookup(autocomplete.Select2ListView):
+class GeoNamesLookup(autocomplete.Select2ListView):
     '''GeoNames ajax lookup for use as autocomplete.
     Currently restricted to staff only.'''
+
+    mode = None
 
     def get(self, request, mode=None, *args, **kwargs):
         """"Return option list json response."""

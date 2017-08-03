@@ -15,21 +15,22 @@ class InfoURLInline(CollapsibleTabularInline):
     fields = ('url', 'notes')
 
 
-class GeonamesLookupWidget(autocomplete.Select2):
+class GeoNamesLookupWidget(autocomplete.Select2):
     '''Customize autocomplete select widget to display Geonames URI
-    as a link and render a map for the selected location.'''
+    as a link.'''
 
     def render(self, name, value, attrs=None):
         if attrs is None:
             attrs = {}
         attrs['class'] = 'geonames-lookup'
-        widget = super(GeonamesLookupWidget, self).render(name, value, attrs)
-        return mark_safe((u'<div id="geonames_map"></div>' +
-            u'%s<p><a id="geonames_uri" target="_blank" href="%s">%s</a></p>') % \
+        widget = super(GeoNamesLookupWidget, self).render(name, value, attrs)
+        return mark_safe((u'%s<p><a id="geonames_uri" target="_blank" href="%s">%s</a></p>') % \
             (widget, value or '', value or ''))
 
 
 class MapWidget(forms.NumberInput):
+    '''Customize numeric input and add a map div to display a leaflet map
+    for latitude and longitude values on the form.'''
 
     def render(self, name, value, attrs=None):
         widget = super(MapWidget, self).render(name, value, attrs)
@@ -47,7 +48,7 @@ class CountryAdminForm(forms.ModelForm):
         model = Country
         exclude = []
         widgets = {
-            'geonames_id': GeonamesLookupWidget(url='people:country-lookup',
+            'geonames_id': GeoNamesLookupWidget(url='people:country-lookup',
                 attrs={'data-placeholder': 'Type location name to search...',
                        'data-minimum-input-length': 3})
         }

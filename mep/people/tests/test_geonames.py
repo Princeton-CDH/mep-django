@@ -61,6 +61,17 @@ class TestGeonamesApi(TestCase):
             params={'username': 'test_geonames_user', 'q': 'london',
                     'maxRows': 20})
 
+        # feature class
+        geo_api.search('canada', feature_class='A')
+        mockrequests.get.assert_called_with('http://api.geonames.org/searchJSON',
+            params={'username': 'test_geonames_user', 'q': 'canada',
+                    'featureClass': 'A'})
+        # feature code
+        geo_api.search('canada', feature_code='PCLI')
+        mockrequests.get.assert_called_with('http://api.geonames.org/searchJSON',
+            params={'username': 'test_geonames_user', 'q': 'canada',
+                    'featureCode': 'PCLI'})
+
     def test_uri_from_id(self):
         assert GeoNamesAPI.uri_from_id(12345) == \
             'http://sws.geonames.org/12345/'

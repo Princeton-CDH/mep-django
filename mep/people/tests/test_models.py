@@ -137,6 +137,13 @@ class TestAddress(TestCase):
         address = Address(city="Paris")
         assert str(address) == "Paris"
 
+    def test_repr(self):
+        hotel = Address(name='La Hotel', city='Paris')
+        assert repr(hotel).startswith('<Address ')
+        assert repr(hotel).endswith('>')
+        assert hotel.name in repr(hotel)
+        assert hotel.city in repr(hotel)
+
     def test_latlon_validate(self):
         # Valid, should pass clean fields
         address = Address(latitude=180, longitude=-180, city="Paris")
@@ -153,4 +160,19 @@ class TestAddress(TestCase):
         with pytest.raises(ValidationError):
             address.clean_fields()
 
+
+class TestInfoURL(TestCase):
+
+    def test_str(self):
+        p = Person.objects.create(name='Someone')
+        info_url = InfoURL(person=p, url='http://example.com/')
+        assert str(info_url) == info_url.url
+
+    def test_repr(self):
+        p = Person.objects.create(name='Someone')
+        info_url = InfoURL(person=p, url='http://example.com/')
+        assert repr(info_url).startswith('<InfoURL ')
+        assert repr(info_url).endswith('>')
+        assert info_url.url in repr(info_url)
+        assert str(p) in repr(info_url)
 

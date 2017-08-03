@@ -57,7 +57,7 @@ class Address(Notable):
     class Meta:
         verbose_name_plural = 'addresses'
 
-    def __re__(self):
+    def __repr__(self):
         return '<Address %s>' % self.__dict__
 
     def __str__(self):

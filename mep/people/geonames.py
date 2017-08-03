@@ -7,17 +7,17 @@ import requests
 
 logger = logging.getLogger(__name__)
 
+# NOTE: geonames code adapted and extended from winthrop project; will need
+# to be spun off into its own library at some point down ther oad
+
 
 class GeoNamesError(Exception):
-    pass
+    '''Generic GeoNames response error'''
+
 
 class GeoNamesUnauthorized(GeoNamesError):
+    '''GeoNames unauthorized response (raised when username is not set)'''
 
-    pass
-
-
-# NOTE: geonames code copied/adapted from winthrop project; will need
-# to be spun off into its own library at some point down ther oad
 
 class GeoNamesAPI(object):
     '''Minimal wrapper around GeoNames API.  Currently supports simple
@@ -33,6 +33,8 @@ class GeoNamesAPI(object):
         self.username = getattr(settings, "GEONAMES_USERNAME", None)
 
     def call_api(self, method, params=None):
+        # generic method to handle calling geonames api and raising
+        # an exception if an error occurred
         api_url = '/'.join([self.api_base, method])
         if params is None:
             params = {}
@@ -86,4 +88,5 @@ class GeoNamesAPI(object):
 
     @cached_property
     def countries_by_code(self):
+        '''Dictionary of country information keyed on two-letter code.'''
         return {country['countryCode']: country for country in self.countries}
