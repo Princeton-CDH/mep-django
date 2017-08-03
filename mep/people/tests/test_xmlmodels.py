@@ -6,6 +6,7 @@ from django.test import TestCase
 from eulxml.xmlmap import load_xmlobject_from_string
 
 from mep.people import models
+from mep.people.geonames import GeoNamesAPI
 from mep.people.xml_models import Person, PersonName, Personography, \
     Nationality, Residence
 
@@ -223,13 +224,22 @@ class TestPerson(TestCase):
         assert xml_person.is_imported()
 
     @patch('mep.people.xml_models.ViafEntity')
-    def test_to_db_person(self, mockviafentity):
+    @patch('mep.people.xml_models.GeoNamesAPI')
+    def test_to_db_person(self, mockgeonames, mockviafentity):
         # test with a fairly complete record
         xml_person = Personography.from_file(XML_FIXTURE).people[0]
         mockviaf_record = mockviafentity.return_value
         mockviaf_record.uri = 'http://viaf.org/viaf/%s' % xml_person.viaf_id
         mockviaf_record.birthyear = 1800
         mockviaf_record.deathyear = 1850
+
+        mockgeonames.uri_from_id = GeoNamesAPI.uri_from_id
+        # mock geonames country codes (minimal subset)
+        mockgeonames.return_value.countries_by_code = {
+            'US': {'geonameId': 6252001, 'countryName': 'United States'},
+            'MQ': {'geonameId': 3570311, 'countryName': 'Martinique'},
+            'FR': {'geonameId': 3017382, 'countryName': 'France'},
+        }
 
         db_person = xml_person.to_db_person()
         assert isinstance(db_person, models.Person)
@@ -245,6 +255,7 @@ class TestPerson(TestCase):
         assert '\n'.join(list(xml_person.notes)[1:]) in db_person.notes
         assert 'Nickname: Polly' in db_person.notes
         # nationality should create country, add relation
+        print(db_person.nationalities.all())
         country = db_person.nationalities.first()
         assert country.geonames_id == 'http://sws.geonames.org/6252001/'
         assert country.name == 'United States'
@@ -290,12 +301,16 @@ class TestPerson(TestCase):
         xml_person = Personography.from_file(XML_FIXTURE).people[2]
         db_person = xml_person.to_db_person()
         assert db_person.nationalities.count() == 2
-        country = db_person.nationalities.first()
-        assert country.geonames_id == 'http://sws.geonames.org/3570311/'
-        assert country.name == 'Martinique'
+        print(db_person.nationalities.all())
+        # order is not guaranteed, just check that both expected countries
+        # are present
+        country_names = [c.name for c in db_person.nationalities.all()]
+        assert 'Martinique' in country_names
+        assert 'France' in country_names
         country = db_person.nationalities.last()
-        assert country.geonames_id == 'http://sws.geonames.org/3017382/'
-        assert country.name == 'France'
+        geo_ids = [c.geonames_id for c in db_person.nationalities.all()]
+        assert 'http://sws.geonames.org/3570311/' in geo_ids
+        assert 'http://sws.geonames.org/3017382/' in geo_ids
 
         # no name
         xml_person = Personography.from_file(XML_FIXTURE).people[3]
