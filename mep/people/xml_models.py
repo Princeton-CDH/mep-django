@@ -1,11 +1,13 @@
+# coding=utf-8
+
 import logging
 
-from django.core.exceptions import ObjectDoesNotExist
 from eulxml import xmlmap
 from viapy.api import ViafEntity
 
 from mep.people import models
 from mep.people.geonames import GeoNamesAPI
+
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +59,141 @@ class Residence(TeiXmlObject):
     latitude = xmlmap.FloatField('substring-before(t:geo, ",")')
     longitude = xmlmap.FloatField('substring-after(t:geo, ",")')
 
+    #: list of cities in the xml with known, unambiguous countries
+    #: provided by MEP team for import
+    city_country = {
+        "Paris": 'FR',
+        "Neuilly-sur-Seine": 'FR',
+        "Nice": 'FR',
+        "Rome": 'Italy',
+        "Le Lavandaou": 'FR',
+        "La Teste-de-Buch": 'FR',
+        "La Croix": 'FR',
+        "Vanves": 'FR',
+        "Versailles": 'FR',
+        "Asnières-sur-Seine": 'FR',
+        "Vitry-sur-Seine": 'FR',
+        "Bitche": 'FR',
+        "Orléans": 'FR',
+        "Fontenay-aux-Roses": 'FR',
+        "Ville-d'Avray": 'FR',
+        "Sceaux": 'FR',
+        "London": 'GB',
+        "Villecresnes": 'FR',
+        "Dalton": 'GB',
+        "Cambridge": 'GB',
+        "Toulouse": 'FR',
+        "Sartilly": 'FR',
+        "Saint-Germain-en-Laye": 'FR',
+        "Saint Enogat": 'FR',
+        "Blennes": 'FR',
+        "Asnières-sous-Bois": 'FR',
+        "Montsoult": 'FR',
+        "Copenhagen": 'Denmark',
+        "Bougival": 'FR',
+        "Châtenay-Malabry": 'FR',
+        "Saint-Magne-de-Castillon": 'FR',
+        "Arras": 'FR',
+        "New York": 'US',
+        "Rueil-Malmaison": 'FR',
+        "Berck": 'FR',
+        "Marnes la Coquette": 'FR',
+        "Le Mesnil-sur-Blangy": 'FR',
+        "Laguépie": 'FR',
+        "Cazoulès": 'FR',
+        "Zürich": 'Switzerland',
+        "Courbevoie": 'FR',
+        "Pornic": 'FR',
+        "Witten": 'DE',
+        "Lot-et-Garonne": 'FR',
+        "Gstaad": 'Switzerland',
+        "Madrid": 'Spain',
+        "Antibes": 'FR',
+        "Key West": 'US',
+        "Barcelona": 'Spain',
+        "Beauvais": 'FR',
+        "Boulogne-Billancourt": 'FR',
+        "Chicago": 'US',
+        "Trieste": 'Italy',
+        "Rouen": 'FR',
+        "Saint-Mandé": 'FR',
+        "Nogent-sur-Marne": 'FR',
+        "Champagné-Saint-Hilaire": 'FR',
+        "Trouville-sur-Mer": 'FR',
+        "Shoreham-by-Sea": 'GB',
+        "Le Bourg Dun": 'FR',
+        "Saint-Pierre-d'Albigny": 'FR',
+        "Menton": 'FR',
+        "Strasbourg": 'FR',
+        "Vichy": 'FR',
+        "Lodève": 'FR',
+        "Neuilly": 'FR',
+        "Saint-Cloud": 'FR',
+        "Varengeville-sur-Mer": 'FR',
+        "Sassetot-le-Mauconduit": 'FR',
+        "Le Vésinet": 'FR',
+        "Ixelles": 'Belgium',
+        "Ermont": 'FR',
+        "Allouis": 'FR',
+        "Arcachon": 'FR',
+        "Agon Coutainville": 'FR',
+        "Brooklyn": 'US',
+        "Le Beausset": 'FR',
+        "Fontainebleau": 'FR',
+        "Vernouillet": 'FR',
+        "Ville d'Avray": 'FR',
+        "Grasse": 'FR',
+        "Hautot-sur-Mer": 'FR',
+        "Vesoul": 'FR',
+        "Hyères": 'FR',
+        "Edinburgh": 'GB',
+        "Lille": 'FR',
+        "Le Chesnay": 'FR',
+        "Biarritz": 'FR',
+        "Sèvres": 'FR',
+        "Villers-sur-Mer": 'FR',
+        "Brest": 'FR',
+        "Cachan": 'FR',
+        "West Hollywood": 'US',
+        "München": 'DE',
+        "Courteilles": 'FR',
+        "Brunnen": 'CH',
+        "Arcueil": 'FR',
+        "Clamart": 'FR',
+        "Nogent-le-Rotrou": 'FR',
+        "Omonville-la-Rogue": 'FR',
+        "Champeaux": 'FR',
+        "Toulon": 'FR',
+        "Douai": 'FR',
+        "La Bourboule": 'FR',
+        "Warehorne": 'GB',
+        "Cagnes-sur-Mer": 'FR',
+        "Gargenville": 'FR',
+        "Montgaillard": 'FR',
+        "New York": 'US',
+        "La Madelaine": 'FR',
+        "Nevers": 'FR',
+        "Nantes": 'FR',
+        "Bègles": 'FR',
+        "Levallois-Perret": 'FR',
+        "Parkersburg": 'US',
+        "Angers": 'FR',
+        "Nimes": 'FR',
+        "Lezigne": 'FR',
+        "L'Haÿ-les-Roses": 'FR',
+        "Les Praz de Chamonix": 'FR',
+        "Courmayeur": 'Italy',
+        "Le Pouldu": 'FR',
+        "Issy-les-Moulineaux": 'FR',
+        "Saint-Servan": 'FR',
+        "Vignoux-sur-Barangeon": 'FR',
+        "Mortagne-sur-Sèvre": 'FR',
+        "Vernet-les-Bains": 'FR',
+        "Shanghai": 'CN',
+        "Bagnoles-de-l'Orne": 'FR',
+        "Côtes-d'Armor": 'FR',
+    }
+
     def db_address(self):
         '''Get the corresponding :class:`mep.people.models.Address` in the
         database, creating a new address if it does not exist.'''
@@ -72,9 +209,21 @@ class Residence(TeiXmlObject):
                 'longitude': self.longitude,
             }
         )
+        # city has a known country, add that
+        if self.city in self.city_country:
+            geonamesapi = GeoNamesAPI()
+            geoname = geonamesapi.countries_by_code[self.city_country[self.city]]
+            # get existing country or add if not yet present
+            country, created = models.Country.objects.get_or_create(
+                geonames_id=GeoNamesAPI.uri_from_id(geoname['geonameId']),
+                name=geoname['countryName']
+            )
+            addr.country = country
 
-        # NOTE: if an existing address is found, could check
+        # NOTE: if we have both lat/long and country, could check
         # and warn if lat/long do not match
+        # (or if we have only lat/long, could lookup country)
+
         return addr
 
 class Name(TeiXmlObject):

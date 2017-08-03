@@ -49,7 +49,16 @@ class TestAddress(TestCase):
         assert res.latitude is None
         assert res.longitude is None
 
-    def test_db_address(self):
+    @patch('mep.people.xml_models.GeoNamesAPI')
+    def test_db_address(self, mockgeonames):
+        mockgeonames.uri_from_id = GeoNamesAPI.uri_from_id
+        # mock geonames country codes (minimal subset)
+        mockgeonames.return_value.countries_by_code = {
+            'US': {'geonameId': 6252001, 'countryName': 'United States'},
+            'MQ': {'geonameId': 3570311, 'countryName': 'Martinique'},
+            'FR': {'geonameId': 3017382, 'countryName': 'France'},
+        }
+
         # address for third person in the fixture
         res = Personography.from_file(XML_FIXTURE).people[2].residences[0]
         db_address = res.db_address()
@@ -60,6 +69,9 @@ class TestAddress(TestCase):
         assert db_address.postal_code == res.postcode
         assert db_address.latitude == res.latitude
         assert db_address.longitude == res.longitude
+        # country should be set
+        assert db_address.country
+        assert db_address.country.name == 'France'
 
         # running again should return the same item
         assert db_address.pk == res.db_address().pk
@@ -254,6 +266,7 @@ class TestPerson(TestCase):
         assert not xml_person.is_imported()
 
         # save in the database and check again
+        del xml_person.residences  # remove to skip geo logic
         xml_person.to_db_person().save()
         assert xml_person.is_imported()
 
