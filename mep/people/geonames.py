@@ -57,7 +57,8 @@ class GeoNamesAPI(object):
             logger.debug('GeoNames countryInfoJSON: %s %s, %0.2f sec',
                          response.status_code, response.reason,
                          response.elapsed.total_seconds())
-            GeoNamesAPI._countries = response.json()['geonames']
+            if response.status_code == requests.codes.ok:
+                GeoNamesAPI._countries = response.json().get('geonames', [])
 
         return GeoNamesAPI._countries
 
