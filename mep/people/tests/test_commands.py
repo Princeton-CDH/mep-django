@@ -2,6 +2,7 @@ from io import StringIO
 from unittest.mock import patch, Mock
 
 from django.test import TestCase
+from django.core.management import call_command
 from django.core.management.base import CommandError
 import pytest
 
@@ -16,6 +17,13 @@ class TestImportPersonography(TestCase):
     def setUp(self):
         self.cmd = import_personography.Command()
         self.cmd.stdout = StringIO()
+
+    @patch('mep.people.management.commands.import_personography.Personography')
+    def test_command(self, mock_xmlpersonography):
+        # test calling via command line with args
+        path = '/some/path/to/persons.xml'
+        call_command('import_personography', path)
+        mock_xmlpersonography.from_file.assert_called_with(path)
 
     @patch('mep.people.management.commands.import_personography.Personography')
     def test_command(self, mock_xmlpersonography):
