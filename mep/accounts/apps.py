@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class AccountsConfig(AppConfig):
-    name = 'accounts'
+    name = 'mep.accounts'
+    verbose_name = 'Library Accounts'

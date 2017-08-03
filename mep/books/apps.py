@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class BooksConfig(AppConfig):
-    name = 'books'
+    name = 'mep.books'
+    verbose_name = 'Bibliography'
