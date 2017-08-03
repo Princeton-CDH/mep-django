@@ -1,7 +1,6 @@
 import os
 from unittest.mock import patch
 
-from django.conf import settings
 from django.test import TestCase
 from eulxml.xmlmap import load_xmlobject_from_string
 
@@ -301,7 +300,6 @@ class TestPerson(TestCase):
         xml_person = Personography.from_file(XML_FIXTURE).people[2]
         db_person = xml_person.to_db_person()
         assert db_person.nationalities.count() == 2
-        print(db_person.nationalities.all())
         # order is not guaranteed, just check that both expected countries
         # are present
         country_names = [c.name for c in db_person.nationalities.all()]
