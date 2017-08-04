@@ -1,0 +1,51 @@
+{% extends "admin/change_form.html" %}
+{% comment %}
+Custom person change form template to display relationships to this person
+(which are only editable on the related person's edit form).
+Uses Grappelli classes and div structure to simulate the same look
+as the inline edit form.
+{% endcomment %}
+
+{% load admin_static i18n admin_modify admin_urls grp_tags %}
+
+{% block after_related_objects %}
+<div class="inline-group grp-group grp-tabular">
+    <h2 class="grp-collapse-handler">Relationships to this person</h2>
+    <!-- container -->
+    <div class="tabular inline-related grp-module grp-table">
+        <div class="module grp-module grp-thead">
+            <div class="grp-tr">
+                <div class="grp-th">From person</div>
+                <div class="grp-th">Relationship type</div>
+                <div class='grp-th'>To person</div>
+                <div class="grp-th">Notes</div>
+            </div>
+        </div>            <!-- element -->
+            <div class="form-row grp-module grp-tbody"
+                id="to-relationship-read-only">
+                {% for relation in original.to_relationships.all %}
+                  <div class="grp-tr">
+
+                    <div class="grp-td">
+                      <a href='{% url "admin:people_person_change" relation.from_person.pk %}'>
+                        {{ relation.from_person }}
+                      </a>
+                    </div>
+                    <div class='grp-td'>
+                      {{ relation.relationship_type }}
+                    </div>
+                    <div class='grp-td'>
+                      {{ original.name }}
+                    </div>
+                    <div class='grp-td'>
+                      {{ relation.notes }}
+                    </div>
+
+
+                </div>
+                {% endfor %}
+            </div>
+    </div>
+
+</div>
+{% endblock %}

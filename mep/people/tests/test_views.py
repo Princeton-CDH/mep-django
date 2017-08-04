@@ -1,13 +1,14 @@
 import json
 from unittest.mock import patch
 
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.test import TestCase
 from django.urls import reverse
 
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import Person
+from mep.people.models import Person, Relationship, RelationshipType
 from mep.people.views import GeoNamesLookup
 
 
@@ -59,6 +60,35 @@ class TestPeopleViews(TestCase):
         assert result.status_code == 200
         data = json.loads(result.content.decode('utf-8'))
         assert not data['results']
+
+    def test_person_admin_change(self):
+        # create user with permission to load admin edit form
+        su_password = 'itsasecret'
+        superuser = User.objects.create_superuser(username='admin',
+            password=su_password, email='su@example.com')
+
+        # login as admin user
+        self.client.login(username=superuser.username, password=su_password)
+
+        # create two people and a relationship
+        m_dufour = Person.objects.create(name='Charles Dufour')
+        mlle_dufour = Person.objects.create(name='Dufour', title='Mlle')
+        parent = RelationshipType.objects.create(name='parent')
+        rel = Relationship.objects.create(from_person=mlle_dufour,
+            relationship_type=parent, to_person=m_dufour, notes='relationship uncertain')
+        person_edit_url = reverse('admin:people_person_change',
+            args=[m_dufour.id])
+        result = self.client.get(person_edit_url)
+        self.assertContains(result, 'Relationships to this person')
+        self.assertContains(result, str(mlle_dufour),
+            msg_prefix='should include name of person related to this person ')
+        self.assertContains(result, reverse('admin:people_person_change',
+            args=[mlle_dufour.id]),
+            msg_prefix='should include edit link for person related to this person')
+        self.assertContains(result, parent.name,
+            msg_prefix='should include relationship name')
+        self.assertContains(result, rel.notes,
+            msg_prefix='should include any relationship notes')
 
 
 class TestGeonamesLookup(TestCase):
