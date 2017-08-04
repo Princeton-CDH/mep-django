@@ -99,17 +99,17 @@ class TestRelationshipM2M(TestCase):
         # Relationship is one sided based on from_person and to_person
         # With the relationship 'parent'
 
-        # Should get Foo
-        assert (Person.objects.get(from_person__relationship_type=self.parent)
+        # foo is parent of bar - should get Foo
+        assert (Person.objects.get(from_relationships__relationship_type=self.parent)
                 == self.foo)
-        # Should get Bar
-        assert (Person.objects.get(to_person__relationship_type=self.parent)
+        # reverse - should get Bar
+        assert (Person.objects.get(to_relationships__relationship_type=self.parent)
                 == self.bar)
-        # Should get Baz
-        assert (Person.objects.get(to_person__relationship_type=self.partner)
+        # foo is partner of bas - should get Baz
+        assert (Person.objects.get(to_relationships__relationship_type=self.partner)
                 == self.baz)
 
-        # Should be Bar and Baz, so length of 2
+        # foo is related to both Bar and Baz, so length of 2
         assert len(self.foo.relations.all()) == 2
         # Should still be two if we filter out only Bar and Baz
         # Short way to check if both and only both are in the query set

@@ -1,8 +1,9 @@
 from django.http import JsonResponse
-from django.shortcuts import render
 from dal import autocomplete
 
 from mep.people.geonames import GeoNamesAPI
+from mep.people.models import Person
+
 
 class GeoNamesLookup(autocomplete.Select2ListView):
     '''GeoNames ajax lookup for use as autocomplete.
@@ -44,3 +45,11 @@ class GeoNamesLookup(autocomplete.Select2ListView):
             # FIXME: shouldn't ever display countryname if item is a country
             return '''%(name)s, %(countryName)s''' % item
         return item['name']
+
+
+class PersonAutocomplete(autocomplete.Select2QuerySetView):
+    '''Basic person autocomplete lookup, for use with
+    django-autocomplete-light.'''
+
+    def get_queryset(self):
+        return Person.objects.filter(name__icontains=self.q)

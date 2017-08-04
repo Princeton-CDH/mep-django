@@ -154,10 +154,10 @@ class RelationshipType(Named, Notable):
     pass
 
 
-class Relationship(models.Model):
+class Relationship(Notable):
     '''Through model for :class:`Person` to ``self``'''
-    from_person = models.ForeignKey(Person, related_name='from_person')
-    to_person = models.ForeignKey(Person, related_name='to_person')
+    from_person = models.ForeignKey(Person, related_name='from_relationships')
+    to_person = models.ForeignKey(Person, related_name='to_relationships')
     relationship_type = models.ForeignKey(RelationshipType)
 
     def __repr__(self):

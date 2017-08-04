@@ -7,7 +7,8 @@ from viapy.widgets import ViafWidget
 
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 from mep.footnotes.admin import FootnoteInline
-from .models import Person, Country, Address, Profession, InfoURL
+from .models import Person, Country, Address, Profession, InfoURL, \
+    Relationship, RelationshipType
 
 
 class InfoURLInline(CollapsibleTabularInline):
@@ -68,6 +69,30 @@ class ResidenceInline(CollapsibleTabularInline):
     model = Person.addresses.through
 
 
+class RelationshipInlineForm(forms.ModelForm):
+    '''Custom model form for Book editing, used to add autocomplete
+    for place lookup.'''
+    class Meta:
+        model = Relationship
+        # Setting a logical order for the relationship fields
+        fields = ('relationship_type', 'to_person', 'notes')
+        widgets = {
+            'to_person': autocomplete.ModelSelect2(
+                url='people:autocomplete',
+                attrs={'data-placeholder': 'Start typing a name to search...'}
+            )
+        }
+
+
+class RelationshipInline(admin.TabularInline):
+    '''Inline class for Relationships'''
+    model = Relationship
+    fk_name = 'from_person'
+    form = RelationshipInlineForm
+    verbose_name_plural = 'Relationships'
+    extra = 1
+
+
 class PersonAdminForm(forms.ModelForm):
     '''Custom model form for Person editing; used to add VIAF lookup'''
     class Meta:
@@ -96,10 +121,9 @@ class PersonAdmin(admin.ModelAdmin):
         'notes')
     filter_horizontal = ('nationalities', 'addresses')
     readonly_fields = ('mep_id', )
-    # FIXME: something is hiding VIAF url link. (grappelli maybe?)
-    search_fields = ('mep_id', 'name', 'sort_name', 'notes')
+    search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = ('sex', 'profession', 'nationalities')
-    inlines = [InfoURLInline, FootnoteInline]
+    inlines = [InfoURLInline, RelationshipInline, FootnoteInline]
 
 
 class AddressAdminForm(forms.ModelForm):
@@ -126,6 +150,7 @@ class AddressAdmin(admin.ModelAdmin):
         'latitude', 'longitude', 'mapbox_token',
         'notes')
     list_filter = ('country',)
+    search_fields = ('name', 'street_address', 'city', 'notes')
     inlines = [ResidenceInline, FootnoteInline]
     class Media:
         css = {
@@ -142,3 +167,4 @@ admin.site.register(Person, PersonAdmin)
 admin.site.register(Country, CountryAdmin)
 admin.site.register(Address, AddressAdmin)
 admin.site.register(Profession, NamedNotableAdmin)
+admin.site.register(RelationshipType, NamedNotableAdmin)
