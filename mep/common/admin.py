@@ -17,7 +17,13 @@ class CollapsibleTabularInline(admin.TabularInline):
 
 class LocalUserAdmin(UserAdmin):
     list_display = UserAdmin.list_display + ('is_superuser', 'is_active',
-        'last_login')
+        'last_login', 'group_names')
+
+    def group_names(self, obj):
+        '''custom property to display group membership'''
+        if obj.groups.exists():
+            return ', '.join(g.name for g in obj.groups.all())
+    group_names.short_description = 'groups'
 
 
 admin.site.unregister(User)

@@ -1,10 +1,14 @@
 import pytest
 import re
+from unittest.mock import Mock
 
 from django.test import TestCase
+from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
+
 from .models import AliasIntegerField, Named, Notable, DateRange
 from .validators import verify_latlon
+from .admin import LocalUserAdmin
 
 
 class TestNamed(TestCase):
@@ -46,11 +50,11 @@ class TestDateRange(TestCase):
         assert span.start_year == span.dates
         # start date but no end
         span.end_year = None
-        assert '1900-' == span.dates
+        assert span.dates == '1900-'
         # end date but no start
         span.end_year = 1950
         span.start_year = None
-        assert '-1950' == span.dates
+        assert span.dates == '-1950'
 
     def test_clean_fields(self):
         with pytest.raises(ValidationError):
@@ -126,3 +130,18 @@ class TestVerifyLatLon(TestCase):
         with pytest.raises(ValidationError) as err:
             verify_latlon(200)
         assert 'Lat/Lon must be between -180 and 180 degrees.' in str(err)
+
+
+class TestLocalUserAdmin(TestCase):
+
+    def test_group_names(self):
+        localadmin = LocalUserAdmin(User, Mock())  # 2nd arg is admin site
+        user = User.objects.create()
+        assert localadmin.group_names(user) is None
+
+        grp1 = Group.objects.create(name='Admins')
+        grp2 = Group.objects.create(name='Staff')
+        user.groups.add(grp1)
+        user.groups.add(grp2)
+        assert localadmin.group_names(user) == 'Admins, Staff'
+
