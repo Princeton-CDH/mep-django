@@ -19,7 +19,7 @@ class TestImportPersonography(TestCase):
         self.cmd.stdout = StringIO()
 
     @patch('mep.people.management.commands.import_personography.Personography')
-    def test_command(self, mock_xmlpersonography):
+    def test_command_line(self, mock_xmlpersonography):
         # test calling via command line with args
         path = '/some/path/to/persons.xml'
         call_command('import_personography', path)
