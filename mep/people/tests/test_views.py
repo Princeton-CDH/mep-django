@@ -17,8 +17,6 @@ class TestPeopleViews(TestCase):
     @patch('mep.people.views.GeoNamesAPI')
     def test_geonames_autocomplete(self, mockgeonamesapi):
         geo_lookup_url = reverse('people:geonames-lookup')
-        result = self.client.get(geo_lookup_url,
-            params={'q': 'amsterdam'})
         # abbreviated sample return with fields currently in use
         mock_response = [
             {'name': 'New York City', 'geonameId': 5128581,
@@ -29,10 +27,11 @@ class TestPeopleViews(TestCase):
         # patch in real uri from id logic
         mockgeonamesapi.return_value.uri_from_id = GeoNamesAPI.uri_from_id
 
-        result = self.client.get(geo_lookup_url,
-            params={'q': 'new york'})
+        result = self.client.get(geo_lookup_url,{'q': 'new york'})
         assert isinstance(result, JsonResponse)
         assert result.status_code == 200
+        mockgeonamesapi.return_value.search.assert_called_with('new york',
+            max_rows=50)
         # decode response to inspect
         data = json.loads(result.content.decode('utf-8'))
         # inspect constructed result
@@ -43,6 +42,13 @@ class TestPeopleViews(TestCase):
         assert item['lng'] == mock_response[0]['lng']
         assert item['id'] == \
             GeoNamesAPI.uri_from_id(mock_response[0]['geonameId'])
+
+        # country specific lookup
+        country_lookup_url = reverse('people:country-lookup')
+        result = self.client.get(country_lookup_url, {'q': 'canada'})
+        assert result.status_code == 200
+        mockgeonamesapi.return_value.search.assert_called_with('canada',
+            feature_class='A', feature_code='PCLI', max_rows=50)
 
     def test_person_autocomplete(self):
         # add a person to search for
@@ -101,7 +107,6 @@ class TestGeonamesLookup(TestCase):
         del item['countryName']
         # and just name, if no country is available
         assert geo_lookup.get_label(item) == 'New York City'
-
 
 
 class TestGeonamesLookupWidget(TestCase):
