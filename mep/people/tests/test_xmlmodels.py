@@ -403,7 +403,6 @@ class TestPerson(TestCase):
         xml_person = load_xmlobject_from_string(self.before_after_nationality,
             xmlclass=Person)
         db_person = xml_person.to_db_person()
-        print(db_person.notes)
         assert 'Nationality: ' in db_person.notes
         assert 'German notAfter 1935-09-15' in db_person.notes
         assert 'stateless notBefore 1935-09-15' in db_person.notes
