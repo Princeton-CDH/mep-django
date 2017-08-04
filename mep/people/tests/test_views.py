@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.geonames import GeoNamesAPI
+from mep.people.models import Person
 from mep.people.views import GeoNamesLookup
 
 
@@ -42,7 +43,27 @@ class TestPeopleViews(TestCase):
         assert item['id'] == \
             GeoNamesAPI.uri_from_id(mock_response[0]['geonameId'])
 
-    def test_get_label(self):
+    def test_person_autocomplete(self):
+        # add a person to search for
+        Person.objects.create(name='Sylvia Beach')
+
+        pub_autocomplete_url = reverse('people:autocomplete')
+        result = self.client.get(pub_autocomplete_url, {'q': 'beach'})
+        assert result.status_code == 200
+        # decode response to inspect
+        data = json.loads(result.content.decode('utf-8'))
+        assert data['results'][0]['text'] == 'Sylvia Beach'
+
+        # no match - shouldn't error
+        result = self.client.get(pub_autocomplete_url, {'q': 'beauvoir'})
+        assert result.status_code == 200
+        data = json.loads(result.content.decode('utf-8'))
+        assert not data['results']
+
+
+class TestGeonamesLookup(TestCase):
+
+    def test_geonames_get_label(self):
         geo_lookup = GeoNamesLookup()
         item = {'name': 'New York City', 'countryName': 'USA'}
         # country code used if available
@@ -50,6 +71,7 @@ class TestPeopleViews(TestCase):
         del item['countryName']
         # and just name, if no country is available
         assert geo_lookup.get_label(item) == 'New York City'
+
 
 
 class TestGeonamesLookupWidget(TestCase):
