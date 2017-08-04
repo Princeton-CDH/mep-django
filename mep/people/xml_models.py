@@ -315,7 +315,7 @@ class Note(TeiXmlObject):
             if node.tag == '{http://www.tei-c.org/ns/1.0}persName':
                 # if ref is set, add it to the text after the person name
                 ref = node.get('ref')
-                if ref:
+                if ref and ref not in node.tail:  # only add once
                     node.tail = '%s [%s]' % (node.tail, ref)
 
         # output note text normally, now including ref id
@@ -429,6 +429,7 @@ class Person(TeiXmlObject):
                         (nation.label, nation.not_before))
 
             db_person.notes += ' '.join(note_text)
+            db_person.save()
 
         # handle URLs included in notes
         for link in self.urls:
