@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
+from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.validators import verify_latlon
@@ -133,6 +134,28 @@ class Person(Notable, DateRange):
     class Meta:
         verbose_name_plural = 'people'
         ordering = ['sort_name']
+
+    def save(self, *args, **kwargs):
+        '''Adds birth and death dates if they aren't already set
+        and there's a viaf id for the record'''
+
+        if self.viaf_id and not self.birth_year and not self.death_year:
+            self.set_birth_death_years()
+
+        super(Person, self).save(*args, **kwargs)
+
+    @property
+    def viaf(self):
+        ''':class:`viapy.api.ViafEntity` for this record if :attr:`viaf_id`
+        is set.'''
+        if self.viaf_id:
+            return ViafEntity(self.viaf_id)
+
+    def set_birth_death_years(self):
+        '''Set local birth and death dates based on information from VIAF'''
+        if self.viaf_id:
+            self.birth_year = self.viaf.birthyear
+            self.death_year = self.viaf.deathyear
 
 
 class InfoURL(Notable):

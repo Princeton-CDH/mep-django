@@ -1,8 +1,10 @@
 import re
+from unittest.mock import Mock, patch
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 import pytest
+from viapy.api import ViafEntity
 
 from mep.people.models import InfoURL, Person, Profession, Relationship, \
     RelationshipType, Address
@@ -26,6 +28,52 @@ class TestPerson(TestCase):
         # Testing for form of "<Person {'k':v, ...}>""
         overall = re.compile(r'<Person \{.+\}>')
         assert re.search(overall, repr(person_foo))
+
+    def test_viaf(self):
+        pers = Person(name='Beach')
+        assert pers.viaf is None
+        pers.viaf_id = 'http://viaf.org/viaf/35247539'
+        assert isinstance(pers.viaf, ViafEntity)
+        assert pers.viaf.uri == pers.viaf_id
+
+    def test_set_birth_death_years(self):
+        pers = Person(name='Humperdinck')
+        # no viaf id
+        pers.set_birth_death_years()
+        assert pers.birth_year is None
+        assert pers.death_year is None
+
+        pers.viaf_id = 'http://viaf.org/viaf/35247539'
+        with patch.object(Person, 'viaf') as mockviaf_entity:
+            mockviaf_entity.birthyear = 1902
+            mockviaf_entity.deathyear = 1953
+            pers.set_birth_death_years()
+            assert pers.birth_year == mockviaf_entity.birthyear
+            assert pers.death_year == mockviaf_entity.deathyear
+
+    def test_save(self):
+        pers = Person(name='Humperdinck')
+        with patch.object(pers, 'set_birth_death_years') as mock_setbirthdeath:
+            # no viaf - should not call set birth/death
+            pers.save()
+            mock_setbirthdeath.assert_not_called()
+
+            # viaf and dates set - should not call set birth/death
+            pers.viaf_id = 'http://viaf.org/viaf/35247539'
+            pers.birth_year = 1801
+            pers.death_year = 1850
+            pers.save()
+            mock_setbirthdeath.assert_not_called()
+
+            # viaf and one date set - should not call set birth/death
+            pers.birth_year = None
+            pers.save()
+            mock_setbirthdeath.assert_not_called()
+
+            # viaf and one date set - *should* call set birth/death
+            pers.death_year = None
+            pers.save()
+            mock_setbirthdeath.assert_called_with()
 
 
 class TestProfession(TestCase):
