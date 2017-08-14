@@ -46,7 +46,7 @@ class TestGeonamesApi(TestCase):
         mockrequests.get.return_value.json.return_value = mock_result
         mockrequests.codes = requests.codes
         mockrequests.get.return_value.status_code = requests.codes.ok
-        mockrequests.get.return_value.reason = 'OK'
+        mockrequests.get.return_value.reason = 'OK (simulated)'
 
         geo_api = GeoNamesAPI()
 
@@ -81,7 +81,7 @@ class TestGeonamesApi(TestCase):
         mockrequests.get.return_value.json.return_value = self.mock_countryinfo
         mockrequests.codes = requests.codes
         mockrequests.get.return_value.status_code = requests.codes.ok
-        mockrequests.get.return_value.reason = 'OK'
+        mockrequests.get.return_value.reason = 'OK (simulated)'
 
         geo_api = GeoNamesAPI()
 
@@ -99,7 +99,7 @@ class TestGeonamesApi(TestCase):
         mockrequests.get.return_value.json.return_value = self.mock_countryinfo
         mockrequests.codes = requests.codes
         mockrequests.get.return_value.status_code = requests.codes.ok
-        mockrequests.get.return_value.reason = 'OK'
+        mockrequests.get.return_value.reason = 'OK (simulated)'
 
         geo_api = GeoNamesAPI()
         assert 'AD' in geo_api.countries_by_code
@@ -111,7 +111,7 @@ class TestGeonamesApi(TestCase):
     def test_errors(self, mockrequests):
         mockrequests.codes = requests.codes
         mockrequests.get.return_value.status_code = requests.codes.ok
-        mockrequests.get.return_value.reason = 'OK'
+        mockrequests.get.return_value.reason = 'OK (simulated)'
 
         # no result found
         error_message = {

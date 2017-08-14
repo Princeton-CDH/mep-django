@@ -90,3 +90,6 @@ class GeoNamesAPI(object):
     def countries_by_code(self):
         '''Dictionary of country information keyed on two-letter code.'''
         return {country['countryCode']: country for country in self.countries}
+
+    # def country_code(self):
+    # http://api.geonames.org/countryCode?lat=47.03&lng=10.2&username=demo&type=json
