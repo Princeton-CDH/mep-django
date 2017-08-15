@@ -89,7 +89,8 @@ class Person(Notable, DateRange):
     sort_name = models.CharField(max_length=255,
         help_text='Sort name in lastname, firstname format; VIAF authorized name if available')
     #: viaf identifiers
-    viaf_id = models.URLField('VIAF id', blank=True)
+    viaf_id = models.URLField('VIAF id', blank=True,
+        help_text='Canonical VIAF URI for this person')
     #: birth year
     birth_year = AliasIntegerField(db_column='start_year',
         blank=True, null=True)

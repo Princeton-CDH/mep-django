@@ -100,9 +100,9 @@ class PersonAdminForm(forms.ModelForm):
         exclude = []
         widgets = {
                 'viaf_id': ViafWidget(
-                    url='viaf:person-lookup',
+                    url='viaf:person-search',
                     attrs={
-                        'data-placeholder': 'Type a name to search VIAF',
+                        'data-placeholder': 'Type name or id to search VIAF',
                         'data-minimum-input-length': 3
                     }
                 )
@@ -126,6 +126,9 @@ class PersonAdmin(admin.ModelAdmin):
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = ('sex', 'profession', 'nationalities')
     inlines = [InfoURLInline, RelationshipInline, FootnoteInline]
+    class Media:
+        js = ['admin/viaf-lookup.js']
+
 
 
 class AddressAdminForm(forms.ModelForm):
