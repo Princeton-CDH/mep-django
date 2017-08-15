@@ -150,10 +150,22 @@ class AddressAdmin(admin.ModelAdmin):
     form = AddressAdminForm
     list_display = ('__str__', 'name', 'street_address', 'city',
         'country', 'has_notes')
-    fields = ('name', 'street_address', 'city', 'postal_code',
-        'country',
-        'latitude', 'longitude', 'mapbox_token',
-        'notes')
+    # Use fieldset in order to add more instructions for looking up
+    # the geographic coordinates
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'street_address', 'city', 'postal_code',
+                       'country', 'notes')
+            }),
+        ('Geographic Coordinates', {
+            'fields': ('latitude', 'longitude', 'mapbox_token'),
+            'description':
+            mark_safe('Use <a href="http://www.latlong.net/" target="_blank">http://www.latlong.net/</a>' +
+                ' to find coordinates for an address.  Confirm using this map, ' +
+                'which will update whenever the coordinates are modified.'),
+            }),
+    )
+
     list_filter = ('country',)
     search_fields = ('name', 'street_address', 'city', 'notes')
     inlines = [ResidenceInline, FootnoteInline]
