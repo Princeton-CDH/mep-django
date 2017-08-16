@@ -25,7 +25,8 @@ class GeoNamesLookup(autocomplete.Select2ListView):
                 'feature_code': 'PCLI',
             })
 
-        results = geo_api.search(self.q, max_rows=50, **extra_args)
+        results = geo_api.search(self.q, max_rows=50, name_start=True,
+            **extra_args)
         return JsonResponse({
             'results': [dict(
                 id=geo_api.uri_from_id(item['geonameId']),

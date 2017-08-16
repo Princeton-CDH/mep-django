@@ -27,11 +27,11 @@ class TestPeopleViews(TestCase):
         # patch in real uri from id logic
         mockgeonamesapi.return_value.uri_from_id = GeoNamesAPI.uri_from_id
 
-        result = self.client.get(geo_lookup_url,{'q': 'new york'})
+        result = self.client.get(geo_lookup_url, {'q': 'new york'})
         assert isinstance(result, JsonResponse)
         assert result.status_code == 200
         mockgeonamesapi.return_value.search.assert_called_with('new york',
-            max_rows=50)
+            max_rows=50, name_start=True)
         # decode response to inspect
         data = json.loads(result.content.decode('utf-8'))
         # inspect constructed result
@@ -48,7 +48,8 @@ class TestPeopleViews(TestCase):
         result = self.client.get(country_lookup_url, {'q': 'canada'})
         assert result.status_code == 200
         mockgeonamesapi.return_value.search.assert_called_with('canada',
-            feature_class='A', feature_code='PCLI', max_rows=50)
+            feature_class='A', feature_code='PCLI', max_rows=50,
+            name_start=True)
 
     def test_person_autocomplete(self):
         # add a person to search for

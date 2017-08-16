@@ -58,11 +58,18 @@ class GeoNamesAPI(object):
             return data
 
     def search(self, query, max_rows=None, feature_class=None,
-        feature_code=None):
+        feature_code=None, name_start=False):
         '''Search for places and return the list of results'''
         api_method = 'searchJSON'
-        # NOTE: for autocomplete, name_startsWith might be better
-        params = {'username': self.username, 'q': query}
+
+        params = {'username': self.username}
+        # optionally use name start filter (e.g. for autocomplete)
+        if name_start:
+            params['name_startsWith'] = query
+        # otherwise, generic search term query
+        else:
+            params['q'] = query
+
         if max_rows is not None:
             params['maxRows'] = max_rows
         if feature_class is not None:

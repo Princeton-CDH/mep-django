@@ -46,7 +46,7 @@ class TestGeonamesApi(TestCase):
         mockrequests.get.return_value.json.return_value = mock_result
         mockrequests.codes = requests.codes
         mockrequests.get.return_value.status_code = requests.codes.ok
-        mockrequests.get.return_value.reason = 'OK (simulated)'
+        mockrequests.get.return_value.reason = 'OK (mock)'
 
         geo_api = GeoNamesAPI()
 
@@ -72,6 +72,11 @@ class TestGeonamesApi(TestCase):
             params={'username': 'test_geonames_user', 'q': 'canada',
                     'featureCode': 'PCLI'})
 
+        # name start
+        geo_api.search('can', name_start=True)
+        mockrequests.get.assert_called_with('http://api.geonames.org/searchJSON',
+            params={'username': 'test_geonames_user', 'name_startsWith': 'can'})
+
     def test_uri_from_id(self):
         assert GeoNamesAPI.uri_from_id(12345) == \
             'http://sws.geonames.org/12345/'
@@ -81,7 +86,7 @@ class TestGeonamesApi(TestCase):
         mockrequests.get.return_value.json.return_value = self.mock_countryinfo
         mockrequests.codes = requests.codes
         mockrequests.get.return_value.status_code = requests.codes.ok
-        mockrequests.get.return_value.reason = 'OK (simulated)'
+        mockrequests.get.return_value.reason = 'OK (mock)'
 
         geo_api = GeoNamesAPI()
 
@@ -99,7 +104,7 @@ class TestGeonamesApi(TestCase):
         mockrequests.get.return_value.json.return_value = self.mock_countryinfo
         mockrequests.codes = requests.codes
         mockrequests.get.return_value.status_code = requests.codes.ok
-        mockrequests.get.return_value.reason = 'OK (simulated)'
+        mockrequests.get.return_value.reason = 'OK (mock)'
 
         geo_api = GeoNamesAPI()
         assert 'AD' in geo_api.countries_by_code
@@ -111,7 +116,7 @@ class TestGeonamesApi(TestCase):
     def test_errors(self, mockrequests):
         mockrequests.codes = requests.codes
         mockrequests.get.return_value.status_code = requests.codes.ok
-        mockrequests.get.return_value.reason = 'OK (simulated)'
+        mockrequests.get.return_value.reason = 'OK (mock)'
 
         # no result found
         error_message = {
