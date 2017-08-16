@@ -4,8 +4,8 @@ $(document).on('select2:select', function(evt) {
     // show delete button in case previously hidden
     $('#viaf_id-delete').show();
     // SRU search data may include birth/death in the result;
-    // set them if present
-    if (data.birth && data.death) {
+    // set them if present and not zero (i.e. dates unknown)
+    if (data.birth && data.death && data.birth !== 0 && data.death != 0) {
         $('input[name="birth_year"]').val(data.birth.substring(0, 4));
         $('input[name="death_year"]').val(data.death.substring(0, 4));
     } else {
