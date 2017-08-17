@@ -123,6 +123,11 @@ class TestGeonamesLookupWidget(TestCase):
         rendered = widget.render('place', uri, {'id': 'place'})
         assert '<a id="geonames_uri" target="_blank" href="%(uri)s">%(uri)s</a>' \
             % {'uri': uri} in rendered
+        # value should be set as an option to preserve existing
+        # value when the form is submitted
+        assert '<option value="%(uri)s" selected>%(uri)s</option' % \
+            {'uri': uri} in rendered
+
 
 
 class TestMapWidget(TestCase):

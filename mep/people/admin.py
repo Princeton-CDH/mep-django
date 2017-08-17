@@ -24,6 +24,10 @@ class GeoNamesLookupWidget(autocomplete.Select2):
         if attrs is None:
             attrs = {}
         attrs['class'] = 'geonames-lookup'
+        # select2 filters based on existing choices (non-existent here),
+        # so when a value is set, add it to the list of choices
+        if value:
+            self.choices = [(value, value)]
         widget = super(GeoNamesLookupWidget, self).render(name, value, attrs)
         return mark_safe((u'%s<p><a id="geonames_uri" target="_blank" href="%s">%s</a></p>') % \
             (widget, value or '', value or ''))
