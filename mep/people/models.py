@@ -158,6 +158,13 @@ class Person(Notable, DateRange):
             self.birth_year = self.viaf.birthyear
             self.death_year = self.viaf.deathyear
 
+    def list_nationalities(self):
+        '''Return comma separated list of nationalities (if any) for :class:`Person` list view.'''
+        nationalities = self.nationalities.all()
+        if nationalities.exists():
+            return ', '.join(country.code for country in nationalities)
+        return ''
+    list_nationalities.short_description = 'Nationalities'
 
 class InfoURL(Notable):
     '''Informational urls (other than VIAF) associated with a :class:`Person`,
@@ -200,7 +207,3 @@ class Relationship(Notable):
             self.relationship_type.name,
             self.to_person.name
             )
-
-
-
-

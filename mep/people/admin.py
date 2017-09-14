@@ -117,7 +117,7 @@ class PersonAdmin(admin.ModelAdmin):
     # NOTE: uses custom template to display relationships to this person
     # (only relationships to other people are edited here)
     form = PersonAdminForm
-    list_display = ('sort_name', 'title', 'name', 'birth_year', 'death_year',
+    list_display = ('sort_name', 'title', 'name', 'list_nationalities', 'birth_year', 'death_year',
         'sex', 'profession', 'viaf_id', 'mep_id', 'has_notes')
     fields = ('mep_id', 'title',
         ('name', 'sort_name'),
