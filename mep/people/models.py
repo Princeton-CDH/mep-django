@@ -165,11 +165,13 @@ class Person(Notable, DateRange):
             return ', '.join(country.name for country in nationalities)
         return ''
     list_nationalities.short_description = 'Nationalities'
+    list_nationalities.admin_order_field = 'nationalities__name'
 
     def address_count(self):
         '''Return count of addresses associated with the instance of :class:`Person` for list_view.'''
         return self.addresses.count()
     address_count.short_description = '# Addresses'
+
 
 class InfoURL(Notable):
     '''Informational urls (other than VIAF) associated with a :class:`Person`,
