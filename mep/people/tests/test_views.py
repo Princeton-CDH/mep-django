@@ -97,6 +97,27 @@ class TestPeopleViews(TestCase):
         self.assertContains(result, rel.notes,
             msg_prefix='should include any relationship notes')
 
+    def test_person_admin_list(self):
+        # create user with permission to load admin edit form
+        su_password = 'itsasecret'
+        superuser = User.objects.create_superuser(username='admin',
+            password=su_password, email='su@example.com')
+
+        # login as admin user
+        self.client.login(username=superuser.username, password=su_password)
+
+        # create two people and a relationship
+        Person.objects.create(name='Charles Dufour')
+        Person.objects.create(name='Dufour', title='Mlle')
+
+        # get the list url with logged in user
+        person_list_url = reverse('admin:people_person_changelist')
+        result = self.client.get(person_list_url)
+
+        self.assertContains(result, Person.address_count.short_description,
+            msg_prefix='should have address_count field and short_desc.')
+        self.assertContains(result, Person.list_nationalities.short_description,
+            msg_prefix='should have list_nationalities field and short desc.')
 
 class TestGeonamesLookup(TestCase):
 

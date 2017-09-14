@@ -160,9 +160,9 @@ class Person(Notable, DateRange):
 
     def list_nationalities(self):
         '''Return comma separated list of nationalities (if any) for :class:`Person` list_view.'''
-        nationalities = self.nationalities.all()
+        nationalities = self.nationalities.all().order_by('name')
         if nationalities.exists():
-            return ', '.join(country.code for country in nationalities)
+            return ', '.join(country.name for country in nationalities)
         return ''
     list_nationalities.short_description = 'Nationalities'
 

@@ -7,7 +7,7 @@ import pytest
 from viapy.api import ViafEntity
 
 from mep.people.models import InfoURL, Person, Profession, Relationship, \
-    RelationshipType, Address
+    RelationshipType, Address, Country
 
 
 class TestPerson(TestCase):
@@ -75,6 +75,36 @@ class TestPerson(TestCase):
             pers.save()
             mock_setbirthdeath.assert_called_with()
 
+    def test_address_count(self):
+
+        # create a person
+        pers = Person.objects.create(name='Foobar')
+        # no addresses
+        assert pers.address_count() == 0
+
+        # add an address
+        address = Address.objects.create(name='L\'Hotel', city='Paris')
+        pers.addresses.add(address)
+        # should be one
+        assert pers.address_count() == 1
+
+        # add another, should be 2
+        address2 = Address.objects.create(name='Elysian Fields', city='Paris')
+        pers.addresses.add(address2)
+        assert pers.address_count() == 2
+
+    def test_nationality_list(self):
+        # create a person
+        pers = Person.objects.create(name='Foobar')
+        # no nationalities
+        assert pers.list_nationalities() == ''
+        country = Country.objects.create(name='France', code='FR')
+        pers.nationalities.add(country)
+        assert pers.list_nationalities() == 'France'
+        # add spanish citizenship
+        country = Country.objects.create(name='Spain', geonames_id='123')
+        pers.nationalities.add(country)
+        assert pers.list_nationalities() == 'France, Spain'
 
 class TestProfession(TestCase):
 
@@ -223,4 +253,3 @@ class TestInfoURL(TestCase):
         assert repr(info_url).endswith('>')
         assert info_url.url in repr(info_url)
         assert str(p) in repr(info_url)
-
