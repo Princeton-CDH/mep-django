@@ -24,7 +24,13 @@ class Country(Named):
 class Address(Notable):
     '''Addresses associated with people and accounts'''
     #: optional name of the location (e.g., hotel)
-    name = models.CharField(max_length=255, blank=True)
+    name = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name='Name of location',
+        help_text=('Name of the place if there is one, e.g. Savoy Hotel, '
+                   'British Embassy, Villa Trianon')
+    )
     #: street address
     street_address = models.CharField(max_length=255, blank=True)
     #: city or town
