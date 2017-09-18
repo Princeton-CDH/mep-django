@@ -5,13 +5,13 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from viapy.widgets import ViafWidget
 
-from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
+from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline, CollapsedTabularInline
 from mep.footnotes.admin import FootnoteInline
 from .models import Person, Country, Address, Profession, InfoURL, \
     Relationship, RelationshipType
 
 
-class InfoURLInline(CollapsibleTabularInline):
+class InfoURLInline(CollapsedTabularInline):
     model = InfoURL
     fields = ('url', 'notes')
 
@@ -69,7 +69,7 @@ class CountryAdmin(admin.ModelAdmin):
         js = ['admin/geonames-lookup.js']
 
 
-class ResidenceInline(CollapsibleTabularInline):
+class ResidenceInline(CollapsedTabularInline):
     model = Person.addresses.through
 
 
@@ -88,7 +88,7 @@ class RelationshipInlineForm(forms.ModelForm):
         }
 
 
-class RelationshipInline(CollapsibleTabularInline):
+class RelationshipInline(CollapsedTabularInline):
     '''Inline class for Relationships'''
     model = Relationship
     fk_name = 'from_person'

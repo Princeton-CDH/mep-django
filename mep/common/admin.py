@@ -11,8 +11,21 @@ class NamedNotableAdmin(admin.ModelAdmin):
 
 
 class CollapsibleTabularInline(admin.TabularInline):
-    'Django admin tabular inline with grappelli collapsible classes added'
+    '''Django admin tabular inline with grappelli collapsible classes added'''
     classes = ('grp-collapse grp-open',)
+
+
+class CollapsibleTabularInline(admin.TabularInline):
+    '''Django admin tabular inline with grappelli collapsible classes added'''
+    classes = ('grp-collapse grp-open',)
+
+
+class CollapsedTabularInline(admin.TabularInline):
+    '''
+    Django admin tabular inline with grappelli collapsible classes added,
+    defaulting to collapsed.
+    '''
+    classes = ('grp-collapse grp-closed',)
 
 
 class LocalUserAdmin(UserAdmin):
