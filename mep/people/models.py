@@ -113,7 +113,9 @@ class Person(Notable, DateRange):
     #: nationalities, link to :class:`Country`
     nationalities = models.ManyToManyField(Country, blank=True)
     #: known addresses, many-to-many link to :class:`Address`
-    addresses = models.ManyToManyField(Address, blank=True)
+    addresses = models.ManyToManyField(Address, blank=True,
+        help_text=('Autocomplete searches on all fields except '
+                   'latitude and longitude.'))
     #: relationships to other people, via :class:`Relationship`
     relations = models.ManyToManyField(
         'self',

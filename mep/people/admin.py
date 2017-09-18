@@ -117,6 +117,13 @@ class PersonAdminForm(forms.ModelForm):
                         'data-minimum-input-length': 3
                     }
                 ),
+                'addresses': autocomplete.ModelSelect2Multiple(
+                    url='people:address-autocomplete',
+                    attrs={
+                        'data-placeholder': ('Type to search address data... '),
+                        'data-minimum-input-length': 3
+                    }
+                )
         }
 
 
@@ -126,7 +133,7 @@ class PersonAdmin(admin.ModelAdmin):
     form = PersonAdminForm
     list_display = ('sort_name', 'title', 'name', 'list_nationalities', 'birth_year', 'death_year',
         'sex', 'profession', 'viaf_id', 'mep_id', 'address_count', 'has_notes')
-    fields = ('mep_id', 'title',
+    fieldsets = ('mep_id', 'title',
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
@@ -136,9 +143,9 @@ class PersonAdmin(admin.ModelAdmin):
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = ('sex', 'profession', 'nationalities')
     inlines = [InfoURLInline, RelationshipInline, FootnoteInline]
+
     class Media:
         js = ['admin/viaf-lookup.js']
-
 
 
 class AddressAdminForm(forms.ModelForm):
