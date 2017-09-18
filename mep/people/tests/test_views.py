@@ -8,7 +8,8 @@ from django.urls import reverse
 
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import Person, Relationship, RelationshipType
+from mep.people.models import Address, Country, Person, Relationship, \
+    RelationshipType
 from mep.people.views import GeoNamesLookup
 
 
@@ -119,6 +120,7 @@ class TestPeopleViews(TestCase):
         self.assertContains(result, Person.list_nationalities.short_description,
             msg_prefix='should have list_nationalities field and short desc.')
 
+
 class TestGeonamesLookup(TestCase):
 
     def test_geonames_get_label(self):
@@ -150,7 +152,6 @@ class TestGeonamesLookupWidget(TestCase):
             {'uri': uri} in rendered
 
 
-
 class TestMapWidget(TestCase):
 
     def test_render(self):
@@ -158,3 +159,83 @@ class TestMapWidget(TestCase):
         # no value set - should not error
         rendered = widget.render('place', None, {'id': 'place'})
         assert '<div id="geonames_map"></div>' in rendered
+
+
+class TestCountryAutocompleteView(TestCase):
+
+    def test_get_queryset(self):
+        # make two countries
+        Country.objects.create(name='Spain', code='ES', geonames_id='001')
+        Country.objects.create(name='France', code='FR', geonames_id='002')
+
+        # send a request, test view and queryset indirectly
+        auto_url = reverse('people:country-autocomplete')
+        res = self.client.get(auto_url, {'q': 'Spa'})
+        assert res
+        info = res.json()
+        assert info['results']
+        assert info['results'][0]['text'] == 'Spain'
+
+        res = self.client.get(auto_url, {'q': 'Fra'})
+        assert res
+        info = res.json()
+        assert info['results']
+        assert info['results'][0]['text'] == 'France'
+
+
+class TestAddressAutocompleteView(TestCase):
+
+    def test_get_queryset(self):
+        # make two countries
+        es = Country.objects.create(name='Spain', code='ES', geonames_id='001')
+        fr = Country.objects.create(name='France', code='FR', geonames_id='002')
+
+        # make two addresses
+        add_dict = {
+            'name': 'Hotel Le Foo',
+            'street_address': 'Rue Le Bar',
+            'city': 'Paris',
+            'postal_code': '012345',
+            'country': fr,
+        }
+        add_dict2 = {
+            'name': 'Hotel El Foo',
+            'street_address': 'Calle El Bar',
+            'city': 'Madrid',
+            'postal_code': '678910',
+            'country': es,
+        }
+        Address.objects.create(**add_dict)
+        Address.objects.create(**add_dict2)
+
+        # - series of tests for get_queryset Q's and view rendering
+        # autocomplete that should get both
+        auto_url = reverse('people:address-autocomplete')
+        res = self.client.get(auto_url, {'q': 'Foo'})
+        info = res.json()
+        assert len(info['results']) == 2
+
+        # auto complete that should get Le Foo
+        res = self.client.get(auto_url, {'q': 'Rue'})
+        info = res.json()
+        assert len(info['results']) == 1
+        assert 'Hotel Le Foo' in info['results'][0]['text']
+
+        # auto complete that should get Le Foo
+        res = self.client.get(auto_url, {'q': 'Fra'})
+        info = res.json()
+        assert len(info['results']) == 1
+        assert 'Hotel Le Foo' in info['results'][0]['text']
+
+
+        # auto complete that should get El Foo
+        res = self.client.get(auto_url, {'q': '67891'})
+        info = res.json()
+        assert len(info['results']) == 1
+        assert 'Hotel El Foo' in info['results'][0]['text']
+
+        # auto complete that should get El Foo
+        res = self.client.get(auto_url, {'q': 'Mad'})
+        info = res.json()
+        assert len(info['results']) == 1
+        assert 'Hotel El Foo' in info['results'][0]['text']
