@@ -88,7 +88,7 @@ class RelationshipInlineForm(forms.ModelForm):
         }
 
 
-class RelationshipInline(admin.TabularInline):
+class RelationshipInline(CollapsibleTabularInline):
     '''Inline class for Relationships'''
     model = Relationship
     fk_name = 'from_person'
@@ -133,7 +133,7 @@ class PersonAdmin(admin.ModelAdmin):
     form = PersonAdminForm
     list_display = ('sort_name', 'title', 'name', 'list_nationalities', 'birth_year', 'death_year',
         'sex', 'profession', 'viaf_id', 'mep_id', 'address_count', 'has_notes')
-    fieldsets = ('mep_id', 'title',
+    fields = ('mep_id', 'title',
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
