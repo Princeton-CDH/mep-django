@@ -101,7 +101,7 @@ class PersonAdminForm(forms.ModelForm):
     '''Custom model form for Person editing; used to add VIAF lookup'''
     class Meta:
         model = Person
-        exclude = []
+        fields = ('__all__')
         widgets = {
                 'viaf_id': ViafWidget(
                     url='viaf:person-search',
@@ -109,7 +109,14 @@ class PersonAdminForm(forms.ModelForm):
                         'data-placeholder': 'Type name or id to search VIAF',
                         'data-minimum-input-length': 3
                     }
-                )
+                ),
+                'nationalities': autocomplete.ModelSelect2Multiple(
+                    url='people:country-autocomplete',
+                    attrs={
+                        'data-placeholder': ('Type a country name to search... '),
+                        'data-minimum-input-length': 3
+                    }
+                ),
         }
 
 
@@ -125,7 +132,6 @@ class PersonAdmin(admin.ModelAdmin):
         ('birth_year', 'death_year'),
         'sex', 'profession', 'nationalities', 'addresses',
         'notes')
-    filter_horizontal = ('nationalities', 'addresses')
     readonly_fields = ('mep_id', )
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = ('sex', 'profession', 'nationalities')
