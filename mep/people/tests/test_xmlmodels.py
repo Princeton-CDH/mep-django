@@ -265,6 +265,22 @@ class TestPerson(TestCase):
         <nationality notBefore="1935-09-15" key="xxa">stateless</nationality>
     </person>'''
 
+    primary_pseudonym_surname_forename = ''' <person xml:id="mayr.ca" xmlns="http://www.tei-c.org/ns/1.0">
+        <persName sort="2">
+            <surname type="married">Hepp</surname>
+            <surname type="birth">Saint-René Taillandier</surname>
+            <forename sort="1">Henriette</forename>
+            <forename sort="2">Sophie</forename>
+            <forename sort="3">Marianne</forename>
+            </persName>
+        <persName type="pseudo" sort="1">
+            <surname>Mayran</surname>
+            <forename>Camille</forename>
+        </persName>
+        <note>Mme Pierre Hepp</note>
+        <note>used pseudonym Camille Mayran</note>
+    </person>'''
+
     def test_properties(self):
         person = Personography.from_file(XML_FIXTURE).people[0]
         assert person.mep_id == "alde.pa"
@@ -407,4 +423,11 @@ class TestPerson(TestCase):
         assert 'German notAfter 1935-09-15' in db_person.notes
         assert 'stateless notBefore 1935-09-15' in db_person.notes
 
-
+        # psuedonym, primary, with surname and forename
+        xml_person = load_xmlobject_from_string(
+            self.primary_pseudonym_surname_forename,
+            xmlclass=Person
+        )
+        db_person = xml_person.to_db_person()
+        assert 'Camille Mayran' in db_person.name
+        assert db_person.sort_name == 'Mayran, Camille'

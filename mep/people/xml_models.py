@@ -374,8 +374,13 @@ class Person(TeiXmlObject):
             if self.pseudonyms:
                 # pseudonym is primary name
                 if self.pseudonyms[0].sort == 1:
+                    pseudonym = [str(self.pseudonyms[0])]
+                    sur = self.pseudonyms[0].last_name()
+                    fore = self.pseudonyms[0].first_name()
+                    if sur and fore:
+                        pseudonym = [str(fore), str(sur)]
                     db_person.name = '%s (%s)' % \
-                        (self.pseudonyms[0], self.names[0].full_name())
+                        (" ".join(pseudonym), self.names[0].full_name())
                     db_person.sort_name = self.pseudonyms[0].sort_name() \
                         or str(self.pseudonyms[0])
 
