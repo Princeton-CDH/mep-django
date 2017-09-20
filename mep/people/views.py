@@ -50,16 +50,22 @@ class GeoNamesLookup(autocomplete.Select2ListView):
 
 
 class PersonAutocomplete(autocomplete.Select2QuerySetView):
-    '''Basic person autocomplete lookup, for use with
-    django-autocomplete-light.'''
+    '''
+    Basic person autocomplete lookup, for use with django-autocomplete-light.
+    Use Q objects to help distinguish people using mepid.
+    '''
 
     def get_queryset(self):
-        return Person.objects.filter(name__icontains=self.q)
+        return Person.objects.filter(
+                Q(name__icontains=self.q) |
+                Q(mep_id__icontains=self.q)
+        )
 
 
 class CountryAutocomplete(autocomplete.Select2QuerySetView):
     '''Basic autocomplete lookup, for use with django-autocomplete-light and
-    :class:`mep.people.models.Person` in nationalities many-to-many.'''
+    :class:`mep.people.models.Person` in nationalities many-to-many.
+    '''
 
     def get_queryset(self):
         return Country.objects.filter(name__icontains=self.q)

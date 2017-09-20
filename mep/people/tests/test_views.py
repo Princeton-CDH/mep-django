@@ -54,7 +54,7 @@ class TestPeopleViews(TestCase):
 
     def test_person_autocomplete(self):
         # add a person to search for
-        Person.objects.create(name='Sylvia Beach')
+        Person.objects.create(name='Sylvia Beach', mep_id='sylv.b')
 
         pub_autocomplete_url = reverse('people:autocomplete')
         result = self.client.get(pub_autocomplete_url, {'q': 'beach'})
@@ -68,6 +68,26 @@ class TestPeopleViews(TestCase):
         assert result.status_code == 200
         data = json.loads(result.content.decode('utf-8'))
         assert not data['results']
+
+        # add a person and a relationship
+        Person.objects.create(name='Sylvia', title='Ms.')
+
+        # should return both
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylvia'})
+        assert result.status_code == 200
+        # decode response to inspect
+        data = json.loads(result.content.decode('utf-8'))
+        assert len(data['results']) == 2
+        assert data['results'][0]['text'] == 'Sylvia Beach'
+        assert data['results'][1]['text'] == 'Sylvia'
+
+        # search by mep id, should return just Sylvia Beach
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.'})
+        assert result.status_code == 200
+        # decode response to inspect
+        data = json.loads(result.content.decode('utf-8'))
+        assert len(data['results']) == 1
+        assert data['results'][0]['text'] == 'Sylvia Beach'
 
     def test_person_admin_change(self):
         # create user with permission to load admin edit form
