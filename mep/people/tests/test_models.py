@@ -21,6 +21,18 @@ class TestPerson(TestCase):
         foo_bar = Person(name='Foo Bar', sort_name='Bar, Foo')
         assert str(foo_bar) == 'Bar, Foo'
 
+        # Add title if it exists
+        foo_bar = Person(name='Bar', title='Mr.')
+        assert str(foo_bar) == 'Mr. Bar'
+
+        # if last, first, title goes after
+        foo_bar = Person(sort_name='Bar, Foo', title='Mr.')
+        assert str(foo_bar) == 'Bar, Foo, Mr.'
+
+        # if not last first, in front
+        foo_bar = Person(sort_name='Bar', title='Mr.')
+        assert str(foo_bar) == 'Mr. Bar'
+
     def test_repr(self):
         # Foo Bar, born 1900
         person_foo = Person(name='Foo', sort_name='Bar, Foo', birth_year=1900)

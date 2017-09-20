@@ -138,7 +138,16 @@ class Person(Notable, DateRange):
     def __str__(self):
         '''String representation; use sort name if available with fall back
         to name'''
-        return self.sort_name or self.name
+        # if not sort name, return name with title in front
+        # NOTE: strip is there to grab extra space and comma if no title
+        if not self.sort_name:
+            return ('%s %s' % (self.title, self.name)).strip()
+        # if name sort_name and it's last, first, title goes after
+        if self.sort_name and len(self.sort_name.split(',')) > 1:
+            return ('%s, %s' % (self.sort_name, self.title)).strip(', ')
+        # otherwise, append it to the front for most natural format
+        else:
+            return ('%s %s' % (self.title, self.sort_name)).strip(', ')
 
     class Meta:
         verbose_name_plural = 'people'

@@ -79,7 +79,7 @@ class TestPeopleViews(TestCase):
         data = json.loads(result.content.decode('utf-8'))
         assert len(data['results']) == 2
         assert data['results'][0]['text'] == 'Sylvia Beach'
-        assert data['results'][1]['text'] == 'Sylvia'
+        assert data['results'][1]['text'] == 'Ms. Sylvia'
 
         # search by mep id, should return just Sylvia Beach
         result = self.client.get(pub_autocomplete_url, {'q': 'sylv.'})
