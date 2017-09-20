@@ -226,6 +226,7 @@ class Residence(TeiXmlObject):
                 code=geoname['countryCode']
             )
             addr.country = country
+            addr.save()
 
         # NOTE: if we have both lat/long and country, could check
         # and warn if lat/long do not match
