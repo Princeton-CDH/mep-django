@@ -83,7 +83,8 @@ class RelationshipInlineForm(forms.ModelForm):
         widgets = {
             'to_person': autocomplete.ModelSelect2(
                 url='people:autocomplete',
-                attrs={'data-placeholder': 'Start typing a name to search...'}
+                attrs={'data-placeholder': ('Start typing name/mep_id to '
+                                            'search...')}
             )
         }
 
