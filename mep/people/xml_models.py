@@ -316,7 +316,7 @@ class Note(TeiXmlObject):
                 # if ref is set, add it to the text after the person name
                 ref = node.get('ref')
                 if ref and ref not in node.tail:  # only add once
-                    node.tail = '%s [%s]' % (node.tail, ref)
+                    node.tail = ' [%s] %s' % (ref, node.tail)
 
         # output note text normally, now including ref id
         return self.node.xpath("normalize-space(.)")

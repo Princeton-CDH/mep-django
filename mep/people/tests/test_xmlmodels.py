@@ -221,10 +221,22 @@ class TestNote(TestCase):
         <surname>Dufour</surname></persName>
     </note>'''
 
+    note_ref2 = '''<note xmlns="http://www.tei-c.org/ns/1.0">Identified in the logbooks as <persName><roleName>Mrs</roleName>
+    <surname>Worthing</surname></persName>. Assuming she was married to the
+    person named <persName ref="#worthing1"><roleName>Mr</roleName>
+    <surname>Worthing</surname></persName>, who is listed twice in the
+    logbooks. After 1927 subscriptions are sold to a person without
+    distinguishing role (<persName><surname>Worthing</surname></persName>); we
+    are assuming that person is Mrs Worthing. </note>
+    '''
+
     def test_str(self):
         note = load_xmlobject_from_string(self.note_ref, xmlclass=Note)
         assert 'daughter of Charles Dufour [#dufo.ch]' in str(note)
 
+    def test_right_tagged_associated_with_correct_person(self):
+        note = load_xmlobject_from_string(self.note_ref2, xmlclass=Note)
+        assert 'person named Mr Worthing [#worthing1]' in str(note)
 
 class TestPerson(TestCase):
 
