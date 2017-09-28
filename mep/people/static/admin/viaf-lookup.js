@@ -1,22 +1,26 @@
 $(document).on('select2:select', function(evt) {
     var data = evt.params.data;
-    $('#viaf_uri').attr('href', data.id).text(data.id);
-    // show delete button in case previously hidden
-    $('#viaf_id-delete').show();
-    // SRU search data may include birth/death in the result;
-    // set them if present and not zero (i.e. dates unknown)
-    // handle separately, since one may be known and not the other
-    // otherwise, clear birth and death and attempt to set on save
-    if (data.birth && data.birth !== 0) {
-        $('input[name="birth_year"]').val(data.birth.substring(0, 4));
-    } else {
-        $('input[name="birth_year"]').val('');
-    }
-    if (data.death && data.death != 0) {
-        $('input[name="death_year"]').val(data.death.substring(0, 4));
-    } else {
-        $('input[name="death_year"]').val('');
-    }
+    var target = evt.target;
+    // check that it's viaf being cleared and not the other selectors
+    if (target.name == 'viaf_id') {
+        $('#viaf_uri').attr('href', data.id).text(data.id);
+        // show delete button in case previously hidden
+        $('#viaf_id-delete').show();
+        // SRU search data may include birth/death in the result;
+        // set them if present and not zero (i.e. dates unknown)
+        // handle separately, since one may be known and not the other
+        // otherwise, clear birth and death and attempt to set on save
+        if (data.birth && data.birth !== 0) {
+            $('input[name="birth_year"]').val(data.birth.substring(0, 4));
+        } else {
+            $('input[name="birth_year"]').val('');
+        }
+        if (data.death && data.death != 0) {
+            $('input[name="death_year"]').val(data.death.substring(0, 4));
+        } else {
+            $('input[name="death_year"]').val('');
+        }
+  }
 
 });
 
