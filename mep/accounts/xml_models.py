@@ -18,10 +18,6 @@ class TeiXmlObject(xmlmap.XmlObject):
     }
 
 
-class Date(TeiXmlObject):
-    iso_date = xmlmap.StringField('@when-iso')
-
-
 class XmlEvent(TeiXmlObject):
 
     e_type = xmlmap.StringField('@type')
@@ -103,8 +99,8 @@ class XmlEvent(TeiXmlObject):
         account.add_event(etype, **common_dict)
 
 
-class DayDiv(TeiXmlObject):
-    dates = xmlmap.NodeListField('t:head/t:date', Date)
+class Day(TeiXmlObject):
+    date = xmlmap.StringField('t:head/t:date/@when-iso')
     events = xmlmap.NodeListField('t:listEvent/t:event', XmlEvent)
 
 
@@ -115,7 +111,7 @@ class LogBook(xmlmap.XmlObject):
 
     query = ('//t:body/t:div[@type="year"]/'
              't:div[@type="month"]/t:div[@type="day"]')
-    day_divs = xmlmap.NodeListField(query, DayDiv)
+    days = xmlmap.NodeListField(query, Day)
 
     @classmethod
     def from_file(cls, filename):
