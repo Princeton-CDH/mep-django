@@ -147,14 +147,12 @@ class Subscribe(Event):
         blank=True,
         null=True
     )
-    currency = models.CharField(max_length=3, blank=True)
+    currency = models.CharField(max_length=3, blank=True, choices=CURRENCY_CHOICES)
     # NOTE: What are some good test types?
-    FOO = 'f'
-    BAR = 'b'
+    SUP = 'sup'
     MODIFICATION_CHOICES = (
         ('', '----'),
-        (FOO, 'Foo'),
-        (BAR, 'Bar'),
+        (SUP, 'Supplement'),
     )
     modification = models.CharField(
         max_length=50,
