@@ -50,6 +50,7 @@ class TestEvent(TestCase):
         event_div = self.logbook.day_divs[1]
 
         monbrial = event_div.events[0]
+        assert monbrial.e_type == 'subscription'
         assert monbrial.mepid == '#monb'
         assert monbrial.name == 'Mlle Monbrial'
         assert monbrial.duration_unit == 'month'
@@ -59,4 +60,4 @@ class TestEvent(TestCase):
         assert monbrial.price_unit == 'franc'
         assert monbrial.price_quantity == '16'
         assert monbrial.deposit_unit == 'franc'
-        assert monbrial.deposit_quantity == '7'    
+        assert monbrial.deposit_quantity == '7'
