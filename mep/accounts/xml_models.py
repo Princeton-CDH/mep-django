@@ -22,7 +22,7 @@ class Date(TeiXmlObject):
     iso_date = xmlmap.StringField('@when-iso')
 
 
-class Event(TeiXmlObject):
+class XmlEvent(TeiXmlObject):
 
     e_type = xmlmap.StringField('@type')
     mepid = xmlmap.StringField('t:p/t:persName/@ref')
@@ -49,22 +49,33 @@ class Event(TeiXmlObject):
     deposit_quantity = xmlmap.StringField('t:p/t:measure[@type="deposit"]/'
                                           '@quantity')
 
-    def to_db_event(self):
+    def to_db_event(self, date):
 
         xml_db_mapping = {
             'subscription': 'subscribe',
             'supplement': 'subscribe',
             'borrow': 'borrow',
         }
+        etype = xml_db_mapping[self.e_type]
 
 
-        mepid = self.mepid.strip('#')
+        xml_currency_mapping = {
+            'franc': 'FRF'
+        }
+
+        currency = None
+        if self.deposit_unit:
+            currency = xml_currency_mapping[self.deposit_unit]
+        elif self.price_unit:
+            currency = xml_currency_mapping[self.price_unit]
+
+        mep_id = self.mepid.strip('#')
         person = None
         account = None
         try:
-            person = Person.objects.get(mepid=mepid)
+            person = Person.objects.get(mep_id=mep_id)
         except ObjectDoesNotExist:
-            person = Person.objects.create(mepid=mepid, name=self.name,
+            person = Person.objects.create(mep_id=mep_id, name=self.name,
                                            sort_name=self.name)
 
         try:
@@ -73,13 +84,28 @@ class Event(TeiXmlObject):
             account = Account.objects.create()
             account.save()
 
-        account.person.add(person)
-        account.add_event(xml_db_mapping[event])
+        common_dict = {
+            'start_date': date,
+            # QUESTION: should this reflect length of subscription on end date?
+            'end_date': date
+        }
+
+        if etype == 'subscribe':
+            common_dict['duration'] = self.duration_quantity
+            common_dict['volumes'] = self.frequency_quantity
+            common_dict['price_paid'] = self.price_quantity
+            common_dict['deposit'] = self.deposit_quantity
+            common_dict['currency'] = currency
+            if self.e_type == 'supplement':
+                common_dict['modification'] = 'SUP'
+
+        account.persons.add(person)
+        account.add_event(etype, **common_dict)
 
 
 class DayDiv(TeiXmlObject):
     dates = xmlmap.NodeListField('t:head/t:date', Date)
-    events = xmlmap.NodeListField('t:listEvent/t:event', Event)
+    events = xmlmap.NodeListField('t:listEvent/t:event', XmlEvent)
 
 
 class LogBook(xmlmap.XmlObject):

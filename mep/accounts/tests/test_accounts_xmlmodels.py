@@ -1,5 +1,7 @@
+import datetime
 import os
-from mep.accounts.xml_models import LogBook, DayDiv, Event
+from mep.accounts.xml_models import LogBook, XmlEvent
+from mep.accounts.models import Event, Subscribe
 from django.test import TestCase
 
 
@@ -37,7 +39,7 @@ class TestDayDiv(TestCase):
         # First one should have three
         assert len(event_div.events) == 3
         # they should be instances of mep.accounts.xmlmodels.Event
-        assert isinstance(event_div.events[0], Event)
+        assert isinstance(event_div.events[0], XmlEvent)
 
 
 class TestEvent(TestCase):
@@ -61,3 +63,30 @@ class TestEvent(TestCase):
         assert monbrial.price_quantity == '16'
         assert monbrial.deposit_unit == 'franc'
         assert monbrial.deposit_quantity == '7'
+
+    def test_to_db_event(self):
+
+
+        # - check subcribe type events to db model
+        events = self.logbook.day_divs[1].events
+        date = self.logbook.day_divs[1].dates[0]
+        for event in events:
+            event.to_db_event(date.iso_date)
+
+
+        # check that there are three events overall
+        events = Event.objects.all()
+        assert len(events) == 3
+
+        # check that there are three subscribes
+        subscribes = Subscribe.objects.all()
+        assert len(subscribes) == 3
+
+        # check one in detail
+        monbrial = subscribes.filter(account__persons__mep_id='monb')[0]
+        assert monbrial.start_date == datetime.date(1921, 1, 5)
+        assert monbrial.end_date == datetime.date(1921, 1, 5)
+        assert monbrial.duration == 3
+        assert monbrial.currency == 'FRF'
+        assert monbrial.deposit == 7
+        assert monbrial.price_paid == 16
