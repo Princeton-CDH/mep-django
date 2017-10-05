@@ -1,0 +1,100 @@
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>An Encoding Sylvia Beach's logbook for the year 1921</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Publication Information</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Information about the source</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <div type="year">
+        <head>
+          <date>1921</date>
+        </head>
+        <div type="month" n="1">
+          <head>
+            <date>January</date>
+          </head>
+          <div type="day">
+            <head>
+              <date when-iso="1921-01-01">1921-01-01</date>
+            </head>
+          </div>
+          <div type="day">
+            <head>
+              <date when-iso="1921-01-05">1921-01-05</date>
+            </head>
+            <listEvent>
+              <event type="subscription">
+                <p>Subsc
+                  <persName ref="#monb">Mlle Monbrial</persName>
+                  <measure type="duration" unit="month" quantity="3">3 mos</measure>
+                  <measure type="frequency" unit="volume" quantity="1">1 vol</measure>
+                  <measure type="price" unit="franc" quantity="16">16</measure>
+                  <measure type="deposit" unit="franc" quantity="7">Dep 7</measure>
+                </p>
+              </event>
+              <event type="subscription">
+                <p>Subsc
+                  <persName ref="#bona">Mlle Bonamy</persName>
+                  <measure type="duration" unit="month" quantity="6">6 mos</measure>
+                  <measure type="frequency" unit="volume" quantity="2">2 vols</measure>
+                  <measure type="price" unit="franc" quantity="40">40</measure>
+                  <measure type="deposit" unit="franc" quantity="14">Dep 14</measure>
+                </p>
+              </event>
+              <event type="subscription">
+                <p>Subsc
+                  <persName ref="#goro">Mlle Gorodiche</persName>
+                  <measure type="duration" unit="month" quantity="6">6 mos</measure>
+                  <measure type="frequency" unit="volume" quantity="1">1 vol</measure>
+                  <measure type="price" unit="franc" quantity="28">28</measure>
+                </p>
+              </event>
+            </listEvent>
+          </div>
+          <div type="day">
+            <head>
+              <date when-iso="1921-01-08">1921-01-08</date>
+            </head>
+            <listEvent>
+              <event type="subscription">
+                <p>Subsc
+                  <persName ref="#nutt">Mr Nutting</persName>
+                  <measure type="duration" unit="month" quantity="1">1 mo</measure>
+                  <measure type="frequency" unit="volume" quantity="1">1 vol</measure>
+                  <measure type="price" unit="franc" quantity="8">8</measure>
+                </p>
+              </event>
+              <event type="subscription">
+                <p>Subsc
+                  <persName ref="#desc.au">M. Desclos</persName>
+                  <measure type="duration" unit="month" quantity="6">6 mos</measure>
+                  <measure type="frequency" unit="volume" quantity="1">1 vol</measure>
+                  <measure type="price" unit="franc" quantity="28">28</measure>
+                  <rs type="subcat">AdL</rs>
+                </p>
+              </event>
+              <event type="supplement">
+                <p>Subsc
+                  <persName ref="#fern">M. Fernandez</persName>
+                  1 vol added
+                  <measure type="duration" unit="month" quantity="3">3 mos</measure>
+                  <measure type="frequency" unit="volume" quantity="1">1 vol</measure>
+                  <measure type="price" unit="franc" quantity="10">10</measure>
+                </p>
+              </event>
+            </listEvent>
+          </div>
+        </div>
+      </div>
+    </body>
+  </text>
+</TEI>

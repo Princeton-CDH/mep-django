@@ -2,8 +2,8 @@ import pytest
 import re
 
 from django.test import TestCase
-from .models import Account, AccountAddress, Address
-from .models import Borrow, Event, Purchase, Reimbursement, Subscribe
+from mep.accounts.models import Account, AccountAddress, Address
+from mep.accounts.models import Borrow, Event, Purchase, Reimbursement, Subscribe
 from mep.books.models import Item
 
 
