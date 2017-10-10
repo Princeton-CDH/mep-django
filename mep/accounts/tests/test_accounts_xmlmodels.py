@@ -1,7 +1,7 @@
 import datetime
 import os
 from mep.accounts.xml_models import LogBook, XmlEvent
-from mep.accounts.models import Event, Subscribe
+from mep.accounts.models import Event, Subscribe, Reimbursement
 from django.test import TestCase
 
 
@@ -38,7 +38,7 @@ class TestDayDiv(TestCase):
         day = self.logbook.days[1]
         assert day.events
         # First one should have three
-        assert len(day.events) == 3
+        assert len(day.events) == 4
         # they should be instances of mep.accounts.xmlmodels.Event
         assert isinstance(day.events[0], XmlEvent)
 
@@ -67,16 +67,14 @@ class TestEvent(TestCase):
 
     def test_to_db_event(self):
 
-
         # - check subcribe type events to db model
         events = self.logbook.days[1].events
         date = self.logbook.days[1].date
         for event in events:
             event.to_db_event(date)
-
-        # check that there are three events overall
+        # check that there are four events overall
         events = Event.objects.all()
-        assert len(events) == 3
+        assert len(events) == 4
 
         # check that there are three subscribes
         subscribes = Subscribe.objects.all()
@@ -85,8 +83,13 @@ class TestEvent(TestCase):
         # check one in detail
         monbrial = subscribes.filter(account__persons__mep_id='monb')[0]
         assert monbrial.start_date == datetime.date(1921, 1, 5)
-        assert monbrial.end_date == datetime.date(1921, 1, 5)
+        assert monbrial.end_date == datetime.date(1921, 3, 30)
         assert monbrial.duration == 3
         assert monbrial.currency == 'FRF'
         assert monbrial.deposit == 7
         assert monbrial.price_paid == 16
+
+        # check the reimbursement because it's different enough
+        kunst = Reimbursement.objects.get(account__persons__mep_id__icontains='kunst')
+        assert kunst.start_date == datetime.date(1921, 1, 5)
+        assert kunst.end_date == datetime.date(1921, 1, 5)

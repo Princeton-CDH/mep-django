@@ -1,15 +1,14 @@
 # coding=utf-8
-
 import logging
-
+from django.db.utils import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 from eulxml import xmlmap
 from viapy.api import ViafEntity
+from datetime import datetime, timedelta
 
-from mep.accounts.models import Account
+import sys
+from mep.accounts.models import Account, Subscribe
 from mep.people.models import Person
-
-logger = logging.getLogger(__name__)
 
 
 class TeiXmlObject(xmlmap.XmlObject):
@@ -18,8 +17,11 @@ class TeiXmlObject(xmlmap.XmlObject):
     }
 
 
+
 class XmlEvent(TeiXmlObject):
 
+    # NOTE: e_type always refers to the XML event types for clarity in
+    # import script. Database models use etype
     e_type = xmlmap.StringField('@type')
     mepid = xmlmap.StringField('t:p/t:persName/@ref')
     name = xmlmap.StringField('t:p/t:persName')
@@ -47,43 +49,45 @@ class XmlEvent(TeiXmlObject):
 
     def to_db_event(self, date):
 
+        # Check to see that durations are monthly, if not flag them
+        # to test and handle
+        if self.duration_unit and self.duration_unit != 'month':
+            raise ValueError('Unexpected duration_unit on %s' % date)
+        # Map xml events to class names
         xml_db_mapping = {
             'subscription': 'subscribe',
             'supplement': 'subscribe',
+            'reimbursement': 'reimbursement',
             'borrow': 'borrow',
+            'renewal': 'subscribe'
         }
+        # check for unhandled event types
+        if self.e_type not in xml_db_mapping:
+            raise ValueError('Unexpected e_type on %s' % date)
         etype = xml_db_mapping[self.e_type]
-
-
+        # Map XML currency to database abbreviations
         xml_currency_mapping = {
             'franc': 'FRF'
         }
-
         currency = None
         if self.deposit_unit:
             currency = xml_currency_mapping[self.deposit_unit]
         elif self.price_unit:
             currency = xml_currency_mapping[self.price_unit]
-
+        # Get or create person and account
         mep_id = self.mepid.strip('#')
         person = None
         account = None
-        try:
-            person = Person.objects.get(mep_id=mep_id)
-        except ObjectDoesNotExist:
-            person = Person.objects.create(mep_id=mep_id, name=self.name,
-                                           sort_name=self.name)
+        person, created = Person.objects.get_or_create(mep_id=mep_id)
+        account, created = Account.objects.get_or_create(persons__id=person.id)
 
-        try:
-            account = Account.objects.get(persons__id=person.id)
-        except ObjectDoesNotExist:
-            account = Account.objects.create()
-            account.save()
-
+        # Create a common dict
         common_dict = {
             'start_date': date,
             # QUESTION: should this reflect length of subscription on end date?
-            'end_date': date
+            'end_date': (datetime.strptime(date, '%Y-%m-%d') +
+                         timedelta(weeks=int(self.duration_quantity) * 4)
+                         if self.duration_quantity else date)
         }
 
         if etype == 'subscribe':
@@ -92,10 +96,18 @@ class XmlEvent(TeiXmlObject):
             common_dict['price_paid'] = self.price_quantity
             common_dict['deposit'] = self.deposit_quantity
             common_dict['currency'] = currency
+
             if self.e_type == 'supplement':
-                common_dict['modification'] = 'SUP'
+                common_dict['modification'] = Subscribe.SUPPLEMENT
+            if self.e_type == 'renewal':
+                common_dict['modification'] = Subscribe.RENEWAL
+
+        if etype == 'reimbursement':
+            common_dict['price'] = self.price_quantity
+            common_dict['currency'] = currency
 
         account.persons.add(person)
+        account.save()
         account.add_event(etype, **common_dict)
 
 

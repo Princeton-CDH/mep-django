@@ -148,11 +148,13 @@ class Subscribe(Event):
         null=True
     )
     currency = models.CharField(max_length=3, blank=True, choices=CURRENCY_CHOICES)
-    # NOTE: What are some good test types?
-    SUP = 'sup'
+    SUPPLEMENT = 'sup'
+    RENEWAL = 'ren'
+
     MODIFICATION_CHOICES = (
         ('', '----'),
-        (SUP, 'Supplement'),
+        (SUPPLEMENT, 'Supplement'),
+        (RENEWAL, 'Renewal'),
     )
     modification = models.CharField(
         max_length=50,

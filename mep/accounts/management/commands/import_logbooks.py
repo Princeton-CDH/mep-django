@@ -11,11 +11,13 @@ See :meth:`mep.accounts.xml_models.XmlEvent.to_db_event` for detailed info
 on the import process.
 """
 import glob
+import logging
 import os
 from django.core.management.base import BaseCommand, CommandError
 from mep.accounts.xml_models import LogBook
 from mep.accounts.models import Account, Event, Subscribe, Reimbursement
 
+logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     """Import logbooks from XML documents"""
@@ -59,5 +61,12 @@ class Command(BaseCommand):
             if log and isinstance(log, LogBook):
                 for day in log.days:
                     for event in day.events:
-                        event.to_db_event(day.date)
+                        try:
+                            event.to_db_event(day.date)
+                        except Exception as err:
+                            self.stdout.write(
+                                self.style.WARNING(
+                                    '%s, on %s date' % (err, day.date)
+                                )
+                            )
         self.summarize(totals)
