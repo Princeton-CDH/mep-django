@@ -1,7 +1,7 @@
 import datetime
 import os
 from mep.accounts.xml_models import LogBook, XmlEvent
-from mep.accounts.models import Event, Subscribe, Reimbursement
+from mep.accounts.models import Event, Subscribe, Reimbursement, FRF
 from django.test import TestCase
 
 
@@ -85,7 +85,7 @@ class TestEvent(TestCase):
         assert monbrial.start_date == datetime.date(1921, 1, 5)
         assert monbrial.end_date == datetime.date(1921, 3, 30)
         assert monbrial.duration == 3
-        assert monbrial.currency == 'FRF'
+        assert monbrial.currency == FRF
         assert monbrial.deposit == 7
         assert monbrial.price_paid == 16
 
@@ -93,3 +93,5 @@ class TestEvent(TestCase):
         kunst = Reimbursement.objects.get(account__persons__mep_id__icontains='kunst')
         assert kunst.start_date == datetime.date(1921, 1, 5)
         assert kunst.end_date == datetime.date(1921, 1, 5)
+        assert kunst.currency == FRF
+        assert kunst.price == 200
