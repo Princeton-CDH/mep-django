@@ -122,6 +122,8 @@ class AccountAddress(Notable):
         '''This is a through model, so the str representation is minimal'''
         return 'Account #%s - Address #%s' % (self.account.pk, self.address.pk)
 
+    class Meta:
+        verbose_name = 'Account-address association'
 
 class Event(Notable):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
