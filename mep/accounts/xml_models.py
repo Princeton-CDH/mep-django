@@ -17,7 +17,6 @@ class TeiXmlObject(xmlmap.XmlObject):
     }
 
 
-
 class XmlEvent(TeiXmlObject):
 
     # NOTE: e_type always refers to the XML event types for clarity in
@@ -33,20 +32,17 @@ class XmlEvent(TeiXmlObject):
     duration_quantity = xmlmap.StringField('t:p/t:measure[@type="duration"]/'
                                            '@quantity')
     # frequency
-    frequency_unit = xmlmap.IntegerField('t:p/t:measure[@type="frequency"]/@unit')
-    frequency_quantity = xmlmap.StringField('t:p/t:measure[@type="frequency"]/'
+    frequency_unit = xmlmap.StringField('t:p/t:measure[@type="frequency"]/@unit')
+    frequency_quantity = xmlmap.IntegerField('t:p/t:measure[@type="frequency"]/'
                                             '@quantity')
-
     # price
     price_unit = xmlmap.StringField('t:p/t:measure[@type="price"]/@unit')
     price_quantity = xmlmap.StringField('t:p/t:measure[@type="price"]/'
                                         '@quantity')
-
     # deposit
     deposit_unit = xmlmap.StringField('t:p/t:measure[@type="deposit"]/@unit')
     deposit_quantity = xmlmap.StringField('t:p/t:measure[@type="deposit"]/'
                                           '@quantity')
-
     # reimbursement (another style present with measure type='reimbursement')
     reimbursement_unit = xmlmap.StringField(
         't:p/t:measure[@type="reimbursement"]/@unit'

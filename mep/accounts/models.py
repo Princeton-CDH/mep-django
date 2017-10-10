@@ -133,9 +133,7 @@ CURRENCY_CHOICES = (
 
 class Subscribe(Event):
     '''Records subscription events in the MEP database'''
-    # QUESTION: How big does this need to be? PositiveSmallIntegerField
-    # is probably appropriate.
-    duration = models.PositiveSmallIntegerField()
+    duration = models.PositiveSmallIntegerField(blank=True, null=True)
     volumes = models.PositiveIntegerField()
     sub_type = models.CharField(max_length=255, verbose_name='type')
     # NOTE: Using decimal field to take advantage of Python's decimal handling

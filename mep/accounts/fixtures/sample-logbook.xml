@@ -63,7 +63,18 @@
                 <measure type="price" unit="franc" quantity="200">200</measure>
                 </p>
               </event>
-
+              <event type="reimbursement">
+                <p> Dep-R <persName ref="#burning">Burning</persName>
+                <measure type="reimbursement" unit="franc" quantity="50">50</measure>
+                </p>
+              </event>
+              <event type="renewal">
+              <p> S.R. <persName ref="#larking">Ms Larking</persName>
+              <measure type="duration" unit="month" quantity="1">1</measure>
+              <measure type="frequency" unit= "volume" quantity="3">3</measure>
+              <measure type="price" unit="franc" quantity="45">45</measure>
+              </p>
+            </event>
             </listEvent>
           </div>
           <div type="day">

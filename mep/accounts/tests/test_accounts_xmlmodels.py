@@ -30,15 +30,15 @@ class TestDayDiv(TestCase):
         # First check no events (i.e. first entry in fixture has no events)
         empty_day = self.logbook.days[0]
         print(empty_day)
-        assert empty_day.date == '1921-01-01'
+        assert empty_day.date == datetime.date(1921, 1, 1)
         assert not empty_day.events
 
     def test_events(self):
         # Get a div that has events
-        day = self.logbook.days[1]
+        day = self.logbook.days[2]
         assert day.events
         # First one should have three
-        assert len(day.events) == 4
+        assert len(day.events) == 3
         # they should be instances of mep.accounts.xmlmodels.Event
         assert isinstance(day.events[0], XmlEvent)
 
@@ -59,7 +59,7 @@ class TestEvent(TestCase):
         assert monbrial.duration_unit == 'month'
         assert monbrial.duration_quantity == '3'
         assert monbrial.frequency_unit == 'volume'
-        assert monbrial.frequency_quantity == '1'
+        assert monbrial.frequency_quantity == 1
         assert monbrial.price_unit == 'franc'
         assert monbrial.price_quantity == '16'
         assert monbrial.deposit_unit == 'franc'
@@ -72,13 +72,13 @@ class TestEvent(TestCase):
         date = self.logbook.days[1].date
         for event in events:
             event.to_db_event(date)
-        # check that there are four events overall
+        # check that there are six events overall
         events = Event.objects.all()
-        assert len(events) == 4
+        assert len(events) == 6
 
-        # check that there are three subscribes
+        # check that there are four subscribes
         subscribes = Subscribe.objects.all()
-        assert len(subscribes) == 3
+        assert len(subscribes) == 4
 
         # check one in detail
         monbrial = subscribes.filter(account__persons__mep_id='monb')[0]
@@ -95,3 +95,8 @@ class TestEvent(TestCase):
         assert kunst.end_date == datetime.date(1921, 1, 5)
         assert kunst.currency == FRF
         assert kunst.price == 200
+
+        # check reimbursements that use <measure type="reimbursement" ... >
+        burning = Reimbursement.objects.get(account__persons__mep_id__icontains='burning')
+        assert burning.currency == FRF
+        assert burning.price == 50
