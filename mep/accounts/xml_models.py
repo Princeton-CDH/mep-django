@@ -26,14 +26,14 @@ class XmlEvent(TeiXmlObject):
     mepid = xmlmap.StringField('t:p/t:persName/@ref')
     name = xmlmap.StringField('t:p/t:persName')
 
-
+    # - using StringField to handle decimal values used sometimes
+    # catching the issue on the Python side.
     # duration
     duration_unit = xmlmap.StringField('t:p/t:measure[@type="duration"]/@unit')
     duration_quantity = xmlmap.StringField('t:p/t:measure[@type="duration"]/'
                                            '@quantity')
-
     # frequency
-    frequency_unit = xmlmap.StringField('t:p/t:measure[@type="frequency"]/@unit')
+    frequency_unit = xmlmap.IntegerField('t:p/t:measure[@type="frequency"]/@unit')
     frequency_quantity = xmlmap.StringField('t:p/t:measure[@type="frequency"]/'
                                             '@quantity')
 
@@ -46,6 +46,14 @@ class XmlEvent(TeiXmlObject):
     deposit_unit = xmlmap.StringField('t:p/t:measure[@type="deposit"]/@unit')
     deposit_quantity = xmlmap.StringField('t:p/t:measure[@type="deposit"]/'
                                           '@quantity')
+
+    # reimbursement (another style present with measure type='reimbursement')
+    reimbursement_unit = xmlmap.StringField(
+        't:p/t:measure[@type="reimbursement"]/@unit'
+    )
+    reimbursement_quantity = xmlmap.StringField(
+        't:p/t:measure[@type="reimbursement"]/@quantity'
+    )
 
     def to_db_event(self, date):
 
@@ -74,6 +82,8 @@ class XmlEvent(TeiXmlObject):
             currency = xml_currency_mapping[self.deposit_unit]
         elif self.price_unit:
             currency = xml_currency_mapping[self.price_unit]
+        else:
+            currency = xml_currency_mapping[self.reimbursement_unit]
         # Get or create person and account
         mep_id = self.mepid.strip('#')
         person = None
@@ -84,8 +94,7 @@ class XmlEvent(TeiXmlObject):
         # Create a common dict
         common_dict = {
             'start_date': date,
-            # QUESTION: should this reflect length of subscription on end date?
-            'end_date': (datetime.strptime(date, '%Y-%m-%d') +
+            'end_date': (date +
                          timedelta(weeks=int(self.duration_quantity) * 4)
                          if self.duration_quantity else date)
         }
@@ -103,7 +112,8 @@ class XmlEvent(TeiXmlObject):
                 common_dict['modification'] = Subscribe.RENEWAL
 
         if etype == 'reimbursement':
-            common_dict['price'] = self.price_quantity
+            common_dict['price'] = self.price_quantity if self.price_quantity \
+                                   else self.reimbursement_quantity
             common_dict['currency'] = currency
 
         account.persons.add(person)
@@ -112,7 +122,7 @@ class XmlEvent(TeiXmlObject):
 
 
 class Day(TeiXmlObject):
-    date = xmlmap.StringField('t:head/t:date/@when-iso')
+    date = xmlmap.DateField('t:head/t:date/@when-iso')
     events = xmlmap.NodeListField('t:listEvent/t:event', XmlEvent)
 
 
