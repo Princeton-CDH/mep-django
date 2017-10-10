@@ -22,6 +22,25 @@ class Account(models.Model):
         # QUESTION: Better way to do this for str? Can't count on any fields.
         return 'Account #%s' % self.pk
 
+    def list_persons(self):
+        '''List :class:`mep.people.models.Person` instances associated with this
+        account.
+        '''
+        return ', '.join(person.name for
+                         person in self.persons.all().order_by('name'))
+    list_persons.short_description = 'Associated persons'
+
+    def list_addresses(self):
+        '''List :class:`mep.people.models.Address` instances associated with
+        this account.
+        '''
+        return '; '.join(
+            address.name if address.name
+            else address.street_address for address in
+            self.addresses.all().order_by('name', 'street_address')
+        )
+    list_addresses.short_description = 'Associated addresses'
+
     def add_event(self, etype='event', **kwargs):
         '''Helper function to add a :class:`Event` or subclass to an
         instance of :class:`Account`. Requires that the :class:`Account`
