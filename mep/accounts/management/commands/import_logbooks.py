@@ -40,7 +40,7 @@ class Command(BaseCommand):
     def summarize(self, start_totals):
         final_totals = self.get_totals()
         for i in ['people', 'addresses', 'countries', 'urls']:
-            self.stdout.write('%d %s added (%d total)' % \
+            self.stdout.write('%d %s added (%d total)\n' %
                 (new_totals[i] - start_totals[i], i, new_totals[i]))
 
     def get_file_list(self, path):
