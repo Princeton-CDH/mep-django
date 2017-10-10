@@ -36,7 +36,8 @@ class Account(models.Model):
         '''
         return '; '.join(
             address.name if address.name
-            else address.street_address for address in
+            else address.street_address if address.street_address
+            else address.city for address in
             self.addresses.all().order_by('name', 'street_address')
         )
     list_addresses.short_description = 'Associated addresses'
