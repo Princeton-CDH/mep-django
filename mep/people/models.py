@@ -191,9 +191,8 @@ class Person(Notable, DateRange):
 
     def has_account(self):
         '''Return whether an instance of :class:`mep.accounts.models.Account` exists for this person.'''
-        if self.account_set.exists():
-            return True
-        return False
+        return bool(self.account_set.exists())
+    has_account.boolean = True
 
 class InfoURL(Notable):
     '''Informational urls (other than VIAF) associated with a :class:`Person`,

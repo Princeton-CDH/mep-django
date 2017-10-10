@@ -133,14 +133,14 @@ class PersonAdmin(admin.ModelAdmin):
     # (only relationships to other people are edited here)
     form = PersonAdminForm
     list_display = ('sort_name', 'title', 'name', 'list_nationalities', 'birth_year', 'death_year',
-        'sex', 'profession', 'viaf_id', 'mep_id', 'address_count', 'has_notes')
-    fields = ('mep_id', 'title',
+        'sex', 'profession', 'viaf_id', 'mep_id', 'address_count', 'has_account', 'has_notes')
+    fields = ('mep_id', 'has_account', 'title',
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
         'sex', 'profession', 'nationalities', 'addresses',
         'notes')
-    readonly_fields = ('mep_id', )
+    readonly_fields = ('mep_id', 'has_account')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = ('sex', 'profession', 'nationalities')
     inlines = [InfoURLInline, RelationshipInline, FootnoteInline]
