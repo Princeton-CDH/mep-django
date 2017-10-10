@@ -87,4 +87,4 @@ class AddressAutocomplete(autocomplete.Select2QuerySetView):
             Q(city__icontains=self.q) |
             Q(postal_code__icontains=self.q) |
             Q(country__name__icontains=self.q)
-        )
+        ).order_by('name', 'city', 'street_address')
