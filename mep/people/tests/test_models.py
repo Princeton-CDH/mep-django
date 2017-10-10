@@ -8,6 +8,7 @@ from viapy.api import ViafEntity
 
 from mep.people.models import InfoURL, Person, Profession, Relationship, \
     RelationshipType, Address, Country
+from mep.accounts.models import Account
 
 
 class TestPerson(TestCase):
@@ -117,6 +118,18 @@ class TestPerson(TestCase):
         country = Country.objects.create(name='Spain', geonames_id='123')
         pers.nationalities.add(country)
         assert pers.list_nationalities() == 'France, Spain'
+
+    def test_has_account(self):
+        # create a person
+        pers = Person.objects.create(name='Foobar')
+        # create an account
+        acct = Account.objects.create()
+        # not associated, returns False
+        assert not pers.has_account()
+        # associate, should return True
+        acct.persons.add(pers)
+        acct.save()
+        assert pers.has_account()
 
 class TestProfession(TestCase):
 
