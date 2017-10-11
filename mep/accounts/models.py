@@ -152,8 +152,8 @@ class Event(Notable):
         return '<%s %s>' % (self.__class__.__name__, self.__dict__)
 
     def __str__(self):
-        return '%s for %s' % (self.__class__.__name__,
-                              str(self.account))
+        return '%s for account #%s' % (self.__class__.__name__,
+                                      self.account.pk)
 
 
 USD = 'USD'
@@ -174,7 +174,24 @@ class Subscribe(Event):
         help_text='Duration in months, as a whole number.')
     volumes = models.PositiveIntegerField(
         help_text='Number of volumes for checkout')
-    sub_type = models.CharField(max_length=255, verbose_name='type')
+
+    A = 'A'
+    B = 'B'
+    A_B = 'A+B'
+    ADL = 'AdL'
+    STU = 'Stu'
+    PROF = 'Prof'
+
+    SUB_TYPE_CHOICES = (
+        (A, 'A'),
+        (B, 'B'),
+        (A_B, 'A+B'),
+        (ADL, 'AdL'),
+        (STU, 'Student'),
+        (PROF, 'Professor'),
+    )
+    sub_type = models.CharField(max_length=255, verbose_name='type', blank=True,
+        choices=SUB_TYPE_CHOICES)
     # NOTE: Using decimal field to take advantage of Python's decimal handling
     # Can store up to 99999999.99 -- which is *probably* safe.
     price_paid = models.DecimalField(max_digits=10, decimal_places=2)
@@ -185,6 +202,7 @@ class Subscribe(Event):
         null=True
     )
     currency = models.CharField(max_length=3, blank=True, choices=CURRENCY_CHOICES)
+
     SUPPLEMENT = 'sup'
     RENEWAL = 'ren'
 

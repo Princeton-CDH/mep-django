@@ -27,7 +27,7 @@ class TestAccountsViews(TestCase):
         data = res.json()
         assert res.status_code == 200
         assert 'results' in data
-        assert data['results'][0]['text'] == 'Account #1'
+        assert data['results'][0]['text'] == 'Account #%s' % acc1.pk
 
         # search by persons
         pers1 = Person.objects.create(name='Mlle Foo')
