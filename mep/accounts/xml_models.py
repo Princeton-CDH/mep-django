@@ -85,7 +85,10 @@ class XmlEvent(TeiXmlObject):
         person = None
         account = None
         person, created = Person.objects.get_or_create(mep_id=mep_id)
-        account, created = Account.objects.get_or_create(persons__id=person.id)
+        if created:
+            person.name = self.name.strip()
+            person.save()
+        account, created = Account.objects.get_or_create(persons__in=[person])
 
         # Create a common dict
         common_dict = {
