@@ -139,6 +139,7 @@ class AccountAddress(Notable):
     class Meta:
         verbose_name = 'Account-address association'
 
+
 class Event(Notable):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
     account = models.ForeignKey(Account)
@@ -169,8 +170,10 @@ CURRENCY_CHOICES = (
 
 class Subscribe(Event):
     '''Records subscription events in the MEP database'''
-    duration = models.PositiveSmallIntegerField(blank=True, null=True)
-    volumes = models.PositiveIntegerField()
+    duration = models.PositiveSmallIntegerField(blank=True, null=True,
+        help_text='Duration in months, as a whole number.')
+    volumes = models.PositiveIntegerField(
+        help_text='Number of volumes for checkout')
     sub_type = models.CharField(max_length=255, verbose_name='type')
     # NOTE: Using decimal field to take advantage of Python's decimal handling
     # Can store up to 99999999.99 -- which is *probably* safe.
@@ -193,7 +196,8 @@ class Subscribe(Event):
     modification = models.CharField(
         max_length=50,
         blank=True,
-        choices=MODIFICATION_CHOICES
+        choices=MODIFICATION_CHOICES,
+        help_text='Use to indicate supplement or renewal.'
     )
 
 

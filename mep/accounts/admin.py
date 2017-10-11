@@ -82,6 +82,11 @@ class SubscribeAdminForm(forms.ModelForm):
     class Meta:
         model = Subscribe
         fields = ('__all__')
+        help_texts = {
+            'account': ('Searches and displays on system assigned '
+                        'account id, as well as associated person and '
+                        'address data.'),
+        }
         widgets = {
             'account': autocomplete.ModelSelect2(
                 url='accounts:autocomplete',
