@@ -19,8 +19,22 @@ class Account(models.Model):
         return '<Account %s>' % self.__dict__
 
     def __str__(self):
-        # QUESTION: Better way to do this for str? Can't count on any fields.
-        return 'Account #%s' % self.pk
+        if not self.persons.exists() and not self.addresses.exists():
+            return 'Account #%s' % self.pk
+        if self.persons.exists():
+            return 'Account #%s: %s' % (
+                self.pk,
+                ', '.join(person.name for person in self.persons.all())
+            )
+        if self.addresses.exists():
+            return 'Account #%s: %s' % (
+                self.pk,
+                '; '.join(address.name if address.name else
+                          address.street_address if address.street_address else
+                          address.city for address in
+                          self.addresses.all().order_by(
+                          'city', 'street_address', 'name'))
+        )
 
     def list_persons(self):
         '''List :class:`mep.people.models.Person` instances associated with this

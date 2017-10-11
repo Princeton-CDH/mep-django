@@ -18,8 +18,19 @@ class TestAccount(TestCase):
         assert re.search(overall, repr(account))
 
     def test_str(self):
-        account = Account()
+        # create and save an account
+        account = Account.objects.create()
         assert str(account) == "Account #%s" % account.pk
+
+        # create and add an address, overrides just pk method
+        add1 = Address.objects.create(street_address='1 Rue St.')
+        AccountAddress.objects.create(account=account, address=add1)
+        assert str(account) == "Account #%s: 1 Rue St." % account.pk
+
+        # create and add a person, overrides address
+        pers1 = Person.objects.create(name='Mlle Foo')
+        account.persons.add(pers1)
+        assert str(account) == "Account #%s: Mlle Foo" % account.pk
 
     def test_add_event(self):
 
