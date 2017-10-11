@@ -66,11 +66,13 @@ class AccountAdminForm(forms.ModelForm):
         }
 
 
-
 class AccountAdmin(admin.ModelAdmin):
     model = Account
     form = AccountAdminForm
     list_display = ('id', 'list_persons', 'list_addresses')
+    search_fields = ('id', 'accountaddress__address__street_address',
+                     'accountaddress__address__name',
+                     'accountaddress__address__country__name', 'persons__name')
     fields = ('persons',)
     inlines = [AccountAddressInline]
 
