@@ -2,7 +2,7 @@ from dal import autocomplete
 from django.contrib import admin
 from django import forms
 
-from mep.accounts.models import Account, AccountAddress
+from mep.accounts.models import Account, AccountAddress, Subscribe
 from mep.common.admin import CollapsedTabularInline
 
 
@@ -77,4 +77,28 @@ class AccountAdmin(admin.ModelAdmin):
     inlines = [AccountAddressInline]
 
 
+class SubscribeAdminForm(forms.ModelForm):
+
+    class Meta:
+        model = Subscribe
+        fields = ('__all__')
+        widgets = {
+            'account': autocomplete.ModelSelect2(
+                url='accounts:autocomplete',
+                attrs={
+                    'data-placeholder': 'Type to search account data...',
+                    'data-minimum-input-length': 3
+                }
+            ),
+        }
+
+
+class SubscribeAdmin(admin.ModelAdmin):
+    model = Subscribe
+    form = SubscribeAdminForm
+    fields = ('account', 'sub_type', 'modification', 'duration', 'volumes',
+              'price_paid', 'deposit', 'currency', 'notes')
+
+
+admin.site.register(Subscribe, SubscribeAdmin)
 admin.site.register(Account, AccountAdmin)

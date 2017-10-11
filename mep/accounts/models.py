@@ -151,8 +151,8 @@ class Event(Notable):
         return '<%s %s>' % (self.__class__.__name__, self.__dict__)
 
     def __str__(self):
-        return '%s for account #%s' % (self.__class__.__name__,
-                                       self.account.pk)
+        return '%s for %s' % (self.__class__.__name__,
+                              str(self.account))
 
 
 USD = 'USD'
