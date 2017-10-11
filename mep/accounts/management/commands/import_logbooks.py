@@ -38,8 +38,9 @@ class Command(BaseCommand):
         }
 
     def summarize(self, start_totals):
-        final_totals = self.get_totals()
-        for i in ['people', 'addresses', 'countries', 'urls']:
+        new_totals = self.get_totals()
+        for i in ['events', 'subscriptions', 'renewals', 'reimbursements',
+                  'supplements']:
             self.stdout.write('%d %s added (%d total)\n' %
                 (new_totals[i] - start_totals[i], i, new_totals[i]))
 
@@ -61,12 +62,14 @@ class Command(BaseCommand):
             if log and isinstance(log, LogBook):
                 for day in log.days:
                     for event in day.events:
-                        try:
-                            event.to_db_event(day.date)
-                        except Exception as err:
-                            self.stdout.write(
-                                self.style.WARNING(
-                                    '%s, on %s date' % (err, day.date)
+                        if event.e_type != 'overdue':
+                            try:
+                                event.to_db_event(day.date)
+                            except Exception as err:
+                                self.stdout.write(
+                                    self.style.WARNING(
+                                        '%s, on %s date' % (err, day.date)
+                                    )
                                 )
-                            )
+                                raise err
         self.summarize(totals)

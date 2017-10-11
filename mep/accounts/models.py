@@ -170,11 +170,14 @@ CURRENCY_CHOICES = (
 
 class Subscribe(Event):
     '''Records subscription events in the MEP database'''
-    duration = models.PositiveSmallIntegerField(blank=True, null=True,
-        help_text='Duration in months, as a whole number.')
-    volumes = models.PositiveIntegerField(
+    duration = models.DecimalField(
+        max_digits=4, decimal_places=2,
+        blank=True, null=True,
+        help_text=('Duration in months. Weeks may be noted with '
+                   'fractions in decimal form.')
+    )
+    volumes = models.PositiveIntegerField(blank=True, null=True,
         help_text='Number of volumes for checkout')
-
     A = 'A'
     B = 'B'
     A_B = 'A+B'
@@ -194,7 +197,8 @@ class Subscribe(Event):
         choices=SUB_TYPE_CHOICES)
     # NOTE: Using decimal field to take advantage of Python's decimal handling
     # Can store up to 99999999.99 -- which is *probably* safe.
-    price_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    price_paid = models.DecimalField(max_digits=10, decimal_places=2,
+        blank=True, null=True)
     deposit = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -245,7 +249,8 @@ class Purchase(Event):
 
 class Reimbursement(Event):
     '''Inherited table indicating reimbursement events'''
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+    price = models.DecimalField(max_digits=8, decimal_places=2, null=True,
+        blank=True)
     currency = models.CharField(
         max_length=3,
         blank=True,
