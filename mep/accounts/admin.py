@@ -102,11 +102,12 @@ class SubscribeAdmin(admin.ModelAdmin):
     model = Subscribe
     form = SubscribeAdminForm
     list_display = ('account', 'sub_type', 'modification',
-                    'duration', 'volumes', 'price_paid', 'deposit', 'currency')
+                    'duration', 'start_date', 'end_date',
+                    'volumes', 'price_paid', 'deposit', 'currency')
     list_filter = ('sub_type', 'modification', 'currency')
 
-    fields = ('account', 'sub_type', 'modification', 'duration', 'volumes',
-              'price_paid', 'deposit', 'currency', 'notes')
+    fields = ('account', 'sub_type', 'modification', 'duration', 'start_date',
+              'end_date', 'volumes', 'price_paid', 'deposit', 'currency', 'notes')
 
 
 admin.site.register(Subscribe, SubscribeAdmin)
