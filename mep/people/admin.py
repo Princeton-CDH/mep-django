@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 from viapy.widgets import ViafWidget
 
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline, CollapsedTabularInline
+from mep.accounts.admin import AccountAddressInline
 from mep.footnotes.admin import FootnoteInline
 from .models import Person, Country, Address, Profession, InfoURL, \
     Relationship, RelationshipType
@@ -186,7 +187,7 @@ class AddressAdmin(admin.ModelAdmin):
 
     list_filter = ('country',)
     search_fields = ('name', 'street_address', 'city', 'notes')
-    inlines = [ResidenceInline, FootnoteInline]
+    inlines = [AccountAddressInline, ResidenceInline, FootnoteInline]
     class Media:
         css = {
             'all': ['https://unpkg.com/leaflet@1.0.2/dist/leaflet.css',

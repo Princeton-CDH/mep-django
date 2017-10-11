@@ -10,7 +10,22 @@ class AccountAddressInlineForm(forms.ModelForm):
     class Meta:
         model = AccountAddress
         fields = ('__all__')
+        help_texts = {
+            'account': ('Searches and displays on system assigned '
+                        'account id, as well as associated person and '
+                        'address data.'),
+            'address': ('Searches on address name, street address, city, '
+                        'postal code, and country.'),
+
+        }
         widgets = {
+                'account': autocomplete.ModelSelect2(
+                    url='accounts:autocomplete',
+                    attrs={
+                        'data-placeholder': 'Type to search account data...',
+                        'data-minimum-input-length': 3
+                    }
+                ),
                 'address': autocomplete.ModelSelect2(
                     url='people:address-autocomplete',
                     attrs={
@@ -32,7 +47,7 @@ class AccountAddressInline(CollapsedTabularInline):
     model = AccountAddress
     form = AccountAddressInlineForm
     extra = 1
-    fields = ('address', 'care_of_person', 'start_date', 'end_date', 'notes')
+    fields = ('account', 'address', 'care_of_person', 'start_date', 'end_date', 'notes')
 
 
 class AccountAdminForm(forms.ModelForm):
