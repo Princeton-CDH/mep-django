@@ -101,6 +101,10 @@ class SubscribeAdminForm(forms.ModelForm):
 class SubscribeAdmin(admin.ModelAdmin):
     model = Subscribe
     form = SubscribeAdminForm
+    list_display = ('account', 'sub_type', 'modification',
+                    'duration', 'volumes', 'price_paid', 'deposit', 'currency')
+    list_filter = ('sub_type', 'modification', 'currency')
+
     fields = ('account', 'sub_type', 'modification', 'duration', 'volumes',
               'price_paid', 'deposit', 'currency', 'notes')
 
