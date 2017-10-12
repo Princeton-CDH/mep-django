@@ -13,30 +13,22 @@ See the project's `page <http://mep.princeton.edu/>`_ for more details.
 
 Python 3.5 / Django 1.11
 
-.. image:: https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=develop
+.. image:: https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=master
     :target: https://travis-ci.org/Princeton-CDH/mep-django
     :alt: Build status
 
-.. image:: https://codecov.io/gh/Princeton-CDH/mep-django/branch/develop/graph/badge.svg
-    :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/develop
+.. image:: https://codecov.io/gh/Princeton-CDH/mep-django/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/master
     :alt: Code coverage
 
-.. image:: https://landscape.io/github/Princeton-CDH/mep-django/develop/landscape.svg?style=flat
-   :target: https://landscape.io/github/Princeton-CDH/mep-django/develop
+.. image:: https://landscape.io/github/Princeton-CDH/mep-django/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/Princeton-CDH/mep-django/master
    :alt: Code Health
 
-Current development status
---------------------------
+.. image:: https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=master
+     :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=master
+     :alt: Requirements Status
 
-.. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=development+in+progress&title=In+Progress
-    :target: http://waffle.io/Princeton-CDH/mep-django
-    :alt: In Progress
-.. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=development+complete&title=Development+Complete
-    :target: http://waffle.io/Princeton-CDH/mep-django
-    :alt: Development Complete
-.. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=awaiting+testing&title=Awaiting+Testing
-    :target: http://waffle.io/Princeton-CDH/mep-django
-    :alt: Awaiting Testing
 
 Development instructions
 ------------------------
