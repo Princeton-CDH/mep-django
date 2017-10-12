@@ -4,6 +4,5 @@ django-grappelli
 cached_property
 pucas
 eulxml
-# develop version of viapy until we have a release
-git+https://github.com/Princeton-CDH/viapy.git@develop#egg=viapy
+git+https://github.com/Princeton-CDH/viapy.git@0.1#egg=viapy
 django-autocomplete-light
