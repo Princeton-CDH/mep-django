@@ -1,0 +1,4 @@
+[prod]
+cdh-web
+[qa]
+test-web.cdh.princeton.edu
