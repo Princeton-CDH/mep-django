@@ -25,18 +25,10 @@ Python 3.5 / Django 1.11
    :target: https://landscape.io/github/Princeton-CDH/mep-django/develop
    :alt: Code Health
 
-Current development status
---------------------------
+.. image:: https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=develop
+     :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=develop
+     :alt: Requirements Status
 
-.. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=development+in+progress&title=In+Progress
-    :target: http://waffle.io/Princeton-CDH/mep-django
-    :alt: In Progress
-.. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=development+complete&title=Development+Complete
-    :target: http://waffle.io/Princeton-CDH/mep-django
-    :alt: Development Complete
-.. image:: https://badge.waffle.io/Princeton-CDH/mep-django.svg?label=awaiting+testing&title=Awaiting+Testing
-    :target: http://waffle.io/Princeton-CDH/mep-django
-    :alt: Awaiting Testing
 
 Development instructions
 ------------------------
