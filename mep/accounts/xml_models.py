@@ -73,7 +73,7 @@ class XmlEvent(TeiXmlObject):
             common_dict['duration'] = int(self.duration_quantity)
             common_dict['end_date'] = pd.add(months=common_dict['duration'])
         # - duration given as quarter or half
-        if self.duration_unit == 'month' and \
+        elif self.duration_unit == 'month' and \
                 not self._is_int(self.duration_quantity):
             common_dict['duration'] = float(self.duration_quantity)
             # .25 seems to equal one week, or seven days. A half month
@@ -89,7 +89,6 @@ class XmlEvent(TeiXmlObject):
         else:
             common_dict['duration'] = None
             common_dict['end_date'] = None
-
         return common_dict
 
     def _normalize(self, e_date):
@@ -166,6 +165,9 @@ class XmlEvent(TeiXmlObject):
             account, created = Account.objects.get_or_create(
                 persons__in=[person]
             )
+            account.persons.add(person)
+            # Call method to create and save the event
+            account.save()
         return (etype, common_dict, person, account)
 
     def _parse_subscribe(self, common_dict):
@@ -191,11 +193,11 @@ class XmlEvent(TeiXmlObject):
                    self.price_quantity, self.mepid, common_dict['start_date'])
             )
 
-            if self.e_type == 'supplement':
-                common_dict['modification'] = Subscribe.SUPPLEMENT
+        if self.e_type == 'supplement':
+            common_dict['modification'] = Subscribe.SUPPLEMENT
 
-            if self.e_type == 'renewal':
-                common_dict['modification'] = Subscribe.RENEWAL
+        if self.e_type == 'renewal':
+            common_dict['modification'] = Subscribe.RENEWAL
         # clear empty keys
         return {k: v for k, v in common_dict.items() if v}
 
@@ -207,11 +209,12 @@ class XmlEvent(TeiXmlObject):
         '''
         # normalize the event
         etype, common_dict, person, account = self._normalize(e_date)
+
         # This database type encompasses supplements and renewals
         if etype == 'subscribe':
             common_dict = self._parse_subscribe(common_dict)
-        # Reimbursement is a subclass that doesn't warrant its own
-        # private function
+       # Reimbursement is a subclass that doesn't warrant its own
+       # private function
         if etype == 'reimbursement':
             common_dict['price'] = self.price_quantity if self.price_quantity \
                                    else self.reimbursement_quantity
@@ -220,12 +223,9 @@ class XmlEvent(TeiXmlObject):
                     '!!!Event irregularity!!!\n'
                     'Price is missing\n'
                 )
-        # If there is a person, add them to an account
-        if person:
-            account.persons.add(person)
-            account.save()
-        # Call method to create and save the event
-        account.add_event(etype, **common_dict)
+
+        # drop blank keys from dict to avoid passing a bad kwarg to a model
+        account.add_event(etype, **{key: value for key, value in common_dict.items() if value})
 
 
 class Day(TeiXmlObject):

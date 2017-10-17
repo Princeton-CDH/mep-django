@@ -82,7 +82,7 @@ class Account(models.Model):
             'purchase': Purchase,
             'subscribe': Subscribe
         }
-        str_to_model[etype].objects.create(account=self, **kwargs)
+        str_to_model[etype].objects.get_or_create(account=self, **kwargs)
 
     def get_events(self, etype='event', **kwargs):
         '''Helper function to retrieve related events of any valid type for
