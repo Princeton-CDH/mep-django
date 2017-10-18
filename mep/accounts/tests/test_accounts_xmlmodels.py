@@ -64,6 +64,7 @@ class TestEvent(TestCase):
         assert monbrial.price_quantity == '16'
         assert monbrial.deposit_unit == 'franc'
         assert monbrial.deposit_quantity == '7'
+        assert not monbrial.sub_type
 
     def test_to_db_event(self):
 
@@ -112,7 +113,7 @@ class TestEvent(TestCase):
         # - there should be one in the fixture and its mep_id should be declos
         declos = Subscribe.objects.filter(sub_type=Subscribe.ADL)[0]
         assert declos
-        assert declos.mep_id == 'desc.au'
+        assert declos.account.persons.first().mep_id == 'desc.au'
 
     def test__is_int(self):
         day = self.logbook.days[1]
@@ -125,11 +126,11 @@ class TestEvent(TestCase):
         monbrial = day.events[0]
 
         # - test basic functionality on a standard subscribe
-        etype, common_dict, person, account = monbrial._normalize(day.date)
+        etype, person, account = monbrial._normalize(day.date)
 
         # should have set type for django database
         assert etype == 'subscribe'
-        assert common_dict == {
+        assert monbrial.common_dict == {
             'currency': FRF,
             'notes': '',
             'duration': 3,
@@ -146,8 +147,9 @@ class TestEvent(TestCase):
         monbrial = day.events[0]
 
         # - test with a standard subscribe
-        etype, common_dict, person, account = monbrial._normalize(day.date)
-        common_dict = monbrial._parse_subscribe(common_dict)
+        etype, person, account = monbrial._normalize(day.date)
+        monbrial._parse_subscribe()
+        common_dict = monbrial.common_dict
 
         # should have set keys
         assert 'volumes' in common_dict
