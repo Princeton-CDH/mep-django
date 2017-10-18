@@ -112,7 +112,7 @@ class XmlEvent(TeiXmlObject):
             'reimbursement': 'reimbursement',
             'borrow': 'borrow',
             'renewal': 'subscribe',
-            'other': 'event',
+            'overdue': 'event',
         }
 
         # check for unhandled event types
@@ -225,6 +225,7 @@ class XmlEvent(TeiXmlObject):
 
         if self.e_type == 'renewal':
             self.common_dict['modification'] = Subscribe.RENEWAL
+
         self._set_subtype()
 
     def to_db_event(self, e_date):
@@ -235,7 +236,6 @@ class XmlEvent(TeiXmlObject):
         '''
         # normalize the event
         etype, person, account = self._normalize(e_date)
-
         # This database type encompasses supplements and renewals
         if etype == 'subscribe':
             self._parse_subscribe()
@@ -249,6 +249,17 @@ class XmlEvent(TeiXmlObject):
                 self.common_dict['notes'] += (
                     'Missing price:\n'
                 )
+
+        if self.e_type == 'overdue':
+            self.common_dict['notes'] += (
+                'Overdue notice issued on %s\n'
+                'Price: %s %s\n'
+                'Duration: %s %ss\n'
+                % (e_date, self.price_unit, self.price_quantity, self.duration_quantity, self.duration_unit)
+            )
+            # not valid for generic events
+            self.common_dict['currency'] = None
+            self.common_dict['duration'] = None
 
         # drop blank keys from dict to avoid passing a bad kwarg to a model
         account.add_event(etype, **{key: value
