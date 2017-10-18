@@ -3,6 +3,7 @@ mysqlclient
 django-grappelli
 cached_property
 pucas
+pendulum
 eulxml
 git+https://github.com/Princeton-CDH/viapy.git@0.1#egg=viapy
 django-autocomplete-light
