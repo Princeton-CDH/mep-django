@@ -57,11 +57,6 @@ class XmlEvent(TeiXmlObject):
         return True
 
     def _normalize_dates(self):
-        # Check to see that durations are monthly, if not flag them
-        # to test and handle
-        if self.duration_unit and self.duration_unit not in ['month', 'day']:
-            raise ValueError('Unexpected duration_unit on %s' % date)
-
         # get a pendulum instance for month timedeltas
         pd = pendulum.date.instance(self.common_dict['start_date'])
 
@@ -83,7 +78,7 @@ class XmlEvent(TeiXmlObject):
                 days=round(self.common_dict['duration']*29)
             )
         # - duration given as days
-        elif self.duration_unit == 'days':
+        elif self.duration_unit == 'day':
             self.common_dict['duration'] = \
                 float(int(self.duration_quantity) / 28)
             self.common_dict['end_date'] = \
@@ -122,7 +117,7 @@ class XmlEvent(TeiXmlObject):
 
         # check for unhandled event types
         if self.e_type not in xml_db_mapping:
-            raise ValueError('Unexpected e_type on %s' % date)
+            raise ValueError('Unexpected e_type on %s' % e_date)
         etype = xml_db_mapping[self.e_type]
         # Map XML currency to database abbreviations
         # So far, logbooks seem only to list francs

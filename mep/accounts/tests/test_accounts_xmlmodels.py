@@ -4,7 +4,7 @@ from mep.accounts.xml_models import LogBook, XmlEvent
 from mep.accounts.models import Event, Subscribe, Reimbursement, FRF, Account
 from mep.people.models import Person
 from django.test import TestCase
-
+from datetime import date
 
 FIXTURE_DIR = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), '..', 'fixtures'
@@ -142,12 +142,17 @@ class TestEvent(TestCase):
         assert person == Person.objects.get(mep_id='monb')
         assert account == Account.objects.get(persons__in=[person])
 
+        # unknown e_type should raise a ValueError
+        monbrial.e_type = 'foobar'
+        with self.assertRaises(ValueError):
+            monbrial._normalize(day.date)
+
     def test__parse_subscribe(self):
         day = self.logbook.days[1]
         monbrial = day.events[0]
 
         # - test with a standard subscribe
-        etype, person, account = monbrial._normalize(day.date)
+        monbrial._normalize(day.date)
         monbrial._parse_subscribe()
         common_dict = monbrial.common_dict
 
@@ -161,6 +166,23 @@ class TestEvent(TestCase):
         assert common_dict['volumes'] == 1
         assert int(common_dict['price_paid']) == 16
         assert float(common_dict['deposit']) == 7
+
+        # - test handling for missing quantities, etc.
+        monbrial.frequency_quantity = None
+        monbrial._parse_subscribe()
+        assert 'Event missing data:\n' in monbrial.common_dict['notes']
+        assert 'Volumes: None' in monbrial.common_dict['notes']
+        assert 'Duration: 3' in monbrial.common_dict['notes']
+        assert 'Price Paid: 16' in monbrial.common_dict['notes']
+        # now the rest also need to be cleared to make sure note logic works
+        monbrial.price_quantity = None
+        monbrial.deposit_quantity = None
+        monbrial.duration_quantity = None
+        print(monbrial.common_dict)
+        monbrial._parse_subscribe()
+        assert 'Duration: None' in monbrial.common_dict['notes']
+        assert 'Price Paid: None' in monbrial.common_dict['notes']
+        assert '#monb on 1921-01-05' in monbrial.common_dict['notes']
 
     def test__set_subtype(self):
         # - basic event, no subtype
@@ -216,3 +238,37 @@ class TestEvent(TestCase):
             monbrial.sub_type = var
             monbrial._set_subtype()
             assert monbrial.common_dict['sub_type'] == Subscribe.OTHER
+
+    def test__normalize_dates(self):
+
+        day = self.logbook.days[1]
+        monbrial = day.events[0]
+        # fake first step of _normalize to test normalize dates independently
+        monbrial.common_dict = {
+            'start_date': day.date,
+            'notes': '',
+        }
+        monbrial._normalize_dates()
+        # should show a three month interval
+        assert monbrial.common_dict['start_date'] == date(1921, 1, 5)
+        assert monbrial.common_dict['end_date'] == date(1921, 4, 5)
+
+        # make the duration quantity one
+        monbrial.duration_quantity = 1
+        monbrial._normalize_dates()
+        assert monbrial.common_dict['end_date'] == date(1921, 2, 5)
+
+        # - test float variation cases
+        monbrial.duration_quantity = '.25'
+        monbrial._normalize_dates()
+        assert monbrial.common_dict['end_date'] == date(1921, 1, 12)
+
+        monbrial.duration_quantity = '.5'
+        monbrial._normalize_dates()
+        assert monbrial.common_dict['end_date'] == date(1921, 1, 19)
+
+        # - duration given in days
+        monbrial.duration_quantity = '7'
+        monbrial.duration_unit = 'day'
+        monbrial._normalize_dates()
+        assert monbrial.common_dict['end_date'] == date(1921, 1, 12)

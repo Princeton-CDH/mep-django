@@ -25,8 +25,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
 
-        parser.add_argument('path',
-            help='path to folder containting XML logbooks')
+        parser.add_argument('file_list',
+            help='list of path names containting XML logbooks')
 
     def get_totals(self):
         return {
@@ -44,19 +44,9 @@ class Command(BaseCommand):
             self.stdout.write('%d %s added (%d total)\n' %
                 (new_totals[i] - start_totals[i], i, new_totals[i]))
 
-    def get_file_list(self, path):
-        """Get filenames of any xml in Logbook dir"""
-        if not os.path.isdir(path):
-            raise CommandError('Please provide a path to the XML logbooks. '
-                               'Path provided looks like a file.')
-        file_list = glob.glob(path + '*.xml')
-        if not file_list:
-            raise CommandError('There are no XML files in the provided path.')
-        return file_list
-
     def handle(self, *args, **kwargs):
-        files = self.get_file_list(kwargs['path'])
         totals = self.get_totals()
+        files = kwargs['file_list']
         for f in files:
             log = LogBook.from_file(f)
             if log and isinstance(log, LogBook):
