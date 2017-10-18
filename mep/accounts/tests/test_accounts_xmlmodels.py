@@ -161,3 +161,58 @@ class TestEvent(TestCase):
         assert common_dict['volumes'] == 1
         assert int(common_dict['price_paid']) == 16
         assert float(common_dict['deposit']) == 7
+
+    def test__set_subtype(self):
+        # - basic event, no subtype
+        day = self.logbook.days[1]
+        monbrial = day.events[0]
+        monbrial._normalize(day.date)
+        monbrial._set_subtype()
+        assert 'sub_type' not in monbrial.common_dict
+        # - add sub_type
+        monbrial.sub_type = 'A.d.c'
+        monbrial._set_subtype()
+        assert monbrial.common_dict['sub_type'] == Subscribe.OTHER
+
+        # - test sub_types comprehensively using variations from the MEP report
+        stu = ['(stud.)', 'Student', '(Stud)', 'st', 'St.', '/ Stud/']
+        for var in stu:
+            monbrial.sub_type = var
+            monbrial._set_subtype()
+            assert monbrial.common_dict['sub_type'] == Subscribe.STU
+
+        prof = ['Professor', 'Prof', 'Pr', '(Prof.)']
+        for var in prof:
+            monbrial.sub_type = var
+            monbrial._set_subtype()
+            assert monbrial.common_dict['sub_type'] == Subscribe.PROF
+
+        a =  ['A', 'A.', 'a']
+        for var in a:
+            monbrial.sub_type = var
+            monbrial._set_subtype()
+            assert monbrial.common_dict['sub_type'] == Subscribe.A
+
+        b = ['B', 'B.', 'b']
+        for var in b:
+            monbrial.sub_type = var
+            monbrial._set_subtype()
+            assert monbrial.common_dict['sub_type'] == Subscribe.B
+
+        ab = ['B+A', 'A + B', 'B + A', 'a and b', 'A and B']
+        for var in ab:
+            monbrial.sub_type = var
+            monbrial._set_subtype()
+            assert monbrial.common_dict['sub_type'] == Subscribe.A_B
+
+        adl = ['A.des.l', 'ADL', 'A. d. L.', 'AdL']
+        for var in adl:
+            monbrial.sub_type = var
+            monbrial._set_subtype()
+            assert monbrial.common_dict['sub_type'] == Subscribe.ADL
+
+        other = ['D.D.', 'A.S.L', 'foo', 'bar']
+        for var in other:
+            monbrial.sub_type = var
+            monbrial._set_subtype()
+            assert monbrial.common_dict['sub_type'] == Subscribe.OTHER

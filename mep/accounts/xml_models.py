@@ -182,6 +182,7 @@ class XmlEvent(TeiXmlObject):
             # mapping for types
             type_map = {
                 'adl': Subscribe.ADL,
+                'ade': Subscribe.ADL, # grab A.des. L. and variants
                 'stu': Subscribe.STU,
                 'st': Subscribe.STU,
                 'pr': Subscribe.PROF,
