@@ -71,5 +71,4 @@ class Command(BaseCommand):
                                         '%s, on %s date' % (err, day.date)
                                     )
                                 )
-                                raise err
         self.summarize(totals)

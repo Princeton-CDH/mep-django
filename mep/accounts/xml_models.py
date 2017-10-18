@@ -1,12 +1,7 @@
 # coding=utf-8
-import logging
 import pendulum
-from calendar import monthrange
 import re
-from django.db.utils import IntegrityError
-from django.core.exceptions import ObjectDoesNotExist
 from eulxml import xmlmap
-from viapy.api import ViafEntity
 from mep.accounts.models import Account, Subscribe
 from mep.people.models import Person
 
@@ -50,8 +45,10 @@ class XmlEvent(TeiXmlObject):
     reimbursement_quantity = xmlmap.StringField(
         't:p/t:measure[@type="reimbursement"]/@quantity'
     )
+    type = xmlmap.StringField('t:p/t:rs')
 
-    def _is_int(self, value):
+    @staticmethod
+    def _is_int(value):
         try:
             int(value)
         except ValueError:
@@ -152,7 +149,7 @@ class XmlEvent(TeiXmlObject):
                 id=int(re.sub('-', '', str(e_date)))
             )
             common_dict['notes'] += (
-                '!!!Event irregularity!!!\n'
+                'Event irregularity\n'
                 'No person is associated with this account via <persName>'
             )
         else:
@@ -170,6 +167,32 @@ class XmlEvent(TeiXmlObject):
             account.save()
         return (etype, common_dict, person, account)
 
+    def _set_subtype(self, common_dict):
+        '''Parse the subtype field for :class:`mep.accounts.models.Subscribe` objects from XML to database'''
+        rs = self.type
+        if rs:
+            # strip periods, parentheses, caps, the word 'and' for ease of sort, lower, and return three letters
+            rs_norm = re.sub(r'[.()/\\+\s]|and', '', rs.lower())[0:3]
+            # mapping for types
+            type_map = {
+                'adl': Subscribe.ADL,
+                'stu': Subscribe.STU,
+                'st': Subscribe.STU,
+                'pr': Subscribe.PROF,
+                'pro': Subscribe.PROF,
+                'a': Subscribe.A,
+                'b': Subscribe.B,
+                'ab': Subscribe.A_B,
+                # NOTE: Assuming that B + A = A + B for subscription purposes
+                'ba': Subscribe.A_B
+            }
+            if rs_norm in type_map:
+                common_dict['sub_type'] = type_map[rs_norm]
+            else:
+                common_dict['sub_type'] = Subscribe.OTHER
+                common_dict['notes'] += 'Unrecognized subscription type: %s\n' % rs.strip()
+        return common_dict
+
     def _parse_subscribe(self, common_dict):
         '''Parse fields from a dictionary for
         :class:`mep.accounts.models.Subscribe` and its sub modifications.'''
@@ -183,7 +206,7 @@ class XmlEvent(TeiXmlObject):
                                               not common_dict['price_paid'] or
                                               not common_dict['volumes']):
             common_dict['notes'] += (
-                '!!!Event irregularity!!!\n'
+                'Event missing data:\n'
                 'Duration: %s\n'
                 'Volumes: %s\n'
                 'Price Paid: %s\n'
@@ -198,6 +221,8 @@ class XmlEvent(TeiXmlObject):
 
         if self.e_type == 'renewal':
             common_dict['modification'] = Subscribe.RENEWAL
+
+        common_dict = self._set_subtype(common_dict)
         # clear empty keys
         return {k: v for k, v in common_dict.items() if v}
 
@@ -220,8 +245,7 @@ class XmlEvent(TeiXmlObject):
                                    else self.reimbursement_quantity
             if not common_dict['price']:
                 common_dict['notes'] += (
-                    '!!!Event irregularity!!!\n'
-                    'Price is missing\n'
+                    'Missing price:\n'
                 )
 
         # drop blank keys from dict to avoid passing a bad kwarg to a model

@@ -102,12 +102,23 @@ class TestEvent(TestCase):
         assert burning.currency == FRF
         assert burning.price == 50
 
+        # check a subscription that should have a subclass
+        # - is in day[2]
+        # - check subcribe type events to db model
+        events = self.logbook.days[2].events
+        date = self.logbook.days[2].date
+        for event in events:
+            event.to_db_event(date)
+        # - there should be one in the fixture and its mep_id should be declos
+        declos = Subscribe.objects.filter(sub_type=Subscribe.ADL)[0]
+        assert declos
+        assert declos.mep_id == 'desc.au'
+
     def test__is_int(self):
         day = self.logbook.days[1]
-        event=day.events[0]
-
-        assert event._is_int("7") == True
-        assert event._is_int("foobar") == False
+        event = day.events[0]
+        assert event._is_int("7")
+        assert not event._is_int("foobar")
 
     def test__normalize(self):
         day = self.logbook.days[1]
@@ -137,7 +148,6 @@ class TestEvent(TestCase):
         # - test with a standard subscribe
         etype, common_dict, person, account = monbrial._normalize(day.date)
         common_dict = monbrial._parse_subscribe(common_dict)
-
 
         # should have set keys
         assert 'volumes' in common_dict

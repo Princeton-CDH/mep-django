@@ -184,6 +184,7 @@ class Subscribe(Event):
     ADL = 'AdL'
     STU = 'Stu'
     PROF = 'Prof'
+    OTHER = 'Oth'
 
     SUB_TYPE_CHOICES = (
         (A, 'A'),
@@ -192,6 +193,7 @@ class Subscribe(Event):
         (ADL, 'AdL'),
         (STU, 'Student'),
         (PROF, 'Professor'),
+        (OTHER, 'Other')
     )
     sub_type = models.CharField(max_length=255, verbose_name='type', blank=True,
         choices=SUB_TYPE_CHOICES)
