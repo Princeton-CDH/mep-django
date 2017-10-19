@@ -46,20 +46,18 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         totals = self.get_totals()
         files = kwargs['file_list']
-        events = 0
-        outliers = 0
         for f in files:
             log = LogBook.from_file(f)
-            if log and isinstance(log, LogBook):
-                for day in log.days:
-                    for event in day.events:
-                        try:
-                            event.to_db_event(day.date)
-                        except Exception as err:
-                            self.stdout.write(
-                                self.style.WARNING(
-                                    '%s, on %s' % (err, day.date)
-                                )
-                            )
+            self.stdout.write('%s: %s' % (f, len(log.days)))
+            for day in log.days:
+                for event in day.events:
+                    try:
+                        event.to_db_event(day.date)
+                    except Exception as err:
+                        self.stdout.write(
+                        self.style.WARNING(
+                            '%s, on %s' % (err, day.date)
+                        )
+                    )
         self.summarize(totals)
 

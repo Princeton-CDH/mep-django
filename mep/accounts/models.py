@@ -36,6 +36,9 @@ class Account(models.Model):
                           'city', 'street_address', 'name'))
         )
 
+    class Meta:
+        ordering = ('persons__first__sort_name',)
+
     def list_persons(self):
         '''List :class:`mep.people.models.Person` instances associated with this
         account.
