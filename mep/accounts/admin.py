@@ -2,7 +2,7 @@ from dal import autocomplete
 from django.contrib import admin
 from django import forms
 
-from mep.accounts.models import Account, AccountAddress, Subscribe
+from mep.accounts.models import Account, AccountAddress, Subscribe, Reimbursement
 from mep.common.admin import CollapsedTabularInline
 
 
@@ -98,6 +98,34 @@ class SubscribeAdminForm(forms.ModelForm):
         }
 
 
+class ReimbursementAdminForm(forms.ModelForm):
+    class Meta:
+        model = Reimbursement
+        fields = ('__all__')
+        help_texts = {
+            'account': ('Searches and displays on system assigned '
+                        'account id, as well as associated person and '
+                        'address data.'),
+        }
+        widgets = {
+            'account': autocomplete.ModelSelect2(
+                url='accounts:autocomplete',
+                attrs={
+                    'data-placeholder': 'Type to search account data...',
+                    'data-minimum-input-length': 3
+                }
+            ),
+        }
+
+
+class ReimbursementAdmin(admin.ModelAdmin):
+    form = ReimbursementAdminForm
+    model = Reimbursement
+    fields = ('account', 'price', 'currency', 'start_date', 'end_date', 'notes')
+    list_display = ('account', 'price', 'currency', 'start_date', 'end_date',)
+    list_filter = ('account', 'currency')
+
+
 class SubscribeAdmin(admin.ModelAdmin):
     model = Subscribe
     form = SubscribeAdminForm
@@ -112,3 +140,4 @@ class SubscribeAdmin(admin.ModelAdmin):
 
 admin.site.register(Subscribe, SubscribeAdmin)
 admin.site.register(Account, AccountAdmin)
+admin.site.register(Reimbursement, ReimbursementAdmin)
