@@ -225,8 +225,11 @@ class TestAddressAutocompleteView(TestCase):
             'postal_code': '678910',
             'country': es,
         }
-        Address.objects.create(**add_dict)
+        add1 = Address.objects.create(**add_dict)
         Address.objects.create(**add_dict2)
+
+        # make a person
+        person = Person.objects.create(name='Baz', title='Mr.', sort_name='Baz')
 
         # - series of tests for get_queryset Q's and view rendering
         # autocomplete that should get both
@@ -259,3 +262,11 @@ class TestAddressAutocompleteView(TestCase):
         info = res.json()
         assert len(info['results']) == 1
         assert 'Hotel El Foo' in info['results'][0]['text']
+
+        # autocomplete that should get the address associated with person
+        person.addresses.add(add1)
+        person.save()
+        res = self.client.get(auto_url, {'q': 'Baz'})
+        info = res.json()
+        assert len(info['results']) == 1
+        assert 'Hotel Le Foo' in info['results'][0]['text']
