@@ -157,6 +157,7 @@ class XmlEvent(TeiXmlObject):
                 # Create a stub record if they weren't in the personogoraphy
                 # import
                 person.name = self.name.strip()
+                person.sort_name = self.name.strip()
                 person.save()
             account, created = Account.objects.get_or_create(
                 persons__in=[person]
