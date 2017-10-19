@@ -277,8 +277,7 @@ class LogBook(xmlmap.XmlObject):
         't': 'http://www.tei-c.org/ns/1.0'
     }
 
-    query = ('//t:body/t:div[@type="year"]/'
-             't:div[@type="month"]/t:div[@type="day"]')
+    query = ('//t:div[@type="day"]')
     days = xmlmap.NodeListField(query, Day)
 
     @classmethod
