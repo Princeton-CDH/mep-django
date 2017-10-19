@@ -6,6 +6,84 @@ from mep.accounts.models import Account, AccountAddress, Subscribe, Reimbursemen
 from mep.common.admin import CollapsedTabularInline
 
 
+
+
+class SubscribeAdminForm(forms.ModelForm):
+
+    class Meta:
+        model = Subscribe
+        fields = ('__all__')
+        help_texts = {
+            'account': ('Searches and displays on system assigned '
+                        'account id, as well as associated person and '
+                        'address data.'),
+        }
+        widgets = {
+            'account': autocomplete.ModelSelect2(
+                url='accounts:autocomplete',
+                attrs={
+                    'data-placeholder': 'Type to search account data...',
+                    'data-minimum-input-length': 3
+                }
+            ),
+        }
+
+
+class ReimbursementAdminForm(forms.ModelForm):
+    class Meta:
+        model = Reimbursement
+        fields = ('__all__')
+        help_texts = {
+            'account': ('Searches and displays on system assigned '
+                        'account id, as well as associated person and '
+                        'address data.'),
+        }
+        widgets = {
+            'account': autocomplete.ModelSelect2(
+                url='accounts:autocomplete',
+                attrs={
+                    'data-placeholder': 'Type to search account data...',
+                    'data-minimum-input-length': 3
+                }
+            ),
+        }
+
+
+class ReimbursementAdmin(admin.ModelAdmin):
+    form = ReimbursementAdminForm
+    model = Reimbursement
+    fields = ('account', 'price', 'currency', 'start_date', 'end_date', 'notes')
+    list_display = ('account', 'price', 'currency', 'start_date', 'end_date',)
+    list_filter = ('account', 'currency')
+
+
+class SubscribeAdmin(admin.ModelAdmin):
+    model = Subscribe
+    form = SubscribeAdminForm
+    list_display = ('account', 'sub_type', 'modification',
+                    'duration', 'start_date', 'end_date',
+                    'volumes', 'price_paid', 'deposit', 'currency')
+    list_filter = ('sub_type', 'modification', 'currency')
+
+    fields = ('account', 'sub_type', 'modification', 'duration', 'start_date',
+              'end_date', 'volumes', 'price_paid', 'deposit', 'currency', 'notes')
+
+
+class ReimbursementInline(CollapsedTabularInline):
+    model = Reimbursement
+    form = ReimbursementAdminForm
+    extra = 1
+    fields = ('price', 'currency', 'start_date', 'end_date', 'notes')
+
+
+class SubscribeInline(CollapsedTabularInline):
+    model = Subscribe
+    form = SubscribeAdminForm
+    extra = 1
+    fields = ('sub_type', 'modification', 'duration', 'start_date', 'end_date', 'volumes', 'price_paid', 'deposit',
+              'currency', 'notes')
+
+
 class AccountAddressInlineForm(forms.ModelForm):
     class Meta:
         model = AccountAddress
@@ -74,68 +152,7 @@ class AccountAdmin(admin.ModelAdmin):
                      'accountaddress__address__name',
                      'accountaddress__address__country__name', 'persons__name')
     fields = ('persons',)
-    inlines = [AccountAddressInline]
-
-
-class SubscribeAdminForm(forms.ModelForm):
-
-    class Meta:
-        model = Subscribe
-        fields = ('__all__')
-        help_texts = {
-            'account': ('Searches and displays on system assigned '
-                        'account id, as well as associated person and '
-                        'address data.'),
-        }
-        widgets = {
-            'account': autocomplete.ModelSelect2(
-                url='accounts:autocomplete',
-                attrs={
-                    'data-placeholder': 'Type to search account data...',
-                    'data-minimum-input-length': 3
-                }
-            ),
-        }
-
-
-class ReimbursementAdminForm(forms.ModelForm):
-    class Meta:
-        model = Reimbursement
-        fields = ('__all__')
-        help_texts = {
-            'account': ('Searches and displays on system assigned '
-                        'account id, as well as associated person and '
-                        'address data.'),
-        }
-        widgets = {
-            'account': autocomplete.ModelSelect2(
-                url='accounts:autocomplete',
-                attrs={
-                    'data-placeholder': 'Type to search account data...',
-                    'data-minimum-input-length': 3
-                }
-            ),
-        }
-
-
-class ReimbursementAdmin(admin.ModelAdmin):
-    form = ReimbursementAdminForm
-    model = Reimbursement
-    fields = ('account', 'price', 'currency', 'start_date', 'end_date', 'notes')
-    list_display = ('account', 'price', 'currency', 'start_date', 'end_date',)
-    list_filter = ('account', 'currency')
-
-
-class SubscribeAdmin(admin.ModelAdmin):
-    model = Subscribe
-    form = SubscribeAdminForm
-    list_display = ('account', 'sub_type', 'modification',
-                    'duration', 'start_date', 'end_date',
-                    'volumes', 'price_paid', 'deposit', 'currency')
-    list_filter = ('sub_type', 'modification', 'currency')
-
-    fields = ('account', 'sub_type', 'modification', 'duration', 'start_date',
-              'end_date', 'volumes', 'price_paid', 'deposit', 'currency', 'notes')
+    inlines = [AccountAddressInline, SubscribeInline, ReimbursementInline]
 
 
 admin.site.register(Subscribe, SubscribeAdmin)

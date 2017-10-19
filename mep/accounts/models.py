@@ -37,7 +37,7 @@ class Account(models.Model):
         )
 
     class Meta:
-        ordering = ('persons__first__sort_name',)
+        ordering = ('persons__person__sort_name',)
 
     def list_persons(self):
         '''List :class:`mep.people.models.Person` instances associated with this
