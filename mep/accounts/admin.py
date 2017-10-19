@@ -54,7 +54,7 @@ class ReimbursementAdmin(admin.ModelAdmin):
     model = Reimbursement
     fields = ('account', 'price', 'currency', 'start_date', 'end_date', 'notes')
     list_display = ('account', 'price', 'currency', 'start_date', 'end_date',)
-    list_filter = ('account', 'currency')
+    list_filter = ('currency',)
 
 
 class SubscribeAdmin(admin.ModelAdmin):
