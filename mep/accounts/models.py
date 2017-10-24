@@ -179,7 +179,8 @@ class Subscribe(Event):
         help_text=('Duration in months. Weeks may be noted with '
                    'fractions in decimal form.')
     )
-    volumes = models.PositiveIntegerField(blank=True, null=True,
+    volumes = models.DecimalField(blank=True, null=True, max_digits=4,
+        decimal_places=2,
         help_text='Number of volumes for checkout')
     A = 'A'
     B = 'B'
