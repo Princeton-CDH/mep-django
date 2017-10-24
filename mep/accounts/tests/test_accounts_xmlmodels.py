@@ -1,6 +1,6 @@
 import datetime
 import os
-from mep.accounts.xml_models import LogBook, XmlEvent
+from mep.accounts.xml_models import LogBook, XmlEvent, Measure
 from mep.accounts.models import Event, Subscribe, Reimbursement, FRF, Account
 from mep.people.models import Person
 from django.test import TestCase
@@ -17,30 +17,8 @@ class TestLogbook(TestCase):
     def test_from_file(self):
         logbook = LogBook.from_file(XML_FIXTURE)
         assert isinstance(logbook, LogBook)
-        # Three day divs included
-        assert len(logbook.days) == 3
-
-
-class TestDayDiv(TestCase):
-
-    def setUp(self):
-        self.logbook = LogBook.from_file(XML_FIXTURE)
-
-    def test_no_event(self):
-
-        # First check no events (i.e. first entry in fixture has no events)
-        empty_day = self.logbook.days[0]
-        assert empty_day.date == datetime.date(1921, 1, 1)
-        assert not empty_day.events
-
-    def test_events(self):
-        # Get a div that has events
-        day = self.logbook.days[2]
-        assert day.events
-        # First one should have three
-        assert len(day.events) == 3
-        # they should be instances of mep.accounts.xmlmodels.Event
-        assert isinstance(day.events[0], XmlEvent)
+        # Nine sample events included
+        assert len(logbook.events) == 9
 
 
 class TestEvent(TestCase):
@@ -49,37 +27,32 @@ class TestEvent(TestCase):
         self.logbook = LogBook.from_file(XML_FIXTURE)
 
     def test_attributes(self):
-
-        day = self.logbook.days[1]
-
-        monbrial = day.events[0]
+        monbrial = self.logbook.events[0]
         assert monbrial.e_type == 'subscription'
+        assert monbrial.date == date(1921, 1, 5)
         assert monbrial.mepid == '#monb'
         assert monbrial.name == 'Mlle Monbrial'
-        assert monbrial.duration_unit == 'month'
-        assert monbrial.duration_quantity == '3'
-        assert monbrial.frequency_unit == 'volume'
-        assert monbrial.frequency_quantity == 1
-        assert monbrial.price_unit == 'franc'
-        assert monbrial.price_quantity == '16'
-        assert monbrial.deposit_unit == 'franc'
-        assert monbrial.deposit_quantity == '7'
+        assert monbrial.duration.unit == 'month'
+        assert monbrial.duration.quantity == '3'
+        assert monbrial.frequency.unit == 'volume'
+        assert monbrial.frequency.quantity == '1'
+        assert monbrial.price.unit == 'franc'
+        assert monbrial.price.quantity == '16'
+        assert monbrial.deposit.unit == 'franc'
+        assert monbrial.deposit.quantity == '7'
         assert not monbrial.sub_type
 
     def test_to_db_event(self):
 
-        # - check subcribe type events to db model
-        events = self.logbook.days[1].events
-        date = self.logbook.days[1].date
-        for event in events:
-            event.to_db_event(date)
+        for event in self.logbook.events:
+            event.to_db_event()
         # check that there are six events overall
         events = Event.objects.all()
-        assert len(events) == 6
+        assert len(events) == 9
 
-        # check that there are four subscribes
+        # check that there are seven subscribes
         subscribes = Subscribe.objects.all()
-        assert len(subscribes) == 4
+        assert len(subscribes) == 7
 
         # check one in detail
         monbrial = subscribes.filter(account__persons__mep_id='monb')[0]
@@ -104,29 +77,24 @@ class TestEvent(TestCase):
         assert burning.price == 50
 
         # check a subscription that should have a subclass
-        # - is in day[2]
-        # - check subcribe type events to db model
-        events = self.logbook.days[2].events
-        date = self.logbook.days[2].date
-        for event in events:
-            event.to_db_event(date)
-        # - there should be one in the fixture and its mep_id should be declos
+        # there should be one in the fixture and its mep_id should be declos
         declos = Subscribe.objects.filter(sub_type=Subscribe.ADL)[0]
         assert declos
         assert declos.account.persons.first().mep_id == 'desc.au'
 
     def test__is_int(self):
-        day = self.logbook.days[1]
-        event = day.events[0]
-        assert event._is_int("7")
-        assert not event._is_int("foobar")
+        assert Measure._is_int("7")
+        assert not Measure._is_int("foobar")
 
-    def test__normalize(self):
-        day = self.logbook.days[1]
-        monbrial = day.events[0]
-
+    def test__prepare_db_objects(self):
+        monbrial = self.logbook.events[0]
+        # fake first step of _normalize to test normalize db prep independently
+        monbrial.common_dict = {
+            'start_date': monbrial.date,
+            'notes': '',
+        }
         # - test basic functionality on a standard subscribe
-        etype, person, account = monbrial._normalize(day.date)
+        etype, person, account = monbrial._prepare_db_objects()
 
         # should have set type for django database
         assert etype == 'subscribe'
@@ -145,14 +113,19 @@ class TestEvent(TestCase):
         # unknown e_type should raise a ValueError
         monbrial.e_type = 'foobar'
         with self.assertRaises(ValueError):
-            monbrial._normalize(day.date)
+            monbrial._prepare_db_objects()
 
     def test__parse_subscribe(self):
-        day = self.logbook.days[1]
-        monbrial = day.events[0]
+        monbrial = self.logbook.events[0]
+
+        # fake first step of _normalize to test normalize dates independently
+        monbrial.common_dict = {
+            'start_date': monbrial.date,
+            'notes': '',
+        }
 
         # - test with a standard subscribe
-        monbrial._normalize(day.date)
+        monbrial._prepare_db_objects()
         monbrial._parse_subscribe()
         common_dict = monbrial.common_dict
 
@@ -163,21 +136,21 @@ class TestEvent(TestCase):
         assert 'modification' not in common_dict
 
         # values pulled from XML correctly
-        assert common_dict['volumes'] == 1
+        assert int(common_dict['volumes']) == 1
         assert int(common_dict['price_paid']) == 16
         assert float(common_dict['deposit']) == 7
 
         # - test handling for missing quantities, etc.
-        monbrial.frequency_quantity = None
+        monbrial.frequency.quantity = None
         monbrial._parse_subscribe()
         assert 'Event missing data:\n' in monbrial.common_dict['notes']
         assert 'Volumes: None' in monbrial.common_dict['notes']
         assert 'Duration: 3' in monbrial.common_dict['notes']
         assert 'Price Paid: 16' in monbrial.common_dict['notes']
         # now the rest also need to be cleared to make sure note logic works
-        monbrial.price_quantity = None
-        monbrial.deposit_quantity = None
-        monbrial.duration_quantity = None
+        monbrial.price.quantity = None
+        monbrial.deposit.quantity = None
+        monbrial.duration.quantity = None
         print(monbrial.common_dict)
         monbrial._parse_subscribe()
         assert 'Duration: None' in monbrial.common_dict['notes']
@@ -186,9 +159,13 @@ class TestEvent(TestCase):
 
     def test__set_subtype(self):
         # - basic event, no subtype
-        day = self.logbook.days[1]
-        monbrial = day.events[0]
-        monbrial._normalize(day.date)
+        monbrial = self.logbook.events[0]
+        # fake first step of _normalize to test subtype independently
+        monbrial.common_dict = {
+            'start_date': monbrial.date,
+            'notes': '',
+        }
+        monbrial._prepare_db_objects()
         monbrial._set_subtype()
         assert 'sub_type' not in monbrial.common_dict
         # - add sub_type
@@ -209,7 +186,7 @@ class TestEvent(TestCase):
             monbrial._set_subtype()
             assert monbrial.common_dict['sub_type'] == Subscribe.PROF
 
-        a =  ['A', 'A.', 'a']
+        a = ['A', 'A.', 'a']
         for var in a:
             monbrial.sub_type = var
             monbrial._set_subtype()
@@ -241,11 +218,10 @@ class TestEvent(TestCase):
 
     def test__normalize_dates(self):
 
-        day = self.logbook.days[1]
-        monbrial = day.events[0]
+        monbrial = self.logbook.events[0]
         # fake first step of _normalize to test normalize dates independently
         monbrial.common_dict = {
-            'start_date': day.date,
+            'start_date': monbrial.date,
             'notes': '',
         }
         monbrial._normalize_dates()
@@ -254,21 +230,21 @@ class TestEvent(TestCase):
         assert monbrial.common_dict['end_date'] == date(1921, 4, 5)
 
         # make the duration quantity one
-        monbrial.duration_quantity = 1
+        monbrial.duration.quantity = 1
         monbrial._normalize_dates()
         assert monbrial.common_dict['end_date'] == date(1921, 2, 5)
 
         # - test float variation cases
-        monbrial.duration_quantity = '.25'
+        monbrial.duration.quantity = '.25'
         monbrial._normalize_dates()
         assert monbrial.common_dict['end_date'] == date(1921, 1, 12)
 
-        monbrial.duration_quantity = '.5'
+        monbrial.duration.quantity = '.5'
         monbrial._normalize_dates()
         assert monbrial.common_dict['end_date'] == date(1921, 1, 19)
 
         # - duration given in days
-        monbrial.duration_quantity = '7'
-        monbrial.duration_unit = 'day'
+        monbrial.duration.quantity = '7'
+        monbrial.duration.unit = 'day'
         monbrial._normalize_dates()
         assert monbrial.common_dict['end_date'] == date(1921, 1, 12)
