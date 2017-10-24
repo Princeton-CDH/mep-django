@@ -48,16 +48,15 @@ class Command(BaseCommand):
         files = kwargs['file_list']
         for f in files:
             log = LogBook.from_file(f)
-            self.stdout.write('%s: %s' % (f, len(log.days)))
-            for day in log.days:
-                for event in day.events:
-                    try:
-                        event.to_db_event(day.date)
-                    except Exception as err:
-                        self.stdout.write(
-                        self.style.WARNING(
-                            '%s, on %s' % (err, day.date)
-                        )
+            for event in log.events:
+                try:
+                    event.to_db_event()
+                except Exception as err:
+                    self.stdout.write(
+                    self.style.WARNING(
+                        '%s, %s, %s on %s in %s' %
+                        (err, event.mepid, event.e_type, event.date, f)
                     )
+                )
+                pass
         self.summarize(totals)
-
