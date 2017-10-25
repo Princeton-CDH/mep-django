@@ -143,7 +143,7 @@ class TestEvent(TestCase):
         # - test handling for missing quantities, etc.
         monbrial.frequency.quantity = None
         monbrial._parse_subscribe()
-        assert 'Event missing data:\n' in monbrial.common_dict['notes']
+        assert 'Subscribe missing data:\n' in monbrial.common_dict['notes']
         assert 'Volumes: None' in monbrial.common_dict['notes']
         assert 'Duration: 3' in monbrial.common_dict['notes']
         assert 'Price Paid: 16' in monbrial.common_dict['notes']
