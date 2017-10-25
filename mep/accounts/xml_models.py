@@ -126,11 +126,7 @@ class XmlEvent(TeiXmlObject):
         person = ''
         account = None
         if not mep_id:
-            # Giving these special id's so that they're flagged via ID
-            # as it's the only field that isn't a M2M
-            account, created = Account.objects.get_or_create(
-                id=int(re.sub('-', '', str(self.date)))
-            )
+            account = Account.objects.create()
             self.common_dict['notes'] += (
                 'Event irregularity\n'
                 'No person is associated with this account via <persName>'
@@ -199,7 +195,7 @@ class XmlEvent(TeiXmlObject):
                  not self.common_dict['volumes']):
 
             self.common_dict['notes'] += (
-                'Event missing data:\n'
+                'Subscribe missing data:\n'
                 'Duration: %s\n'
                 'Volumes: %s\n'
                 'Price Paid: %s\n'
