@@ -18,7 +18,7 @@ class TestLogbook(TestCase):
         logbook = LogBook.from_file(XML_FIXTURE)
         assert isinstance(logbook, LogBook)
         # Nine sample events included
-        assert len(logbook.events) == 9
+        assert len(logbook.events) == 11
 
 
 class TestEvent(TestCase):
@@ -46,11 +46,11 @@ class TestEvent(TestCase):
 
         for event in self.logbook.events:
             event.to_db_event()
-        # check that there are six events overall
+        # check that there are 11 events overall
         events = Event.objects.all()
-        assert len(events) == 9
+        assert len(events) == 11
 
-        # check that there are seven subscribes
+        # check that there are 7 subscribes
         subscribes = Subscribe.objects.all()
         assert len(subscribes) == 7
 
@@ -76,11 +76,28 @@ class TestEvent(TestCase):
         assert burning.currency == FRF
         assert burning.price == 50
 
+        # make sure a missing price is noted
+        foobar = Reimbursement.objects.get(account__persons__mep_id__icontains='foo')
+        assert not foobar.price
+        assert 'Missing price' in foobar.notes
+
         # check a subscription that should have a subclass
         # there should be one in the fixture and its mep_id should be declos
         declos = Subscribe.objects.filter(sub_type=Subscribe.ADL)[0]
         assert declos
         assert declos.account.persons.first().mep_id == 'desc.au'
+
+        # check overdue notice parsing
+        loomis = Event.objects.filter(notes__icontains='overdue')[0]
+        assert 'Overdue notice' in loomis.notes
+        assert 'issued on 1921-01-08' in loomis.notes
+        assert 'franc 60' in loomis.notes
+        assert '3 months' in loomis.notes
+
+        # also check anonymous account handling
+        assert loomis.account
+        assert 'Event irregularity\n' in loomis.notes
+        assert 'No person is associated with this account via mepid.\n' in loomis.notes
 
     def test__is_int(self):
         assert Measure._is_int("7")
@@ -215,6 +232,8 @@ class TestEvent(TestCase):
             monbrial.sub_type = var
             monbrial._set_subtype()
             assert monbrial.common_dict['sub_type'] == Subscribe.OTHER
+            assert 'Unrecognized subscription type: %s' % var \
+                in monbrial.common_dict['notes']
 
     def test__normalize_dates(self):
 

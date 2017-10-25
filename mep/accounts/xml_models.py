@@ -129,7 +129,7 @@ class XmlEvent(TeiXmlObject):
             account = Account.objects.create()
             self.common_dict['notes'] += (
                 'Event irregularity\n'
-                'No person is associated with this account via <persName>'
+                'No person is associated with this account via mepid.\n'
             )
         else:
             person, created = Person.objects.get_or_create(mep_id=mep_id)

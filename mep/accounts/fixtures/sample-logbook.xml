@@ -68,6 +68,11 @@
                 <measure type="reimbursement" unit="franc" quantity="50">50</measure>
                 </p>
               </event>
+              <!--Fake a reimbursement with missing price-->
+              <event type="reimbursement">
+                <p> Dep-R <persName ref="#foo">FooBar</persName>
+                </p>
+              </event>
               <event type="renewal">
               <p> S.R. <persName ref="#larking">Ms Larking</persName>
               <measure type="duration" unit="month" quantity="1">1</measure>
@@ -108,6 +113,13 @@
                   <measure type="price" unit="franc" quantity="10">10</measure>
                 </p>
               </event>
+              <!--Add an overdue notice to make sure those parse corrrectly-->
+              <event type="overdue">
+                <p>Sr <persName>Mr Loomis</persName>
+                <measure type="duration" unit="month" quantity="3">3mos (overdue)</measure>
+                <measure type="price" unit="franc" quantity="60">60</measure>
+              </p>
+            </event>
             </listEvent>
           </div>
         </div>
