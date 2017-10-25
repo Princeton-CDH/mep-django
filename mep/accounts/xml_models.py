@@ -1,7 +1,6 @@
 # coding=utf-8
 import pendulum
 import re
-import sys
 from eulxml import xmlmap
 from mep.accounts.models import Account, Subscribe
 from mep.people.models import Person
@@ -177,7 +176,6 @@ class XmlEvent(TeiXmlObject):
             if sub_norm in type_map:
                 self.common_dict['sub_type'] = type_map[sub_norm]
             else:
-                sys.stdout.write(self.sub_type + '\n')
                 self.common_dict['sub_type'] = Subscribe.OTHER
                 self.common_dict['notes'] += ('Unrecognized subscription type:'
                                               ' %s\n' % sub_type.strip())
