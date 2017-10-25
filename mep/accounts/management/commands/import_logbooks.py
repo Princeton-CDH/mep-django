@@ -10,12 +10,10 @@ can later be manually expanded.
 See :meth:`mep.accounts.xml_models.XmlEvent.to_db_event` for detailed info
 on the import process.
 """
-import logging
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from mep.accounts.xml_models import LogBook
 from mep.accounts.models import Event, Subscribe, Reimbursement
 
-logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     """Import logbooks from XML documents"""
