@@ -55,7 +55,7 @@ class ReimbursementAdmin(admin.ModelAdmin):
     fields = ('account', 'price', 'currency', 'start_date', 'end_date', 'notes')
     list_display = ('account', 'price', 'currency', 'start_date', 'end_date',)
     list_filter = ('currency',)
-    search_fields = ('account__persons__name', 'account__persons_mepid')
+    search_fields = ('account__persons__name', 'account__persons__mep_id')
 
 
 class SubscribeAdmin(admin.ModelAdmin):
