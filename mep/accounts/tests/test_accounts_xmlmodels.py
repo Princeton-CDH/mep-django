@@ -92,7 +92,7 @@ class TestEvent(TestCase):
         assert 'Overdue notice' in loomis.notes
         assert 'issued on 1921-01-08' in loomis.notes
         assert 'franc 60' in loomis.notes
-        assert '3 months' in loomis.notes
+        assert '3 month' in loomis.notes
 
         # also check anonymous account handling
         assert loomis.account

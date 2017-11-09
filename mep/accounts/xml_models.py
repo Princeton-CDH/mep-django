@@ -5,6 +5,7 @@ from eulxml import xmlmap
 from mep.accounts.models import Account, Subscribe
 from mep.people.models import Person
 
+
 class TeiXmlObject(xmlmap.XmlObject):
     ROOT_NAMESPACES = {
         't': 'http://www.tei-c.org/ns/1.0'
@@ -243,14 +244,14 @@ class XmlEvent(TeiXmlObject):
                                          self.reimbursement else None)
             if not self.common_dict['price']:
                 self.common_dict['notes'] += (
-                    'Missing price:\n'
+                    'Missing price\n'
                 )
 
         if self.e_type == 'overdue':
             self.common_dict['notes'] += (
                 'Overdue notice issued on %s\n'
                 'Price: %s %s\n'
-                'Duration: %s %ss\n'
+                'Duration: %s %s\n'
                 % (self.date, self.price.unit if self.price else '',
                    self.price.quantity if self.price else '',
                    self.duration.quantity if self.duration else '',
