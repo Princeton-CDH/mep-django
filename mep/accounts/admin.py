@@ -2,10 +2,30 @@ from dal import autocomplete
 from django.contrib import admin
 from django import forms
 
-from mep.accounts.models import Account, AccountAddress, Subscribe, Reimbursement
+from mep.accounts.models import Account, AccountAddress, Subscribe,\
+    Reimbursement, Event
 from mep.common.admin import CollapsedTabularInline
 
 
+class EventAdminForm(forms.ModelForm):
+    '''Admin form for the Event model, adds autocomplete to account'''
+    class Meta:
+        model = Event
+        fields = ('__all__')
+        help_texts = {
+            'account': ('Searches and displays on system assigned '
+                        'account id, as well as associated person and '
+                        'address data.'),
+        }
+        widgets = {
+            'account': autocomplete.ModelSelect2(
+                url='accounts:autocomplete',
+                attrs={
+                    'data-placeholder': 'Type to search account data...',
+                    'data-minimum-input-length': 3
+                }
+            ),
+        }
 
 
 class SubscribeAdminForm(forms.ModelForm):
@@ -145,6 +165,17 @@ class AccountAdminForm(forms.ModelForm):
         }
 
 
+class EventAdmin(admin.ModelAdmin):
+    '''Admin interface for the generic Events that underlie other subclasses
+    such as Subscribe and Reimbursment'''
+    model = Subscribe
+    form = EventAdminForm
+    fields = ('account', 'start_date', 'end_date', 'notes')
+    list_display = ('account', 'start_date', 'end_date', 'notes')
+    search_fields = ('account__persons__name', 'account__persons__mep_id',
+                     'start_date', 'end_date', 'notes')
+
+
 class AccountAdmin(admin.ModelAdmin):
     model = Account
     form = AccountAdminForm
@@ -159,3 +190,4 @@ class AccountAdmin(admin.ModelAdmin):
 admin.site.register(Subscribe, SubscribeAdmin)
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Reimbursement, ReimbursementAdmin)
+admin.site.register(Event, EventAdmin)
