@@ -76,7 +76,7 @@ class ReimbursementAdmin(admin.ModelAdmin):
     fields = ('account', 'price', 'currency', 'start_date', 'end_date', 'notes')
     list_display = ('account', 'price', 'currency', 'start_date', 'end_date',)
     list_filter = ('currency',)
-    search_fields = ('account__persons__name', 'account__persons__mep_id')
+    search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
 
 
 class SubscribeAdmin(admin.ModelAdmin):
@@ -87,7 +87,7 @@ class SubscribeAdmin(admin.ModelAdmin):
                     'duration', 'start_date', 'end_date',
                     'volumes', 'price_paid', 'deposit', 'currency')
     list_filter = ('sub_type', 'modification', 'currency')
-
+    search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
     fields = ('account', 'sub_type', 'modification', 'duration', 'start_date',
               'end_date', 'volumes', 'price_paid', 'deposit', 'currency', 'notes')
 
@@ -170,7 +170,7 @@ class AccountAdminForm(forms.ModelForm):
 class EventAdmin(admin.ModelAdmin):
     '''Admin interface for the generic Events that underlie other subclasses
     such as Subscribe and Reimbursment'''
-    model = Subscribe
+    model = Event
     form = EventAdminForm
     date_hierarchy = 'start_date'
     fields = ('account', 'event_type', 'start_date', 'end_date', 'notes')
