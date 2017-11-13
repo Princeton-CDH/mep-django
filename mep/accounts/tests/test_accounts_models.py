@@ -142,6 +142,33 @@ class TestEvent(TestCase):
     def test_str(self):
         assert str(self.event) == 'Event for account #%s' % self.account.pk
 
+    def test_event_type(self):
+        assert self.event.event_type == 'Generic'
+        # Create a subscribe and check its generic event type
+        subscribe = Subscribe.objects.create(
+                account=self.account,
+                duration=1,
+                volumes=2,
+                price_paid=3.20
+        )
+        # subscribe, not otherwise specified
+        assert subscribe.event_ptr.event_type == 'Subscribe'
+        # subscribe labeled as a supplement
+        subscribe.modification = Subscribe.SUPPLEMENT
+        subscribe.save()
+        assert subscribe.event_ptr.event_type == 'Supplement'
+        # subscribe labeled as a renewal
+        subscribe.modification = Subscribe.RENEWAL
+        subscribe.save()
+        assert subscribe.event_ptr.event_type == 'Renewal'
+
+        # Create a reimbursement check its event type
+        reimbursement = Reimbursement.objects.create(
+            account=self.account,
+            price=2.30,
+            currency='USD'
+        )
+        assert reimbursement.event_ptr.event_type == 'Reimbursement'
 
 class TestSubscribe(TestCase):
 

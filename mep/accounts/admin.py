@@ -170,8 +170,10 @@ class EventAdmin(admin.ModelAdmin):
     such as Subscribe and Reimbursment'''
     model = Subscribe
     form = EventAdminForm
-    fields = ('account', 'start_date', 'end_date', 'notes')
-    list_display = ('account', 'start_date', 'end_date', 'notes')
+    date_hierarchy = 'start_date'
+    fields = ('account', 'event_type', 'start_date', 'end_date', 'notes')
+    readonly_fields = ('event_type',)
+    list_display = ('account', 'start_date', 'end_date', 'notes', 'event_type')
     search_fields = ('account__persons__name', 'account__persons__mep_id',
                      'start_date', 'end_date', 'notes')
 
