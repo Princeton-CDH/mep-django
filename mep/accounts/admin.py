@@ -72,6 +72,7 @@ class ReimbursementAdminForm(forms.ModelForm):
 class ReimbursementAdmin(admin.ModelAdmin):
     form = ReimbursementAdminForm
     model = Reimbursement
+    date_hierarchy = 'start_date'
     fields = ('account', 'price', 'currency', 'start_date', 'end_date', 'notes')
     list_display = ('account', 'price', 'currency', 'start_date', 'end_date',)
     list_filter = ('currency',)
@@ -81,6 +82,7 @@ class ReimbursementAdmin(admin.ModelAdmin):
 class SubscribeAdmin(admin.ModelAdmin):
     model = Subscribe
     form = SubscribeAdminForm
+    date_hierarchy = 'start_date'
     list_display = ('account', 'sub_type', 'modification',
                     'duration', 'start_date', 'end_date',
                     'volumes', 'price_paid', 'deposit', 'currency')
