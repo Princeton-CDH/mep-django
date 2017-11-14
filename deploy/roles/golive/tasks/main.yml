@@ -3,7 +3,7 @@
     state: dump
     login_host: "{{ db_host }}"
     name: "{{ db_name }}"
-    target: "{{backup_location}}"
+    target: "{{ db_backup }}"
 - name: Run database migrations
   django_manage:
     command: migrate
