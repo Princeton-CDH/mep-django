@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.accounts.models &#8212; Mapping Expatriate Paris - Django 0.1.0 documentation</title>
+    <title>mep.accounts.models &#8212; Mapping Expatriate Paris - Django 0.2.0-RC documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.0-RC',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
 
 <span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">Notable</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Person</span><span class="p">,</span> <span class="n">Address</span>
-
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ObjectDoesNotExist</span>
 
 <div class="viewcode-block" id="Account"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account">[docs]</a><span class="k">class</span> <span class="nc">Account</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Central model for all account and related information, M2M explicity to</span>
@@ -60,8 +60,45 @@
         <span class="k">return</span> <span class="s1">&#39;&lt;Account </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># QUESTION: Better way to do this for str? Can&#39;t count on any fields.</span>
-        <span class="k">return</span> <span class="s1">&#39;Account #</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">addresses</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="s1">&#39;Account #</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="s1">&#39;Account #</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
+                <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">addresses</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="s1">&#39;Account #</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
+                <span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">address</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">name</span> <span class="k">else</span>
+                          <span class="n">address</span><span class="o">.</span><span class="n">street_address</span> <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">street_address</span> <span class="k">else</span>
+                          <span class="n">address</span><span class="o">.</span><span class="n">city</span> <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">addresses</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span>
+                          <span class="s1">&#39;city&#39;</span><span class="p">,</span> <span class="s1">&#39;street_address&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;persons__sort_name&#39;</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="Account.list_persons"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account.list_persons">[docs]</a>    <span class="k">def</span> <span class="nf">list_persons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;List :class:`mep.people.models.Person` instances associated with this</span>
+<span class="sd">        account.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span>
+                         <span class="n">person</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">))</span></div>
+    <span class="n">list_persons</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;Associated persons&#39;</span>
+
+<div class="viewcode-block" id="Account.list_addresses"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account.list_addresses">[docs]</a>    <span class="k">def</span> <span class="nf">list_addresses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;List :class:`mep.people.models.Address` instances associated with</span>
+<span class="sd">        this account.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">address</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">else</span> <span class="n">address</span><span class="o">.</span><span class="n">street_address</span> <span class="k">if</span> <span class="n">address</span><span class="o">.</span><span class="n">street_address</span>
+            <span class="k">else</span> <span class="n">address</span><span class="o">.</span><span class="n">city</span> <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addresses</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;street_address&#39;</span><span class="p">)</span>
+        <span class="p">)</span></div>
+    <span class="n">list_addresses</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;Associated addresses&#39;</span>
 
 <div class="viewcode-block" id="Account.add_event"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account.add_event">[docs]</a>    <span class="k">def</span> <span class="nf">add_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Helper function to add a :class:`Event` or subclass to an</span>
@@ -141,7 +178,10 @@
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;This is a through model, so the str representation is minimal&#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="s1">&#39;Account #</span><span class="si">%s</span><span class="s1"> - Address #</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s1">&#39;Account #</span><span class="si">%s</span><span class="s1"> - Address #</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s1">&#39;Account-address association&#39;</span></div>
 
 
 <div class="viewcode-block" id="Event"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Event">[docs]</a><span class="k">class</span> <span class="nc">Event</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
@@ -157,7 +197,23 @@
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> for account #</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-                                       <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span></div>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">subscribe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subscribe</span>
+            <span class="k">if</span> <span class="n">subscribe</span><span class="o">.</span><span class="n">modification</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">subscribe</span><span class="o">.</span><span class="n">get_modification_display</span><span class="p">()</span>
+            <span class="k">return</span> <span class="s1">&#39;Subscribe&#39;</span>
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reimbursement</span>
+            <span class="k">return</span> <span class="s1">&#39;Reimbursement&#39;</span>
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="s1">&#39;Generic&#39;</span></div>
 
 
 <span class="n">USD</span> <span class="o">=</span> <span class="s1">&#39;USD&#39;</span>
@@ -174,33 +230,59 @@
 
 <div class="viewcode-block" id="Subscribe"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Subscribe">[docs]</a><span class="k">class</span> <span class="nc">Subscribe</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Records subscription events in the MEP database&#39;&#39;&#39;</span>
-    <span class="c1"># QUESTION: How big does this need to be? PositiveSmallIntegerField</span>
-    <span class="c1"># is probably appropriate.</span>
-    <span class="n">duration</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">()</span>
-    <span class="n">volumes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">()</span>
-    <span class="n">sub_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+    <span class="n">duration</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
+        <span class="n">max_digits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Duration in months. Weeks may be noted with &#39;</span>
+                   <span class="s1">&#39;fractions in decimal form.&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">volumes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_digits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Number of volumes for checkout&#39;</span><span class="p">)</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
+    <span class="n">A_B</span> <span class="o">=</span> <span class="s1">&#39;A+B&#39;</span>
+    <span class="n">ADL</span> <span class="o">=</span> <span class="s1">&#39;AdL&#39;</span>
+    <span class="n">STU</span> <span class="o">=</span> <span class="s1">&#39;Stu&#39;</span>
+    <span class="n">PROF</span> <span class="o">=</span> <span class="s1">&#39;Prof&#39;</span>
+    <span class="n">OTHER</span> <span class="o">=</span> <span class="s1">&#39;Oth&#39;</span>
+
+    <span class="n">SUB_TYPE_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">A_B</span><span class="p">,</span> <span class="s1">&#39;A+B&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">ADL</span><span class="p">,</span> <span class="s1">&#39;AdL&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">STU</span><span class="p">,</span> <span class="s1">&#39;Student&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">PROF</span><span class="p">,</span> <span class="s1">&#39;Professor&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">OTHER</span><span class="p">,</span> <span class="s1">&#39;Other&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">sub_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">SUB_TYPE_CHOICES</span><span class="p">)</span>
     <span class="c1"># NOTE: Using decimal field to take advantage of Python&#39;s decimal handling</span>
     <span class="c1"># Can store up to 99999999.99 -- which is *probably* safe.</span>
-    <span class="n">price_paid</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">price_paid</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">deposit</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
         <span class="n">max_digits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
-    <span class="n">currency</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1"># NOTE: What are some good test types?</span>
-    <span class="n">FOO</span> <span class="o">=</span> <span class="s1">&#39;f&#39;</span>
-    <span class="n">BAR</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+    <span class="n">currency</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">CURRENCY_CHOICES</span><span class="p">)</span>
+
+    <span class="n">SUPPLEMENT</span> <span class="o">=</span> <span class="s1">&#39;sup&#39;</span>
+    <span class="n">RENEWAL</span> <span class="o">=</span> <span class="s1">&#39;ren&#39;</span>
+
     <span class="n">MODIFICATION_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;----&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">FOO</span><span class="p">,</span> <span class="s1">&#39;Foo&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">BAR</span><span class="p">,</span> <span class="s1">&#39;Bar&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">SUPPLEMENT</span><span class="p">,</span> <span class="s1">&#39;Supplement&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">RENEWAL</span><span class="p">,</span> <span class="s1">&#39;Renewal&#39;</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">modification</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="n">MODIFICATION_CHOICES</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">MODIFICATION_CHOICES</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Use to indicate supplement or renewal.&#39;</span>
     <span class="p">)</span></div>
 
 
@@ -230,7 +312,8 @@
 
 <div class="viewcode-block" id="Reimbursement"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Reimbursement">[docs]</a><span class="k">class</span> <span class="nc">Reimbursement</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Inherited table indicating reimbursement events&#39;&#39;&#39;</span>
-    <span class="n">price</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">price</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">currency</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -318,7 +401,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

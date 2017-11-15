@@ -2,9 +2,10 @@ import pytest
 import re
 
 from django.test import TestCase
-from .models import Account, AccountAddress, Address
-from .models import Borrow, Event, Purchase, Reimbursement, Subscribe
+from mep.accounts.models import Account, AccountAddress, Address
+from mep.accounts.models import Borrow, Event, Purchase, Reimbursement, Subscribe
 from mep.books.models import Item
+from mep.people.models import Address, Person
 
 
 class TestAccount(TestCase):
@@ -17,8 +18,19 @@ class TestAccount(TestCase):
         assert re.search(overall, repr(account))
 
     def test_str(self):
-        account = Account()
+        # create and save an account
+        account = Account.objects.create()
         assert str(account) == "Account #%s" % account.pk
+
+        # create and add an address, overrides just pk method
+        add1 = Address.objects.create(street_address='1 Rue St.')
+        AccountAddress.objects.create(account=account, address=add1)
+        assert str(account) == "Account #%s: 1 Rue St." % account.pk
+
+        # create and add a person, overrides address
+        pers1 = Person.objects.create(name='Mlle Foo')
+        account.persons.add(pers1)
+        assert str(account) == "Account #%s: Mlle Foo" % account.pk
 
     def test_add_event(self):
 
@@ -66,6 +78,29 @@ class TestAccount(TestCase):
         with pytest.raises(ValueError):
             account.add_event('foo')
 
+    def test_list_persons(self):
+        # create an account and associate two people with it
+        account = Account.objects.create()
+        pers1 = Person.objects.create(name='Foobar')
+        pers2 = Person.objects.create(name='Bazbar')
+        account.persons.add(pers1, pers2)
+
+        # comma separated string, by name in alphabetical order
+        assert account.list_persons() == 'Bazbar, Foobar'
+
+    def test_list_addresses(self):
+        # create an account and associate three addresses with it
+        account = Account.objects.create()
+        add1 = Address.objects.create(name='Hotel Foo', city='Paris')
+        add2 = Address.objects.create(street_address='1 Foo St.', city='London')
+        add3 = Address.objects.create(city='Berlin')
+        addresses = [add1, add2, add3]
+        for address in addresses:
+            AccountAddress.objects.create(account=account, address=address)
+
+        # semicolon separated string sorted by city, name, street address,
+        # displays name first, then street_address, and city as a last resort
+        account.list_addresses() == 'Berlin; 1 Foo St.; Hotel Foo'
 
 
 class TestAccountAddress(TestCase):
@@ -107,6 +142,33 @@ class TestEvent(TestCase):
     def test_str(self):
         assert str(self.event) == 'Event for account #%s' % self.account.pk
 
+    def test_event_type(self):
+        assert self.event.event_type == 'Generic'
+        # Create a subscribe and check its generic event type
+        subscribe = Subscribe.objects.create(
+                account=self.account,
+                duration=1,
+                volumes=2,
+                price_paid=3.20
+        )
+        # subscribe, not otherwise specified
+        assert subscribe.event_ptr.event_type == 'Subscribe'
+        # subscribe labeled as a supplement
+        subscribe.modification = Subscribe.SUPPLEMENT
+        subscribe.save()
+        assert subscribe.event_ptr.event_type == 'Supplement'
+        # subscribe labeled as a renewal
+        subscribe.modification = Subscribe.RENEWAL
+        subscribe.save()
+        assert subscribe.event_ptr.event_type == 'Renewal'
+
+        # Create a reimbursement check its event type
+        reimbursement = Reimbursement.objects.create(
+            account=self.account,
+            price=2.30,
+            currency='USD'
+        )
+        assert reimbursement.event_ptr.event_type == 'Reimbursement'
 
 class TestSubscribe(TestCase):
 

@@ -3,6 +3,21 @@
 CHANGELOG
 =========
 
+0.2 Logbook Admin & Import
+--------------------------
+
+Admin functionality and data release. Provides administrative functionality for
+describing and managing data related to the logbooks for Sylvia Beach's lending
+library and their associated accounts.
+
+* As a global admin, I want a one-time import of data from the logbook XML files so that I can manage lending library account and subscription information in the database.
+* As a content editor, I want to see an indicator if a person has an account associated so that I can distinguish library members from others associated with the library.
+* As a content editor, I want to create and edit account records so I can track how people associated with the library.
+* As a content editor, I want to add and edit subscription information so I can track how and when members interacted with the library.
+* As a content editor, I want to be able to view subscription events associated with an account so that I can see activity relating to an account at a glance.
+* As a content editor, I want to be be able to see information about deposits refunded so that I can learn more about the habits of Beach and her clerks.
+* As a content editor, I want to be able to see a listing of all events (regardless of type), so that I can look up their generic fields and any non-standard types that do not have a subcategory such as overdue notices.
+
 
 0.1 Personography Admin & Import
 --------------------------------

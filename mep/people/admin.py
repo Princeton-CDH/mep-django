@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 from viapy.widgets import ViafWidget
 
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline, CollapsedTabularInline
+from mep.accounts.admin import AccountAddressInline
 from mep.footnotes.admin import FootnoteInline
 from .models import Person, Country, Address, Profession, InfoURL, \
     Relationship, RelationshipType
@@ -132,15 +133,15 @@ class PersonAdmin(admin.ModelAdmin):
     # NOTE: uses custom template to display relationships to this person
     # (only relationships to other people are edited here)
     form = PersonAdminForm
-    list_display = ('sort_name', 'title', 'name', 'list_nationalities', 'birth_year', 'death_year',
-        'sex', 'profession', 'viaf_id', 'mep_id', 'address_count', 'has_notes')
-    fields = ('mep_id', 'title',
+    list_display = ('name', 'title', 'sort_name', 'list_nationalities', 'birth_year', 'death_year',
+        'sex', 'profession', 'viaf_id', 'mep_id', 'address_count', 'has_account', 'has_notes')
+    fields = ('mep_id', 'has_account', 'title',
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
         'sex', 'profession', 'nationalities', 'addresses',
         'notes')
-    readonly_fields = ('mep_id', )
+    readonly_fields = ('mep_id', 'has_account')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = ('sex', 'profession', 'nationalities')
     inlines = [InfoURLInline, RelationshipInline, FootnoteInline]
@@ -186,7 +187,7 @@ class AddressAdmin(admin.ModelAdmin):
 
     list_filter = ('country',)
     search_fields = ('name', 'street_address', 'city', 'notes')
-    inlines = [ResidenceInline, FootnoteInline]
+    inlines = [AccountAddressInline, ResidenceInline, FootnoteInline]
     class Media:
         css = {
             'all': ['https://unpkg.com/leaflet@1.0.2/dist/leaflet.css',

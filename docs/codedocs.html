@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.1.0 documentation</title>
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.2.0-RC documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.0-RC',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -175,6 +175,20 @@ of <code class="docutils literal"><span class="pre">Foo.objects.all()</span></co
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Account.list_addresses">
+<code class="descname">list_addresses</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.list_addresses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.list_addresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>List <a class="reference internal" href="#mep.people.models.Address" title="mep.people.models.Address"><code class="xref py py-class docutils literal"><span class="pre">mep.people.models.Address</span></code></a> instances associated with
+this account.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Account.list_persons">
+<code class="descname">list_persons</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.list_persons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.list_persons" title="Permalink to this definition">¶</a></dt>
+<dd><p>List <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal"><span class="pre">mep.people.models.Person</span></code></a> instances associated with this
+account.</p>
 </dd></dl>
 
 </dd></dl>
@@ -354,6 +368,12 @@ e.g. Wikipedia page.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.people.models.Person.has_account">
+<code class="descname">has_account</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.has_account"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.has_account" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether an instance of <a class="reference internal" href="#mep.accounts.models.Account" title="mep.accounts.models.Account"><code class="xref py py-class docutils literal"><span class="pre">mep.accounts.models.Account</span></code></a> exists for this person.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.people.models.Person.list_nationalities">
 <code class="descname">list_nationalities</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.list_nationalities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.list_nationalities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return comma separated list of nationalities (if any) for <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal"><span class="pre">Person</span></code></a> list_view.</p>
@@ -468,7 +488,7 @@ is set.</p>
 <dd><p>Residence associated with a <code class="xref py py-class docutils literal"><span class="pre">Person</span></code></p>
 <dl class="attribute">
 <dt id="mep.people.xml_models.Residence.city_country">
-<code class="descname">city_country</code><em class="property"> = {'London': 'GB', 'Boulogne-Billancourt': 'FR', 'Vernouillet': 'FR', 'Strasbourg': 'FR', 'Marnes la Coquette': 'FR', 'Villecresnes': 'FR', 'Brunnen': 'CH', 'Saint-Servan': 'FR', 'Brooklyn': 'US', 'Paris': 'FR', 'Vesoul': 'FR', 'Angers': 'FR', 'Arcachon': 'FR', 'Les Praz de Chamonix': 'FR', 'Versailles': 'FR', 'Shoreham-by-Sea': 'GB', &quot;Ville d'Avray&quot;: 'FR', 'Bègles': 'FR', 'Zürich': 'CH', 'Warehorne': 'GB', 'Champagné-Saint-Hilaire': 'FR', 'Sèvres': 'FR', 'Clamart': 'FR', 'Copenhagen': 'DK', &quot;Côtes-d'Armor&quot;: 'FR', 'Blennes': 'FR', 'Montsoult': 'FR', 'Neuilly-sur-Seine': 'FR', 'Le Mesnil-sur-Blangy': 'FR', 'Parkersburg': 'US', 'Dalton': 'GB', 'Douai': 'FR', 'Rouen': 'FR', 'La Bourboule': 'FR', 'Agon Coutainville': 'FR', 'Vichy': 'FR', 'Madrid': 'ES', 'Saint-Mandé': 'FR', 'Vitry-sur-Seine': 'FR', 'Saint-Germain-en-Laye': 'FR', 'Lezigne': 'FR', 'Toulouse': 'FR', &quot;Saint-Pierre-d'Albigny&quot;: 'FR', 'Mortagne-sur-Sèvre': 'FR', 'Châtenay-Malabry': 'FR', 'New York': 'US', 'Bougival': 'FR', 'Sceaux': 'FR', 'Asnières-sous-Bois': 'FR', 'Lot-et-Garonne': 'FR', 'Le Vésinet': 'FR', 'Chicago': 'US', &quot;L'Haÿ-les-Roses&quot;: 'FR', 'Trouville-sur-Mer': 'FR', 'Barcelona': 'ES', 'Fontenay-aux-Roses': 'FR', 'Varengeville-sur-Mer': 'FR', 'Pornic': 'FR', 'Vernet-les-Bains': 'FR', 'Shanghai': 'CN', 'Le Pouldu': 'FR', 'Montgaillard': 'FR', 'Omonville-la-Rogue': 'FR', 'Nice': 'FR', 'Nevers': 'FR', 'Ermont': 'FR', 'Saint-Magne-de-Castillon': 'FR', 'Nantes': 'FR', 'Saint-Cloud': 'FR', 'Cazoulès': 'FR', 'Toulon': 'FR', 'Champeaux': 'FR', 'Edinburgh': 'GB', 'Rome': 'IT', 'Bitche': 'FR', 'Menton': 'FR', 'Allouis': 'FR', 'Cachan': 'FR', 'Lille': 'FR', 'Neuilly': 'FR', 'Hautot-sur-Mer': 'FR', 'Levallois-Perret': 'FR', 'La Croix': 'FR', 'Arcueil': 'FR', 'Le Bourg Dun': 'FR', 'Villers-sur-Mer': 'FR', 'Laguépie': 'FR', 'Nimes': 'FR', 'Grasse': 'FR', 'Gstaad': 'CH', 'Ixelles': 'BE', 'Witten': 'DE', 'Trieste': 'IT', 'Gargenville': 'FR', 'Courbevoie': 'FR', 'Courteilles': 'FR', 'Nogent-le-Rotrou': 'FR', 'München': 'DE', 'La Teste-de-Buch': 'FR', 'La Madelaine': 'FR', 'Cambridge': 'GB', 'Antibes': 'FR', 'Berck': 'FR', 'Le Lavandaou': 'FR', 'Nogent-sur-Marne': 'FR', 'Le Chesnay': 'FR', 'Brest': 'FR', 'Biarritz': 'FR', 'West Hollywood': 'US', 'Beauvais': 'FR', 'Arras': 'FR', 'Fontainebleau': 'FR', 'Lodève': 'FR', 'Key West': 'US', 'Rueil-Malmaison': 'FR', 'Saint Enogat': 'FR', 'Issy-les-Moulineaux': 'FR', 'Sassetot-le-Mauconduit': 'FR', 'Cagnes-sur-Mer': 'FR', 'Courmayeur': 'IT', 'Vanves': 'FR', 'Orléans': 'FR', &quot;Bagnoles-de-l'Orne&quot;: 'FR', 'Asnières-sur-Seine': 'FR', &quot;Ville-d'Avray&quot;: 'FR', 'Sartilly': 'FR', 'Vignoux-sur-Barangeon': 'FR', 'Le Beausset': 'FR', 'Hyères': 'FR'}</em><a class="headerlink" href="#mep.people.xml_models.Residence.city_country" title="Permalink to this definition">¶</a></dt>
+<code class="descname">city_country</code><em class="property"> = {'Issy-les-Moulineaux': 'FR', 'Neuilly': 'FR', 'Zürich': 'CH', 'Nice': 'FR', 'Nogent-sur-Marne': 'FR', 'Hyères': 'FR', 'La Croix': 'FR', 'Nevers': 'FR', 'West Hollywood': 'US', 'Paris': 'FR', 'Les Praz de Chamonix': 'FR', 'Barcelona': 'ES', 'Antibes': 'FR', 'Fontenay-aux-Roses': 'FR', 'Rouen': 'FR', 'Biarritz': 'FR', 'Grasse': 'FR', 'Allouis': 'FR', 'Vernouillet': 'FR', 'Brooklyn': 'US', 'Orléans': 'FR', 'Angers': 'FR', 'New York': 'US', 'Ermont': 'FR', 'Villecresnes': 'FR', 'Vitry-sur-Seine': 'FR', 'Montgaillard': 'FR', 'Witten': 'DE', 'Omonville-la-Rogue': 'FR', 'Beauvais': 'FR', 'Copenhagen': 'DK', 'Le Chesnay': 'FR', 'Champagné-Saint-Hilaire': 'FR', 'Ixelles': 'BE', 'Mortagne-sur-Sèvre': 'FR', 'Le Beausset': 'FR', 'München': 'DE', 'La Teste-de-Buch': 'FR', 'Nantes': 'FR', 'Nimes': 'FR', 'Champeaux': 'FR', 'Le Bourg Dun': 'FR', 'Cachan': 'FR', 'Asnières-sur-Seine': 'FR', 'Clamart': 'FR', 'Brest': 'FR', 'Berck': 'FR', 'Lot-et-Garonne': 'FR', 'Saint-Mandé': 'FR', 'Shanghai': 'CN', 'Vesoul': 'FR', 'Saint-Germain-en-Laye': 'FR', 'Fontainebleau': 'FR', 'Parkersburg': 'US', 'Courmayeur': 'IT', 'Pornic': 'FR', 'Agon Coutainville': 'FR', 'Courteilles': 'FR', 'Varengeville-sur-Mer': 'FR', 'Cagnes-sur-Mer': 'FR', 'Saint-Servan': 'FR', 'Arcachon': 'FR', &quot;Bagnoles-de-l'Orne&quot;: 'FR', 'Saint-Cloud': 'FR', 'Montsoult': 'FR', 'Lezigne': 'FR', 'Nogent-le-Rotrou': 'FR', 'Vanves': 'FR', 'Sartilly': 'FR', 'Courbevoie': 'FR', 'Levallois-Perret': 'FR', 'Douai': 'FR', 'Vichy': 'FR', 'Rueil-Malmaison': 'FR', 'Gargenville': 'FR', 'Le Mesnil-sur-Blangy': 'FR', 'Cazoulès': 'FR', 'Vignoux-sur-Barangeon': 'FR', 'Arcueil': 'FR', 'Saint-Magne-de-Castillon': 'FR', 'Arras': 'FR', 'Boulogne-Billancourt': 'FR', 'Madrid': 'ES', 'Laguépie': 'FR', 'Bitche': 'FR', &quot;Côtes-d'Armor&quot;: 'FR', 'Toulon': 'FR', &quot;L'Haÿ-les-Roses&quot;: 'FR', 'Trieste': 'IT', 'Lodève': 'FR', 'Key West': 'US', 'La Bourboule': 'FR', 'Hautot-sur-Mer': 'FR', 'Sceaux': 'FR', 'Brunnen': 'CH', 'Gstaad': 'CH', 'Marnes la Coquette': 'FR', 'Vernet-les-Bains': 'FR', 'Asnières-sous-Bois': 'FR', &quot;Ville d'Avray&quot;: 'FR', 'Rome': 'IT', 'Sèvres': 'FR', 'Le Lavandaou': 'FR', 'Menton': 'FR', 'Trouville-sur-Mer': 'FR', &quot;Ville-d'Avray&quot;: 'FR', 'Bougival': 'FR', 'London': 'GB', 'Warehorne': 'GB', 'Edinburgh': 'GB', 'Villers-sur-Mer': 'FR', 'Toulouse': 'FR', 'Le Pouldu': 'FR', 'Sassetot-le-Mauconduit': 'FR', 'Saint Enogat': 'FR', 'Versailles': 'FR', 'Shoreham-by-Sea': 'GB', 'Le Vésinet': 'FR', 'Strasbourg': 'FR', 'Dalton': 'GB', 'Châtenay-Malabry': 'FR', 'Cambridge': 'GB', 'Chicago': 'US', 'Lille': 'FR', 'La Madelaine': 'FR', &quot;Saint-Pierre-d'Albigny&quot;: 'FR', 'Neuilly-sur-Seine': 'FR', 'Bègles': 'FR', 'Blennes': 'FR'}</em><a class="headerlink" href="#mep.people.xml_models.Residence.city_country" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of cities in the xml with known, unambiguous countries
 provided by MEP team for import</p>
 </dd></dl>
@@ -746,7 +766,7 @@ for or against information in the system.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

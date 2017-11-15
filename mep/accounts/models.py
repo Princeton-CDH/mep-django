@@ -2,7 +2,7 @@ from django.db import models
 
 from mep.common.models import Notable
 from mep.people.models import Person, Address
-
+from django.core.exceptions import ObjectDoesNotExist
 
 class Account(models.Model):
     '''Central model for all account and related information, M2M explicity to
@@ -19,8 +19,45 @@ class Account(models.Model):
         return '<Account %s>' % self.__dict__
 
     def __str__(self):
-        # QUESTION: Better way to do this for str? Can't count on any fields.
-        return 'Account #%s' % self.pk
+        if not self.persons.exists() and not self.addresses.exists():
+            return 'Account #%s' % self.pk
+        if self.persons.exists():
+            return 'Account #%s: %s' % (
+                self.pk,
+                ', '.join(person.name for person in self.persons.all())
+            )
+        if self.addresses.exists():
+            return 'Account #%s: %s' % (
+                self.pk,
+                '; '.join(address.name if address.name else
+                          address.street_address if address.street_address else
+                          address.city for address in
+                          self.addresses.all().order_by(
+                          'city', 'street_address', 'name'))
+        )
+
+    class Meta:
+        ordering = ('persons__sort_name',)
+
+    def list_persons(self):
+        '''List :class:`mep.people.models.Person` instances associated with this
+        account.
+        '''
+        return ', '.join(person.name for
+                         person in self.persons.all().order_by('name'))
+    list_persons.short_description = 'Associated persons'
+
+    def list_addresses(self):
+        '''List :class:`mep.people.models.Address` instances associated with
+        this account.
+        '''
+        return '; '.join(
+            address.name if address.name
+            else address.street_address if address.street_address
+            else address.city for address in
+            self.addresses.all().order_by('name', 'street_address')
+        )
+    list_addresses.short_description = 'Associated addresses'
 
     def add_event(self, etype='event', **kwargs):
         '''Helper function to add a :class:`Event` or subclass to an
@@ -102,6 +139,9 @@ class AccountAddress(Notable):
         '''This is a through model, so the str representation is minimal'''
         return 'Account #%s - Address #%s' % (self.account.pk, self.address.pk)
 
+    class Meta:
+        verbose_name = 'Account-address association'
+
 
 class Event(Notable):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
@@ -116,7 +156,23 @@ class Event(Notable):
 
     def __str__(self):
         return '%s for account #%s' % (self.__class__.__name__,
-                                       self.account.pk)
+                                      self.account.pk)
+
+    @property
+    def event_type(self):
+        try:
+            subscribe = self.subscribe
+            if subscribe.modification:
+                return subscribe.get_modification_display()
+            return 'Subscribe'
+        except ObjectDoesNotExist:
+            pass
+        try:
+            self.reimbursement
+            return 'Reimbursement'
+        except ObjectDoesNotExist:
+            pass
+        return 'Generic'
 
 
 USD = 'USD'
@@ -133,33 +189,59 @@ CURRENCY_CHOICES = (
 
 class Subscribe(Event):
     '''Records subscription events in the MEP database'''
-    # QUESTION: How big does this need to be? PositiveSmallIntegerField
-    # is probably appropriate.
-    duration = models.PositiveSmallIntegerField()
-    volumes = models.PositiveIntegerField()
-    sub_type = models.CharField(max_length=255, verbose_name='type')
+    duration = models.DecimalField(
+        max_digits=4, decimal_places=2,
+        blank=True, null=True,
+        help_text=('Duration in months. Weeks may be noted with '
+                   'fractions in decimal form.')
+    )
+    volumes = models.DecimalField(blank=True, null=True, max_digits=4,
+        decimal_places=2,
+        help_text='Number of volumes for checkout')
+    A = 'A'
+    B = 'B'
+    A_B = 'A+B'
+    ADL = 'AdL'
+    STU = 'Stu'
+    PROF = 'Prof'
+    OTHER = 'Oth'
+
+    SUB_TYPE_CHOICES = (
+        (A, 'A'),
+        (B, 'B'),
+        (A_B, 'A+B'),
+        (ADL, 'AdL'),
+        (STU, 'Student'),
+        (PROF, 'Professor'),
+        (OTHER, 'Other')
+    )
+    sub_type = models.CharField(max_length=255, verbose_name='type', blank=True,
+        choices=SUB_TYPE_CHOICES)
     # NOTE: Using decimal field to take advantage of Python's decimal handling
     # Can store up to 99999999.99 -- which is *probably* safe.
-    price_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    price_paid = models.DecimalField(max_digits=10, decimal_places=2,
+        blank=True, null=True)
     deposit = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         blank=True,
         null=True
     )
-    currency = models.CharField(max_length=3, blank=True)
-    # NOTE: What are some good test types?
-    FOO = 'f'
-    BAR = 'b'
+    currency = models.CharField(max_length=3, blank=True, choices=CURRENCY_CHOICES)
+
+    SUPPLEMENT = 'sup'
+    RENEWAL = 'ren'
+
     MODIFICATION_CHOICES = (
         ('', '----'),
-        (FOO, 'Foo'),
-        (BAR, 'Bar'),
+        (SUPPLEMENT, 'Supplement'),
+        (RENEWAL, 'Renewal'),
     )
     modification = models.CharField(
         max_length=50,
         blank=True,
-        choices=MODIFICATION_CHOICES
+        choices=MODIFICATION_CHOICES,
+        help_text='Use to indicate supplement or renewal.'
     )
 
 
@@ -189,7 +271,8 @@ class Purchase(Event):
 
 class Reimbursement(Event):
     '''Inherited table indicating reimbursement events'''
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+    price = models.DecimalField(max_digits=8, decimal_places=2, null=True,
+        blank=True)
     currency = models.CharField(
         max_length=3,
         blank=True,

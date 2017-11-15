@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.1.0 documentation</title>
+    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.2.0-RC documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.0-RC',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -228,8 +228,12 @@
 <div class="viewcode-block" id="Person.address_count"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.address_count">[docs]</a>    <span class="k">def</span> <span class="nf">address_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Return count of addresses associated with the instance of :class:`Person` for list_view.&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">addresses</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></div>
-    <span class="n">address_count</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;# Addresses&#39;</span></div>
+    <span class="n">address_count</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;# Addresses&#39;</span>
 
+<div class="viewcode-block" id="Person.has_account"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.has_account">[docs]</a>    <span class="k">def</span> <span class="nf">has_account</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return whether an instance of :class:`mep.accounts.models.Account` exists for this person.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span></div>
+    <span class="n">has_account</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="InfoURL"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.InfoURL">[docs]</a><span class="k">class</span> <span class="nc">InfoURL</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Informational urls (other than VIAF) associated with a :class:`Person`,</span>
@@ -354,7 +358,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

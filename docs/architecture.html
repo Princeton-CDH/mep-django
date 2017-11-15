@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Architecture &#8212; Mapping Expatriate Paris - Django 0.1.0 documentation</title>
+    <title>Architecture &#8212; Mapping Expatriate Paris - Django 0.2.0-RC documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1.0',
+        VERSION:     '0.2.0-RC',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,6 +46,16 @@
 </div>
 <div class="section" id="database">
 <h2>Database<a class="headerlink" href="#database" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="updates">
+<h3>0.2 Updates<a class="headerlink" href="#updates" title="Permalink to this headline">¶</a></h3>
+<p>The overall architectures of the schema remains the same, but several fields were
+made less restrictive to accommodate variation in the Logbook data. These include:</p>
+<ul class="simple">
+<li>Reimbursement price (now optional)</li>
+<li>Subscribe duration</li>
+<li>Options were provided for Subscribe sub_type fields, as well as for modification.</li>
+</ul>
+</div>
 <div class="section" id="initial-schema-version-004">
 <h3>Initial Schema (Version 004)<a class="headerlink" href="#initial-schema-version-004" title="Permalink to this headline">¶</a></h3>
 <a class="reference external image-reference" href="_static/mep-schema-004.png"><img alt="MEP Schema Design 004" src="_images/mep-schema-004.png" /></a>
@@ -131,6 +141,7 @@ to generate the following schemata.</p>
   <ul>
 <li><a class="reference internal" href="#">Architecture</a><ul>
 <li><a class="reference internal" href="#database">Database</a><ul>
+<li><a class="reference internal" href="#updates">0.2 Updates</a></li>
 <li><a class="reference internal" href="#initial-schema-version-004">Initial Schema (Version 004)</a></li>
 <li><a class="reference internal" href="#people-detail-0004">People Detail (0004)</a></li>
 <li><a class="reference internal" href="#books-detail-0004">Books Detail (0004)</a></li>
@@ -165,7 +176,7 @@ to generate the following schemata.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
