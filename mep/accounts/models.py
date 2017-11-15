@@ -2,7 +2,7 @@ from django.db import models
 
 from mep.common.models import Notable
 from mep.people.models import Person, Address
-
+from django.core.exceptions import ObjectDoesNotExist
 
 class Account(models.Model):
     '''Central model for all account and related information, M2M explicity to
@@ -157,6 +157,22 @@ class Event(Notable):
     def __str__(self):
         return '%s for account #%s' % (self.__class__.__name__,
                                       self.account.pk)
+
+    @property
+    def event_type(self):
+        try:
+            subscribe = self.subscribe
+            if subscribe.modification:
+                return subscribe.get_modification_display()
+            return 'Subscribe'
+        except ObjectDoesNotExist:
+            pass
+        try:
+            self.reimbursement
+            return 'Reimbursement'
+        except ObjectDoesNotExist:
+            pass
+        return 'Generic'
 
 
 USD = 'USD'

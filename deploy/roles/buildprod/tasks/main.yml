@@ -7,7 +7,7 @@
   command: "virtualenv env"
   args:
     chdir: '{{ deploy }}'
-    # Not quite, but close enough to check
+    # Not 100% reliable, but close enough to check
     creates: "{{ deploy}}/env"
 - name: Upgrade pip to latest in virtualenv
   pip:
@@ -25,10 +25,9 @@
     virtualenv: "{{ deploy }}/env"
     requirements: "{{ deploy }}/requirements.txt"
 - name: Install local_settings.py
-  synchronize:
-    src: /home/deploy/{{ djangoapp }}/local_settings.py
+  copy:
+    src: "{{ lookup('env', 'HOME') }}/.deploy/{{ local_settings_path }}"
     dest: "{{ deploy }}/{{ djangoapp }}/local_settings.py"
-  delegate_to: '{{ inventory_hostname }}'
 - name: Run ./manage.py collectstatic
   django_manage:
     command: collectstatic
