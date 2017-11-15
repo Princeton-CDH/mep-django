@@ -8,6 +8,16 @@ Architecture
 Database
 --------
 
+0.2 Updates
+^^^^^^^^^^^
+
+The overall architectures of the schema remains the same, but several fields were
+made less restrictive to accommodate variation in the Logbook data. These include:
+
+- Reimbursement price (now optional)
+- Subscribe duration
+- Options were provided for Subscribe sub_type fields, as well as for modification.
+
 
 Initial Schema (Version 004)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
