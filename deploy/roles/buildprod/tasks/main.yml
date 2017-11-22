@@ -37,11 +37,3 @@
     owner: deploy
     group: apache
     mode: 0770
-- name: Set ownership recursively
-  file:
-    path: "{{ deploy }}"
-    state: directory
-    owner: deploy
-    group: apache
-    recurse: yes
-  ignore_errors: true
