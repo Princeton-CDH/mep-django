@@ -3,17 +3,12 @@
       path: "{{ deploy }}/env"
       state: directory
       mode: "u+rwx,g+rwx,o-rw"
-- name: Build a virtualenvironment
-  command: "virtualenv env"
-  args:
-    chdir: '{{ deploy }}'
-    # Not 100% reliable, but close enough to check
-    creates: "{{ deploy}}/env"
 - name: Upgrade pip to latest in virtualenv
   pip:
     name: pip
     state: latest
     virtualenv: "{{ deploy }}/env"
+    virtualenv_site_packages: yes
   ignore_errors: true
 - name: Set perms
   file:
@@ -24,6 +19,8 @@
   pip:
     virtualenv: "{{ deploy }}/env"
     requirements: "{{ deploy }}/requirements.txt"
+    virtualenv_site_packages: yes
+
 - name: Install local_settings.py
   copy:
     src: "{{ lookup('env', 'HOME') }}/.deploy/{{ local_settings_path }}"
