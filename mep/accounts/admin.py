@@ -138,7 +138,8 @@ class AccountAddressInlineForm(forms.ModelForm):
                     url='people:autocomplete',
                     attrs={
                         'data-placeholder': ('Type to search for people...'),
-                        'data-minimum-input-length': 3
+                        'data-minimum-input-length': 3,
+                        'data-html': True
                     }
                 ),
         }
@@ -161,7 +162,8 @@ class AccountAdminForm(forms.ModelForm):
                 url='people:autocomplete',
                 attrs={
                     'data-placeholder': ('Type to search for people...'),
-                    'data-minimum-input-length': 3
+                    'data-minimum-input-length': 3,
+                    'data-html': True
                 }
             ),
         }

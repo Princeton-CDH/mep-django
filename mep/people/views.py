@@ -1,7 +1,9 @@
 from django.db.models import Q
 from django.http import JsonResponse
+from django.utils.html import format_html
 from dal import autocomplete
 
+from mep.accounts.models import Event
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Address, Country, Person
 
@@ -54,6 +56,45 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
     Basic person autocomplete lookup, for use with django-autocomplete-light.
     Use Q objects to help distinguish people using mepid.
     '''
+    def get_result_label(self, person):
+        '''Provide a more result label for the people autocomplete that can
+        help disambiguate people'''
+        # Fields that will be formatted before interpolation
+        bio_dates = ''
+        note_string = ''
+        mep_id = ''
+        # title and name, stripped in case title is absent so no stray space
+        main_string = ('%s %s' % (person.title, person.name)).strip()
+        # format birth-death in a familiar pattern
+        if person.birth_year or person.death_year:
+            bio_dates = ' (%s - %s)' % (person.birth_year, person.death_year)
+        # get the first few words of any notes
+        if person.notes:
+            list_notes = person.notes.split()
+            note_string = ' '.join(list_notes[:5])
+        if person.mep_id:
+            # padding id with a space so that it looks nice in the formatted
+            # html
+            mep_id = ' %s' % mep_id
+
+        # in situations where there are none of these, pull their first event
+        if not bio_dates or note_string or mep_id:
+            # if the person has an account get its first event
+            if person.account_set.first():
+                event = Event.objects.filter(
+                        account=person.account_set.first()
+                    ).first()
+                # if it has a first event (not all do), return that event
+                if event:
+                    return format_html(
+                            '<strong>{}</strong><br />{} {}', main_string,
+                            event.start_date, event.event_type
+                        )
+            return format_html('<strong>{}</strong>', main_string)
+        return format_html(
+                    '<strong>{}{}</strong><br>{}{}'.strip(),
+                    main_string, bio_dates, mep_id, note_string
+                )
 
     def get_queryset(self):
         return Person.objects.filter(
