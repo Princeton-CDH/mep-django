@@ -78,7 +78,7 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
             mep_id = ' %s' % mep_id
 
         # in situations where there are none of these, pull their first event
-        if not bio_dates or note_string or mep_id:
+        if not bio_dates and not note_string and not mep_id:
             # if the person has an account get its first event
             if person.account_set.first():
                 event = Event.objects.filter(
