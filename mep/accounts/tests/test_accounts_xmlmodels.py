@@ -83,7 +83,7 @@ class TestEvent(TestCase):
 
         # check a subscription that should have a subclass
         # there should be one in the fixture and its mep_id should be declos
-        declos = Subscribe.objects.filter(sub_type=Subscribe.ADL)[0]
+        declos = Subscribe.objects.filter(category__name='AdL').first()
         assert declos
         assert declos.account.persons.first().mep_id == 'desc.au'
 
@@ -188,50 +188,50 @@ class TestEvent(TestCase):
         # - add sub_type
         monbrial.sub_type = 'A.d.c'
         monbrial._set_subtype()
-        assert monbrial.common_dict['sub_type'] == Subscribe.OTHER
+        assert monbrial.common_dict['category'].name == 'Other'
 
         # - test sub_types comprehensively using variations from the MEP report
         stu = ['(stud.)', 'Student', '(Stud)', 'st', 'St.', '/ Stud/']
         for var in stu:
             monbrial.sub_type = var
             monbrial._set_subtype()
-            assert monbrial.common_dict['sub_type'] == Subscribe.STU
+            assert monbrial.common_dict['category'].name == 'Student'
 
         prof = ['Professor', 'Prof', 'Pr', '(Prof.)']
         for var in prof:
             monbrial.sub_type = var
             monbrial._set_subtype()
-            assert monbrial.common_dict['sub_type'] == Subscribe.PROF
+            assert monbrial.common_dict['category'].name == 'Professor'
 
         a = ['A', 'A.', 'a']
         for var in a:
             monbrial.sub_type = var
             monbrial._set_subtype()
-            assert monbrial.common_dict['sub_type'] == Subscribe.A
+            assert monbrial.common_dict['category'].name == 'A'
 
         b = ['B', 'B.', 'b']
         for var in b:
             monbrial.sub_type = var
             monbrial._set_subtype()
-            assert monbrial.common_dict['sub_type'] == Subscribe.B
+            assert monbrial.common_dict['category'].name == 'B'
 
         ab = ['B+A', 'A + B', 'B + A', 'a and b', 'A and B']
         for var in ab:
             monbrial.sub_type = var
             monbrial._set_subtype()
-            assert monbrial.common_dict['sub_type'] == Subscribe.A_B
+            assert monbrial.common_dict['category'].name == 'A+B'
 
         adl = ['A.des.l', 'ADL', 'A. d. L.', 'AdL']
         for var in adl:
             monbrial.sub_type = var
             monbrial._set_subtype()
-            assert monbrial.common_dict['sub_type'] == Subscribe.ADL
+            assert monbrial.common_dict['category'].name == 'AdL'
 
         other = ['D.D.', 'A.S.L', 'foo', 'bar']
         for var in other:
             monbrial.sub_type = var
             monbrial._set_subtype()
-            assert monbrial.common_dict['sub_type'] == Subscribe.OTHER
+            assert monbrial.common_dict['category'].name == 'Other'
             assert 'Unrecognized subscription type: %s' % var \
                 in monbrial.common_dict['notes']
 

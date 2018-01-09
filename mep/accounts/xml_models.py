@@ -1,8 +1,11 @@
 # coding=utf-8
-import pendulum
 import re
+
+from cached_property import cached_property
 from eulxml import xmlmap
-from mep.accounts.models import Account, Subscribe
+import pendulum
+
+from mep.accounts.models import Account, Subscribe, SubscriptionType
 from mep.people.models import Person
 
 
@@ -148,6 +151,26 @@ class XmlEvent(TeiXmlObject):
             account.save()
         return (etype, person, account)
 
+    # subscription type lookup
+    @cached_property
+    def subscription_type(self):
+        subscription_type = {
+            'adl': SubscriptionType.objects.get(name='AdL'),
+            'stu': SubscriptionType.objects.get(name='Student'),
+            'pr': SubscriptionType.objects.get(name='Professor'),
+            'a': SubscriptionType.objects.get(name='A'),
+            'b': SubscriptionType.objects.get(name='B'),
+            'ab': SubscriptionType.objects.get(name='A+B'),
+            'other': SubscriptionType.objects.get(name='Other'),
+        }
+        # variant codes that map to above types
+        subscription_type['ade'] = subscription_type['adl']
+        subscription_type['st'] = subscription_type['stu']
+        subscription_type['pro'] = subscription_type['pr']
+        # NOTE: Assuming that B + A = A + B for subscription purposes
+        subscription_type['ba'] = subscription_type['ab']
+        return subscription_type
+
     def _set_subtype(self):
         '''Parse the subtype field for :class:`mep.accounts.models.Subscribe`
         objects from XML to database'''
@@ -156,24 +179,11 @@ class XmlEvent(TeiXmlObject):
             # strip periods, parentheses, caps, the word 'and' for ease of
             # sort, lower, and return three letters
             sub_norm = re.sub(r'[.()/\\+\s]|and', '', sub_type.lower())[0:3]
-            # mapping for types
-            type_map = {
-                'adl': Subscribe.ADL,
-                'ade': Subscribe.ADL,  # grab A.des. L. and variants
-                'stu': Subscribe.STU,
-                'st': Subscribe.STU,
-                'pr': Subscribe.PROF,
-                'pro': Subscribe.PROF,
-                'a': Subscribe.A,
-                'b': Subscribe.B,
-                'ab': Subscribe.A_B,
-                # NOTE: Assuming that B + A = A + B for subscription purposes
-                'ba': Subscribe.A_B
-            }
-            if sub_norm in type_map:
-                self.common_dict['sub_type'] = type_map[sub_norm]
+
+            if sub_norm in self.subscription_type:
+                self.common_dict['category'] = self.subscription_type[sub_norm]
             else:
-                self.common_dict['sub_type'] = Subscribe.OTHER
+                self.common_dict['category'] = self.subscription_type['other']
                 self.common_dict['notes'] += ('Unrecognized subscription type:'
                                               ' %s\n' % sub_type.strip())
 
