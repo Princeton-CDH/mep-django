@@ -3,8 +3,8 @@ from django.contrib import admin
 from django import forms
 
 from mep.accounts.models import Account, AccountAddress, Subscribe,\
-    Reimbursement, Event
-from mep.common.admin import CollapsedTabularInline
+    Reimbursement, Event, SubscriptionType
+from mep.common.admin import CollapsedTabularInline, NamedNotableAdmin
 
 
 class EventAdminForm(forms.ModelForm):
@@ -193,7 +193,12 @@ class AccountAdmin(admin.ModelAdmin):
     inlines = [AccountAddressInline, SubscribeInline, ReimbursementInline]
 
 
+class SubscriptionTypeAdmin(NamedNotableAdmin):
+    list_display = ('name', 'notes')
+
+
 admin.site.register(Subscribe, SubscribeAdmin)
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Reimbursement, ReimbursementAdmin)
 admin.site.register(Event, EventAdmin)
+admin.site.register(SubscriptionType, SubscriptionTypeAdmin)
