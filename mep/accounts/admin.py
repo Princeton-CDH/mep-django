@@ -88,8 +88,8 @@ class SubscriptionAdmin(admin.ModelAdmin):
                     'volumes', 'price_paid', 'deposit', 'currency')
     list_filter = ('category', 'subtype', 'currency')
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
-    fields = ('account', 'category', 'subtype', 'duration', 'start_date',
-              'end_date', 'volumes', 'price_paid', 'deposit', 'currency', 'notes')
+    fields = ('account', ('start_date', 'end_date'), 'subtype', 'category',
+              'duration', 'volumes', 'deposit', 'price_paid', 'currency', 'notes')
 
 
 class ReimbursementInline(CollapsedTabularInline):
@@ -103,8 +103,8 @@ class SubscriptionInline(CollapsedTabularInline):
     model = Subscription
     form = SubscriptionAdminForm
     extra = 1
-    fields = ('category', 'subtype', 'duration', 'start_date', 'end_date', 'volumes', 'price_paid', 'deposit',
-              'currency', 'notes')
+    fields = ('start_date', 'end_date', 'subtype', 'category', 'duration',
+              'volumes', 'deposit', 'price_paid', 'currency', 'notes')
 
 
 class AccountAddressInlineForm(forms.ModelForm):
