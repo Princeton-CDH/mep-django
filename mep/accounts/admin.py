@@ -83,12 +83,12 @@ class SubscribeAdmin(admin.ModelAdmin):
     model = Subscribe
     form = SubscribeAdminForm
     date_hierarchy = 'start_date'
-    list_display = ('account', 'sub_type', 'modification',
+    list_display = ('account',  'category', 'modification',
                     'duration', 'start_date', 'end_date',
                     'volumes', 'price_paid', 'deposit', 'currency')
-    list_filter = ('sub_type', 'modification', 'currency')
+    list_filter = ('category', 'modification', 'currency')
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
-    fields = ('account', 'sub_type', 'modification', 'duration', 'start_date',
+    fields = ('account', 'category', 'modification', 'duration', 'start_date',
               'end_date', 'volumes', 'price_paid', 'deposit', 'currency', 'notes')
 
 
@@ -103,7 +103,7 @@ class SubscribeInline(CollapsedTabularInline):
     model = Subscribe
     form = SubscribeAdminForm
     extra = 1
-    fields = ('sub_type', 'modification', 'duration', 'start_date', 'end_date', 'volumes', 'price_paid', 'deposit',
+    fields = ('category', 'modification', 'duration', 'start_date', 'end_date', 'volumes', 'price_paid', 'deposit',
               'currency', 'notes')
 
 

@@ -1,6 +1,6 @@
 from django.db import models
 
-from mep.common.models import Notable
+from mep.common.models import Named, Notable
 from mep.people.models import Person, Address
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -186,6 +186,10 @@ CURRENCY_CHOICES = (
     (GBP, 'British Pound')
 )
 
+class SubscriptionType(Named, Notable):
+    '''Type of subscription'''
+    pass
+
 
 class Subscribe(Event):
     '''Records subscription events in the MEP database'''
@@ -198,25 +202,9 @@ class Subscribe(Event):
     volumes = models.DecimalField(blank=True, null=True, max_digits=4,
         decimal_places=2,
         help_text='Number of volumes for checkout')
-    A = 'A'
-    B = 'B'
-    A_B = 'A+B'
-    ADL = 'AdL'
-    STU = 'Stu'
-    PROF = 'Prof'
-    OTHER = 'Oth'
+    category = models.ForeignKey(SubscriptionType, null=True, blank=True,
+        help_text='Code to indicate the kind of subscription')
 
-    SUB_TYPE_CHOICES = (
-        (A, 'A'),
-        (B, 'B'),
-        (A_B, 'A+B'),
-        (ADL, 'AdL'),
-        (STU, 'Student'),
-        (PROF, 'Professor'),
-        (OTHER, 'Other')
-    )
-    sub_type = models.CharField(max_length=255, verbose_name='type', blank=True,
-        choices=SUB_TYPE_CHOICES)
     # NOTE: Using decimal field to take advantage of Python's decimal handling
     # Can store up to 99999999.99 -- which is *probably* safe.
     price_paid = models.DecimalField(max_digits=10, decimal_places=2,
