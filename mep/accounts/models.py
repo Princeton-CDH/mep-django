@@ -212,7 +212,8 @@ class Subscription(Event):
         blank=True,
         null=True
     )
-    currency = models.CharField(max_length=3, blank=True, choices=CURRENCY_CHOICES)
+    currency = models.CharField(max_length=3, blank=True, choices=CURRENCY_CHOICES,
+        default=FRF)
 
     SUPPLEMENT = 'sup'
     RENEWAL = 'ren'
@@ -248,7 +249,8 @@ class Purchase(Event):
     currency = models.CharField(
         max_length=3,
         blank=True,
-        choices=CURRENCY_CHOICES
+        choices=CURRENCY_CHOICES,
+        default=FRF
     )
     item = models.ForeignKey('books.Item')
 
@@ -260,5 +262,6 @@ class Reimbursement(Event):
     currency = models.CharField(
         max_length=3,
         blank=True,
-        choices=CURRENCY_CHOICES
+        choices=CURRENCY_CHOICES,
+        default=FRF
     )
