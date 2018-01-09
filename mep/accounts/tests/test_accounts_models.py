@@ -1,7 +1,10 @@
-import pytest
+import datetime
 import re
 
 from django.test import TestCase
+from django.core.validators import ValidationError
+import pytest
+
 from mep.accounts.models import Account, AccountAddress, Address
 from mep.accounts.models import Borrow, Event, Purchase, Reimbursement, \
     Subscription
@@ -177,6 +180,7 @@ class TestSubscription(TestCase):
         self.account = Account.objects.create()
         self.subscription = Subscription.objects.create(
             account=self.account,
+            start_date=datetime.date(1940, 4, 8),
             duration=1,
             volumes=2,
             price_paid=3.20
@@ -191,6 +195,21 @@ class TestSubscription(TestCase):
     def test_str(self):
         assert str(self.subscription) == ('Subscription for account #%s' %
                                        self.subscription.account.pk)
+
+    def test_validate_unique(self):
+        # resaving existing record should not error
+        self.subscription.validate_unique()
+
+        # creating new subscription for same account & date should error
+        with pytest.raises(ValidationError):
+            subscr = Subscription(account=self.account,
+                start_date=self.subscription.start_date)
+            subscr.validate_unique()
+
+        # same account + date with different subtype should be fine
+        subscr = Subscription(account=self.account,
+            start_date=self.subscription.start_date, subtype='ren')
+        subscr.validate_unique()
 
 
 class TestPurchase(TestCase):
@@ -237,6 +256,16 @@ class TestReimbursement(TestCase):
     def test_str(self):
         assert str(self.reimbursement) == ('Reimbursement for account #%s' %
                                            self.reimbursement.account.pk)
+
+    def test_validate_unique(self):
+        # resaving existing record should not error
+        self.reimbursement.validate_unique()
+
+        # creating new reimbursement for same account & date should error
+        with pytest.raises(ValidationError):
+            reimburse = Reimbursement(account=self.account,
+                start_date=self.reimbursement.start_date)
+            reimburse.validate_unique()
 
 
 class TestBorrow(TestCase):

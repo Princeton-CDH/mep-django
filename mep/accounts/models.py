@@ -1,8 +1,10 @@
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import ValidationError
 from django.db import models
 
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Address
-from django.core.exceptions import ObjectDoesNotExist
+
 
 class Account(models.Model):
     '''Central model for all account and related information, M2M explicity to
@@ -229,6 +231,28 @@ class Subscription(Event):
         choices=EVENT_TYPE_CHOICES,
         help_text='Type of subscription event, e.g. supplement or renewal.')
 
+    def validate_unique(self, *args, **kwargs):
+        super(Subscription, self).validate_unique(*args, **kwargs)
+
+        # check to prevent duplicate event
+        # should not have same date + account + event subtype
+        # (can't use unique_together because of multi-table inheritance)
+
+        # adapted from https://stackoverflow.com/questions/7366363/adding-custom-django-model-validation
+        qs = Subscription.objects.filter(start_date=self.start_date,
+            account=self.account, subtype=self.subtype)
+
+        # if current item is already saved, exclude it from the queryset
+        if not self._state.adding and self.pk is not None:
+            qs = qs.exclude(pk=self.pk)
+
+        if qs.exists():
+            raise ValidationError('Subscription event is not unique')
+
+
+
+USD = 'USD'
+
 
 class Borrow(Event):
     '''Inherited table indicating borrow events'''
@@ -265,3 +289,19 @@ class Reimbursement(Event):
         choices=CURRENCY_CHOICES,
         default=FRF
     )
+
+    def validate_unique(self, *args, **kwargs):
+        super(Reimbursement, self).validate_unique(*args, **kwargs)
+
+        # check to prevent duplicate event (reimbursement + date + account)
+        # should not have same date + account
+
+        qs = Reimbursement.objects.filter(start_date=self.start_date,
+            account=self.account)
+
+        # if current item is already saved, exclude it from the queryset
+        if not self._state.adding and self.pk is not None:
+            qs = qs.exclude(pk=self.pk)
+
+        if qs.exists():
+            raise ValidationError('Reimbursement event is not unique')
