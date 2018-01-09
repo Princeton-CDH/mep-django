@@ -61,7 +61,8 @@ class TestPeopleViews(TestCase):
         assert result.status_code == 200
         # decode response to inspect
         data = json.loads(result.content.decode('utf-8'))
-        assert data['results'][0]['text'] == 'Sylvia Beach'
+        assert 'Sylvia Beach' in data['results'][0]['text']
+        # TODO: test for other content that is now included in the result
 
         # no match - shouldn't error
         result = self.client.get(pub_autocomplete_url, {'q': 'beauvoir'})
@@ -78,8 +79,8 @@ class TestPeopleViews(TestCase):
         # decode response to inspect
         data = json.loads(result.content.decode('utf-8'))
         assert len(data['results']) == 2
-        assert data['results'][0]['text'] == 'Sylvia Beach'
-        assert data['results'][1]['text'] == 'Ms. Sylvia'
+        assert 'Sylvia Beach' in data['results'][0]['text']
+        assert 'Ms. Sylvia' in data['results'][1]['text']
 
         # search by mep id, should return just Sylvia Beach
         result = self.client.get(pub_autocomplete_url, {'q': 'sylv.'})
@@ -87,7 +88,7 @@ class TestPeopleViews(TestCase):
         # decode response to inspect
         data = json.loads(result.content.decode('utf-8'))
         assert len(data['results']) == 1
-        assert data['results'][0]['text'] == 'Sylvia Beach'
+        assert 'Sylvia Beach' in data['results'][0]['text']
 
     def test_person_admin_change(self):
         # create user with permission to load admin edit form
