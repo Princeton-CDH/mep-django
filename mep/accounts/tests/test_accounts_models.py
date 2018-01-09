@@ -3,7 +3,8 @@ import re
 
 from django.test import TestCase
 from mep.accounts.models import Account, AccountAddress, Address
-from mep.accounts.models import Borrow, Event, Purchase, Reimbursement, Subscribe
+from mep.accounts.models import Borrow, Event, Purchase, Reimbursement, \
+    Subscription
 from mep.books.models import Item
 from mep.people.models import Address, Person
 
@@ -57,7 +58,7 @@ class TestAccount(TestCase):
         account = Account.objects.create()
         account.add_event('reimbursement', **{'price': 2.32})
         account.add_event(
-            'subscribe',
+            'subscription',
             **{'duration': 1, 'volumes': 2, 'price_paid': 4.56}
         )
 
@@ -144,23 +145,23 @@ class TestEvent(TestCase):
 
     def test_event_type(self):
         assert self.event.event_type == 'Generic'
-        # Create a subscribe and check its generic event type
-        subscribe = Subscribe.objects.create(
+        # Create a subscription and check its generic event type
+        subscription = Subscription.objects.create(
                 account=self.account,
                 duration=1,
                 volumes=2,
                 price_paid=3.20
         )
-        # subscribe, not otherwise specified
-        assert subscribe.event_ptr.event_type == 'Subscribe'
-        # subscribe labeled as a supplement
-        subscribe.modification = Subscribe.SUPPLEMENT
-        subscribe.save()
-        assert subscribe.event_ptr.event_type == 'Supplement'
-        # subscribe labeled as a renewal
-        subscribe.modification = Subscribe.RENEWAL
-        subscribe.save()
-        assert subscribe.event_ptr.event_type == 'Renewal'
+        # subscriptio, not otherwise specified
+        assert subscription.event_ptr.event_type == 'Subscription'
+        # subscription labeled as a supplement
+        subscription.subtype = Subscription.SUPPLEMENT
+        subscription.save()
+        assert subscription.event_ptr.event_type == 'Supplement'
+        # subscription labeled as a renewal
+        subscription.subtype = Subscription.RENEWAL
+        subscription.save()
+        assert subscription.event_ptr.event_type == 'Renewal'
 
         # Create a reimbursement check its event type
         reimbursement = Reimbursement.objects.create(
@@ -170,11 +171,11 @@ class TestEvent(TestCase):
         )
         assert reimbursement.event_ptr.event_type == 'Reimbursement'
 
-class TestSubscribe(TestCase):
+class TestSubscription(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
-        self.subscribe = Subscribe.objects.create(
+        self.subscription = Subscription.objects.create(
             account=self.account,
             duration=1,
             volumes=2,
@@ -184,12 +185,12 @@ class TestSubscribe(TestCase):
     def test_repr(self):
         # Using self.__dict__ so relying on method being correct
         # Testing for form of "<Account {"k":v, ...}>"
-        overall = re.compile(r"<Subscribe \{.+\}>")
-        assert re.search(overall, repr(self.subscribe))
+        overall = re.compile(r"<Subscription \{.+\}>")
+        assert re.search(overall, repr(self.subscription))
 
     def test_str(self):
-        assert str(self.subscribe) == ('Subscribe for account #%s' %
-                                       self.subscribe.account.pk)
+        assert str(self.subscription) == ('Subscription for account #%s' %
+                                       self.subscription.account.pk)
 
 
 class TestPurchase(TestCase):

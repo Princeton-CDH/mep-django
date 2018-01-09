@@ -5,7 +5,7 @@ from cached_property import cached_property
 from eulxml import xmlmap
 import pendulum
 
-from mep.accounts.models import Account, Subscribe, SubscriptionType
+from mep.accounts.models import Account, Subscription, SubscriptionType
 from mep.people.models import Person
 
 
@@ -96,11 +96,11 @@ class XmlEvent(TeiXmlObject):
 
         # Map xml events to class names for use with add_event()
         xml_db_mapping = {
-            'subscription': 'subscribe',
-            'supplement': 'subscribe',
+            'subscription': 'subscription',
+            'supplement': 'subscription',
             'reimbursement': 'reimbursement',
             'borrow': 'borrow',
-            'renewal': 'subscribe',
+            'renewal': 'subscription',
             'overdue': 'event',
         }
 
@@ -172,7 +172,7 @@ class XmlEvent(TeiXmlObject):
         return subscription_type
 
     def _set_subtype(self):
-        '''Parse the subtype field for :class:`mep.accounts.models.Subscribe`
+        '''Parse the subtype field for :class:`mep.accounts.models.Subscription`
         objects from XML to database'''
         sub_type = self.sub_type
         if sub_type:
@@ -187,11 +187,11 @@ class XmlEvent(TeiXmlObject):
                 self.common_dict['notes'] += ('Unrecognized subscription type:'
                                               ' %s\n' % sub_type.strip())
 
-    def _parse_subscribe(self):
+    def _parse_subscription(self):
         '''Parse fields from a dictionary for
-        :class:`mep.accounts.models.Subscribe` and its sub modifications.'''
+        :class:`mep.accounts.models.Subscription` and its variant types.'''
 
-        # set fields common to Subscribe variants
+        # set fields common to Subscription variants
         self.common_dict['volumes'] = self.frequency.quantity \
             if self.frequency else None
         self.common_dict['price_paid'] = self.price.quantity \
@@ -206,7 +206,7 @@ class XmlEvent(TeiXmlObject):
                  not self.common_dict['volumes']):
 
             self.common_dict['notes'] += (
-                'Subscribe missing data:\n'
+                'Subscription missing data:\n'
                 'Duration: %s\n'
                 'Volumes: %s\n'
                 'Price Paid: %s\n'
@@ -218,12 +218,12 @@ class XmlEvent(TeiXmlObject):
                    self.common_dict['start_date'])
             )
 
-        # set modification for supplement and renewal types
+        # set type for supplement and renewal types
         if self.e_type == 'supplement':
-            self.common_dict['modification'] = Subscribe.SUPPLEMENT
+            self.common_dict['subtype'] = Subscription.SUPPLEMENT
 
         if self.e_type == 'renewal':
-            self.common_dict['modification'] = Subscribe.RENEWAL
+            self.common_dict['subtype'] = Subscription.RENEWAL
 
         # set subtype of subscription
         self._set_subtype()
@@ -242,9 +242,10 @@ class XmlEvent(TeiXmlObject):
         # normalize the event and prepare Account and Person objs
         etype, person, account = self._prepare_db_objects()
         # This database type encompasses supplements and renewals
-        # Handling is complicated and parsed out to _parse_subscribe
-        if etype == 'subscribe':
-            self._parse_subscribe()
+        # Handling is complicated and parsed out to _parse_subscription
+        print('etype %s' % etype)
+        if etype == 'subscription':
+            self._parse_subscription()
        # Reimbursement is a subclass that doesn't warrant its own
        # private function
         if etype == 'reimbursement':
@@ -271,7 +272,7 @@ class XmlEvent(TeiXmlObject):
             self.common_dict['currency'] = None
             self.common_dict['duration'] = None
 
-        # drop blank keys from dict to avoid passing a bad kwarg to a model
+        # drop blank values from dict to avoid passing a bad kwarg to a model
         account.add_event(etype, **{key: value
                           for key, value in self.common_dict.items() if value})
 

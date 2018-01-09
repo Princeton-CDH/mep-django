@@ -2,7 +2,7 @@ from dal import autocomplete
 from django.contrib import admin
 from django import forms
 
-from mep.accounts.models import Account, AccountAddress, Subscribe,\
+from mep.accounts.models import Account, AccountAddress, Subscription,\
     Reimbursement, Event, SubscriptionType
 from mep.common.admin import CollapsedTabularInline, NamedNotableAdmin
 
@@ -28,10 +28,10 @@ class EventAdminForm(forms.ModelForm):
         }
 
 
-class SubscribeAdminForm(forms.ModelForm):
+class SubscriptionAdminForm(forms.ModelForm):
 
     class Meta:
-        model = Subscribe
+        model = Subscription
         fields = ('__all__')
         help_texts = {
             'account': ('Searches and displays on system assigned '
@@ -79,16 +79,16 @@ class ReimbursementAdmin(admin.ModelAdmin):
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
 
 
-class SubscribeAdmin(admin.ModelAdmin):
-    model = Subscribe
-    form = SubscribeAdminForm
+class SubscriptionAdmin(admin.ModelAdmin):
+    model = Subscription
+    form = SubscriptionAdminForm
     date_hierarchy = 'start_date'
-    list_display = ('account',  'category', 'modification',
+    list_display = ('account',  'category', 'subtype',
                     'duration', 'start_date', 'end_date',
                     'volumes', 'price_paid', 'deposit', 'currency')
-    list_filter = ('category', 'modification', 'currency')
+    list_filter = ('category', 'subtype', 'currency')
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
-    fields = ('account', 'category', 'modification', 'duration', 'start_date',
+    fields = ('account', 'category', 'subtype', 'duration', 'start_date',
               'end_date', 'volumes', 'price_paid', 'deposit', 'currency', 'notes')
 
 
@@ -99,11 +99,11 @@ class ReimbursementInline(CollapsedTabularInline):
     fields = ('price', 'currency', 'start_date', 'end_date', 'notes')
 
 
-class SubscribeInline(CollapsedTabularInline):
-    model = Subscribe
-    form = SubscribeAdminForm
+class SubscriptionInline(CollapsedTabularInline):
+    model = Subscription
+    form = SubscriptionAdminForm
     extra = 1
-    fields = ('category', 'modification', 'duration', 'start_date', 'end_date', 'volumes', 'price_paid', 'deposit',
+    fields = ('category', 'subtype', 'duration', 'start_date', 'end_date', 'volumes', 'price_paid', 'deposit',
               'currency', 'notes')
 
 
@@ -171,7 +171,7 @@ class AccountAdminForm(forms.ModelForm):
 
 class EventAdmin(admin.ModelAdmin):
     '''Admin interface for the generic Events that underlie other subclasses
-    such as Subscribe and Reimbursment'''
+    such as Subscription and Reimbursment'''
     model = Event
     form = EventAdminForm
     date_hierarchy = 'start_date'
@@ -190,14 +190,14 @@ class AccountAdmin(admin.ModelAdmin):
                      'accountaddress__address__name',
                      'accountaddress__address__country__name', 'persons__name')
     fields = ('persons',)
-    inlines = [AccountAddressInline, SubscribeInline, ReimbursementInline]
+    inlines = [AccountAddressInline, SubscriptionInline, ReimbursementInline]
 
 
 class SubscriptionTypeAdmin(NamedNotableAdmin):
     list_display = ('name', 'notes')
 
 
-admin.site.register(Subscribe, SubscribeAdmin)
+admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Reimbursement, ReimbursementAdmin)
 admin.site.register(Event, EventAdmin)

@@ -68,22 +68,22 @@ class Account(models.Model):
         table inheritence.
 
        :param etype: ``str``
-            One of ``borrow``, ``event``, ``subscribe``,
+            One of ``borrow``, ``event``, ``subscription``,
             ``purchase``, ``reimbursement``
         '''
         # Catch an invalid class of event or subevent
         etype = etype.lower()
-        if etype not in ['borrow', 'event', 'subscribe',
+        if etype not in ['borrow', 'event', 'subscription',
                          'purchase', 'reimbursement']:
             raise ValueError('etype must be one of borrow, event, purchase,'
-                             ' subscribe, or reimbursement')
+                             ' subscription, or reimbursement')
 
         str_to_model = {
             'borrow': Borrow,
             'reimbursement': Reimbursement,
             'event': Event,
             'purchase': Purchase,
-            'subscribe': Subscribe
+            'subscription': Subscription
         }
         str_to_model[etype].objects.create(account=self, **kwargs)
 
@@ -94,7 +94,7 @@ class Account(models.Model):
         table inheritence.
 
         :param etype: ``str``
-            One of ``borrow``, ``event``, ``subscribe``,
+            One of ``borrow``, ``event``, ``subscription``,
             ``purchase``, ``reimbursement``
 
         :Keyword Arguments:
@@ -104,17 +104,17 @@ class Account(models.Model):
         '''
         # Catch an invalid class of event or subevent
         etype = etype.lower()
-        if etype not in ['borrow', 'event', 'subscribe',
+        if etype not in ['borrow', 'event', 'subscription',
                          'purchase', 'reimbursement']:
             raise ValueError('etype must be one of borrow, event, purchase,'
-                             ' subscribe, or reimbursement')
+                             ' subscription, or reimbursement')
 
         str_to_model = {
             'borrow': Borrow,
             'reimbursement': Reimbursement,
             'event': Event,
             'purchase': Purchase,
-            'subscribe': Subscribe
+            'subscription': Subscription
         }
 
         if not kwargs:
@@ -161,10 +161,7 @@ class Event(Notable):
     @property
     def event_type(self):
         try:
-            subscribe = self.subscribe
-            if subscribe.modification:
-                return subscribe.get_modification_display()
-            return 'Subscribe'
+            return self.subscription.get_subtype_display()
         except ObjectDoesNotExist:
             pass
         try:
@@ -191,7 +188,7 @@ class SubscriptionType(Named, Notable):
     pass
 
 
-class Subscribe(Event):
+class Subscription(Event):
     '''Records subscription events in the MEP database'''
     duration = models.DecimalField(
         max_digits=4, decimal_places=2,
@@ -219,18 +216,17 @@ class Subscribe(Event):
 
     SUPPLEMENT = 'sup'
     RENEWAL = 'ren'
+    OTHER = 'oth'
 
-    MODIFICATION_CHOICES = (
-        ('', '----'),
+    EVENT_TYPE_CHOICES = (
+        ('', 'Subscription'),
         (SUPPLEMENT, 'Supplement'),
         (RENEWAL, 'Renewal'),
+        (OTHER, 'Other'),
     )
-    modification = models.CharField(
-        max_length=50,
-        blank=True,
-        choices=MODIFICATION_CHOICES,
-        help_text='Use to indicate supplement or renewal.'
-    )
+    subtype = models.CharField(verbose_name='Type', max_length=50, blank=True,
+        choices=EVENT_TYPE_CHOICES,
+        help_text='Type of subscription event, e.g. supplement or renewal.')
 
 
 class Borrow(Event):
