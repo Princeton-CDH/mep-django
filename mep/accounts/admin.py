@@ -184,7 +184,7 @@ class EventAdmin(admin.ModelAdmin):
     date_hierarchy = 'start_date'
     fields = ('account', 'event_type', 'start_date', 'end_date', 'notes')
     readonly_fields = ('event_type',)
-    list_display = ('account', 'start_date', 'end_date', 'notes', 'event_type')
+    list_display = ('account', 'event_type', 'start_date', 'end_date', 'notes')
     search_fields = ('account__persons__name', 'account__persons__mep_id',
                      'start_date', 'end_date', 'notes')
 
