@@ -151,6 +151,9 @@ class Event(Notable):
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
 
+    class Meta:
+        ordering = ('start_date', 'account__persons__sort_name')
+
     # These provide generic string representation for the Event class
     # and its subclasses
     def __repr__(self):
@@ -248,10 +251,6 @@ class Subscription(Event):
 
         if qs.exists():
             raise ValidationError('Subscription event is not unique')
-
-
-
-USD = 'USD'
 
 
 class Borrow(Event):
