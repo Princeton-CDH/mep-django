@@ -4,7 +4,8 @@ from django import forms
 
 from mep.accounts.models import Account, AccountAddress, Subscription,\
     Reimbursement, Event, SubscriptionType
-from mep.common.admin import CollapsedTabularInline, NamedNotableAdmin
+from mep.common.admin import NamedNotableAdmin, CollapsedTabularInline, \
+    CollapsibleTabularInline
 
 
 class EventAdminForm(forms.ModelForm):
@@ -62,7 +63,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
               'duration', 'volumes', 'deposit', 'price_paid', 'currency', 'notes')
 
 
-class SubscriptionInline(CollapsedTabularInline):
+class SubscriptionInline(CollapsibleTabularInline):
     model = Subscription
     form = SubscriptionAdminForm
     extra = 1
@@ -106,7 +107,7 @@ class ReimbursementAdmin(admin.ModelAdmin):
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
 
 
-class ReimbursementInline(CollapsedTabularInline):
+class ReimbursementInline(CollapsibleTabularInline):
     model = Reimbursement
     form = ReimbursementAdminForm
     extra = 1
