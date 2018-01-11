@@ -101,31 +101,35 @@ class RelationshipInline(CollapsedTabularInline):
 
 class PersonAdminForm(forms.ModelForm):
     '''Custom model form for Person editing; used to add VIAF lookup'''
+
     class Meta:
         model = Person
         fields = ('__all__')
         widgets = {
-                'viaf_id': ViafWidget(
-                    url='viaf:person-search',
-                    attrs={
-                        'data-placeholder': 'Type name or id to search VIAF',
-                        'data-minimum-input-length': 3
-                    }
-                ),
-                'nationalities': autocomplete.ModelSelect2Multiple(
-                    url='people:country-autocomplete',
-                    attrs={
-                        'data-placeholder': ('Type a country name to search... '),
-                        'data-minimum-input-length': 3
-                    }
-                ),
-                'addresses': autocomplete.ModelSelect2Multiple(
-                    url='people:address-autocomplete',
-                    attrs={
-                        'data-placeholder': ('Type to search address data... '),
-                        'data-minimum-input-length': 3
-                    }
-                )
+            'viaf_id': ViafWidget(
+                url='viaf:person-search',
+                attrs={
+                    'data-placeholder': 'Type name or id to search VIAF',
+                    'data-minimum-input-length': 3
+                }
+            ),
+            'nationalities': autocomplete.ModelSelect2Multiple(
+                url='people:country-autocomplete',
+                attrs={
+                    'data-placeholder': ('Type a country name to search... '),
+                    'data-minimum-input-length': 3
+                }
+            ),
+            'addresses': autocomplete.ModelSelect2Multiple(
+                url='people:address-autocomplete',
+                attrs={
+                    'data-placeholder': ('Type to search address data... '),
+                    'data-minimum-input-length': 3
+                }
+            ),
+            # special css class to use prepopulate but opt out of slugify
+            'sort_name': forms.TextInput(attrs={'class': 'prepopulate-noslug'}),
+
         }
 
 
@@ -145,6 +149,12 @@ class PersonAdmin(admin.ModelAdmin):
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = ('sex', 'profession', 'nationalities')
     inlines = [InfoURLInline, RelationshipInline, FootnoteInline]
+
+    # by default, set sort name from name for those cases where
+    # only one name is known and they are the same
+    prepopulated_fields = {"sort_name": ("name",)}
+    # NOTE: using a locally customized version of django's prepopulate.js
+    # to allow using the prepopulate behavior without slugifying the value
 
     class Media:
         js = ['admin/viaf-lookup.js']
