@@ -177,28 +177,36 @@ class Event(Notable):
         return 'Generic'
 
 
-USD = 'USD'
-FRF = 'FRF'
-GBP = 'GBP'
-# NOTE: Tentative set for testing
-CURRENCY_CHOICES = (
-    ('', '----'),
-    (USD, 'US Dollar'),
-    (FRF, 'French Franc'),
-    (GBP, 'British Pound')
-)
-
 class SubscriptionType(Named, Notable):
     '''Type of subscription'''
     pass
 
-class CurrencyMixin(object):
-    '''Mixin for currency symbol display'''
+
+class CurrencyMixin(models.Model):
+    '''Mixin for currency field with currency symbol display'''
+
+    USD = 'USD'
+    FRF = 'FRF'
+    GBP = 'GBP'
+    # NOTE: Preliminary currency set for now
+    CURRENCY_CHOICES = (
+        ('', '----'),
+        (USD, 'US Dollar'),
+        (FRF, 'French Franc'),
+        (GBP, 'British Pound')
+    )
+
     symbols = {
         FRF: '₣',
         USD: '$',
         GBP: '£'
     }
+
+    currency = models.CharField(max_length=3, blank=True,
+        choices=CURRENCY_CHOICES, default=FRF)
+
+    class Meta:
+        abstract = True
 
     def currency_symbol(self):
         return self.symbols.get(self.currency, self.currency)
@@ -231,8 +239,6 @@ class Subscription(Event, CurrencyMixin):
         blank=True,
         null=True
     )
-    currency = models.CharField(max_length=3, blank=True, choices=CURRENCY_CHOICES,
-        default=FRF)
 
     SUPPLEMENT = 'sup'
     RENEWAL = 'ren'
@@ -280,15 +286,9 @@ class Borrow(Event):
     )
 
 
-class Purchase(Event):
+class Purchase(Event, CurrencyMixin):
     '''Inherited table indicating purchase events'''
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    currency = models.CharField(
-        max_length=3,
-        blank=True,
-        choices=CURRENCY_CHOICES,
-        default=FRF
-    )
     item = models.ForeignKey('books.Item')
 
 
@@ -296,12 +296,6 @@ class Reimbursement(Event, CurrencyMixin):
     '''Inherited table indicating reimbursement events'''
     price = models.DecimalField(max_digits=8, decimal_places=2, null=True,
         blank=True)
-    currency = models.CharField(
-        max_length=3,
-        blank=True,
-        choices=CURRENCY_CHOICES,
-        default=FRF
-    )
 
     def validate_unique(self, *args, **kwargs):
         super(Reimbursement, self).validate_unique(*args, **kwargs)

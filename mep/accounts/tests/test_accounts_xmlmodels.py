@@ -4,7 +4,8 @@ import os
 from django.test import TestCase
 
 from mep.accounts.xml_models import LogBook, XmlEvent, Measure
-from mep.accounts.models import Event, Subscription, Reimbursement, FRF, Account
+from mep.accounts.models import Event, Subscription, Reimbursement, Account, \
+    CurrencyMixin
 from mep.people.models import Person
 
 
@@ -60,7 +61,7 @@ class TestEvent(TestCase):
         assert monbrial.start_date == datetime.date(1921, 1, 5)
         assert monbrial.end_date == datetime.date(1921, 4, 5)
         assert monbrial.duration == 3
-        assert monbrial.currency == FRF
+        assert monbrial.currency == CurrencyMixin.FRF
         assert monbrial.deposit == 7
         assert monbrial.price_paid == 16
 
@@ -69,12 +70,12 @@ class TestEvent(TestCase):
         assert kunst.start_date == datetime.date(1921, 1, 5)
         # no duration, no end date
         assert not kunst.end_date
-        assert kunst.currency == FRF
+        assert kunst.currency == CurrencyMixin.FRF
         assert kunst.price == 200
 
         # check reimbursements that use <measure type="reimbursement" ... >
         burning = Reimbursement.objects.get(account__persons__mep_id__icontains='burning')
-        assert burning.currency == FRF
+        assert burning.currency == CurrencyMixin.FRF
         assert burning.price == 50
 
         # make sure a missing price is noted
@@ -117,7 +118,7 @@ class TestEvent(TestCase):
         # should have set type for django database
         assert etype == 'subscription'
         assert monbrial.common_dict == {
-            'currency': FRF,
+            'currency': CurrencyMixin.FRF,
             'notes': '',
             'duration': 3,
             'start_date': datetime.date(1921, 1, 5),

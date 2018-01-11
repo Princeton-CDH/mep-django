@@ -85,7 +85,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
     date_hierarchy = 'start_date'
     list_display = ('account',  'category', 'subtype',
                     'duration', 'start_date', 'end_date',
-                    'volumes', 'price_paid', 'deposit', 'currency')
+                    'volumes', 'price_paid', 'deposit', 'currency_symbol')
     list_filter = ('category', 'subtype', 'currency')
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
     fields = ('account', ('start_date', 'end_date'), 'subtype', 'category',

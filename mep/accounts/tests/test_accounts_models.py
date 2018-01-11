@@ -8,7 +8,7 @@ import pytest
 
 from mep.accounts.models import Account, AccountAddress, Address
 from mep.accounts.models import Borrow, Event, Purchase, Reimbursement, \
-    Subscription, CurrencyMixin, CURRENCY_CHOICES, FRF, GBP, USD
+    Subscription, CurrencyMixin
 from mep.books.models import Item
 from mep.people.models import Address, Person
 
@@ -293,23 +293,26 @@ class TestBorrow(TestCase):
 class TestCurrencyMixin(TestCase):
 
     # create test currency model to test mixin behavior
-    class CurrencyObject(models.Model, CurrencyMixin):
-        currency = models.CharField(max_length=3, blank=True,
-                choices=CURRENCY_CHOICES)
+    class CurrencyObject(CurrencyMixin):
 
         class Meta:
             abstract = True
 
     def test_currency_symbol(self):
         coin = self.CurrencyObject()
-        assert coin.currency_symbol() == ''
-
-        coin.currency = FRF
+        # default value is Franc
         assert coin.currency_symbol() == '₣'
 
-        coin.currency = USD
+        coin.currency = CurrencyMixin.USD
         assert coin.currency_symbol() == '$'
 
-        coin.currency = GBP
+        coin.currency = CurrencyMixin.GBP
         assert coin.currency_symbol() == '£'
 
+        coin.currency = ''
+        assert coin.currency_symbol() == ''
+
+        # not a valid choice, but test fallback display behavior
+        # when symbol is not known
+        coin.currency = 'foo'
+        assert coin.currency_symbol() == 'foo'
