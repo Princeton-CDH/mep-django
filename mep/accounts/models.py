@@ -294,7 +294,7 @@ class Purchase(Event, CurrencyMixin):
 
 class Reimbursement(Event, CurrencyMixin):
     '''Inherited table indicating reimbursement events'''
-    price = models.DecimalField(max_digits=8, decimal_places=2, null=True,
+    refund = models.DecimalField(max_digits=8, decimal_places=2, null=True,
         blank=True)
 
     def validate_unique(self, *args, **kwargs):
