@@ -1,13 +1,14 @@
 import datetime
 import re
 
-from django.test import TestCase
 from django.core.validators import ValidationError
+from django.db import models
+from django.test import TestCase
 import pytest
 
 from mep.accounts.models import Account, AccountAddress, Address
 from mep.accounts.models import Borrow, Event, Purchase, Reimbursement, \
-    Subscription
+    Subscription, CurrencyMixin, CURRENCY_CHOICES, FRF, GBP, USD
 from mep.books.models import Item
 from mep.people.models import Address, Person
 
@@ -268,6 +269,8 @@ class TestReimbursement(TestCase):
             reimburse.validate_unique()
 
 
+
+
 class TestBorrow(TestCase):
 
     def setUp(self):
@@ -285,3 +288,28 @@ class TestBorrow(TestCase):
     def test_str(self):
         assert str(self.borrow) == ('Borrow for account #%s' %
                                     self.borrow.account.pk)
+
+
+class TestCurrencyMixin(TestCase):
+
+    # create test currency model to test mixin behavior
+    class CurrencyObject(models.Model, CurrencyMixin):
+        currency = models.CharField(max_length=3, blank=True,
+                choices=CURRENCY_CHOICES)
+
+        class Meta:
+            abstract = True
+
+    def test_currency_symbol(self):
+        coin = self.CurrencyObject()
+        assert coin.currency_symbol() == ''
+
+        coin.currency = FRF
+        assert coin.currency_symbol() == '₣'
+
+        coin.currency = USD
+        assert coin.currency_symbol() == '$'
+
+        coin.currency = GBP
+        assert coin.currency_symbol() == '£'
+

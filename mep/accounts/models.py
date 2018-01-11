@@ -192,8 +192,22 @@ class SubscriptionType(Named, Notable):
     '''Type of subscription'''
     pass
 
+class CurrencyMixin(object):
+    '''Mixin for currency symbol display'''
+    symbols = {
+        FRF: '₣',
+        USD: '$',
+        GBP: '£'
+    }
 
-class Subscription(Event):
+    def currency_symbol(self):
+        return self.symbols.get(self.currency, self.currency)
+    # NOTE: could use ¤ (generic currency), but probably not that well known
+    currency_symbol.short_description = '$'
+    currency_symbol.admin_order_field = 'currency'
+
+
+class Subscription(Event, CurrencyMixin):
     '''Records subscription events in the MEP database'''
     duration = models.DecimalField(
         max_digits=4, decimal_places=2,
@@ -278,7 +292,7 @@ class Purchase(Event):
     item = models.ForeignKey('books.Item')
 
 
-class Reimbursement(Event):
+class Reimbursement(Event, CurrencyMixin):
     '''Inherited table indicating reimbursement events'''
     price = models.DecimalField(max_digits=8, decimal_places=2, null=True,
         blank=True)

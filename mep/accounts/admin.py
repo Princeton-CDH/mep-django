@@ -74,7 +74,7 @@ class ReimbursementAdmin(admin.ModelAdmin):
     model = Reimbursement
     date_hierarchy = 'start_date'
     fields = ('account', 'price', 'currency', 'start_date', 'end_date', 'notes')
-    list_display = ('account', 'price', 'currency', 'start_date', 'end_date',)
+    list_display = ('account', 'price', 'currency_symbol', 'start_date', 'end_date',)
     list_filter = ('currency',)
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
 
