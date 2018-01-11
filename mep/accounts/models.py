@@ -303,6 +303,13 @@ class Reimbursement(Event, CurrencyMixin):
         return self.start_date
     date.admin_order_field = 'start_date'
 
+    def save(self, *args, **kwargs):
+        # reimbursement is a single-day event; populate end date
+        # to make that explicit and simplify any generic event date
+        # range searching and filtering
+        self.end_date = self.start_date
+        super(Reimbursement, self).save(*args, **kwargs)
+
     def validate_unique(self, *args, **kwargs):
         super(Reimbursement, self).validate_unique(*args, **kwargs)
 

@@ -268,6 +268,15 @@ class TestReimbursement(TestCase):
                 start_date=self.reimbursement.start_date)
             reimburse.validate_unique()
 
+    def test_auto_end_date(self):
+        self.reimbursement.start_date = datetime.datetime.now()
+        self.reimbursement.save()
+        assert self.reimbursement.end_date == self.reimbursement.end_date
+
+        self.reimbursement.start_date = None
+        self.reimbursement.save()
+        assert not self.reimbursement.end_date
+
 
 class TestBorrow(TestCase):
 
