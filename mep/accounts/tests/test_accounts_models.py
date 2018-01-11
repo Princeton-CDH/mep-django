@@ -107,6 +107,46 @@ class TestAccount(TestCase):
         # displays name first, then street_address, and city as a last resort
         account.list_addresses() == 'Berlin; 1 Foo St.; Hotel Foo'
 
+    def test_earliest_date(self):
+        account = Account.objects.create()
+        # no date, no error
+        assert not account.earliest_date()
+
+        event1 = Subscription.objects.create(account=account,
+            start_date=datetime.date(1943, 1, 1),
+            end_date=datetime.date(1944, 1, 1))
+        event2 = Reimbursement.objects.create(account=account,
+            start_date=datetime.date(1944, 5, 1))
+
+        assert account.earliest_date() == event1.start_date
+
+    def test_last_date(self):
+        account = Account.objects.create()
+        # no date, no error
+        assert not account.last_date()
+
+        # subscription with no end date - start date should
+        # be used
+        event = Subscription.objects.create(account=account,
+            start_date=datetime.date(1943, 1, 1))
+        assert account.last_date() == event.start_date
+
+        # multiple events; use the last
+        event1 = Subscription.objects.create(account=account,
+            start_date=datetime.date(1943, 1, 1),
+            end_date=datetime.date(1944, 1, 1))
+        event2 = Reimbursement.objects.create(account=account,
+            start_date=datetime.date(1944, 5, 1))
+
+        assert account.last_date() == event2.end_date
+
+
+    # def earliest_date(self):
+    #     return self.event_set.all().order_by('start_date').first().start_date
+
+    # def last_date(self):
+    #     return self.event_set.all().order_by('end_date').last().end_date
+
 
 class TestAccountAddress(TestCase):
 

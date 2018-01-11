@@ -49,6 +49,23 @@ class Account(models.Model):
                          person in self.persons.all().order_by('name'))
     list_persons.short_description = 'Associated persons'
 
+    def earliest_date(self):
+        '''Earliest known date from all events associated with this account'''
+        evt = self.event_set.order_by('start_date').first()
+        if evt:
+            return evt.start_date
+
+    def last_date(self):
+        '''Last known date from all events associated with this account'''
+
+        # sort by end date then start date; if end dates are missing this
+        # may not be quite right...
+        evt = self.event_set.order_by('end_date', 'start_date').last()
+        if evt:
+            # if no end date is present, return start date
+            return evt.end_date or evt.start_date
+
+
     def list_addresses(self):
         '''List :class:`mep.people.models.Address` instances associated with
         this account.

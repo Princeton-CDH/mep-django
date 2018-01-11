@@ -192,7 +192,7 @@ class EventAdmin(admin.ModelAdmin):
 class AccountAdmin(admin.ModelAdmin):
     model = Account
     form = AccountAdminForm
-    list_display = ('id', 'list_persons', 'list_addresses')
+    list_display = ('id', 'list_persons', 'earliest_date', 'last_date', 'list_addresses',)
     search_fields = ('id', 'accountaddress__address__street_address',
                      'accountaddress__address__name',
                      'accountaddress__address__country__name', 'persons__name')
