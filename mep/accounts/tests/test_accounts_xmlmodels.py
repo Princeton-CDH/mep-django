@@ -68,19 +68,19 @@ class TestEvent(TestCase):
         # check the reimbursement because it's different enough
         kunst = Reimbursement.objects.get(account__persons__mep_id__icontains='kunst')
         assert kunst.start_date == datetime.date(1921, 1, 5)
-        # no duration, no end date
-        assert not kunst.end_date
+        # single day event - end date = start date
+        assert kunst.end_date == kunst.start_date
         assert kunst.currency == CurrencyMixin.FRF
-        assert kunst.price == 200
+        assert kunst.refund == 200
 
         # check reimbursements that use <measure type="reimbursement" ... >
         burning = Reimbursement.objects.get(account__persons__mep_id__icontains='burning')
         assert burning.currency == CurrencyMixin.FRF
-        assert burning.price == 50
+        assert burning.refund == 50
 
         # make sure a missing price is noted
         foobar = Reimbursement.objects.get(account__persons__mep_id__icontains='foo')
-        assert not foobar.price
+        assert not foobar.refund
         assert 'Missing price' in foobar.notes
 
         # check a subscription that should have a subclass

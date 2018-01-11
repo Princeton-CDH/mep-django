@@ -41,17 +41,17 @@ class TestAccount(TestCase):
 
         # Make a saved Account object
         account = Account.objects.create()
-        account.add_event('reimbursement', **{'price': 2.32})
+        account.add_event('reimbursement', **{'refund': 2.32})
 
         # Look at the relationship from the other side via Reimbursement
         # should find the event we just saved
         reimbursement = Reimbursement.objects.get(account=account)
-        assert float(reimbursement.price) == 2.32
+        assert float(reimbursement.refund) == 2.32
 
         # Saving with a not saved object should raise ValueError
         with pytest.raises(ValueError):
             unsaved_account = Account()
-            unsaved_account.add_event('reimbursement', **{'price': 2.32})
+            unsaved_account.add_event('reimbursement', **{'refund': 2.32})
 
         # Providing a dud event type should raise ValueError
         with pytest.raises(ValueError):
@@ -60,7 +60,7 @@ class TestAccount(TestCase):
     def test_get_events(self):
         # Make a saved Account object
         account = Account.objects.create()
-        account.add_event('reimbursement', **{'price': 2.32})
+        account.add_event('reimbursement', **{'refund': 2.32})
         account.add_event(
             'subscription',
             **{'duration': 1, 'volumes': 2, 'price_paid': 4.56}
@@ -73,10 +73,10 @@ class TestAccount(TestCase):
         # Now access as a subclass with related properties
         reimbursements = account.get_events('reimbursement')
         assert len(reimbursements) == 1
-        assert float(reimbursements[0].price) == 2.32
+        assert float(reimbursements[0].refund) == 2.32
 
         # Try filtering so that we get no reimbursements and empty qs
-        reimbursements = account.get_events('reimbursement', price=2.45)
+        reimbursements = account.get_events('reimbursement', refund=2.45)
         assert not reimbursements
 
         # Providing a dud event type should raise ValueError
@@ -170,7 +170,7 @@ class TestEvent(TestCase):
         # Create a reimbursement check its event type
         reimbursement = Reimbursement.objects.create(
             account=self.account,
-            price=2.30,
+            refund=2.30,
             currency='USD'
         )
         assert reimbursement.event_ptr.event_type == 'Reimbursement'
@@ -244,7 +244,7 @@ class TestReimbursement(TestCase):
         self.account = Account.objects.create()
         self.reimbursement = Reimbursement.objects.create(
             account=self.account,
-            price=2.30,
+            refund=2.30,
             currency='USD'
         )
 
@@ -267,8 +267,6 @@ class TestReimbursement(TestCase):
             reimburse = Reimbursement(account=self.account,
                 start_date=self.reimbursement.start_date)
             reimburse.validate_unique()
-
-
 
 
 class TestBorrow(TestCase):

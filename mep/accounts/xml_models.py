@@ -243,17 +243,16 @@ class XmlEvent(TeiXmlObject):
         etype, person, account = self._prepare_db_objects()
         # This database type encompasses supplements and renewals
         # Handling is complicated and parsed out to _parse_subscription
-        print('etype %s' % etype)
         if etype == 'subscription':
             self._parse_subscription()
        # Reimbursement is a subclass that doesn't warrant its own
        # private function
         if etype == 'reimbursement':
-            self.common_dict['price'] = (self.price.quantity
+            self.common_dict['refund'] = (self.price.quantity
                                          if self.price and self.price.quantity
                                          else self.reimbursement.quantity if
                                          self.reimbursement else None)
-            if not self.common_dict['price']:
+            if not self.common_dict['refund']:
                 self.common_dict['notes'] += (
                     'Missing price\n'
                 )
