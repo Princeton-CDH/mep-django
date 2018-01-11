@@ -134,7 +134,7 @@ class PersonAdmin(admin.ModelAdmin):
     # (only relationships to other people are edited here)
     form = PersonAdminForm
     list_display = ('name', 'title', 'sort_name', 'list_nationalities', 'birth_year', 'death_year',
-        'sex', 'profession', 'viaf_id', 'mep_id', 'address_count', 'has_account', 'has_notes')
+        'sex', 'profession', 'viaf_id', 'mep_id', 'address_count', 'has_account', 'note_snippet')
     fields = ('mep_id', 'has_account', 'title',
         ('name', 'sort_name'),
         'viaf_id',

@@ -61,6 +61,12 @@ class Notable(models.Model):
         return bool(self.notes)
     has_notes.boolean = True
 
+    snippet_length = 75
+    def note_snippet(self):
+        return ''.join([self.notes[:self.snippet_length],
+                         ' ...' if len(self.notes) > self.snippet_length else ''])
+    note_snippet.short_description = 'Notes'
+
 
 class DateRange(models.Model):
     '''Abstract model with optional start and end years, and a
