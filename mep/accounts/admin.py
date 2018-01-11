@@ -49,6 +49,27 @@ class SubscriptionAdminForm(forms.ModelForm):
         }
 
 
+class SubscriptionAdmin(admin.ModelAdmin):
+    model = Subscription
+    form = SubscriptionAdminForm
+    date_hierarchy = 'start_date'
+    list_display = ('account',  'category', 'subtype',
+                    'duration', 'start_date', 'end_date',
+                    'volumes', 'price_paid', 'deposit', 'currency_symbol')
+    list_filter = ('category', 'subtype', 'currency')
+    search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
+    fields = ('account', ('start_date', 'end_date'), 'subtype', 'category',
+              'duration', 'volumes', 'deposit', 'price_paid', 'currency', 'notes')
+
+
+class SubscriptionInline(CollapsedTabularInline):
+    model = Subscription
+    form = SubscriptionAdminForm
+    extra = 1
+    fields = ('start_date', 'end_date', 'subtype', 'category', 'duration',
+              'volumes', 'deposit', 'price_paid', 'currency', 'notes')
+
+
 class ReimbursementAdminForm(forms.ModelForm):
     class Meta:
         model = Reimbursement
@@ -68,43 +89,28 @@ class ReimbursementAdminForm(forms.ModelForm):
             ),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(ReimbursementAdminForm, self).__init__(*args, **kwargs)
+        # override start date label to just date, since reimbursements
+        # are single-day events
+        self.fields['start_date'].label = "Date"
+
 
 class ReimbursementAdmin(admin.ModelAdmin):
     form = ReimbursementAdminForm
     model = Reimbursement
     date_hierarchy = 'start_date'
-    fields = ('account', 'refund', 'currency', 'start_date', 'end_date', 'notes')
-    list_display = ('account', 'refund', 'currency_symbol', 'start_date', 'end_date',)
+    fields = ('account', ('start_date', 'refund', 'currency'), 'notes')
+    list_display = ('account', 'date', 'refund', 'currency_symbol',)
     list_filter = ('currency',)
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
-
-
-class SubscriptionAdmin(admin.ModelAdmin):
-    model = Subscription
-    form = SubscriptionAdminForm
-    date_hierarchy = 'start_date'
-    list_display = ('account',  'category', 'subtype',
-                    'duration', 'start_date', 'end_date',
-                    'volumes', 'price_paid', 'deposit', 'currency_symbol')
-    list_filter = ('category', 'subtype', 'currency')
-    search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
-    fields = ('account', ('start_date', 'end_date'), 'subtype', 'category',
-              'duration', 'volumes', 'deposit', 'price_paid', 'currency', 'notes')
 
 
 class ReimbursementInline(CollapsedTabularInline):
     model = Reimbursement
     form = ReimbursementAdminForm
     extra = 1
-    fields = ('refund', 'currency', 'start_date', 'end_date', 'notes')
-
-
-class SubscriptionInline(CollapsedTabularInline):
-    model = Subscription
-    form = SubscriptionAdminForm
-    extra = 1
-    fields = ('start_date', 'end_date', 'subtype', 'category', 'duration',
-              'volumes', 'deposit', 'price_paid', 'currency', 'notes')
+    fields = ('start_date', 'refund', 'currency', 'notes')
 
 
 class AccountAddressInlineForm(forms.ModelForm):

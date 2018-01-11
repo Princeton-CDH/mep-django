@@ -293,9 +293,15 @@ class Purchase(Event, CurrencyMixin):
 
 
 class Reimbursement(Event, CurrencyMixin):
-    '''Inherited table indicating reimbursement events'''
+    '''Reimbursement event; extends :class:`Event`'''
     refund = models.DecimalField(max_digits=8, decimal_places=2, null=True,
         blank=True)
+
+    def date(self):
+        # alias start_date as date for display, since reimbersument
+        # is a single-day event
+        return self.start_date
+    date.admin_order_field = 'start_date'
 
     def validate_unique(self, *args, **kwargs):
         super(Reimbursement, self).validate_unique(*args, **kwargs)
