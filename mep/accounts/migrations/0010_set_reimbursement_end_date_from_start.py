@@ -12,7 +12,6 @@ def populate_reimbursement_end_date(apps, schema_editor):
     # (explicitly mark reimbursements as one-day event)
     for reimb in Reimbursement.objects.filter(start_date__isnull=False,
                                               end_date__isnull=True):
-        print('%s %s %s' % (reimb.refund, reimb.start_date, reimb.end_date))
         reimb.end_date = reimb.start_date
         reimb.save()
 
