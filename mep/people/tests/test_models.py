@@ -8,7 +8,7 @@ from viapy.api import ViafEntity
 
 from mep.people.models import InfoURL, Person, Profession, Relationship, \
     RelationshipType, Address, Country
-from mep.accounts.models import Account
+from mep.accounts.models import Account, Subscription, Reimbursement
 
 
 class TestPerson(TestCase):
@@ -130,6 +130,30 @@ class TestPerson(TestCase):
         acct.persons.add(pers)
         acct.save()
         assert pers.has_account()
+
+    def test_in_logbooks(self):
+        # create test person & account and associate them
+        pers = Person.objects.create(name='John')
+        # no account - not in logbooks
+        assert not pers.in_logbooks()
+
+        acct = Account.objects.create()
+        acct.persons.add(pers)
+        # account but no logbook events
+        assert not pers.in_logbooks()
+
+        # add subscription event
+        subs = Subscription.objects.create(account=acct)
+        assert pers.in_logbooks()
+
+        # add reimbursment
+        Reimbursement.objects.create(account=acct)
+        assert pers.in_logbooks()
+
+        # still true if only reimbursement and no subscription
+        subs.delete()
+        assert pers.in_logbooks()
+
 
 class TestProfession(TestCase):
 

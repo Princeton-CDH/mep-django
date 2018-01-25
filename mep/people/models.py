@@ -191,8 +191,18 @@ class Person(Notable, DateRange):
 
     def has_account(self):
         '''Return whether an instance of :class:`mep.accounts.models.Account` exists for this person.'''
-        return bool(self.account_set.exists())
+        return self.account_set.exists()
     has_account.boolean = True
+
+    def in_logbooks(self):
+        '''is there data for this person in the logbooks?'''
+        # based on presense of subscription or reimbursement event
+        return self.account_set.filter(
+            models.Q(event__subscription__isnull=False) |
+            models.Q(event__reimbursement__isnull=False)
+            ).exists()
+    in_logbooks.boolean = True
+
 
 class InfoURL(Notable):
     '''Informational urls (other than VIAF) associated with a :class:`Person`,

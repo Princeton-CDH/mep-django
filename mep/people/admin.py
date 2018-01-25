@@ -137,15 +137,16 @@ class PersonAdmin(admin.ModelAdmin):
     # NOTE: uses custom template to display relationships to this person
     # (only relationships to other people are edited here)
     form = PersonAdminForm
-    list_display = ('name', 'title', 'sort_name', 'list_nationalities', 'birth_year', 'death_year',
-        'sex', 'profession', 'viaf_id', 'mep_id', 'address_count', 'has_account', 'note_snippet')
-    fields = ('mep_id', 'has_account', 'title',
+    list_display = ('name', 'title', 'sort_name', 'list_nationalities',
+        'birth_year', 'death_year', 'sex', 'profession', 'viaf_id',
+        'mep_id', 'address_count', 'in_logbooks', 'note_snippet')
+    fields = ('mep_id', 'in_logbooks', 'title',
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
         'sex', 'profession', 'nationalities', 'addresses',
         'notes')
-    readonly_fields = ('mep_id', 'has_account')
+    readonly_fields = ('mep_id', 'in_logbooks')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = ('sex', 'profession', 'nationalities')
     inlines = [InfoURLInline, RelationshipInline, FootnoteInline]
