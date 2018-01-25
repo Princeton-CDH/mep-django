@@ -237,7 +237,8 @@ class CurrencyMixin(models.Model):
 class Subscription(Event, CurrencyMixin):
     '''Records subscription events in the MEP database'''
     duration = models.PositiveIntegerField('Days',
-        blank=True, null=True, help_text='Subscription duration in days.')
+        blank=True, null=True,
+        help_text='Subscription duration in days. Automatically calculated from start and end date.')
     volumes = models.DecimalField(blank=True, null=True, max_digits=4,
         decimal_places=2,
         help_text='Number of volumes for checkout')
