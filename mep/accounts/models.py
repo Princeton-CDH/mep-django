@@ -271,8 +271,9 @@ class Subscription(Event, CurrencyMixin):
         help_text='Type of subscription event, e.g. supplement or renewal.')
 
     def save(self, *args, **kwargs):
-        # calculate duration on save if not set and dates available
-        if not self.duration and (self.start_date and self.end_date):
+        # recalculate duration on save if dates are available,
+        # so that duration is always accurate even if dates change
+        if self.start_date and self.end_date:
             self.calculate_duration()
         super(Subscription, self).save(*args, **kwargs)
 

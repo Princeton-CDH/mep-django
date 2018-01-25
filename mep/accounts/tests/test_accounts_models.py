@@ -289,7 +289,7 @@ class TestSubscription(TestCase):
         acct = Account.objects.create()
         subs = Subscription(account=acct)
 
-        # test that calculate duration is called only when it should be
+        # test that calculate duration is called when it should be
         with patch.object(subs, 'calculate_duration') as mock_calcdur:
             # no dates - not called
             subs.save()
@@ -308,6 +308,12 @@ class TestSubscription(TestCase):
 
             # both start and end dates
             subs.start_date = datetime.date.today()
+            subs.save()
+            mock_calcdur.assert_any_call()
+
+            # duration set - should still recalculate in case of change
+            subs.duration = 250
+            mock_calcdur.reset_mock()
             subs.save()
             mock_calcdur.assert_any_call()
 
