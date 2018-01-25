@@ -7,9 +7,8 @@ from django.core.validators import ValidationError
 from django.test import TestCase
 import pytest
 
-from mep.accounts.models import Account, AccountAddress, Address
-from mep.accounts.models import Borrow, Event, Purchase, Reimbursement, \
-    Subscription, CurrencyMixin
+from mep.accounts.models import Account, AccountAddress, Address, \
+    Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin
 from mep.books.models import Item
 from mep.people.models import Person
 

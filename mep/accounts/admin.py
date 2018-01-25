@@ -74,7 +74,6 @@ class SubscriptionAdminForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super(SubscriptionAdminForm, self).clean()
-
         # if start date and duration are set, calculate end date
         start_date = cleaned_data.get('start_date', None)
         end_date = cleaned_data.get('end_date', None)
@@ -87,8 +86,6 @@ class SubscriptionAdminForm(forms.ModelForm):
             # initialize relative delta, e.g. 2 months
             rel_duration = relativedelta(**{unit: value})
             cleaned_data['end_date'] = start_date + rel_duration
-            # clear out duration in days to recalculate on save
-            self.instance.duration = None
 
         return cleaned_data
 
