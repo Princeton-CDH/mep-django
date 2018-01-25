@@ -33,10 +33,17 @@ class EventAdminForm(forms.ModelForm):
         }
 
 class SubscriptionAdminForm(forms.ModelForm):
+    # regular expression to validate duration input and capture elements
+    # for conversion into relativedelta; currently requires full names
+    # and allows plural or singular
     duration_regex = re.compile(r'(?P<number>\d+)\s+(?P<unit>(day|week|month|year))s?')
+    # validation error message
     duration_msg = "Enter a number with one of day, week, month, or year " + \
         " (singular or plural)."
 
+    # custom input field to allow users to view and enter human-readable
+    # duration; used to calculate end date if start date and duration
+    # are present but end date is not
     duration_units = forms.CharField(label='Duration', required=False,
         help_text='Duration in days, weeks, months, or years. ' + \
                   'Enter as 1 day, 2 weeks, 3 months, 1 year, etc.',
