@@ -1,8 +1,9 @@
 import datetime
 import re
+from unittest.mock import patch
 
+from dateutil.relativedelta import relativedelta
 from django.core.validators import ValidationError
-from django.db import models
 from django.test import TestCase
 import pytest
 
@@ -10,7 +11,7 @@ from mep.accounts.models import Account, AccountAddress, Address
 from mep.accounts.models import Borrow, Event, Purchase, Reimbursement, \
     Subscription, CurrencyMixin
 from mep.books.models import Item
-from mep.people.models import Address, Person
+from mep.people.models import Person
 
 
 class TestAccount(TestCase):
@@ -251,6 +252,165 @@ class TestSubscription(TestCase):
         subscr = Subscription(account=self.account,
             start_date=self.subscription.start_date, subtype='ren')
         subscr.validate_unique()
+
+    def test_calculate_duration(self):
+        # create subscription with start date of today and
+        # adjust end date to test duration calculations
+        today = datetime.datetime.now()
+
+        # single day
+        delta = relativedelta(days=3)
+        subs = Subscription(start_date=today, end_date=today + delta)
+        subs.calculate_duration()
+        expect = 3
+        assert subs.duration == expect, \
+            "%s should generate duration of '%d', got '%d'" % \
+                (delta, expect, subs.duration)
+
+        # month duration should be actual day count
+        # February in a non-leap year; 28 days
+        subs = Subscription(start_date=datetime.date(2017, 2, 1),
+                            end_date=datetime.date(2017, 3, 1))
+        subs.calculate_duration()
+        expect = 28
+        assert subs.duration == expect, \
+            "Month of February should generate duration of '%d', got '%d'" % \
+                (expect, subs.duration)
+        # January in any year; 31 days
+        subs = Subscription(start_date=datetime.date(2017, 1, 1),
+                            end_date=datetime.date(2017, 2, 1))
+        subs.calculate_duration()
+        expect = 31
+        assert subs.duration == expect, \
+            "Month of January should generate duration of '%d', got '%d'" % \
+                (expect, subs.duration)
+
+    def test_save(self):
+        acct = Account.objects.create()
+        subs = Subscription(account=acct)
+
+        # test that calculate duration is called only when it should be
+        with patch.object(subs, 'calculate_duration') as mock_calcdur:
+            # no dates - not called
+            subs.save()
+            mock_calcdur.assert_not_called()
+
+            # start date only
+            subs.start_date = datetime.date.today()
+            subs.save()
+            mock_calcdur.assert_not_called()
+
+            # end date only
+            subs.start_date = None
+            subs.end_date = datetime.date.today()
+            subs.save()
+            mock_calcdur.assert_not_called()
+
+            # both start and end dates
+            subs.start_date = datetime.date.today()
+            subs.save()
+            mock_calcdur.assert_any_call()
+
+    def test_readable_duration(self):
+        # create subscription with start date of today and
+        # adjust end date to test duration display
+        today = datetime.datetime.now()
+        acct = Account.objects.create()
+
+        # single day
+        delta = relativedelta(days=1)
+        subs = Subscription.objects.create(account=acct,
+            start_date=today, end_date=today + delta)
+        dur = subs.readable_duration()
+        expect = '1 day'
+        assert dur == expect, \
+            "%s should display as '%s', got '%s'" % (delta, expect, dur)
+        # two days
+        delta = relativedelta(days=2)
+        subs = Subscription.objects.create(account=acct,
+            start_date=today, end_date=today + delta)
+        dur = subs.readable_duration()
+        expect = '2 days'
+        assert dur == expect, \
+            "%s should display as '%s', got '%s'" % (delta, expect, dur)
+
+        # single month
+        delta = relativedelta(months=1)
+        subs = Subscription.objects.create(account=acct,
+            start_date=today, end_date=today + delta)
+        dur = subs.readable_duration()
+        expect = '1 month'
+        assert dur == expect, \
+            "%s should display as '%s', got '%s'" % (delta, expect, dur)
+        # multiple months
+        delta = relativedelta(months=6)
+        subs = Subscription.objects.create(account=acct,
+            start_date=today, end_date=today + delta)
+        dur = subs.readable_duration()
+        expect = '6 months'
+        assert dur == expect, \
+            "%s should display as '%s', got '%s'" % (delta, expect, dur)
+
+        # single year
+        delta = relativedelta(years=1)
+        subs = Subscription.objects.create(account=acct,
+            start_date=today, end_date=today + delta)
+        dur = subs.readable_duration()
+        expect = '1 year'
+        assert dur == expect, \
+            "%s should display as '%s', got '%s'" % (delta, expect, dur)
+        # multiple years
+        delta = relativedelta(years=2)
+        subs = Subscription.objects.create(account=acct,
+            start_date=today, end_date=today + delta)
+        dur = subs.readable_duration()
+        expect = '2 years'
+        assert dur == expect, \
+            "%s should display as '%s', got '%s'" % (delta, expect, dur)
+
+        # one week
+        delta = relativedelta(days=7)
+        subs = Subscription.objects.create(account=acct,
+            start_date=today, end_date=today + delta)
+        dur = subs.readable_duration()
+        expect = '1 week'
+        assert dur == expect, \
+            "%s should display as '%s', got '%s'" % (delta, expect, dur)
+        # two weeks
+        delta = relativedelta(days=7 * 2)
+        subs = Subscription.objects.create(account=acct,
+            start_date=today, end_date=today + delta)
+        dur = subs.readable_duration()
+        expect = '2 weeks'
+        assert dur == expect, \
+            "%s should display as '%s', got '%s'" % (delta, expect, dur)
+        # six weeks
+        delta = relativedelta(days=7 * 6)
+        subs = Subscription.objects.create(account=acct,
+            start_date=today, end_date=today + delta)
+        dur = subs.readable_duration()
+        expect = '6 weeks'
+        assert dur == expect, \
+            "%s should display as '%s', got '%s'" % (delta, expect, dur)
+
+        # combined units
+        delta = relativedelta(years=1, days=3)
+        subs = Subscription.objects.create(account=acct,
+            start_date=today, end_date=today + delta)
+        dur = subs.readable_duration()
+        expect = '1 year, 3 days'
+        assert dur == expect, \
+            "%s should display as '%s', got '%s'" % (delta, expect, dur)
+
+        # special cases
+        # test February in a non-leap year; 28 days, should display as one month
+        subs = Subscription.objects.create(account=acct,
+            start_date=datetime.date(2017, 2, 1), end_date=datetime.date(2017, 3, 1))
+        dur = subs.readable_duration()
+        expect = '1 month'
+        assert dur == expect, \
+            "Month of February should display as '%s', got '%s'" % (expect, dur)
+
 
 
 class TestPurchase(TestCase):

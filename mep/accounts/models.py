@@ -1,6 +1,8 @@
+from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
 from django.db import models
+from django.template.defaultfilters import pluralize
 
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Address
@@ -234,12 +236,8 @@ class CurrencyMixin(models.Model):
 
 class Subscription(Event, CurrencyMixin):
     '''Records subscription events in the MEP database'''
-    duration = models.DecimalField(
-        max_digits=4, decimal_places=2,
-        blank=True, null=True,
-        help_text=('Duration in months. Weeks may be noted with '
-                   'fractions in decimal form.')
-    )
+    duration = models.PositiveIntegerField('Days',
+        blank=True, null=True, help_text='Subscription duration in days.')
     volumes = models.DecimalField(blank=True, null=True, max_digits=4,
         decimal_places=2,
         help_text='Number of volumes for checkout')
@@ -271,6 +269,19 @@ class Subscription(Event, CurrencyMixin):
         choices=EVENT_TYPE_CHOICES,
         help_text='Type of subscription event, e.g. supplement or renewal.')
 
+    def save(self, *args, **kwargs):
+        # calculate duration on save if not set and dates available
+        if not self.duration and (self.start_date and self.end_date):
+            self.calculate_duration()
+        super(Subscription, self).save(*args, **kwargs)
+
+    def calculate_duration(self):
+        '''calculate and set subscription duration based on start and end
+        date, when both are known'''
+        if self.start_date and self.end_date:
+            # calculate duration in days as timedelta from end to start
+            self.duration = (self.end_date - self.start_date).days
+
     def validate_unique(self, *args, **kwargs):
         super(Subscription, self).validate_unique(*args, **kwargs)
 
@@ -288,6 +299,46 @@ class Subscription(Event, CurrencyMixin):
 
         if qs.exists():
             raise ValidationError('Subscription event is not unique')
+
+    def readable_duration(self):
+        '''Generate a human-readable version of the subscription duration.
+        Intended to follow Beach's conventions, e.g. 1 year rather than
+        12 months; 1 week rather than 7 days.'''
+
+        # simple case - days/weeks less than a month
+        if self.duration and self.duration < 28:
+            # weeks are sets of 7 days exactly
+            if self.duration % 7 == 0:
+                weeks = self.duration / 7
+                return '%d week%s' % (weeks, pluralize(weeks))
+            # days less than a week
+            if self.duration < 7:
+                return '%d day%s' % (self.duration, pluralize(self.duration))
+
+        # otherwise, use relativedelta to generate duration in years/months/days
+        # and aggregate the different units
+        parts = []
+        rel_dur = relativedelta(self.end_date, self.start_date)
+        if rel_dur.years:
+            parts.append('%d year%s' % (rel_dur.years, pluralize(rel_dur.years)))
+        if rel_dur.months:
+            parts.append('%d month%s' % (rel_dur.months, pluralize(rel_dur.months)))
+        if rel_dur.days:
+            parts.append('%d day%s' % (rel_dur.days, pluralize(rel_dur.days)))
+
+        # if there are multiple parts (e.g., 1 month and 11 days) and
+        # duration is evenly divisible by 7, display as weeks
+        # NOTE: this could potentially match 1 year + some number of months;
+        # unclear what behavior would be preferred in that case,
+        # but unlikely to happen with current MEP data
+        if len(parts) > 1 and self.duration % 7 == 0:
+            weeks = self.duration / 7
+            return '%d week%s' % (weeks, pluralize(weeks))
+
+        # otherwise, combine months & days
+        return ', '.join(parts)
+    readable_duration.short_description = 'Duration'
+    readable_duration.admin_order_field = 'duration'
 
 
 class Borrow(Event):
