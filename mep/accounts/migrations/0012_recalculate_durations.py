@@ -10,7 +10,7 @@ def calculate_duration_in_days(apps, schema_editor):
     # recalculate duration in days as a timedelta between start and end date
     for subs in Subscription.objects.filter(start_date__isnull=False,
                                             end_date__isnull=False):
-        subs.duration = (subs.end_date - subs.start_date).day
+        subs.duration = (subs.end_date - subs.start_date).days
         subs.save()
 
 
