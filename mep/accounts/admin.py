@@ -1,6 +1,10 @@
+import re
+
 from dal import autocomplete
-from django.contrib import admin
+from dateutil.relativedelta import relativedelta
 from django import forms
+from django.contrib import admin
+from django.core.validators import RegexValidator
 
 from mep.accounts.models import Account, AccountAddress, Subscription,\
     Reimbursement, Event, SubscriptionType
@@ -28,8 +32,25 @@ class EventAdminForm(forms.ModelForm):
             ),
         }
 
-
 class SubscriptionAdminForm(forms.ModelForm):
+    # regular expression to validate duration input and capture elements
+    # for conversion into relativedelta; currently requires full names
+    # and allows plural or singular
+    duration_regex = re.compile(r'(?P<number>\d+)\s+(?P<unit>(day|week|month|year))s?')
+    # validation error message
+    duration_msg = "Enter a number with one of day, week, month, or year " + \
+        " (singular or plural)."
+
+    # custom input field to allow users to view and enter human-readable
+    # duration; used to calculate end date if start date and duration
+    # are present but end date is not
+    duration_units = forms.CharField(label='Duration', required=False,
+        help_text='Duration in days, weeks, months, or years. ' + \
+                  'Enter as 1 day, 2 weeks, 3 months, 1 year, etc.',
+        validators=[RegexValidator(regex=duration_regex,
+                                   message=duration_msg)
+                    ]
+        )
 
     class Meta:
         model = Subscription
@@ -38,6 +59,8 @@ class SubscriptionAdminForm(forms.ModelForm):
             'account': ('Searches and displays on system assigned '
                         'account id, as well as associated person and '
                         'address data.'),
+            'end_date': ('Automatically calculated from start date and '
+                         'duration if not set.')
         }
         widgets = {
             'account': autocomplete.ModelSelect2(
@@ -49,25 +72,52 @@ class SubscriptionAdminForm(forms.ModelForm):
             ),
         }
 
+    def get_initial_for_field(self, field, field_name):
+        # set initial value for duration units
+        if field_name == 'duration_units':
+            return self.instance.readable_duration()
+        # handle everything else normally
+        return super(SubscriptionAdminForm, self).get_initial_for_field(field, field_name)
+
+    def clean(self):
+        cleaned_data = super(SubscriptionAdminForm, self).clean()
+        # if start date and duration are set, calculate end date
+        start_date = cleaned_data.get('start_date', None)
+        end_date = cleaned_data.get('end_date', None)
+        duration_units = cleaned_data.get('duration_units', None)
+        if start_date and duration_units and not end_date:
+            match = self.duration_regex.search(duration_units)
+            duration_info = match.groupdict()
+            unit = '%ss' % duration_info['unit']  # ensure unit is plural
+            value = int(duration_info['number'])
+            # initialize relative delta, e.g. 2 months
+            rel_duration = relativedelta(**{unit: value})
+            cleaned_data['end_date'] = start_date + rel_duration
+
+        return cleaned_data
+
 
 class SubscriptionAdmin(admin.ModelAdmin):
     model = Subscription
     form = SubscriptionAdminForm
     date_hierarchy = 'start_date'
-    list_display = ('account',  'category', 'subtype',
-                    'duration', 'start_date', 'end_date',
+    list_display = ('account', 'category', 'subtype',
+                    'readable_duration', 'duration', 'start_date', 'end_date',
                     'volumes', 'price_paid', 'deposit', 'currency_symbol')
     list_filter = ('category', 'subtype', 'currency')
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
     fields = ('account', ('start_date', 'end_date'), 'subtype', 'category',
-              'duration', 'volumes', 'deposit', 'price_paid', 'currency', 'notes')
+              ('duration_units', 'duration'),
+              'volumes', 'deposit', 'price_paid',
+              'currency', 'notes')
+    readonly_fields = ('duration',)
 
 
 class SubscriptionInline(CollapsibleTabularInline):
     model = Subscription
     form = SubscriptionAdminForm
     extra = 1
-    fields = ('start_date', 'end_date', 'subtype', 'category', 'duration',
+    fields = ('start_date', 'end_date', 'subtype', 'category', 'duration_units',
               'volumes', 'deposit', 'price_paid', 'currency', 'notes')
 
 

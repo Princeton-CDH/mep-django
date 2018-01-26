@@ -3,7 +3,7 @@ import os
 
 from django.test import TestCase
 
-from mep.accounts.xml_models import LogBook, XmlEvent, Measure
+from mep.accounts.xml_models import LogBook, Measure
 from mep.accounts.models import Event, Subscription, Reimbursement, Account, \
     CurrencyMixin
 from mep.people.models import Person
@@ -60,7 +60,7 @@ class TestEvent(TestCase):
         monbrial = subscribes.filter(account__persons__mep_id='monb')[0]
         assert monbrial.start_date == datetime.date(1921, 1, 5)
         assert monbrial.end_date == datetime.date(1921, 4, 5)
-        assert monbrial.duration == 3
+        assert monbrial.duration == 90
         assert monbrial.currency == CurrencyMixin.FRF
         assert monbrial.deposit == 7
         assert monbrial.price_paid == 16
