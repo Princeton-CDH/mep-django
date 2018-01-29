@@ -57,43 +57,54 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
     Use Q objects to help distinguish people using mepid.
     '''
     def get_result_label(self, person):
-        '''Provide a more result label for the people autocomplete that can
-        help disambiguate people'''
+        '''
+        Provide a more detailed result label for the people autocomplete that
+        can help disambiguate people.
+
+        '''
         # Fields that will be formatted before interpolation
-        bio_dates = ''
-        note_string = ''
-        mep_id = ''
+        labels = {
+            'main_string': '',
+            'bio_dates': '',
+            'note_string': '',
+        }
         # title and name, stripped in case title is absent so no stray space
-        main_string = ('%s %s' % (person.title, person.name)).strip()
-        # format birth-death in a familiar pattern
+        labels['main_string'] = \
+            ('%s %s' % (person.title, person.name)).strip()
+        # format birth-death in a familiar pattern ( - )
         if person.birth_year or person.death_year:
-            bio_dates = ' (%s - %s)' % (person.birth_year, person.death_year)
+            labels['bio_dates'] = \
+                ' (%s - %s)' % (person.birth_year, person.death_year)
         # get the first few words of any notes
         if person.notes:
             list_notes = person.notes.split()
-            note_string = ' '.join(list_notes[:5])
-        if person.mep_id:
-            # padding id with a space so that it looks nice in the formatted
-            # html
-            mep_id = ' %s' % mep_id
-
-        # in situations where there are none of these, pull their first event
-        if not bio_dates and not note_string and not mep_id:
-            # if the person has an account get its first event
+            labels['note_string'] = ' '.join(list_notes[:5])
+        # padding id with a space so that it looks nice in the formatted
+        # html and we don't have to worry about stripping it in the
+        # interpolated text.
+        labels['mep_id'] = (' %s' % person.mep_id) if person.mep_id else ''
+        if ('bio_dates' not in labels and
+            'note_string' not in labels and
+                'mep_id' not in labels):  # indent to avoid PEP E129
+            # in situations where there are none of the above,
+            # pull the first event
             if person.account_set.first():
-                event = Event.objects.filter(
+                labels['event'] = Event.objects.filter(
                         account=person.account_set.first()
                     ).first()
                 # if it has a first event (not all do), return that event
-                if event:
+                if labels['event']:
                     return format_html(
-                            '<strong>{}</strong><br />{} {}', main_string,
-                            event.start_date, event.event_type
-                        )
-            return format_html('<strong>{}</strong>', main_string)
+                        '<strong>{main_string}</strong><br /> '
+                        '{event.start_date} {event.end_date}',
+                        **labels
+                    )
+            return format_html('<strong>{main_string}</strong>', **labels)
+        # we have some of the information, return it in an interpolated string
         return format_html(
-                    '<strong>{}{}</strong><br>{}{}'.strip(),
-                    main_string, bio_dates, mep_id, note_string
+                    '<strong>{main_string}{bio_dates}'
+                    '</strong><br>{mep_id}{note_string}'.strip(),
+                    **labels
                 )
 
     def get_queryset(self):
