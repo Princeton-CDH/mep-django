@@ -83,27 +83,30 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
         # html and we don't have to worry about stripping it in the
         # interpolated text.
         labels['mep_id'] = (' %s' % person.mep_id) if person.mep_id else ''
-        if ('bio_dates' not in labels and
-            'note_string' not in labels and
-                'mep_id' not in labels):  # indent to avoid PEP E129
+        if not labels['bio_dates'] and not labels['note_string']:
             # in situations where there are none of the above,
             # pull the first event
             if person.account_set.first():
-                labels['event'] = Event.objects.filter(
+                event = Event.objects.filter(
                         account=person.account_set.first()
                     ).first()
                 # if it has a first event (not all do), return that event
-                if labels['event']:
+                if event:
+                    labels['start_date'] = event.start_date
+                    labels['end_date'] = (event.end_date
+                                          if event.end_date else '')
+                    labels['type'] = event.event_type
                     return format_html(
-                        '<strong>{main_string}</strong><br /> '
-                        '{event.start_date} {event.end_date}',
+                        '<strong>{main_string}</strong>'
+                        '{mep_id} <br />{type} {start_date} {end_date}'.strip(),
                         **labels
                     )
-            return format_html('<strong>{main_string}</strong>', **labels)
+            return format_html('<strong>{main_string}</strong>{mep_id}',
+                               **labels)
         # we have some of the information, return it in an interpolated string
         return format_html(
                     '<strong>{main_string}{bio_dates}'
-                    '</strong><br>{mep_id}{note_string}'.strip(),
+                    '</strong>{mep_id}<br /> {note_string}'.strip(),
                     **labels
                 )
 
