@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
@@ -6,6 +7,7 @@ from django.http import JsonResponse
 from django.test import TestCase
 from django.urls import reverse
 
+from mep.accounts.models import Account, Subscription
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Address, Country, Person, Relationship, \
@@ -54,41 +56,100 @@ class TestPeopleViews(TestCase):
 
     def test_person_autocomplete(self):
         # add a person to search for
-        Person.objects.create(name='Sylvia Beach', mep_id='sylv.b')
+        beach = Person.objects.create(name='Sylvia Beach', mep_id='sylv.b')
 
         pub_autocomplete_url = reverse('people:autocomplete')
         result = self.client.get(pub_autocomplete_url, {'q': 'beach'})
         assert result.status_code == 200
-        # decode response to inspect
+        # decode response to inspect basic formatting and fields
         data = json.loads(result.content.decode('utf-8'))
-        assert 'Sylvia Beach' in data['results'][0]['text']
-        # TODO: test for other content that is now included in the result
+        text = data['results'][0]['text']
+        self.assertInHTML('<strong>Sylvia Beach</strong> sylv.b', text)
 
-        # no match - shouldn't error
+        # no match - shouldn't error, just return no results
         result = self.client.get(pub_autocomplete_url, {'q': 'beauvoir'})
         assert result.status_code == 200
         data = json.loads(result.content.decode('utf-8'))
         assert not data['results']
 
-        # add a person and a relationship
-        Person.objects.create(name='Sylvia', title='Ms.')
+        # add a person and a title
+        ms_sylvia = Person.objects.create(name='Sylvia', title='Ms.')
 
-        # should return both
+        # should return both wrapped in <strong>
         result = self.client.get(pub_autocomplete_url, {'q': 'sylvia'})
         assert result.status_code == 200
         # decode response to inspect
         data = json.loads(result.content.decode('utf-8'))
         assert len(data['results']) == 2
         assert 'Sylvia Beach' in data['results'][0]['text']
-        assert 'Ms. Sylvia' in data['results'][1]['text']
+        # detailed check of Ms. Sylvia
+        text = data['results'][1]['text']
+        self.assertInHTML('<strong>Ms. Sylvia</strong>', text)
 
-        # search by mep id, should return just Sylvia Beach
-        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.'})
+        # should select the right person based on mep_id
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.b'})
         assert result.status_code == 200
         # decode response to inspect
         data = json.loads(result.content.decode('utf-8'))
         assert len(data['results']) == 1
         assert 'Sylvia Beach' in data['results'][0]['text']
+
+        # add birth, death dates to beach
+        beach.birth_year = 1900
+        beach.death_year = 1970
+        beach.save()
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.b'})
+        # decode response to inspect dates rendered and formatted correctly
+        data = json.loads(result.content.decode('utf-8'))
+        assert len(data['results']) == 1
+        text = data['results'][0]['text']
+        expected = '<strong>Sylvia Beach (1900 - 1970)</strong> sylv.b <br />'
+        self.assertInHTML(expected, text)
+
+        # add notes to beach
+        beach.notes = "All of these words are part of the notes"
+        beach.save()
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.b'})
+        data = json.loads(result.content.decode('utf-8'))
+        assert len(data['results']) == 1
+        text = data['results'][0]['text']
+        # first 5 words of notes field should be present in response
+        # on a separate line
+        expected = ('<strong>Sylvia Beach (1900 - 1970)</strong> '
+                    'sylv.b <br />All of these words are')
+        self.assertInHTML(expected, text)
+
+        # give Ms. Sylvia a mep id
+        ms_sylvia.mep_id = 'sylv.a'
+        ms_sylvia.save()
+        # check that mep.id shows up in result
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.a'})
+        data = json.loads(result.content.decode('utf-8'))
+        text = data['results'][0]['text']
+        self.assertInHTML('<strong>Ms. Sylvia</strong> sylv.a', text)
+        # give Ms. Sylvia events
+        account = Account.objects.create()
+        account.persons.add(ms_sylvia)
+        Subscription.objects.create(
+            account=account,
+            start_date=date(1971, 1, 2),
+            end_date=date(1971, 1, 31),
+        )
+        Subscription.objects.create(
+            account=account,
+            start_date=date(1971, 1, 1),
+            end_date=date(1971, 1, 31),
+        )
+        # first event by start_date should be displayed
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.a'})
+        data = json.loads(result.content.decode('utf-8'))
+        text = data['results'][0]['text']
+        print(text)
+        expected = ('<strong>Ms. Sylvia</strong> sylv.a <br />'
+                    'Subscription 1971-01-01 1971-01-31')
+        self.assertInHTML(expected, text)
+
+
 
     def test_person_admin_change(self):
         # create user with permission to load admin edit form

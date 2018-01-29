@@ -89,7 +89,7 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
             if person.account_set.first():
                 event = Event.objects.filter(
                         account=person.account_set.first()
-                    ).first()
+                    ).order_by('start_date').first()
                 # if it has a first event (not all do), return that event
                 if event:
                     labels['start_date'] = event.start_date
