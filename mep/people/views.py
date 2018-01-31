@@ -98,7 +98,8 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
                     labels['type'] = event.event_type
                     return format_html(
                         '<strong>{main_string}</strong>'
-                        '{mep_id} <br />{type} {start_date} {end_date}'.strip(),
+                        '{mep_id} <br />{type} '
+                        '({start_date} - {end_date})'.strip(),
                         **labels
                     )
             return format_html('<strong>{main_string}</strong>{mep_id}',

@@ -146,7 +146,7 @@ class TestPeopleViews(TestCase):
         text = data['results'][0]['text']
         print(text)
         expected = ('<strong>Ms. Sylvia</strong> sylv.a <br />'
-                    'Subscription 1971-01-01 1971-01-31')
+                    'Subscription (1971-01-01 - 1971-01-31)')
         self.assertInHTML(expected, text)
 
 
