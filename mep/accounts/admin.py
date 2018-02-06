@@ -107,8 +107,8 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_filter = ('category', 'subtype', 'currency')
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
     fields = ('account', ('start_date', 'end_date'), 'subtype', 'category',
-              ('duration_units', 'duration'),
-              'volumes', 'deposit', 'price_paid',
+              'volumes', ('duration_units', 'duration'),
+              'deposit', 'price_paid',
               'currency', 'notes')
     readonly_fields = ('duration',)
 
@@ -117,8 +117,8 @@ class SubscriptionInline(CollapsibleTabularInline):
     model = Subscription
     form = SubscriptionAdminForm
     extra = 1
-    fields = ('start_date', 'end_date', 'subtype', 'category', 'duration_units',
-              'volumes', 'deposit', 'price_paid', 'currency', 'notes')
+    fields = ('start_date', 'end_date', 'subtype', 'category', 'volumes',
+              'duration_units', 'deposit', 'price_paid', 'currency', 'notes')
 
 
 class ReimbursementAdminForm(forms.ModelForm):
