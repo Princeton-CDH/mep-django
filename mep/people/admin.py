@@ -5,14 +5,15 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from viapy.widgets import ViafWidget
 
-from mep.common.admin import NamedNotableAdmin, CollapsedTabularInline
+from mep.common.admin import NamedNotableAdmin, CollapsedTabularInline, \
+    CollapsibleTabularInline
 from mep.accounts.admin import AddressInline
 from mep.footnotes.admin import FootnoteInline
 from .models import Person, Country, Location, Profession, InfoURL, \
     Relationship, RelationshipType
 
 
-class InfoURLInline(CollapsedTabularInline):
+class InfoURLInline(CollapsibleTabularInline):
     model = InfoURL
     fields = ('url', 'notes')
 
@@ -121,6 +122,12 @@ class PersonAdminForm(forms.ModelForm):
         }
 
 
+class PersonAddressInline(AddressInline):
+    # extend address inline for person to specify foreign key field
+    # and remove account from editable fields
+    fields = ('location', 'start_date', 'end_date', 'care_of_person', 'notes')
+    fk_name = 'person'
+
 class PersonAdmin(admin.ModelAdmin):
     # NOTE: uses custom template to display relationships to this person
     # (only relationships to other people are edited here)
@@ -138,7 +145,7 @@ class PersonAdmin(admin.ModelAdmin):
     list_filter = ('sex', 'profession', 'nationalities')
     # Note: moving relationships to last for adjacency to list of relationships
     # *to* this person included in the template
-    inlines = [InfoURLInline, FootnoteInline, RelationshipInline]
+    inlines = [InfoURLInline, PersonAddressInline, FootnoteInline, RelationshipInline]
 
     # by default, set sort name from name for those cases where
     # only one name is known and they are the same
