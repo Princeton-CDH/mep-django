@@ -7,10 +7,10 @@ from django.core.validators import ValidationError
 from django.test import TestCase
 import pytest
 
-from mep.accounts.models import Account, AccountAddress, Address, \
+from mep.accounts.models import Account, AccountAddress, \
     Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin
 from mep.books.models import Item
-from mep.people.models import Person
+from mep.people.models import Person, Location
 
 
 class TestAccount(TestCase):
@@ -28,7 +28,7 @@ class TestAccount(TestCase):
         assert str(account) == "Account #%s" % account.pk
 
         # create and add an address, overrides just pk method
-        add1 = Address.objects.create(street_address='1 Rue St.')
+        add1 = Location.objects.create(street_address='1 Rue St.')
         AccountAddress.objects.create(account=account, address=add1)
         assert str(account) == "Account #%s: 1 Rue St." % account.pk
 
@@ -96,9 +96,9 @@ class TestAccount(TestCase):
     def test_list_addresses(self):
         # create an account and associate three addresses with it
         account = Account.objects.create()
-        add1 = Address.objects.create(name='Hotel Foo', city='Paris')
-        add2 = Address.objects.create(street_address='1 Foo St.', city='London')
-        add3 = Address.objects.create(city='Berlin')
+        add1 = Location.objects.create(name='Hotel Foo', city='Paris')
+        add2 = Location.objects.create(street_address='1 Foo St.', city='London')
+        add3 = Location.objects.create(city='Berlin')
         addresses = [add1, add2, add3]
         for address in addresses:
             AccountAddress.objects.create(account=account, address=address)
@@ -151,7 +151,7 @@ class TestAccount(TestCase):
 class TestAccountAddress(TestCase):
 
     def setUp(self):
-        self.address = Address.objects.create()
+        self.address = Location.objects.create()
         self.account = Account.objects.create()
 
         self.account_address = AccountAddress.objects.create(

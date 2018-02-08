@@ -8,7 +8,7 @@ from viapy.widgets import ViafWidget
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline, CollapsedTabularInline
 from mep.accounts.admin import AccountAddressInline
 from mep.footnotes.admin import FootnoteInline
-from .models import Person, Country, Address, Profession, InfoURL, \
+from .models import Person, Country, Location, Profession, InfoURL, \
     Relationship, RelationshipType
 
 
@@ -161,7 +161,7 @@ class PersonAdmin(admin.ModelAdmin):
         js = ['admin/viaf-lookup.js']
 
 
-class AddressAdminForm(forms.ModelForm):
+class LocationAdminForm(forms.ModelForm):
     '''Custom model form for Address editing.'''
 
     #: add a hidden field to pass in a mapbox access token from local settings
@@ -169,15 +169,15 @@ class AddressAdminForm(forms.ModelForm):
         widget=forms.HiddenInput)
 
     class Meta:
-        model = Address
+        model = Location
         exclude = []
         widgets = {
             'longitude': MapWidget
         }
 
 
-class AddressAdmin(admin.ModelAdmin):
-    form = AddressAdminForm
+class LocationAdmin(admin.ModelAdmin):
+    form = LocationAdminForm
     list_display = ('__str__', 'name', 'street_address', 'city',
         'country', 'has_notes')
     # Use fieldset in order to add more instructions for looking up
@@ -212,6 +212,6 @@ class AddressAdmin(admin.ModelAdmin):
 # enable default admin to see imported data
 admin.site.register(Person, PersonAdmin)
 admin.site.register(Country, CountryAdmin)
-admin.site.register(Address, AddressAdmin)
+admin.site.register(Location, LocationAdmin)
 admin.site.register(Profession, NamedNotableAdmin)
 admin.site.register(RelationshipType, NamedNotableAdmin)

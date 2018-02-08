@@ -5,7 +5,7 @@ from django.db import models
 from django.template.defaultfilters import pluralize
 
 from mep.common.models import Named, Notable
-from mep.people.models import Person, Address
+from mep.people.models import Person, Location
 
 
 class Account(models.Model):
@@ -14,7 +14,7 @@ class Account(models.Model):
 
     persons = models.ManyToManyField(Person, blank=True)  # ? how can this be optional?
     addresses = models.ManyToManyField(
-        Address,
+        Location,
         through='AccountAddress',
         blank=True
     )
@@ -149,7 +149,7 @@ class AccountAddress(Notable):
     start and end dates, as well as a c/o person.'''
     care_of_person = models.ForeignKey(Person, blank=True, null=True)
     account = models.ForeignKey(Account)
-    address = models.ForeignKey(Address)
+    address = models.ForeignKey(Location)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
 

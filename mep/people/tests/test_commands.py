@@ -7,9 +7,8 @@ from django.core.management.base import CommandError
 import pytest
 
 from mep.people.management.commands import import_personography
-from mep.people.models import Person, Address, Country, InfoURL
+from mep.people.models import Person, Location, Country, InfoURL
 from mep.people import xml_models
-
 
 
 class TestImportPersonography(TestCase):
@@ -63,7 +62,7 @@ class TestImportPersonography(TestCase):
 
         # add a few things
         p = Person.objects.create(name='somebody')
-        Address.objects.create(city='Paris')
+        Location.objects.create(city='Paris')
         Country.objects.create(name='[no country]')
         InfoURL.objects.create(person=p, url='http://example.com')
 
@@ -78,7 +77,7 @@ class TestImportPersonography(TestCase):
         # add a few things
         p = Person.objects.create(name='somebody')
         Person.objects.create(name='somebody else')
-        Address.objects.create(city='Paris')
+        Location.objects.create(city='Paris')
         Country.objects.create(name='[no country]')
         InfoURL.objects.create(person=p, url='http://example.com')
 

@@ -7,7 +7,7 @@ import pytest
 from viapy.api import ViafEntity
 
 from mep.people.models import InfoURL, Person, Profession, Relationship, \
-    RelationshipType, Address, Country
+    RelationshipType, Location, Country
 from mep.accounts.models import Account, Subscription, Reimbursement
 
 
@@ -96,13 +96,13 @@ class TestPerson(TestCase):
         assert pers.address_count() == 0
 
         # add an address
-        address = Address.objects.create(name='L\'Hotel', city='Paris')
+        address = Location.objects.create(name='L\'Hotel', city='Paris')
         pers.addresses.add(address)
         # should be one
         assert pers.address_count() == 1
 
         # add another, should be 2
-        address2 = Address.objects.create(name='Elysian Fields', city='Paris')
+        address2 = Location.objects.create(name='Elysian Fields', city='Paris')
         pers.addresses.add(address2)
         assert pers.address_count() == 2
 
@@ -248,24 +248,24 @@ class TestAddress(TestCase):
 
     def test_str(self):
         # Name and city only
-        address = Address(name="La Hotel", city="Paris")
+        address = Location(name="La Hotel", city="Paris")
         assert str(address) == "La Hotel, Paris"
 
         # street and city only
-        address = Address(street_address="1 Rue Le Foo", city="Paris")
+        address = Location(street_address="1 Rue Le Foo", city="Paris")
         assert str(address) == "1 Rue Le Foo, Paris"
 
         # Name, street, and city
-        address = Address(street_address="1 Rue Le Foo", city="Paris",
+        address = Location(street_address="1 Rue Le Foo", city="Paris",
             name="La Hotel")
         assert str(address) == "La Hotel, 1 Rue Le Foo, Paris"
 
         # city only
-        address = Address(city="Paris")
+        address = Location(city="Paris")
         assert str(address) == "Paris"
 
     def test_repr(self):
-        hotel = Address(name='La Hotel', city='Paris')
+        hotel = Location(name='La Hotel', city='Paris')
         assert repr(hotel).startswith('<Address ')
         assert repr(hotel).endswith('>')
         assert hotel.name in repr(hotel)
@@ -273,7 +273,7 @@ class TestAddress(TestCase):
 
     def test_latlon_validate(self):
         # Valid, should pass clean fields
-        address = Address(latitude=180, longitude=-180, city="Paris")
+        address = Location(latitude=180, longitude=-180, city="Paris")
         address.clean_fields()
 
         # Not valid, should error out
@@ -283,7 +283,7 @@ class TestAddress(TestCase):
         assert "Lat/Lon must be between -180 and 180 degrees." in str(err)
 
         # String should error out too, Django handles the message
-        address = Address(latitude="foo", longitude="bar")
+        address = Location(latitude="foo", longitude="bar")
         with pytest.raises(ValidationError):
             address.clean_fields()
 

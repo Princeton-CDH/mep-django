@@ -21,8 +21,8 @@ class Country(Named):
         ordering = ('name',)
 
 
-class Address(Notable):
-    '''Addresses associated with people and accounts'''
+class Location(Notable):
+    '''Locations for addresses associated with people and accounts'''
     #: optional name of the location (e.g., hotel)
     name = models.CharField(
         max_length=255,
@@ -118,8 +118,8 @@ class Person(Notable, DateRange):
     profession = models.ForeignKey(Profession, blank=True, null=True)
     #: nationalities, link to :class:`Country`
     nationalities = models.ManyToManyField(Country, blank=True)
-    #: known addresses, many-to-many link to :class:`Address`
-    addresses = models.ManyToManyField(Address, blank=True,
+    #: known addresses, many-to-many link to :class:`Location`
+    addresses = models.ManyToManyField(Location, blank=True,
         help_text=('Autocomplete searches on all fields except '
                    'latitude and longitude.'))
     #: relationships to other people, via :class:`Relationship`

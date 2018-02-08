@@ -5,7 +5,7 @@ from dal import autocomplete
 
 from mep.accounts.models import Event
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import Address, Country, Person
+from mep.people.models import Location, Country, Person
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):
@@ -137,7 +137,7 @@ class AddressAutocomplete(autocomplete.Select2QuerySetView):
         Use Q objects to search all relevant fields in autocomplete.
         '''
         # not searching lat or lon for now
-        return Address.objects.filter(
+        return Location.objects.filter(
             Q(name__icontains=self.q) |
             Q(street_address__icontains=self.q) |
             Q(city__icontains=self.q) |

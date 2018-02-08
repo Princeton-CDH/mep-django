@@ -10,7 +10,7 @@ from django.urls import reverse
 from mep.accounts.models import Account, Subscription
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import Address, Country, Person, Relationship, \
+from mep.people.models import Location, Country, Person, Relationship, \
     RelationshipType
 from mep.people.views import GeoNamesLookup
 
@@ -287,8 +287,8 @@ class TestAddressAutocompleteView(TestCase):
             'postal_code': '678910',
             'country': es,
         }
-        add1 = Address.objects.create(**add_dict)
-        Address.objects.create(**add_dict2)
+        add1 = Location.objects.create(**add_dict)
+        Location.objects.create(**add_dict2)
 
         # make a person
         person = Person.objects.create(name='Baz', title='Mr.', sort_name='Baz')
