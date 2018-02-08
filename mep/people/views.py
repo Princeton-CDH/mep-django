@@ -133,7 +133,7 @@ class LocationAutocomplete(autocomplete.Select2QuerySetView):
 
     def get_queryset(self):
         '''
-        Get queryset of :class:`mep.people.models.Addresss` objects.
+        Get queryset of :class:`mep.people.models.Location` objects.
         Use Q objects to search all relevant fields in autocomplete.
         '''
         # not searching lat or lon for now
@@ -143,5 +143,5 @@ class LocationAutocomplete(autocomplete.Select2QuerySetView):
             Q(city__icontains=self.q) |
             Q(postal_code__icontains=self.q) |
             Q(country__name__icontains=self.q) |
-            Q(person__name__icontains=self.q)
+            Q(address__person__name__icontains=self.q)
         ).order_by('name', 'city', 'street_address')

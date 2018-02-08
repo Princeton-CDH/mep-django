@@ -443,8 +443,9 @@ class Person(TeiXmlObject):
                 person=db_person, notes='URL from XML import'))
 
         # handle residence addresses
-        for res in self.residences:
-            db_person.addresses.add(res.db_address())
+        # NOTE: disabled due to address/location refactor
+        # for res in self.residences:
+        #     db_person.addresses.add(res.db_address())
 
         return db_person
 

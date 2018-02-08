@@ -114,19 +114,19 @@ class Person(Notable, DateRange):
     profession = models.ForeignKey(Profession, blank=True, null=True)
     #: nationalities, link to :class:`Country`
     nationalities = models.ManyToManyField(Country, blank=True)
-    #: known addresses, many-to-many link to :class:`Location`
-    addresses = models.ManyToManyField(Location, blank=True,
-        help_text=('Autocomplete searches on all fields except '
-                   'latitude and longitude.'))
     #: relationships to other people, via :class:`Relationship`
     relations = models.ManyToManyField(
         'self',
         through='Relationship',
         symmetrical=False
     )
-
     #: footnotes (:class:`~mep.footnotes.models.Footnote`)
     footnotes = GenericRelation(Footnote)
+
+    # convenience access to associated locations, although
+    # we will probably use Address for most things
+    locations = models.ManyToManyField(Location, through='accounts.Address',
+        blank=True, through_fields=('person', 'location'))
 
     def __repr__(self):
         return '<Person %s>' % self.__dict__
@@ -181,8 +181,9 @@ class Person(Notable, DateRange):
     list_nationalities.admin_order_field = 'nationalities__name'
 
     def address_count(self):
-        '''Return count of addresses associated with the instance of :class:`Person` for list_view.'''
-        return self.addresses.count()
+        '''Number of documented addresses for this person'''
+        # used in admin list view
+        return self.address_set.count()
     address_count.short_description = '# Addresses'
 
     def has_account(self):

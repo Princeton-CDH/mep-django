@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.test import TestCase
 from django.urls import reverse
 
-from mep.accounts.models import Account, Subscription
+from mep.accounts.models import Account, Subscription, Address
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person, Relationship, \
@@ -325,9 +325,8 @@ class TestLocationAutocompleteView(TestCase):
         assert len(info['results']) == 1
         assert 'Hotel El Foo' in info['results'][0]['text']
 
-        # autocomplete that should get the address associated with person
-        person.addresses.add(add1)
-        person.save()
+        # autocomplete that should also find location by associated person
+        Address.objects.create(location=add1, person=person)
         res = self.client.get(auto_url, {'q': 'Baz'})
         info = res.json()
         assert len(info['results']) == 1

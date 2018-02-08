@@ -1,14 +1,14 @@
 import re
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 import pytest
 from viapy.api import ViafEntity
 
+from mep.accounts.models import Account, Subscription, Reimbursement, Address
 from mep.people.models import InfoURL, Person, Profession, Relationship, \
     RelationshipType, Location, Country
-from mep.accounts.models import Account, Subscription, Reimbursement
 
 
 class TestPerson(TestCase):
@@ -94,16 +94,16 @@ class TestPerson(TestCase):
         pers = Person.objects.create(name='Foobar')
         # no addresses
         assert pers.address_count() == 0
+        loc = Location.objects.create(name='L\'Hotel', city='Paris')
 
         # add an address
-        address = Location.objects.create(name='L\'Hotel', city='Paris')
-        pers.addresses.add(address)
+        Address.objects.create(location=loc, person=pers)
         # should be one
         assert pers.address_count() == 1
 
         # add another, should be 2
-        address2 = Location.objects.create(name='Elysian Fields', city='Paris')
-        pers.addresses.add(address2)
+        loc2 = Location.objects.create(name='Elysian Fields', city='Paris')
+        Address.objects.create(location=loc2, person=pers)
         assert pers.address_count() == 2
 
     def test_nationality_list(self):
