@@ -204,6 +204,28 @@ class TestAddress(TestCase):
             '%s - %s c/o %s' % (self.location, self.address.person,
                                 self.address.care_of_person)
 
+    def test_clean(self):
+        addr = Address(location=self.location)
+        # no account or person is an error
+        with pytest.raises(ValidationError):
+            addr.clean()
+        addr.account = self.account
+        addr.person = Person.objects.create(name='Lee')
+
+        # both account and person is an error
+        with pytest.raises(ValidationError):
+            addr.clean()
+
+        # either one alone should not raise an exception
+        # - person only
+        addr.account = None
+        addr.clean()
+        # - account only
+        addr.person = None
+        addr.account = self.account
+        addr.clean()
+
+
 class TestEvent(TestCase):
 
     def setUp(self):

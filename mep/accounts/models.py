@@ -173,6 +173,13 @@ class Address(Notable):
         return '%s - %s%s%s' % (self.location, self.account or self.person,
             dates, care_of)
 
+    def clean(self):
+        # require one and only one of account or person
+        if not self.account and not self.person:
+            raise ValidationError('Address must be associated with an account or person')
+        if self.account and self.person:
+            raise ValidationError('Address must only be associated with one of account or person')
+
 
 class Event(Notable):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
