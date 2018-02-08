@@ -41,6 +41,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='account',
             name='persons',
-            field=models.ManyToManyField(blank=True, to='people.Person', verbose_name='People'),
+            field=models.ManyToManyField(blank=True, to='people.Person', verbose_name='Account holders(s)'),
         ),
     ]

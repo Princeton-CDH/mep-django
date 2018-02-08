@@ -234,7 +234,8 @@ class EventAdmin(admin.ModelAdmin):
 class AccountAdmin(admin.ModelAdmin):
     model = Account
     form = AccountAdminForm
-    list_display = ('id', 'list_persons', 'earliest_date', 'last_date', 'list_addresses',)
+    list_display = ('id', 'list_persons', 'earliest_date', 'last_date',
+                    'list_locations')
     search_fields = ('id', 'address__location__street_address',
                      'address__location__name',
                      'address__location__country__name', 'persons__name')
@@ -251,3 +252,4 @@ admin.site.register(Account, AccountAdmin)
 admin.site.register(Reimbursement, ReimbursementAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(SubscriptionType, SubscriptionTypeAdmin)
+admin.site.register(Address)

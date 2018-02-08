@@ -93,7 +93,7 @@ class TestAccount(TestCase):
         # comma separated string, by name in alphabetical order
         assert account.list_persons() == 'Bazbar, Foobar'
 
-    def test_list_addresses(self):
+    def test_list_locations(self):
         # create an account and associate three addresses with it
         account = Account.objects.create()
         loc1 = Location.objects.create(name='Hotel Foo', city='Paris')
@@ -105,7 +105,7 @@ class TestAccount(TestCase):
 
         # semicolon separated string sorted by city, name, street address,
         # displays name first, then street_address, and city as a last resort
-        account.list_addresses() == 'Berlin; 1 Foo St.; Hotel Foo'
+        account.list_locations() == 'Berlin; 1 Foo St.; Hotel Foo'
 
     def test_earliest_date(self):
         account = Account.objects.create()

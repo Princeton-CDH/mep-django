@@ -12,7 +12,8 @@ class Account(models.Model):
     '''Central model for all account and related information, M2M explicity to
     :class:`people.Person`'''
 
-    persons = models.ManyToManyField(Person, blank=True, verbose_name='People')
+    persons = models.ManyToManyField(Person, blank=True,
+        verbose_name='Account holder(s)')
     # convenience access to associated locations, although
     # we will probably use Address for most things
     locations = models.ManyToManyField(Location, through='Address', blank=True)
@@ -47,7 +48,7 @@ class Account(models.Model):
         '''
         return ', '.join(person.name for
                          person in self.persons.all().order_by('name'))
-    list_persons.short_description = 'Associated persons'
+    list_persons.short_description = 'Account holder(s)'
 
     def earliest_date(self):
         '''Earliest known date from all events associated with this account'''
@@ -66,17 +67,10 @@ class Account(models.Model):
             return evt.end_date or evt.start_date
 
 
-    def list_addresses(self):
-        '''List :class:`mep.people.models.Address` instances associated with
-        this account.
-        '''
-        return '; '.join(
-            address.name if address.name
-            else address.street_address if address.street_address
-            else address.city for address in
-            self.locations.all().order_by('name', 'street_address')
-        )
-    list_addresses.short_description = 'Associated addresses'
+    def list_locations(self):
+        '''List of associated :class:`mep.people.models.Location` '''
+        return '; '.join([str(loc) for loc in self.locations.distinct()])
+    list_locations.short_description = 'Locations'
 
     def add_event(self, etype='event', **kwargs):
         '''Helper function to add a :class:`Event` or subclass to an
