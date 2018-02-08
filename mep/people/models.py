@@ -63,7 +63,6 @@ class Location(Notable):
     #: footnotes (:class:`~mep.footnotes.models.Footnote`)
     footnotes = GenericRelation(Footnote)
 
-
     class Meta:
         verbose_name_plural = 'addresses'
 

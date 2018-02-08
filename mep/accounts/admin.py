@@ -6,7 +6,7 @@ from django import forms
 from django.contrib import admin
 from django.core.validators import RegexValidator
 
-from mep.accounts.models import Account, AccountAddress, Subscription,\
+from mep.accounts.models import Account, Address, Subscription,\
     Reimbursement, Event, SubscriptionType
 from mep.common.admin import NamedNotableAdmin, CollapsedTabularInline, \
     CollapsibleTabularInline
@@ -164,9 +164,9 @@ class ReimbursementInline(CollapsibleTabularInline):
     fields = ('start_date', 'refund', 'currency', 'notes')
 
 
-class AccountAddressInlineForm(forms.ModelForm):
+class AddressInlineForm(forms.ModelForm):
     class Meta:
-        model = AccountAddress
+        model = Address
         fields = ('__all__')
         help_texts = {
             'account': ('Searches and displays on system assigned '
@@ -202,9 +202,9 @@ class AccountAddressInlineForm(forms.ModelForm):
         }
 
 
-class AccountAddressInline(CollapsedTabularInline):
-    model = AccountAddress
-    form = AccountAddressInlineForm
+class AddressInline(CollapsedTabularInline):
+    model = Address
+    form = AddressInlineForm
     extra = 1
     fields = ('account', 'address', 'care_of_person', 'start_date', 'end_date', 'notes')
 
@@ -243,11 +243,11 @@ class AccountAdmin(admin.ModelAdmin):
     model = Account
     form = AccountAdminForm
     list_display = ('id', 'list_persons', 'earliest_date', 'last_date', 'list_addresses',)
-    search_fields = ('id', 'accountaddress__address__street_address',
-                     'accountaddress__address__name',
-                     'accountaddress__address__country__name', 'persons__name')
+    search_fields = ('id', 'address__location__street_address',
+                     'address__location__name',
+                     'address__location__country__name', 'persons__name')
     fields = ('persons',)
-    inlines = [AccountAddressInline, SubscriptionInline, ReimbursementInline]
+    inlines = [AddressInline, SubscriptionInline, ReimbursementInline]
 
 
 class SubscriptionTypeAdmin(NamedNotableAdmin):

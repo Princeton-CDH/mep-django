@@ -12,31 +12,29 @@ class Account(models.Model):
     '''Central model for all account and related information, M2M explicity to
     :class:`people.Person`'''
 
-    persons = models.ManyToManyField(Person, blank=True)  # ? how can this be optional?
-    addresses = models.ManyToManyField(
-        Location,
-        through='AccountAddress',
-        blank=True
-    )
+    persons = models.ManyToManyField(Person, blank=True)
+    # convenience access to associated locations, although
+    # we will probably use Address for most things
+    locations = models.ManyToManyField(Location, through='Address', blank=True)
 
     def __repr__(self):
         return '<Account %s>' % self.__dict__
 
     def __str__(self):
-        if not self.persons.exists() and not self.addresses.exists():
+        if not self.persons.exists() and not self.locations.exists():
             return 'Account #%s' % self.pk
         if self.persons.exists():
             return 'Account #%s: %s' % (
                 self.pk,
                 ', '.join(person.name for person in self.persons.all())
             )
-        if self.addresses.exists():
+        if self.locations.exists():
             return 'Account #%s: %s' % (
                 self.pk,
                 '; '.join(address.name if address.name else
                           address.street_address if address.street_address else
                           address.city for address in
-                          self.addresses.all().order_by(
+                          self.locations.all().order_by(
                           'city', 'street_address', 'name'))
         )
 
@@ -76,7 +74,7 @@ class Account(models.Model):
             address.name if address.name
             else address.street_address if address.street_address
             else address.city for address in
-            self.addresses.all().order_by('name', 'street_address')
+            self.locations.all().order_by('name', 'street_address')
         )
     list_addresses.short_description = 'Associated addresses'
 
@@ -144,24 +142,36 @@ class Account(models.Model):
         return str_to_model[etype].objects.filter(account=self, **kwargs)
 
 
-class AccountAddress(Notable):
-    '''Through model for :class:`Account` and :class:`Address` that supplies
-    start and end dates, as well as a c/o person.'''
-    care_of_person = models.ForeignKey(Person, blank=True, null=True)
-    account = models.ForeignKey(Account)
-    address = models.ForeignKey(Location)
+class Address(Notable):
+    '''Address associated with an :class:`Account` or
+    a :class:`~mep.people.models.Person`.  Used to associate locations with
+    people and accounts, with optional start and end dates and a care/of person.'''
+    location = models.ForeignKey(Location)
+    account = models.ForeignKey(Account, blank=True, null=True)
+    person = models.ForeignKey(Person, blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
-
-    def __repr__(self):
-        return '<AccountAddress %s>' % self.__dict__
-
-    def __str__(self):
-        '''This is a through model, so the str representation is minimal'''
-        return 'Account #%s - Address #%s' % (self.account.pk, self.address.pk)
+    care_of_person = models.ForeignKey(Person, blank=True, null=True,
+        related_name='care_of_addresses')
 
     class Meta:
-        verbose_name = 'Account-address association'
+        verbose_name = 'Address'
+
+    def __repr__(self):
+        return '<Address %s>' % self.__dict__
+
+    def __str__(self):
+        dates = care_of = ''
+        if self.start_date or self.end_date:
+            dates = ' (%s)' % '-'.join([date.strftime('%Y') if date else ''
+                for date in [self.start_date, self.end_date]])
+        if self.care_of_person:
+            care_of = ' c/o %s' % self.care_of_person
+
+        # NOTE: this is potentially redundant if account has only a
+        # location and not a name
+        return '%s - %s%s%s' % (self.location, self.account or self.person,
+            dates, care_of)
 
 
 class Event(Notable):
