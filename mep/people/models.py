@@ -63,6 +63,9 @@ class Location(Notable):
     #: footnotes (:class:`~mep.footnotes.models.Footnote`)
     footnotes = GenericRelation(Footnote)
 
+    class Meta:
+        unique_together = (("name", "street_address", "city", "country"),)
+
     def __repr__(self):
         return '<Location %s>' % self.__dict__
 
