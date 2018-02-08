@@ -252,4 +252,4 @@ admin.site.register(Account, AccountAdmin)
 admin.site.register(Reimbursement, ReimbursementAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(SubscriptionType, SubscriptionTypeAdmin)
-admin.site.register(Address)
+
