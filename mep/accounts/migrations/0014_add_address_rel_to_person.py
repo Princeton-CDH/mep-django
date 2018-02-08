@@ -17,12 +17,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='address',
             name='person',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='people.Person'),
+            field=models.ForeignKey(blank=True, help_text='For personal addresses not associated with library accounts.', null=True, on_delete=django.db.models.deletion.CASCADE, to='people.Person'),
         ),
         migrations.AlterField(
             model_name='address',
             name='account',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='accounts.Account'),
+            field=models.ForeignKey(blank=True, help_text='Associated library account', null=True, on_delete=django.db.models.deletion.CASCADE, to='accounts.Account'),
         ),
         migrations.AlterField(
             model_name='address',
@@ -33,5 +33,14 @@ class Migration(migrations.Migration):
             model_name='address',
             old_name='address',
             new_name='location',
+        ),
+        migrations.AlterModelOptions(
+            name='address',
+            options={'verbose_name_plural': 'Addresses'},
+        ),
+        migrations.AlterField(
+            model_name='account',
+            name='persons',
+            field=models.ManyToManyField(blank=True, to='people.Person', verbose_name='People'),
         ),
     ]

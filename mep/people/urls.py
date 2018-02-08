@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from mep.people.views import GeoNamesLookup, PersonAutocomplete, \
-    CountryAutocomplete, AddressAutocomplete
+    CountryAutocomplete, LocationAutocomplete
 
 
 urlpatterns = [
@@ -13,7 +13,7 @@ urlpatterns = [
         name='autocomplete'),
     url(r'^people/country/autocomplete', CountryAutocomplete.as_view(),
         name='country-autocomplete'),
-    url(r'^people/address/autocomplete', AddressAutocomplete.as_view(),
-        name='address-autocomplete')
+    url(r'^people/location/autocomplete', LocationAutocomplete.as_view(),
+        name='location-autocomplete')
 
 ]

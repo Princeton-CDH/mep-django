@@ -265,7 +265,7 @@ class TestCountryAutocompleteView(TestCase):
         assert info['results'][0]['text'] == 'France'
 
 
-class TestAddressAutocompleteView(TestCase):
+class TestLocationAutocompleteView(TestCase):
 
     def test_get_queryset(self):
         # make two countries
@@ -295,7 +295,7 @@ class TestAddressAutocompleteView(TestCase):
 
         # - series of tests for get_queryset Q's and view rendering
         # autocomplete that should get both
-        auto_url = reverse('people:address-autocomplete')
+        auto_url = reverse('people:location-autocomplete')
         res = self.client.get(auto_url, {'q': 'Foo'})
         info = res.json()
         assert len(info['results']) == 2

@@ -8,9 +8,31 @@ from django.core.validators import RegexValidator
 
 from mep.accounts.models import Account, Address, Subscription,\
     Reimbursement, Event, SubscriptionType
-from mep.common.admin import NamedNotableAdmin, CollapsedTabularInline, \
-    CollapsibleTabularInline
+from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 
+
+# predefine autocomplete lookups (most are used on more than one form)
+AUTOCOMPLETE = {
+    'person': autocomplete.ModelSelect2(url='people:autocomplete',
+        attrs={
+            'data-placeholder': ('Type to search for people...'),
+            'data-minimum-input-length': 3,
+            'data-html': True
+        }
+    ),
+    'account': autocomplete.ModelSelect2(url='accounts:autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for account...',
+            'data-minimum-input-length': 3
+        }
+    ),
+    'location': autocomplete.ModelSelect2(url='people:location-autocomplete',
+        attrs={
+            'data-placeholder': ('Type to search for location... '),
+            'data-minimum-input-length': 3
+        }
+    ),
+}
 
 class EventAdminForm(forms.ModelForm):
     '''Admin form for the Event model, adds autocomplete to account'''
@@ -23,14 +45,9 @@ class EventAdminForm(forms.ModelForm):
                         'address data.'),
         }
         widgets = {
-            'account': autocomplete.ModelSelect2(
-                url='accounts:autocomplete',
-                attrs={
-                    'data-placeholder': 'Type to search account data...',
-                    'data-minimum-input-length': 3
-                }
-            ),
+            'account': AUTOCOMPLETE['account'],
         }
+
 
 class SubscriptionAdminForm(forms.ModelForm):
     # regular expression to validate duration input and capture elements
@@ -63,13 +80,7 @@ class SubscriptionAdminForm(forms.ModelForm):
                          'duration if not set.')
         }
         widgets = {
-            'account': autocomplete.ModelSelect2(
-                url='accounts:autocomplete',
-                attrs={
-                    'data-placeholder': 'Type to search account data...',
-                    'data-minimum-input-length': 3
-                }
-            ),
+            'account': AUTOCOMPLETE['account'],
         }
 
     def get_initial_for_field(self, field, field_name):
@@ -172,41 +183,29 @@ class AddressInlineForm(forms.ModelForm):
             'account': ('Searches and displays on system assigned '
                         'account id, as well as associated person and '
                         'address data.'),
-            'address': ('Searches on address name, street address, city, '
+            'location': ('Searches on name, street address, city, '
                         'postal code, and country.'),
-
         }
         widgets = {
-                'account': autocomplete.ModelSelect2(
-                    url='accounts:autocomplete',
-                    attrs={
-                        'data-placeholder': 'Type to search account data...',
-                        'data-minimum-input-length': 3
-                    }
-                ),
-                'address': autocomplete.ModelSelect2(
-                    url='people:address-autocomplete',
-                    attrs={
-                        'data-placeholder': ('Type to search address data... '),
-                        'data-minimum-input-length': 3
-                    }
-                ),
-                'care_of_person': autocomplete.ModelSelect2(
-                    url='people:autocomplete',
-                    attrs={
-                        'data-placeholder': ('Type to search for people...'),
-                        'data-minimum-input-length': 3,
-                        'data-html': True
-                    }
-                ),
+            'account': AUTOCOMPLETE['account'],
+            'location': AUTOCOMPLETE['location'],
+            'person': AUTOCOMPLETE['person'],
+            'care_of_person': AUTOCOMPLETE['person'],
         }
 
 
-class AddressInline(CollapsedTabularInline):
+class AddressInline(CollapsibleTabularInline):
+    # generic address edit - includes both account and person
     model = Address
     form = AddressInlineForm
     extra = 1
-    fields = ('account', 'address', 'care_of_person', 'start_date', 'end_date', 'notes')
+    fields = ('account', 'person', 'location', 'start_date', 'end_date',
+              'care_of_person', 'notes')
+
+class AccountAddressInline(AddressInline):
+    # when associating a location with an account, don't allow editing
+    # person
+    fields = ('location', 'start_date', 'end_date', 'care_of_person', 'notes')
 
 
 class AccountAdminForm(forms.ModelForm):
@@ -215,15 +214,8 @@ class AccountAdminForm(forms.ModelForm):
         model = Account
         fields = ('__all__')
         widgets = {
-            'persons': autocomplete.ModelSelect2Multiple(
-                url='people:autocomplete',
-                attrs={
-                    'data-placeholder': ('Type to search for people...'),
-                    'data-minimum-input-length': 3,
-                    'data-html': True
-                }
-            ),
-        }
+            'persons': AUTOCOMPLETE['person'],
+         }
 
 
 class EventAdmin(admin.ModelAdmin):
@@ -247,7 +239,7 @@ class AccountAdmin(admin.ModelAdmin):
                      'address__location__name',
                      'address__location__country__name', 'persons__name')
     fields = ('persons',)
-    inlines = [AddressInline, SubscriptionInline, ReimbursementInline]
+    inlines = [AccountAddressInline, SubscriptionInline, ReimbursementInline]
 
 
 class SubscriptionTypeAdmin(NamedNotableAdmin):

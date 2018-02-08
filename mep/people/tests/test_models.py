@@ -266,7 +266,7 @@ class TestAddress(TestCase):
 
     def test_repr(self):
         hotel = Location(name='La Hotel', city='Paris')
-        assert repr(hotel).startswith('<Address ')
+        assert repr(hotel).startswith('<Location ')
         assert repr(hotel).endswith('>')
         assert hotel.name in repr(hotel)
         assert hotel.city in repr(hotel)

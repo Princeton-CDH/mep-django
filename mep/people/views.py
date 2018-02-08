@@ -127,7 +127,7 @@ class CountryAutocomplete(autocomplete.Select2QuerySetView):
         return Country.objects.filter(name__icontains=self.q)
 
 
-class AddressAutocomplete(autocomplete.Select2QuerySetView):
+class LocationAutocomplete(autocomplete.Select2QuerySetView):
     '''Basic autocomplete lookup, for use with django-autocomplete-light and
     :class:`mep.people.models.Person` in address many-to-many'''
 

@@ -12,7 +12,7 @@ class Account(models.Model):
     '''Central model for all account and related information, M2M explicity to
     :class:`people.Person`'''
 
-    persons = models.ManyToManyField(Person, blank=True)
+    persons = models.ManyToManyField(Person, blank=True, verbose_name='People')
     # convenience access to associated locations, although
     # we will probably use Address for most things
     locations = models.ManyToManyField(Location, through='Address', blank=True)
@@ -147,15 +147,17 @@ class Address(Notable):
     a :class:`~mep.people.models.Person`.  Used to associate locations with
     people and accounts, with optional start and end dates and a care/of person.'''
     location = models.ForeignKey(Location)
-    account = models.ForeignKey(Account, blank=True, null=True)
-    person = models.ForeignKey(Person, blank=True, null=True)
+    account = models.ForeignKey(Account, blank=True, null=True,
+        help_text='Associated library account')
+    person = models.ForeignKey(Person, blank=True, null=True,
+        help_text='For personal addresses not associated with library accounts.')
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     care_of_person = models.ForeignKey(Person, blank=True, null=True,
         related_name='care_of_addresses')
 
     class Meta:
-        verbose_name = 'Address'
+        verbose_name_plural = 'Addresses'
 
     def __repr__(self):
         return '<Address %s>' % self.__dict__

@@ -63,11 +63,8 @@ class Location(Notable):
     #: footnotes (:class:`~mep.footnotes.models.Footnote`)
     footnotes = GenericRelation(Footnote)
 
-    class Meta:
-        verbose_name_plural = 'addresses'
-
     def __repr__(self):
-        return '<Address %s>' % self.__dict__
+        return '<Location %s>' % self.__dict__
 
     def __str__(self):
         str_parts = [self.name, self.street_address, self.city]
@@ -206,9 +203,12 @@ class Person(Notable, DateRange):
 class InfoURL(Notable):
     '''Informational urls (other than VIAF) associated with a :class:`Person`,
     e.g. Wikipedia page.'''
-    url = models.URLField(
+    url = models.URLField(verbose_name='URL',
         help_text='Additional (non-VIAF) URLs for a person.')
     person = models.ForeignKey(Person, related_name='urls')
+
+    class Meta:
+        verbose_name = 'Informational URL'
 
     def __repr__(self):
         return "<InfoURL %s>" % self.__dict__

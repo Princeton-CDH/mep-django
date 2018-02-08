@@ -70,10 +70,6 @@ class CountryAdmin(admin.ModelAdmin):
         js = ['admin/geonames-lookup.js']
 
 
-class ResidenceInline(CollapsedTabularInline):
-    model = Person.addresses.through
-
-
 class RelationshipInlineForm(forms.ModelForm):
     '''Custom model form for Book editing, used to add autocomplete
     for place lookup.'''
@@ -120,16 +116,8 @@ class PersonAdminForm(forms.ModelForm):
                     'data-minimum-input-length': 3
                 }
             ),
-            'addresses': autocomplete.ModelSelect2Multiple(
-                url='people:address-autocomplete',
-                attrs={
-                    'data-placeholder': ('Type to search address data... '),
-                    'data-minimum-input-length': 3
-                }
-            ),
             # special css class to use prepopulate but opt out of slugify
             'sort_name': forms.TextInput(attrs={'class': 'prepopulate-noslug'}),
-
         }
 
 
@@ -144,12 +132,13 @@ class PersonAdmin(admin.ModelAdmin):
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
-        'sex', 'profession', 'nationalities', 'addresses',
-        'notes')
+        'sex', 'profession', 'nationalities', 'notes')
     readonly_fields = ('mep_id', 'in_logbooks')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = ('sex', 'profession', 'nationalities')
-    inlines = [InfoURLInline, RelationshipInline, FootnoteInline]
+    # Note: moving relationships to last for adjacency to list of relationships
+    # *to* this person included in the template
+    inlines = [InfoURLInline, FootnoteInline, RelationshipInline]
 
     # by default, set sort name from name for those cases where
     # only one name is known and they are the same
@@ -198,7 +187,7 @@ class LocationAdmin(admin.ModelAdmin):
 
     list_filter = ('country',)
     search_fields = ('name', 'street_address', 'city', 'notes')
-    inlines = [AddressInline, ResidenceInline, FootnoteInline]
+    inlines = [AddressInline, FootnoteInline]
     class Media:
         css = {
             'all': ['https://unpkg.com/leaflet@1.0.2/dist/leaflet.css',
