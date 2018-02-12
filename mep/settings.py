@@ -111,7 +111,7 @@ WSGI_APPLICATION = 'mep.wsgi.application'
 GRAPPELLI_ADMIN_TITLE = 'MEP Admin'
 
 
-# anine integration package names (normally uses custom forks)
+# mezzanine integration package names (normally uses custom forks)
 PACKAGE_NAME_FILEBROWSER = "filebrowser_safe"
 PACKAGE_NAME_GRAPPELLI = "grappelli"
 
