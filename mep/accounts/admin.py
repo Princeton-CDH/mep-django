@@ -248,6 +248,9 @@ class AccountAdmin(admin.ModelAdmin):
     fields = ('persons',)
     inlines = [AccountAddressInline, SubscriptionInline, ReimbursementInline]
 
+    class Media:
+        js = ("admin/js/person-editlink.js",)
+
 
 class SubscriptionTypeAdmin(NamedNotableAdmin):
     list_display = ('name', 'notes')
