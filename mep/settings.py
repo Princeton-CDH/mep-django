@@ -195,7 +195,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 SITE_ID = 1
 
 # use mezzanine config to customize admin so that project-specific content
-# is listed first - accounts, then peoplee
+# is listed first - accounts, then people
 ADMIN_MENU_ORDER = (
     ("Library Accounts", ("accounts.Account", "accounts.Event", "accounts.Subscription",
         "accounts.Reimbursement", "accounts.SubscriptionType")),
@@ -231,15 +231,6 @@ if os.path.exists(f):
     module.__file__ = f
     sys.modules[module_name] = module
     exec(open(f, "rb").read())
-
-# if in debug mode and django-debug-toolbar is available, add to installed apps
-if DEBUG:
-    try:
-        import debug_toolbar
-        INSTALLED_APPS.append('debug_toolbar')
-        MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
-    except ImportError:
-        pass
 
 
 ## Mezzanine dynamic settings
