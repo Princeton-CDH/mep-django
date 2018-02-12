@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+from django.core.exceptions import ObjectDoesNotExist
 
 def remove_old_permissions(apps, schema_editor):
     # NOTE: django migration RenameModel does not update permissions;
@@ -17,19 +18,24 @@ def remove_old_permissions(apps, schema_editor):
     Permission = apps.get_model("auth", "Permission")
     ContentType = apps.get_model('contenttypes', 'ContentType')
 
-    content_type = ContentType.objects.get(
-        model='location',
-        app_label='people',
-    )
-    Permission.objects.filter(
-        content_type=content_type,
-        codename__in=('add_address', 'change_address', 'delete_address'),
-    ).delete()
+    try:
+        content_type = ContentType.objects.get(
+            model='location',
+            app_label='people',
+        )
+        Permission.objects.filter(
+            content_type=content_type,
+            codename__in=('add_address', 'change_address', 'delete_address'),
+        ).delete()
+    except ObjectDoesNotExist:
+        # if content type doesn't exist, permissions haven't been created yet
+        pass
 
 class Migration(migrations.Migration):
 
     dependencies = [
         ('people', '0003_infer_sex_from_title'),
+        ('auth', '0008_alter_user_username_max_length'),
         ('contenttypes', '0002_remove_content_type_name')
     ]
 
