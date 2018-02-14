@@ -49,6 +49,19 @@ class EventAdminForm(forms.ModelForm):
         }
 
 
+class EventAdmin(admin.ModelAdmin):
+    '''Admin interface for the generic Events that underlie other subclasses
+    such as Subscription and Reimbursment'''
+    model = Event
+    form = EventAdminForm
+    date_hierarchy = 'start_date'
+    fields = ('account', 'event_type', 'start_date', 'end_date', 'notes')
+    readonly_fields = ('event_type',)
+    list_display = ('account', 'event_type', 'start_date', 'end_date', 'notes')
+    search_fields = ('account__persons__name', 'account__persons__mep_id',
+                     'start_date', 'end_date', 'notes')
+
+
 class SubscriptionAdminForm(forms.ModelForm):
     # regular expression to validate duration input and capture elements
     # for conversion into relativedelta; currently requires full names
@@ -216,19 +229,6 @@ class AccountAdminForm(forms.ModelForm):
         widgets = {
             'persons': AUTOCOMPLETE['person'],
          }
-
-
-class EventAdmin(admin.ModelAdmin):
-    '''Admin interface for the generic Events that underlie other subclasses
-    such as Subscription and Reimbursment'''
-    model = Event
-    form = EventAdminForm
-    date_hierarchy = 'start_date'
-    fields = ('account', 'event_type', 'start_date', 'end_date', 'notes')
-    readonly_fields = ('event_type',)
-    list_display = ('account', 'event_type', 'start_date', 'end_date', 'notes')
-    search_fields = ('account__persons__name', 'account__persons__mep_id',
-                     'start_date', 'end_date', 'notes')
 
 
 class AccountAdmin(admin.ModelAdmin):

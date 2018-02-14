@@ -117,8 +117,9 @@ class PersonAdminForm(forms.ModelForm):
                     'data-minimum-input-length': 3
                 }
             ),
-            # special css class to use prepopulate but opt out of slugify
-            'sort_name': forms.TextInput(attrs={'class': 'prepopulate-noslug'}),
+            # special css class to customize django prepopulate behavior
+            # opt out of slugify, don't prepopulate if there are spaces
+            'sort_name': forms.TextInput(attrs={'class': 'prepopulate-noslug prepopulate-nospace'}),
         }
 
 
