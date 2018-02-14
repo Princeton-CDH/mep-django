@@ -7,10 +7,10 @@ from django.core.validators import ValidationError
 from django.test import TestCase
 import pytest
 
-from mep.accounts.models import Account, AccountAddress, Address, \
+from mep.accounts.models import Account, Address, \
     Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin
 from mep.books.models import Item
-from mep.people.models import Person
+from mep.people.models import Person, Location
 
 
 class TestAccount(TestCase):
@@ -28,8 +28,8 @@ class TestAccount(TestCase):
         assert str(account) == "Account #%s" % account.pk
 
         # create and add an address, overrides just pk method
-        add1 = Address.objects.create(street_address='1 Rue St.')
-        AccountAddress.objects.create(account=account, address=add1)
+        loc1 = Location.objects.create(street_address='1 Rue St.')
+        Address.objects.create(account=account, location=loc1)
         assert str(account) == "Account #%s: 1 Rue St." % account.pk
 
         # create and add a person, overrides address
@@ -93,19 +93,19 @@ class TestAccount(TestCase):
         # comma separated string, by name in alphabetical order
         assert account.list_persons() == 'Bazbar, Foobar'
 
-    def test_list_addresses(self):
+    def test_list_locations(self):
         # create an account and associate three addresses with it
         account = Account.objects.create()
-        add1 = Address.objects.create(name='Hotel Foo', city='Paris')
-        add2 = Address.objects.create(street_address='1 Foo St.', city='London')
-        add3 = Address.objects.create(city='Berlin')
-        addresses = [add1, add2, add3]
-        for address in addresses:
-            AccountAddress.objects.create(account=account, address=address)
+        loc1 = Location.objects.create(name='Hotel Foo', city='Paris')
+        loc2 = Location.objects.create(street_address='1 Foo St.', city='London')
+        loc3 = Location.objects.create(city='Berlin')
+        locations = [loc1, loc2, loc3]
+        for location in locations:
+            Address.objects.create(account=account, location=location)
 
         # semicolon separated string sorted by city, name, street address,
         # displays name first, then street_address, and city as a last resort
-        account.list_addresses() == 'Berlin; 1 Foo St.; Hotel Foo'
+        account.list_locations() == 'Berlin; 1 Foo St.; Hotel Foo'
 
     def test_earliest_date(self):
         account = Account.objects.create()
@@ -148,28 +148,82 @@ class TestAccount(TestCase):
     #     return self.event_set.all().order_by('end_date').last().end_date
 
 
-class TestAccountAddress(TestCase):
+class TestAddress(TestCase):
 
     def setUp(self):
-        self.address = Address.objects.create()
+        self.location = Location.objects.create(name='Hotel de la Rue')
         self.account = Account.objects.create()
 
-        self.account_address = AccountAddress.objects.create(
-            address=self.address,
+        self.address = Address.objects.create(
+            location=self.location,
             account=self.account
         )
 
     def test_repr(self):
         # Using self.__dict__ so relying on method being correct
         # Testing for form of "<Account {"k":v, ...}>"
-        overall = re.compile(r"<AccountAddress \{.+\}>")
-        assert re.search(overall, repr(self.account_address))
+        overall = re.compile(r"<Address \{.+\}>")
+        assert re.search(overall, repr(self.address))
 
     def test_str(self):
-        assert str(self.account_address) == (
-            'Account #%s - Address #%s' %
-            (self.account.pk, self.address.pk)
-        )
+        # account only
+        assert str(self.address) == '%s - %s' % (self.location, self.account)
+
+        # account with start date
+        start_year = 1920
+        self.address.start_date = datetime.datetime(year=start_year, month=1, day=1)
+        assert str(self.address) == \
+            '%s - %s (%s-)' % (self.location, self.account, start_year)
+
+        # start and end date
+        end_year = 1923
+        self.address.end_date = datetime.datetime(year=end_year, month=1, day=1)
+        assert str(self.address) == \
+            '%s - %s (%d-%d)' % (self.location, self.account, start_year, end_year)
+
+        # end date only
+        self.address.start_date = None
+        assert str(self.address) == \
+            '%s - %s (-%d)' % (self.location, self.account, end_year)
+
+        # care of person
+        self.address.care_of_person = Person.objects.create(name='Jones')
+        assert str(self.address) == \
+            '%s - %s (-%d) c/o %s' % (self.location, self.account, end_year,
+                                    self.address.care_of_person)
+        # care of, no dates
+        self.address.end_date = None
+        assert str(self.address) == \
+            '%s - %s c/o %s' % (self.location, self.account,
+                                self.address.care_of_person)
+
+        # person, no account
+        self.address.account = None
+        self.address.person = Person.objects.create(name='Smith')
+        assert str(self.address) == \
+            '%s - %s c/o %s' % (self.location, self.address.person,
+                                self.address.care_of_person)
+
+    def test_clean(self):
+        addr = Address(location=self.location)
+        # no account or person is an error
+        with pytest.raises(ValidationError):
+            addr.clean()
+        addr.account = self.account
+        addr.person = Person.objects.create(name='Lee')
+
+        # both account and person is an error
+        with pytest.raises(ValidationError):
+            addr.clean()
+
+        # either one alone should not raise an exception
+        # - person only
+        addr.account = None
+        addr.clean()
+        # - account only
+        addr.person = None
+        addr.account = self.account
+        addr.clean()
 
 
 class TestEvent(TestCase):

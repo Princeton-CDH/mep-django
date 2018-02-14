@@ -5,14 +5,15 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from viapy.widgets import ViafWidget
 
-from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline, CollapsedTabularInline
-from mep.accounts.admin import AccountAddressInline
+from mep.common.admin import NamedNotableAdmin, CollapsedTabularInline, \
+    CollapsibleTabularInline
+from mep.accounts.admin import AddressInline
 from mep.footnotes.admin import FootnoteInline
-from .models import Person, Country, Address, Profession, InfoURL, \
+from .models import Person, Country, Location, Profession, InfoURL, \
     Relationship, RelationshipType
 
 
-class InfoURLInline(CollapsedTabularInline):
+class InfoURLInline(CollapsibleTabularInline):
     model = InfoURL
     fields = ('url', 'notes')
 
@@ -70,10 +71,6 @@ class CountryAdmin(admin.ModelAdmin):
         js = ['admin/geonames-lookup.js']
 
 
-class ResidenceInline(CollapsedTabularInline):
-    model = Person.addresses.through
-
-
 class RelationshipInlineForm(forms.ModelForm):
     '''Custom model form for Book editing, used to add autocomplete
     for place lookup.'''
@@ -120,19 +117,17 @@ class PersonAdminForm(forms.ModelForm):
                     'data-minimum-input-length': 3
                 }
             ),
-            'addresses': autocomplete.ModelSelect2Multiple(
-                url='people:address-autocomplete',
-                attrs={
-                    'data-placeholder': ('Type to search address data... '),
-                    'data-minimum-input-length': 3
-                }
-            ),
             # special css class to customize django prepopulate behavior
             # opt out of slugify, don't prepopulate if there are spaces
             'sort_name': forms.TextInput(attrs={'class': 'prepopulate-noslug prepopulate-nospace'}),
-
         }
 
+
+class PersonAddressInline(AddressInline):
+    # extend address inline for person to specify foreign key field
+    # and remove account from editable fields
+    fields = ('location', 'start_date', 'end_date', 'care_of_person', 'notes')
+    fk_name = 'person'
 
 class PersonAdmin(admin.ModelAdmin):
     # NOTE: uses custom template to display relationships to this person
@@ -145,12 +140,13 @@ class PersonAdmin(admin.ModelAdmin):
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
-        'sex', 'profession', 'nationalities', 'addresses',
-        'notes')
+        'sex', 'profession', 'nationalities', 'notes')
     readonly_fields = ('mep_id', 'in_logbooks')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = ('sex', 'profession', 'nationalities')
-    inlines = [InfoURLInline, RelationshipInline, FootnoteInline]
+    # Note: moving relationships to last for adjacency to list of relationships
+    # *to* this person included in the template
+    inlines = [InfoURLInline, PersonAddressInline, FootnoteInline, RelationshipInline]
 
     # by default, set sort name from name for those cases where
     # only one name is known and they are the same
@@ -162,7 +158,7 @@ class PersonAdmin(admin.ModelAdmin):
         js = ['admin/viaf-lookup.js']
 
 
-class AddressAdminForm(forms.ModelForm):
+class LocationAdminForm(forms.ModelForm):
     '''Custom model form for Address editing.'''
 
     #: add a hidden field to pass in a mapbox access token from local settings
@@ -170,15 +166,15 @@ class AddressAdminForm(forms.ModelForm):
         widget=forms.HiddenInput)
 
     class Meta:
-        model = Address
+        model = Location
         exclude = []
         widgets = {
             'longitude': MapWidget
         }
 
 
-class AddressAdmin(admin.ModelAdmin):
-    form = AddressAdminForm
+class LocationAdmin(admin.ModelAdmin):
+    form = LocationAdminForm
     list_display = ('__str__', 'name', 'street_address', 'city',
         'country', 'has_notes')
     # Use fieldset in order to add more instructions for looking up
@@ -199,7 +195,7 @@ class AddressAdmin(admin.ModelAdmin):
 
     list_filter = ('country',)
     search_fields = ('name', 'street_address', 'city', 'notes')
-    inlines = [AccountAddressInline, ResidenceInline, FootnoteInline]
+    inlines = [AddressInline, FootnoteInline]
     class Media:
         css = {
             'all': ['https://unpkg.com/leaflet@1.0.2/dist/leaflet.css',
@@ -213,6 +209,6 @@ class AddressAdmin(admin.ModelAdmin):
 # enable default admin to see imported data
 admin.site.register(Person, PersonAdmin)
 admin.site.register(Country, CountryAdmin)
-admin.site.register(Address, AddressAdmin)
+admin.site.register(Location, LocationAdmin)
 admin.site.register(Profession, NamedNotableAdmin)
 admin.site.register(RelationshipType, NamedNotableAdmin)

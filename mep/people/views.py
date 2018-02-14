@@ -5,7 +5,7 @@ from dal import autocomplete
 
 from mep.accounts.models import Event
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import Address, Country, Person
+from mep.people.models import Location, Country, Person
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):
@@ -127,21 +127,21 @@ class CountryAutocomplete(autocomplete.Select2QuerySetView):
         return Country.objects.filter(name__icontains=self.q)
 
 
-class AddressAutocomplete(autocomplete.Select2QuerySetView):
+class LocationAutocomplete(autocomplete.Select2QuerySetView):
     '''Basic autocomplete lookup, for use with django-autocomplete-light and
     :class:`mep.people.models.Person` in address many-to-many'''
 
     def get_queryset(self):
         '''
-        Get queryset of :class:`mep.people.models.Addresss` objects.
+        Get queryset of :class:`mep.people.models.Location` objects.
         Use Q objects to search all relevant fields in autocomplete.
         '''
         # not searching lat or lon for now
-        return Address.objects.filter(
+        return Location.objects.filter(
             Q(name__icontains=self.q) |
             Q(street_address__icontains=self.q) |
             Q(city__icontains=self.q) |
             Q(postal_code__icontains=self.q) |
             Q(country__name__icontains=self.q) |
-            Q(person__name__icontains=self.q)
+            Q(address__person__name__icontains=self.q)
         ).order_by('name', 'city', 'street_address')
