@@ -21,8 +21,11 @@ $(document).ready(function() {
             // create a link within a paragraph and add to the edit links div
             link = $('<a>')
                 .attr('target', '_blank')   // open in new tab
-                // FIXME: how to make this not hard-coded? Can we generate
-                // a template url in the template and replace the id?
+                // NOTE: the person edit admin url generated here
+                // assumes the site is deployed at /
+                // and admin has standard configuration.
+                // (If this becomes an issue, we could refactor to generate
+                // a template person change URL via Django.)
                 .attr('href', '/admin/people/person/' + person_id + '/change/')
                 .text('edit')
             para = $('<p/>');
