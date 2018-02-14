@@ -4,10 +4,12 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.template.defaultfilters import date as format_date
 from django.test import TestCase
 from django.urls import reverse
 
-from mep.accounts.models import Account, Subscription, Address
+from mep.accounts.models import Account, Address, Event, Subscription, \
+    Reimbursement
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person, Relationship, \
@@ -144,12 +146,9 @@ class TestPeopleViews(TestCase):
         result = self.client.get(pub_autocomplete_url, {'q': 'sylv.a'})
         data = json.loads(result.content.decode('utf-8'))
         text = data['results'][0]['text']
-        print(text)
         expected = ('<strong>Ms. Sylvia</strong> sylv.a <br />'
                     'Subscription (1971-01-01 - 1971-01-31)')
         self.assertInHTML(expected, text)
-
-
 
     def test_person_admin_change(self):
         # create user with permission to load admin edit form
@@ -179,6 +178,44 @@ class TestPeopleViews(TestCase):
             msg_prefix='should include relationship name')
         self.assertContains(result, rel.notes,
             msg_prefix='should include any relationship notes')
+
+        # test account information displayed on person edit form
+        # - no account
+        self.assertContains(result, 'No associated account',
+            msg_prefix='indication should be displayed if person has no account')
+        # - account but no events
+        acct = Account.objects.create()
+        acct.persons.add(m_dufour)
+        result = self.client.get(person_edit_url)
+        self.assertContains(result, str(acct),
+            msg_prefix='account label should be displayed if person has one')
+        self.assertContains(result,
+            reverse('admin:accounts_account_change', args=[acct.id]),
+            msg_prefix='should link to account edit page')
+        self.assertContains(result, 'No documented subscription events',
+            msg_prefix='should display indicator for account with no subscription events')
+        # with subscription events
+        subs = Subscription.objects.create(account=acct,
+            start_date=date(1943, 1, 1), end_date=date(1944, 1, 1))
+        subs2 = Subscription.objects.create(account=acct,
+            start_date=date(1944, 1, 1),
+            subtype=Subscription.RENEWAL)
+        reimb = Reimbursement.objects.create(account=acct,
+            start_date=date(1944, 2, 1))
+        generic = Event.objects.create(account=acct, start_date=date(1940, 1, 1))
+        response = self.client.get(person_edit_url)
+        # NOTE: template uses django's default date display for locale
+        # importing template tag to test with that formatting here
+        self.assertContains(response, 'Subscription')
+        self.assertContains(response, '%s - %s' % \
+            (format_date(subs.start_date), format_date(subs.end_date)))
+        self.assertContains(response, 'Renewal')
+        self.assertContains(response, '%s - ' % format_date(subs2.start_date))
+        # non-subscription events should not be listed
+        self.assertNotContains(response, 'Reimbursement')
+        self.assertNotContains(response, format_date(reimb.start_date))
+        self.assertNotContains(response, 'Generic')
+        self.assertNotContains(response, format_date(generic.start_date))
 
     def test_person_admin_list(self):
         # create user with permission to load admin edit form

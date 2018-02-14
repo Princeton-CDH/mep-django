@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
@@ -66,6 +67,10 @@ class Account(models.Model):
             # if no end date is present, return start date
             return evt.end_date or evt.start_date
 
+    @property
+    def subscription_set(self):
+        '''associated subscription events, as queryset of :class:`Subscription`'''
+        return Subscription.objects.filter(account_id=self.id)
 
     def list_locations(self):
         '''List of associated :class:`mep.people.models.Location` '''

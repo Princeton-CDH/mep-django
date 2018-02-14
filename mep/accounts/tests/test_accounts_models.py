@@ -3,6 +3,7 @@ import re
 from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
+from django.db.models.query import QuerySet
 from django.core.validators import ValidationError
 from django.test import TestCase
 import pytest
@@ -140,12 +141,28 @@ class TestAccount(TestCase):
 
         assert account.last_date() == event2.end_date
 
+    def test_subscription_set(self):
+        account = Account.objects.create()
+        assert isinstance(account.subscription_set, QuerySet)
+        assert not account.subscription_set.exists()
 
-    # def earliest_date(self):
-    #     return self.event_set.all().order_by('start_date').first().start_date
+        # add some events
+        subs = Subscription.objects.create(account=account,
+            start_date=datetime.date(1943, 1, 1))
+        subs2 = Subscription.objects.create(account=account,
+            start_date=datetime.date(1943, 1, 1),
+            end_date=datetime.date(1944, 1, 1))
+        reimb = Reimbursement.objects.create(account=account,
+            start_date=datetime.date(1944, 5, 1))
+        generic = Event.objects.create(account=account)
 
-    # def last_date(self):
-    #     return self.event_set.all().order_by('end_date').last().end_date
+        subscriptions = account.subscription_set
+        assert subscriptions.count() is 2
+        assert isinstance(subscriptions.first(), Subscription)
+        assert subs in subscriptions
+        assert subs2 in subscriptions
+        assert reimb not in subscriptions
+        assert generic not in subscriptions
 
 
 class TestAddress(TestCase):
