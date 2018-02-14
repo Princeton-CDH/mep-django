@@ -15,6 +15,10 @@ class Migration(migrations.Migration):
         ('people', '0001_initial'),
     ]
 
+    run_before = [
+        ('people', '0004_rename_address_to_location'),
+    ]
+
     operations = [
         migrations.CreateModel(
             name='Account',

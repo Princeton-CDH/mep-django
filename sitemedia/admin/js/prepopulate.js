@@ -2,9 +2,10 @@
 
 /***
 Copied from Django prepopulate and customized to look for a
-special class name "prepopulate-noslug" to opt out of slugifying the
-prepopulated content.
-
+special class names to control behavior:
+ - "prepopulate-noslug": opt out of slugifying the prepopulated content
+ - "prepopulate-nopace": clear prepopulated value if source value
+   contains spaces. (only valid with prepopulate-noslug)
 */
 
 (function($) {
@@ -22,6 +23,7 @@ prepopulated content.
             var prepopulatedField = $(this);
 
             var populate = function() {
+                console.log('populate');
                 // Bail if the field's value has been changed by the user
                 if (prepopulatedField.data('_changed')) {
                     return;
@@ -39,6 +41,10 @@ prepopulated content.
                 if (prepopulatedField.attr('class').indexOf('prepopulate-noslug') !== -1) {
                     // just use the values without slugifying
                     value = values.join(' ');
+                    if (prepopulatedField.attr('class').indexOf('prepopulate-nospace') !== -1
+                        && value.indexOf(' ') !== -1) {
+                        value = '';
+                    }
                 } else {
                     // default django prepopulate behavior
                     value = URLify(values.join(' '), maxLength, allowUnicode);

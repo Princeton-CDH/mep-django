@@ -14,7 +14,7 @@ specifics on import logic.
 
 from django.core.management.base import BaseCommand, CommandError
 
-from mep.people.models import Person, Address, Country, InfoURL
+from mep.people.models import Person, Location, Country, InfoURL
 from mep.people.xml_models import Personography
 
 
@@ -51,7 +51,7 @@ class Command(BaseCommand):
         import.'''
         return {
             'people': Person.objects.count(),
-            'addresses': Address.objects.count(),
+            'addresses': Location.objects.count(),
             'countries': Country.objects.count(),
             'urls': InfoURL.objects.count(),
         }

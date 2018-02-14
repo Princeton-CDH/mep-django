@@ -16,7 +16,7 @@ class AccountAutocomplete(autocomplete.Select2QuerySetView):
             Q(id__contains=self.q) |
             Q(persons__name__icontains=self.q) |
             Q(persons__mep_id__icontains=self.q) |
-            Q(addresses__name__icontains=self.q) |
-            Q(addresses__street_address__icontains=self.q) |
-            Q(addresses__city__icontains=self.q)
+            Q(locations__name__icontains=self.q) |
+            Q(locations__street_address__icontains=self.q) |
+            Q(locations__city__icontains=self.q)
         ).order_by('id')

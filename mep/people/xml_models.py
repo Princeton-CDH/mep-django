@@ -5,7 +5,7 @@ import logging
 from eulxml import xmlmap
 from viapy.api import ViafEntity
 
-from mep.people import models
+from mep.people import models as people_models
 from mep.people.geonames import GeoNamesAPI
 
 
@@ -45,7 +45,7 @@ class Nationality(TeiXmlObject):
             return
 
         # get existing country or add if not yet present
-        country, created = models.Country.objects.get_or_create(
+        country, created = people_models.Country.objects.get_or_create(
             geonames_id=geo_id,
             name=name,
             code=code
@@ -202,7 +202,7 @@ class Residence(TeiXmlObject):
     def db_address(self):
         '''Get the corresponding :class:`mep.people.models.Address` in the
         database, creating a new address if it does not exist.'''
-        addr, created = models.Address.objects.get_or_create(
+        addr, created = people_models.Location.objects.get_or_create(
             name=self.name or '',
             street_address=self.street or '',
             city=self.city or '',
@@ -220,7 +220,7 @@ class Residence(TeiXmlObject):
             geonamesapi = GeoNamesAPI()
             geoname = geonamesapi.countries_by_code[self.city_country[self.city]]
             # get existing country or add if not yet present
-            country, created = models.Country.objects.get_or_create(
+            country, created = people_models.Country.objects.get_or_create(
                 geonames_id=GeoNamesAPI.uri_from_id(geoname['geonameId']),
                 name=geoname['countryName'],
                 code=geoname['countryCode']
@@ -339,13 +339,13 @@ class Person(TeiXmlObject):
     residences = xmlmap.NodeListField('t:residence', Residence)
 
     def is_imported(self):
-        return models.Person.objects.filter(mep_id=self.mep_id).exists()
+        return people_models.Person.objects.filter(mep_id=self.mep_id).exists()
 
     def to_db_person(self):
         '''Create a new :class:`mep.people.models.Person` database record
         and populate based on data in the xml.'''
 
-        db_person = models.Person(
+        db_person = people_models.Person(
             mep_id=self.mep_id,
             title=self.title or '',
             birth_year=self.birth or None,
@@ -373,7 +373,7 @@ class Person(TeiXmlObject):
         else:
             # check for pseudonym
             if self.pseudonyms:
-                # pseudonym is primary name
+                # pseudonym is mary name
                 if self.pseudonyms[0].sort == 1:
                     pseudonym = [str(self.pseudonyms[0])]
                     sur = self.pseudonyms[0].last_name()
@@ -439,12 +439,13 @@ class Person(TeiXmlObject):
 
         # handle URLs included in notes
         for link in self.urls:
-            db_person.urls.add(models.InfoURL.objects.create(url=link,
+            db_person.urls.add(people_models.InfoURL.objects.create(url=link,
                 person=db_person, notes='URL from XML import'))
 
         # handle residence addresses
-        for res in self.residences:
-            db_person.addresses.add(res.db_address())
+        # NOTE: disabled due to address/location refactor
+        # for res in self.residences:
+        #     db_person.addresses.add(res.db_address())
 
         return db_person
 

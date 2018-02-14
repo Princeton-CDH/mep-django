@@ -11,7 +11,7 @@ from django.urls import reverse
 from mep.accounts.models import Account, Subscription, Reimbursement, Event
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import Address, Country, Person, Relationship, \
+from mep.people.models import Location, Country, Person, Relationship, \
     RelationshipType
 from mep.people.views import GeoNamesLookup
 
@@ -301,7 +301,7 @@ class TestCountryAutocompleteView(TestCase):
         assert info['results'][0]['text'] == 'France'
 
 
-class TestAddressAutocompleteView(TestCase):
+class TestLocationAutocompleteView(TestCase):
 
     def test_get_queryset(self):
         # make two countries
@@ -323,15 +323,15 @@ class TestAddressAutocompleteView(TestCase):
             'postal_code': '678910',
             'country': es,
         }
-        add1 = Address.objects.create(**add_dict)
-        Address.objects.create(**add_dict2)
+        add1 = Location.objects.create(**add_dict)
+        Location.objects.create(**add_dict2)
 
         # make a person
         person = Person.objects.create(name='Baz', title='Mr.', sort_name='Baz')
 
         # - series of tests for get_queryset Q's and view rendering
         # autocomplete that should get both
-        auto_url = reverse('people:address-autocomplete')
+        auto_url = reverse('people:location-autocomplete')
         res = self.client.get(auto_url, {'q': 'Foo'})
         info = res.json()
         assert len(info['results']) == 2
@@ -361,9 +361,8 @@ class TestAddressAutocompleteView(TestCase):
         assert len(info['results']) == 1
         assert 'Hotel El Foo' in info['results'][0]['text']
 
-        # autocomplete that should get the address associated with person
-        person.addresses.add(add1)
-        person.save()
+        # autocomplete that should also find location by associated person
+        Address.objects.create(location=add1, person=person)
         res = self.client.get(auto_url, {'q': 'Baz'})
         info = res.json()
         assert len(info['results']) == 1

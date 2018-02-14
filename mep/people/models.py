@@ -21,8 +21,8 @@ class Country(Named):
         ordering = ('name',)
 
 
-class Address(Notable):
-    '''Addresses associated with people and accounts'''
+class Location(Notable):
+    '''Locations for addresses associated with people and accounts'''
     #: optional name of the location (e.g., hotel)
     name = models.CharField(
         max_length=255,
@@ -63,12 +63,11 @@ class Address(Notable):
     #: footnotes (:class:`~mep.footnotes.models.Footnote`)
     footnotes = GenericRelation(Footnote)
 
-
     class Meta:
-        verbose_name_plural = 'addresses'
+        unique_together = (("name", "street_address", "city", "country"),)
 
     def __repr__(self):
-        return '<Address %s>' % self.__dict__
+        return '<Location %s>' % self.__dict__
 
     def __str__(self):
         str_parts = [self.name, self.street_address, self.city]
@@ -118,19 +117,19 @@ class Person(Notable, DateRange):
     profession = models.ForeignKey(Profession, blank=True, null=True)
     #: nationalities, link to :class:`Country`
     nationalities = models.ManyToManyField(Country, blank=True)
-    #: known addresses, many-to-many link to :class:`Address`
-    addresses = models.ManyToManyField(Address, blank=True,
-        help_text=('Autocomplete searches on all fields except '
-                   'latitude and longitude.'))
     #: relationships to other people, via :class:`Relationship`
     relations = models.ManyToManyField(
         'self',
         through='Relationship',
         symmetrical=False
     )
-
     #: footnotes (:class:`~mep.footnotes.models.Footnote`)
     footnotes = GenericRelation(Footnote)
+
+    # convenience access to associated locations, although
+    # we will probably use Address for most things
+    locations = models.ManyToManyField(Location, through='accounts.Address',
+        blank=True, through_fields=('person', 'location'))
 
     def __repr__(self):
         return '<Person %s>' % self.__dict__
@@ -185,8 +184,9 @@ class Person(Notable, DateRange):
     list_nationalities.admin_order_field = 'nationalities__name'
 
     def address_count(self):
-        '''Return count of addresses associated with the instance of :class:`Person` for list_view.'''
-        return self.addresses.count()
+        '''Number of documented addresses for this person'''
+        # used in admin list view
+        return self.address_set.count()
     address_count.short_description = '# Addresses'
 
     def has_account(self):
@@ -207,9 +207,12 @@ class Person(Notable, DateRange):
 class InfoURL(Notable):
     '''Informational urls (other than VIAF) associated with a :class:`Person`,
     e.g. Wikipedia page.'''
-    url = models.URLField(
+    url = models.URLField(verbose_name='URL',
         help_text='Additional (non-VIAF) URLs for a person.')
     person = models.ForeignKey(Person, related_name='urls')
+
+    class Meta:
+        verbose_name = 'Informational URL'
 
     def __repr__(self):
         return "<InfoURL %s>" % self.__dict__
