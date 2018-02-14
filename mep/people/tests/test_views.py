@@ -8,7 +8,8 @@ from django.template.defaultfilters import date as format_date
 from django.test import TestCase
 from django.urls import reverse
 
-from mep.accounts.models import Account, Subscription, Reimbursement, Event
+from mep.accounts.models import Account, Address, Event, Subscription, \
+    Reimbursement
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person, Relationship, \
