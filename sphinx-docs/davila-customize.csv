@@ -1,4 +1,4 @@
-#This is a sample customization file for DAVILA, based on the schema for mep-django 
+#This is a sample customization file for DAVILA, based on the schema for mep-django
 #It is a pipe ('|') separated CSV file
 #You can either change the information below or replace this file with one of your own making
 
@@ -12,7 +12,7 @@
 #These lines set the metadata for your diagram, the information will display in the top left corner, in bold
 
 #title|NAME OF DIAGRAM
-title|Mapping Expatriate Paris - Django (Version 4)
+title|Mapping Expatriate Paris - Django (v0.3)
 
 #url|LOCATION OF PROJECT
 url|http://digitalhumanities.princeton.edu
@@ -21,7 +21,7 @@ url|http://digitalhumanities.princeton.edu
 creators|Database design: Jean Bauer
 creators|Primary investigator: Joshua Kotin
 creators|Lead developer: Rebecca Koeser
-creators|Database implementation: Benjamin Hicks
+creators|Database implementation: Benjamin Hicks, Rebecca Koeser
 
 #This next group of lines allows you to color code your modules and indicate which entity is the central node of that module
 #The central node allows you to choose whether to display all the entities in the module, or just the central entity and module name to save space
@@ -36,6 +36,7 @@ module|footnotes|#9A68B7|footnotes_footnote
 module|people|#EF2E42|people_person
 module|django|#5B806B|django_content_type
 module|djiffy|#0EE1D1|djiffy_manifest
+module|mezzanine|#f46241|pages_page
 #module|organizational|#BFA778|organizations
 #module|correspondence|#888888|letters
 #module|places|#422E14|locations
@@ -59,7 +60,8 @@ accounts_borrow|accounts|
 accounts_event|accounts|
 accounts_purchase|accounts|
 accounts_reimbursement|accounts|
-accounts_subscribe|accounts|
+accounts_subscription|accounts|
+accounts_subscriptiontype|accounts|
 books_item|books|
 books_item_authors|books|
 books_item_editors|books|
@@ -78,6 +80,7 @@ people_person_nationalities|people|
 people_person_other_URLs|people|
 people_profession|people|
 people_relationship|people|
+people_location|people|
 people_relationshiptype|people|
 footnotes_bibliography|footnotes|
 footnotes_footnote|footnotes|
@@ -99,3 +102,13 @@ django_cas_ng_sessionticket|django|
 django_cas_ng_proxygrantingticket|django|
 django_session|django|
 django_site|django|
+pages_page|mezzanine|
+pages_link|mezzanine|
+generic_threadedcomment|mezzanine|
+pages_richtextpage|mezzanine|
+generic_rating|mezzanine|
+generic_keyword|mezzanine|
+generic_assignedkeyword|mezzanine|
+conf_setting|mezzanine|
+core_sitepermission|mezzanine|
+core_sitepermission_sites|mezzanine|
