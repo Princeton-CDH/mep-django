@@ -3,6 +3,13 @@
 Deploy and Upgrade notes
 ========================
 
+
+0.3 Data Entry Improvements
+---------------------------
+
+* This update adds Mezzanine and enables the Django Site framework.
+  The default Site should be configured after migrations complete.
+
 0.2 Logbook admin
 -----------------
 * Logbook data should be imported from XML using the
