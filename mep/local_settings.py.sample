@@ -10,6 +10,10 @@ SHOW_TEST_WARNING = True
 ALLOWED_HOSTS = []
 
 
+# List of IPs allowed to see debug content, etc
+# INTERNAL_IPS = ('127.0.0.1', )
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
 # http://www.miniwebtool.com/django-secret-key-generator/
 SECRET_KEY = ''

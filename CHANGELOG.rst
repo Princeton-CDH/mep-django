@@ -3,6 +3,39 @@
 CHANGELOG
 =========
 
+
+0.3 Data Entry Improvements
+---------------------------
+
+Improvements to the admin interface to make data entry and content management
+easier and more streamlined (particular emphasis on personography & accounts).
+
+* As a global admin, I want addresses automatically associated with accounts in the logbook where possible to minimize the amount of manual cleanup required.
+* As a content editor, I want to enter optional start and/or end dates for a person's addresses so I can document when they lived there if known.
+* As a content editor, I want a one-time update to set people's gender based on titles where possible so that I don't have to edit all the records manually.
+* As a content editor, I want the end date of a subscription automatically calculated based on start date and duration, so that I can enter subscriptions more quickly.
+* As a content editor, I want event duplication to be prevented so I don't accidentally enter the same event twice.
+* As a content editor, I want subscription event fields relabeled and ordered as they occur in the logbook so that I can add new subscriptions more efficiently.
+* As a content editor, I want the reimbursement event form simplified so I can efficiently add new events.
+* As a content editor, I want the personography list to include note previews so I can differentiate ambiguous names.
+* As a content editor, I want a person's sort name to autopopulate when I type a single name with no spaces so that I don't have to retype it.
+* As a content editor, I want an easy way to get from an account record to the associated person record so I can view and correct person details.
+* As a content editor, I need a way to distinguish people with the same name when I'm selecting a person via autocomplete.
+* As a content editor, I want currency for all events to default to "Franc" so that I don't have to set it every time.
+* As a content editor, I want to edit and add new subscription categories so that I can document them as I discover them.
+* As a content editor, I want to see account information when I'm editing a person record so I have enough context to make decisions and find sources.
+* As a content editor, I want to see if people in the personography are in the logbooks rather than just that they have an account, because it tells me what data is available for them.
+* As a content editor, I want the account list to include first and last known events dates so I can easily see membership timeline.
+* As a content editor, when I'm editing accounts I want subscription and reimbursement sections to be open by default so I don't have to click to view membership dates.
+* As a content editor, I want the event list to display type before notes so I can easily scan and differentiate events.
+* As a content editor, I want project-specific data sections displayed first on the admin dashboard so I can easily get to the data I need to work with.
+
+Known issues
+~~~~~~~~~~~~
+
+* Customized ordering on admin dashboard is not consistently displayed as configured.
+
+
 0.2 Logbook Admin & Import
 --------------------------
 

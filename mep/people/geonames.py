@@ -33,8 +33,8 @@ class GeoNamesAPI(object):
         self.username = getattr(settings, "GEONAMES_USERNAME", None)
 
     def call_api(self, method, params=None):
-        # generic method to handle calling geonames api and raising
-        # an exception if an error occurred
+        '''Generic method to handle calling geonames api and raising
+        an exception if an error occurred.'''
         api_url = '/'.join([self.api_base, method])
         if params is None:
             params = {}

@@ -44,7 +44,7 @@ class GeoNamesLookup(autocomplete.Select2ListView):
         })
 
     def get_label(self, item):
-        # display country for context, if available
+        '''display country for context, if available'''
         if self.mode != 'country' and 'countryName' in item:
             # FIXME: shouldn't ever display countryname if item is a country
             return '''%(name)s, %(countryName)s''' % item
@@ -112,6 +112,8 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
                 )
 
     def get_queryset(self):
+        ''':class:`~mep.people.models.Person` queryset, filtered on
+        text in name or MEP id (case-insensitive, partial match)'''
         return Person.objects.filter(
                 Q(name__icontains=self.q) |
                 Q(mep_id__icontains=self.q)
@@ -124,6 +126,8 @@ class CountryAutocomplete(autocomplete.Select2QuerySetView):
     '''
 
     def get_queryset(self):
+        ''':class:`~mep.people.models.Country` queryset, filtered on
+        text in name (case-insensitive, partial match)'''
         return Country.objects.filter(name__icontains=self.q)
 
 
