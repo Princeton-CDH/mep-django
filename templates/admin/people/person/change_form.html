@@ -8,6 +8,56 @@ as the inline edit form.
 
 {% load admin_static i18n admin_modify admin_urls grp_tags %}
 
+{% block after_field_sets %}
+  {# display account subscription information to provide context for the person #}
+  {% if original.account_set.exists %}
+    {% for account in original.account_set.all %}
+      <div class="inline-group grp-group grp-tabular">
+        <h2 class="grp-collapse-handler"> {# link to account edit page #}
+            <a href="{% url 'admin:accounts_account_change' account.id %}">{{ account }}</a></h2>
+
+        {% if account.subscription_set.exists %}
+         <div class="tabular inline-related grp-module grp-table">
+            <div class="module grp-module grp-thead">
+                <div class="grp-tr">
+                    <div class="grp-th">Subscription Event</div>
+                    <div class="grp-th">Dates</div>
+                    <div class="grp-th">Notes</div>
+                </div>
+            </div>
+
+            <div class="form-row grp-module grp-tbody">
+                {% for subs in account.subscription_set.all %}
+                  <div class="grp-tr">
+                    <div class='grp-td'>
+                        {{ subs.get_subtype_display }}
+                    </div>
+                    <div class="grp-td">
+                        {{ subs.start_date }} - {{ subs.end_date|default:'' }}
+                    </div>
+                    <div class='grp-td'>{{ subs.notes }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div>No documented subscription events</div>
+        {% endif %}
+    {% endfor %}
+  </div>
+
+  {% else %}
+
+  {# <div class="inline-group grp-group grp-tabular"> #}
+    <h2 class="grp-collapse-handler">No associated account</h2>
+  {# </div> #}
+
+  {% endif %}
+{% endblock %}
+
+
+
+
 {% block after_related_objects %}
 <div class="inline-group grp-group grp-tabular">
     <h2 class="grp-collapse-handler">Relationships to this person</h2>

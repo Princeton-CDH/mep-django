@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
@@ -66,6 +67,10 @@ class Account(models.Model):
             # if no end date is present, return start date
             return evt.end_date or evt.start_date
 
+    @property
+    def subscription_set(self):
+        '''associated subscription events, as queryset of :class:`Subscription`'''
+        return Subscription.objects.filter(account_id=self.id)
 
     def list_locations(self):
         '''List of associated :class:`mep.people.models.Location` '''
@@ -170,7 +175,8 @@ class Address(Notable):
             dates, care_of)
 
     def clean(self):
-        # require one and only one of account or person
+        '''Validate to require one and only one of :class:`Account` or
+        :class:`~mep.people.models.Person`'''
         if not self.account and not self.person:
             raise ValidationError('Address must be associated with an account or person')
         if self.account and self.person:
@@ -241,6 +247,7 @@ class CurrencyMixin(models.Model):
         abstract = True
 
     def currency_symbol(self):
+        '''symbol for the selected currency'''
         return self.symbols.get(self.currency, self.currency)
     # NOTE: could use ¤ (generic currency), but probably not that well known
     currency_symbol.short_description = '$'
@@ -298,6 +305,9 @@ class Subscription(Event, CurrencyMixin):
             self.duration = (self.end_date - self.start_date).days
 
     def validate_unique(self, *args, **kwargs):
+        '''Validation check to prevent duplicate events from being
+        added to the system.  Does not allow more than one subscription
+        for the same account and date.'''
         super(Subscription, self).validate_unique(*args, **kwargs)
 
         # check to prevent duplicate event
@@ -381,24 +391,26 @@ class Reimbursement(Event, CurrencyMixin):
         blank=True)
 
     def date(self):
-        # alias start_date as date for display, since reimbersument
-        # is a single-day event
+        '''alias of :attr:`start_date` for display, since reimbersument
+        is a single-day event'''
         return self.start_date
     date.admin_order_field = 'start_date'
 
     def save(self, *args, **kwargs):
-        # reimbursement is a single-day event; populate end date
-        # to make that explicit and simplify any generic event date
-        # range searching and filtering
+        '''Reimbursement is a single-day event; populate end date on save
+        to make that explicit and simplify any generic event date
+        range searching and filtering.'''
         self.end_date = self.start_date
         super(Reimbursement, self).save(*args, **kwargs)
 
     def validate_unique(self, *args, **kwargs):
+        '''Validation check to prevent duplicate events from being
+        added to the system.  Does not allow more than one reimbursement
+        for the account and date.'''
         super(Reimbursement, self).validate_unique(*args, **kwargs)
 
         # check to prevent duplicate event (reimbursement + date + account)
         # should not have same date + account
-
         qs = Reimbursement.objects.filter(start_date=self.start_date,
             account=self.account)
 

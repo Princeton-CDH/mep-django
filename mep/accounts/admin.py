@@ -15,7 +15,15 @@ from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 AUTOCOMPLETE = {
     'person': autocomplete.ModelSelect2(url='people:autocomplete',
         attrs={
-            'data-placeholder': ('Type to search for people...'),
+            'data-placeholder': 'Type to search for people...',
+            'data-minimum-input-length': 3,
+            'data-html': True
+        }
+    ),
+    'person-multiple': autocomplete.ModelSelect2Multiple(
+        url='people:autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for people...',
             'data-minimum-input-length': 3,
             'data-html': True
         }
@@ -28,7 +36,7 @@ AUTOCOMPLETE = {
     ),
     'location': autocomplete.ModelSelect2(url='people:location-autocomplete',
         attrs={
-            'data-placeholder': ('Type to search for location... '),
+            'data-placeholder': 'Type to search for location... ',
             'data-minimum-input-length': 3
         }
     ),
@@ -227,7 +235,7 @@ class AccountAdminForm(forms.ModelForm):
         model = Account
         fields = ('__all__')
         widgets = {
-            'persons': AUTOCOMPLETE['person'],
+            'persons': AUTOCOMPLETE['person-multiple'],
          }
 
 
@@ -241,6 +249,9 @@ class AccountAdmin(admin.ModelAdmin):
                      'address__location__country__name', 'persons__name')
     fields = ('persons',)
     inlines = [AccountAddressInline, SubscriptionInline, ReimbursementInline]
+
+    class Media:
+        js = ("admin/js/person-editlink.js",)
 
 
 class SubscriptionTypeAdmin(NamedNotableAdmin):

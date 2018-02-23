@@ -1,0 +1,234 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Mapping Expatriate Paris - Django documentation &#8212; Mapping Expatriate Paris - Django 0.3.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Architecture" href="architecture.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="mapping-expatriate-paris-django-documentation">
+<h1>Mapping Expatriate Paris - Django documentation<a class="headerlink" href="#mapping-expatriate-paris-django-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Change Log</a></li>
+</ul>
+</div>
+<p>This Github repository houses the Django web interface of the <a class="reference external" href="https://github.com/Princeton-CDH/mapping-expatriate-paris">Mapping Expatriate
+Paris</a> project, which
+examines the archives of Sylvia Beach’s Shakespeare and Company lending library.</p>
+<p>See the project’s <a class="reference external" href="http://mep.princeton.edu/">page</a> for more details.</p>
+<p>Python 3.5 / Django 1.11</p>
+<a class="reference external image-reference" href="https://travis-ci.org/Princeton-CDH/mep-django"><img alt="Build status" src="https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=master" /></a>
+<a class="reference external image-reference" href="https://codecov.io/gh/Princeton-CDH/mep-django/branch/master"><img alt="Code coverage" src="https://codecov.io/gh/Princeton-CDH/mep-django/branch/master/graph/badge.svg" /></a>
+<a class="reference external image-reference" href="https://landscape.io/github/Princeton-CDH/mep-django/master"><img alt="Code Health" src="https://landscape.io/github/Princeton-CDH/mep-django/master/landscape.svg?style=flat" /></a>
+<a class="reference external image-reference" href="https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=master"><img alt="Requirements Status" src="https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=master" /></a>
+<div class="section" id="development-instructions">
+<h2>Development instructions<a class="headerlink" href="#development-instructions" title="Permalink to this headline">¶</a></h2>
+<p>Initial setup and installation:</p>
+<ul>
+<li><p class="first">recommended: create and activate a python 3.5 virtualenv:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="n">mep</span> <span class="o">-</span><span class="n">p</span> <span class="n">python3</span><span class="o">.</span><span class="mi">5</span>
+<span class="n">source</span> <span class="n">mep</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">pip install required python dependencies:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">dev</span><span class="o">-</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">copy sample local settings and configure for your environment:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">mep</span><span class="o">/</span><span class="n">local_settings</span><span class="o">.</span><span class="n">py</span><span class="o">.</span><span class="n">sample</span> <span class="n">mep</span><span class="o">/</span><span class="n">local_settings</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Remember to add a <code class="docutils literal"><span class="pre">SECRET_KEY</span></code> setting!</p>
+</div>
+<div class="section" id="unit-tests">
+<h2>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h2>
+<p>Unit tests are written with <a class="reference external" href="http://doc.pytest.org/">py.test</a> but use
+Django fixture loading and convenience testing methods when that makes
+things easier. To run them, first install development requirements:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">dev</span><span class="o">-</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Run tests using py.test:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">py</span><span class="o">.</span><span class="n">test</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>Documentation is generated using <a class="reference external" href="http://www.sphinx-doc.org/">sphinx</a>
+To generate documentation them, first install development requirements:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">dev</span><span class="o">-</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Then build documentation using the customized make file in the <cite>docs</cite>
+directory:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">docs</span>
+<span class="n">make</span> <span class="n">html</span>
+</pre></div>
+</div>
+<p>When building for a release <code class="docutils literal"><span class="pre">make</span> <span class="pre">docs</span></code> will create a folder called <code class="docutils literal"><span class="pre">docs</span></code>,
+build the HTML documents and static assets, and force add it to the commit for
+use with Github Pages.</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>This project is licensed under the <a class="reference external" href="https://github.com/Princeton-CDH/mep-django/blob/master/LICENSE">Apache 2.0 License</a>.</p>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Mapping Expatriate Paris - Django</a></h1>
+
+
+
+<p class="blurb">Django web application for "Mapping Expatriate Paris" CDH project</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep.django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a href="https://travis-ci.org/Princeton-CDH/mep.django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep.django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep.django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a href="https://codecov.io/github/Princeton-CDH/mep.django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep.django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep.django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Change Log</a></li>
+</ul>
+
+
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Mapping Expatriate Paris - Django documentation</a><ul>
+<li><a class="reference internal" href="#development-instructions">Development instructions</a></li>
+<li><a class="reference internal" href="#unit-tests">Unit Tests</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
