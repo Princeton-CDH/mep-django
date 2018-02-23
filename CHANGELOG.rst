@@ -30,6 +30,11 @@ easier and more streamlined (particular emphasis on personography & accounts).
 * As a content editor, I want the event list to display type before notes so I can easily scan and differentiate events.
 * As a content editor, I want project-specific data sections displayed first on the admin dashboard so I can easily get to the data I need to work with.
 
+Known issues
+~~~~~~~~~~~~
+
+* Customized ordering on admin dashboard is not consistently displayed as configured.
+
 
 0.2 Logbook Admin & Import
 --------------------------
