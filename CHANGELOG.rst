@@ -3,6 +3,9 @@
 CHANGELOG
 =========
 
+0.3.1 Hotfix
+------------
+* Remove unneeded database backup from Ansible deploy.
 
 0.3 Data Entry Improvements
 ---------------------------
