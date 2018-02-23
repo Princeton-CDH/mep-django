@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.common.models &#8212; Mapping Expatriate Paris - Django 0.2.0-RC documentation</title>
+    <title>mep.common.models &#8212; Mapping Expatriate Paris - Django 0.3.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.2.0-RC',
+        VERSION:     '0.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -100,7 +100,14 @@
         <span class="sd">&#39;&#39;&#39;boolean flag indicating if notes are present, for display</span>
 <span class="sd">        in admin lists&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">)</span></div>
-    <span class="n">has_notes</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span></div>
+    <span class="n">has_notes</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">snippet_length</span> <span class="o">=</span> <span class="mi">75</span>
+<div class="viewcode-block" id="Notable.note_snippet"><a class="viewcode-back" href="../../../codedocs.html#mep.common.models.Notable.note_snippet">[docs]</a>    <span class="k">def</span> <span class="nf">note_snippet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;First 75 letters of the note, for brief display&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">snippet_length</span><span class="p">],</span>
+                         <span class="s1">&#39; ...&#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">snippet_length</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">])</span></div>
+    <span class="n">note_snippet</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;Notes&#39;</span></div>
 
 
 <div class="viewcode-block" id="DateRange"><a class="viewcode-back" href="../../../codedocs.html#mep.common.models.DateRange">[docs]</a><span class="k">class</span> <span class="nc">DateRange</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
@@ -131,7 +138,8 @@
         <span class="n">date_parts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">]</span>
         <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span> <span class="k">for</span> <span class="n">dp</span> <span class="ow">in</span> <span class="n">date_parts</span> <span class="k">if</span> <span class="n">dp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">clean_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DateRange.clean_fields"><a class="viewcode-back" href="../../../codedocs.html#mep.common.models.DateRange.clean_fields">[docs]</a>    <span class="k">def</span> <span class="nf">clean_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;validate that end year is greater than or equal to start year&#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">exclude</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="s1">&#39;start_year&#39;</span> <span class="ow">in</span> <span class="n">exclude</span> <span class="ow">or</span> <span class="s1">&#39;end_year&#39;</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">:</span>
@@ -140,7 +148,7 @@
         <span class="c1"># (allowing equal to support single-year ranges)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_year</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span> <span class="ow">and</span> \
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;End year must be after start year&#39;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;End year must be after start year&#39;</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -223,7 +231,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

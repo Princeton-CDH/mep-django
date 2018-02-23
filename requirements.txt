@@ -1,4 +1,4 @@
-Django>=1.11
+Django>=1.11,<2.0
 mysqlclient
 django-grappelli
 cached_property
@@ -7,3 +7,7 @@ pendulum
 eulxml
 git+https://github.com/Princeton-CDH/viapy.git@0.1#egg=viapy
 django-autocomplete-light
+python-dateutil
+# mezzanine from github required for django 1.11 compatibility; should be > 4.2.3
+git+https://github.com/stephenmcd/mezzanine.git@397409d#egg=mezzanine
+django-apptemplates

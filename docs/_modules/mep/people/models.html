@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.2.0-RC documentation</title>
+    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.3.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.2.0-RC',
+        VERSION:     '0.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -62,8 +62,8 @@
         <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,)</span></div>
 
 
-<div class="viewcode-block" id="Address"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Address">[docs]</a><span class="k">class</span> <span class="nc">Address</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Addresses associated with people and accounts&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Location"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Location">[docs]</a><span class="k">class</span> <span class="nc">Location</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Locations for addresses associated with people and accounts&#39;&#39;&#39;</span>
     <span class="c1">#: optional name of the location (e.g., hotel)</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
@@ -104,12 +104,11 @@
     <span class="c1">#: footnotes (:class:`~mep.footnotes.models.Footnote`)</span>
     <span class="n">footnotes</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="n">Footnote</span><span class="p">)</span>
 
-
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s1">&#39;addresses&#39;</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;street_address&quot;</span><span class="p">,</span> <span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="s2">&quot;country&quot;</span><span class="p">),)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;&lt;Address </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;Location </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">str_parts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">street_address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">]</span>
@@ -159,19 +158,19 @@
     <span class="n">profession</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Profession</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1">#: nationalities, link to :class:`Country`</span>
     <span class="n">nationalities</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Country</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1">#: known addresses, many-to-many link to :class:`Address`</span>
-    <span class="n">addresses</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Address</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help_text</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Autocomplete searches on all fields except &#39;</span>
-                   <span class="s1">&#39;latitude and longitude.&#39;</span><span class="p">))</span>
     <span class="c1">#: relationships to other people, via :class:`Relationship`</span>
     <span class="n">relations</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
         <span class="s1">&#39;self&#39;</span><span class="p">,</span>
         <span class="n">through</span><span class="o">=</span><span class="s1">&#39;Relationship&#39;</span><span class="p">,</span>
         <span class="n">symmetrical</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
-
     <span class="c1">#: footnotes (:class:`~mep.footnotes.models.Footnote`)</span>
     <span class="n">footnotes</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="n">Footnote</span><span class="p">)</span>
+
+    <span class="c1"># convenience access to associated locations, although</span>
+    <span class="c1"># we will probably use Address for most things</span>
+    <span class="n">locations</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Location</span><span class="p">,</span> <span class="n">through</span><span class="o">=</span><span class="s1">&#39;accounts.Address&#39;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">through_fields</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;person&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;&lt;Person </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
@@ -226,21 +225,35 @@
     <span class="n">list_nationalities</span><span class="o">.</span><span class="n">admin_order_field</span> <span class="o">=</span> <span class="s1">&#39;nationalities__name&#39;</span>
 
 <div class="viewcode-block" id="Person.address_count"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.address_count">[docs]</a>    <span class="k">def</span> <span class="nf">address_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Return count of addresses associated with the instance of :class:`Person` for list_view.&#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">addresses</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></div>
+        <span class="sd">&#39;&#39;&#39;Number of documented addresses for this person&#39;&#39;&#39;</span>
+        <span class="c1"># used in admin list view</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">address_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></div>
     <span class="n">address_count</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;# Addresses&#39;</span>
 
 <div class="viewcode-block" id="Person.has_account"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.has_account">[docs]</a>    <span class="k">def</span> <span class="nf">has_account</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Return whether an instance of :class:`mep.accounts.models.Account` exists for this person.&#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span></div>
-    <span class="n">has_account</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+    <span class="n">has_account</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="Person.in_logbooks"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.in_logbooks">[docs]</a>    <span class="k">def</span> <span class="nf">in_logbooks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;is there data for this person in the logbooks?&#39;&#39;&#39;</span>
+        <span class="c1"># based on presense of subscription or reimbursement event</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">event__subscription__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">event__reimbursement__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+    <span class="n">in_logbooks</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span></div>
+
 
 <div class="viewcode-block" id="InfoURL"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.InfoURL">[docs]</a><span class="k">class</span> <span class="nc">InfoURL</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Informational urls (other than VIAF) associated with a :class:`Person`,</span>
 <span class="sd">    e.g. Wikipedia page.&#39;&#39;&#39;</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span><span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;URL&#39;</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Additional (non-VIAF) URLs for a person.&#39;</span><span class="p">)</span>
     <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;urls&#39;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s1">&#39;Informational URL&#39;</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;&lt;InfoURL </span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
@@ -358,7 +371,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.geonames &#8212; Mapping Expatriate Paris - Django 0.2.0-RC documentation</title>
+    <title>mep.people.geonames &#8212; Mapping Expatriate Paris - Django 0.3.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.2.0-RC',
+        VERSION:     '0.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -73,9 +73,9 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s2">&quot;GEONAMES_USERNAME&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">call_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="c1"># generic method to handle calling geonames api and raising</span>
-        <span class="c1"># an exception if an error occurred</span>
+<div class="viewcode-block" id="GeoNamesAPI.call_api"><a class="viewcode-back" href="../../../codedocs.html#mep.people.geonames.GeoNamesAPI.call_api">[docs]</a>    <span class="k">def</span> <span class="nf">call_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Generic method to handle calling geonames api and raising</span>
+<span class="sd">        an exception if an error occurred.&#39;&#39;&#39;</span>
         <span class="n">api_url</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">api_base</span><span class="p">,</span> <span class="n">method</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
@@ -96,7 +96,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">GeoNamesError</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">][</span><span class="s1">&#39;message&#39;</span><span class="p">])</span>
 
-            <span class="k">return</span> <span class="n">data</span>
+            <span class="k">return</span> <span class="n">data</span></div>
 
 <div class="viewcode-block" id="GeoNamesAPI.search"><a class="viewcode-back" href="../../../codedocs.html#mep.people.geonames.GeoNamesAPI.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">max_rows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">feature_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">feature_code</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name_start</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -223,7 +223,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

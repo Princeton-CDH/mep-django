@@ -5,7 +5,7 @@ import logging
 from eulxml import xmlmap
 from viapy.api import ViafEntity
 
-from mep.people import models
+from mep.people import models as people_models
 from mep.people.geonames import GeoNamesAPI
 
 
@@ -25,6 +25,9 @@ class Nationality(TeiXmlObject):
     not_before = xmlmap.StringField('@notBefore')
 
     def db_country(self):
+        '''Use :class:`~mep.people.geonames.GeoNamesAPI` to convert
+        nationality in the XML to a :class:`~mep.people.models.Country`.
+        Creates the country record in the database if needed.'''
         geonamesapi = GeoNamesAPI()
 
         # special case: "stateless" (only occurs once)
@@ -45,7 +48,7 @@ class Nationality(TeiXmlObject):
             return
 
         # get existing country or add if not yet present
-        country, created = models.Country.objects.get_or_create(
+        country, created = people_models.Country.objects.get_or_create(
             geonames_id=geo_id,
             name=name,
             code=code
@@ -202,7 +205,7 @@ class Residence(TeiXmlObject):
     def db_address(self):
         '''Get the corresponding :class:`mep.people.models.Address` in the
         database, creating a new address if it does not exist.'''
-        addr, created = models.Address.objects.get_or_create(
+        addr, created = people_models.Location.objects.get_or_create(
             name=self.name or '',
             street_address=self.street or '',
             city=self.city or '',
@@ -220,7 +223,7 @@ class Residence(TeiXmlObject):
             geonamesapi = GeoNamesAPI()
             geoname = geonamesapi.countries_by_code[self.city_country[self.city]]
             # get existing country or add if not yet present
-            country, created = models.Country.objects.get_or_create(
+            country, created = people_models.Country.objects.get_or_create(
                 geonames_id=GeoNamesAPI.uri_from_id(geoname['geonameId']),
                 name=geoname['countryName'],
                 code=geoname['countryCode']
@@ -235,6 +238,7 @@ class Residence(TeiXmlObject):
         return addr
 
 class Name(TeiXmlObject):
+    '''person name'''
     name_type = xmlmap.StringField('@type')
     sort = xmlmap.IntegerField('@sort')
     full = xmlmap.StringField('@full')
@@ -247,6 +251,7 @@ class Name(TeiXmlObject):
 
 
 class PersonName(TeiXmlObject):
+    '''Person name, with various name parts'''
     last_names = xmlmap.NodeListField('t:surname', Name)
     first_names = xmlmap.NodeListField('t:forename', Name)
     married_name = xmlmap.NodeField('t:surname[@type="married"]', Name)
@@ -278,7 +283,7 @@ class PersonName(TeiXmlObject):
         return ', '.join([n for n in [self.last_name(sort=True), first_name] if n])
 
     def display_birthname(self):
-        # in some cases only one name is present but it is tagged as birth name
+        '''in some cases only one name is present but it is tagged as birth name'''
         if self.birth_name and self.married_name:
             birth_name = ' '.join([self.birth_namelink or '',
                                    str(self.birth_name)])
@@ -286,6 +291,7 @@ class PersonName(TeiXmlObject):
         return ''
 
     def last_name(self, sort=False):
+        '''maried name or first last name'''
         # if married name is set, return that
         if self.married_name:
             lastname = str(self.married_name)
@@ -304,11 +310,14 @@ class PersonName(TeiXmlObject):
         return lastname
 
     def first_name(self):
+        '''first name; handles multiple first names with sort attributes'''
         # handle multiple first names
         sorted_names = sorted(self.first_names, key=lambda n: n.sort or 0)
         return ' '.join([str(n) for n in sorted_names])
 
 class Note(TeiXmlObject):
+    '''TEI note. Includes logic for extracting ref attributes
+    for inclusion as note text.'''
 
     def __str__(self):
         # check for included person name with ref id
@@ -323,6 +332,7 @@ class Note(TeiXmlObject):
         return self.node.xpath("normalize-space(.)")
 
 class Person(TeiXmlObject):
+    '''Person'''
     mep_id = xmlmap.StringField('@xml:id')
     viaf_id = xmlmap.StringField('t:idno[@type="viaf"]')
     title = xmlmap.StringField('t:persName/t:roleName')
@@ -339,13 +349,14 @@ class Person(TeiXmlObject):
     residences = xmlmap.NodeListField('t:residence', Residence)
 
     def is_imported(self):
-        return models.Person.objects.filter(mep_id=self.mep_id).exists()
+        '''check if person has already been imported into the database'''
+        return people_models.Person.objects.filter(mep_id=self.mep_id).exists()
 
     def to_db_person(self):
         '''Create a new :class:`mep.people.models.Person` database record
         and populate based on data in the xml.'''
 
-        db_person = models.Person(
+        db_person = people_models.Person(
             mep_id=self.mep_id,
             title=self.title or '',
             birth_year=self.birth or None,
@@ -373,7 +384,7 @@ class Person(TeiXmlObject):
         else:
             # check for pseudonym
             if self.pseudonyms:
-                # pseudonym is primary name
+                # pseudonym is mary name
                 if self.pseudonyms[0].sort == 1:
                     pseudonym = [str(self.pseudonyms[0])]
                     sur = self.pseudonyms[0].last_name()
@@ -439,17 +450,19 @@ class Person(TeiXmlObject):
 
         # handle URLs included in notes
         for link in self.urls:
-            db_person.urls.add(models.InfoURL.objects.create(url=link,
+            db_person.urls.add(people_models.InfoURL.objects.create(url=link,
                 person=db_person, notes='URL from XML import'))
 
         # handle residence addresses
-        for res in self.residences:
-            db_person.addresses.add(res.db_address())
+        # NOTE: disabled due to address/location refactor
+        # for res in self.residences:
+        #     db_person.addresses.add(res.db_address())
 
         return db_person
 
 
 class Personography(xmlmap.XmlObject):
+    '''collection of :class:`Person` records in a single TEI file'''
     ROOT_NAMESPACES = {
         't': 'http://www.tei-c.org/ns/1.0'
     }
@@ -458,4 +471,5 @@ class Personography(xmlmap.XmlObject):
 
     @classmethod
     def from_file(cls, filename):
+        '''load content from a file'''
         return xmlmap.load_xmlobject_from_file(filename, cls)

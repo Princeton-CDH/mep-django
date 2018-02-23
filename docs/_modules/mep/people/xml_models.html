@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.xml_models &#8212; Mapping Expatriate Paris - Django 0.2.0-RC documentation</title>
+    <title>mep.people.xml_models &#8212; Mapping Expatriate Paris - Django 0.3.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.2.0-RC',
+        VERSION:     '0.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
 <span class="kn">from</span> <span class="nn">eulxml</span> <span class="k">import</span> <span class="n">xmlmap</span>
 <span class="kn">from</span> <span class="nn">viapy.api</span> <span class="k">import</span> <span class="n">ViafEntity</span>
 
-<span class="kn">from</span> <span class="nn">mep.people</span> <span class="k">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">mep.people</span> <span class="k">import</span> <span class="n">models</span> <span class="k">as</span> <span class="n">people_models</span>
 <span class="kn">from</span> <span class="nn">mep.people.geonames</span> <span class="k">import</span> <span class="n">GeoNamesAPI</span>
 
 
@@ -65,7 +65,10 @@
     <span class="n">not_after</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="s1">&#39;@notAfter&#39;</span><span class="p">)</span>
     <span class="n">not_before</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="s1">&#39;@notBefore&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">db_country</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Nationality.db_country"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Nationality.db_country">[docs]</a>    <span class="k">def</span> <span class="nf">db_country</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Use :class:`~mep.people.geonames.GeoNamesAPI` to convert</span>
+<span class="sd">        nationality in the XML to a :class:`~mep.people.models.Country`.</span>
+<span class="sd">        Creates the country record in the database if needed.&#39;&#39;&#39;</span>
         <span class="n">geonamesapi</span> <span class="o">=</span> <span class="n">GeoNamesAPI</span><span class="p">()</span>
 
         <span class="c1"># special case: &quot;stateless&quot; (only occurs once)</span>
@@ -86,12 +89,12 @@
             <span class="k">return</span>
 
         <span class="c1"># get existing country or add if not yet present</span>
-        <span class="n">country</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Country</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+        <span class="n">country</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">people_models</span><span class="o">.</span><span class="n">Country</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
             <span class="n">geonames_id</span><span class="o">=</span><span class="n">geo_id</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">code</span><span class="o">=</span><span class="n">code</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">country</span></div>
+        <span class="k">return</span> <span class="n">country</span></div></div>
 
 
 <div class="viewcode-block" id="Residence"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Residence">[docs]</a><span class="k">class</span> <span class="nc">Residence</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
@@ -243,7 +246,7 @@
 <div class="viewcode-block" id="Residence.db_address"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Residence.db_address">[docs]</a>    <span class="k">def</span> <span class="nf">db_address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Get the corresponding :class:`mep.people.models.Address` in the</span>
 <span class="sd">        database, creating a new address if it does not exist.&#39;&#39;&#39;</span>
-        <span class="n">addr</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Address</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+        <span class="n">addr</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">people_models</span><span class="o">.</span><span class="n">Location</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
             <span class="n">street_address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">street</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
             <span class="n">city</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">city</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
@@ -261,7 +264,7 @@
             <span class="n">geonamesapi</span> <span class="o">=</span> <span class="n">GeoNamesAPI</span><span class="p">()</span>
             <span class="n">geoname</span> <span class="o">=</span> <span class="n">geonamesapi</span><span class="o">.</span><span class="n">countries_by_code</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">city_country</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">]]</span>
             <span class="c1"># get existing country or add if not yet present</span>
-            <span class="n">country</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Country</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+            <span class="n">country</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">people_models</span><span class="o">.</span><span class="n">Country</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
                 <span class="n">geonames_id</span><span class="o">=</span><span class="n">GeoNamesAPI</span><span class="o">.</span><span class="n">uri_from_id</span><span class="p">(</span><span class="n">geoname</span><span class="p">[</span><span class="s1">&#39;geonameId&#39;</span><span class="p">]),</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">geoname</span><span class="p">[</span><span class="s1">&#39;countryName&#39;</span><span class="p">],</span>
                 <span class="n">code</span><span class="o">=</span><span class="n">geoname</span><span class="p">[</span><span class="s1">&#39;countryCode&#39;</span><span class="p">]</span>
@@ -275,7 +278,8 @@
 
         <span class="k">return</span> <span class="n">addr</span></div></div>
 
-<span class="k">class</span> <span class="nc">Name</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
+<div class="viewcode-block" id="Name"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Name">[docs]</a><span class="k">class</span> <span class="nc">Name</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;person name&#39;&#39;&#39;</span>
     <span class="n">name_type</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="s1">&#39;@type&#39;</span><span class="p">)</span>
     <span class="n">sort</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="s1">&#39;@sort&#39;</span><span class="p">)</span>
     <span class="n">full</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="s1">&#39;@full&#39;</span><span class="p">)</span>
@@ -284,10 +288,11 @@
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">full</span> <span class="o">==</span> <span class="s1">&#39;init&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span></div>
 
 
-<span class="k">class</span> <span class="nc">PersonName</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
+<div class="viewcode-block" id="PersonName"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.PersonName">[docs]</a><span class="k">class</span> <span class="nc">PersonName</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Person name, with various name parts&#39;&#39;&#39;</span>
     <span class="n">last_names</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">NodeListField</span><span class="p">(</span><span class="s1">&#39;t:surname&#39;</span><span class="p">,</span> <span class="n">Name</span><span class="p">)</span>
     <span class="n">first_names</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">NodeListField</span><span class="p">(</span><span class="s1">&#39;t:forename&#39;</span><span class="p">,</span> <span class="n">Name</span><span class="p">)</span>
     <span class="n">married_name</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">NodeField</span><span class="p">(</span><span class="s1">&#39;t:surname[@type=&quot;married&quot;]&#39;</span><span class="p">,</span> <span class="n">Name</span><span class="p">)</span>
@@ -298,7 +303,7 @@
     <span class="n">birth_namelink</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="s1">&#39;t:nameLink[@type=&quot;birth&quot;]&#39;</span><span class="p">)</span>
     <span class="n">married_namelink</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="s1">&#39;t:nameLink[@type=&quot;married&quot;]&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">full_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PersonName.full_name"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.PersonName.full_name">[docs]</a>    <span class="k">def</span> <span class="nf">full_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Combine first and last names into &quot;firstname lastname&quot; or</span>
 <span class="sd">        &quot;firstname (birth name) married name&quot;.  Handles multiple first names,</span>
 <span class="sd">        initials, etc.&#39;&#39;&#39;</span>
@@ -306,9 +311,9 @@
             <span class="c1"># exclude any empty values</span>
             <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span>
                 <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_birthname</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_name</span><span class="p">()]</span>
-            <span class="k">if</span> <span class="n">name</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">name</span><span class="p">])</span></div>
 
-    <span class="k">def</span> <span class="nf">sort_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PersonName.sort_name"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.PersonName.sort_name">[docs]</a>    <span class="k">def</span> <span class="nf">sort_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Combine first and last names into &quot;lastname, firstname&quot; or</span>
 <span class="sd">        &quot;married name, firstname (birth name)&quot;.  Handles multiple first names,</span>
 <span class="sd">        initials, etc.&#39;&#39;&#39;</span>
@@ -316,17 +321,18 @@
             <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_birthname</span><span class="p">(),</span>
                                <span class="bp">self</span><span class="o">.</span><span class="n">married_namelink</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelink</span><span class="p">]</span>
              <span class="k">if</span> <span class="n">name</span><span class="p">])</span>
-        <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">last_name</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">first_name</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">last_name</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">first_name</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span><span class="p">])</span></div>
 
-    <span class="k">def</span> <span class="nf">display_birthname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># in some cases only one name is present but it is tagged as birth name</span>
+<div class="viewcode-block" id="PersonName.display_birthname"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.PersonName.display_birthname">[docs]</a>    <span class="k">def</span> <span class="nf">display_birthname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;in some cases only one name is present but it is tagged as birth name&#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">birth_name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">married_name</span><span class="p">:</span>
             <span class="n">birth_name</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">birth_namelink</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
                                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">birth_name</span><span class="p">)])</span>
             <span class="k">return</span> <span class="s1">&#39;(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">birth_name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span></div>
 
-    <span class="k">def</span> <span class="nf">last_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="PersonName.last_name"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.PersonName.last_name">[docs]</a>    <span class="k">def</span> <span class="nf">last_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;maried name or first last name&#39;&#39;&#39;</span>
         <span class="c1"># if married name is set, return that</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">married_name</span><span class="p">:</span>
             <span class="n">lastname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">married_name</span><span class="p">)</span>
@@ -342,14 +348,17 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">sort</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">married_namelink</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelink</span><span class="p">):</span>
             <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">married_namelink</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">namelink</span><span class="p">,</span> <span class="n">lastname</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">lastname</span>
+        <span class="k">return</span> <span class="n">lastname</span></div>
 
-    <span class="k">def</span> <span class="nf">first_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PersonName.first_name"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.PersonName.first_name">[docs]</a>    <span class="k">def</span> <span class="nf">first_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;first name; handles multiple first names with sort attributes&#39;&#39;&#39;</span>
         <span class="c1"># handle multiple first names</span>
         <span class="n">sorted_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_names</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">sort</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">sorted_names</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">sorted_names</span><span class="p">])</span></div></div>
 
-<span class="k">class</span> <span class="nc">Note</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
+<div class="viewcode-block" id="Note"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Note">[docs]</a><span class="k">class</span> <span class="nc">Note</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;TEI note. Includes logic for extracting ref attributes</span>
+<span class="sd">    for inclusion as note text.&#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># check for included person name with ref id</span>
@@ -361,9 +370,10 @@
                     <span class="n">node</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="s1">&#39; [</span><span class="si">%s</span><span class="s1">] </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">tail</span><span class="p">)</span>
 
         <span class="c1"># output note text normally, now including ref id</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="s2">&quot;normalize-space(.)&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="s2">&quot;normalize-space(.)&quot;</span><span class="p">)</span></div>
 
-<span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
+<div class="viewcode-block" id="Person"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Person">[docs]</a><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Person&#39;&#39;&#39;</span>
     <span class="n">mep_id</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="s1">&#39;@xml:id&#39;</span><span class="p">)</span>
     <span class="n">viaf_id</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="s1">&#39;t:idno[@type=&quot;viaf&quot;]&#39;</span><span class="p">)</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="s1">&#39;t:persName/t:roleName&#39;</span><span class="p">)</span>
@@ -379,14 +389,15 @@
     <span class="c1"># todo: handle ref target in notes</span>
     <span class="n">residences</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">NodeListField</span><span class="p">(</span><span class="s1">&#39;t:residence&#39;</span><span class="p">,</span> <span class="n">Residence</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">is_imported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">models</span><span class="o">.</span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">mep_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mep_id</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+<div class="viewcode-block" id="Person.is_imported"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Person.is_imported">[docs]</a>    <span class="k">def</span> <span class="nf">is_imported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;check if person has already been imported into the database&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">people_models</span><span class="o">.</span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">mep_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mep_id</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">to_db_person</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Person.to_db_person"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Person.to_db_person">[docs]</a>    <span class="k">def</span> <span class="nf">to_db_person</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Create a new :class:`mep.people.models.Person` database record</span>
 <span class="sd">        and populate based on data in the xml.&#39;&#39;&#39;</span>
 
-        <span class="n">db_person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Person</span><span class="p">(</span>
+        <span class="n">db_person</span> <span class="o">=</span> <span class="n">people_models</span><span class="o">.</span><span class="n">Person</span><span class="p">(</span>
             <span class="n">mep_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mep_id</span><span class="p">,</span>
             <span class="n">title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
             <span class="n">birth_year</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">birth</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
@@ -414,7 +425,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># check for pseudonym</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudonyms</span><span class="p">:</span>
-                <span class="c1"># pseudonym is primary name</span>
+                <span class="c1"># pseudonym is mary name</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudonyms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">pseudonym</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pseudonyms</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
                     <span class="n">sur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudonyms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">last_name</span><span class="p">()</span>
@@ -480,26 +491,29 @@
 
         <span class="c1"># handle URLs included in notes</span>
         <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">urls</span><span class="p">:</span>
-            <span class="n">db_person</span><span class="o">.</span><span class="n">urls</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">InfoURL</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">link</span><span class="p">,</span>
+            <span class="n">db_person</span><span class="o">.</span><span class="n">urls</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">people_models</span><span class="o">.</span><span class="n">InfoURL</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">link</span><span class="p">,</span>
                 <span class="n">person</span><span class="o">=</span><span class="n">db_person</span><span class="p">,</span> <span class="n">notes</span><span class="o">=</span><span class="s1">&#39;URL from XML import&#39;</span><span class="p">))</span>
 
         <span class="c1"># handle residence addresses</span>
-        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">residences</span><span class="p">:</span>
-            <span class="n">db_person</span><span class="o">.</span><span class="n">addresses</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">db_address</span><span class="p">())</span>
+        <span class="c1"># NOTE: disabled due to address/location refactor</span>
+        <span class="c1"># for res in self.residences:</span>
+        <span class="c1">#     db_person.addresses.add(res.db_address())</span>
 
-        <span class="k">return</span> <span class="n">db_person</span>
+        <span class="k">return</span> <span class="n">db_person</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">Personography</span><span class="p">(</span><span class="n">xmlmap</span><span class="o">.</span><span class="n">XmlObject</span><span class="p">):</span>
+<div class="viewcode-block" id="Personography"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Personography">[docs]</a><span class="k">class</span> <span class="nc">Personography</span><span class="p">(</span><span class="n">xmlmap</span><span class="o">.</span><span class="n">XmlObject</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;collection of :class:`Person` records in a single TEI file&#39;&#39;&#39;</span>
     <span class="n">ROOT_NAMESPACES</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;t&#39;</span><span class="p">:</span> <span class="s1">&#39;http://www.tei-c.org/ns/1.0&#39;</span>
     <span class="p">}</span>
 
     <span class="n">people</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">NodeListField</span><span class="p">(</span><span class="s1">&#39;//t:person&#39;</span><span class="p">,</span> <span class="n">Person</span><span class="p">)</span>
 
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Personography.from_file"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Personography.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">load_xmlobject_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span>
+        <span class="sd">&#39;&#39;&#39;load content from a file&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">load_xmlobject_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -582,7 +596,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

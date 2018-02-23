@@ -1,14 +1,18 @@
 import json
+from datetime import date
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.template.defaultfilters import date as format_date
 from django.test import TestCase
 from django.urls import reverse
 
+from mep.accounts.models import Account, Address, Event, Subscription, \
+    Reimbursement
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import Address, Country, Person, Relationship, \
+from mep.people.models import Location, Country, Person, Relationship, \
     RelationshipType
 from mep.people.views import GeoNamesLookup
 
@@ -54,40 +58,97 @@ class TestPeopleViews(TestCase):
 
     def test_person_autocomplete(self):
         # add a person to search for
-        Person.objects.create(name='Sylvia Beach', mep_id='sylv.b')
+        beach = Person.objects.create(name='Sylvia Beach', mep_id='sylv.b')
 
         pub_autocomplete_url = reverse('people:autocomplete')
         result = self.client.get(pub_autocomplete_url, {'q': 'beach'})
         assert result.status_code == 200
-        # decode response to inspect
+        # decode response to inspect basic formatting and fields
         data = json.loads(result.content.decode('utf-8'))
-        assert data['results'][0]['text'] == 'Sylvia Beach'
+        text = data['results'][0]['text']
+        self.assertInHTML('<strong>Sylvia Beach</strong> sylv.b', text)
 
-        # no match - shouldn't error
+        # no match - shouldn't error, just return no results
         result = self.client.get(pub_autocomplete_url, {'q': 'beauvoir'})
         assert result.status_code == 200
         data = json.loads(result.content.decode('utf-8'))
         assert not data['results']
 
-        # add a person and a relationship
-        Person.objects.create(name='Sylvia', title='Ms.')
+        # add a person and a title
+        ms_sylvia = Person.objects.create(name='Sylvia', title='Ms.')
 
-        # should return both
+        # should return both wrapped in <strong>
         result = self.client.get(pub_autocomplete_url, {'q': 'sylvia'})
         assert result.status_code == 200
         # decode response to inspect
         data = json.loads(result.content.decode('utf-8'))
         assert len(data['results']) == 2
-        assert data['results'][0]['text'] == 'Sylvia Beach'
-        assert data['results'][1]['text'] == 'Ms. Sylvia'
+        assert 'Sylvia Beach' in data['results'][0]['text']
+        # detailed check of Ms. Sylvia
+        text = data['results'][1]['text']
+        self.assertInHTML('<strong>Ms. Sylvia</strong>', text)
 
-        # search by mep id, should return just Sylvia Beach
-        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.'})
+        # should select the right person based on mep_id
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.b'})
         assert result.status_code == 200
         # decode response to inspect
         data = json.loads(result.content.decode('utf-8'))
         assert len(data['results']) == 1
-        assert data['results'][0]['text'] == 'Sylvia Beach'
+        assert 'Sylvia Beach' in data['results'][0]['text']
+
+        # add birth, death dates to beach
+        beach.birth_year = 1900
+        beach.death_year = 1970
+        beach.save()
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.b'})
+        # decode response to inspect dates rendered and formatted correctly
+        data = json.loads(result.content.decode('utf-8'))
+        assert len(data['results']) == 1
+        text = data['results'][0]['text']
+        expected = '<strong>Sylvia Beach (1900 - 1970)</strong> sylv.b <br />'
+        self.assertInHTML(expected, text)
+
+        # add notes to beach
+        beach.notes = "All of these words are part of the notes"
+        beach.save()
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.b'})
+        data = json.loads(result.content.decode('utf-8'))
+        assert len(data['results']) == 1
+        text = data['results'][0]['text']
+        # first 5 words of notes field should be present in response
+        # on a separate line
+        expected = ('<strong>Sylvia Beach (1900 - 1970)</strong> '
+                    'sylv.b <br />All of these words are')
+        self.assertInHTML(expected, text)
+
+        # give Ms. Sylvia a mep id
+        ms_sylvia.mep_id = 'sylv.a'
+        ms_sylvia.save()
+        # check that mep.id shows up in result
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.a'})
+        data = json.loads(result.content.decode('utf-8'))
+        text = data['results'][0]['text']
+        self.assertInHTML('<strong>Ms. Sylvia</strong> sylv.a', text)
+        # give Ms. Sylvia events
+        account = Account.objects.create()
+        account.persons.add(ms_sylvia)
+        Subscription.objects.create(
+            account=account,
+            start_date=date(1971, 1, 2),
+            end_date=date(1971, 1, 31),
+        )
+        Subscription.objects.create(
+            account=account,
+            start_date=date(1971, 1, 1),
+            end_date=date(1971, 1, 31),
+        )
+        # first event by start_date should be displayed
+        result = self.client.get(pub_autocomplete_url, {'q': 'sylv.a'})
+        data = json.loads(result.content.decode('utf-8'))
+        text = data['results'][0]['text']
+        expected = ('<strong>Ms. Sylvia</strong> sylv.a <br />'
+                    'Subscription (1971-01-01 - 1971-01-31)')
+        self.assertInHTML(expected, text)
 
     def test_person_admin_change(self):
         # create user with permission to load admin edit form
@@ -117,6 +178,44 @@ class TestPeopleViews(TestCase):
             msg_prefix='should include relationship name')
         self.assertContains(result, rel.notes,
             msg_prefix='should include any relationship notes')
+
+        # test account information displayed on person edit form
+        # - no account
+        self.assertContains(result, 'No associated account',
+            msg_prefix='indication should be displayed if person has no account')
+        # - account but no events
+        acct = Account.objects.create()
+        acct.persons.add(m_dufour)
+        result = self.client.get(person_edit_url)
+        self.assertContains(result, str(acct),
+            msg_prefix='account label should be displayed if person has one')
+        self.assertContains(result,
+            reverse('admin:accounts_account_change', args=[acct.id]),
+            msg_prefix='should link to account edit page')
+        self.assertContains(result, 'No documented subscription events',
+            msg_prefix='should display indicator for account with no subscription events')
+        # with subscription events
+        subs = Subscription.objects.create(account=acct,
+            start_date=date(1943, 1, 1), end_date=date(1944, 1, 1))
+        subs2 = Subscription.objects.create(account=acct,
+            start_date=date(1944, 1, 1),
+            subtype=Subscription.RENEWAL)
+        reimb = Reimbursement.objects.create(account=acct,
+            start_date=date(1944, 2, 1))
+        generic = Event.objects.create(account=acct, start_date=date(1940, 1, 1))
+        response = self.client.get(person_edit_url)
+        # NOTE: template uses django's default date display for locale
+        # importing template tag to test with that formatting here
+        self.assertContains(response, 'Subscription')
+        self.assertContains(response, '%s - %s' % \
+            (format_date(subs.start_date), format_date(subs.end_date)))
+        self.assertContains(response, 'Renewal')
+        self.assertContains(response, '%s - ' % format_date(subs2.start_date))
+        # non-subscription events should not be listed
+        self.assertNotContains(response, 'Reimbursement')
+        self.assertNotContains(response, format_date(reimb.start_date))
+        self.assertNotContains(response, 'Generic')
+        self.assertNotContains(response, format_date(generic.start_date))
 
     def test_person_admin_list(self):
         # create user with permission to load admin edit form
@@ -203,7 +302,7 @@ class TestCountryAutocompleteView(TestCase):
         assert info['results'][0]['text'] == 'France'
 
 
-class TestAddressAutocompleteView(TestCase):
+class TestLocationAutocompleteView(TestCase):
 
     def test_get_queryset(self):
         # make two countries
@@ -225,15 +324,15 @@ class TestAddressAutocompleteView(TestCase):
             'postal_code': '678910',
             'country': es,
         }
-        add1 = Address.objects.create(**add_dict)
-        Address.objects.create(**add_dict2)
+        add1 = Location.objects.create(**add_dict)
+        Location.objects.create(**add_dict2)
 
         # make a person
         person = Person.objects.create(name='Baz', title='Mr.', sort_name='Baz')
 
         # - series of tests for get_queryset Q's and view rendering
         # autocomplete that should get both
-        auto_url = reverse('people:address-autocomplete')
+        auto_url = reverse('people:location-autocomplete')
         res = self.client.get(auto_url, {'q': 'Foo'})
         info = res.json()
         assert len(info['results']) == 2
@@ -263,9 +362,8 @@ class TestAddressAutocompleteView(TestCase):
         assert len(info['results']) == 1
         assert 'Hotel El Foo' in info['results'][0]['text']
 
-        # autocomplete that should get the address associated with person
-        person.addresses.add(add1)
-        person.save()
+        # autocomplete that should also find location by associated person
+        Address.objects.create(location=add1, person=person)
         res = self.client.get(auto_url, {'q': 'Baz'})
         info = res.json()
         assert len(info['results']) == 1

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Architecture &#8212; Mapping Expatriate Paris - Django 0.2.0-RC documentation</title>
+    <title>Architecture &#8212; Mapping Expatriate Paris - Django 0.3.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.0-RC',
+        VERSION:     '0.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,8 +46,23 @@
 </div>
 <div class="section" id="database">
 <h2>Database<a class="headerlink" href="#database" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="updates-and-changes">
+<h3>Updates and Changes<a class="headerlink" href="#updates-and-changes" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="updates">
-<h3>0.2 Updates<a class="headerlink" href="#updates" title="Permalink to this headline">¶</a></h3>
+<h4>0.3 Updates<a class="headerlink" href="#updates" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><strong>Address</strong> has been renamed to <strong>Location</strong>, and changed to allow <strong>Person</strong>
+and <strong>Account</strong> to have one or more <strong>Address</strong>, which is a Location
+with optional start/end dates.</li>
+<li><strong>Subscribe</strong> event has been renamed to <strong>Subscription</strong>; subscription type
+field has been converted from a Django choice field to the
+editable <strong>SubscriptionType</strong>.</li>
+<li>Subscription <strong>duration</strong> has been converted from months and fraction of months
+to the actual days between start and end dates.</li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h4>0.2 Updates<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
 <p>The overall architectures of the schema remains the same, but several fields were
 made less restrictive to accommodate variation in the Logbook data. These include:</p>
 <ul class="simple">
@@ -56,26 +71,59 @@ made less restrictive to accommodate variation in the Logbook data. These includ
 <li>Options were provided for Subscribe sub_type fields, as well as for modification.</li>
 </ul>
 </div>
-<div class="section" id="initial-schema-version-004">
-<h3>Initial Schema (Version 004)<a class="headerlink" href="#initial-schema-version-004" title="Permalink to this headline">¶</a></h3>
-<a class="reference external image-reference" href="_static/mep-schema-004.png"><img alt="MEP Schema Design 004" src="_images/mep-schema-004.png" /></a>
-<p><em>NOTE: This does not include additional complexity of URLs for people records per 19 June 2017 project meeting</em></p>
-<p>Detail charts are generated in <a class="reference external" href="https://github.com/jabauer/DAVILA">DAVILA</a>.
-The <code class="docutils literal"><span class="pre">sphinx-docs</span></code> directory includes a <code class="docutils literal"><span class="pre">customize.csv</span></code> and MySQL dump that was used
-to generate the following schemata.</p>
 </div>
+<div class="section" id="database-diagrams">
+<h3>Database Diagrams<a class="headerlink" href="#database-diagrams" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Detail charts are generated with <a class="reference external" href="https://github.com/jabauer/DAVILA">DAVILA</a>.
+The <code class="docutils literal"><span class="pre">sphinx-docs</span></code> directory includes a <code class="docutils literal"><span class="pre">customize.csv</span></code> and MySQL dump
+that was used to generate the following schema diagrams.</p>
+</div>
+<div class="section" id="initial-schema-design-version-004">
+<h4>Initial Schema Design (Version 004)<a class="headerlink" href="#initial-schema-design-version-004" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/mep-schema-004.png"><img alt="MEP Schema Design 004" src="_images/mep-schema-004.png" /></a>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This does not include additional complexity of URLs for people records
+per 19 June 2017 project meeting.</p>
+</div>
+</div>
+<div class="section" id="database-overview-v0-3">
+<h4>Database Overview (v0.3)<a class="headerlink" href="#database-overview-v0-3" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/db-overview-v03.png"><img alt="MEP Schema Overview v0.3" src="_images/db-overview-v03.png" /></a>
+</div>
+<div class="section" id="person-detail-v0-3">
+<h4>Person detail (v0.3)<a class="headerlink" href="#person-detail-v0-3" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/db-people-v03.png"><img alt="MEP Schema - Person detail v0.3" src="_images/db-people-v03.png" /></a>
+</div>
+<div class="section" id="account-detail-v0-3">
+<h4>Account detail (v0.3)<a class="headerlink" href="#account-detail-v0-3" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/db-accounts-v03.png"><img alt="MEP Schema - Account detail v0.3" src="_images/db-accounts-v03.png" /></a>
+</div>
+<div class="section" id="book-detail-v0-3">
+<h4>Book detail (v0.3)<a class="headerlink" href="#book-detail-v0-3" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/db-books-v03.png"><img alt="MEP Schema - Book detail v0.3" src="_images/db-books-v03.png" /></a>
+</div>
+</div>
+<div class="section" id="previous-versions">
+<h3>Previous versions<a class="headerlink" href="#previous-versions" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="people-detail-0004">
-<h3>People Detail (0004)<a class="headerlink" href="#people-detail-0004" title="Permalink to this headline">¶</a></h3>
+<h4>People Detail (0004)<a class="headerlink" href="#people-detail-0004" title="Permalink to this headline">¶</a></h4>
 <a class="reference external image-reference" href="_static/people-module-004.png"><img alt="People Module Detail" src="_images/people-module-004.png" /></a>
-<p><em>ERRATA: :class:`~mep.people.models.InfoURL` now includes a required ``name`` field</em></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference internal" href="codedocs.html#mep.people.models.InfoURL" title="mep.people.models.InfoURL"><code class="xref py py-class docutils literal"><span class="pre">InfoURL</span></code></a> now includes a required <code class="docutils literal"><span class="pre">name</span></code> field</p>
+</div>
 </div>
 <div class="section" id="books-detail-0004">
-<h3>Books Detail (0004)<a class="headerlink" href="#books-detail-0004" title="Permalink to this headline">¶</a></h3>
+<h4>Books Detail (0004)<a class="headerlink" href="#books-detail-0004" title="Permalink to this headline">¶</a></h4>
 <a class="reference external image-reference" href="_static/books-module-004.png"><img alt="Books Module Detail" src="_images/books-module-004.png" /></a>
 </div>
 <div class="section" id="account-detail-0004">
-<h3>Account Detail (0004)<a class="headerlink" href="#account-detail-0004" title="Permalink to this headline">¶</a></h3>
+<h4>Account Detail (0004)<a class="headerlink" href="#account-detail-0004" title="Permalink to this headline">¶</a></h4>
 <a class="reference external image-reference" href="_static/accounts-module-004.png"><img alt="Account Module Detail" src="_images/accounts-module-004.png" /></a>
+</div>
 </div>
 </div>
 </div>
@@ -141,11 +189,25 @@ to generate the following schemata.</p>
   <ul>
 <li><a class="reference internal" href="#">Architecture</a><ul>
 <li><a class="reference internal" href="#database">Database</a><ul>
-<li><a class="reference internal" href="#updates">0.2 Updates</a></li>
-<li><a class="reference internal" href="#initial-schema-version-004">Initial Schema (Version 004)</a></li>
+<li><a class="reference internal" href="#updates-and-changes">Updates and Changes</a><ul>
+<li><a class="reference internal" href="#updates">0.3 Updates</a></li>
+<li><a class="reference internal" href="#id1">0.2 Updates</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#database-diagrams">Database Diagrams</a><ul>
+<li><a class="reference internal" href="#initial-schema-design-version-004">Initial Schema Design (Version 004)</a></li>
+<li><a class="reference internal" href="#database-overview-v0-3">Database Overview (v0.3)</a></li>
+<li><a class="reference internal" href="#person-detail-v0-3">Person detail (v0.3)</a></li>
+<li><a class="reference internal" href="#account-detail-v0-3">Account detail (v0.3)</a></li>
+<li><a class="reference internal" href="#book-detail-v0-3">Book detail (v0.3)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#previous-versions">Previous versions</a><ul>
 <li><a class="reference internal" href="#people-detail-0004">People Detail (0004)</a></li>
 <li><a class="reference internal" href="#books-detail-0004">Books Detail (0004)</a></li>
 <li><a class="reference internal" href="#account-detail-0004">Account Detail (0004)</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -176,7 +238,7 @@ to generate the following schemata.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

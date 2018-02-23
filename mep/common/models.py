@@ -61,6 +61,13 @@ class Notable(models.Model):
         return bool(self.notes)
     has_notes.boolean = True
 
+    snippet_length = 75
+    def note_snippet(self):
+        '''First 75 letters of the note, for brief display'''
+        return ''.join([self.notes[:self.snippet_length],
+                         ' ...' if len(self.notes) > self.snippet_length else ''])
+    note_snippet.short_description = 'Notes'
+
 
 class DateRange(models.Model):
     '''Abstract model with optional start and end years, and a
@@ -91,6 +98,7 @@ class DateRange(models.Model):
         return ''.join([str(dp) for dp in date_parts if dp is not None])
 
     def clean_fields(self, exclude=None):
+        '''validate that end year is greater than or equal to start year'''
         if exclude is None:
             exclude = []
         if 'start_year' in exclude or 'end_year' in exclude:

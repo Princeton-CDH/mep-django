@@ -15,11 +15,6 @@ class CollapsibleTabularInline(admin.TabularInline):
     classes = ('grp-collapse grp-open',)
 
 
-class CollapsibleTabularInline(admin.TabularInline):
-    '''Django admin tabular inline with grappelli collapsible classes added'''
-    classes = ('grp-collapse grp-open',)
-
-
 class CollapsedTabularInline(admin.TabularInline):
     '''
     Django admin tabular inline with grappelli collapsible classes added,

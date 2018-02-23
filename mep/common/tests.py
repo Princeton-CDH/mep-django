@@ -35,6 +35,20 @@ class TestNotable(TestCase):
         noted.notes = None
         assert False == noted.has_notes()
 
+    def test_note_snippet(self):
+        noted = Notable()
+        assert noted.note_snippet() == ''
+
+        noted.notes = 'short note'
+        assert noted.note_snippet() == noted.notes
+
+        noted.notes = 'a very long note that goes on and on and and on and on and keeps going blah blah so it needs truncation'
+        snip = noted.note_snippet()
+        assert snip != noted.notes
+        assert snip.endswith(' ...')
+        assert snip.startswith(noted.notes[:75])
+
+
 class TestDateRange(TestCase):
 
     def test_dates(self):

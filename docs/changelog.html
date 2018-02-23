@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>CHANGELOG &#8212; Mapping Expatriate Paris - Django 0.2.0-RC documentation</title>
+    <title>CHANGELOG &#8212; Mapping Expatriate Paris - Django 0.3.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.0-RC',
+        VERSION:     '0.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -41,6 +41,32 @@
             
   <div class="section" id="changelog">
 <span id="id1"></span><h1>CHANGELOG<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="data-entry-improvements">
+<h2>0.3 Data Entry Improvements<a class="headerlink" href="#data-entry-improvements" title="Permalink to this headline">¶</a></h2>
+<p>Improvements to the admin interface to make data entry and content management
+easier and more streamlined (particular emphasis on personography &amp; accounts).</p>
+<ul class="simple">
+<li>As a global admin, I want addresses automatically associated with accounts in the logbook where possible to minimize the amount of manual cleanup required.</li>
+<li>As a content editor, I want to enter optional start and/or end dates for a person’s addresses so I can document when they lived there if known.</li>
+<li>As a content editor, I want a one-time update to set people’s gender based on titles where possible so that I don’t have to edit all the records manually.</li>
+<li>As a content editor, I want the end date of a subscription automatically calculated based on start date and duration, so that I can enter subscriptions more quickly.</li>
+<li>As a content editor, I want event duplication to be prevented so I don’t accidentally enter the same event twice.</li>
+<li>As a content editor, I want subscription event fields relabeled and ordered as they occur in the logbook so that I can add new subscriptions more efficiently.</li>
+<li>As a content editor, I want the reimbursement event form simplified so I can efficiently add new events.</li>
+<li>As a content editor, I want the personography list to include note previews so I can differentiate ambiguous names.</li>
+<li>As a content editor, I want a person’s sort name to autopopulate when I type a single name with no spaces so that I don’t have to retype it.</li>
+<li>As a content editor, I want an easy way to get from an account record to the associated person record so I can view and correct person details.</li>
+<li>As a content editor, I need a way to distinguish people with the same name when I’m selecting a person via autocomplete.</li>
+<li>As a content editor, I want currency for all events to default to “Franc” so that I don’t have to set it every time.</li>
+<li>As a content editor, I want to edit and add new subscription categories so that I can document them as I discover them.</li>
+<li>As a content editor, I want to see account information when I’m editing a person record so I have enough context to make decisions and find sources.</li>
+<li>As a content editor, I want to see if people in the personography are in the logbooks rather than just that they have an account, because it tells me what data is available for them.</li>
+<li>As a content editor, I want the account list to include first and last known events dates so I can easily see membership timeline.</li>
+<li>As a content editor, when I’m editing accounts I want subscription and reimbursement sections to be open by default so I don’t have to click to view membership dates.</li>
+<li>As a content editor, I want the event list to display type before notes so I can easily scan and differentiate events.</li>
+<li>As a content editor, I want project-specific data sections displayed first on the admin dashboard so I can easily get to the data I need to work with.</li>
+</ul>
+</div>
 <div class="section" id="logbook-admin-import">
 <h2>0.2 Logbook Admin &amp; Import<a class="headerlink" href="#logbook-admin-import" title="Permalink to this headline">¶</a></h2>
 <p>Admin functionality and data release. Provides administrative functionality for
@@ -139,6 +165,7 @@ managing data about people associated with Sylvia Beach’s lending library.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">CHANGELOG</a><ul>
+<li><a class="reference internal" href="#data-entry-improvements">0.3 Data Entry Improvements</a></li>
 <li><a class="reference internal" href="#logbook-admin-import">0.2 Logbook Admin &amp; Import</a></li>
 <li><a class="reference internal" href="#personography-admin-import">0.1 Personography Admin &amp; Import</a></li>
 </ul>
@@ -169,7 +196,7 @@ managing data about people associated with Sylvia Beach’s lending library.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

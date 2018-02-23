@@ -1,14 +1,14 @@
 import re
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 import pytest
 from viapy.api import ViafEntity
 
+from mep.accounts.models import Account, Subscription, Reimbursement, Address
 from mep.people.models import InfoURL, Person, Profession, Relationship, \
-    RelationshipType, Address, Country
-from mep.accounts.models import Account
+    RelationshipType, Location, Country
 
 
 class TestPerson(TestCase):
@@ -94,16 +94,16 @@ class TestPerson(TestCase):
         pers = Person.objects.create(name='Foobar')
         # no addresses
         assert pers.address_count() == 0
+        loc = Location.objects.create(name='L\'Hotel', city='Paris')
 
         # add an address
-        address = Address.objects.create(name='L\'Hotel', city='Paris')
-        pers.addresses.add(address)
+        Address.objects.create(location=loc, person=pers)
         # should be one
         assert pers.address_count() == 1
 
         # add another, should be 2
-        address2 = Address.objects.create(name='Elysian Fields', city='Paris')
-        pers.addresses.add(address2)
+        loc2 = Location.objects.create(name='Elysian Fields', city='Paris')
+        Address.objects.create(location=loc2, person=pers)
         assert pers.address_count() == 2
 
     def test_nationality_list(self):
@@ -130,6 +130,30 @@ class TestPerson(TestCase):
         acct.persons.add(pers)
         acct.save()
         assert pers.has_account()
+
+    def test_in_logbooks(self):
+        # create test person & account and associate them
+        pers = Person.objects.create(name='John')
+        # no account - not in logbooks
+        assert not pers.in_logbooks()
+
+        acct = Account.objects.create()
+        acct.persons.add(pers)
+        # account but no logbook events
+        assert not pers.in_logbooks()
+
+        # add subscription event
+        subs = Subscription.objects.create(account=acct)
+        assert pers.in_logbooks()
+
+        # add reimbursment
+        Reimbursement.objects.create(account=acct)
+        assert pers.in_logbooks()
+
+        # still true if only reimbursement and no subscription
+        subs.delete()
+        assert pers.in_logbooks()
+
 
 class TestProfession(TestCase):
 
@@ -224,32 +248,32 @@ class TestAddress(TestCase):
 
     def test_str(self):
         # Name and city only
-        address = Address(name="La Hotel", city="Paris")
+        address = Location(name="La Hotel", city="Paris")
         assert str(address) == "La Hotel, Paris"
 
         # street and city only
-        address = Address(street_address="1 Rue Le Foo", city="Paris")
+        address = Location(street_address="1 Rue Le Foo", city="Paris")
         assert str(address) == "1 Rue Le Foo, Paris"
 
         # Name, street, and city
-        address = Address(street_address="1 Rue Le Foo", city="Paris",
+        address = Location(street_address="1 Rue Le Foo", city="Paris",
             name="La Hotel")
         assert str(address) == "La Hotel, 1 Rue Le Foo, Paris"
 
         # city only
-        address = Address(city="Paris")
+        address = Location(city="Paris")
         assert str(address) == "Paris"
 
     def test_repr(self):
-        hotel = Address(name='La Hotel', city='Paris')
-        assert repr(hotel).startswith('<Address ')
+        hotel = Location(name='La Hotel', city='Paris')
+        assert repr(hotel).startswith('<Location ')
         assert repr(hotel).endswith('>')
         assert hotel.name in repr(hotel)
         assert hotel.city in repr(hotel)
 
     def test_latlon_validate(self):
         # Valid, should pass clean fields
-        address = Address(latitude=180, longitude=-180, city="Paris")
+        address = Location(latitude=180, longitude=-180, city="Paris")
         address.clean_fields()
 
         # Not valid, should error out
@@ -259,7 +283,7 @@ class TestAddress(TestCase):
         assert "Lat/Lon must be between -180 and 180 degrees." in str(err)
 
         # String should error out too, Django handles the message
-        address = Address(latitude="foo", longitude="bar")
+        address = Location(latitude="foo", longitude="bar")
         with pytest.raises(ValidationError):
             address.clean_fields()
 

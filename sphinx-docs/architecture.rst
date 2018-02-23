@@ -8,6 +8,22 @@ Architecture
 Database
 --------
 
+Updates and Changes
+~~~~~~~~~~~~~~~~~~~
+
+0.3 Updates
+^^^^^^^^^^^
+
+- **Address** has been renamed to **Location**, and changed to allow **Person**
+  and **Account** to have one or more **Address**, which is a Location
+  with optional start/end dates.
+- **Subscribe** event has been renamed to **Subscription**; subscription type
+  field has been converted from a Django choice field to the
+  editable **SubscriptionType**.
+- Subscription **duration** has been converted from months and fraction of months
+  to the actual days between start and end dates.
+
+
 0.2 Updates
 ^^^^^^^^^^^
 
@@ -19,17 +35,57 @@ made less restrictive to accommodate variation in the Logbook data. These includ
 - Options were provided for Subscribe sub_type fields, as well as for modification.
 
 
-Initial Schema (Version 004)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Database Diagrams
+~~~~~~~~~~~~~~~~~
+
+.. NOTE::
+    Detail charts are generated with `DAVILA <https://github.com/jabauer/DAVILA>`_.
+    The ``sphinx-docs`` directory includes a ``customize.csv`` and MySQL dump
+    that was used to generate the following schema diagrams.
+
+Initial Schema Design (Version 004)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. image:: _static/mep-schema-004.png
     :target: _static/mep-schema-004.png
     :alt: MEP Schema Design 004
 
-*NOTE: This does not include additional complexity of URLs for people records per 19 June 2017 project meeting*
+.. NOTE::
+    This does not include additional complexity of URLs for people records
+    per 19 June 2017 project meeting.
 
-Detail charts are generated in `DAVILA <https://github.com/jabauer/DAVILA>`_.
-The ``sphinx-docs`` directory includes a ``customize.csv`` and MySQL dump that was used
-to generate the following schemata.
+
+Database Overview (v0.3)
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: _static/db-overview-v03.png
+    :target: _static/db-overview-v03.png
+    :alt: MEP Schema Overview v0.3
+
+
+Person detail (v0.3)
+^^^^^^^^^^^^^^^^^^^^
+
+.. image:: _static/db-people-v03.png
+    :target: _static/db-people-v03.png
+    :alt: MEP Schema - Person detail v0.3
+
+Account detail (v0.3)
+^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: _static/db-accounts-v03.png
+    :target: _static/db-accounts-v03.png
+    :alt: MEP Schema - Account detail v0.3
+
+Book detail (v0.3)
+^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: _static/db-books-v03.png
+    :target: _static/db-books-v03.png
+    :alt: MEP Schema - Book detail v0.3
+
+
+Previous versions
+~~~~~~~~~~~~~~~~~
 
 People Detail (0004)
 ^^^^^^^^^^^^^^^^^^^^
@@ -37,7 +93,8 @@ People Detail (0004)
     :target: _static/people-module-004.png
     :alt: People Module Detail
 
-*ERRATA: :class:`~mep.people.models.InfoURL` now includes a required ``name`` field*
+.. NOTE::
+    :class:`~mep.people.models.InfoURL` now includes a required ``name`` field
 
 
 Books Detail (0004)
