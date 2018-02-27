@@ -131,6 +131,7 @@ class PersonAddressInline(AddressInline):
     fields = ('location', 'start_date', 'end_date', 'care_of_person', 'notes')
     fk_name = 'person'
 
+
 class PersonAdmin(admin.ModelAdmin):
     # NOTE: uses custom template to display relationships to this person
     # (only relationships to other people are edited here)
@@ -163,9 +164,13 @@ class PersonAdmin(admin.ModelAdmin):
 
     def merge_people(self, request, queryset):
         '''Consolidate duplicate person records.'''
+        # NOTE: using selected ids from form and ignoring queryset
+        # because this action is only meant for use with a few
+        # people at a time
         selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
         return HttpResponseRedirect('%s?ids=%s' % \
-                (reverse('people:merge'), ','.join(selected)))
+                (reverse('people:merge'), ','.join(selected)),
+                status=303)   # 303 = See Other
     merge_people.short_description = 'Merge selected people'
 
 

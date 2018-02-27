@@ -1,14 +1,17 @@
 import re
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from django.core.exceptions import ValidationError
+from django.http import HttpResponseRedirect
 from django.test import TestCase
+from django.urls import reverse
 import pytest
 from viapy.api import ViafEntity
 
 from mep.accounts.models import Account, Subscription, Reimbursement, Address
 from mep.people.models import InfoURL, Person, Profession, Relationship, \
     RelationshipType, Location, Country
+from mep.people.admin import PersonAdmin
 
 
 class TestPerson(TestCase):
@@ -302,3 +305,17 @@ class TestInfoURL(TestCase):
         assert repr(info_url).endswith('>')
         assert info_url.url in repr(info_url)
         assert str(p) in repr(info_url)
+
+
+class TestPersonAdmin(TestCase):
+
+    def test_merge_people(self):
+        mockrequest = Mock()
+        test_ids = ['5', '33', '101']
+        mockrequest.POST.getlist.return_value = test_ids
+        resp = PersonAdmin(Person, Mock()).merge_people(mockrequest, Mock())
+        assert isinstance(resp, HttpResponseRedirect)
+        assert resp.status_code == 303
+        assert resp['location'].startswith(reverse('people:merge'))
+        assert resp['location'].endswith('?ids=%s' % ','.join(test_ids))
+
