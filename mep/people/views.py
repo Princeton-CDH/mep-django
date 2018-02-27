@@ -1,3 +1,4 @@
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.contrib import messages
 from django.db.models import Q
 from django.http import JsonResponse
@@ -172,8 +173,7 @@ class PersonMerge(FormView):
         # default to first person selected (?)
         # _could_ add logic to select most complete record,
         # but probably better for team members to choose
-        self.person_ids = [int(pid) for pid in
-                           self.request.GET.get('ids', '').split(',')]
+        self.person_ids = [int(pid) for pid in self.request.GET.getlist('ids')]
         # by default, prefer the first record created
         return {'primary_person': sorted(self.person_ids)[0]}
 
@@ -182,40 +182,27 @@ class PersonMerge(FormView):
 
         # user-selected person record to keep
         primary_person = form.cleaned_data['primary_person']
-        # TODO: error if more than one account
-        primary_account = primary_person.account_set.first()
-        # duplicate person records to be consolidated
-        people = Person.objects.filter(id__in=self.person_ids) \
-                               .exclude(id=primary_person.id)
-        # TODO: error if any accounts have more than one person associated
-        event_total = 0
+        if primary_person.account_set.exists():
+            primary_account = primary_person.account_set.first()
+            existing_events = primary_account.event_set.count()
 
-        for person in people:
-            for account in person.account_set.all():
-                event_total += account.event_set.count()
-                # reassociate all events with the main account
-                account.event_set.update(account=primary_account)
-                # reassociate any addresses with the main account
-                account.address_set.update(account=primary_account)
-                # delete the empty account
-                account.delete()
+        try:
+            # find duplicate person records to be consolidated and merge
+            Person.objects.filter(id__in=self.person_ids) \
+                          .merge_with(primary_person)
 
-            # reassociate any addresses
-            person.address_set.update(person=primary_person)
-            # TODO: copy other details?
-            # nationalities? relationships to other people?
-            # footnotes? info urls?
-
-            # delete the duplicate person
-            person.delete()
-
-        messages.success(self.request,
-            mark_safe('Reassociated %d events with <a href="%s">%s</a> (<a href="%s">%s</a>).'
-             % (event_total,
+            # is this a useful metric? potentially doing a lot more than that...
+            added_events = primary_account.event_set.count() - existing_events
+            messages.success(self.request,
+                mark_safe('Reassociated %d events with <a href="%s">%s</a> (<a href="%s">%s</a>).'
+             % (added_events,
                 reverse('admin:people_person_change', args=[primary_person.id]),
                 primary_person,
                 reverse('admin:accounts_account_change', args=[primary_account.id]),
                 primary_account)))
 
-        return super(PersonMerge, self).form_valid(form)
+        # error if person has more than one account, no account
+        except (ObjectDoesNotExist, MultipleObjectsReturned) as err:
+            messages.error(self.request, str(err))
 
+        return super(PersonMerge, self).form_valid(form)

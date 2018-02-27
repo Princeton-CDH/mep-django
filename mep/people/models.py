@@ -102,10 +102,10 @@ class PersonQuerySet(models.QuerySet):
         # error if person has no account
         # NOTE: could allow if nopeople in the queryset have accounts ...
         if not person.account_set.exists():
-            raise ObjectDoesNotExist("Can't merge with a person record that has no account")
+            raise ObjectDoesNotExist("Can't merge with a person record that has no account.")
         # error if more than account, since we can't pick which to merge to
         if person.account_set.count() > 1:
-            raise MultipleObjectsReturned("Can't merge with a person record that has multiple accounts")
+            raise MultipleObjectsReturned("Can't merge with a person record that has multiple accounts.")
         primary_account = person.account_set.first()
 
         # TODO: error if any accounts have more than one person associated
