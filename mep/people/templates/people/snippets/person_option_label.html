@@ -1,3 +1,5 @@
+{# template snippet for displaying person label on a form  #}
+{# used on person merge form to provide enough information to merge accurately  #}
 <div class="merge-person-label">
 <strong>{{ person.title }} {{ person.name }}</strong>
   {% if person.birth_year or person.death_year %}
@@ -32,7 +34,7 @@
                         {{ event.event_type }}
                     </div>
                     <div class="grp-td">
-                        {{ event.start_date }}{% if event.end_date != event.start_date %} - {{ event.end_date|default:'' }}{%endif %}
+                        {{ event.start_date }}{% if event.end_date != event.start_date %}–{{ event.end_date|default:'' }}{%endif %}
                     </div>
                     <div class='grp-td'>{{ event.notes }}</div>
                 </div>
@@ -46,7 +48,7 @@
                         {{ event.event_type }}
                     </div>
                     <div class="grp-td">
-                        {{ event.start_date }}{% if event.end_date != event.start_date %} - {{ event.end_date|default:'' }}{%endif %}
+                        {{ event.start_date }}{% if event.end_date != event.start_date %}–{{ event.end_date|default:'' }}{%endif %}
                     </div>
                     <div class='grp-td'>{{ event.notes }}</div>
                 </div>
