@@ -6,6 +6,7 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
 
+from mep.books.models import Item
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Location
 
@@ -393,7 +394,7 @@ class Borrow(Event):
 class Purchase(Event, CurrencyMixin):
     '''Inherited table indicating purchase events'''
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    item = models.ForeignKey('books.Item')
+    item = models.ForeignKey(Item)
 
 
 class Reimbursement(Event, CurrencyMixin):
