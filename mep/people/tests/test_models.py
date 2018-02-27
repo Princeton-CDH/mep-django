@@ -1,7 +1,9 @@
 import re
 from unittest.mock import patch, Mock
 
-from django.core.exceptions import ValidationError
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError, MultipleObjectsReturned, \
+    ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
@@ -9,8 +11,9 @@ import pytest
 from viapy.api import ViafEntity
 
 from mep.accounts.models import Account, Subscription, Reimbursement, Address
+from mep.footnotes.models import SourceType, Bibliography, Footnote
 from mep.people.models import InfoURL, Person, Profession, Relationship, \
-    RelationshipType, Location, Country
+    RelationshipType, Location, Country, PersonQuerySet
 from mep.people.admin import PersonAdmin
 
 
@@ -156,6 +159,138 @@ class TestPerson(TestCase):
         # still true if only reimbursement and no subscription
         subs.delete()
         assert pers.in_logbooks()
+
+
+class TestPersonQuerySet(TestCase):
+
+    def test_merge_with(self):
+        # create test records to merge
+        Person.objects.bulk_create([
+            Person(name='Jones'),
+            Person(name='Jones', title='Mr'),
+            Person(name='Jonas'),
+        ])
+
+        # use Jonas as record to merge others to
+        main_person = Person.objects.get(name='Jonas')
+        # person to merge with has no account - error
+        with pytest.raises(ObjectDoesNotExist) as err:
+            Person.objects.merge_with(main_person)
+        assert "Can't merge with a person record that has no account" in \
+            str(err)
+
+        # create accounts with content to merge
+        main_acct = Account.objects.create()
+        main_acct.persons.add(main_person)
+        Subscription.objects.create(account=main_acct)
+
+        # account with events and addresses
+        mr_jones = Person.objects.get(name='Jones', title='Mr')
+        mr_jones_acct = Account.objects.create()
+        mr_jones_acct.persons.add(mr_jones)
+        Subscription.objects.create(account=mr_jones_acct)
+        Reimbursement.objects.create(account=mr_jones_acct)
+        hotel = Location.objects.create(name="La Hotel", city="Paris")
+        residence = Location.objects.create(name="52 La Rue", city="Paris")
+        # account address
+        acct_addr = Address.objects.create(location=hotel, account=mr_jones_acct)
+        # person address
+        mr_jones_addr = Address.objects.create(location=residence, person=mr_jones)
+
+        # merge everything with Jonas
+        Person.objects.merge_with(main_person)
+        # should delete duplicate records
+        assert Person.objects.count() == 1
+        # automatically excludes merge person target from merge logic,
+        # even if the record is included in the queryset
+        assert Person.objects.filter(id=main_person.id).exists()
+        # account events should be reassociated
+        main_acct.event_set.count() == 3
+        # account address should be reassociated
+        assert main_acct.address_set.filter(id=acct_addr.id).exists()
+        # person address should be reassociated
+        assert mr_jones_addr in main_person.address_set.all()
+        # accounts associated with merged persons should be gone
+        assert not Account.objects.filter(id=mr_jones_acct.id).exists()
+
+        # error on attempt to merge to person with multiple accounts
+        second_acct = Account.objects.create()
+        second_acct.persons.add(main_person)
+        with pytest.raises(MultipleObjectsReturned) as err:
+            Person.objects.merge_with(main_person)
+        assert "Can't merge with a person record that has multiple accounts" in \
+            str(err)
+        main_person.delete()
+
+        # copy person details when merging
+        main = Person.objects.create(name='Jones')
+        prof = Profession.objects.create(name='Professor')
+        full = Person.objects.create(name='Jones',
+            title='Mr', mep_id="jone.mi", birth_year=1901, death_year=1950,
+            viaf_id='http://viaf.org/viaf/123456', sex='M', notes='some details',
+            profession=prof)
+        acct = Account.objects.create()
+        acct.persons.add(main)
+
+        # values should copy over to main fields
+        Person.objects.merge_with(main)
+        # get fresh copy of main record from db
+        main = Person.objects.get(id=main.id)
+        assert main.title == full.title
+        assert main.mep_id == full.mep_id
+        assert main.birth_year == full.birth_year
+        assert main.death_year == full.death_year
+        assert main.sex == full.sex
+        assert main.viaf_id == full.viaf_id
+        assert main.profession == full.profession
+        assert main.notes == full.notes
+
+        # should _not_ copy over existing field values
+        full2 = Person.objects.create(name='Jones',
+            title='Dr', mep_id="jone.dr", birth_year=1911, notes='more details')
+        Person.objects.merge_with(main)
+        # get fresh copy of main record from db
+        main = Person.objects.get(id=main.id)
+        assert main.title != full2.title
+        assert main.mep_id != full2.mep_id
+        assert main.birth_year != full2.birth_year
+        # notes should be appended
+        assert main.notes == "\n".join([full.notes, full2.notes])
+
+        # many-to-many relationships should be shifted to merged person record
+        related = Person.objects.create(name='Jonesy')
+        jones_jr = Person.objects.create(name='Jonesy Jr.')
+        france = Country.objects.create(name='France', code='fr',
+            geonames_id='http://www.geonames.org/3017382/')
+        germany = Country.objects.create(name='Germany', code='gm',
+            geonames_id='http://www.geonames.org/2921044/')
+        related.nationalities.add(france, germany)
+        info_url = InfoURL.objects.create(person=related, url='http://example.com/')
+        info_url2 = InfoURL.objects.create(person=related, url='http://google.com/')
+        child = RelationshipType.objects.create(name='child')
+        parent = RelationshipType.objects.create(name='parent')
+        child_rel = Relationship.objects.create(from_person=related,
+            to_person=jones_jr, relationship_type=child)
+        parent_rel = Relationship.objects.create(from_person=jones_jr,
+            to_person=related, relationship_type=parent)
+        # footnote
+        src_type = SourceType.objects.create(name='website')
+        bibl = Bibliography.objects.create(bibliographic_note='citation',
+            source_type=src_type)
+        person_contenttype = ContentType.objects.get_for_model(Person)
+        fn = Footnote.objects.create(bibliography=bibl, content_type=person_contenttype,
+            object_id=related.pk, is_agree=False)
+
+        Person.objects.filter(name='Jonesy').merge_with(main)
+        # get fresh copy of main record from db
+        main = Person.objects.get(id=main.id)
+        assert france in main.nationalities.all()
+        assert germany in main.nationalities.all()
+        assert info_url in main.urls.all()
+        assert info_url2 in main.urls.all()
+        assert child_rel in main.from_relationships.all()
+        assert parent_rel in main.to_relationships.all()
+        assert fn in main.footnotes.all()
 
 
 class TestProfession(TestCase):
