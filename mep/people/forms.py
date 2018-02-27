@@ -19,8 +19,12 @@ class PersonMergeForm(forms.Form):
         empty_label=None, widget=forms.RadioSelect)
 
     def __init__(self, *args, **kwargs):
-        person_ids = kwargs.get('person_ids', None)
-        del kwargs['person_ids']
+        person_ids = kwargs.get('person_ids', [])
+        try:
+            del kwargs['person_ids']
+        except KeyError:
+            pass
+
         super().__init__(*args, **kwargs)
         self.fields['primary_person'].queryset = \
             Person.objects.filter(id__in=person_ids)

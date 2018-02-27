@@ -54,7 +54,28 @@ class PersonChoiceFieldTest(TestCase):
         assert '%s–%s' % (format_date(borrow.start_date), format_date(borrow.end_date)) in label
 
 
+class PersonMergeFormTest(TestCase):
 
+    def test_init(self):
+        # no error if person ids not specified
+        PersonMergeForm()
+
+        # create test person records
+        Person.objects.bulk_create([
+            Person(name='Jones'),
+            Person(name='Jones', title='Mr'),
+            Person(name='Jones', title='Mr', sex='M'),
+            Person(name='Jones', title='Mrs'),
+        ])
+        # initialize with ids for all but the last
+        peeps = Person.objects.all().order_by('pk')
+        person_ids = list(peeps.values_list('id', flat=True))
+        mergeform = PersonMergeForm(person_ids=person_ids[:-1])
+        # total should have all but one person
+        assert mergeform.fields['primary_person'].queryset.count() == \
+            peeps.count() - 1
+        # last person should not be an available choice
+        assert peeps.last() not in mergeform.fields['primary_person'].queryset
 
 
 
