@@ -1,9 +1,14 @@
+from django.contrib import messages
 from django.db.models import Q
 from django.http import JsonResponse
+from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django.views.generic.edit import FormView
 from dal import autocomplete
 
 from mep.accounts.models import Event
+from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person
 
@@ -149,3 +154,68 @@ class LocationAutocomplete(autocomplete.Select2QuerySetView):
             Q(country__name__icontains=self.q) |
             Q(address__person__name__icontains=self.q)
         ).order_by('name', 'city', 'street_address')
+
+
+class PersonMerge(FormView):
+    form_class = PersonMergeForm
+    template_name = 'people/merge_person.html'
+
+    def get_success_url(self):
+        return reverse('admin:people_person_changelist')
+
+    def get_form_kwargs(self):
+        form_kwargs = super(PersonMerge, self).get_form_kwargs()
+        form_kwargs['person_ids'] = self.person_ids
+        return form_kwargs
+
+    def get_initial(self):
+        # default to first person selected (?)
+        # _could_ add logic to select most complete record,
+        # but probably better for team members to choose
+        self.person_ids = [int(pid) for pid in
+                           self.request.GET.get('ids', '').split(',')]
+        # by default, prefer the first record created
+        return {'primary_person': sorted(self.person_ids)[0]}
+
+    def form_valid(self, form):
+        # process the valid POSTed form
+
+        # user-selected person record to keep
+        primary_person = form.cleaned_data['primary_person']
+        # TODO: error if more than one account
+        primary_account = primary_person.account_set.first()
+        # duplicate person records to be consolidated
+        people = Person.objects.filter(id__in=self.person_ids) \
+                               .exclude(id=primary_person.id)
+        # TODO: error if any accounts have more than one person associated
+        event_total = 0
+
+        for person in people:
+            for account in person.account_set.all():
+                event_total += account.event_set.count()
+                # reassociate all events with the main account
+                account.event_set.update(account=primary_account)
+                # reassociate any addresses with the main account
+                account.address_set.update(account=primary_account)
+                # delete the empty account
+                account.delete()
+
+            # reassociate any addresses
+            person.address_set.update(person=primary_person)
+            # TODO: copy other details?
+            # nationalities? relationships to other people?
+            # footnotes? info urls?
+
+            # delete the duplicate person
+            person.delete()
+
+        messages.success(self.request,
+            mark_safe('Reassociated %d events with <a href="%s">%s</a> (<a href="%s">%s</a>).'
+             % (event_total,
+                reverse('admin:people_person_change', args=[primary_person.id]),
+                primary_person,
+                reverse('admin:accounts_account_change', args=[primary_account.id]),
+                primary_account)))
+
+        return super(PersonMerge, self).form_valid(form)
+

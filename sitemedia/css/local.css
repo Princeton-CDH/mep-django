@@ -5,3 +5,19 @@
     font-style: small;
     border-left: black solid 1px;
 }
+
+/* styles for merge person form */
+#id_primary_person label {
+    width: 90%;
+}
+
+#id_primary_person input {
+    float: left;
+}
+.merge-person-label {
+    margin-left: 25px;
+}
+
+.merge-person-label .notes {
+    white-space: pre;
+}

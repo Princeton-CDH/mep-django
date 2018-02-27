@@ -1,0 +1,62 @@
+<div class="merge-person-label">
+<strong>{{ person.title }} {{ person.name }}</strong>
+  {% if person.birth_year or person.death_year %}
+    {{ person.birth_year|default:'' }}–{{ person.death_year|default:'' }}
+  {% endif %}
+  {% if person.sex %}{{ person.display_sex_label }}{% endif %}
+  {% if person.mep_id %}<p>MEP id {{ person.mep_id }}</p>{% endif %}
+  {% if person.viaf %}<p>{{ person.viaf_id|urlize }}</p>{% endif %}
+  {% if person.notes %}<p class="notes">{{ person.notes }}</p>{% endif %}
+
+
+  {% for account in person.account_set.all %}
+    <div class="inline-group grp-group grp-tabular">
+        <h2 class="grp-collapse-handler"> {# link to account edit page #}
+            <a href="{% url 'admin:accounts_account_change' account.id %}">{{ account }}</a></h2>
+
+        {# display events similar to subscription display on person change form #}
+        {% if account.event_set.exists %}
+         <div class="tabular inline-related grp-module grp-table">
+            <div class="module grp-module grp-thead">
+                <div class="grp-tr">
+                    <div class="grp-th">Event</div>
+                    <div class="grp-th">Dates</div>
+                    <div class="grp-th">Notes</div>
+                </div>
+            </div>
+            <div class="form-row grp-module grp-tbody">
+                {% for event in account.event_set.all %}
+                {% if event.event_type != 'Borrow' and event.event_type != 'Purchase' %}
+                  <div class="grp-tr">
+                    <div class='grp-td'>
+                        {{ event.event_type }}
+                    </div>
+                    <div class="grp-td">
+                        {{ event.start_date }}{% if event.end_date != event.start_date %} - {{ event.end_date|default:'' }}{%endif %}
+                    </div>
+                    <div class='grp-td'>{{ event.notes }}</div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {# display borrowing and purchasing events together, after subscriptions & reimbursements #}
+                {% for event in account.event_set.all %}
+                {% if event.event_type == 'Borrow' or event.event_type == 'Purchase' %}
+                  <div class="grp-tr">
+                    <div class='grp-td'>
+                        {{ event.event_type }}
+                    </div>
+                    <div class="grp-td">
+                        {{ event.start_date }}{% if event.end_date != event.start_date %} - {{ event.end_date|default:'' }}{%endif %}
+                    </div>
+                    <div class='grp-td'>{{ event.notes }}</div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div>No account events</div>
+        {% endif %}
+    </div>
+  {% endfor %}
+</div>
