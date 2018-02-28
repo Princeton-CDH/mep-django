@@ -1,5 +1,6 @@
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Q
 from django.http import JsonResponse
 from django.urls import reverse
@@ -157,7 +158,8 @@ class LocationAutocomplete(autocomplete.Select2QuerySetView):
         ).order_by('name', 'city', 'street_address')
 
 
-class PersonMerge(FormView):
+class PersonMerge(PermissionRequiredMixin, FormView):
+    permission_required = ('people.change_person', 'people.delete_person')
     form_class = PersonMergeForm
     template_name = 'people/merge_person.html'
 
@@ -173,10 +175,14 @@ class PersonMerge(FormView):
         # default to first person selected (?)
         # _could_ add logic to select most complete record,
         # but probably better for team members to choose
-        self.person_ids = [int(pid) for pid in
-                           self.request.GET.get('ids', '').split(',')]
-        # by default, prefer the first record created
-        return {'primary_person': sorted(self.person_ids)[0]}
+        person_ids = self.request.GET.get('ids', None)
+        if person_ids:
+            self.person_ids = [int(pid) for pid in person_ids.split(',')]
+            # by default, prefer the first record created
+            return {'primary_person': sorted(self.person_ids)[0]}
+
+        else:
+            self.person_ids = []
 
     def form_valid(self, form):
         # process the valid POSTed form

@@ -3,7 +3,7 @@ from datetime import date
 from unittest.mock import patch, Mock
 
 from django.contrib.messages import get_messages
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.http import JsonResponse
 from django.template.defaultfilters import date as format_date
 from django.test import TestCase
@@ -244,12 +244,25 @@ class TestPeopleViews(TestCase):
     def test_person_merge(self):
         # TODO: permissions required (add permission check, test)
 
-        su_password = 'itsasecret'
-        superuser = User.objects.create_superuser(username='admin',
-            password=su_password, email='su@example.com')
+        # get without logging in should fail
+        response = self.client.get(reverse('people:merge'))
+        # default django behavior is redirect to admin login page
+        assert response.status_code == 302
 
-        # login as admin user
-        self.client.login(username=superuser.username, password=su_password)
+        staff_password = 'sosecret'
+        staffuser = User.objects.create_user(username='staff',
+            password=staff_password, email='staff@example.com',
+            is_staff=True)
+
+        # login as staff user without no special permissios
+        self.client.login(username=staffuser.username, password=staff_password)
+        # staff user without persion permission should still fail
+        response = self.client.get(reverse('people:merge'))
+        assert response.status_code == 302
+
+        # give staff user required permissions for merge person view
+        perms = Permission.objects.filter(codename__in=['change_person', 'delete_person'])
+        staffuser.user_permissions.set(list(perms))
 
          # create test person records to merge
         pers = Person.objects.create(name='M. Jones')
@@ -260,6 +273,7 @@ class TestPeopleViews(TestCase):
 
         # GET should display choices
         response = self.client.get(reverse('people:merge'), {'ids': idstring})
+        assert response.status_code == 200
         # sanity check form and display (components tested elsewhere)
         assert isinstance(response.context['form'], PersonMergeForm)
         template_names = [tpl.name for tpl in response.templates]
