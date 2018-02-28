@@ -295,6 +295,17 @@ class TestPersonQuerySet(TestCase):
         assert parent_rel in main.to_relationships.all()
         assert fn in main.footnotes.all()
 
+        # person with account shared with another person
+        sib1 = Person.objects.create(name='sibling')
+        sib2 = Person.objects.create(name='sibling2')
+        acct = Account.objects.create()
+        acct.persons.add(sib1, sib2)
+
+        with pytest.raises(MultipleObjectsReturned) as err:
+            Person.objects.merge_with(main)
+        assert "Can't merge a person record with a shared account." in \
+            str(err)
+
 
 class TestProfession(TestCase):
 

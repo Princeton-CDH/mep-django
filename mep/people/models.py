@@ -101,16 +101,20 @@ class PersonQuerySet(models.QuerySet):
         '''
 
         # error if person has no account
-        # NOTE: could allow if nopeople in the queryset have accounts ...
+        # NOTE: technically could allow person with no account if no
+        # people in the queryset have accounts, but currently not supported
         if not person.account_set.exists():
             raise ObjectDoesNotExist("Can't merge with a person record that has no account.")
         # error if more than account, since we can't pick which to merge to
         if person.account_set.count() > 1:
             raise MultipleObjectsReturned("Can't merge with a person record that has multiple accounts.")
+        # error if any accounts have more than one person associated
+        if self.annotate(account_people=models.Count('account__persons')) \
+               .filter(account_people__gt=1).exists():
+            raise MultipleObjectsReturned("Can't merge a person record with a shared account.")
+
+        # identify the account other events will be reassociated with
         primary_account = person.account_set.first()
-
-        # TODO: error if any accounts have more than one person associated
-
         # make sure specified person is skipped even if in the current queryset
         merge_people = self.exclude(id=person.id)
 
