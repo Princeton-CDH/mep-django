@@ -1,6 +1,6 @@
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.contrib.contenttypes.fields import GenericRelation
-from django.db import models
+from django.db import models, transaction
 from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
@@ -82,6 +82,7 @@ class Profession(Named, Notable):
 
 class PersonQuerySet(models.QuerySet):
 
+    @transaction.atomic
     def merge_with(self, person):
         '''Merge all person records in the current queryset with the
         specified person.  This entails the following:
