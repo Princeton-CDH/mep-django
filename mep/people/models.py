@@ -130,9 +130,6 @@ class PersonQuerySet(models.QuerySet):
                 # if not set on main person and set on merge person, copy
                 if not getattr(person, attr) and getattr(merge_person, attr):
                     setattr(person, attr, getattr(merge_person, attr))
-            # append any notes
-            person.notes = '\n'.join(notes for notes in
-                [person.notes, merge_person.notes] if notes)
             # reassociate related person data
             # - personal addresses
             merge_person.address_set.update(person=person)
@@ -145,6 +142,15 @@ class PersonQuerySet(models.QuerySet):
             merge_person.urls.update(person=person)
             # - footnotes
             merge_person.footnotes.update(object_id=person.id)
+
+        # consolidate notes and preserve any merged MEP ids
+        # in case we need to find a record based on a deleted MEP id
+        # (e.g. for card import)
+        notes = [person.notes]
+        notes.extend([p.notes for p in merge_people])
+        notes.extend(['Merged MEP id %s' % person.mep_id for person in merge_people
+                      if person.mep_id])
+        person.notes = '\n'.join(note for note in notes if note)
 
         # delete the now-obsolete person records
         merge_people.delete()

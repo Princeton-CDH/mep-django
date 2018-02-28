@@ -243,7 +243,8 @@ class TestPersonQuerySet(TestCase):
         assert main.sex == full.sex
         assert main.viaf_id == full.viaf_id
         assert main.profession == full.profession
-        assert main.notes == full.notes
+        assert full.notes in main.notes
+        assert 'Merged MEP id %s' % full.mep_id in main.notes
 
         # should _not_ copy over existing field values
         full2 = Person.objects.create(name='Jones',
@@ -255,7 +256,9 @@ class TestPersonQuerySet(TestCase):
         assert main.mep_id != full2.mep_id
         assert main.birth_year != full2.birth_year
         # notes should be appended
-        assert main.notes == "\n".join([full.notes, full2.notes])
+        assert full.notes in main.notes
+        assert full2.notes in main.notes
+        assert 'Merged MEP id %s' % full2.mep_id in main.notes
 
         # many-to-many relationships should be shifted to merged person record
         related = Person.objects.create(name='Jonesy')
