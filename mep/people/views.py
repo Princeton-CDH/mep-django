@@ -195,8 +195,9 @@ class PersonMerge(FormView):
             # is this a useful metric? potentially doing a lot more than that...
             added_events = primary_account.event_set.count() - existing_events
             messages.success(self.request,
-                mark_safe('Reassociated %d events with <a href="%s">%s</a> (<a href="%s">%s</a>).'
+                mark_safe('Reassociated %d event%s with <a href="%s">%s</a> (<a href="%s">%s</a>).'
              % (added_events,
+                's' if added_events != 1 else '',
                 reverse('admin:people_person_change', args=[primary_person.id]),
                 primary_person,
                 reverse('admin:accounts_account_change', args=[primary_account.id]),
