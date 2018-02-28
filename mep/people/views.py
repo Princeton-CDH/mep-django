@@ -173,7 +173,8 @@ class PersonMerge(FormView):
         # default to first person selected (?)
         # _could_ add logic to select most complete record,
         # but probably better for team members to choose
-        self.person_ids = [int(pid) for pid in self.request.GET.getlist('ids')]
+        self.person_ids = [int(pid) for pid in
+                           self.request.GET.get('ids', '').split(',')]
         # by default, prefer the first record created
         return {'primary_person': sorted(self.person_ids)[0]}
 
