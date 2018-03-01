@@ -1,20 +1,22 @@
 import json
 from datetime import date
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
-from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
+from django.contrib.auth.models import User, Permission
 from django.http import JsonResponse
 from django.template.defaultfilters import date as format_date
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import reverse, resolve
 
 from mep.accounts.models import Account, Address, Event, Subscription, \
     Reimbursement
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
+from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person, Relationship, \
     RelationshipType
-from mep.people.views import GeoNamesLookup
+from mep.people.views import GeoNamesLookup, PersonMerge
 
 
 class TestPeopleViews(TestCase):
@@ -239,6 +241,80 @@ class TestPeopleViews(TestCase):
         self.assertContains(result, Person.list_nationalities.short_description,
             msg_prefix='should have list_nationalities field and short desc.')
 
+    def test_person_merge(self):
+        # TODO: permissions required (add permission check, test)
+
+        # get without logging in should fail
+        response = self.client.get(reverse('people:merge'))
+        # default django behavior is redirect to admin login page
+        assert response.status_code == 302
+
+        staff_password = 'sosecret'
+        staffuser = User.objects.create_user(username='staff',
+            password=staff_password, email='staff@example.com',
+            is_staff=True)
+
+        # login as staff user without no special permissios
+        self.client.login(username=staffuser.username, password=staff_password)
+        # staff user without persion permission should still fail
+        response = self.client.get(reverse('people:merge'))
+        assert response.status_code == 302
+
+        # give staff user required permissions for merge person view
+        perms = Permission.objects.filter(codename__in=['change_person', 'delete_person'])
+        staffuser.user_permissions.set(list(perms))
+
+         # create test person records to merge
+        pers = Person.objects.create(name='M. Jones')
+        pers2 = Person.objects.create(name='Mike Jones')
+
+        person_ids = [pers.id, pers2.id]
+        idstring = ','.join(str(pid) for pid in person_ids)
+
+        # GET should display choices
+        response = self.client.get(reverse('people:merge'), {'ids': idstring})
+        assert response.status_code == 200
+        # sanity check form and display (components tested elsewhere)
+        assert isinstance(response.context['form'], PersonMergeForm)
+        template_names = [tpl.name for tpl in response.templates]
+        assert 'people/merge_person.html' in template_names
+        self.assertContains(response, pers.name)
+        self.assertContains(response, pers2.name)
+
+        # POST should attempt to merge - error message should be reported
+        response = self.client.post('%s?ids=%s' % \
+                                    (reverse('people:merge'), idstring),
+                                    {'primary_person': pers.id},
+                                    follow=True)
+        self.assertRedirects(response, reverse('admin:people_person_changelist'))
+        message = list(response.context.get('messages'))[0]
+        assert message.tags == 'error'
+        assert "Can't merge with a person record that has no account." \
+            == message.message
+
+        # add accounts and events
+        acct = Account.objects.create()
+        acct.persons.add(pers)
+        acct2 = Account.objects.create()
+        acct2.persons.add(pers2)
+        Subscription.objects.create(account=acct2)
+        response = self.client.post('%s?ids=%s' % \
+                                    (reverse('people:merge'), idstring),
+                                    {'primary_person': pers.id},
+                                    follow=True)
+        message = list(response.context.get('messages'))[0]
+        assert message.tags == 'success'
+        assert 'Reassociated 1 event ' in message.message
+        assert pers.name in message.message
+        assert str(acct) in message.message
+        assert reverse('admin:people_person_change', args=[pers.id]) \
+            in message.message
+        assert reverse('admin:accounts_account_change', args=[acct.id]) \
+            in message.message
+        # confirm merge completed by checking objects were removed
+        assert not Account.objects.filter(id=acct2.id).exists()
+        assert not Person.objects.filter(id=pers2.id).exists()
+
 
 class TestGeonamesLookup(TestCase):
 
@@ -368,3 +444,29 @@ class TestLocationAutocompleteView(TestCase):
         info = res.json()
         assert len(info['results']) == 1
         assert 'Hotel Le Foo' in info['results'][0]['text']
+
+
+class TestPersonMergeView(TestCase):
+
+    def test_get_success_url(self):
+        resolved_url = resolve(PersonMerge().get_success_url())
+        assert 'admin' in resolved_url.app_names
+        assert resolved_url.url_name == 'people_person_changelist'
+
+    def test_get_initial(self):
+        pmview = PersonMerge()
+        pmview.request = Mock(GET={'ids': '12,23,456,7'})
+
+        initial = pmview.get_initial()
+        assert pmview.person_ids == [12, 23, 456, 7]
+        # lowest id selected as default primary person
+        assert initial['primary_person'] == 7
+
+    def test_get_form_kwargs(self):
+        pmview = PersonMerge()
+        pmview.request = Mock(GET={'ids': '12,23,456,7'})
+        form_kwargs = pmview.get_form_kwargs()
+        assert form_kwargs['person_ids'] == pmview.person_ids
+
+    # form_valid method tested through client post request above
+
