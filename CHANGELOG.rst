@@ -7,6 +7,7 @@ CHANGELOG
 -----------------------
 
 * As a content editor, I want to merge person records so that I can combine account records when I've identified duplicated people
+* Removes now obsolete `import_logbooks` manage command.
 
 0.3.1
 -----
