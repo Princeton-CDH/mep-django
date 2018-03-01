@@ -2,6 +2,8 @@ from dal import autocomplete
 from django import forms
 from django.conf import settings
 from django.contrib import admin
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from viapy.widgets import ViafWidget
 
@@ -129,6 +131,7 @@ class PersonAddressInline(AddressInline):
     fields = ('location', 'start_date', 'end_date', 'care_of_person', 'notes')
     fk_name = 'person'
 
+
 class PersonAdmin(admin.ModelAdmin):
     # NOTE: uses custom template to display relationships to this person
     # (only relationships to other people are edited here)
@@ -154,8 +157,21 @@ class PersonAdmin(admin.ModelAdmin):
     # NOTE: using a locally customized version of django's prepopulate.js
     # to allow using the prepopulate behavior without slugifying the value
 
+    actions = ['merge_people']
+
     class Media:
         js = ['admin/viaf-lookup.js']
+
+    def merge_people(self, request, queryset):
+        '''Consolidate duplicate person records.'''
+        # NOTE: using selected ids from form and ignoring queryset
+        # because this action is only meant for use with a few
+        # people at a time
+        selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+        return HttpResponseRedirect('%s?ids=%s' % \
+                (reverse('people:merge'), ','.join(selected)),
+                status=303)   # 303 = See Other
+    merge_people.short_description = 'Merge selected people'
 
 
 class LocationAdminForm(forms.ModelForm):

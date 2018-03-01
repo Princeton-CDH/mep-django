@@ -286,6 +286,16 @@ class TestEvent(TestCase):
         )
         assert reimbursement.event_ptr.event_type == 'Reimbursement'
 
+        # borrow
+        borrow = Borrow.objects.create(account=self.account)
+        assert borrow.event_ptr.event_type == 'Borrow'
+
+        # purchase
+        item = Item.objects.create()
+        borrow = Purchase.objects.create(account=self.account, item=item, price=5)
+        assert borrow.event_ptr.event_type == 'Purchase'
+
+
 class TestSubscription(TestCase):
 
     def setUp(self):

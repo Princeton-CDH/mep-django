@@ -1,5 +1,6 @@
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.contrib.contenttypes.fields import GenericRelation
-from django.db import models
+from django.db import models, transaction
 from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
@@ -79,6 +80,87 @@ class Profession(Named, Notable):
     pass
 
 
+class PersonQuerySet(models.QuerySet):
+
+    @transaction.atomic
+    def merge_with(self, person):
+        '''Merge all person records in the current queryset with the
+        specified person.  This entails the following:
+            - all events from accounts associated with people in the
+              queryset are reassociated with the specified person
+            - all addresses associated with people in the
+              queryset or their accounts are reassociated with the
+              specified person or their account
+            - TODO: copy other details and update other relationships
+            - after data has been copied over, people in the queryset and
+              their accounts will be deleted
+
+        Raises an error if the specified person has more than one
+        account or if any people in the queryset have an account associated
+        with another person.
+        '''
+
+        # error if person has no account
+        # NOTE: technically could allow person with no account if no
+        # people in the queryset have accounts, but currently not supported
+        if not person.account_set.exists():
+            raise ObjectDoesNotExist("Can't merge with a person record that has no account.")
+        # error if more than account, since we can't pick which to merge to
+        if person.account_set.count() > 1:
+            raise MultipleObjectsReturned("Can't merge with a person record that has multiple accounts.")
+        # error if any accounts have more than one person associated
+        if self.annotate(account_people=models.Count('account__persons')) \
+               .filter(account_people__gt=1).exists():
+            raise MultipleObjectsReturned("Can't merge a person record with a shared account.")
+
+        # identify the account other events will be reassociated with
+        primary_account = person.account_set.first()
+        # make sure specified person is skipped even if in the current queryset
+        merge_people = self.exclude(id=person.id)
+
+        for merge_person in merge_people:
+            for account in merge_person.account_set.all():
+                # reassociate all events with the main account
+                account.event_set.update(account=primary_account)
+                # reassociate any addresses with the main account
+                account.address_set.update(account=primary_account)
+                # delete the empty account
+                account.delete()
+
+            # update main person record with optional properties set on
+            # the copy if not already present on the main record
+            for attr in ['title', 'mep_id', 'birth_year', 'death_year',
+                         'viaf_id', 'sex', 'profession']:
+                # if not set on main person and set on merge person, copy
+                if not getattr(person, attr) and getattr(merge_person, attr):
+                    setattr(person, attr, getattr(merge_person, attr))
+            # reassociate related person data
+            # - personal addresses
+            merge_person.address_set.update(person=person)
+            # - nationalities
+            person.nationalities.add(*list(merge_person.nationalities.all()))
+            # - relations
+            merge_person.from_relationships.update(from_person=person)
+            merge_person.to_relationships.update(to_person=person)
+            # - info urls
+            merge_person.urls.update(person=person)
+            # - footnotes
+            merge_person.footnotes.update(object_id=person.id)
+
+        # consolidate notes and preserve any merged MEP ids
+        # in case we need to find a record based on a deleted MEP id
+        # (e.g. for card import)
+        notes = [person.notes]
+        notes.extend([p.notes for p in merge_people])
+        notes.extend(['Merged MEP id %s' % person.mep_id for person in merge_people
+                      if person.mep_id])
+        person.notes = '\n'.join(note for note in notes if note)
+
+        # delete the now-obsolete person records
+        merge_people.delete()
+        # save any attribute changes
+        person.save()
+
 
 class Person(Notable, DateRange):
     '''Model for people in the MEP dataset'''
@@ -130,6 +212,9 @@ class Person(Notable, DateRange):
     # we will probably use Address for most things
     locations = models.ManyToManyField(Location, through='accounts.Address',
         blank=True, through_fields=('person', 'location'))
+
+    # override default manager with customized version
+    objects = PersonQuerySet.as_manager()
 
     def __repr__(self):
         return '<Person %s>' % self.__dict__
