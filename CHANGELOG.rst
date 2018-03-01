@@ -3,8 +3,13 @@
 CHANGELOG
 =========
 
-0.3.1 Hotfix
-------------
+0.4 Personography Merge
+-----------------------
+
+* As a content editor, I want to merge person records so that I can combine account records when I've identified duplicated people
+
+0.3.1
+-----
 * Remove unneeded database backup from Ansible deploy.
 
 0.3 Data Entry Improvements
