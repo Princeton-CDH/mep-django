@@ -81,23 +81,32 @@ class Profession(Named, Notable):
 
 
 class PersonQuerySet(models.QuerySet):
+    '''Custom :class:`models.QuerySet` for :class:`Person`'''
 
     @transaction.atomic
     def merge_with(self, person):
         '''Merge all person records in the current queryset with the
-        specified person.  This entails the following:
-            - all events from accounts associated with people in the
-              queryset are reassociated with the specified person
-            - all addresses associated with people in the
-              queryset or their accounts are reassociated with the
-              specified person or their account
-            - TODO: copy other details and update other relationships
-            - after data has been copied over, people in the queryset and
-              their accounts will be deleted
+        specified person. This entails the following:
+
+        - all events from accounts associated with people in the
+          queryset are reassociated with the specified person
+        - all addresses associated with people in the
+          queryset or their accounts are reassociated with the
+          specified person or their account
+        - TODO: copy other details and update other relationships
+        - after data has been copied over, people in the queryset and
+          their accounts will be deleted
 
         Raises an error if the specified person has more than one
         account or if any people in the queryset have an account associated
         with another person.
+
+        :param person: :class:`Person` person
+        :raises ObjectDoesNotExist: if selected :class:`Person` has no
+            account
+        :raises MultipleObjectsReturned: if selected :class:`Person` has
+            multiple accounts _or_ any person in the queryset has
+            an account shared with another person
         '''
 
         # error if person has no account

@@ -133,8 +133,11 @@ class PersonAddressInline(AddressInline):
 
 
 class PersonAdmin(admin.ModelAdmin):
-    # NOTE: uses custom template to display relationships to this person
-    # (only relationships to other people are edited here)
+    '''ModelAdmin for :class:`~mep.people.models.Person`.
+    Uses custom template to display account subscription events and
+    any relationships _to_ this person (only relationships to _other_
+    people are edited here).
+    '''
     form = PersonAdminForm
     list_display = ('name', 'title', 'sort_name', 'list_nationalities',
         'birth_year', 'death_year', 'sex', 'profession', 'viaf_id',
