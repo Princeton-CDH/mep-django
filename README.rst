@@ -13,20 +13,20 @@ See the project's `page <http://mep.princeton.edu/>`_ for more details.
 
 Python 3.5 / Django 1.11
 
-.. image:: https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=master
+.. image:: https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=develop
     :target: https://travis-ci.org/Princeton-CDH/mep-django
     :alt: Build status
 
-.. image:: https://codecov.io/gh/Princeton-CDH/mep-django/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/master
+.. image:: https://codecov.io/gh/Princeton-CDH/mep-django/branch/develop/graph/badge.svg
+    :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/develop
     :alt: Code coverage
 
-.. image:: https://landscape.io/github/Princeton-CDH/mep-django/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/Princeton-CDH/mep-django/master
+.. image:: https://landscape.io/github/Princeton-CDH/mep-django/develop/landscape.svg?style=flat
+   :target: https://landscape.io/github/Princeton-CDH/mep-django/develop
    :alt: Code Health
 
-.. image:: https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=master
-     :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=master
+.. image:: https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=develop
+     :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=develop
      :alt: Requirements Status
 
 
