@@ -1,9 +1,16 @@
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Q
 from django.http import JsonResponse
+from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django.views.generic.edit import FormView
 from dal import autocomplete
 
 from mep.accounts.models import Event
+from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person
 
@@ -149,3 +156,70 @@ class LocationAutocomplete(autocomplete.Select2QuerySetView):
             Q(country__name__icontains=self.q) |
             Q(address__person__name__icontains=self.q)
         ).order_by('name', 'city', 'street_address')
+
+
+class PersonMerge(PermissionRequiredMixin, FormView):
+    '''View method to merge one or more :class:`~mep.people.models.Person`
+    records.  Displays :class:`~mep.people.models.PersonMergeForm` on
+    GET, processes merge with :meth:`mep.people.models.PersonQuerySet.merge_with`
+    on successful POST.  Should be called with a list of person ids
+    in the querystring as a comma-separated list. Created for use
+    with custom admin action
+    :meth:`mep.people.admin.PersonAdmin.merge_people`.
+    '''
+
+    permission_required = ('people.change_person', 'people.delete_person')
+    form_class = PersonMergeForm
+    template_name = 'people/merge_person.html'
+
+    def get_success_url(self):
+        return reverse('admin:people_person_changelist')
+
+    def get_form_kwargs(self):
+        form_kwargs = super(PersonMerge, self).get_form_kwargs()
+        form_kwargs['person_ids'] = self.person_ids
+        return form_kwargs
+
+    def get_initial(self):
+        # default to first person selected (?)
+        # _could_ add logic to select most complete record,
+        # but probably better for team members to choose
+        person_ids = self.request.GET.get('ids', None)
+        if person_ids:
+            self.person_ids = [int(pid) for pid in person_ids.split(',')]
+            # by default, prefer the first record created
+            return {'primary_person': sorted(self.person_ids)[0]}
+
+        else:
+            self.person_ids = []
+
+    def form_valid(self, form):
+        # process the valid POSTed form
+
+        # user-selected person record to keep
+        primary_person = form.cleaned_data['primary_person']
+        if primary_person.account_set.exists():
+            primary_account = primary_person.account_set.first()
+            existing_events = primary_account.event_set.count()
+
+        try:
+            # find duplicate person records to be consolidated and merge
+            Person.objects.filter(id__in=self.person_ids) \
+                          .merge_with(primary_person)
+
+            # is this a useful metric? potentially doing a lot more than that...
+            added_events = primary_account.event_set.count() - existing_events
+            messages.success(self.request,
+                mark_safe('Reassociated %d event%s with <a href="%s">%s</a> (<a href="%s">%s</a>).'
+             % (added_events,
+                's' if added_events != 1 else '',
+                reverse('admin:people_person_change', args=[primary_person.id]),
+                primary_person,
+                reverse('admin:accounts_account_change', args=[primary_account.id]),
+                primary_account)))
+
+        # error if person has more than one account, no account
+        except (ObjectDoesNotExist, MultipleObjectsReturned) as err:
+            messages.error(self.request, str(err))
+
+        return super(PersonMerge, self).form_valid(form)

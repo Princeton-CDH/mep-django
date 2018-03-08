@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.3.0 documentation</title>
+    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.4.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.3.0',
+        VERSION:     '0.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -39,8 +39,9 @@
           <div class="body" role="main">
             
   <h1>Source code for mep.people.models</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericRelation</span>
-<span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
+<span></span><span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span><span class="p">,</span> <span class="n">ObjectDoesNotExist</span>
+<span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericRelation</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">transaction</span>
 <span class="kn">from</span> <span class="nn">viapy.api</span> <span class="k">import</span> <span class="n">ViafEntity</span>
 
 <span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">AliasIntegerField</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">,</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
@@ -120,6 +121,96 @@
     <span class="k">pass</span></div>
 
 
+<div class="viewcode-block" id="PersonQuerySet"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.PersonQuerySet">[docs]</a><span class="k">class</span> <span class="nc">PersonQuerySet</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">QuerySet</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Custom :class:`models.QuerySet` for :class:`Person`&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="PersonQuerySet.merge_with"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.PersonQuerySet.merge_with">[docs]</a>    <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
+    <span class="k">def</span> <span class="nf">merge_with</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">person</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Merge all person records in the current queryset with the</span>
+<span class="sd">        specified person. This entails the following:</span>
+
+<span class="sd">        - all events from accounts associated with people in the</span>
+<span class="sd">          queryset are reassociated with the specified person</span>
+<span class="sd">        - all addresses associated with people in the</span>
+<span class="sd">          queryset or their accounts are reassociated with the</span>
+<span class="sd">          specified person or their account</span>
+<span class="sd">        - TODO: copy other details and update other relationships</span>
+<span class="sd">        - after data has been copied over, people in the queryset and</span>
+<span class="sd">          their accounts will be deleted</span>
+
+<span class="sd">        Raises an error if the specified person has more than one</span>
+<span class="sd">        account or if any people in the queryset have an account associated</span>
+<span class="sd">        with another person.</span>
+
+<span class="sd">        :param person: :class:`Person` person</span>
+<span class="sd">        :raises ObjectDoesNotExist: if selected :class:`Person` has no</span>
+<span class="sd">            account</span>
+<span class="sd">        :raises MultipleObjectsReturned: if selected :class:`Person` has</span>
+<span class="sd">            multiple accounts _or_ any person in the queryset has</span>
+<span class="sd">            an account shared with another person</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># error if person has no account</span>
+        <span class="c1"># NOTE: technically could allow person with no account if no</span>
+        <span class="c1"># people in the queryset have accounts, but currently not supported</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ObjectDoesNotExist</span><span class="p">(</span><span class="s2">&quot;Can&#39;t merge with a person record that has no account.&quot;</span><span class="p">)</span>
+        <span class="c1"># error if more than account, since we can&#39;t pick which to merge to</span>
+        <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MultipleObjectsReturned</span><span class="p">(</span><span class="s2">&quot;Can&#39;t merge with a person record that has multiple accounts.&quot;</span><span class="p">)</span>
+        <span class="c1"># error if any accounts have more than one person associated</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">account_people</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;account__persons&#39;</span><span class="p">))</span> \
+               <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account_people__gt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">MultipleObjectsReturned</span><span class="p">(</span><span class="s2">&quot;Can&#39;t merge a person record with a shared account.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># identify the account other events will be reassociated with</span>
+        <span class="n">primary_account</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="c1"># make sure specified person is skipped even if in the current queryset</span>
+        <span class="n">merge_people</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">merge_person</span> <span class="ow">in</span> <span class="n">merge_people</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">account</span> <span class="ow">in</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="c1"># reassociate all events with the main account</span>
+                <span class="n">account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="n">primary_account</span><span class="p">)</span>
+                <span class="c1"># reassociate any addresses with the main account</span>
+                <span class="n">account</span><span class="o">.</span><span class="n">address_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="n">primary_account</span><span class="p">)</span>
+                <span class="c1"># delete the empty account</span>
+                <span class="n">account</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+            <span class="c1"># update main person record with optional properties set on</span>
+            <span class="c1"># the copy if not already present on the main record</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">]:</span>
+                <span class="c1"># if not set on main person and set on merge person, copy</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">merge_person</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">merge_person</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+            <span class="c1"># reassociate related person data</span>
+            <span class="c1"># - personal addresses</span>
+            <span class="n">merge_person</span><span class="o">.</span><span class="n">address_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
+            <span class="c1"># - nationalities</span>
+            <span class="n">person</span><span class="o">.</span><span class="n">nationalities</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="n">merge_person</span><span class="o">.</span><span class="n">nationalities</span><span class="o">.</span><span class="n">all</span><span class="p">()))</span>
+            <span class="c1"># - relations</span>
+            <span class="n">merge_person</span><span class="o">.</span><span class="n">from_relationships</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">from_person</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
+            <span class="n">merge_person</span><span class="o">.</span><span class="n">to_relationships</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">to_person</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
+            <span class="c1"># - info urls</span>
+            <span class="n">merge_person</span><span class="o">.</span><span class="n">urls</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
+            <span class="c1"># - footnotes</span>
+            <span class="n">merge_person</span><span class="o">.</span><span class="n">footnotes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">object_id</span><span class="o">=</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="c1"># consolidate notes and preserve any merged MEP ids</span>
+        <span class="c1"># in case we need to find a record based on a deleted MEP id</span>
+        <span class="c1"># (e.g. for card import)</span>
+        <span class="n">notes</span> <span class="o">=</span> <span class="p">[</span><span class="n">person</span><span class="o">.</span><span class="n">notes</span><span class="p">]</span>
+        <span class="n">notes</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">notes</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">merge_people</span><span class="p">])</span>
+        <span class="n">notes</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;Merged MEP id </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">person</span><span class="o">.</span><span class="n">mep_id</span> <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">merge_people</span>
+                      <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">mep_id</span><span class="p">])</span>
+        <span class="n">person</span><span class="o">.</span><span class="n">notes</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">note</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span> <span class="k">if</span> <span class="n">note</span><span class="p">)</span>
+
+        <span class="c1"># delete the now-obsolete person records</span>
+        <span class="n">merge_people</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="c1"># save any attribute changes</span>
+        <span class="n">person</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div></div>
+
 
 <div class="viewcode-block" id="Person"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person">[docs]</a><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Model for people in the MEP dataset&#39;&#39;&#39;</span>
@@ -171,6 +262,9 @@
     <span class="c1"># we will probably use Address for most things</span>
     <span class="n">locations</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Location</span><span class="p">,</span> <span class="n">through</span><span class="o">=</span><span class="s1">&#39;accounts.Address&#39;</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">through_fields</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;person&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">))</span>
+
+    <span class="c1"># override default manager with customized version</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">PersonQuerySet</span><span class="o">.</span><span class="n">as_manager</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;&lt;Person </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>

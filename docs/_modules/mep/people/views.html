@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.3.0 documentation</title>
+    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.4.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.3.0',
+        VERSION:     '0.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -39,12 +39,19 @@
           <div class="body" role="main">
             
   <h1>Source code for mep.people.views</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Q</span>
+<span></span><span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span><span class="p">,</span> <span class="n">ObjectDoesNotExist</span>
+<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="k">import</span> <span class="n">messages</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.mixins</span> <span class="k">import</span> <span class="n">PermissionRequiredMixin</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Q</span>
 <span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">JsonResponse</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">format_html</span>
+<span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="k">import</span> <span class="n">mark_safe</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.edit</span> <span class="k">import</span> <span class="n">FormView</span>
 <span class="kn">from</span> <span class="nn">dal</span> <span class="k">import</span> <span class="n">autocomplete</span>
 
 <span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">mep.people.forms</span> <span class="k">import</span> <span class="n">PersonMergeForm</span>
 <span class="kn">from</span> <span class="nn">mep.people.geonames</span> <span class="k">import</span> <span class="n">GeoNamesAPI</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Location</span><span class="p">,</span> <span class="n">Country</span><span class="p">,</span> <span class="n">Person</span>
 
@@ -190,6 +197,73 @@
             <span class="n">Q</span><span class="p">(</span><span class="n">country__name__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
             <span class="n">Q</span><span class="p">(</span><span class="n">address__person__name__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;city&#39;</span><span class="p">,</span> <span class="s1">&#39;street_address&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PersonMerge"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonMerge">[docs]</a><span class="k">class</span> <span class="nc">PersonMerge</span><span class="p">(</span><span class="n">PermissionRequiredMixin</span><span class="p">,</span> <span class="n">FormView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;View method to merge one or more :class:`~mep.people.models.Person`</span>
+<span class="sd">    records.  Displays :class:`~mep.people.models.PersonMergeForm` on</span>
+<span class="sd">    GET, processes merge with :meth:`mep.people.models.PersonQuerySet.merge_with`</span>
+<span class="sd">    on successful POST.  Should be called with a list of person ids</span>
+<span class="sd">    in the querystring as a comma-separated list. Created for use</span>
+<span class="sd">    with custom admin action</span>
+<span class="sd">    :meth:`mep.people.admin.PersonAdmin.merge_people`.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">permission_required</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;people.change_person&#39;</span><span class="p">,</span> <span class="s1">&#39;people.delete_person&#39;</span><span class="p">)</span>
+    <span class="n">form_class</span> <span class="o">=</span> <span class="n">PersonMergeForm</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/merge_person.html&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get_success_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:people_person_changelist&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_form_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">form_kwargs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonMerge</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_form_kwargs</span><span class="p">()</span>
+        <span class="n">form_kwargs</span><span class="p">[</span><span class="s1">&#39;person_ids&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span>
+        <span class="k">return</span> <span class="n">form_kwargs</span>
+
+    <span class="k">def</span> <span class="nf">get_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># default to first person selected (?)</span>
+        <span class="c1"># _could_ add logic to select most complete record,</span>
+        <span class="c1"># but probably better for team members to choose</span>
+        <span class="n">person_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ids&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">person_ids</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span> <span class="k">for</span> <span class="n">pid</span> <span class="ow">in</span> <span class="n">person_ids</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+            <span class="c1"># by default, prefer the first record created</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;primary_person&#39;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]}</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">form_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
+        <span class="c1"># process the valid POSTed form</span>
+
+        <span class="c1"># user-selected person record to keep</span>
+        <span class="n">primary_person</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;primary_person&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">primary_account</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="n">existing_events</span> <span class="o">=</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># find duplicate person records to be consolidated and merge</span>
+            <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span><span class="p">)</span> \
+                          <span class="o">.</span><span class="n">merge_with</span><span class="p">(</span><span class="n">primary_person</span><span class="p">)</span>
+
+            <span class="c1"># is this a useful metric? potentially doing a lot more than that...</span>
+            <span class="n">added_events</span> <span class="o">=</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">-</span> <span class="n">existing_events</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span>
+                <span class="n">mark_safe</span><span class="p">(</span><span class="s1">&#39;Reassociated </span><span class="si">%d</span><span class="s1"> event</span><span class="si">%s</span><span class="s1"> with &lt;a href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt; (&lt;a href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt;).&#39;</span>
+             <span class="o">%</span> <span class="p">(</span><span class="n">added_events</span><span class="p">,</span>
+                <span class="s1">&#39;s&#39;</span> <span class="k">if</span> <span class="n">added_events</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:people_person_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_person</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
+                <span class="n">primary_person</span><span class="p">,</span>
+                <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:accounts_account_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_account</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
+                <span class="n">primary_account</span><span class="p">)))</span>
+
+        <span class="c1"># error if person has more than one account, no account</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ObjectDoesNotExist</span><span class="p">,</span> <span class="n">MultipleObjectsReturned</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonMerge</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">form_valid</span><span class="p">(</span><span class="n">form</span><span class="p">)</span></div>
 </pre></div>
 
           </div>

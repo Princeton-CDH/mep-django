@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from cached_property import cached_property
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
 
+from mep.books.models import Item
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Location
 
@@ -201,7 +203,7 @@ class Event(Notable):
         return '%s for account #%s' % (self.__class__.__name__,
                                       self.account.pk)
 
-    @property
+    @cached_property
     def event_type(self):
         try:
             return self.subscription.get_subtype_display()
@@ -210,6 +212,16 @@ class Event(Notable):
         try:
             self.reimbursement
             return 'Reimbursement'
+        except ObjectDoesNotExist:
+            pass
+        try:
+            self.borrow
+            return 'Borrow'
+        except ObjectDoesNotExist:
+            pass
+        try:
+            self.purchase
+            return 'Purchase'
         except ObjectDoesNotExist:
             pass
         return 'Generic'
@@ -382,7 +394,7 @@ class Borrow(Event):
 class Purchase(Event, CurrencyMixin):
     '''Inherited table indicating purchase events'''
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    item = models.ForeignKey('books.Item')
+    item = models.ForeignKey(Item)
 
 
 class Reimbursement(Event, CurrencyMixin):

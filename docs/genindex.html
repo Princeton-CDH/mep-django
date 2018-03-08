@@ -6,13 +6,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Index &#8212; Mapping Expatriate Paris - Django 0.3.0 documentation</title>
+    <title>Index &#8212; Mapping Expatriate Paris - Django 0.4.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3.0',
+        VERSION:     '0.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -110,15 +110,17 @@
 </li>
       <li><a href="codedocs.html#mep.common.models.DateRange.clean_fields">clean_fields() (mep.common.models.DateRange method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="codedocs.html#mep.people.geonames.GeoNamesAPI.countries">countries (mep.people.geonames.GeoNamesAPI attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="codedocs.html#mep.people.geonames.GeoNamesAPI.countries_by_code">countries_by_code (mep.people.geonames.GeoNamesAPI attribute)</a>
 </li>
       <li><a href="codedocs.html#mep.people.models.Country">Country (class in mep.people.models)</a>
 </li>
       <li><a href="codedocs.html#mep.people.models.Location.country">country (mep.people.models.Location attribute)</a>
+</li>
+      <li><a href="codedocs.html#mep.people.admin.CountryAdminForm">CountryAdminForm (class in mep.people.admin)</a>
 </li>
       <li><a href="codedocs.html#mep.people.views.CountryAutocomplete">CountryAutocomplete (class in mep.people.views)</a>
 </li>
@@ -174,12 +176,18 @@
 </li>
       <li><a href="codedocs.html#mep.footnotes.models.Bibliography.footnote_count">footnote_count() (mep.footnotes.models.Bibliography method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="codedocs.html#mep.people.models.Location.footnotes">footnotes (mep.people.models.Location attribute)</a>
 
       <ul>
         <li><a href="codedocs.html#mep.people.models.Person.footnotes">(mep.people.models.Person attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="codedocs.html#mep.people.admin.PersonAdmin.form">form (mep.people.admin.PersonAdmin attribute)</a>
+
+      <ul>
+        <li><a href="codedocs.html#mep.people.admin.RelationshipInline.form">(mep.people.admin.RelationshipInline attribute)</a>
 </li>
       </ul></li>
       <li><a href="codedocs.html#mep.people.xml_models.Personography.from_file">from_file() (mep.people.xml_models.Personography class method)</a>
@@ -197,6 +205,8 @@
       <li><a href="codedocs.html#mep.people.geonames.GeoNamesError">GeoNamesError</a>
 </li>
       <li><a href="codedocs.html#mep.people.views.GeoNamesLookup">GeoNamesLookup (class in mep.people.views)</a>
+</li>
+      <li><a href="codedocs.html#mep.people.admin.GeoNamesLookupWidget">GeoNamesLookupWidget (class in mep.people.admin)</a>
 </li>
       <li><a href="codedocs.html#mep.people.geonames.GeoNamesUnauthorized">GeoNamesUnauthorized</a>
 </li>
@@ -262,13 +272,15 @@
 </li>
       <li><a href="codedocs.html#mep.accounts.models.Account.list_locations">list_locations() (mep.accounts.models.Account method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="codedocs.html#mep.people.models.Person.list_nationalities">list_nationalities() (mep.people.models.Person method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="codedocs.html#mep.accounts.models.Account.list_persons">list_persons() (mep.accounts.models.Account method)</a>
 </li>
       <li><a href="codedocs.html#mep.people.models.Location">Location (class in mep.people.models)</a>
+</li>
+      <li><a href="codedocs.html#mep.people.admin.LocationAdminForm">LocationAdminForm (class in mep.people.admin)</a>
 </li>
       <li><a href="codedocs.html#mep.people.views.LocationAutocomplete">LocationAutocomplete (class in mep.people.views)</a>
 </li>
@@ -280,6 +292,10 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="codedocs.html#mep.people.admin.LocationAdminForm.mapbox_token">mapbox_token (mep.people.admin.LocationAdminForm attribute)</a>
+</li>
+      <li><a href="codedocs.html#mep.people.admin.MapWidget">MapWidget (class in mep.people.admin)</a>
+</li>
       <li><a href="codedocs.html#module-mep.accounts">mep.accounts (module)</a>
 </li>
       <li><a href="codedocs.html#module-mep.accounts.models">mep.accounts.models (module)</a>
@@ -294,11 +310,13 @@
 </li>
       <li><a href="codedocs.html#module-mep.footnotes">mep.footnotes (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="codedocs.html#module-mep.footnotes.models">mep.footnotes.models (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="codedocs.html#module-mep.people">mep.people (module)</a>
+</li>
+      <li><a href="codedocs.html#module-mep.people.admin">mep.people.admin (module)</a>
 </li>
       <li><a href="codedocs.html#module-mep.people.geonames">mep.people.geonames (module)</a>
 </li>
@@ -311,6 +329,12 @@
       <li><a href="codedocs.html#module-mep.people.xml_models">mep.people.xml_models (module)</a>
 </li>
       <li><a href="codedocs.html#mep.people.models.Person.mep_id">mep_id (mep.people.models.Person attribute)</a>
+</li>
+      <li><a href="codedocs.html#mep.people.admin.PersonAdmin.merge_people">merge_people() (mep.people.admin.PersonAdmin method)</a>
+</li>
+      <li><a href="codedocs.html#mep.people.models.PersonQuerySet.merge_with">merge_with() (mep.people.models.PersonQuerySet method)</a>
+</li>
+      <li><a href="codedocs.html#mep.people.admin.RelationshipInline.model">model (mep.people.admin.RelationshipInline attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -356,14 +380,22 @@
         <li><a href="codedocs.html#mep.people.xml_models.Person">(class in mep.people.xml_models)</a>
 </li>
       </ul></li>
+      <li><a href="codedocs.html#mep.people.admin.PersonAdmin">PersonAdmin (class in mep.people.admin)</a>
+</li>
+      <li><a href="codedocs.html#mep.people.admin.PersonAdminForm">PersonAdminForm (class in mep.people.admin)</a>
+</li>
       <li><a href="codedocs.html#mep.people.views.PersonAutocomplete">PersonAutocomplete (class in mep.people.views)</a>
+</li>
+      <li><a href="codedocs.html#mep.people.views.PersonMerge">PersonMerge (class in mep.people.views)</a>
 </li>
       <li><a href="codedocs.html#mep.people.xml_models.PersonName">PersonName (class in mep.people.xml_models)</a>
 </li>
-      <li><a href="codedocs.html#mep.people.xml_models.Personography">Personography (class in mep.people.xml_models)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="codedocs.html#mep.people.xml_models.Personography">Personography (class in mep.people.xml_models)</a>
+</li>
+      <li><a href="codedocs.html#mep.people.models.PersonQuerySet">PersonQuerySet (class in mep.people.models)</a>
+</li>
       <li><a href="codedocs.html#mep.people.models.Location.postal_code">postal_code (mep.people.models.Location attribute)</a>
 </li>
       <li><a href="codedocs.html#mep.people.models.Profession">Profession (class in mep.people.models)</a>
@@ -388,9 +420,13 @@
 </li>
       <li><a href="codedocs.html#mep.people.models.Person.relations">relations (mep.people.models.Person attribute)</a>
 </li>
+      <li><a href="codedocs.html#mep.people.models.Relationship">Relationship (class in mep.people.models)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="codedocs.html#mep.people.models.Relationship">Relationship (class in mep.people.models)</a>
+      <li><a href="codedocs.html#mep.people.admin.RelationshipInline">RelationshipInline (class in mep.people.admin)</a>
+</li>
+      <li><a href="codedocs.html#mep.people.admin.RelationshipInlineForm">RelationshipInlineForm (class in mep.people.admin)</a>
 </li>
       <li><a href="codedocs.html#mep.people.models.RelationshipType">RelationshipType (class in mep.people.models)</a>
 </li>

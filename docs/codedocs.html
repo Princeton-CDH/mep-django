@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.3.0 documentation</title>
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.4.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3.0',
+        VERSION:     '0.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -557,6 +557,50 @@ is set.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="mep.people.models.PersonQuerySet">
+<em class="property">class </em><code class="descclassname">mep.people.models.</code><code class="descname">PersonQuerySet</code><span class="sig-paren">(</span><em>model=None</em>, <em>query=None</em>, <em>using=None</em>, <em>hints=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonQuerySet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonQuerySet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom <code class="xref py py-class docutils literal"><span class="pre">models.QuerySet</span></code> for <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal"><span class="pre">Person</span></code></a></p>
+<dl class="method">
+<dt id="mep.people.models.PersonQuerySet.merge_with">
+<code class="descname">merge_with</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonQuerySet.merge_with"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonQuerySet.merge_with" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge all person records in the current queryset with the
+specified person. This entails the following:</p>
+<ul class="simple">
+<li>all events from accounts associated with people in the
+queryset are reassociated with the specified person</li>
+<li>all addresses associated with people in the
+queryset or their accounts are reassociated with the
+specified person or their account</li>
+<li>TODO: copy other details and update other relationships</li>
+<li>after data has been copied over, people in the queryset and
+their accounts will be deleted</li>
+</ul>
+<p>Raises an error if the specified person has more than one
+account or if any people in the queryset have an account associated
+with another person.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>person</strong> – <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal"><span class="pre">Person</span></code></a> person</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ObjectDoesNotExist</strong> – if selected <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal"><span class="pre">Person</span></code></a> has no
+account</li>
+<li><strong>MultipleObjectsReturned</strong> – if selected <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal"><span class="pre">Person</span></code></a> has
+multiple accounts _or_ any person in the queryset has
+an account shared with another person</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="mep.people.models.Profession">
 <em class="property">class </em><code class="descclassname">mep.people.models.</code><code class="descname">Profession</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Profession"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Profession" title="Permalink to this definition">¶</a></dt>
 <dd><p>Profession for a <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal"><span class="pre">Person</span></code></a></p>
@@ -680,7 +724,7 @@ initials, etc.</p>
 <dd><p>Residence associated with a <a class="reference internal" href="#mep.people.xml_models.Person" title="mep.people.xml_models.Person"><code class="xref py py-class docutils literal"><span class="pre">Person</span></code></a></p>
 <dl class="attribute">
 <dt id="mep.people.xml_models.Residence.city_country">
-<code class="descname">city_country</code><em class="property"> = {'Nimes': 'FR', 'Lille': 'FR', 'Witten': 'DE', 'Vitry-sur-Seine': 'FR', 'Zürich': 'CH', 'Antibes': 'FR', 'Fontenay-aux-Roses': 'FR', 'Hyères': 'FR', 'Rome': 'IT', 'Toulon': 'FR', 'Edinburgh': 'GB', 'Douai': 'FR', 'New York': 'US', 'Champeaux': 'FR', 'Bègles': 'FR', 'Ixelles': 'BE', 'Chicago': 'US', 'Arcachon': 'FR', 'Clamart': 'FR', 'Châtenay-Malabry': 'FR', 'Shoreham-by-Sea': 'GB', 'Mortagne-sur-Sèvre': 'FR', 'Courteilles': 'FR', 'Arras': 'FR', 'Lezigne': 'FR', 'Gargenville': 'FR', 'Vernet-les-Bains': 'FR', 'Shanghai': 'CN', 'Neuilly-sur-Seine': 'FR', 'Bitche': 'FR', &quot;Saint-Pierre-d'Albigny&quot;: 'FR', 'Pornic': 'FR', 'Barcelona': 'ES', 'Saint-Magne-de-Castillon': 'FR', 'La Madelaine': 'FR', 'Varengeville-sur-Mer': 'FR', 'La Bourboule': 'FR', 'Agon Coutainville': 'FR', 'Orléans': 'FR', 'Nice': 'FR', 'Nevers': 'FR', 'Villecresnes': 'FR', 'Levallois-Perret': 'FR', 'Rouen': 'FR', 'Nantes': 'FR', 'Angers': 'FR', 'Fontainebleau': 'FR', 'Toulouse': 'FR', 'Allouis': 'FR', 'Montsoult': 'FR', 'Sassetot-le-Mauconduit': 'FR', 'Grasse': 'FR', 'Saint-Mandé': 'FR', 'Asnières-sur-Seine': 'FR', 'La Teste-de-Buch': 'FR', 'Parkersburg': 'US', &quot;L'Haÿ-les-Roses&quot;: 'FR', 'Le Beausset': 'FR', &quot;Ville d'Avray&quot;: 'FR', 'Vernouillet': 'FR', 'Trouville-sur-Mer': 'FR', 'Boulogne-Billancourt': 'FR', &quot;Bagnoles-de-l'Orne&quot;: 'FR', 'La Croix': 'FR', 'Neuilly': 'FR', 'Nogent-sur-Marne': 'FR', 'Dalton': 'GB', 'Courbevoie': 'FR', 'Cambridge': 'GB', 'Vichy': 'FR', 'Arcueil': 'FR', 'Cazoulès': 'FR', 'Le Bourg Dun': 'FR', 'Warehorne': 'GB', 'Beauvais': 'FR', 'Brest': 'FR', 'Madrid': 'ES', 'Villers-sur-Mer': 'FR', 'Hautot-sur-Mer': 'FR', 'Copenhagen': 'DK', 'Brunnen': 'CH', 'Strasbourg': 'FR', 'Brooklyn': 'US', &quot;Côtes-d'Armor&quot;: 'FR', 'Key West': 'US', 'Saint-Germain-en-Laye': 'FR', 'Bougival': 'FR', 'Les Praz de Chamonix': 'FR', 'Marnes la Coquette': 'FR', 'Le Chesnay': 'FR', 'Nogent-le-Rotrou': 'FR', 'London': 'GB', &quot;Ville-d'Avray&quot;: 'FR', 'Saint-Cloud': 'FR', 'Le Mesnil-sur-Blangy': 'FR', 'Saint-Servan': 'FR', 'Laguépie': 'FR', 'Ermont': 'FR', 'Cagnes-sur-Mer': 'FR', 'Vesoul': 'FR', 'Montgaillard': 'FR', 'Vignoux-sur-Barangeon': 'FR', 'Lot-et-Garonne': 'FR', 'Le Pouldu': 'FR', 'München': 'DE', 'Gstaad': 'CH', 'Le Vésinet': 'FR', 'Sèvres': 'FR', 'Sartilly': 'FR', 'Vanves': 'FR', 'Menton': 'FR', 'Trieste': 'IT', 'Paris': 'FR', 'West Hollywood': 'US', 'Blennes': 'FR', 'Cachan': 'FR', 'Saint Enogat': 'FR', 'Courmayeur': 'IT', 'Biarritz': 'FR', 'Sceaux': 'FR', 'Champagné-Saint-Hilaire': 'FR', 'Le Lavandaou': 'FR', 'Issy-les-Moulineaux': 'FR', 'Lodève': 'FR', 'Berck': 'FR', 'Versailles': 'FR', 'Omonville-la-Rogue': 'FR', 'Asnières-sous-Bois': 'FR', 'Rueil-Malmaison': 'FR'}</em><a class="headerlink" href="#mep.people.xml_models.Residence.city_country" title="Permalink to this definition">¶</a></dt>
+<code class="descname">city_country</code><em class="property"> = {'La Croix': 'FR', 'Villers-sur-Mer': 'FR', 'Neuilly-sur-Seine': 'FR', 'Saint-Germain-en-Laye': 'FR', 'Antibes': 'FR', 'Gargenville': 'FR', 'Nevers': 'FR', 'Barcelona': 'ES', 'Fontenay-aux-Roses': 'FR', 'Nogent-sur-Marne': 'FR', 'Brunnen': 'CH', 'Toulouse': 'FR', &quot;Ville-d'Avray&quot;: 'FR', 'Trieste': 'IT', &quot;Bagnoles-de-l'Orne&quot;: 'FR', 'Marnes la Coquette': 'FR', 'La Madelaine': 'FR', 'Lille': 'FR', 'Le Pouldu': 'FR', 'Cachan': 'FR', 'Asnières-sous-Bois': 'FR', 'Le Chesnay': 'FR', 'Orléans': 'FR', 'Villecresnes': 'FR', 'Witten': 'DE', 'Le Vésinet': 'FR', 'Vernouillet': 'FR', 'Shoreham-by-Sea': 'GB', 'Le Lavandaou': 'FR', 'Montsoult': 'FR', 'Menton': 'FR', 'Berck': 'FR', 'Allouis': 'FR', 'Pornic': 'FR', 'Rome': 'IT', 'Cagnes-sur-Mer': 'FR', 'Nantes': 'FR', 'Warehorne': 'GB', 'Châtenay-Malabry': 'FR', 'Saint Enogat': 'FR', 'Trouville-sur-Mer': 'FR', 'Sèvres': 'FR', 'Mortagne-sur-Sèvre': 'FR', 'Beauvais': 'FR', 'Vesoul': 'FR', 'Brooklyn': 'US', 'Bègles': 'FR', 'Gstaad': 'CH', 'Dalton': 'GB', 'Arras': 'FR', 'Laguépie': 'FR', 'Vanves': 'FR', 'Ixelles': 'BE', 'La Teste-de-Buch': 'FR', 'Chicago': 'US', 'Rouen': 'FR', 'Biarritz': 'FR', 'Angers': 'FR', 'Cazoulès': 'FR', 'Clamart': 'FR', 'Sceaux': 'FR', 'Toulon': 'FR', 'Neuilly': 'FR', 'Boulogne-Billancourt': 'FR', 'Les Praz de Chamonix': 'FR', 'Saint-Mandé': 'FR', &quot;Ville d'Avray&quot;: 'FR', 'Courbevoie': 'FR', 'Vitry-sur-Seine': 'FR', 'Nogent-le-Rotrou': 'FR', 'Vignoux-sur-Barangeon': 'FR', 'Vernet-les-Bains': 'FR', 'Fontainebleau': 'FR', 'Agon Coutainville': 'FR', 'Grasse': 'FR', 'Cambridge': 'GB', 'London': 'GB', 'Zürich': 'CH', 'Sartilly': 'FR', &quot;Saint-Pierre-d'Albigny&quot;: 'FR', 'Hyères': 'FR', 'Issy-les-Moulineaux': 'FR', 'Ermont': 'FR', 'Montgaillard': 'FR', 'Arcachon': 'FR', 'Arcueil': 'FR', 'Bougival': 'FR', &quot;L'Haÿ-les-Roses&quot;: 'FR', 'Nimes': 'FR', 'Le Beausset': 'FR', 'Saint-Magne-de-Castillon': 'FR', 'Lot-et-Garonne': 'FR', 'Edinburgh': 'GB', 'Blennes': 'FR', 'Shanghai': 'CN', 'Hautot-sur-Mer': 'FR', 'Nice': 'FR', 'Versailles': 'FR', 'Asnières-sur-Seine': 'FR', 'Vichy': 'FR', 'Lezigne': 'FR', 'Courteilles': 'FR', 'Bitche': 'FR', 'La Bourboule': 'FR', 'Douai': 'FR', 'Sassetot-le-Mauconduit': 'FR', 'Key West': 'US', 'West Hollywood': 'US', 'Saint-Servan': 'FR', 'Saint-Cloud': 'FR', 'München': 'DE', 'Champagné-Saint-Hilaire': 'FR', 'Varengeville-sur-Mer': 'FR', 'Le Bourg Dun': 'FR', 'Lodève': 'FR', 'Courmayeur': 'IT', 'Madrid': 'ES', 'Parkersburg': 'US', 'Omonville-la-Rogue': 'FR', 'Le Mesnil-sur-Blangy': 'FR', 'Copenhagen': 'DK', 'Brest': 'FR', 'Rueil-Malmaison': 'FR', 'Paris': 'FR', 'Strasbourg': 'FR', 'Levallois-Perret': 'FR', 'New York': 'US', 'Champeaux': 'FR', &quot;Côtes-d'Armor&quot;: 'FR'}</em><a class="headerlink" href="#mep.people.xml_models.Residence.city_country" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of cities in the xml with known, unambiguous countries
 provided by MEP team for import</p>
 </dd></dl>
@@ -765,6 +809,18 @@ can help disambiguate people.</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="mep.people.views.PersonMerge">
+<em class="property">class </em><code class="descclassname">mep.people.views.</code><code class="descname">PersonMerge</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonMerge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonMerge" title="Permalink to this definition">¶</a></dt>
+<dd><p>View method to merge one or more <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal"><span class="pre">Person</span></code></a>
+records.  Displays <code class="xref py py-class docutils literal"><span class="pre">PersonMergeForm</span></code> on
+GET, processes merge with <a class="reference internal" href="#mep.people.models.PersonQuerySet.merge_with" title="mep.people.models.PersonQuerySet.merge_with"><code class="xref py py-meth docutils literal"><span class="pre">mep.people.models.PersonQuerySet.merge_with()</span></code></a>
+on successful POST.  Should be called with a list of person ids
+in the querystring as a comma-separated list. Created for use
+with custom admin action
+<a class="reference internal" href="#mep.people.admin.PersonAdmin.merge_people" title="mep.people.admin.PersonAdmin.merge_people"><code class="xref py py-meth docutils literal"><span class="pre">mep.people.admin.PersonAdmin.merge_people()</span></code></a>.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-mep.people.geonames">
 <span id="geonames"></span><h3>GeoNames<a class="headerlink" href="#module-mep.people.geonames" title="Permalink to this headline">¶</a></h3>
@@ -817,6 +873,93 @@ an exception if an error occurred.</p>
 <dt id="mep.people.geonames.GeoNamesUnauthorized">
 <em class="property">exception </em><code class="descclassname">mep.people.geonames.</code><code class="descname">GeoNamesUnauthorized</code><a class="reference internal" href="_modules/mep/people/geonames.html#GeoNamesUnauthorized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.geonames.GeoNamesUnauthorized" title="Permalink to this definition">¶</a></dt>
 <dd><p>GeoNames unauthorized response (raised when username is not set)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mep.people.admin">
+<span id="admin"></span><h3>Admin<a class="headerlink" href="#module-mep.people.admin" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="mep.people.admin.CountryAdminForm">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">CountryAdminForm</code><span class="sig-paren">(</span><em>data=None</em>, <em>files=None</em>, <em>auto_id='id_%s'</em>, <em>prefix=None</em>, <em>initial=None</em>, <em>error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em>label_suffix=None</em>, <em>empty_permitted=False</em>, <em>instance=None</em>, <em>use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#CountryAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.CountryAdminForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom model form for Place editing, used to add geonames lookup.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.GeoNamesLookupWidget">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">GeoNamesLookupWidget</code><span class="sig-paren">(</span><em>url=None</em>, <em>forward=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#GeoNamesLookupWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.GeoNamesLookupWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Customize autocomplete select widget to display Geonames URI
+as a link.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.LocationAdminForm">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">LocationAdminForm</code><span class="sig-paren">(</span><em>data=None</em>, <em>files=None</em>, <em>auto_id='id_%s'</em>, <em>prefix=None</em>, <em>initial=None</em>, <em>error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em>label_suffix=None</em>, <em>empty_permitted=False</em>, <em>instance=None</em>, <em>use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#LocationAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.LocationAdminForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom model form for Address editing.</p>
+<dl class="attribute">
+<dt id="mep.people.admin.LocationAdminForm.mapbox_token">
+<code class="descname">mapbox_token</code><em class="property"> = None</em><a class="headerlink" href="#mep.people.admin.LocationAdminForm.mapbox_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>add a hidden field to pass in a mapbox access token from local settings</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.MapWidget">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">MapWidget</code><span class="sig-paren">(</span><em>attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#MapWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.MapWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Customize numeric input and add a map div to display a leaflet map
+for latitude and longitude values on the form.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.PersonAdmin">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">PersonAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>ModelAdmin for <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal"><span class="pre">Person</span></code></a>.
+Uses custom template to display account subscription events and
+any relationships _to_ this person (only relationships to _other_
+people are edited here).</p>
+<dl class="attribute">
+<dt id="mep.people.admin.PersonAdmin.form">
+<code class="descname">form</code><a class="headerlink" href="#mep.people.admin.PersonAdmin.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.people.admin.PersonAdminForm" title="mep.people.admin.PersonAdminForm"><code class="xref py py-class docutils literal"><span class="pre">PersonAdminForm</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.admin.PersonAdmin.merge_people">
+<code class="descname">merge_people</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdmin.merge_people"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdmin.merge_people" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consolidate duplicate person records.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.PersonAdminForm">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">PersonAdminForm</code><span class="sig-paren">(</span><em>data=None</em>, <em>files=None</em>, <em>auto_id='id_%s'</em>, <em>prefix=None</em>, <em>initial=None</em>, <em>error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em>label_suffix=None</em>, <em>empty_permitted=False</em>, <em>instance=None</em>, <em>use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdminForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom model form for Person editing; used to add VIAF lookup</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.RelationshipInline">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">RelationshipInline</code><span class="sig-paren">(</span><em>parent_model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#RelationshipInline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.RelationshipInline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inline class for Relationships</p>
+<dl class="attribute">
+<dt id="mep.people.admin.RelationshipInline.form">
+<code class="descname">form</code><a class="headerlink" href="#mep.people.admin.RelationshipInline.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.people.admin.RelationshipInlineForm" title="mep.people.admin.RelationshipInlineForm"><code class="xref py py-class docutils literal"><span class="pre">RelationshipInlineForm</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.admin.RelationshipInline.model">
+<code class="descname">model</code><a class="headerlink" href="#mep.people.admin.RelationshipInline.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Relationship</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.RelationshipInlineForm">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">RelationshipInlineForm</code><span class="sig-paren">(</span><em>data=None</em>, <em>files=None</em>, <em>auto_id='id_%s'</em>, <em>prefix=None</em>, <em>initial=None</em>, <em>error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em>label_suffix=None</em>, <em>empty_permitted=False</em>, <em>instance=None</em>, <em>use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#RelationshipInlineForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.RelationshipInlineForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom model form for Book editing, used to add autocomplete
+for place lookup.</p>
 </dd></dl>
 
 </div>
@@ -954,6 +1097,7 @@ for or against information in the system.</p>
 <li><a class="reference internal" href="#module-mep.people.xml_models">XML Models</a></li>
 <li><a class="reference internal" href="#module-mep.people.views">Views</a></li>
 <li><a class="reference internal" href="#module-mep.people.geonames">GeoNames</a></li>
+<li><a class="reference internal" href="#module-mep.people.admin">Admin</a></li>
 <li><a class="reference internal" href="#manage-commands">Manage Commands</a><ul>
 <li><a class="reference internal" href="#module-mep.people.management.commands.import_personography">import personography</a></li>
 </ul>

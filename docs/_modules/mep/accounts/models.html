@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.accounts.models &#8212; Mapping Expatriate Paris - Django 0.3.0 documentation</title>
+    <title>mep.accounts.models &#8212; Mapping Expatriate Paris - Django 0.4.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.3.0',
+        VERSION:     '0.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -40,12 +40,14 @@
             
   <h1>Source code for mep.accounts.models</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">cached_property</span> <span class="k">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span> <span class="nn">dateutil.relativedelta</span> <span class="k">import</span> <span class="n">relativedelta</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ObjectDoesNotExist</span>
 <span class="kn">from</span> <span class="nn">django.core.validators</span> <span class="k">import</span> <span class="n">ValidationError</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">django.template.defaultfilters</span> <span class="k">import</span> <span class="n">pluralize</span>
 
+<span class="kn">from</span> <span class="nn">mep.books.models</span> <span class="k">import</span> <span class="n">Item</span>
 <span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Person</span><span class="p">,</span> <span class="n">Location</span>
 
@@ -242,7 +244,7 @@
         <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> for account #</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                                       <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
+    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subscription</span><span class="o">.</span><span class="n">get_subtype_display</span><span class="p">()</span>
@@ -251,6 +253,16 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reimbursement</span>
             <span class="k">return</span> <span class="s1">&#39;Reimbursement&#39;</span>
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">borrow</span>
+            <span class="k">return</span> <span class="s1">&#39;Borrow&#39;</span>
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">purchase</span>
+            <span class="k">return</span> <span class="s1">&#39;Purchase&#39;</span>
         <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">return</span> <span class="s1">&#39;Generic&#39;</span></div>
@@ -423,7 +435,7 @@
 <div class="viewcode-block" id="Purchase"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Purchase">[docs]</a><span class="k">class</span> <span class="nc">Purchase</span><span class="p">(</span><span class="n">Event</span><span class="p">,</span> <span class="n">CurrencyMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Inherited table indicating purchase events&#39;&#39;&#39;</span>
     <span class="n">price</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">item</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;books.Item&#39;</span><span class="p">)</span></div>
+    <span class="n">item</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Item</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Reimbursement"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Reimbursement">[docs]</a><span class="k">class</span> <span class="nc">Reimbursement</span><span class="p">(</span><span class="n">Event</span><span class="p">,</span> <span class="n">CurrencyMixin</span><span class="p">):</span>
