@@ -58,6 +58,11 @@ GeoNames
 .. automodule:: mep.people.geonames
     :members:
 
+Admin
+^^^^^^
+.. automodule:: mep.people.admin
+    :members:
+
 Manage Commands
 ^^^^^^^^^^^^^^^
 

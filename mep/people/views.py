@@ -159,6 +159,15 @@ class LocationAutocomplete(autocomplete.Select2QuerySetView):
 
 
 class PersonMerge(PermissionRequiredMixin, FormView):
+    '''View method to merge one or more :class:`~mep.people.models.Person`
+    records.  Displays :class:`~mep.people.models.PersonMergeForm` on
+    GET, processes merge with :meth:`mep.people.models.PersonQuerySet.merge_with`
+    on successful POST.  Should be called with a list of person ids
+    in the querystring as a comma-separated list. Created for use
+    with custom admin action
+    :meth:`mep.people.admin.PersonAdmin.merge_people`.
+    '''
+
     permission_required = ('people.change_person', 'people.delete_person')
     form_class = PersonMergeForm
     template_name = 'people/merge_person.html'
