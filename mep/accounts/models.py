@@ -74,6 +74,13 @@ class Account(models.Model):
         '''associated subscription events, as queryset of :class:`Subscription`'''
         return Subscription.objects.filter(account_id=self.id)
 
+    @property
+    def reimbursement_set(self):
+        '''
+        associated reimbursement events, as queryset of :class:`Reimbursement`
+        '''
+        return Reimbursement.objects.filter(account_id=self.id)
+
     def list_locations(self):
         '''List of associated :class:`mep.people.models.Location` '''
         return '; '.join([str(loc) for loc in self.locations.distinct()])
