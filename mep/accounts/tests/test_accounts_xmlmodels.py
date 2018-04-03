@@ -2,12 +2,13 @@ import datetime
 import os
 
 from django.test import TestCase
+from eulxml import xmlmap
 
-from mep.accounts.xml_models import LogBook, Measure
+from mep.accounts.xml_models import LogBook, Measure, BorrowedItem, \
+    BorrowingEvent, LendingCard
 from mep.accounts.models import Event, Subscription, Reimbursement, Account, \
     CurrencyMixin
 from mep.people.models import Person
-
 
 
 FIXTURE_DIR = os.path.join(os.path.dirname(
@@ -268,3 +269,50 @@ class TestEvent(TestCase):
         monbrial.duration.unit = 'day'
         monbrial._normalize_dates()
         assert monbrial.common_dict['end_date'] == datetime.date(1921, 1, 12)
+
+
+class TestBorrowedItem(TestCase):
+
+    def test_fields(self):
+        # simple example, title only
+        item = xmlmap.load_xmlobject_from_string('''<bibl xmlns="http://www.tei-c.org/ns/1.0"
+            ana="#borrowedItem"><title>Poets Two Painters</title></bibl>''',
+            BorrowedItem)
+        assert item.title == 'Poets Two Painters'
+        assert not item.author
+        assert not item.mep_id
+
+        # full example with author and mep id
+        item = xmlmap.load_xmlobject_from_string('''<bibl xmlns="http://www.tei-c.org/ns/1.0"
+            corresp="mep:00018f"><title>Spider Boy</title> <author>C. Van Vechten</author></bibl>''',
+            BorrowedItem)
+        assert item.title == 'Spider Boy'
+        assert item.author == 'C. Van Vechten'
+        assert item.mep_id == 'mep:00018f'
+
+
+class TestBorrowingEvent(TestCase):
+
+    def test_fields(self):
+        event = xmlmap.load_xmlobject_from_string('''<ab xmlns="http://www.tei-c.org/ns/1.0"
+            ana="#borrowingEvent">
+              <date ana="#checkedOut" when="1939-04-06">Apr 6</date>
+               <bibl ana="#borrowedItem"><title>Poets Two Painters</title></bibl>
+               <date ana="#returned" when="1939-04-13">Apr 13</date>
+            </ab>''',
+            BorrowingEvent)
+
+        assert event.checked_out == datetime.date(1939, 4, 6)
+        assert event.returned == datetime.date(1939, 4, 13)
+        assert isinstance(event.item, BorrowedItem)
+        assert event.item.title == 'Poets Two Painters'
+
+
+class TestLendingCard(TestCase):
+
+    def test_felds(self):
+        card = xmlmap.load_xmlobject_from_file(os.path.join(FIXTURE_DIR, 'sample-card.xml'),
+            LendingCard)
+        assert len(card.borrowing_events) == 18
+        assert isinstance(card.borrowing_events[0], BorrowingEvent)
+

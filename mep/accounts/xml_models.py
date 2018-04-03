@@ -276,10 +276,7 @@ class XmlEvent(TeiXmlObject):
                           for key, value in self.common_dict.items() if value})
 
 
-class LogBook(xmlmap.XmlObject):
-    ROOT_NAMESPACES = {
-        't': 'http://www.tei-c.org/ns/1.0'
-    }
+class LogBook(TeiXmlObject):
 
     query = ('//t:event')
     events = xmlmap.NodeListField(query, XmlEvent)
@@ -287,3 +284,30 @@ class LogBook(xmlmap.XmlObject):
     @classmethod
     def from_file(cls, filename):
         return xmlmap.load_xmlobject_from_file(filename, cls)
+
+
+## lending cards and borrowing events
+
+class BorrowedItem(TeiXmlObject):
+    '''an item within a borrowing event; may just have a title'''
+    title = xmlmap.StringField('t:title')
+    author = xmlmap.StringField('t:author')
+    mep_id = xmlmap.StringField('@corresp')
+
+
+class BorrowingEvent(TeiXmlObject):
+    '''a record of a borrowing event; item with check out and return date'''
+    checked_out = xmlmap.DateField('t:date[@ana="#checkedOut"]/@when')
+    returned = xmlmap.DateField('t:date[@ana="#returned"]/@when')
+    item = xmlmap.NodeField('t:bibl[@ana="#borrowedItem"]', BorrowedItem)
+
+
+class LendingCard(TeiXmlObject):
+    # TODO: person, card images, etc
+
+    # find borroqwing events anywhere in the document
+    borrowing_events = xmlmap.NodeListField('//t:ab[@ana="#borrowingEvent"]',
+        BorrowingEvent)
+
+
+
