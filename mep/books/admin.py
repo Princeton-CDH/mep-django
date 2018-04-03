@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from mep.books.models import Item
+
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ['mep_id', 'title', 'notes']
+
+
+admin.site.register(Item, ItemAdmin)
