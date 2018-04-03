@@ -184,6 +184,7 @@ class TestAccount(TestCase):
         assert reimbursements.count() == 2
         assert reimb1 in reimbursements
         assert reimb2 in reimbursements
+        # a Subscription and generic Event are not
         assert subs not in reimbursements
         assert generic not in reimbursements
 
