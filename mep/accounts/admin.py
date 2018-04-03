@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.core.validators import RegexValidator
 
 from mep.accounts.models import Account, Address, Subscription,\
-    Reimbursement, Event, SubscriptionType
+    Reimbursement, Event, SubscriptionType, Borrow
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 
 
@@ -258,9 +258,14 @@ class SubscriptionTypeAdmin(NamedNotableAdmin):
     list_display = ('name', 'notes')
 
 
+class BorrowAdmin(admin.ModelAdmin):
+    list_display = ('account', 'start_date', 'end_date')
+
+
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Reimbursement, ReimbursementAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(SubscriptionType, SubscriptionTypeAdmin)
+admin.site.register(Borrow, BorrowAdmin)
 
