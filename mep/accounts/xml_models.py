@@ -296,14 +296,6 @@ class BorrowedItem(TeiXmlObject):
     author = xmlmap.StringField('t:author')
     mep_id = xmlmap.StringField('@corresp')
 
-    def db_item(self):
-        # find or create item
-        try:
-            item = Item.objects.get(mep_id=self.mep_id)
-        except Item.ObjestDoesNotExist:
-            item = Item(mep_id=self.mep_id)
-
-
 
 
 class BorrowingEvent(TeiXmlObject):
@@ -315,9 +307,12 @@ class BorrowingEvent(TeiXmlObject):
     def to_db_event(self, account):
         borrow = Borrow(account=account, start_date=self.checked_out,
             end_date=self.returned)
-        # TODO: find and associate item!
-
+        # find item that was borrowed
+        # *should* already exist from regularized title import
+        borrow.item =  Item.objects.get(mep_id=self.item.mep_id)
+        # TODO: add author if present here and not on item (?)
         return borrow
+
 
 class LendingCard(TeiXmlObject):
     # TODO: person, card images, etc

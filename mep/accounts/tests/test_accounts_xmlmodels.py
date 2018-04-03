@@ -297,7 +297,7 @@ class TestBorrowingEvent(TestCase):
         event = xmlmap.load_xmlobject_from_string('''<ab xmlns="http://www.tei-c.org/ns/1.0"
             ana="#borrowingEvent">
               <date ana="#checkedOut" when="1939-04-06">Apr 6</date>
-               <bibl ana="#borrowedItem"><title>Poets Two Painters</title></bibl>
+               <bibl ana="#borrowedItem" corresp="mep:006866"><title>Poets Two Painters</title></bibl>
                <date ana="#returned" when="1939-04-13">Apr 13</date>
             </ab>''',
             BorrowingEvent)
@@ -306,6 +306,7 @@ class TestBorrowingEvent(TestCase):
         assert event.returned == datetime.date(1939, 4, 13)
         assert isinstance(event.item, BorrowedItem)
         assert event.item.title == 'Poets Two Painters'
+        assert event.item.mep_id == 'mep:006866'
 
 
 class TestLendingCard(TestCase):
