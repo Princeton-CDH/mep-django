@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned, \
 from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 import pytest
 from viapy.api import ViafEntity
 
@@ -244,7 +245,9 @@ class TestPersonQuerySet(TestCase):
         assert main.viaf_id == full.viaf_id
         assert main.profession == full.profession
         assert full.notes in main.notes
-        assert 'Merged MEP id %s' % full.mep_id in main.notes
+        # get the current date for the string
+        iso_date = timezone.now().strftime('%Y-%m-%d')
+        assert 'Merged MEP id %s on %s' % (full.mep_id, iso_date) in main.notes
 
         # should _not_ copy over existing field values
         full2 = Person.objects.create(name='Jones',
@@ -258,7 +261,7 @@ class TestPersonQuerySet(TestCase):
         # notes should be appended
         assert full.notes in main.notes
         assert full2.notes in main.notes
-        assert 'Merged MEP id %s' % full2.mep_id in main.notes
+        assert 'Merged MEP id %s on %s' % (full2.mep_id, iso_date) in main.notes
 
         # many-to-many relationships should be shifted to merged person record
         related = Person.objects.create(name='Jonesy')
@@ -467,4 +470,3 @@ class TestPersonAdmin(TestCase):
         assert resp.status_code == 303
         assert resp['location'].startswith(reverse('people:merge'))
         assert resp['location'].endswith('?ids=%s' % ','.join(test_ids))
-
