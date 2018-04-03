@@ -247,6 +247,7 @@ class TestEvent(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
+        self.item = Item.objects.create(title='Selected poems')
         self.event = Event.objects.create(account=self.account)
 
     def test_repr(self):
@@ -287,13 +288,13 @@ class TestEvent(TestCase):
         assert reimbursement.event_ptr.event_type == 'Reimbursement'
 
         # borrow
-        borrow = Borrow.objects.create(account=self.account)
+        borrow = Borrow.objects.create(account=self.account, item=self.item)
         assert borrow.event_ptr.event_type == 'Borrow'
 
         # purchase
-        item = Item.objects.create()
-        borrow = Purchase.objects.create(account=self.account, item=item, price=5)
-        assert borrow.event_ptr.event_type == 'Purchase'
+        purchase = Purchase.objects.create(account=self.account,
+            item=self.item, price=5)
+        assert purchase.event_ptr.event_type == 'Purchase'
 
 
 class TestSubscription(TestCase):
@@ -568,8 +569,9 @@ class TestBorrow(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
+        self.item = Item.objects.create(title='Collected works')
         self.borrow = Borrow.objects.create(
-            account=self.account
+            account=self.account, item=self.item
         )
 
     def test_repr(self):
