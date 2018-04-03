@@ -380,7 +380,8 @@ class Subscription(Event, CurrencyMixin):
 
 class Borrow(Event):
     '''Inherited table indicating borrow events'''
-    # NOTE: Renamed to avoid field conflict with the table inheritences
+    item = models.ForeignKey(Item)
+    # NOTE: Renamed to avoid field conflict with the table inheritances
     # The related_name should keep related queries consistently framed
     purchase_id = models.ForeignKey(
         'Purchase',
