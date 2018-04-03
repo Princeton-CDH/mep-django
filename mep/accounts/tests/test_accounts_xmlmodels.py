@@ -5,7 +5,7 @@ from django.test import TestCase
 from eulxml import xmlmap
 
 from mep.accounts.xml_models import LogBook, Measure, BorrowedItem, \
-    BorrowingEvent, LendingCard
+    BorrowingEvent, LendingCard, BorrowedTitle, BorrowedTitles
 from mep.accounts.models import Event, Subscription, Reimbursement, Account, \
     CurrencyMixin
 from mep.people.models import Person
@@ -310,9 +310,47 @@ class TestBorrowingEvent(TestCase):
 
 class TestLendingCard(TestCase):
 
-    def test_felds(self):
+    def test_fields(self):
         card = xmlmap.load_xmlobject_from_file(os.path.join(FIXTURE_DIR, 'sample-card.xml'),
             LendingCard)
+        assert card.cardholder == 'Pauline Alderman'
+        assert card.cardholder_id == 'alde.pa'
         assert len(card.borrowing_events) == 18
         assert isinstance(card.borrowing_events[0], BorrowingEvent)
 
+
+class TestBorrowedTitle(TestCase):
+
+    def test_title_fields(self):
+        item = xmlmap.load_xmlobject_from_string('''<row>
+        <titleid>mep:00006j</titleid>
+        <borrowerid>#alde.pa</borrowerid>
+        <borrower_name>Pauline Alderman</borrower_name>
+        <title>Midas' touch   </title>
+        <regularized_title>Midas Touch</regularized_title>
+    </row>''',
+            BorrowedTitle)
+        assert item.mep_id == 'mep:00006j'
+        assert item.title == 'Midas Touch'
+        assert item.unreg_title == "Midas' touch"
+
+    def test_title_list(self):
+        item_list = xmlmap.load_xmlobject_from_string('''<root>
+            <row>
+        <titleid>mep:00006j</titleid>
+        <borrowerid>#alde.pa</borrowerid>
+        <borrower_name>Pauline Alderman</borrower_name>
+        <title>Midas' touch</title>
+        <regularized_title>Midas Touch</regularized_title>
+    </row>
+    <row>
+        <titleid>mep:00071x</titleid>
+        <borrowerid>#bake</borrowerid>
+        <borrower_name>Mrs. Thornton Baker</borrower_name>
+        <title>Life of Oscar Wilde</title>
+        <regularized_title>Life of Oscar Wilde</regularized_title>
+    </row>
+    </root>''',
+            BorrowedTitles)
+        assert len(item_list.titles) == 2
+        assert isinstance(item_list.titles[0], BorrowedTitle)
