@@ -173,13 +173,20 @@ class PersonMerge(PermissionRequiredMixin, FormView):
     template_name = 'people/merge_person.html'
 
     def get_success_url(self):
+        '''
+        Redirect to the :class:`mep.people.models.Person` change_list in the
+        Django admin with pagination and filters preserved.
+        Expects :meth:`mep.people.admin.PersonAdmin.merge_people`
+        to have set 'people_merge_filter' in the request's session.
+        '''
         change_list = reverse('admin:people_person_changelist')
-        p = self.request.GET.get('p', '')
-        # the ?p= doesn't harm anything, but it looks ugly so only include
-        # p if the url requires it
-        if p:
-            return '%s?p=%s' % (change_list, p)
-        return change_list
+        # get request.session's querystring filter, if it exists,
+        # use rstrip to remove the ? so that we're left with an empty string
+        # otherwise
+        querystring = ('?%s' %
+                       self.request.session.
+                       get('people_merge_filter', '')).rstrip('?')
+        return '%s%s' % (change_list, querystring)
 
     def get_form_kwargs(self):
         form_kwargs = super(PersonMerge, self).get_form_kwargs()

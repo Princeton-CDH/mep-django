@@ -451,18 +451,22 @@ class TestPersonMergeView(TestCase):
 
     def test_get_success_url(self):
         person_merge = PersonMerge()
-        # empty GET dictionary in request should result in the changelist url
+        # unset session variable should be passed as an empty string
         person_merge.request = Mock()
-        person_merge.request.GET = {}
+        person_merge.request.session = {}
         resolved_url = resolve(person_merge.get_success_url())
         assert 'admin' in resolved_url.app_names
         assert resolved_url.url_name == 'people_person_changelist'
-        # having a 'p' value in should result in a url with a query string
-        # in the format ?p= to match the pagination marker on the Django admin
-        person_merge.request.GET = {'p': '2', 'q': 'foo'}
+        # test that session containing a urlencoded url is correctly
+        # appended and keys that are not the one we're looking for are ignored
+        person_merge.request.session = {
+            'someotherkeystill': 'secretsessionvalue',
+            'people_merge_filter': 'p=2&q=foo',
+            'otherkey': 'ignored',
+        }
         url = person_merge.get_success_url()
-        assert url.endswith('?p=2')
-        # without the query string, it should still resolve
+        assert url.endswith('?p=2&q=foo')
+        # without the query string, the url should still resolve
         # to people_person_changelist
         resolved_url = resolve(url.split('?')[0])
         assert 'admin' in resolved_url.app_names

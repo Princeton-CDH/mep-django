@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from viapy.widgets import ViafWidget
 
@@ -171,16 +172,11 @@ class PersonAdmin(admin.ModelAdmin):
         # because this action is only meant for use with a few
         # people at a time
 
-        # pass the querystring portion of the pagination to return to the
-        # same page on the change_list view for Person
-        # NOTE: request.page only has the route portion and strips query string
-        # so using p and the change_list view route in preference
-        p = request.GET.get('p', '')
-        page_string = ('&p=%s' % p) if p else ''
+        # Get any querystrings including filters, pickle them as a urlencoded
+        # string
+        request.session['people_merge_filter'] = urlencode(request.GET.items())
         selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
-        redirect = '%s?ids=%s%s' % (reverse('people:merge'),
-                                    ','.join(selected), page_string)
-
+        redirect = '%s?ids=%s' % (reverse('people:merge'), ','.join(selected))
         return HttpResponseRedirect(redirect, status=303)   # 303 = See Other
     merge_people.short_description = 'Merge selected people'
 
