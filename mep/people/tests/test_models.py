@@ -214,6 +214,16 @@ class TestPersonQuerySet(TestCase):
         # accounts associated with merged persons should be gone
         assert not Account.objects.filter(id=mr_jones_acct.id).exists()
 
+        # no mepids, but should still list that the merges occurred
+        # get the current date for the string - used below
+        iso_date = timezone.now().strftime('%Y-%m-%d')
+        assert main_person.notes
+        jones_str = 'Merged Jones on %s' % iso_date
+        # Jones will appear twice from being merged into Jonas
+        assert main_person.notes.count(jones_str) == 2
+        print(main_person.notes)
+        assert False
+
         # error on attempt to merge to person with multiple accounts
         second_acct = Account.objects.create()
         second_acct.persons.add(main_person)
@@ -245,8 +255,6 @@ class TestPersonQuerySet(TestCase):
         assert main.viaf_id == full.viaf_id
         assert main.profession == full.profession
         assert full.notes in main.notes
-        # get the current date for the string
-        iso_date = timezone.now().strftime('%Y-%m-%d')
         assert 'Merged MEP id %s on %s' % (full.mep_id, iso_date) in main.notes
 
         # should _not_ copy over existing field values
