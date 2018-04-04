@@ -170,10 +170,18 @@ class PersonAdmin(admin.ModelAdmin):
         # NOTE: using selected ids from form and ignoring queryset
         # because this action is only meant for use with a few
         # people at a time
+
+        # pass the querystring portion of the pagination to return to the
+        # same page on the change_list view for Person
+        # NOTE: request.page only has the route portion and strips query string
+        # so using p and the change_list view route in preference
+        p = request.GET.get('p', '')
+        page_string = ('&p=%s' % p) if p else ''
         selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
-        return HttpResponseRedirect('%s?ids=%s' % \
-                (reverse('people:merge'), ','.join(selected)),
-                status=303)   # 303 = See Other
+        redirect = '%s?ids=%s%s' % (reverse('people:merge'),
+                                    ','.join(selected), page_string)
+
+        return HttpResponseRedirect(redirect, status=303)   # 303 = See Other
     merge_people.short_description = 'Merge selected people'
 
 

@@ -173,7 +173,13 @@ class PersonMerge(PermissionRequiredMixin, FormView):
     template_name = 'people/merge_person.html'
 
     def get_success_url(self):
-        return reverse('admin:people_person_changelist')
+        change_list = reverse('admin:people_person_changelist')
+        p = self.request.GET.get('p', '')
+        # the ?p= doesn't harm anything, but it looks ugly so only include
+        # p if the url requires it
+        if p:
+            return '%s?p=%s' % (change_list, p)
+        return change_list
 
     def get_form_kwargs(self):
         form_kwargs = super(PersonMerge, self).get_form_kwargs()

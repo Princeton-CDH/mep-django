@@ -465,8 +465,23 @@ class TestPersonAdmin(TestCase):
         mockrequest = Mock()
         test_ids = ['5', '33', '101']
         mockrequest.POST.getlist.return_value = test_ids
+        # code uses the built in methods of a dict, so making GET an
+        # actual dict as it is for a request
+        mockrequest.GET = {}
         resp = PersonAdmin(Person, Mock()).merge_people(mockrequest, Mock())
         assert isinstance(resp, HttpResponseRedirect)
         assert resp.status_code == 303
         assert resp['location'].startswith(reverse('people:merge'))
+        # No p, so not included in the query string
         assert resp['location'].endswith('?ids=%s' % ','.join(test_ids))
+        # Now add a 'p' value to be carried through for the reverse
+        mockrequest.GET = {'p': '3', 'ignoredparameter': 'foo'}
+        resp = PersonAdmin(Person, Mock()).merge_people(mockrequest, Mock())
+        assert isinstance(resp, HttpResponseRedirect)
+        assert resp.status_code == 303
+        # stills tarts with the people:merge url
+        assert resp['location'].startswith(reverse('people:merge'))
+        # still includes ?ids= and comma delimited list
+        assert '?ids=%s' % ','.join(test_ids)
+        # now ends with ?p= for redirect and value from request's GET dict
+        assert resp['location'].endswith('&p=3')

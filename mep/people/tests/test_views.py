@@ -450,7 +450,21 @@ class TestLocationAutocompleteView(TestCase):
 class TestPersonMergeView(TestCase):
 
     def test_get_success_url(self):
-        resolved_url = resolve(PersonMerge().get_success_url())
+        person_merge = PersonMerge()
+        # empty GET dictionary in request should result in the changelist url
+        person_merge.request = Mock()
+        person_merge.request.GET = {}
+        resolved_url = resolve(person_merge.get_success_url())
+        assert 'admin' in resolved_url.app_names
+        assert resolved_url.url_name == 'people_person_changelist'
+        # having a 'p' value in should result in a url with a query string
+        # in the format ?p= to match the pagination marker on the Django admin
+        person_merge.request.GET = {'p': '2', 'q': 'foo'}
+        url = person_merge.get_success_url()
+        assert url.endswith('?p=2')
+        # without the query string, it should still resolve
+        # to people_person_changelist
+        resolved_url = resolve(url.split('?')[0])
         assert 'admin' in resolved_url.app_names
         assert resolved_url.url_name == 'people_person_changelist'
 
