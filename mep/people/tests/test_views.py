@@ -194,8 +194,8 @@ class TestPeopleViews(TestCase):
         self.assertContains(result,
             reverse('admin:accounts_account_change', args=[acct.id]),
             msg_prefix='should link to account edit page')
-        self.assertContains(result, 'No documented subscription events',
-            msg_prefix='should display indicator for account with no subscription events')
+        self.assertContains(result, 'No documented subscription or reimbursement events',
+            msg_prefix='should display indicator for account with no subscription or reimbursement events')
         # with subscription events
         subs = Subscription.objects.create(account=acct,
             start_date=date(1943, 1, 1), end_date=date(1944, 1, 1))
@@ -213,9 +213,10 @@ class TestPeopleViews(TestCase):
             (format_date(subs.start_date), format_date(subs.end_date)))
         self.assertContains(response, 'Renewal')
         self.assertContains(response, '%s - ' % format_date(subs2.start_date))
-        # non-subscription events should not be listed
-        self.assertNotContains(response, 'Reimbursement')
-        self.assertNotContains(response, format_date(reimb.start_date))
+        # Reimbursement events should be listed
+        self.assertContains(response, 'Reimbursement')
+        self.assertContains(response, format_date(reimb.start_date))
+        # Other event types should not be
         self.assertNotContains(response, 'Generic')
         self.assertNotContains(response, format_date(generic.start_date))
 
@@ -469,4 +470,3 @@ class TestPersonMergeView(TestCase):
         assert form_kwargs['person_ids'] == pmview.person_ids
 
     # form_valid method tested through client post request above
-
