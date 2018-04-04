@@ -221,8 +221,6 @@ class TestPersonQuerySet(TestCase):
         jones_str = 'Merged Jones on %s' % iso_date
         # Jones will appear twice from being merged into Jonas
         assert main_person.notes.count(jones_str) == 2
-        print(main_person.notes)
-        assert False
 
         # error on attempt to merge to person with multiple accounts
         second_acct = Account.objects.create()
