@@ -260,6 +260,9 @@ class SubscriptionTypeAdmin(NamedNotableAdmin):
 
 class BorrowAdmin(admin.ModelAdmin):
     list_display = ('account', 'item', 'start_date', 'end_date')
+    date_hierarchy = 'start_date'
+    search_fields = ('account__persons__name', 'account__persons__mep_id',
+        'notes', 'item__title', 'item__notes')
 
 
 admin.site.register(Subscription, SubscriptionAdmin)
