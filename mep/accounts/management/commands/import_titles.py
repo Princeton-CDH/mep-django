@@ -26,6 +26,7 @@ class Command(BaseCommand):
         for title in title_list.titles:
             titles_by_id[title.mep_id].append(title)
 
+
         for title_id, titles in titles_by_id.items():
             item = Item(mep_id=title_id, title=titles[0].title)
             variant_titles = set([item.unreg_title for item in titles])
@@ -34,3 +35,6 @@ class Command(BaseCommand):
             if variant_titles:
                 item.notes = 'Variant titles: %s' % '; '.join(variant_titles)
             item.save()
+
+        self.stdout.write('Created %d item records' % len(titles_by_id.keys())
+
