@@ -7,7 +7,7 @@ import pendulum
 
 from mep.accounts.models import Account, Subscription, SubscriptionType, \
     Borrow
-from mep.books.models import Item
+from mep.books.models import Item, Creator, CreatorType
 from mep.people.models import Person
 
 
@@ -297,29 +297,50 @@ class BorrowedItem(TeiXmlObject):
     mep_id = xmlmap.StringField('@corresp')
 
 
-
 class BorrowingEvent(TeiXmlObject):
     '''a record of a borrowing event; item with check out and return date'''
     checked_out = xmlmap.DateField('t:date[@ana="#checkedOut"]/@when')
+    checked_out_s = xmlmap.StringField('t:date[@ana="#checkedOut"]/@when')
     returned = xmlmap.DateField('t:date[@ana="#returned"]/@when')
-    item = xmlmap.NodeField('t:bibl[@ana="#borrowedItem"]', BorrowedItem)
+    returned_s = xmlmap.StringField('t:date[@ana="#returned"]/@when')
+    # bibl could be directly in the event <ab> tag _or_ within a <del>
+    item = xmlmap.NodeField('.//t:bibl[@ana="#borrowedItem"]', BorrowedItem)
 
     def to_db_event(self, account):
         borrow = Borrow(account=account, start_date=self.checked_out,
             end_date=self.returned)
-        # find item that was borrowed
-        # *should* already exist from regularized title import
-        borrow.item =  Item.objects.get(mep_id=self.item.mep_id)
-        # TODO: add author if present here and not on item (?)
+
+        # NOTE: some records have an unclear title or partially unclear title
+        #  with no mep id for the item
+        if self.item.mep_id:
+            # find item that was borrowed
+            # *should* already exist from regularized title import
+            try:
+                borrow.item =  Item.objects.get(mep_id=self.item.mep_id)
+            except Item.DoesNotExist:
+                print('failed to find %s' % self.item.mep_id)
+
+            # if author name is present, document it in item note
+            # to support future book title data work
+            if self.item.author:
+                if self.item.author not in borrow.item.notes:
+                    borrow.item.notes += 'Author: %s' % self.item.author
+                    borrow.item.save()
+
         return borrow
+
+class Cardholder(TeiXmlObject):
+    name = xmlmap.StringField('.')
+    mep_id = xmlmap.StringField('substring-after(@ana, "#")')
 
 
 class LendingCard(TeiXmlObject):
     # TODO: person, card images, etc
 
-    # use person name with card holder rolelrderand id in the header to identify card holder
-    cardholder = xmlmap.StringField('//t:person[@role="cardholder"]')
-    cardholder_id = xmlmap.StringField('substring-after(//t:person[@role="cardholder"]/@ana, "#")')
+    # use person element with card holder role to identify card holder
+    # could be multiple
+    cardholders = xmlmap.NodeListField('//t:person[@role="cardholder"]',
+        Cardholder)
 
     # find borroqwing events anywhere in the document
     borrowing_events = xmlmap.NodeListField('//t:ab[@ana="#borrowingEvent"]',

@@ -308,14 +308,29 @@ class TestBorrowingEvent(TestCase):
         assert event.item.title == 'Poets Two Painters'
         assert event.item.mep_id == 'mep:006866'
 
+        # bibl inside a <del>
+        event = xmlmap.load_xmlobject_from_string('''<ab xmlns="http://www.tei-c.org/ns/1.0"
+            ana="#borrowingEvent">
+                <date ana="#checkedOut" when="1934-02-10">Feb 10</date>
+                <del>
+                    <bibl ana="#borrowedItem" corresp="mep:00jd71">
+                        <title>Wife of Steffan Tromholt</title>
+                        <biblScope unit="volume" from="1" to="2">2 vols</biblScope>
+                    </bibl>
+                </del>
+            </ab>''',
+            BorrowingEvent)
+        assert event.item.title == 'Wife of Steffan Tromholt'
+
+
 
 class TestLendingCard(TestCase):
 
     def test_fields(self):
         card = xmlmap.load_xmlobject_from_file(os.path.join(FIXTURE_DIR, 'sample-card.xml'),
             LendingCard)
-        assert card.cardholder == 'Pauline Alderman'
-        assert card.cardholder_id == 'alde.pa'
+        assert card.cardholders[0].name == 'Pauline Alderman'
+        assert card.cardholders[0].mep_id == 'alde.pa'
         assert len(card.borrowing_events) == 18
         assert isinstance(card.borrowing_events[0], BorrowingEvent)
 
