@@ -62,6 +62,12 @@ class Item(Notable):
             return str_value
         return '(No title, year)'
 
+    def authors(self):
+        return Person.objects.filter(creator__item=self)
+
+    def author_list(self):
+        return ', '.join([str(auth) for auth in self.authors()])
+
 
 class CreatorType(Named, Notable):
     '''Type of creator role a person can have to an item; author,
