@@ -380,7 +380,9 @@ class Subscription(Event, CurrencyMixin):
 
 class Borrow(Event):
     '''Inherited table indicating borrow events'''
-    item = models.ForeignKey(Item)
+    #: :class:`~mep.books.models.Item` that was borrowed;
+    #: optional to account for unclear titles
+    item = models.ForeignKey(Item, null=True, blank=True)
     # NOTE: Renamed to avoid field conflict with the table inheritances
     # The related_name should keep related queries consistently framed
     purchase_id = models.ForeignKey(
