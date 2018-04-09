@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
             sub.end_date = sub.start_date + relativedelta(months=sub.duration)
             # Set duration using the delta between the newly calculated
             # end_date
-            sub.duration = (sub.end_date - sub.end_date).days
+            sub.duration = (sub.end_date - sub.start_date).days
             # save the new values
             sub.save()
 
