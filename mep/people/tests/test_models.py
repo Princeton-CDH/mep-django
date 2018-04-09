@@ -493,5 +493,7 @@ class TestPersonAdmin(TestCase):
         assert resp['location'].endswith('?ids=%s' % ','.join(test_ids))
         # key should be set and have a urlencoded string
         assert 'people_merge_filter' in mockrequest.session
-        assert mockrequest.session['people_merge_filter'] == \
-            'p=3&filter=foo'
+        # test agnostic as to order since the querystring
+        # works either way
+        assert mockrequest.session['people_merge_filter'] in \
+            ['p=3&filter=foo', 'filter=foo&p=3']
