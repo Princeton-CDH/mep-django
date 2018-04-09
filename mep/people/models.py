@@ -166,6 +166,8 @@ class PersonQuerySet(models.QuerySet):
         notes.extend([p.notes for p in merge_people])
         notes.extend(['Merged MEP id %s on %s' % (person.mep_id, iso_date)
                       for person in merge_people if person.mep_id])
+        notes.extend(['Merged %s on %s' % (person.name, iso_date)
+                      for person in merge_people if not person.mep_id])              
         person.notes = '\n'.join(note for note in notes if note)
 
         # delete the now-obsolete person records
