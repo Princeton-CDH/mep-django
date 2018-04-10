@@ -330,7 +330,7 @@ class BorrowingEvent(TeiXmlObject):
             try:
                 borrow.item =  Item.objects.get(mep_id=self.item.mep_id)
             except Item.DoesNotExist:
-                print('failed to find %s' % self.item.mep_id)
+                print('Failed to find item with MEP id %s' % self.item.mep_id)
 
             # if author name is present, document it in item note
             # to support future book title data work
@@ -342,7 +342,7 @@ class BorrowingEvent(TeiXmlObject):
         return borrow
 
 class Cardholder(TeiXmlObject):
-    name = xmlmap.StringField('.')
+    name = xmlmap.StringField('.', normalize=True)
     mep_id = xmlmap.StringField('substring-after(@ana, "#")')
 
 

@@ -14,6 +14,8 @@ class Command(BaseCommand):
     """Import lending card data from XML documents"""
     help = __doc__
 
+    v_normal = 1
+
     def add_arguments(self, parser):
 
         parser.add_argument('path',
@@ -21,19 +23,23 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         search_path = os.path.join(kwargs['path'], '**', '*.xml')
+        verbosity = kwargs['verbosity']
 
         cardfiles = glob.iglob(search_path, recursive=True)
 
         stats = defaultdict(int)
 
         for i, card_file in enumerate(cardfiles):
-            print(card_file)
             stats['files'] += 1
             lcard = xmlmap.load_xmlobject_from_file(card_file, LendingCard)
-            for cardholder in lcard.cardholders:
-                print('%s %s' % (cardholder.mep_id, cardholder.name))
+            # output file name, cardholders, and number of borrowing events
+            # when running in verbose mode
+            cardholders = ', '.join(['%s %s' % (cardholder.mep_id, cardholder.name)
+                                     for cardholder in lcard.cardholders])
+            if verbosity > self.v_normal:
+                self.stdout.write('%s: %s' % (card_file, cardholders))
+                self.stdout.write('%d borrowing events' % len(lcard.borrowing_events))
             stats['card_holders'] += len(lcard.cardholders)
-            print('%d borrowing events' % len(lcard.borrowing_events))
             stats['borrow_events'] += len(lcard.borrowing_events)
 
             # find the account associated with the cardholder
@@ -50,8 +56,9 @@ class Command(BaseCommand):
                 # - get person record for each card holder
                 # - create account associated with all card holders
 
-                # TEMPORARY skip for now
-                print('no account, skipping')
+                # Temporarily skipping for now
+                self.stdout.write(self.style.WARNING('Account not found for %s\n%s' \
+                    % (cardholders, card_file)))
                 stats['skipped'] += 1
                 continue
 
@@ -65,12 +72,17 @@ class Command(BaseCommand):
                     # (skip for now)
                     print(verr)
 
+            # skip after processing max number
+            # NOTE: could add configurable max records option for testing
+            # if i > 30:
+                # break
+
         # summarize what was done
         self.stdout.write('''\nSummary:
-%(files)d files processed
-%(card_holders)d card holders
-%(accounts)d accounts
-%(borrow_events)d borrowing events found
-%(borrow_created)d borrowing events created
-%(skipped)d files skipped
-''' % stats)
+{files:,} files processed
+{card_holders:,} card holders
+{accounts:,} accounts
+{borrow_events:,} borrowing events found
+{borrow_created:,} borrowing events created
+{skipped:,} files skipped
+'''.format(**stats))
