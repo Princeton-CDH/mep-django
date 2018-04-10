@@ -36,5 +36,5 @@ class Command(BaseCommand):
                 item.notes = 'Variant titles: %s' % '; '.join(variant_titles)
             item.save()
 
-        self.stdout.write('Created %d item records' % len(titles_by_id.keys())
+        self.stdout.write('Created %d item records' % len(titles_by_id.keys()))
 
