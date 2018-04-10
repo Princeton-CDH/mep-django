@@ -428,15 +428,16 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
         else:
             raise ValidationError('%s is not a recognized partial date''' % value)
 
-    def date_format(self, value):
+    @classmethod
+    def date_format(cls, value):
         '''Return a format string for use with :meth:`datetime.date.strftime`
         to output a date with the appropriate precision'''
         parts = []
-        if value & self.YEAR:
+        if value & cls.YEAR:
             parts.append('%Y')
-        if value & self.MONTH:
+        if value & cls.MONTH:
             parts.append('%m')
-        if value & self.DAY:
+        if value & cls.DAY:
             parts.append('%d')
 
         # this is potentially ambiguous in some cases, but those cases
@@ -472,6 +473,18 @@ class Borrow(Event):
         :attr:`end_date_precision` accordingly'''
         self.end_date, \
             self.end_date_precision = DatePrecisionField.parse_date(value)
+
+    def display_start_date(self):
+        if self.start_date:
+            return self.start_date.strftime(DatePrecisionField.date_format(self.start_date_precision))
+    display_start_date.short_description = 'start_date'
+    display_start_date.admin_order_field = 'start_date'
+
+    def display_end_date(self):
+        if self.end_date:
+            return self.end_date.strftime(DatePrecisionField.date_format(self.end_date_precision))
+    display_end_date.short_description = 'end_date'
+    display_end_date.admin_order_field = 'end_date'
 
 
 class Purchase(Event, CurrencyMixin):

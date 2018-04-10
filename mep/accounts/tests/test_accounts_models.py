@@ -650,6 +650,21 @@ class TestBorrow(TestCase):
         assert self.borrow.end_date == datetime.date(1955, 1, 1)
         assert self.borrow.end_date_precision == DatePrecisionField.YEAR
 
+    def test_display_dates(self):
+        # should not error if date is not set
+        assert not self.borrow.display_start_date()
+        assert not self.borrow.display_end_date()
+        # full precision
+        self.borrow.start_date = datetime.date(1901, 3, 5)
+        self.borrow.end_date = datetime.date(1902, 4, 17)
+        assert self.borrow.display_start_date() == '1901-03-05'
+        assert self.borrow.display_end_date() == '1902-04-17'
+        # partial precision
+        self.borrow.start_date_precision = DatePrecisionField.YEAR | DatePrecisionField.MONTH
+        self.borrow.end_date_precision = DatePrecisionField.YEAR
+        assert self.borrow.display_start_date() == '1901-03'
+        assert self.borrow.display_end_date() == '1902'
+
 
 class TestCurrencyMixin(TestCase):
 
