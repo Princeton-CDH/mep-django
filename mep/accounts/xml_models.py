@@ -334,7 +334,7 @@ class BorrowingEvent(TeiXmlObject):
 
             # if author name is present, document it in item note
             # to support future book title data work
-            if self.item.author:
+            if borrow.item and self.item.author:
                 if self.item.author not in borrow.item.notes:
                     borrow.item.notes += 'Author: %s' % self.item.author
                     borrow.item.save()
