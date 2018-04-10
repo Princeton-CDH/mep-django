@@ -3,6 +3,20 @@
 Deploy and Upgrade notes
 ========================
 
+0.4? Borrowing events and Title stubs
+-------------------------------------
+
+* Title stub records should be imported from XML using the
+  **import_titles** manage command. The title XML file is located in
+  https://github.com/Princeton-CDH/mapping-expatriate-paris and named
+  `borrowed-titles.xml`.
+
+* Borrowing events should be imported from XML using the
+  **import_cards** manage command. Card XML files are located in
+  https://github.com/Princeton-CDH/mapping-expatriate-paris under
+  `transcriptions/cards/*/*.xml`. The command expects to be given
+  the base path to the card, and looks for all xml files nested under it.
+
 
 0.3 Data Entry Improvements
 ---------------------------
