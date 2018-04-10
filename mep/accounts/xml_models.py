@@ -309,8 +309,18 @@ class BorrowingEvent(TeiXmlObject):
     def to_db_event(self, account):
         '''Generate a database :class:`~mep.accounts.models.Borrow` event
         for the current xml borrowing event.'''
-        borrow = Borrow(account=account, start_date=self.checked_out,
-            end_date=self.returned)
+        borrow = Borrow(account=account)
+        # if either date cannot be parsed as a datetime, parse and set
+        # as partial date using string value
+        try:
+            borrow.start_date = self.checked_out
+        except ValueError:
+            borrow.set_partial_start_date(self.checked_out_s)
+
+        try:
+            borrow.end_date = self.returned
+        except ValueError:
+            borrow.set_partial_end_date(self.returned_s)
 
         # NOTE: some records have an unclear title or partially unclear title
         #  with no mep id for the item

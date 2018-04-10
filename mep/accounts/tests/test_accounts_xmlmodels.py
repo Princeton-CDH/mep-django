@@ -310,6 +310,11 @@ class TestBorrowingEvent(TestCase):
                 </bibl>
             </del>
         </ab>'''
+    partial_date = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+        <date ana="#checkedOut" when="1956-01">Jan</date>
+       <bibl ana="#borrowedItem" corresp="mep:000j03"> <title>Toussaint Louverture</title>, <author>Michel Vaucaire</author></bibl>
+       <date ana="#returned" when="1956-04-01"></date>
+    </ab>'''
 
     def test_fields(self):
         event = xmlmap.load_xmlobject_from_string(self.two_painters,
@@ -352,6 +357,15 @@ class TestBorrowingEvent(TestCase):
         # get a fresh copy of the item to check
         poets = Item.objects.get(pk=poets.pk)
         assert 'Author: %s' % xmlevent.item.author in poets.notes
+
+        # partial date, item with author
+        Toussaint = Item.objects.create(mep_id='mep:000j03',
+            title="Toussaint Louverture")
+        xmlevent = xmlmap.load_xmlobject_from_string(self.partial_date,
+            BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        assert db_borrow.start_date.year == 1956
+        assert db_borrow.start_date.month == 1
 
 
 class TestLendingCard(TestCase):

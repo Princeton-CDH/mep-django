@@ -9,7 +9,8 @@ from django.test import TestCase
 import pytest
 
 from mep.accounts.models import Account, Address, \
-    Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin
+    Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin, \
+    DatePrecisionField
 from mep.books.models import Item
 from mep.people.models import Person, Location
 
@@ -565,6 +566,60 @@ class TestReimbursement(TestCase):
         assert not self.reimbursement.end_date
 
 
+class TestDatePrecisionField(TestCase):
+
+    def test_parse_date(self):
+        # year only
+        dateval, precision = DatePrecisionField.parse_date('1956')
+        assert dateval == datetime.date(1956, 1, 1)
+        assert precision == DatePrecisionField.YEAR
+
+        # month only
+        dateval, precision = DatePrecisionField.parse_date('-03')
+        assert dateval == datetime.date(1, 3, 1)
+        assert precision == DatePrecisionField.MONTH
+
+        # year month without day
+        dateval, precision = DatePrecisionField.parse_date('1901-05')
+        assert dateval == datetime.date(1901, 5, 1)
+        assert precision == DatePrecisionField.YEAR | DatePrecisionField.MONTH
+
+        # month and day without year
+        dateval, precision = DatePrecisionField.parse_date('-12-21')
+        assert dateval == datetime.date(1, 12, 21)
+        assert precision == DatePrecisionField.MONTH | DatePrecisionField.DAY
+
+        # year month day should also work
+        dateval, precision = DatePrecisionField.parse_date('1844-10-22')
+        assert dateval == datetime.date(1844, 10, 22)
+        assert precision == DatePrecisionField.FULL
+
+        # day only currently not supported
+        # year and day without month not supported
+
+        # unrecogized values / unsupported formats
+        with pytest.raises(ValidationError):
+            DatePrecisionField.parse_date('1932-')
+        with pytest.raises(ValidationError):
+            DatePrecisionField.parse_date('--04')
+        # month and day digits beyond recognized values
+        with pytest.raises(ValidationError):
+            DatePrecisionField.parse_date('1922-33-01')
+        with pytest.raises(ValidationError):
+            DatePrecisionField.parse_date('1522-01-44')
+
+    def test_date_format(self):
+        dpf = DatePrecisionField()
+        assert dpf.date_format(DatePrecisionField.FULL) == '%Y-%m-%d'
+        assert dpf.date_format(DatePrecisionField.YEAR) == '%Y'
+        assert dpf.date_format(DatePrecisionField.YEAR | DatePrecisionField.MONTH) \
+             == '%Y-%m'
+        assert dpf.date_format(DatePrecisionField.MONTH | DatePrecisionField.DAY) \
+             == '%m-%d'
+
+        # other combinations are currently ignored as unlikely
+
+
 class TestBorrow(TestCase):
 
     def setUp(self):
@@ -583,6 +638,17 @@ class TestBorrow(TestCase):
     def test_str(self):
         assert str(self.borrow) == ('Borrow for account #%s' %
                                     self.borrow.account.pk)
+
+    def test_set_partial_start_date(self):
+        self.borrow.set_partial_start_date('1940-12')
+        assert self.borrow.start_date == datetime.date(1940, 12, 1)
+        assert self.borrow.start_date_precision == \
+            DatePrecisionField.YEAR | DatePrecisionField.MONTH
+
+    def test_set_partial_end_date(self):
+        self.borrow.set_partial_end_date('1955')
+        assert self.borrow.end_date == datetime.date(1955, 1, 1)
+        assert self.borrow.end_date_precision == DatePrecisionField.YEAR
 
 
 class TestCurrencyMixin(TestCase):

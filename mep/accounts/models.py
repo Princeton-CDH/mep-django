@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import re
+import datetime
+
 from cached_property import cached_property
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
@@ -378,6 +381,69 @@ class Subscription(Event, CurrencyMixin):
     readable_duration.admin_order_field = 'duration'
 
 
+class DatePrecisionField(models.PositiveSmallIntegerField):
+
+    YEAR = 0b001
+    MONTH = 0b010
+    DAY = 0b100
+
+    DATE_FORMATS = {
+        YEAR: '%Y',
+        MONTH: '%Y-%m',
+        DAY: '%Y-%m-%d'
+    }
+
+    # full precision
+    FULL = YEAR | MONTH | DAY
+
+    partial_date_re = re.compile(
+       r'^(?P<year>\d{4})?(?:-(?P<month>[01]\d))?(?:-(?P<day>[0-3]\d))?$'
+    )
+
+    def __init__(self, *args, **kwargs):
+        if 'default' not in kwargs:
+            kwargs['default'] = self.FULL
+        super(DatePrecisionField, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def parse_date(cls, value):
+        '''Parse a partial date string and return a :class:`datetime.date`
+        and precision value.'''
+        # partial date parsing adapted in part from django_partial_date
+        # https://github.com/ktowen/django_partial_date
+        match = cls.partial_date_re.match(value)
+        if match:
+            match_info = match.groupdict()
+
+            # turn matched values into numbers for initializing date object;
+            # default to 1 for any values not present
+            date_values = {k: int(v) if v else 1 for k, v in match_info.items()}
+
+            # determine precision based on the values that are set
+            precision = (cls.YEAR if match_info["year"] else 0b0) | \
+                        (cls.MONTH if match_info["month"] else 0b0) | \
+                        (cls.DAY if match_info["day"] else 0b0)
+            return (datetime.date(**date_values), precision)
+
+        else:
+            raise ValidationError('%s is not a recognized partial date''' % value)
+
+    def date_format(self, value):
+        '''Return a format string for use with :meth:`datetime.date.strftime`
+        to output a date with the appropriate precision'''
+        parts = []
+        if value & self.YEAR:
+            parts.append('%Y')
+        if value & self.MONTH:
+            parts.append('%m')
+        if value & self.DAY:
+            parts.append('%d')
+
+        # this is potentially ambiguous in some cases, but those cases
+        # may not be meaningful anywya
+        return '-'.join(parts)
+
+
 class Borrow(Event):
     '''Inherited table indicating borrow events'''
     #: :class:`~mep.books.models.Item` that was borrowed;
@@ -392,6 +458,20 @@ class Borrow(Event):
         verbose_name='purchase',
         related_name='purchase'
     )
+    start_date_precision = DatePrecisionField()
+    end_date_precision = DatePrecisionField()
+
+    def set_partial_start_date(self, value):
+        '''parse a partial date and set :attr:`start_date` and
+        :attr:`start_date_precision` accordingly'''
+        self.start_date, \
+            self.start_date_precision = DatePrecisionField.parse_date(value)
+
+    def set_partial_end_date(self, value):
+        '''parse a partial date and set :attr:`end_date` and
+        :attr:`end_date_precision` accordingly'''
+        self.end_date, \
+            self.end_date_precision = DatePrecisionField.parse_date(value)
 
 
 class Purchase(Event, CurrencyMixin):
