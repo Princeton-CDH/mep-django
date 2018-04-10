@@ -201,6 +201,7 @@ ADMIN_MENU_ORDER = (
         "accounts.Reimbursement", "accounts.SubscriptionType")),
     ("Personography", ("people.Person", "people.Address", "people.Country",
         "people.Profession", "people.RelationshipType")),
+    ("Bibliography", ("books.Item",)),
     ("Footnotes", ("footnotes.SourceType", "footnotes.Bibliography",
         "footnotes.Footnote")),
     ("Content", ("pages.Page", "generic.ThreadedComment",)),
