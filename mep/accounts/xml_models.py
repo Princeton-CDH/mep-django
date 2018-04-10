@@ -307,6 +307,8 @@ class BorrowingEvent(TeiXmlObject):
     item = xmlmap.NodeField('.//t:bibl[@ana="#borrowedItem"]', BorrowedItem)
 
     def to_db_event(self, account):
+        '''Generate a database :class:`~mep.accounts.models.Borrow` event
+        for the current xml borrowing event.'''
         borrow = Borrow(account=account, start_date=self.checked_out,
             end_date=self.returned)
 

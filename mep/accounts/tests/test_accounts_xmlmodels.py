@@ -7,7 +7,8 @@ from eulxml import xmlmap
 from mep.accounts.xml_models import LogBook, Measure, BorrowedItem, \
     BorrowingEvent, LendingCard, BorrowedTitle, BorrowedTitles
 from mep.accounts.models import Event, Subscription, Reimbursement, Account, \
-    CurrencyMixin
+    CurrencyMixin, Borrow
+from mep.books.models import Item
 from mep.people.models import Person
 
 
@@ -293,13 +294,25 @@ class TestBorrowedItem(TestCase):
 
 class TestBorrowingEvent(TestCase):
 
+    two_painters = '''<ab xmlns="http://www.tei-c.org/ns/1.0"
+        ana="#borrowingEvent">
+          <date ana="#checkedOut" when="1939-04-06">Apr 6</date>
+           <bibl ana="#borrowedItem" corresp="mep:006866"><title>Poets Two Painters</title></bibl>
+           <date ana="#returned" when="1939-04-13">Apr 13</date>
+        </ab>'''
+    tromolt = '''<ab xmlns="http://www.tei-c.org/ns/1.0"
+        ana="#borrowingEvent">
+            <date ana="#checkedOut" when="1934-02-10">Feb 10</date>
+            <del>
+                <bibl ana="#borrowedItem" corresp="mep:00jd71">
+                    <title>Wife of Steffan Tromholt</title>
+                    <biblScope unit="volume" from="1" to="2">2 vols</biblScope>
+                </bibl>
+            </del>
+        </ab>'''
+
     def test_fields(self):
-        event = xmlmap.load_xmlobject_from_string('''<ab xmlns="http://www.tei-c.org/ns/1.0"
-            ana="#borrowingEvent">
-              <date ana="#checkedOut" when="1939-04-06">Apr 6</date>
-               <bibl ana="#borrowedItem" corresp="mep:006866"><title>Poets Two Painters</title></bibl>
-               <date ana="#returned" when="1939-04-13">Apr 13</date>
-            </ab>''',
+        event = xmlmap.load_xmlobject_from_string(self.two_painters,
             BorrowingEvent)
 
         assert event.checked_out == datetime.date(1939, 4, 6)
@@ -309,19 +322,36 @@ class TestBorrowingEvent(TestCase):
         assert event.item.mep_id == 'mep:006866'
 
         # bibl inside a <del>
-        event = xmlmap.load_xmlobject_from_string('''<ab xmlns="http://www.tei-c.org/ns/1.0"
-            ana="#borrowingEvent">
-                <date ana="#checkedOut" when="1934-02-10">Feb 10</date>
-                <del>
-                    <bibl ana="#borrowedItem" corresp="mep:00jd71">
-                        <title>Wife of Steffan Tromholt</title>
-                        <biblScope unit="volume" from="1" to="2">2 vols</biblScope>
-                    </bibl>
-                </del>
-            </ab>''',
-            BorrowingEvent)
+        event = xmlmap.load_xmlobject_from_string(self.tromolt, BorrowingEvent)
         assert event.item.title == 'Wife of Steffan Tromholt'
+        # biblscope?
 
+    def test_to_db_event(self):
+        xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
+            BorrowingEvent)
+        account = Account()
+        db_borrow = xmlevent.to_db_event(account)
+        assert isinstance(db_borrow, Borrow)
+        assert db_borrow.account == account
+        assert db_borrow.start_date == xmlevent.checked_out
+        assert db_borrow.end_date == xmlevent.returned
+        # no item found - should be left blank
+        assert not db_borrow.item
+        # currently returned unsaved
+        assert not db_borrow.pk
+
+        # create stub title record
+        poets = Item.objects.create(mep_id='mep:006866', title="Poets Two Painters")
+        db_borrow = xmlevent.to_db_event(account)
+        # item should be associated
+        assert db_borrow.item == poets
+
+        # if author is in xml, should be added to item notes
+        xmlevent.item.author = 'Knud Merrild'
+        db_borrow = xmlevent.to_db_event(account)
+        # get a fresh copy of the item to check
+        poets = Item.objects.get(pk=poets.pk)
+        assert 'Author: %s' % xmlevent.item.author in poets.notes
 
 
 class TestLendingCard(TestCase):
