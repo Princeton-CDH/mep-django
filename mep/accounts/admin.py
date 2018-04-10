@@ -40,6 +40,12 @@ AUTOCOMPLETE = {
             'data-minimum-input-length': 3
         }
     ),
+    'item': autocomplete.ModelSelect2(url='books:item-autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for item... ',
+            'data-minimum-input-length': 3
+        }
+    ),
 }
 
 class EventAdminForm(forms.ModelForm):
@@ -258,11 +264,22 @@ class SubscriptionTypeAdmin(NamedNotableAdmin):
     list_display = ('name', 'notes')
 
 
+class BorrowAdminForm(forms.ModelForm):
+  class Meta:
+        model = Borrow
+        fields = ('__all__')
+        widgets = {
+            'account': AUTOCOMPLETE['account'],
+            'item': AUTOCOMPLETE['item']
+        }
+
 class BorrowAdmin(admin.ModelAdmin):
-    list_display = ('account', 'item', 'start_date', 'end_date')
+    form = BorrowAdminForm
+    list_display = ('account', 'item', 'display_start_date', 'display_end_date')
     date_hierarchy = 'start_date'
     search_fields = ('account__persons__name', 'account__persons__mep_id',
         'notes', 'item__title', 'item__notes')
+
 
 
 admin.site.register(Subscription, SubscriptionAdmin)
