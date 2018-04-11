@@ -32,7 +32,7 @@ as the inline edit form.
                 {% for subs in account.subscription_set.all %}
                   <div class="grp-tr">
                     <div class='grp-td'>
-                      {{ subs.get_subtype_display }}
+                      <a href="{% url 'admin:accounts_subscription_change' subs.id %}">{{ subs.get_subtype_display }}</a>
                     </div>
                     <div class='grp-td'>
                       {{ subs.category }}
@@ -49,9 +49,11 @@ as the inline edit form.
                 {% for reimb in account.reimbursement_set.all %}
                   <div class="grp-tr">
                     <div class='grp-td'>
-                      Reimbursement
+                      {# Reimbursements will always have the same type and None for Category #}
+                      <a href="{% url 'admin:accounts_reimbursement_change' reimb.id %}">Reimbursement</a>
                     </div>
                     <div class='grp-td'>
+                      None
                     </div>
                     <div class='grp-td'>
                         {{ reimb.refund }}
