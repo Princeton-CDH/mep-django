@@ -12,7 +12,16 @@ class Migration(migrations.Migration):
     def recalculate_durations(apps, schema_editor):
         '''
         Recalculate subscription durations based on duration in months
-        for Subscriptions without end date
+        for Subscriptions without end date.
+
+        This migration is necessary because the migration in 0012_recalculate_durations
+        did not account for Subscriptions that did not have end dates set but
+        which did have durations, which had been entered into production prior
+        to the data migation being run.
+
+        The migration targets Subscription objects that have a start_date, lack
+        an end date, and have a duration that is still reflecting months rather
+        than the current unit of day for duration.
         '''
 
         Subscription = apps.get_model('accounts', 'Subscription')
