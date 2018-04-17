@@ -28,6 +28,9 @@ class Command(BaseCommand):
         cardfiles = glob.iglob(search_path, recursive=True)
 
         stats = defaultdict(int)
+        # initialize values that might not get set, for use in format output
+        stats['accounts_created'] = 0
+        stats['skipped'] = 0
 
         for i, card_file in enumerate(cardfiles):
             stats['files'] += 1
@@ -52,15 +55,27 @@ class Command(BaseCommand):
                 account = accounts.first()
                 stats['accounts'] += 1
             else:
-                # TODO: create account
-                # - get person record for each card holder
-                # - create account associated with all card holders
+                # if account does not exist, find person and create it
+                # - single cardholder only for now (shared accounts logic TBD)
+                if len(lcard.cardholders) == 1:
+                    try:
+                        person = Person.objects.get(mep_id=lcard.cardholders[0].mep_id)
+                        account = Account.objects.create()
+                        account.persons.add(person)
+                        stats['accounts_created'] += 1
+                    except Person.DoesNotExist:
+                        self.stdout.write(self.style.WARNING('Person not found for %s\n%s' \
+                            % (lcard.cardholders[0].mep_id, card_file)))
+                        stats['skipped'] += 1
+                        continue
 
-                # Temporarily skipping for now
-                self.stdout.write(self.style.WARNING('Account not found for %s\n%s' \
-                    % (cardholders, card_file)))
-                stats['skipped'] += 1
-                continue
+                # still TODO - shared accounts (logic TBD)
+                else:
+                    # Temporarily skipping for now
+                    self.stdout.write(self.style.WARNING('Account not found for %s\n%s' \
+                        % (cardholders, card_file)))
+                    stats['skipped'] += 1
+                    continue
 
             # iterate through borrowing events and associate with the acount
             for xml_borrow in lcard.borrowing_events:
@@ -81,8 +96,8 @@ class Command(BaseCommand):
         self.stdout.write('''\nSummary:
 {files:,} files processed
 {card_holders:,} card holders
-{accounts:,} accounts
-{borrow_events:,} borrowing events found
+{accounts:,} accounts found; {accounts_created:,} accounts created
+{borrow_events:,} borrowing events found in XML
 {borrow_created:,} borrowing events created
 {skipped:,} files skipped
 '''.format(**stats))
