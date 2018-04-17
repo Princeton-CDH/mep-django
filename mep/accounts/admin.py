@@ -275,11 +275,12 @@ class BorrowAdminForm(forms.ModelForm):
 
 class BorrowAdmin(admin.ModelAdmin):
     form = BorrowAdminForm
-    list_display = ('account', 'item', 'display_start_date', 'display_end_date')
+    list_display = ('account', 'item', 'display_start_date', 'display_end_date',
+        'bought')
     date_hierarchy = 'start_date'
     search_fields = ('account__persons__name', 'account__persons__mep_id',
         'notes', 'item__title', 'item__notes')
-
+    list_filter = ('bought',)
 
 
 admin.site.register(Subscription, SubscriptionAdmin)
