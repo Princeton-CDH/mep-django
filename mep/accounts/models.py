@@ -404,7 +404,8 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
     def __init__(self, *args, **kwargs):
         if 'default' not in kwargs:
             # default is full precision
-            kwargs['default'] = DatePrecision.all_flags
+            # NOTE: needs to be cast as int or it breaks django migrations
+            kwargs['default'] = int(DatePrecision.all_flags)
         super(DatePrecisionField, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -457,17 +458,10 @@ class Borrow(Event):
     #: :class:`~mep.books.models.Item` that was borrowed;
     #: optional to account for unclear titles
     item = models.ForeignKey(Item, null=True, blank=True)
-    # NOTE: Renamed to avoid field conflict with the table inheritances
-    # The related_name should keep related queries consistently framed
-    purchase_id = models.ForeignKey(
-        'Purchase',
-        blank=True,
-        null=True,
-        verbose_name='purchase',
-        related_name='purchase'
-    )
     start_date_precision = DatePrecisionField()
     end_date_precision = DatePrecisionField()
+    bought = models.BooleanField(default=False,
+        help_text='Item was bought instead of returned')
 
     def set_partial_start_date(self, value):
         '''parse a partial date and set :attr:`start_date` and
