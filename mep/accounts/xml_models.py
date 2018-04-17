@@ -305,6 +305,13 @@ class BorrowingEvent(TeiXmlObject):
     returned_s = xmlmap.StringField('t:date[@ana="#returned"]/@when')
     # bibl could be directly in the event <ab> tag _or_ within a <del>
     item = xmlmap.NodeField('.//t:bibl[@ana="#borrowedItem"]', BorrowedItem)
+    notes = xmlmap.StringField('t:note')
+
+    @property
+    def bought(self):
+        '''item was bought - based on 'BB' or 'bought' in note text'''
+        # NOTE: should this also check for no returned date?
+        return self.notes and ('BB' in self.notes or 'bought' in self.notes)
 
     def to_db_event(self, account):
         '''Generate a database :class:`~mep.accounts.models.Borrow` event
@@ -328,7 +335,7 @@ class BorrowingEvent(TeiXmlObject):
             # find item that was borrowed
             # *should* already exist from regularized title import
             try:
-                borrow.item =  Item.objects.get(mep_id=self.item.mep_id)
+                borrow.item = Item.objects.get(mep_id=self.item.mep_id)
             except Item.DoesNotExist:
                 print('Failed to find item with MEP id %s' % self.item.mep_id)
 
@@ -364,8 +371,8 @@ class LendingCard(TeiXmlObject):
 
 class BorrowedTitle(xmlmap.XmlObject):
     mep_id = xmlmap.StringField('titleid')
-    title =  xmlmap.StringField('regularized_title', normalize=True)
-    unreg_title =  xmlmap.StringField('title', normalize=True)
+    title = xmlmap.StringField('regularized_title', normalize=True)
+    unreg_title = xmlmap.StringField('title', normalize=True)
 
 
 class BorrowedTitles(xmlmap.XmlObject):

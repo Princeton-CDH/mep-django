@@ -316,6 +316,13 @@ class TestBorrowingEvent(TestCase):
        <date ana="#returned" when="1956-04-01"></date>
     </ab>'''
 
+    bought = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+        <date ana="#checkedOut" when="1921-05-28">  </date>
+        <bibl ana="#borrowedItem" corresp="mep:000v26"><title>Blake</title>
+            (<publisher> "  </publisher>)</bibl>
+        <note>BB</note>
+    </ab>'''
+
     def test_fields(self):
         event = xmlmap.load_xmlobject_from_string(self.two_painters,
             BorrowingEvent)
@@ -330,6 +337,23 @@ class TestBorrowingEvent(TestCase):
         event = xmlmap.load_xmlobject_from_string(self.tromolt, BorrowingEvent)
         assert event.item.title == 'Wife of Steffan Tromholt'
         # biblscope?
+
+        # notes
+        event = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
+        assert event.notes == 'BB'
+
+    def test_bought(self):
+        # no bought flag in notes
+        event = xmlmap.load_xmlobject_from_string(self.tromolt, BorrowingEvent)
+        assert not event.bought
+
+        # bought flag in notes - variant one
+        event = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
+        assert event.bought
+
+        # variant text that should also be recognized
+        event.notes = 'bought book'
+        assert event.bought
 
     def test_to_db_event(self):
         xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
