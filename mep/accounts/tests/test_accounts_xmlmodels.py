@@ -7,7 +7,7 @@ from eulxml import xmlmap
 from mep.accounts.xml_models import LogBook, Measure, BorrowedItem, \
     BorrowingEvent, LendingCard, BorrowedTitle, BorrowedTitles
 from mep.accounts.models import Event, Subscription, Reimbursement, Account, \
-    CurrencyMixin, Borrow
+    CurrencyMixin, Borrow, DatePrecision
 from mep.books.models import Item
 from mep.people.models import Person
 
@@ -345,7 +345,7 @@ class TestBorrowingEvent(TestCase):
     def test_bought(self):
         # no bought flag in notes
         event = xmlmap.load_xmlobject_from_string(self.tromolt, BorrowingEvent)
-        assert event.bought == False
+        assert event.bought is False
 
         # bought flag in notes - variant one
         event = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
@@ -362,7 +362,7 @@ class TestBorrowingEvent(TestCase):
         db_borrow = xmlevent.to_db_event(account)
         assert isinstance(db_borrow, Borrow)
         assert db_borrow.account == account
-        assert db_borrow.bought == False
+        assert db_borrow.bought is False
         assert db_borrow.start_date == xmlevent.checked_out
         assert db_borrow.end_date == xmlevent.returned
         # no item found - should be left blank
@@ -395,6 +395,22 @@ class TestBorrowingEvent(TestCase):
         xmlevent = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
         db_borrow = xmlevent.to_db_event(account)
         assert db_borrow.bought
+
+        # 1900 dates -> year unknown
+        xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
+            BorrowingEvent)
+        xmlevent.checked_out = datetime.date(1900, 5, 1)
+        xmlevent.returned = datetime.date(1900, 6, 3)
+        print(xmlevent.serialize(pretty=True))
+        db_borrow = xmlevent.to_db_event(account)
+        # cast to DatePrecision to check flags
+        assert not DatePrecision(db_borrow.start_date_precision).year
+        assert DatePrecision(db_borrow.start_date_precision).month
+        assert DatePrecision(db_borrow.start_date_precision).day
+        assert not DatePrecision(db_borrow.end_date_precision).year
+        assert DatePrecision(db_borrow.end_date_precision).month
+        assert DatePrecision(db_borrow.end_date_precision).day
+
 
 
 class TestLendingCard(TestCase):

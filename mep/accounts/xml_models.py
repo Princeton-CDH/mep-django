@@ -6,8 +6,8 @@ from eulxml import xmlmap
 import pendulum
 
 from mep.accounts.models import Account, Subscription, SubscriptionType, \
-    Borrow
-from mep.books.models import Item, Creator, CreatorType
+    Borrow, DatePrecision
+from mep.books.models import Item
 from mep.people.models import Person
 
 
@@ -321,11 +321,17 @@ class BorrowingEvent(TeiXmlObject):
         # as partial date using string value
         try:
             borrow.start_date = self.checked_out
+            # special case: 1900 means year unknown
+            if borrow.start_date and borrow.start_date.year == 1900:
+                borrow.start_date_precision = DatePrecision.month | DatePrecision.day
         except ValueError:
             borrow.set_partial_start_date(self.checked_out_s)
 
         try:
             borrow.end_date = self.returned
+            # same special case: 1900 means year unknown
+            if borrow.end_date and borrow.end_date.year == 1900:
+                borrow.end_date_precision = DatePrecision.month | DatePrecision.day
         except ValueError:
             borrow.set_partial_end_date(self.returned_s)
 

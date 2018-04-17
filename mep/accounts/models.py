@@ -436,16 +436,16 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
         '''Return a format string for use with :meth:`datetime.date.strftime`
         to output a date with the appropriate precision'''
         parts = []
-        # cast integer to date precision flag for comparison
+        # cast integer to date precision to check flags
         value = DatePrecision(value)
-        if value & DatePrecision.year:
+        if value.year:
             parts.append('%Y')
         else:
             # if no year, indicate with --
             parts.append('-')
-        if value & DatePrecision.month:
+        if value.month:
             parts.append('%m')
-        if value & DatePrecision.day:
+        if value.day:
             parts.append('%d')
 
         # this is potentially ambiguous in some cases, but those cases
