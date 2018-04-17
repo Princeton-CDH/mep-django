@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
+from flags import Flags
 
 from mep.books.models import Item
 from mep.common.models import Named, Notable
@@ -381,20 +382,20 @@ class Subscription(Event, CurrencyMixin):
     readable_duration.admin_order_field = 'duration'
 
 
+class DatePrecision(Flags):
+    # flag class to indicate which date values are known
+    year = ()
+    month = ()
+    day = ()
+
+
 class DatePrecisionField(models.PositiveSmallIntegerField):
 
-    YEAR = 0b001
-    MONTH = 0b010
-    DAY = 0b100
-
     DATE_FORMATS = {
-        YEAR: '%Y',
-        MONTH: '%Y-%m',
-        DAY: '%Y-%m-%d'
+        DatePrecision.year: '%Y',
+        DatePrecision.month: '%Y-%m',
+        DatePrecision.day: '%Y-%m-%d'
     }
-
-    # full precision
-    FULL = YEAR | MONTH | DAY
 
     partial_date_re = re.compile(
        r'^(?P<year>\d{4})?(?:-(?P<month>[01]\d))?(?:-(?P<day>[0-3]\d))?$'
@@ -402,7 +403,8 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
 
     def __init__(self, *args, **kwargs):
         if 'default' not in kwargs:
-            kwargs['default'] = self.FULL
+            # default is full precision
+            kwargs['default'] = DatePrecision.all_flags
         super(DatePrecisionField, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -419,10 +421,10 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
             # default to 1 for any values not present
             date_values = {k: int(v) if v else 1 for k, v in match_info.items()}
 
-            # determine precision based on the values that are set
-            precision = (cls.YEAR if match_info["year"] else 0b0) | \
-                        (cls.MONTH if match_info["month"] else 0b0) | \
-                        (cls.DAY if match_info["day"] else 0b0)
+            # determine known date parts based on regex match values
+            # and initialize pecision flags accordingly
+            date_parts = [key for key, val in match_info.items() if val]
+            precision = DatePrecision.from_simple_str('|'.join(date_parts))
             return (datetime.date(**date_values), precision)
 
         else:
@@ -433,11 +435,16 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
         '''Return a format string for use with :meth:`datetime.date.strftime`
         to output a date with the appropriate precision'''
         parts = []
-        if value & cls.YEAR:
+        # cast integer to date precision flag for comparison
+        value = DatePrecision(value)
+        if value & DatePrecision.year:
             parts.append('%Y')
-        if value & cls.MONTH:
+        else:
+            # if no year, indicate with --
+            parts.append('-')
+        if value & DatePrecision.month:
             parts.append('%m')
-        if value & cls.DAY:
+        if value & DatePrecision.day:
             parts.append('%d')
 
         # this is potentially ambiguous in some cases, but those cases

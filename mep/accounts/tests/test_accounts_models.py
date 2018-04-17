@@ -10,7 +10,7 @@ import pytest
 
 from mep.accounts.models import Account, Address, \
     Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin, \
-    DatePrecisionField
+    DatePrecisionField, DatePrecision
 from mep.books.models import Item
 from mep.people.models import Person, Location
 
@@ -572,27 +572,27 @@ class TestDatePrecisionField(TestCase):
         # year only
         dateval, precision = DatePrecisionField.parse_date('1956')
         assert dateval == datetime.date(1956, 1, 1)
-        assert precision == DatePrecisionField.YEAR
+        assert precision == DatePrecision.year
 
         # month only
         dateval, precision = DatePrecisionField.parse_date('-03')
         assert dateval == datetime.date(1, 3, 1)
-        assert precision == DatePrecisionField.MONTH
+        assert precision == DatePrecision.month
 
         # year month without day
         dateval, precision = DatePrecisionField.parse_date('1901-05')
         assert dateval == datetime.date(1901, 5, 1)
-        assert precision == DatePrecisionField.YEAR | DatePrecisionField.MONTH
+        assert precision == DatePrecision.year | DatePrecision.month
 
         # month and day without year
         dateval, precision = DatePrecisionField.parse_date('-12-21')
         assert dateval == datetime.date(1, 12, 21)
-        assert precision == DatePrecisionField.MONTH | DatePrecisionField.DAY
+        assert precision == DatePrecision.month | DatePrecision.day
 
         # year month day should also work
         dateval, precision = DatePrecisionField.parse_date('1844-10-22')
         assert dateval == datetime.date(1844, 10, 22)
-        assert precision == DatePrecisionField.FULL
+        assert precision == DatePrecision.all_flags
 
         # day only currently not supported
         # year and day without month not supported
@@ -610,12 +610,15 @@ class TestDatePrecisionField(TestCase):
 
     def test_date_format(self):
         dpf = DatePrecisionField()
-        assert dpf.date_format(DatePrecisionField.FULL) == '%Y-%m-%d'
-        assert dpf.date_format(DatePrecisionField.YEAR) == '%Y'
-        assert dpf.date_format(DatePrecisionField.YEAR | DatePrecisionField.MONTH) \
+        assert dpf.date_format(DatePrecision.all_flags) == '%Y-%m-%d'
+        assert dpf.date_format(DatePrecision.year) == '%Y'
+        assert dpf.date_format(DatePrecision.year | DatePrecision.month) \
              == '%Y-%m'
-        assert dpf.date_format(DatePrecisionField.MONTH | DatePrecisionField.DAY) \
-             == '%m-%d'
+        assert dpf.date_format(DatePrecision.month | DatePrecision.day) \
+             == '--%m-%d'
+
+        # integer value, as stored in db
+        assert dpf.date_format(7) == '%Y-%m-%d'
 
         # other combinations are currently ignored as unlikely
 
@@ -643,12 +646,12 @@ class TestBorrow(TestCase):
         self.borrow.set_partial_start_date('1940-12')
         assert self.borrow.start_date == datetime.date(1940, 12, 1)
         assert self.borrow.start_date_precision == \
-            DatePrecisionField.YEAR | DatePrecisionField.MONTH
+            DatePrecision.year | DatePrecision.month
 
     def test_set_partial_end_date(self):
         self.borrow.set_partial_end_date('1955')
         assert self.borrow.end_date == datetime.date(1955, 1, 1)
-        assert self.borrow.end_date_precision == DatePrecisionField.YEAR
+        assert self.borrow.end_date_precision == DatePrecision.year
 
     def test_display_dates(self):
         # should not error if date is not set
@@ -660,10 +663,11 @@ class TestBorrow(TestCase):
         assert self.borrow.display_start_date() == '1901-03-05'
         assert self.borrow.display_end_date() == '1902-04-17'
         # partial precision
-        self.borrow.start_date_precision = DatePrecisionField.YEAR | DatePrecisionField.MONTH
-        self.borrow.end_date_precision = DatePrecisionField.YEAR
+        self.borrow.start_date_precision = DatePrecision.year | DatePrecision.month
+        self.borrow.end_date_precision = DatePrecision.year
         assert self.borrow.display_start_date() == '1901-03'
         assert self.borrow.display_end_date() == '1902'
+
 
 
 class TestCurrencyMixin(TestCase):
