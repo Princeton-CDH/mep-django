@@ -345,7 +345,7 @@ class TestBorrowingEvent(TestCase):
     def test_bought(self):
         # no bought flag in notes
         event = xmlmap.load_xmlobject_from_string(self.tromolt, BorrowingEvent)
-        assert not event.bought
+        assert event.bought == False
 
         # bought flag in notes - variant one
         event = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
@@ -362,6 +362,7 @@ class TestBorrowingEvent(TestCase):
         db_borrow = xmlevent.to_db_event(account)
         assert isinstance(db_borrow, Borrow)
         assert db_borrow.account == account
+        assert db_borrow.bought == False
         assert db_borrow.start_date == xmlevent.checked_out
         assert db_borrow.end_date == xmlevent.returned
         # no item found - should be left blank
@@ -390,6 +391,10 @@ class TestBorrowingEvent(TestCase):
         db_borrow = xmlevent.to_db_event(account)
         assert db_borrow.start_date.year == 1956
         assert db_borrow.start_date.month == 1
+
+        xmlevent = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        assert db_borrow.bought
 
 
 class TestLendingCard(TestCase):

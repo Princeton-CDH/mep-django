@@ -311,12 +311,12 @@ class BorrowingEvent(TeiXmlObject):
     def bought(self):
         '''item was bought - based on 'BB' or 'bought' in note text'''
         # NOTE: should this also check for no returned date?
-        return self.notes and ('BB' in self.notes or 'bought' in self.notes)
+        return bool(self.notes) and ('BB' in self.notes or 'bought' in self.notes)
 
     def to_db_event(self, account):
         '''Generate a database :class:`~mep.accounts.models.Borrow` event
         for the current xml borrowing event.'''
-        borrow = Borrow(account=account)
+        borrow = Borrow(account=account, bought=self.bought)
         # if either date cannot be parsed as a datetime, parse and set
         # as partial date using string value
         try:
