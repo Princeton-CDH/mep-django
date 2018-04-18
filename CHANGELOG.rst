@@ -7,8 +7,8 @@ CHANGELOG
 ------------------------------
 
 Minor improvements to Django admin site functionality and data migration to
-resolve Subscriptions with durations left with durations left in months to days
-in previous data migration.
+resolve Subscriptions with durations left in months as part of a previous
+migration.
 
 * As a content editor, when I merge two individuals, I want the notes field to include the date when the merge was completed, so that I can keep track of biographical work in the archive.
 * As a content editor, I want to return to the page I was on when I started the process of merging people records so that I can continue working where I left off.
