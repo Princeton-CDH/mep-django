@@ -1,0 +1,475 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.5-0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mep.people.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span><span class="p">,</span> <span class="n">ObjectDoesNotExist</span>
+<span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericRelation</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">transaction</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">timezone</span>
+<span class="kn">from</span> <span class="nn">viapy.api</span> <span class="k">import</span> <span class="n">ViafEntity</span>
+
+<span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">AliasIntegerField</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">,</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
+<span class="kn">from</span> <span class="nn">mep.common.validators</span> <span class="k">import</span> <span class="n">verify_latlon</span>
+<span class="kn">from</span> <span class="nn">mep.footnotes.models</span> <span class="k">import</span> <span class="n">Footnote</span>
+
+
+<div class="viewcode-block" id="Country"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Country">[docs]</a><span class="k">class</span> <span class="nc">Country</span><span class="p">(</span><span class="n">Named</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Countries, for documenting nationalities of a :class:`Person`</span>
+<span class="sd">    or location of an :class:`Address`&#39;&#39;&#39;</span>
+    <span class="n">geonames_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span><span class="s1">&#39;GeoNames ID&#39;</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;GeoNames identifier&#39;</span><span class="p">)</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="s1">&#39;Country Code&#39;</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Two-letter country code&#39;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="c1"># id &amp; code are optional to support no country/stateless</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s1">&#39;countries&#39;</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,)</span></div>
+
+
+<div class="viewcode-block" id="Location"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Location">[docs]</a><span class="k">class</span> <span class="nc">Location</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Locations for addresses associated with people and accounts&#39;&#39;&#39;</span>
+    <span class="c1">#: optional name of the location (e.g., hotel)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;Name of location&#39;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Name of the place if there is one, e.g. Savoy Hotel, &#39;</span>
+                   <span class="s1">&#39;British Embassy, Villa Trianon&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1">#: street address</span>
+    <span class="n">street_address</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1">#: city or town</span>
+    <span class="n">city</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+    <span class="c1">#: postal code; character rather than integer to support</span>
+    <span class="c1"># UK addresses and other non-numeric postal codes</span>
+    <span class="n">postal_code</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># NOTE: Using decimal field here to set precision on the head</span>
+    <span class="c1"># FloatField uses float, which can introduce unexpected rounding.</span>
+    <span class="c1"># This would let us have measurements down to the tree level, if necessary</span>
+    <span class="c1">#: latitude</span>
+    <span class="n">latitude</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
+        <span class="n">max_digits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">decimal_places</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">verify_latlon</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1">#: longitude</span>
+    <span class="n">longitude</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
+        <span class="n">max_digits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">decimal_places</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">verify_latlon</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1">#: :class:`Country`</span>
+    <span class="n">country</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Country</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1">#: footnotes (:class:`~mep.footnotes.models.Footnote`)</span>
+    <span class="n">footnotes</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="n">Footnote</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;street_address&quot;</span><span class="p">,</span> <span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="s2">&quot;country&quot;</span><span class="p">),)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;Location </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">str_parts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">street_address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">part</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">str_parts</span> <span class="k">if</span> <span class="n">part</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Profession"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Profession">[docs]</a><span class="k">class</span> <span class="nc">Profession</span><span class="p">(</span><span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Profession for a :class:`Person`&#39;&#39;&#39;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="PersonQuerySet"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.PersonQuerySet">[docs]</a><span class="k">class</span> <span class="nc">PersonQuerySet</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">QuerySet</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Custom :class:`models.QuerySet` for :class:`Person`&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="PersonQuerySet.merge_with"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.PersonQuerySet.merge_with">[docs]</a>    <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
+    <span class="k">def</span> <span class="nf">merge_with</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">person</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Merge all person records in the current queryset with the</span>
+<span class="sd">        specified person. This entails the following:</span>
+
+<span class="sd">        - all events from accounts associated with people in the</span>
+<span class="sd">          queryset are reassociated with the specified person</span>
+<span class="sd">        - all addresses associated with people in the</span>
+<span class="sd">          queryset or their accounts are reassociated with the</span>
+<span class="sd">          specified person or their account</span>
+<span class="sd">        - TODO: copy other details and update other relationships</span>
+<span class="sd">        - after data has been copied over, people in the queryset and</span>
+<span class="sd">          their accounts will be deleted</span>
+
+<span class="sd">        Raises an error if the specified person has more than one</span>
+<span class="sd">        account or if any people in the queryset have an account associated</span>
+<span class="sd">        with another person.</span>
+
+<span class="sd">        :param person: :class:`Person` person</span>
+<span class="sd">        :raises django.core.exceptions.ObjectDoesNotExist:</span>
+<span class="sd">            if selected :class:`Person` has no account</span>
+<span class="sd">        :raises django.core.exceptions.MultipleObjectsReturned:</span>
+<span class="sd">            if selected :class:`Person` has multiple accounts _or_ any person</span>
+<span class="sd">            in the queryset has an account shared with another person</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># error if person has no account</span>
+        <span class="c1"># NOTE: technically could allow person with no account if no</span>
+        <span class="c1"># people in the queryset have accounts, but currently not supported</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ObjectDoesNotExist</span><span class="p">(</span><span class="s2">&quot;Can&#39;t merge with a person record that has no account.&quot;</span><span class="p">)</span>
+        <span class="c1"># error if more than account, since we can&#39;t pick which to merge to</span>
+        <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MultipleObjectsReturned</span><span class="p">(</span><span class="s2">&quot;Can&#39;t merge with a person record that has multiple accounts.&quot;</span><span class="p">)</span>
+        <span class="c1"># error if any accounts have more than one person associated</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">account_people</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;account__persons&#39;</span><span class="p">))</span> \
+               <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account_people__gt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">MultipleObjectsReturned</span><span class="p">(</span><span class="s2">&quot;Can&#39;t merge a person record with a shared account.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># identify the account other events will be reassociated with</span>
+        <span class="n">primary_account</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="c1"># make sure specified person is skipped even if in the current queryset</span>
+        <span class="n">merge_people</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">merge_person</span> <span class="ow">in</span> <span class="n">merge_people</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">account</span> <span class="ow">in</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="c1"># reassociate all events with the main account</span>
+                <span class="n">account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="n">primary_account</span><span class="p">)</span>
+                <span class="c1"># reassociate any addresses with the main account</span>
+                <span class="n">account</span><span class="o">.</span><span class="n">address_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="n">primary_account</span><span class="p">)</span>
+                <span class="c1"># delete the empty account</span>
+                <span class="n">account</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+            <span class="c1"># update main person record with optional properties set on</span>
+            <span class="c1"># the copy if not already present on the main record</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">]:</span>
+                <span class="c1"># if not set on main person and set on merge person, copy</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">merge_person</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">merge_person</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+            <span class="c1"># reassociate related person data</span>
+            <span class="c1"># - personal addresses</span>
+            <span class="n">merge_person</span><span class="o">.</span><span class="n">address_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
+            <span class="c1"># - nationalities</span>
+            <span class="n">person</span><span class="o">.</span><span class="n">nationalities</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="n">merge_person</span><span class="o">.</span><span class="n">nationalities</span><span class="o">.</span><span class="n">all</span><span class="p">()))</span>
+            <span class="c1"># - relations</span>
+            <span class="n">merge_person</span><span class="o">.</span><span class="n">from_relationships</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">from_person</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
+            <span class="n">merge_person</span><span class="o">.</span><span class="n">to_relationships</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">to_person</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
+            <span class="c1"># - info urls</span>
+            <span class="n">merge_person</span><span class="o">.</span><span class="n">urls</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
+            <span class="c1"># - footnotes</span>
+            <span class="n">merge_person</span><span class="o">.</span><span class="n">footnotes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">object_id</span><span class="o">=</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="c1"># consolidate notes and preserve any merged MEP ids</span>
+        <span class="c1"># in case we need to find a record based on a deleted MEP id</span>
+        <span class="c1"># (e.g. for card import)</span>
+        <span class="c1"># get current date to record when this merge happened</span>
+        <span class="n">iso_date</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">notes</span> <span class="o">=</span> <span class="p">[</span><span class="n">person</span><span class="o">.</span><span class="n">notes</span><span class="p">]</span>
+        <span class="n">notes</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">notes</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">merge_people</span><span class="p">])</span>
+        <span class="n">notes</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;Merged MEP id </span><span class="si">%s</span><span class="s1"> on </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">mep_id</span><span class="p">,</span> <span class="n">iso_date</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">merge_people</span> <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">mep_id</span><span class="p">])</span>
+        <span class="n">notes</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;Merged </span><span class="si">%s</span><span class="s1"> on </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">iso_date</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">merge_people</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">person</span><span class="o">.</span><span class="n">mep_id</span><span class="p">])</span>
+        <span class="n">person</span><span class="o">.</span><span class="n">notes</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">note</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes</span> <span class="k">if</span> <span class="n">note</span><span class="p">)</span>
+
+        <span class="c1"># delete the now-obsolete person records</span>
+        <span class="n">merge_people</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="c1"># save any attribute changes</span>
+        <span class="n">person</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="Person"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person">[docs]</a><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Model for people in the MEP dataset&#39;&#39;&#39;</span>
+
+    <span class="c1">#: MEP xml id</span>
+    <span class="n">mep_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="s1">&#39;MEP id&#39;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Identifier from XML personography&#39;</span><span class="p">)</span>
+    <span class="c1">#: names (first middle last)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;&#39;&#39;Name as firstname lastname, firstname (birthname) married name,</span>
+<span class="s1">        or psuedonym (real name)&#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="c1">#: sort name; authorized name for people with VIAF</span>
+    <span class="n">sort_name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Sort name in lastname, firstname format; VIAF authorized name if available&#39;</span><span class="p">)</span>
+    <span class="c1">#: viaf identifiers</span>
+    <span class="n">viaf_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span><span class="s1">&#39;VIAF id&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Canonical VIAF URI for this person&#39;</span><span class="p">)</span>
+    <span class="c1">#: birth year</span>
+    <span class="n">birth_year</span> <span class="o">=</span> <span class="n">AliasIntegerField</span><span class="p">(</span><span class="n">db_column</span><span class="o">=</span><span class="s1">&#39;start_year&#39;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1">#: death year</span>
+    <span class="n">death_year</span> <span class="o">=</span> <span class="n">AliasIntegerField</span><span class="p">(</span><span class="n">db_column</span><span class="o">=</span><span class="s1">&#39;end_year&#39;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">MALE</span> <span class="o">=</span> <span class="s1">&#39;M&#39;</span>
+    <span class="n">FEMALE</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span>
+    <span class="n">SEX_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">FEMALE</span><span class="p">,</span> <span class="s1">&#39;Female&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MALE</span><span class="p">,</span> <span class="s1">&#39;Male&#39;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="c1">#: sex</span>
+    <span class="n">sex</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">SEX_CHOICES</span><span class="p">)</span>
+    <span class="c1">#: title</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+    <span class="c1">#: :class:`Profession`</span>
+    <span class="n">profession</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Profession</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1">#: nationalities, link to :class:`Country`</span>
+    <span class="n">nationalities</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Country</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1">#: relationships to other people, via :class:`Relationship`</span>
+    <span class="n">relations</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s1">&#39;self&#39;</span><span class="p">,</span>
+        <span class="n">through</span><span class="o">=</span><span class="s1">&#39;Relationship&#39;</span><span class="p">,</span>
+        <span class="n">symmetrical</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="c1">#: footnotes (:class:`~mep.footnotes.models.Footnote`)</span>
+    <span class="n">footnotes</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="n">Footnote</span><span class="p">)</span>
+
+    <span class="c1"># convenience access to associated locations, although</span>
+    <span class="c1"># we will probably use Address for most things</span>
+    <span class="n">locations</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Location</span><span class="p">,</span> <span class="n">through</span><span class="o">=</span><span class="s1">&#39;accounts.Address&#39;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">through_fields</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;person&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">))</span>
+
+    <span class="c1"># override default manager with customized version</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">PersonQuerySet</span><span class="o">.</span><span class="n">as_manager</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;Person </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;String representation; use sort name if available with fall back</span>
+<span class="sd">        to name&#39;&#39;&#39;</span>
+        <span class="c1"># if not sort name, return name with title in front</span>
+        <span class="c1"># NOTE: strip is there to grab extra space and comma if no title</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1"># if name sort_name and it&#39;s last, first, title goes after</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span>
+        <span class="c1"># otherwise, append it to the front for most natural format</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s1">&#39;people&#39;</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sort_name&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Person.save"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Adds birth and death dates if they aren&#39;t already set</span>
+<span class="sd">        and there&#39;s a viaf id for the record&#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">viaf_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">birth_year</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">death_year</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_birth_death_years</span><span class="p">()</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">viaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;:class:`viapy.api.ViafEntity` for this record if :attr:`viaf_id`</span>
+<span class="sd">        is set.&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">viaf_id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ViafEntity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viaf_id</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Person.set_birth_death_years"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.set_birth_death_years">[docs]</a>    <span class="k">def</span> <span class="nf">set_birth_death_years</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Set local birth and death dates based on information from VIAF&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">viaf_id</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">birth_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">viaf</span><span class="o">.</span><span class="n">birthyear</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">death_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">viaf</span><span class="o">.</span><span class="n">deathyear</span></div>
+
+<div class="viewcode-block" id="Person.list_nationalities"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.list_nationalities">[docs]</a>    <span class="k">def</span> <span class="nf">list_nationalities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return comma separated list of nationalities (if any) for :class:`Person` list_view.&#39;&#39;&#39;</span>
+        <span class="n">nationalities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nationalities</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nationalities</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">country</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="n">nationalities</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span></div>
+    <span class="n">list_nationalities</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;Nationalities&#39;</span>
+    <span class="n">list_nationalities</span><span class="o">.</span><span class="n">admin_order_field</span> <span class="o">=</span> <span class="s1">&#39;nationalities__name&#39;</span>
+
+<div class="viewcode-block" id="Person.address_count"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.address_count">[docs]</a>    <span class="k">def</span> <span class="nf">address_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Number of documented addresses for this person&#39;&#39;&#39;</span>
+        <span class="c1"># used in admin list view</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">address_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></div>
+    <span class="n">address_count</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;# Addresses&#39;</span>
+
+<div class="viewcode-block" id="Person.has_account"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.has_account">[docs]</a>    <span class="k">def</span> <span class="nf">has_account</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return whether an instance of :class:`mep.accounts.models.Account` exists for this person.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+    <span class="n">has_account</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="Person.in_logbooks"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.in_logbooks">[docs]</a>    <span class="k">def</span> <span class="nf">in_logbooks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;is there data for this person in the logbooks?&#39;&#39;&#39;</span>
+        <span class="c1"># based on presense of subscription or reimbursement event</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">event__subscription__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">event__reimbursement__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
+    <span class="n">in_logbooks</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="InfoURL"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.InfoURL">[docs]</a><span class="k">class</span> <span class="nc">InfoURL</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Informational urls (other than VIAF) associated with a :class:`Person`,</span>
+<span class="sd">    e.g. Wikipedia page.&#39;&#39;&#39;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span><span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;URL&#39;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Additional (non-VIAF) URLs for a person.&#39;</span><span class="p">)</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;urls&#39;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="s1">&#39;Informational URL&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;InfoURL </span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span></div>
+
+
+<div class="viewcode-block" id="RelationshipType"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.RelationshipType">[docs]</a><span class="k">class</span> <span class="nc">RelationshipType</span><span class="p">(</span><span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Types of relationships between one :class:`Person` and another&#39;&#39;&#39;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Relationship"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Relationship">[docs]</a><span class="k">class</span> <span class="nc">Relationship</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Through model for :class:`Person` to ``self``&#39;&#39;&#39;</span>
+    <span class="n">from_person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;from_relationships&#39;</span><span class="p">)</span>
+    <span class="n">to_person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;to_relationships&#39;</span><span class="p">)</span>
+    <span class="n">relationship_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">RelationshipType</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Custom method to produce a more human useable representation</span>
+<span class="sd">        than dict in this case</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;&lt;Relationship {&#39;from_person&#39;: &lt;Person </span><span class="si">%s</span><span class="s2">&gt;, &quot;</span>
+                <span class="s2">&quot;&#39;to_person&#39;: &lt;Person </span><span class="si">%s</span><span class="s2">&gt;, &#39;relationship_type&#39;: &quot;</span>
+                <span class="s2">&quot;&lt;RelationshipType </span><span class="si">%s</span><span class="s2">&gt;}&gt;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">from_person</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">to_person</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">relationship_type</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is a </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">from_person</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relationship_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">to_person</span><span class="o">.</span><span class="n">name</span>
+            <span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Mapping Expatriate Paris - Django</a></h1>
+
+
+
+<p class="blurb">Django web application for "Mapping Expatriate Paris" CDH project</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
