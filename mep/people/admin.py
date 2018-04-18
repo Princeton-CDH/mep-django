@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from viapy.widgets import ViafWidget
 
@@ -170,10 +171,13 @@ class PersonAdmin(admin.ModelAdmin):
         # NOTE: using selected ids from form and ignoring queryset
         # because this action is only meant for use with a few
         # people at a time
+
+        # Get any querystrings including filters, pickle them as a urlencoded
+        # string
+        request.session['people_merge_filter'] = urlencode(request.GET.items())
         selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
-        return HttpResponseRedirect('%s?ids=%s' % \
-                (reverse('people:merge'), ','.join(selected)),
-                status=303)   # 303 = See Other
+        redirect = '%s?ids=%s' % (reverse('people:merge'), ','.join(selected))
+        return HttpResponseRedirect(redirect, status=303)   # 303 = See Other
     merge_people.short_description = 'Merge selected people'
 
 

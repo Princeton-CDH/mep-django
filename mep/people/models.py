@@ -1,6 +1,7 @@
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models, transaction
+from django.utils import timezone
 from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
@@ -159,10 +160,14 @@ class PersonQuerySet(models.QuerySet):
         # consolidate notes and preserve any merged MEP ids
         # in case we need to find a record based on a deleted MEP id
         # (e.g. for card import)
+        # get current date to record when this merge happened
+        iso_date = timezone.now().strftime('%Y-%m-%d')
         notes = [person.notes]
         notes.extend([p.notes for p in merge_people])
-        notes.extend(['Merged MEP id %s' % person.mep_id for person in merge_people
-                      if person.mep_id])
+        notes.extend(['Merged MEP id %s on %s' % (person.mep_id, iso_date)
+                      for person in merge_people if person.mep_id])
+        notes.extend(['Merged %s on %s' % (person.name, iso_date)
+                      for person in merge_people if not person.mep_id])              
         person.notes = '\n'.join(note for note in notes if note)
 
         # delete the now-obsolete person records

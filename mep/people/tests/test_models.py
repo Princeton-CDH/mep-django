@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned, \
 from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 import pytest
 from viapy.api import ViafEntity
 
@@ -213,6 +214,14 @@ class TestPersonQuerySet(TestCase):
         # accounts associated with merged persons should be gone
         assert not Account.objects.filter(id=mr_jones_acct.id).exists()
 
+        # no mepids, but should still list that the merges occurred
+        # get the current date for the string - used below
+        iso_date = timezone.now().strftime('%Y-%m-%d')
+        assert main_person.notes
+        jones_str = 'Merged Jones on %s' % iso_date
+        # Jones will appear twice from being merged into Jonas
+        assert main_person.notes.count(jones_str) == 2
+
         # error on attempt to merge to person with multiple accounts
         second_acct = Account.objects.create()
         second_acct.persons.add(main_person)
@@ -244,7 +253,7 @@ class TestPersonQuerySet(TestCase):
         assert main.viaf_id == full.viaf_id
         assert main.profession == full.profession
         assert full.notes in main.notes
-        assert 'Merged MEP id %s' % full.mep_id in main.notes
+        assert 'Merged MEP id %s on %s' % (full.mep_id, iso_date) in main.notes
 
         # should _not_ copy over existing field values
         full2 = Person.objects.create(name='Jones',
@@ -258,7 +267,7 @@ class TestPersonQuerySet(TestCase):
         # notes should be appended
         assert full.notes in main.notes
         assert full2.notes in main.notes
-        assert 'Merged MEP id %s' % full2.mep_id in main.notes
+        assert 'Merged MEP id %s on %s' % (full2.mep_id, iso_date) in main.notes
 
         # many-to-many relationships should be shifted to merged person record
         related = Person.objects.create(name='Jonesy')
@@ -461,10 +470,30 @@ class TestPersonAdmin(TestCase):
     def test_merge_people(self):
         mockrequest = Mock()
         test_ids = ['5', '33', '101']
+        # a dictionary mimes the request pattern of access
+        mockrequest.session = {}
         mockrequest.POST.getlist.return_value = test_ids
+        # code uses the built in methods of a dict, so making GET an
+        # actual dict as it is for a request
+        mockrequest.GET = {}
         resp = PersonAdmin(Person, Mock()).merge_people(mockrequest, Mock())
         assert isinstance(resp, HttpResponseRedirect)
         assert resp.status_code == 303
         assert resp['location'].startswith(reverse('people:merge'))
         assert resp['location'].endswith('?ids=%s' % ','.join(test_ids))
-
+        # key should be set, but it should be an empty string
+        assert 'people_merge_filter' in mockrequest.session
+        assert not mockrequest.session['people_merge_filter']
+        # Now add some values to be set as a query string on session
+        mockrequest.GET = {'p': '3', 'filter': 'foo'}
+        resp = PersonAdmin(Person, Mock()).merge_people(mockrequest, Mock())
+        assert isinstance(resp, HttpResponseRedirect)
+        assert resp.status_code == 303
+        assert resp['location'].startswith(reverse('people:merge'))
+        assert resp['location'].endswith('?ids=%s' % ','.join(test_ids))
+        # key should be set and have a urlencoded string
+        assert 'people_merge_filter' in mockrequest.session
+        # test agnostic as to order since the querystring
+        # works either way
+        assert mockrequest.session['people_merge_filter'] in \
+            ['p=3&filter=foo', 'filter=foo&p=3']
