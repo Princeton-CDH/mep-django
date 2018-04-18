@@ -70,6 +70,7 @@ class Notable(models.Model):
         return ''.join([self.notes[:self.snippet_length],
                          ' ...' if len(self.notes) > self.snippet_length else ''])
     note_snippet.short_description = 'Notes'
+    note_snippet.admin_order_field = 'notes'
 
 
 class DateRange(models.Model):
