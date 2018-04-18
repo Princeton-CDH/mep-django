@@ -33,14 +33,11 @@ class Publisher(Named, Notable):
 class Item(Notable):
     '''Primary model for :mod:`books` module, also used for journals,
     and other media types.'''
-    mep_id = models.CharField(max_length=255, blank=True, unique=True)
+    mep_id = models.CharField(max_length=255, blank=True, unique=True, verbose_name='MEP ID')
     title = models.CharField(max_length=255, blank=True)
     volume = models.PositiveSmallIntegerField(blank=True, null=True)
     number = models.PositiveSmallIntegerField(blank=True, null=True)
-    year = models.PositiveSmallIntegerField(
-        blank=True,
-        null=True
-    )
+    year = models.PositiveSmallIntegerField(blank=True,null=True, verbose_name='Date of Publication')
     season = models.CharField(max_length=255, blank=True)
     edition = models.CharField(max_length=255, blank=True)
     viaf_id = models.URLField(blank=True)
@@ -48,7 +45,7 @@ class Item(Notable):
     # QUESTION: On the diagram these are labeled as FK, but they seem to imply
     # M2M (i.e. more than one publisher or more than one pub place?)
     publishers = models.ManyToManyField(Publisher, blank=True)
-    pub_places = models.ManyToManyField(PublisherPlace, blank=True)
+    pub_places = models.ManyToManyField(PublisherPlace, blank=True, verbose_name="Places of Publication")
 
     def __repr__(self):
         return '<Item %s>' % self.__dict__

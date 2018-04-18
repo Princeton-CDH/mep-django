@@ -16,8 +16,18 @@ class ItemAdmin(admin.ModelAdmin):
     list_display = ['mep_id', 'title', 'author_list', 'notes']
     inlines = [ItemCreatorInline]
     search_fields = ('mep_id', 'title', 'notes', 'creator__person__name')
-
-
+    fieldsets = (
+        ('Basic metadata', {
+            'fields': ('title', 'mep_id', 'year')
+        }),
+        ('Additional metadata', {
+            'fields': (
+                ('publishers', 'pub_places'),
+                ('volume'),
+                ('notes')
+            )
+        })  
+    )
 
 
 admin.site.register(Item, ItemAdmin)
