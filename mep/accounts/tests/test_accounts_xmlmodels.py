@@ -299,6 +299,7 @@ class TestBorrowingEvent(TestCase):
           <date ana="#checkedOut" when="1939-04-06">Apr 6</date>
            <bibl ana="#borrowedItem" corresp="mep:006866"><title>Poets Two Painters</title></bibl>
            <date ana="#returned" when="1939-04-13">Apr 13</date>
+           <note>2v pd.</note>
         </ab>'''
     tromolt = '''<ab xmlns="http://www.tei-c.org/ns/1.0"
         ana="#borrowingEvent">
@@ -369,6 +370,8 @@ class TestBorrowingEvent(TestCase):
         assert not db_borrow.item
         # currently returned unsaved
         assert not db_borrow.pk
+        # notes should be copied
+        assert db_borrow.notes == xmlevent.notes
 
         # create stub title record
         poets = Item.objects.create(mep_id='mep:006866', title="Poets Two Painters")
@@ -384,24 +387,28 @@ class TestBorrowingEvent(TestCase):
         assert 'Author: %s' % xmlevent.item.author in poets.notes
 
         # partial date, item with author
-        Toussaint = Item.objects.create(mep_id='mep:000j03',
+        Item.objects.create(mep_id='mep:000j03',
             title="Toussaint Louverture")
         xmlevent = xmlmap.load_xmlobject_from_string(self.partial_date,
             BorrowingEvent)
         db_borrow = xmlevent.to_db_event(account)
         assert db_borrow.start_date.year == 1956
         assert db_borrow.start_date.month == 1
+        # no notes
+        assert not db_borrow.notes
 
         xmlevent = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
         db_borrow = xmlevent.to_db_event(account)
         assert db_borrow.bought
+        # note should be copied from xml to database
+        assert db_borrow.notes == xmlevent.notes
+
 
         # 1900 dates -> year unknown
         xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
             BorrowingEvent)
         xmlevent.checked_out = datetime.date(1900, 5, 1)
         xmlevent.returned = datetime.date(1900, 6, 3)
-        print(xmlevent.serialize(pretty=True))
         db_borrow = xmlevent.to_db_event(account)
         # cast to DatePrecision to check flags
         assert not DatePrecision(db_borrow.start_date_precision).year

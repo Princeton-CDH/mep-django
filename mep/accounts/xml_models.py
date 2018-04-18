@@ -316,7 +316,8 @@ class BorrowingEvent(TeiXmlObject):
     def to_db_event(self, account):
         '''Generate a database :class:`~mep.accounts.models.Borrow` event
         for the current xml borrowing event.'''
-        borrow = Borrow(account=account, bought=self.bought)
+        borrow = Borrow(account=account, bought=self.bought,
+            notes=self.notes or '')
         # if either date cannot be parsed as a datetime, parse and set
         # as partial date using string value
         try:
