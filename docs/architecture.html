@@ -1,0 +1,246 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Architecture &#8212; Mapping Expatriate Paris - Django 0.5.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Code Documentation" href="codedocs.html" />
+    <link rel="prev" title="Mapping Expatriate Paris - Django documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="database">
+<h2>Database<a class="headerlink" href="#database" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="updates-and-changes">
+<h3>Updates and Changes<a class="headerlink" href="#updates-and-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="updates">
+<h4>0.3 Updates<a class="headerlink" href="#updates" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><strong>Address</strong> has been renamed to <strong>Location</strong>, and changed to allow <strong>Person</strong>
+and <strong>Account</strong> to have one or more <strong>Address</strong>, which is a Location
+with optional start/end dates.</li>
+<li><strong>Subscribe</strong> event has been renamed to <strong>Subscription</strong>; subscription type
+field has been converted from a Django choice field to the
+editable <strong>SubscriptionType</strong>.</li>
+<li>Subscription <strong>duration</strong> has been converted from months and fraction of months
+to the actual days between start and end dates.</li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h4>0.2 Updates<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p>The overall architectures of the schema remains the same, but several fields were
+made less restrictive to accommodate variation in the Logbook data. These include:</p>
+<ul class="simple">
+<li>Reimbursement price (now optional)</li>
+<li>Subscribe duration</li>
+<li>Options were provided for Subscribe sub_type fields, as well as for modification.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="database-diagrams">
+<h3>Database Diagrams<a class="headerlink" href="#database-diagrams" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Detail charts are generated with <a class="reference external" href="https://github.com/jabauer/DAVILA">DAVILA</a>.
+The <code class="docutils literal notranslate"><span class="pre">sphinx-docs</span></code> directory includes a <code class="docutils literal notranslate"><span class="pre">customize.csv</span></code> and MySQL dump
+that was used to generate the following schema diagrams.</p>
+</div>
+<div class="section" id="initial-schema-design-version-004">
+<h4>Initial Schema Design (Version 004)<a class="headerlink" href="#initial-schema-design-version-004" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/mep-schema-004.png"><img alt="MEP Schema Design 004" src="_images/mep-schema-004.png" /></a>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This does not include additional complexity of URLs for people records
+per 19 June 2017 project meeting.</p>
+</div>
+</div>
+<div class="section" id="database-overview-v0-3">
+<h4>Database Overview (v0.3)<a class="headerlink" href="#database-overview-v0-3" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/db-overview-v03.png"><img alt="MEP Schema Overview v0.3" src="_images/db-overview-v03.png" /></a>
+</div>
+<div class="section" id="person-detail-v0-3">
+<h4>Person detail (v0.3)<a class="headerlink" href="#person-detail-v0-3" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/db-people-v03.png"><img alt="MEP Schema - Person detail v0.3" src="_images/db-people-v03.png" /></a>
+</div>
+<div class="section" id="account-detail-v0-3">
+<h4>Account detail (v0.3)<a class="headerlink" href="#account-detail-v0-3" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/db-accounts-v03.png"><img alt="MEP Schema - Account detail v0.3" src="_images/db-accounts-v03.png" /></a>
+</div>
+<div class="section" id="book-detail-v0-3">
+<h4>Book detail (v0.3)<a class="headerlink" href="#book-detail-v0-3" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/db-books-v03.png"><img alt="MEP Schema - Book detail v0.3" src="_images/db-books-v03.png" /></a>
+</div>
+</div>
+<div class="section" id="previous-versions">
+<h3>Previous versions<a class="headerlink" href="#previous-versions" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="people-detail-0004">
+<h4>People Detail (0004)<a class="headerlink" href="#people-detail-0004" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/people-module-004.png"><img alt="People Module Detail" src="_images/people-module-004.png" /></a>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference internal" href="codedocs.html#mep.people.models.InfoURL" title="mep.people.models.InfoURL"><code class="xref py py-class docutils literal notranslate"><span class="pre">InfoURL</span></code></a> now includes a required <code class="docutils literal notranslate"><span class="pre">name</span></code> field</p>
+</div>
+</div>
+<div class="section" id="books-detail-0004">
+<h4>Books Detail (0004)<a class="headerlink" href="#books-detail-0004" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/books-module-004.png"><img alt="Books Module Detail" src="_images/books-module-004.png" /></a>
+</div>
+<div class="section" id="account-detail-0004">
+<h4>Account Detail (0004)<a class="headerlink" href="#account-detail-0004" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="_static/accounts-module-004.png"><img alt="Account Module Detail" src="_images/accounts-module-004.png" /></a>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Mapping Expatriate Paris - Django</a></h1>
+
+
+
+<p class="blurb">Django web application for "Mapping Expatriate Paris" CDH project</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Change Log</a></li>
+</ul>
+
+
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Architecture</a><ul>
+<li><a class="reference internal" href="#database">Database</a><ul>
+<li><a class="reference internal" href="#updates-and-changes">Updates and Changes</a><ul>
+<li><a class="reference internal" href="#updates">0.3 Updates</a></li>
+<li><a class="reference internal" href="#id1">0.2 Updates</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#database-diagrams">Database Diagrams</a><ul>
+<li><a class="reference internal" href="#initial-schema-design-version-004">Initial Schema Design (Version 004)</a></li>
+<li><a class="reference internal" href="#database-overview-v0-3">Database Overview (v0.3)</a></li>
+<li><a class="reference internal" href="#person-detail-v0-3">Person detail (v0.3)</a></li>
+<li><a class="reference internal" href="#account-detail-v0-3">Account detail (v0.3)</a></li>
+<li><a class="reference internal" href="#book-detail-v0-3">Book detail (v0.3)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#previous-versions">Previous versions</a><ul>
+<li><a class="reference internal" href="#people-detail-0004">People Detail (0004)</a></li>
+<li><a class="reference internal" href="#books-detail-0004">Books Detail (0004)</a></li>
+<li><a class="reference internal" href="#account-detail-0004">Account Detail (0004)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/architecture.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
