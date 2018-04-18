@@ -9,18 +9,20 @@ as the inline edit form.
 {% load admin_static i18n admin_modify admin_urls grp_tags %}
 
 {% block after_field_sets %}
-  {# display account subscription information to provide context for the person #}
+  {# display account subscription and reimbursement information to provide context for the person #}
   {% if original.account_set.exists %}
     {% for account in original.account_set.all %}
       <div class="inline-group grp-group grp-tabular">
         <h2 class="grp-collapse-handler"> {# link to account edit page #}
             <a href="{% url 'admin:accounts_account_change' account.id %}">{{ account }}</a></h2>
 
-        {% if account.subscription_set.exists %}
+        {% if account.subscription_set.exists or account.reimbursement_set.exists %}
          <div class="tabular inline-related grp-module grp-table">
             <div class="module grp-module grp-thead">
                 <div class="grp-tr">
-                    <div class="grp-th">Subscription Event</div>
+                    <div class="grp-th">Event Type/ Subtype</div>
+                    <div class="grp-th">Category</div>
+                    <div class="grp-th">Deposit/Refund</div>
                     <div class="grp-th">Dates</div>
                     <div class="grp-th">Notes</div>
                 </div>
@@ -30,7 +32,13 @@ as the inline edit form.
                 {% for subs in account.subscription_set.all %}
                   <div class="grp-tr">
                     <div class='grp-td'>
-                        {{ subs.get_subtype_display }}
+                      <a href="{% url 'admin:accounts_subscription_change' subs.id %}">{{ subs.get_subtype_display }}</a>
+                    </div>
+                    <div class='grp-td'>
+                      {{ subs.category }}
+                    </div>
+                    <div class='grp-td'>
+                        {{ subs.deposit }}
                     </div>
                     <div class="grp-td">
                         {{ subs.start_date }} - {{ subs.end_date|default:'' }}
@@ -38,11 +46,33 @@ as the inline edit form.
                     <div class='grp-td'>{{ subs.notes }}</div>
                 </div>
                 {% endfor %}
+                {% for reimb in account.reimbursement_set.all %}
+                  <div class="grp-tr">
+                    <div class='grp-td'>
+                      {# Reimbursements will always have the same type and None for Category #}
+                      <a href="{% url 'admin:accounts_reimbursement_change' reimb.id %}">Reimbursement</a>
+                    </div>
+                    <div class='grp-td'>
+                      None
+                    </div>
+                    <div class='grp-td'>
+                        {{ reimb.refund }}
+                    </div>
+                    <div class="grp-td">
+                        {{ reimb.date }}
+                    </div>
+                    <div class='grp-td'>{{ reim.notes }}</div>
+                </div>
+                {% endfor %}
             </div>
         </div>
         {% else %}
-        <div>No documented subscription events</div>
+        <div class="tabular inline-related grp-module grp-table">
+          No documented subscription or reimbursement events
+        </div>
         {% endif %}
+
+
     {% endfor %}
   </div>
 

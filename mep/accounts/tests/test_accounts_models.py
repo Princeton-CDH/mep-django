@@ -164,6 +164,30 @@ class TestAccount(TestCase):
         assert reimb not in subscriptions
         assert generic not in subscriptions
 
+    def test_reimbursement_set(self):
+        account = Account.objects.create()
+        assert isinstance(account.reimbursement_set, QuerySet)
+        assert not account.reimbursement_set.exists()
+
+        # add some events, including some that should not be in the queryset
+        reimb1 = Reimbursement.objects.create(account=account,
+            start_date=datetime.date(1943, 1, 1), end_date=None,
+            refund=12.00)
+        reimb2 = Reimbursement.objects.create(account=account,
+            start_date=datetime.date(1957, 1, 1), end_date=None, refund=15.00)
+        subs = Subscription.objects.create(account=account,
+            start_date=datetime.date(1943, 1, 1))
+        generic = Event.objects.create(account=account)
+        reimbursements = account.reimbursement_set.all()
+
+        # two reimbursements are includedm and they are the ones created
+        assert reimbursements.count() == 2
+        assert reimb1 in reimbursements
+        assert reimb2 in reimbursements
+        # a Subscription and generic Event are not
+        assert subs not in reimbursements
+        assert generic not in reimbursements
+
 
 class TestAddress(TestCase):
 

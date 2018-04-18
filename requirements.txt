@@ -5,7 +5,7 @@ cached_property
 pucas
 pendulum
 eulxml
-git+https://github.com/Princeton-CDH/viapy.git@0.1#egg=viapy
+viapy
 django-autocomplete-light
 python-dateutil
 # mezzanine from github required for django 1.11 compatibility; should be > 4.2.3
