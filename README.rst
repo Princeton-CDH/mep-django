@@ -29,6 +29,7 @@ Python 3.5 / Django 1.11
      :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=develop
      :alt: Requirements Status
 
+`Current release documentation <https://princeton-cdh.github.io/mep-django/>`_.
 
 Development instructions
 ------------------------
