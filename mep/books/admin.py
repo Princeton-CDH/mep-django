@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 
-from mep.books.models import Item, Creator
+from mep.books.models import Item, Creator, CreatorType
 from mep.common.admin import CollapsibleTabularInline
 from mep.accounts.admin import AUTOCOMPLETE
 
@@ -41,5 +41,10 @@ class ItemAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('mep_id',)
 
+class CreatorTypeAdmin(admin.ModelAdmin):
+    model = CreatorType
+    list_display = ('name', 'notes')
+
 
 admin.site.register(Item, ItemAdmin)
+admin.site.register(CreatorType, CreatorTypeAdmin)
