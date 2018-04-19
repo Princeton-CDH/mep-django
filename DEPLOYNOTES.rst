@@ -14,8 +14,8 @@ Deploy and Upgrade notes
 * Borrowing events should be imported from XML using the
   **import_cards** manage command. Card XML files are located in
   https://github.com/Princeton-CDH/mapping-expatriate-paris under
-  `transcriptions/cards/*/*.xml`. The command expects to be given
-  the base path to the card, and looks for all xml files nested under it.
+  `transcriptions/cards/`. The command expects to be given the cards
+  directory and will find all xml files under it, including in subdirectories.
 
 
 0.3 Data Entry Improvements
