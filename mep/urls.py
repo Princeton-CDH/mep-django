@@ -8,6 +8,7 @@ import mezzanine.urls
 
 from mep.people import urls as people_urls
 from mep.accounts import urls as accounts_urls
+from mep.books import urls as books_urls
 
 urlpatterns = [
     # for now, since there is not yet any public-facing site,
@@ -19,6 +20,7 @@ urlpatterns = [
     url(r'^viaf/', include('viapy.urls', namespace='viaf')),
     url(r'^', include(people_urls, namespace='people')),
     url(r'^', include(accounts_urls, namespace='accounts')),
+    url(r'^', include(books_urls, namespace='books')),
 
     # content pages managed by mezzanine
     url(r'^', include(mezzanine.urls))

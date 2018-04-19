@@ -2,12 +2,14 @@ import datetime
 import os
 
 from django.test import TestCase
+from eulxml import xmlmap
 
-from mep.accounts.xml_models import LogBook, Measure
+from mep.accounts.xml_models import LogBook, Measure, BorrowedItem, \
+    BorrowingEvent, LendingCard, BorrowedTitle, BorrowedTitles
 from mep.accounts.models import Event, Subscription, Reimbursement, Account, \
-    CurrencyMixin
+    CurrencyMixin, Borrow, DatePrecision
+from mep.books.models import Item
 from mep.people.models import Person
-
 
 
 FIXTURE_DIR = os.path.join(os.path.dirname(
@@ -268,3 +270,199 @@ class TestEvent(TestCase):
         monbrial.duration.unit = 'day'
         monbrial._normalize_dates()
         assert monbrial.common_dict['end_date'] == datetime.date(1921, 1, 12)
+
+
+class TestBorrowedItem(TestCase):
+
+    def test_fields(self):
+        # simple example, title only
+        item = xmlmap.load_xmlobject_from_string('''<bibl xmlns="http://www.tei-c.org/ns/1.0"
+            ana="#borrowedItem"><title>Poets Two Painters</title></bibl>''',
+            BorrowedItem)
+        assert item.title == 'Poets Two Painters'
+        assert not item.author
+        assert not item.mep_id
+
+        # full example with author and mep id
+        item = xmlmap.load_xmlobject_from_string('''<bibl xmlns="http://www.tei-c.org/ns/1.0"
+            corresp="mep:00018f"><title>Spider Boy</title> <author>C. Van Vechten</author></bibl>''',
+            BorrowedItem)
+        assert item.title == 'Spider Boy'
+        assert item.author == 'C. Van Vechten'
+        assert item.mep_id == 'mep:00018f'
+
+
+class TestBorrowingEvent(TestCase):
+
+    two_painters = '''<ab xmlns="http://www.tei-c.org/ns/1.0"
+        ana="#borrowingEvent">
+          <date ana="#checkedOut" when="1939-04-06">Apr 6</date>
+           <bibl ana="#borrowedItem" corresp="mep:006866"><title>Poets Two Painters</title></bibl>
+           <date ana="#returned" when="1939-04-13">Apr 13</date>
+           <note>2v pd.</note>
+        </ab>'''
+    tromolt = '''<ab xmlns="http://www.tei-c.org/ns/1.0"
+        ana="#borrowingEvent">
+            <date ana="#checkedOut" when="1934-02-10">Feb 10</date>
+            <del>
+                <bibl ana="#borrowedItem" corresp="mep:00jd71">
+                    <title>Wife of Steffan Tromholt</title>
+                    <biblScope unit="volume" from="1" to="2">2 vols</biblScope>
+                </bibl>
+            </del>
+        </ab>'''
+    partial_date = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+        <date ana="#checkedOut" when="1956-01">Jan</date>
+       <bibl ana="#borrowedItem" corresp="mep:000j03"> <title>Toussaint Louverture</title>, <author>Michel Vaucaire</author></bibl>
+       <date ana="#returned" when="1956-04-01"></date>
+    </ab>'''
+
+    bought = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+        <date ana="#checkedOut" when="1921-05-28">  </date>
+        <bibl ana="#borrowedItem" corresp="mep:000v26"><title>Blake</title>
+            (<publisher> "  </publisher>)</bibl>
+        <note>BB</note>
+    </ab>'''
+
+    def test_fields(self):
+        event = xmlmap.load_xmlobject_from_string(self.two_painters,
+            BorrowingEvent)
+
+        assert event.checked_out == datetime.date(1939, 4, 6)
+        assert event.returned == datetime.date(1939, 4, 13)
+        assert isinstance(event.item, BorrowedItem)
+        assert event.item.title == 'Poets Two Painters'
+        assert event.item.mep_id == 'mep:006866'
+
+        # bibl inside a <del>
+        event = xmlmap.load_xmlobject_from_string(self.tromolt, BorrowingEvent)
+        assert event.item.title == 'Wife of Steffan Tromholt'
+        # biblscope?
+
+        # notes
+        event = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
+        assert event.notes == 'BB'
+
+    def test_bought(self):
+        # no bought flag in notes
+        event = xmlmap.load_xmlobject_from_string(self.tromolt, BorrowingEvent)
+        assert event.bought is False
+
+        # bought flag in notes - variant one
+        event = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
+        assert event.bought
+
+        # variant text that should also be recognized
+        event.notes = 'bought book'
+        assert event.bought
+
+    def test_to_db_event(self):
+        xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
+            BorrowingEvent)
+        account = Account()
+        db_borrow = xmlevent.to_db_event(account)
+        assert isinstance(db_borrow, Borrow)
+        assert db_borrow.account == account
+        assert db_borrow.bought is False
+        assert db_borrow.start_date == xmlevent.checked_out
+        assert db_borrow.end_date == xmlevent.returned
+        # no item found - should be left blank
+        assert not db_borrow.item
+        # currently returned unsaved
+        assert not db_borrow.pk
+        # notes should be copied
+        assert db_borrow.notes == xmlevent.notes
+
+        # create stub title record
+        poets = Item.objects.create(mep_id='mep:006866', title="Poets Two Painters")
+        db_borrow = xmlevent.to_db_event(account)
+        # item should be associated
+        assert db_borrow.item == poets
+
+        # if author is in xml, should be added to item notes
+        xmlevent.item.author = 'Knud Merrild'
+        db_borrow = xmlevent.to_db_event(account)
+        # get a fresh copy of the item to check
+        poets = Item.objects.get(pk=poets.pk)
+        assert 'Author: %s' % xmlevent.item.author in poets.notes
+
+        # partial date, item with author
+        Item.objects.create(mep_id='mep:000j03',
+            title="Toussaint Louverture")
+        xmlevent = xmlmap.load_xmlobject_from_string(self.partial_date,
+            BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        assert db_borrow.start_date.year == 1956
+        assert db_borrow.start_date.month == 1
+        # no notes
+        assert not db_borrow.notes
+
+        xmlevent = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        assert db_borrow.bought
+        # note should be copied from xml to database
+        assert db_borrow.notes == xmlevent.notes
+
+
+        # 1900 dates -> year unknown
+        xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
+            BorrowingEvent)
+        xmlevent.checked_out = datetime.date(1900, 5, 1)
+        xmlevent.returned = datetime.date(1900, 6, 3)
+        db_borrow = xmlevent.to_db_event(account)
+        # cast to DatePrecision to check flags
+        assert not DatePrecision(db_borrow.start_date_precision).year
+        assert DatePrecision(db_borrow.start_date_precision).month
+        assert DatePrecision(db_borrow.start_date_precision).day
+        assert not DatePrecision(db_borrow.end_date_precision).year
+        assert DatePrecision(db_borrow.end_date_precision).month
+        assert DatePrecision(db_borrow.end_date_precision).day
+
+
+
+class TestLendingCard(TestCase):
+
+    def test_fields(self):
+        card = xmlmap.load_xmlobject_from_file(os.path.join(FIXTURE_DIR, 'sample-card.xml'),
+            LendingCard)
+        assert card.cardholders[0].name == 'Pauline Alderman'
+        assert card.cardholders[0].mep_id == 'alde.pa'
+        assert len(card.borrowing_events) == 18
+        assert isinstance(card.borrowing_events[0], BorrowingEvent)
+
+
+class TestBorrowedTitle(TestCase):
+
+    def test_title_fields(self):
+        item = xmlmap.load_xmlobject_from_string('''<row>
+        <titleid>mep:00006j</titleid>
+        <borrowerid>#alde.pa</borrowerid>
+        <borrower_name>Pauline Alderman</borrower_name>
+        <title>Midas' touch   </title>
+        <regularized_title>Midas Touch</regularized_title>
+    </row>''',
+            BorrowedTitle)
+        assert item.mep_id == 'mep:00006j'
+        assert item.title == 'Midas Touch'
+        assert item.unreg_title == "Midas' touch"
+
+    def test_title_list(self):
+        item_list = xmlmap.load_xmlobject_from_string('''<root>
+            <row>
+        <titleid>mep:00006j</titleid>
+        <borrowerid>#alde.pa</borrowerid>
+        <borrower_name>Pauline Alderman</borrower_name>
+        <title>Midas' touch</title>
+        <regularized_title>Midas Touch</regularized_title>
+    </row>
+    <row>
+        <titleid>mep:00071x</titleid>
+        <borrowerid>#bake</borrowerid>
+        <borrower_name>Mrs. Thornton Baker</borrower_name>
+        <title>Life of Oscar Wilde</title>
+        <regularized_title>Life of Oscar Wilde</regularized_title>
+    </row>
+    </root>''',
+            BorrowedTitles)
+        assert len(item_list.titles) == 2
+        assert isinstance(item_list.titles[0], BorrowedTitle)

@@ -9,7 +9,8 @@ from django.test import TestCase
 import pytest
 
 from mep.accounts.models import Account, Address, \
-    Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin
+    Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin, \
+    DatePrecisionField, DatePrecision
 from mep.books.models import Item
 from mep.people.models import Person, Location
 
@@ -271,6 +272,7 @@ class TestEvent(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
+        self.item = Item.objects.create(title='Selected poems')
         self.event = Event.objects.create(account=self.account)
 
     def test_repr(self):
@@ -311,13 +313,13 @@ class TestEvent(TestCase):
         assert reimbursement.event_ptr.event_type == 'Reimbursement'
 
         # borrow
-        borrow = Borrow.objects.create(account=self.account)
+        borrow = Borrow.objects.create(account=self.account, item=self.item)
         assert borrow.event_ptr.event_type == 'Borrow'
 
         # purchase
-        item = Item.objects.create()
-        borrow = Purchase.objects.create(account=self.account, item=item, price=5)
-        assert borrow.event_ptr.event_type == 'Purchase'
+        purchase = Purchase.objects.create(account=self.account,
+            item=self.item, price=5)
+        assert purchase.event_ptr.event_type == 'Purchase'
 
 
 class TestSubscription(TestCase):
@@ -588,12 +590,70 @@ class TestReimbursement(TestCase):
         assert not self.reimbursement.end_date
 
 
+class TestDatePrecisionField(TestCase):
+
+    def test_parse_date(self):
+        # year only
+        dateval, precision = DatePrecisionField.parse_date('1956')
+        assert dateval == datetime.date(1956, 1, 1)
+        assert precision == DatePrecision.year
+
+        # month only
+        dateval, precision = DatePrecisionField.parse_date('-03')
+        assert dateval == datetime.date(1, 3, 1)
+        assert precision == DatePrecision.month
+
+        # year month without day
+        dateval, precision = DatePrecisionField.parse_date('1901-05')
+        assert dateval == datetime.date(1901, 5, 1)
+        assert precision == DatePrecision.year | DatePrecision.month
+
+        # month and day without year
+        dateval, precision = DatePrecisionField.parse_date('-12-21')
+        assert dateval == datetime.date(1, 12, 21)
+        assert precision == DatePrecision.month | DatePrecision.day
+
+        # year month day should also work
+        dateval, precision = DatePrecisionField.parse_date('1844-10-22')
+        assert dateval == datetime.date(1844, 10, 22)
+        assert precision == DatePrecision.all_flags
+
+        # day only currently not supported
+        # year and day without month not supported
+
+        # unrecogized values / unsupported formats
+        with pytest.raises(ValidationError):
+            DatePrecisionField.parse_date('1932-')
+        with pytest.raises(ValidationError):
+            DatePrecisionField.parse_date('--04')
+        # month and day digits beyond recognized values
+        with pytest.raises(ValidationError):
+            DatePrecisionField.parse_date('1922-33-01')
+        with pytest.raises(ValidationError):
+            DatePrecisionField.parse_date('1522-01-44')
+
+    def test_date_format(self):
+        dpf = DatePrecisionField()
+        assert dpf.date_format(DatePrecision.all_flags) == '%Y-%m-%d'
+        assert dpf.date_format(DatePrecision.year) == '%Y'
+        assert dpf.date_format(DatePrecision.year | DatePrecision.month) \
+             == '%Y-%m'
+        assert dpf.date_format(DatePrecision.month | DatePrecision.day) \
+             == '--%m-%d'
+
+        # integer value, as stored in db
+        assert dpf.date_format(7) == '%Y-%m-%d'
+
+        # other combinations are currently ignored as unlikely
+
+
 class TestBorrow(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
+        self.item = Item.objects.create(title='Collected works')
         self.borrow = Borrow.objects.create(
-            account=self.account
+            account=self.account, item=self.item
         )
 
     def test_repr(self):
@@ -605,6 +665,33 @@ class TestBorrow(TestCase):
     def test_str(self):
         assert str(self.borrow) == ('Borrow for account #%s' %
                                     self.borrow.account.pk)
+
+    def test_set_partial_start_date(self):
+        self.borrow.set_partial_start_date('1940-12')
+        assert self.borrow.start_date == datetime.date(1940, 12, 1)
+        assert self.borrow.start_date_precision == \
+            DatePrecision.year | DatePrecision.month
+
+    def test_set_partial_end_date(self):
+        self.borrow.set_partial_end_date('1955')
+        assert self.borrow.end_date == datetime.date(1955, 1, 1)
+        assert self.borrow.end_date_precision == DatePrecision.year
+
+    def test_display_dates(self):
+        # should not error if date is not set
+        assert not self.borrow.display_start_date()
+        assert not self.borrow.display_end_date()
+        # full precision
+        self.borrow.start_date = datetime.date(1901, 3, 5)
+        self.borrow.end_date = datetime.date(1902, 4, 17)
+        assert self.borrow.display_start_date() == '1901-03-05'
+        assert self.borrow.display_end_date() == '1902-04-17'
+        # partial precision
+        self.borrow.start_date_precision = DatePrecision.year | DatePrecision.month
+        self.borrow.end_date_precision = DatePrecision.year
+        assert self.borrow.display_start_date() == '1901-03'
+        assert self.borrow.display_end_date() == '1902'
+
 
 
 class TestCurrencyMixin(TestCase):

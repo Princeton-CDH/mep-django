@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.core.validators import RegexValidator
 
 from mep.accounts.models import Account, Address, Subscription,\
-    Reimbursement, Event, SubscriptionType
+    Reimbursement, Event, SubscriptionType, Borrow
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 
 
@@ -37,6 +37,12 @@ AUTOCOMPLETE = {
     'location': autocomplete.ModelSelect2(url='people:location-autocomplete',
         attrs={
             'data-placeholder': 'Type to search for location... ',
+            'data-minimum-input-length': 3
+        }
+    ),
+    'item': autocomplete.ModelSelect2(url='books:item-autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for item... ',
             'data-minimum-input-length': 3
         }
     ),
@@ -258,9 +264,29 @@ class SubscriptionTypeAdmin(NamedNotableAdmin):
     list_display = ('name', 'notes')
 
 
+class BorrowAdminForm(forms.ModelForm):
+  class Meta:
+        model = Borrow
+        fields = ('__all__')
+        widgets = {
+            'account': AUTOCOMPLETE['account'],
+            'item': AUTOCOMPLETE['item']
+        }
+
+class BorrowAdmin(admin.ModelAdmin):
+    form = BorrowAdminForm
+    list_display = ('account', 'item', 'display_start_date', 'display_end_date',
+        'bought', 'note_snippet')
+    date_hierarchy = 'start_date'
+    search_fields = ('account__persons__name', 'account__persons__mep_id',
+        'notes', 'item__title', 'item__notes')
+    list_filter = ('bought',)
+
+
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Reimbursement, ReimbursementAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(SubscriptionType, SubscriptionTypeAdmin)
+admin.site.register(Borrow, BorrowAdmin)
 

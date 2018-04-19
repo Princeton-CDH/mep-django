@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import re
+import datetime
+
 from cached_property import cached_property
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
+from flags import Flags
 
 from mep.books.models import Item
 from mep.common.models import Named, Notable
@@ -385,17 +389,110 @@ class Subscription(Event, CurrencyMixin):
     readable_duration.admin_order_field = 'duration'
 
 
+class DatePrecision(Flags):
+    # flag class to indicate which date values are known
+    year = ()
+    month = ()
+    day = ()
+
+
+class DatePrecisionField(models.PositiveSmallIntegerField):
+
+    DATE_FORMATS = {
+        DatePrecision.year: '%Y',
+        DatePrecision.month: '%Y-%m',
+        DatePrecision.day: '%Y-%m-%d'
+    }
+
+    partial_date_re = re.compile(
+       r'^(?P<year>\d{4})?(?:-(?P<month>[01]\d))?(?:-(?P<day>[0-3]\d))?$'
+    )
+
+    def __init__(self, *args, **kwargs):
+        if 'default' not in kwargs:
+            # default is full precision
+            # NOTE: needs to be cast as int or it breaks django migrations
+            kwargs['default'] = int(DatePrecision.all_flags)
+        super(DatePrecisionField, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def parse_date(cls, value):
+        '''Parse a partial date string and return a :class:`datetime.date`
+        and precision value.'''
+        # partial date parsing adapted in part from django_partial_date
+        # https://github.com/ktowen/django_partial_date
+        match = cls.partial_date_re.match(value)
+        if match:
+            match_info = match.groupdict()
+
+            # turn matched values into numbers for initializing date object;
+            # default to 1 for any values not present
+            date_values = {k: int(v) if v else 1 for k, v in match_info.items()}
+
+            # determine known date parts based on regex match values
+            # and initialize pecision flags accordingly
+            date_parts = [key for key, val in match_info.items() if val]
+            precision = DatePrecision.from_simple_str('|'.join(date_parts))
+            return (datetime.date(**date_values), precision)
+
+        else:
+            raise ValidationError('%s is not a recognized partial date''' % value)
+
+    @classmethod
+    def date_format(cls, value):
+        '''Return a format string for use with :meth:`datetime.date.strftime`
+        to output a date with the appropriate precision'''
+        parts = []
+        # cast integer to date precision to check flags
+        value = DatePrecision(value)
+        if value.year:
+            parts.append('%Y')
+        else:
+            # if no year, indicate with --
+            parts.append('-')
+        if value.month:
+            parts.append('%m')
+        if value.day:
+            parts.append('%d')
+
+        # this is potentially ambiguous in some cases, but those cases
+        # may not be meaningful anywya
+        return '-'.join(parts)
+
+
 class Borrow(Event):
     '''Inherited table indicating borrow events'''
-    # NOTE: Renamed to avoid field conflict with the table inheritences
-    # The related_name should keep related queries consistently framed
-    purchase_id = models.ForeignKey(
-        'Purchase',
-        blank=True,
-        null=True,
-        verbose_name='purchase',
-        related_name='purchase'
-    )
+    #: :class:`~mep.books.models.Item` that was borrowed;
+    #: optional to account for unclear titles
+    item = models.ForeignKey(Item, null=True, blank=True)
+    start_date_precision = DatePrecisionField()
+    end_date_precision = DatePrecisionField()
+    bought = models.BooleanField(default=False,
+        help_text='Item was bought instead of returned')
+
+    def set_partial_start_date(self, value):
+        '''parse a partial date and set :attr:`start_date` and
+        :attr:`start_date_precision` accordingly'''
+        self.start_date, \
+            self.start_date_precision = DatePrecisionField.parse_date(value)
+
+    def set_partial_end_date(self, value):
+        '''parse a partial date and set :attr:`end_date` and
+        :attr:`end_date_precision` accordingly'''
+        self.end_date, \
+            self.end_date_precision = DatePrecisionField.parse_date(value)
+
+    def display_start_date(self):
+        if self.start_date:
+            return self.start_date.strftime(DatePrecisionField.date_format(self.start_date_precision))
+    display_start_date.short_description = 'start_date'
+    display_start_date.admin_order_field = 'start_date'
+
+    def display_end_date(self):
+        if self.end_date:
+            return self.end_date.strftime(DatePrecisionField.date_format(self.end_date_precision))
+    display_end_date.short_description = 'end_date'
+    display_end_date.admin_order_field = 'end_date'
 
 
 class Purchase(Event, CurrencyMixin):
