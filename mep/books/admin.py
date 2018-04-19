@@ -22,12 +22,12 @@ class ItemAdmin(admin.ModelAdmin):
         }),
         ('Additional metadata', {
             'fields': (
-                ('publishers', 'pub_places'),
-                ('volume'),
+                # ('publishers', 'pub_places'),
+                # ('volume'),
                 ('uri'),
                 ('notes')
             )
-        })  
+        })
     )
     readonly_fields = ('mep_id',)
 
