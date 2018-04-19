@@ -40,7 +40,7 @@ class Item(Notable):
     year = models.PositiveSmallIntegerField(blank=True,null=True, verbose_name='Date of Publication')
     season = models.CharField(max_length=255, blank=True)
     edition = models.CharField(max_length=255, blank=True)
-    viaf_id = models.URLField(blank=True)
+    uri = models.URLField(blank=True, verbose_name='URI', help_text="Linked data URI for this work")
 
     # QUESTION: On the diagram these are labeled as FK, but they seem to imply
     # M2M (i.e. more than one publisher or more than one pub place?)

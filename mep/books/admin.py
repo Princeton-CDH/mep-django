@@ -24,10 +24,12 @@ class ItemAdmin(admin.ModelAdmin):
             'fields': (
                 ('publishers', 'pub_places'),
                 ('volume'),
+                ('uri'),
                 ('notes')
             )
         })  
     )
+    readonly_fields = ('mep_id',)
 
 
 admin.site.register(Item, ItemAdmin)
