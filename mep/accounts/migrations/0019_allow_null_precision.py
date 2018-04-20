@@ -16,11 +16,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='borrow',
             name='end_date_precision',
-            field=mep.accounts.models.DatePrecisionField(default=7, null=True),
+            field=mep.accounts.models.DatePrecisionField(blank=True, null=True),
         ),
         migrations.AlterField(
             model_name='borrow',
             name='start_date_precision',
-            field=mep.accounts.models.DatePrecisionField(default=7, null=True),
+            field=mep.accounts.models.DatePrecisionField(blank=True, null=True),
         ),
     ]

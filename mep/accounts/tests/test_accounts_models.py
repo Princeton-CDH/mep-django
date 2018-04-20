@@ -662,6 +662,7 @@ class TestPartialDates(TestCase):
         assert pdo.partial_date is None
         # full precision
         pdo.date = datetime.date(1901, 3, 5)
+        pdo.date_precision = DatePrecision.year | DatePrecision.month | DatePrecision.day
         assert pdo.partial_date == '1901-03-05'
         # partial precision
         pdo.date_precision = DatePrecision.year | DatePrecision.month

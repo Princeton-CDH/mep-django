@@ -277,7 +277,8 @@ class BorrowAdminForm(forms.ModelForm):
 
     class Meta:
         model = Borrow
-        fields = ('__all__')
+        fields = ('account', 'item', 'partial_start_date', 'partial_end_date',
+            'notes')
         widgets = {
             'account': AUTOCOMPLETE['account'],
             'item': AUTOCOMPLETE['item']
@@ -288,11 +289,11 @@ class BorrowAdminForm(forms.ModelForm):
             return self.instance.partial_start_date
         if name == 'partial_end_date':
             return self.instance.partial_end_date
-        return super().get_initial_for_field(field, name)
+        return super(BorrowAdminForm, self).get_initial_for_field(field, name)
 
     def clean(self):
         '''Parse partial dates and save them on form submission.'''
-        cleaned_data = super().clean()
+        cleaned_data = super(BorrowAdminForm, self).clean()
         if not self.errors:
             self.instance.partial_start_date = cleaned_data['partial_start_date']
             self.instance.partial_end_date = cleaned_data['partial_end_date']

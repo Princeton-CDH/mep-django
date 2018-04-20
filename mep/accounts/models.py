@@ -401,9 +401,8 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
     def __init__(self, *args, **kwargs):
 
         if 'default' not in kwargs:
-            # default is full precision
-            # NOTE: needs to be cast as int or it breaks django migrations
-            kwargs['default'] = int(DatePrecision.all_flags)
+            # default is no precision
+            kwargs['default'] = None
 
         super(DatePrecisionField, self).__init__(*args, **kwargs)
 
@@ -496,8 +495,8 @@ class Borrow(Event):
     item = models.ForeignKey(Item, null=True, blank=True)
     bought = models.BooleanField(default=False,
         help_text='Item was bought instead of returned')
-    start_date_precision = DatePrecisionField(null=True)
-    end_date_precision = DatePrecisionField(null=True)
+    start_date_precision = DatePrecisionField(null=True, blank=True)
+    end_date_precision = DatePrecisionField(null=True, blank=True)
     unknown_year = 1900
     partial_start_date = PartialDate('start_date', 'start_date_precision', unknown_year)
     partial_end_date = PartialDate('end_date', 'end_date_precision', unknown_year)
