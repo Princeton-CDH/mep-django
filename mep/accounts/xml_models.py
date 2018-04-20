@@ -326,7 +326,7 @@ class BorrowingEvent(TeiXmlObject):
             if borrow.start_date and borrow.start_date.year == 1900:
                 borrow.start_date_precision = DatePrecision.month | DatePrecision.day
         except ValueError:
-            borrow.set_partial_start_date(self.checked_out_s)
+            borrow.partial_start_date = self.checked_out_s
 
         try:
             borrow.end_date = self.returned
@@ -334,7 +334,7 @@ class BorrowingEvent(TeiXmlObject):
             if borrow.end_date and borrow.end_date.year == 1900:
                 borrow.end_date_precision = DatePrecision.month | DatePrecision.day
         except ValueError:
-            borrow.set_partial_end_date(self.returned_s)
+            borrow.partial_end_date = self.returned_s
 
         # NOTE: some records have an unclear title or partially unclear title
         #  with no mep id for the item
