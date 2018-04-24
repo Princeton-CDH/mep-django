@@ -203,7 +203,10 @@ class Event(Notable):
     end_date = models.DateField(blank=True, null=True)
 
     class Meta:
-        ordering = ('start_date', 'account__persons__sort_name')
+        # NOTE: ordering events by account person seems to be very slow
+        # disabling for now
+        # ordering = ('start_date', 'account__persons__sort_name')
+        ordering = ('start_date', )
 
     # These provide generic string representation for the Event class
     # and its subclasses
@@ -407,6 +410,8 @@ class PartialDate(object):
     '''Descriptor that gets and sets a related :class:`datetime.date` and
     :class:`DatePrecision` from partial date strings, e.g. --05-02.'''
 
+    description = 'Partial date generated from date and date precision flags'
+
     partial_date_re = re.compile(
        r'^(?P<year>\d{4}|-)?(?:-(?P<month>[01]\d))?(?:-(?P<day>[0-3]\d))?$'
     )
@@ -498,12 +503,17 @@ class Borrow(Event):
         ('M', 'Missing'),
     )
     item_status = models.CharField(max_length=2, blank=True,
-        help_text='Status of borrowed item (bought, missing, returned)')
+        help_text='Status of borrowed item (bought, missing, returned)',
+        choices=STATUS_CHOICES)
     start_date_precision = DatePrecisionField(null=True, blank=True)
     end_date_precision = DatePrecisionField(null=True, blank=True)
     UNKNOWN_YEAR = 1900
     partial_start_date = PartialDate('start_date', 'start_date_precision', UNKNOWN_YEAR)
+    partial_start_date.short_description = 'start date'
+    partial_start_date.admin_order_field = 'start_date'
     partial_end_date = PartialDate('end_date', 'end_date_precision', UNKNOWN_YEAR)
+    partial_end_date.short_description = 'end date'
+    partial_end_date.admin_order_field = 'end_date'
 
 
 class Purchase(Event, CurrencyMixin):
