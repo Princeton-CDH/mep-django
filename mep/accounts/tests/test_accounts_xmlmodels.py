@@ -457,13 +457,13 @@ class TestBorrowingEvent(TestCase):
         xmlevent.checked_out = datetime.date(1900, 5, 1)
         xmlevent.returned = datetime.date(1900, 6, 3)
         db_borrow = xmlevent.to_db_event(account)
-        # cast to DatePrecision to check flags
-        assert not DatePrecision(db_borrow.start_date_precision).year
-        assert DatePrecision(db_borrow.start_date_precision).month
-        assert DatePrecision(db_borrow.start_date_precision).day
-        assert not DatePrecision(db_borrow.end_date_precision).year
-        assert DatePrecision(db_borrow.end_date_precision).month
-        assert DatePrecision(db_borrow.end_date_precision).day
+        # check DatePrecision flags
+        assert not db_borrow.start_date_precision.year
+        assert db_borrow.start_date_precision.month
+        assert db_borrow.start_date_precision.day
+        assert not db_borrow.end_date_precision.year
+        assert db_borrow.end_date_precision.month
+        assert db_borrow.end_date_precision.day
 
         # deleted text should be added to notes
         xmlevent = xmlmap.load_xmlobject_from_string(self.del_text,
