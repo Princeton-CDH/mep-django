@@ -303,11 +303,11 @@ class BorrowAdminForm(forms.ModelForm):
 class BorrowAdmin(admin.ModelAdmin):
     form = BorrowAdminForm
     list_display = ('account', 'item', 'partial_start_date', 'partial_end_date',
-        'bought', 'note_snippet')
+        'item_status', 'note_snippet')
     date_hierarchy = 'start_date'
     search_fields = ('account__persons__name', 'account__persons__mep_id',
         'notes', 'item__title', 'item__notes')
-    list_filter = ('bought',)
+    list_filter = ('item_status',)
     fields = (
         ('account', 'item'),
         ('partial_start_date', 'partial_end_date'),

@@ -428,7 +428,7 @@ class PartialDate(object):
             return date_val.strftime(self.date_format(date_precision_val))
 
     def __set__(self, obj, val):
-        '''Call :meth:`parse_date` to parse a partial date and set the 
+        '''Call :meth:`parse_date` to parse a partial date and set the
         :class:`datetime.date` and :class:`DatePrecision`. If a falsy value was
         passed, set them both to None.'''
         (date_val, date_precision_val) = self.parse_date(val) if val else (None, None)
@@ -492,8 +492,13 @@ class Borrow(Event):
     #: :class:`~mep.books.models.Item` that was borrowed;
     #: optional to account for unclear titles
     item = models.ForeignKey(Item, null=True, blank=True)
-    bought = models.BooleanField(default=False,
-        help_text='Item was bought instead of returned')
+    STATUS_CHOICES = (
+        ('R', 'Returned'),
+        ('B', 'Bought'),
+        ('M', 'Missing'),
+    )
+    item_status = models.CharField(max_length=2, blank=True,
+        help_text='Status of borrowed item (bought, missing, returned)')
     start_date_precision = DatePrecisionField(null=True, blank=True)
     end_date_precision = DatePrecisionField(null=True, blank=True)
     UNKNOWN_YEAR = 1900
