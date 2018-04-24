@@ -307,11 +307,21 @@ class BorrowingEvent(TeiXmlObject):
     item = xmlmap.NodeField('.//t:bibl[@ana="#borrowedItem"]', BorrowedItem)
     notes = xmlmap.StringField('t:note')
 
+    #: terms in notes that indicate a book was bought
+    bought_terms = ['BB', 'B B', 'B.B.', 'bought', 'Bought', 'to buy']
+
     @property
     def bought(self):
-        '''item was bought - based on 'BB' or 'bought' in note text'''
+        '''item was bought, based text note ('BB', 'bought', 'to buy', etc)'''
         # NOTE: should this also check for no returned date?
-        return bool(self.notes) and ('BB' in self.notes or 'bought' in self.notes)
+        # other variants
+        # "B.B." "B B" "to buy", "Bought"
+        return bool(self.notes) and \
+            any([bought in self.notes for bought in self.bought_terms])
+
+    # TODO: check for returned also
+    # return : no return date but marked as returned
+    # return, returned, back
 
     def to_db_event(self, account):
         '''Generate a database :class:`~mep.accounts.models.Borrow` event

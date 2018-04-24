@@ -352,8 +352,16 @@ class TestBorrowingEvent(TestCase):
         event = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
         assert event.bought
 
-        # variant text that should also be recognized
+        # variant texts that should also be recognized
         event.notes = 'bought book'
+        assert event.bought
+        event.notes = 'BB'
+        assert event.bought
+        event.notes = 'B B'
+        assert event.bought
+        event.notes = 'B.B.'
+        assert event.bought
+        event.notes = 'to buy'
         assert event.bought
 
     def test_to_db_event(self):
