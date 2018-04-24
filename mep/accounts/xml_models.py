@@ -318,23 +318,14 @@ class BorrowingEvent(TeiXmlObject):
         for the current xml borrowing event.'''
         borrow = Borrow(account=account, bought=self.bought,
             notes=self.notes or '')
-        # if either date cannot be parsed as a datetime, parse and set
-        # as partial date using string value
-        try:
-            borrow.start_date = self.checked_out
-            # special case: 1900 means year unknown
-            if borrow.start_date and borrow.start_date.year == 1900:
-                borrow.start_date_precision = DatePrecision.month | DatePrecision.day
-        except ValueError:
-            borrow.set_partial_start_date(self.checked_out_s)
-
-        try:
-            borrow.end_date = self.returned
-            # same special case: 1900 means year unknown
-            if borrow.end_date and borrow.end_date.year == 1900:
-                borrow.end_date_precision = DatePrecision.month | DatePrecision.day
-        except ValueError:
-            borrow.set_partial_end_date(self.returned_s)
+        # always use the descriptors so we can set date and precision if it's partial
+        borrow.partial_start_date = self.checked_out_s
+        borrow.partial_end_date = self.returned_s
+        # if 1900 was passed, count it as an unknown year
+        if borrow.start_date and borrow.start_date.year == 1900:
+            borrow.start_date_precision = DatePrecision.month | DatePrecision.day
+        if borrow.end_date and borrow.end_date.year == 1900:
+            borrow.end_date_precision = DatePrecision.month | DatePrecision.day
 
         # NOTE: some records have an unclear title or partially unclear title
         #  with no mep id for the item
