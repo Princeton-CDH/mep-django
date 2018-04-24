@@ -369,8 +369,8 @@ class TestBorrowingEvent(TestCase):
         event = xmlmap.load_xmlobject_from_string(self.two_painters,
             BorrowingEvent)
 
-        assert event.checked_out == datetime.date(1939, 4, 6)
-        assert event.returned == datetime.date(1939, 4, 13)
+        assert event.checked_out == '1939-04-06'
+        assert event.returned == '1939-04-13'
         assert isinstance(event.item, BorrowedItem)
         assert event.item.title == 'Poets Two Painters'
         assert event.item.mep_id == 'mep:006866'
@@ -415,8 +415,8 @@ class TestBorrowingEvent(TestCase):
         assert isinstance(db_borrow, Borrow)
         assert db_borrow.account == account
         assert db_borrow.bought is False
-        assert db_borrow.start_date == xmlevent.checked_out
-        assert db_borrow.end_date == xmlevent.returned
+        assert db_borrow.start_date.isoformat() == xmlevent.checked_out
+        assert db_borrow.end_date.isoformat() == xmlevent.returned
         # currently returned unsaved
         assert not db_borrow.pk
         # notes should be copied

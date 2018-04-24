@@ -307,10 +307,10 @@ class BorrowedItem(TeiXmlObject):
 
 class BorrowingEvent(TeiXmlObject):
     '''a record of a borrowing event; item with check out and return date'''
-    checked_out = xmlmap.DateField('t:date[@ana="#checkedOut"]/@when')
-    checked_out_s = xmlmap.StringField('t:date[@ana="#checkedOut"]/@when')
-    returned = xmlmap.DateField('t:date[@ana="#returned"]/@when')
-    returned_s = xmlmap.StringField('t:date[@ana="#returned"]/@when')
+    # NOTE: mapping dates as string instead of DateTime because
+    # they are not always complete; date parsing handled by PartialDate
+    checked_out = xmlmap.StringField('t:date[@ana="#checkedOut"]/@when')
+    returned = xmlmap.StringField('t:date[@ana="#returned"]/@when')
     # bibl could be directly in the event <ab> tag _or_ within a <del>
     item = xmlmap.NodeField('.//t:bibl[@ana="#borrowedItem"]', BorrowedItem)
     notes = xmlmap.StringField('t:note')
@@ -342,10 +342,10 @@ class BorrowingEvent(TeiXmlObject):
         for the current xml borrowing event.'''
 
         borrow = Borrow(account=account, bought=self.bought)
-        # always use the descriptors so we can set date and precision if it's partial
-        borrow.partial_start_date = self.checked_out_s
-        borrow.partial_end_date = self.returned_s
-        # if 1900 was passed, count it as an unknown year
+        # use partial date to parse the date and determine certainty
+        borrow.partial_start_date = self.checked_out
+        borrow.partial_end_date = self.returned
+        # if year is set to 1900, it should be considered year unknown
         if borrow.start_date and borrow.start_date.year == 1900:
             borrow.start_date_precision = DatePrecision.month | DatePrecision.day
         if borrow.end_date and borrow.end_date.year == 1900:
