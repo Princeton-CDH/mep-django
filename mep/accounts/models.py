@@ -497,10 +497,13 @@ class Borrow(Event):
     #: :class:`~mep.books.models.Item` that was borrowed;
     #: optional to account for unclear titles
     item = models.ForeignKey(Item, null=True, blank=True)
+    ITEM_RETURNED = 'R'
+    ITEM_BOUGHT = 'B'
+    ITEM_MISSING = 'M'
     STATUS_CHOICES = (
-        ('R', 'Returned'),
-        ('B', 'Bought'),
-        ('M', 'Missing'),
+        (ITEM_RETURNED, 'Returned'),
+        (ITEM_BOUGHT, 'Bought'),
+        (ITEM_MISSING, 'Missing'),
     )
     item_status = models.CharField(max_length=2, blank=True,
         help_text='Status of borrowed item (bought, missing, returned)',

@@ -321,17 +321,14 @@ class BorrowingEvent(TeiXmlObject):
     extra_dates = xmlmap.NodeListField('t:date[not(@ana="#returned" or @ana="#checkedOut")]',
         TeiXmlObject)
 
-    #: terms in notes that indicate a book was bought
-    bought_terms = ['BB', 'B B', 'B.B.', 'bought', 'Bought', 'to buy']
-
     @property
     def bought(self):
-        '''item was bought, based text note ('BB', 'bought', 'to buy', etc)'''
-        # NOTE: should this also check for no returned date?
-        # other variants
-        # "B.B." "B B" "to buy", "Bought"
+        '''item was bought, based on text note ('BB', 'bought', 'to buy', etc)'''
+
+        #list of known terms in notes that indicate a book was bought
+        bought_terms = ['BB', 'B B', 'B.B.', 'bought', 'Bought', 'to buy']
         return bool(self.notes) and \
-            any([bought in self.notes for bought in self.bought_terms])
+            any([bought in self.notes for bought in bought_terms])
 
     # TODO: check for returned also
     # return : no return date but marked as returned
@@ -341,7 +338,7 @@ class BorrowingEvent(TeiXmlObject):
         '''Generate a database :class:`~mep.accounts.models.Borrow` event
         for the current xml borrowing event.'''
 
-        borrow = Borrow(account=account, bought=self.bought)
+        borrow = Borrow(account=account)
         # use partial date to parse the date and determine certainty
         borrow.partial_start_date = self.checked_out
         borrow.partial_end_date = self.returned
@@ -350,6 +347,15 @@ class BorrowingEvent(TeiXmlObject):
             borrow.start_date_precision = DatePrecision.month | DatePrecision.day
         if borrow.end_date and borrow.end_date.year == 1900:
             borrow.end_date_precision = DatePrecision.month | DatePrecision.day
+
+        # set item status if possible
+        # if there is a return date, item was returned
+        if self.returned:
+            borrow.item_status = Borrow.ITEM_RETURNED
+        else:
+            # set status to bought if the notes indicate it was
+            if self.bought:
+                borrow.item_status = Borrow.ITEM_BOUGHT
 
         # NOTE: some records have an unclear title or partially unclear title
         #  with no mep id for the item

@@ -414,7 +414,7 @@ class TestBorrowingEvent(TestCase):
         db_borrow = xmlevent.to_db_event(account)
         assert isinstance(db_borrow, Borrow)
         assert db_borrow.account == account
-        assert db_borrow.bought is False
+        assert db_borrow.item_status == Borrow.ITEM_RETURNED
         assert db_borrow.start_date.isoformat() == xmlevent.checked_out
         assert db_borrow.end_date.isoformat() == xmlevent.returned
         # currently returned unsaved
@@ -444,7 +444,7 @@ class TestBorrowingEvent(TestCase):
 
         xmlevent = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
         db_borrow = xmlevent.to_db_event(account)
-        assert db_borrow.bought
+        assert db_borrow.item_status == Borrow.ITEM_BOUGHT
         # note should be copied from xml to database
         assert db_borrow.notes == xmlevent.notes
         # no item found - stub should automatically be created
