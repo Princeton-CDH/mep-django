@@ -307,6 +307,12 @@ class BorrowingEvent(TeiXmlObject):
     item = xmlmap.NodeField('.//t:bibl[@ana="#borrowedItem"]', BorrowedItem)
     notes = xmlmap.StringField('t:note')
 
+    #: crossed out text within the borrowing event
+    deletions = xmlmap.NodeListField('t:del', TeiXmlObject)
+    #: dates that aren't tagged as checked out or returned
+    extra_dates = xmlmap.NodeListField('t:date[not(@ana="#returned" or @ana="#checkedOut")]',
+        TeiXmlObject)
+
     #: terms in notes that indicate a book was bought
     bought_terms = ['BB', 'B B', 'B.B.', 'bought', 'Bought', 'to buy']
 
@@ -326,8 +332,8 @@ class BorrowingEvent(TeiXmlObject):
     def to_db_event(self, account):
         '''Generate a database :class:`~mep.accounts.models.Borrow` event
         for the current xml borrowing event.'''
-        borrow = Borrow(account=account, bought=self.bought,
-            notes=self.notes or '')
+
+        borrow = Borrow(account=account, bought=self.bought)
         # always use the descriptors so we can set date and precision if it's partial
         borrow.partial_start_date = self.checked_out_s
         borrow.partial_end_date = self.returned_s
@@ -353,6 +359,20 @@ class BorrowingEvent(TeiXmlObject):
                 if self.item.author not in borrow.item.notes:
                     borrow.item.notes += 'Author: %s' % self.item.author
                     borrow.item.save()
+
+        # gather information to be included in notes
+        notes = []
+        # include text inside <note> tag in the xml
+        if self.notes:
+            notes.append(self.notes)
+        # include xml for any <del> tags
+        for deleted_text in self.deletions:
+            notes.append(deleted_text.serialize(pretty=True).decode('utf-8'))
+        # untagged dates (could be a missed return date or similar)
+        for extra_date in self.extra_dates:
+            notes.append(extra_date.serialize(pretty=True).decode('utf-8'))
+
+        borrow.notes = '\n'.join(notes)
 
         return borrow
 

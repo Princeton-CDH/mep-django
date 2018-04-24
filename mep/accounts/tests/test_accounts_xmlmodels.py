@@ -324,6 +324,26 @@ class TestBorrowingEvent(TestCase):
         <note>BB</note>
     </ab>'''
 
+    del_text = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+        <date ana="#checkedOut" when="1936-02-12">Feb. 12.</date>
+        <del>
+         <bibl corresp="mep:000r7x">Wast</bibl>
+      </del>
+        <bibl ana="#borrowedItem" corresp="mep:000r6m">
+            <title>How to Read</title>
+        </bibl>
+        <note>... 2.50. Pd.</note>
+        <date ana="#returned" when="1936-03-07">March 7</date>
+      </ab>'''
+
+    extra_dates = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+        (<bibl ana="#borrowedItem" corresp="mep:000b97">
+            <title>Holy Mountain</title>
+         </bibl>
+         <date when="1938-02-11">Feb 11 1938</date>)
+      <date when="1938-12-27">Dec 27</date>
+      </ab>'''
+
     def test_fields(self):
         event = xmlmap.load_xmlobject_from_string(self.two_painters,
             BorrowingEvent)
@@ -366,7 +386,7 @@ class TestBorrowingEvent(TestCase):
 
     def test_to_db_event(self):
         xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
-            BorrowingEvent)
+                                                     BorrowingEvent)
         account = Account()
         db_borrow = xmlevent.to_db_event(account)
         assert isinstance(db_borrow, Borrow)
@@ -411,7 +431,6 @@ class TestBorrowingEvent(TestCase):
         # note should be copied from xml to database
         assert db_borrow.notes == xmlevent.notes
 
-
         # 1900 dates -> year unknown
         xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
             BorrowingEvent)
@@ -426,6 +445,21 @@ class TestBorrowingEvent(TestCase):
         assert DatePrecision(db_borrow.end_date_precision).month
         assert DatePrecision(db_borrow.end_date_precision).day
 
+        # deleted text should be added to notes
+        xmlevent = xmlmap.load_xmlobject_from_string(self.del_text,
+            BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        assert db_borrow.notes.startswith(xmlevent.notes)
+        assert '<del' in db_borrow.notes
+        assert '<bibl corresp="mep:000r7x">Wast</bibl>' in db_borrow.notes
+
+        # extra dates should be added to notes
+        xmlevent = xmlmap.load_xmlobject_from_string(self.extra_dates,
+            BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        # serialize preserves namespace
+        assert '<date xmlns="http://www.tei-c.org/ns/1.0" when="1938-02-11">Feb 11 1938</date>' in db_borrow.notes
+        assert '<date xmlns="http://www.tei-c.org/ns/1.0" when="1938-12-27">Dec 27</date>' in db_borrow.notes
 
 
 class TestLendingCard(TestCase):
