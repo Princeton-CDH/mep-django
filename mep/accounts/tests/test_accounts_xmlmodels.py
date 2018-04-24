@@ -344,6 +344,27 @@ class TestBorrowingEvent(TestCase):
       <date when="1938-12-27">Dec 27</date>
       </ab>'''
 
+    bibl_pub_date = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+          <date ana="#checkedOut" when="1947-02-20"/>
+          <bibl ana="#borrowedItem" corresp="mep:00mz7x">
+            <title>Early Memories: some chapters of autobiography</title>
+            <author>W.B. Yeats</author>
+            <publisher>Cuala Press</publisher>
+            <date when="1923">1923</date>
+          </bibl>
+          <date ana="#returned" when="1947-03-29">"</date>
+        </ab>'''
+
+    biblscope = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+          <date ana="#checkedOut" when="1947-02-20">Feb 20</date>
+          <bibl ana="#borrowedItem" corresp="mep:002h1m">
+            <title>Hound &amp; Horn</title>
+            <biblScope unit="number">(Henry James No</biblScope>
+            <biblScope unit="issue">April - May 1934</biblScope>
+          </bibl>
+          <date ana="#returned" when="1947-03-29">March 29</date>
+        </ab>'''
+
     def test_fields(self):
         event = xmlmap.load_xmlobject_from_string(self.two_painters,
             BorrowingEvent)
@@ -388,23 +409,19 @@ class TestBorrowingEvent(TestCase):
         xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
                                                      BorrowingEvent)
         account = Account()
+        # create stub title record - should be used if present
+        poets = Item.objects.create(mep_id='mep:006866', title="Poets Two Painters")
         db_borrow = xmlevent.to_db_event(account)
         assert isinstance(db_borrow, Borrow)
         assert db_borrow.account == account
         assert db_borrow.bought is False
         assert db_borrow.start_date == xmlevent.checked_out
         assert db_borrow.end_date == xmlevent.returned
-        # no item found - should be left blank
-        assert not db_borrow.item
         # currently returned unsaved
         assert not db_borrow.pk
         # notes should be copied
         assert db_borrow.notes == xmlevent.notes
-
-        # create stub title record
-        poets = Item.objects.create(mep_id='mep:006866', title="Poets Two Painters")
-        db_borrow = xmlevent.to_db_event(account)
-        # item should be associated
+        # should be associated with existing item
         assert db_borrow.item == poets
 
         # if author is in xml, should be added to item notes
@@ -430,6 +447,9 @@ class TestBorrowingEvent(TestCase):
         assert db_borrow.bought
         # note should be copied from xml to database
         assert db_borrow.notes == xmlevent.notes
+        # no item found - stub should automatically be created
+        assert db_borrow.item
+        assert db_borrow.item.title == xmlevent.item.title
 
         # 1900 dates -> year unknown
         xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
@@ -460,6 +480,21 @@ class TestBorrowingEvent(TestCase):
         # serialize preserves namespace
         assert '<date xmlns="http://www.tei-c.org/ns/1.0" when="1938-02-11">Feb 11 1938</date>' in db_borrow.notes
         assert '<date xmlns="http://www.tei-c.org/ns/1.0" when="1938-12-27">Dec 27</date>' in db_borrow.notes
+
+        # bibliographic data added to notes
+        xmlevent = xmlmap.load_xmlobject_from_string(self.bibl_pub_date,
+            BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        assert 'Author: %s' % xmlevent.item.author in db_borrow.item.notes
+        assert 'Publisher: %s' % xmlevent.item.publisher in db_borrow.item.notes
+        assert 'Date: %s' % xmlevent.item.date in db_borrow.item.notes
+
+        # biblscope data added to notes
+        xmlevent = xmlmap.load_xmlobject_from_string(self.biblscope,
+            BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        assert 'number (Henry James No' in db_borrow.item.notes
+        assert 'issue April - May 1934' in db_borrow.item.notes
 
 
 class TestLendingCard(TestCase):

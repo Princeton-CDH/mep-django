@@ -290,11 +290,19 @@ class LogBook(TeiXmlObject):
 
 ## lending cards and borrowing events
 
+class BibliographicScope(TeiXmlObject):
+    unit = xmlmap.StringField('@unit')
+    text = xmlmap.StringField('text()')
+
+
 class BorrowedItem(TeiXmlObject):
     '''an item within a borrowing event; may just have a title'''
     title = xmlmap.StringField('t:title')
     author = xmlmap.StringField('t:author')
     mep_id = xmlmap.StringField('@corresp')
+    publisher = xmlmap.StringField('t:publisher')
+    date = xmlmap.StringField('t:date')
+    scope_list = xmlmap.NodeListField('t:biblScope', BibliographicScope)
 
 
 class BorrowingEvent(TeiXmlObject):
@@ -347,20 +355,34 @@ class BorrowingEvent(TeiXmlObject):
         #  with no mep id for the item
         if self.item.mep_id:
             # find item that was borrowed
-            # *should* already exist from regularized title import
-            try:
-                borrow.item = Item.objects.get(mep_id=self.item.mep_id)
-            except Item.DoesNotExist:
-                print('Failed to find item with MEP id %s' % self.item.mep_id)
+            # *should* already exist from regularized title import;
+            # if item does not exist, create a new stub record
+            borrow.item, created = Item.objects.get_or_create(mep_id=self.item.mep_id)
+            if created:
+                borrow.item.title = self.item.title
 
-            # if author name is present, document it in item note
-            # to support future book title data work
-            if borrow.item and self.item.author:
-                if self.item.author not in borrow.item.notes:
-                    borrow.item.notes += 'Author: %s' % self.item.author
-                    borrow.item.save()
+            bibl_info = []
+            # if bibliographic details are present, document them in the item note
+            # to support book title data work
+            if self.item.author and self.item.author not in borrow.item.notes:
+                bibl_info.append('Author: %s' % self.item.author)
+            if self.item.publisher and self.item.publisher not in borrow.item.notes:
+                bibl_info.append('Publisher: %s' % self.item.publisher)
+            if self.item.date and self.item.date not in borrow.item.notes:
+                bibl_info.append('Date: %s' % self.item.date)
+            # TODO: might want to put volume/issue on borrowing event rather than item
+            for bibl_scope in self.item.scope_list:
+                # e.g. number/issue and any text...
+                bibl_info.append('%s %s' % (bibl_scope.unit, bibl_scope.text))
 
-        # gather information to be included in notes
+            if bibl_info:
+                borrow.item.notes += '\n'.join(bibl_info)
+
+            # save the item if it is new or notes were added
+            if bibl_info or created:
+                borrow.item.save()
+
+        # gather information to be included in borrowing events notes
         notes = []
         # include text inside <note> tag in the xml
         if self.notes:
