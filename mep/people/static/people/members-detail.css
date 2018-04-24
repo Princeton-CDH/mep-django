@@ -1,0 +1,45 @@
+.address-list .item > * {
+    float: left;
+    margin-right: 3rem;
+}
+
+.personography .container section {
+    margin-right: 6rem;
+}
+
+.placeholder {
+    background-color: #ddd;
+    width: 100%;
+}
+
+.map .placeholder {
+    height: 200px;
+}
+
+.visualization .placeholder {
+    height: 600px;
+}
+
+.address-list {
+    margin-top: 2rem;
+}
+
+.basics dl {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 30px;
+}
+
+.basics dl dd {
+    margin-left: 0;
+}
+
+.books-borrowed .buttons {
+    margin: 1rem auto;
+}
+
+.cards-display {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 30px;
+}

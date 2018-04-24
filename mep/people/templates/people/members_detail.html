@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'people/members-detail.css' %}" />
+{% endblock %}
+
+{% block js %}
+<script src="https://semantic-ui.com/javascript/library/tablesort.js"></script>
+<script src="{% static 'people/members-detail.js' %}"></script>
+{% endblock %}
+
+{% block page-context-id %}members-detail{% endblock %}
+
+{% block page_title %}{{ object }}{% endblock %}
+{% block page_subtitle %}- Shakespeare and Company Project -{% endblock %}
+
+{% block content %}
+<div class="ui centered container">
+    <div class="ui top attached three item tabular menu">
+        <div class="active item" data-tab="personography">Personography</div>
+        <div class="item" data-tab="books-borrowed">Books Borrowed</div>
+        <div class="item" data-tab="lending-cards">Lending Cards</div>
+    </div>
+    {% include 'people/snippets/personography.html' %}
+    {% include 'people/snippets/books_borrowed.html' %}
+    {% include 'people/snippets/lending_cards.html' %}
+</div>
+{% endblock %}

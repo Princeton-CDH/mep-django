@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'people/members-list.css' %}" />
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'people/members-list.js' %}"></script>
+{% endblock %}
+
+{% block page-context-id %}members-list{% endblock %}
+
+{% block page_title %}Members{% endblock %}
+
+{% block page_header_filters %}
+<div class="ui centered grid container">
+    <div class="twelve wide column">
+        <form class="members-search ui form">
+            <div class="field">
+                <input class="query" placeholder="Search lending library member" type="text">
+            </div>
+            <div class="inline fields">
+                <div class="subscription-years field">
+                    <label>Subscription Years</label>
+                    <span>1919</span>
+                    <span>to</span>
+                    <span>1941</span>
+                </div>
+                <div class="books-borrowed field">
+                    <label>Books Borrowed</label>
+                    <i class="dropdown icon"></i>
+                </div>
+                <div class="demographics field">
+                    <label>Demographics</label>
+                    <i class="dropdown icon"></i>
+                </div>
+                <div class="card-members field">
+                    <label>Members with Card</label>
+                    <span>100</span>
+                </div>
+                <div class="featured-members field">
+                    <label>Featured Members</label>
+                    <span>50</span>
+                </div>
+            </div>
+            <section class="filters hidden">
+                <div class="demographics ui stackable grid">
+                    <div class="nationality six wide column field">
+                        <label>Nationality</label>
+                        <div class="ui grid">
+                            <div class="item"><span>American</span><span class="count">23</span></div>
+                        </div>
+                    </div>
+                    <div class="profession three wide column field">
+                        <label>Profession</label>
+                        <div class="ui grid">
+                            <div class="item"><span>Author</span><span class="count">23</span></div>
+                        </div>
+                    </div>
+                    <div class="arrondissement four wide column field">
+                        <label>Arrondissement</label>
+                        <div class="ui grid">
+                            <div class="item"><span>1st R</span><span class="count">23</span></div>
+                            <div class="item"><span>2nd R</span><span class="count">23</span></div>
+                            <div class="item"><span>3rd R</span><span class="count">23</span></div>
+                            <div class="item"><span>4th R</span><span class="count">23</span></div>
+                            <div class="item"><span>5th L</span><span class="count">23</span></div>
+                            <div class="item"><span>6th L</span><span class="count">23</span></div>
+                            <div class="item"><span>7th L</span><span class="count">23</span></div>
+                            <div class="item"><span>8th R</span><span class="count">23</span></div>
+                            <div class="item"><span>9th R</span><span class="count">23</span></div>
+                            <div class="item"><span>10th R</span><span class="count">23</span></div>
+                            <div class="item"><span>11th R</span><span class="count">23</span></div>
+                            <div class="item"><span>12th R</span><span class="count">23</span></div>
+                            <div class="item"><span>13th L</span><span class="count">23</span></div>
+                            <div class="item"><span>14th L</span><span class="count">23</span></div>
+                            <div class="item"><span>15th L</span><span class="count">23</span></div>
+                            <div class="item"><span>16th R</span><span class="count">23</span></div>
+                            <div class="item"><span>17th R</span><span class="count">23</span></div>
+                            <div class="item"><span>18th R</span><span class="count">23</span></div>
+                            <div class="item"><span>19th R</span><span class="count">23</span></div>
+                            <div class="item"><span>20th R</span><span class="count">23</span></div>
+                        </div>
+                    </div>
+                    <div class="three wide column">
+                        <div class="row field">
+                            <label>Birth Year</label>
+                            <span>1919</span>
+                            <span>to</span>
+                            <span>1941</span>
+                        </div>
+                        <div class="row field">
+                            <label>Sex</label>
+                            <div class="item"><span>Male</span><span class="count">23</span></div>
+                            <div class="item"><span>Female</span><span class="count">23</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="rolodex ui link list">
+        {% for letter in alphabet %}
+            <a class="item">{{ letter }}</a>
+        {% endfor %}
+    </div>
+    <div class="ui centered grid container">
+        <div class="row">
+            <div class="active-filters">
+                <label>Selected</label>
+                <span>Clear All</span>
+            </div>
+        </div>
+        <div class="row">
+            <h4 class="results-count ui header">Showing {{ object_list|length }} members</h4>
+        </div>
+        <div class="row">
+            <div class="five wide column">
+                <div class="results ui huge relaxed link list">
+                    {% for member in object_list %}
+                        <a class="item" href="{% url 'people:detail' pk=member.pk %}">{{ member }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
