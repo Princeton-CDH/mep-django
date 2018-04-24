@@ -269,7 +269,8 @@ class BorrowAdminForm(forms.ModelForm):
         regex=PartialDate.partial_date_re,
         message="Value is not a recognized date."
     )
-    partial_date_help_text = "Enter any of the forms: yyyy, yyyy-mm, yyyy-mm-dd, --mm-dd"
+    partial_date_help_text = "Enter as much of the date as known, in any of the \
+        following formats: yyyy, yyyy-mm, yyyy-mm-dd, --mm-dd"
     partial_start_date = forms.CharField(validators=[partial_date_validator],
         required=False, help_text=partial_date_help_text, label="Start date")
     partial_end_date = forms.CharField(validators=[partial_date_validator],

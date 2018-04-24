@@ -390,23 +390,22 @@ class Subscription(Event, CurrencyMixin):
 
 
 class DatePrecision(Flags):
-    # flag class to indicate which date values are known
+    '''Flag class to indicate which parts of a date are known.'''
     year = ()
     month = ()
     day = ()
 
 
 class DatePrecisionField(models.PositiveSmallIntegerField):
+    '''Integer representation of a :class:`DatePrecision`.'''
+    description = 'Integer representation of DatePrecision flags.'
 
-    def __init__(self, *args, **kwargs):
-
-        if 'default' not in kwargs:
-            # default is no precision
-            kwargs['default'] = None
-
-        super(DatePrecisionField, self).__init__(*args, **kwargs)
+    def to_python(self, value):
+        return DatePrecision(value) if value else None
 
 class PartialDate(object):
+    '''Descriptor that gets and sets a related :class:`datetime.date` and
+    :class:`DatePrecision` from partial date strings, e.g. --05-02.'''
 
     partial_date_re = re.compile(
        r'^(?P<year>\d{4}|-)?(?:-(?P<month>[01]\d))?(?:-(?P<day>[0-3]\d))?$'
@@ -497,9 +496,9 @@ class Borrow(Event):
         help_text='Item was bought instead of returned')
     start_date_precision = DatePrecisionField(null=True, blank=True)
     end_date_precision = DatePrecisionField(null=True, blank=True)
-    unknown_year = 1900
-    partial_start_date = PartialDate('start_date', 'start_date_precision', unknown_year)
-    partial_end_date = PartialDate('end_date', 'end_date_precision', unknown_year)
+    UNKNOWN_YEAR = 1900
+    partial_start_date = PartialDate('start_date', 'start_date_precision', UNKNOWN_YEAR)
+    partial_end_date = PartialDate('end_date', 'end_date_precision', UNKNOWN_YEAR)
 
 
 class Purchase(Event, CurrencyMixin):

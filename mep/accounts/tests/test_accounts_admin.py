@@ -87,50 +87,64 @@ class TestBorrowAdminForm(TestCase):
         acct = Account.objects.create()
         acct.save()
         borrow = Borrow(account=acct)
-        # valid cases
+
+        #
+        # valid partial date forms
+        #
+        # yyyy-mm-dd (full precision)
         form_data = {
             'partial_start_date': '1901-05-03',
             'account': acct.id
         }
         form = BorrowAdminForm(form_data, instance=borrow)
         assert form.is_valid()
+        # yyyy-mm (year and month)
         form_data = {
             'partial_start_date': '1901-05',
             'account': acct.id
         }
         form = BorrowAdminForm(form_data, instance=borrow)
         assert form.is_valid()
+        # yyyy (year only)
         form_data = {
             'partial_start_date': '1901',
             'account': acct.id
         }
         form = BorrowAdminForm(form_data, instance=borrow)
         assert form.is_valid()
+        # --mm--dd (month and day)
         form_data = {
             'partial_start_date': '--05-03',
             'account': acct.id
         }
         form = BorrowAdminForm(form_data, instance=borrow)
         assert form.is_valid()
+        # empty string (clear the date)
         form_data = {
             'partial_start_date': '',
             'account': acct.id
         }
         form = BorrowAdminForm(form_data, instance=borrow)
         assert form.is_valid()
-        # invalid cases
+
+        #
+        # invalid forms
+        #
+        # some other type of string
         form_data = {
             'partial_start_date': 'definitely_not_a_date',
             'account': acct.id
         }
         form = BorrowAdminForm(form_data, instance=borrow)
         assert not form.is_valid()
+        # yyyy--dd (year and day)
         form_data = {
             'partial_start_date': '1901--03',
             'account': acct.id
         }
         form = BorrowAdminForm(form_data, instance=borrow)
         assert not form.is_valid()
+        # dd or mm (month or day only)
         form_data = {
             'partial_start_date': '05',
             'account': acct.id
@@ -142,20 +156,21 @@ class TestBorrowAdminForm(TestCase):
         acct = Account.objects.create()
         acct.save()
         borrow = Borrow(account=acct)
-        # shouldn't have any stored values for dates or precision
+        # a newly created borrow should have None for all date values
         assert borrow.start_date is None
         assert borrow.end_date is None
         assert borrow.start_date_precision is None
         assert borrow.end_date_precision is None
+        # fill out some valid partial dates for start and end
         form_data = {
-            'partial_start_date': '1901-05-03',
-            'partial_end_date': '--05-03',
+            'partial_start_date': '1901-05-03', # yyyy-mm-dd (full precision)
+            'partial_end_date': '--05-03', # --mm--dd (month and day)
             'account': acct.id
         }
         form = BorrowAdminForm(form_data, instance=borrow)
         assert form.is_valid()
         form.clean()
-        # dates and precision should get set through the descriptor
+        # dates and precision should get correctly set through the descriptor
         assert borrow.start_date == datetime.date(1901, 5, 3)
         assert borrow.start_date_precision == DatePrecision.year | DatePrecision.month | DatePrecision.day
         assert borrow.end_date == datetime.date(1900, 5, 3)
