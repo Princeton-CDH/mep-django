@@ -77,15 +77,26 @@ class Command(BaseCommand):
                     stats['skipped'] += 1
                     continue
 
-            # iterate through borrowing events and associate with the acount
-            for xml_borrow in lcard.borrowing_events:
-                try:
-                    xml_borrow.to_db_event(account).save()
-                    stats['borrow_created'] += 1
-                except ValueError as verr:
-                    # TODO: handle partial dates
-                    # (skip for now)
-                    print(verr)
+            expected = len(lcard.borrowing_events)
+            current = stats['borrow_created']
+            # iterate through card pages (sides)
+            for page in lcard.pages:
+                # maybe only use page name when there are multiple cardholders?
+                # print(page.facsimile_id)
+                # print(lcard.image_path(page.facsimile_id))
+                # then iterate through borrowing events and associate with the acount
+                for xml_borrow in page.borrowing_events:
+                    try:
+                        xml_borrow.to_db_event(account).save()
+                        stats['borrow_created'] += 1
+                    except ValueError as verr:
+                        # TODO: handle partial dates
+                        # (skip for now)
+                        print(verr)
+
+            if stats['borrow_created'] - current != expected:
+                self.stdout.write(self.style.WARNING('Borrowing event mismatch for %s; expected %d but only got %d' \
+                    % (card_file, expected, stats['borrow_created'] - current)))
 
             # skip after processing max number
             # NOTE: could add configurable max records option for testing
