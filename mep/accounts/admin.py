@@ -328,6 +328,12 @@ class BorrowAdmin(admin.ModelAdmin):
         ('notes')
     )
 
+    class Media:
+        js = ['admin/borrow-admin-list.js']
+        css = {
+            'all': ['admin/borrow-admin-list.css']
+        }
+
     def get_changelist_form(self, request, **kwargs):
         # override the default changelist edit form in order to customize
         # widget for editing item status

@@ -1,0 +1,6 @@
+@media(min-width: 1024px) {
+    /* display radio buttons inline on large screens */
+    .grp-row ul li {
+        display: inline-block;
+    }
+}
