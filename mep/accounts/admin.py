@@ -278,11 +278,12 @@ class BorrowAdminForm(forms.ModelForm):
 
     class Meta:
         model = Borrow
-        fields = ('account', 'item', 'partial_start_date', 'partial_end_date',
-            'notes')
+        fields = ('account', 'item', 'item_status', 'partial_start_date',
+            'partial_end_date', 'notes')
         widgets = {
             'account': AUTOCOMPLETE['account'],
-            'item': AUTOCOMPLETE['item']
+            'item': AUTOCOMPLETE['item'],
+            'item_status' : forms.RadioSelect
         }
 
     def get_initial_for_field(self, field, name):
@@ -300,6 +301,17 @@ class BorrowAdminForm(forms.ModelForm):
             self.instance.partial_end_date = cleaned_data['partial_end_date']
             return cleaned_data
 
+class BorrowAdminListForm(forms.ModelForm):
+    # custom form for list-editable item status on borrow list
+
+    class Meta:
+        model = Borrow
+        exclude = []
+        widgets = {
+            'item_status' : forms.RadioSelect
+        }
+
+
 class BorrowAdmin(admin.ModelAdmin):
     form = BorrowAdminForm
     list_display = ('account', 'item', 'partial_start_date', 'partial_end_date',
@@ -310,10 +322,19 @@ class BorrowAdmin(admin.ModelAdmin):
     list_filter = ('item_status',)
     list_editable = ('item_status',)
     fields = (
-        ('account', 'item'),
+        'account',
+        ('item', 'item_status'),
         ('partial_start_date', 'partial_end_date'),
         ('notes')
     )
+
+    def get_changelist_form(self, request, **kwargs):
+        # override the default changelist edit form in order to customize
+        # widget for editing item status
+        kwargs.setdefault('form', BorrowAdminListForm)
+        return super(BorrowAdmin, self).get_changelist_form(request, **kwargs)
+
+
 
 
 admin.site.register(Subscription, SubscriptionAdmin)
