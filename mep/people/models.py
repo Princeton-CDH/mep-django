@@ -198,6 +198,10 @@ class Person(Notable, DateRange):
     #: death year
     death_year = AliasIntegerField(db_column='end_year',
         blank=True, null=True)
+    #: flag to indicate organization instead of person
+    is_organization = models.BooleanField(default=False,
+        help_text='Mark as true to indicate this is an organization')
+
 
     MALE = 'M'
     FEMALE = 'F'

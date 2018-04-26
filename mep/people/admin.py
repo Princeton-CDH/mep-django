@@ -150,7 +150,7 @@ class PersonAdmin(admin.ModelAdmin):
         'sex', 'profession', 'nationalities', 'notes')
     readonly_fields = ('mep_id', 'in_logbooks')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
-    list_filter = ('sex', 'profession', 'nationalities')
+    list_filter = ('sex', 'profession', 'nationalities', 'is_organization')
     # Note: moving relationships to last for adjacency to list of relationships
     # *to* this person included in the template
     inlines = [InfoURLInline, PersonAddressInline, FootnoteInline, RelationshipInline]

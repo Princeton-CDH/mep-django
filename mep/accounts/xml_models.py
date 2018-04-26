@@ -430,8 +430,8 @@ class LendingCardSide(TeiXmlObject):
 class LendingCard(TeiXmlObject):
 
     # use person element with card holder role to identify card holder
-    # could be multiple
-    cardholders = xmlmap.NodeListField('//t:person[@role="cardholder"]',
+    # could be multiple; allow for organization as well as person
+    cardholders = xmlmap.NodeListField('//t:person[@role="cardholder"]|//t:org[@role="cardholder"]',
         Cardholder)
 
     # all borrowing events anywhere in the document
