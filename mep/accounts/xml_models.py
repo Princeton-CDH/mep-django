@@ -330,9 +330,12 @@ class BorrowingEvent(TeiXmlObject):
         return bool(self.notes) and \
             any([bought in self.notes for bought in bought_terms])
 
-    # TODO: check for returned also
-    # return : no return date but marked as returned
-    # return, returned, back
+    @property
+    def returned(self):
+        '''notes indicate item was returned even though there is no return date'''
+        return_terms = ['return', 'returned', 'back']
+        return bool(self.notes) and \
+            any([ret in self.notes for ret in return_terms])
 
     def to_db_event(self, account):
         '''Generate a database :class:`~mep.accounts.models.Borrow` event
@@ -353,9 +356,11 @@ class BorrowingEvent(TeiXmlObject):
         if self.returned:
             borrow.item_status = Borrow.ITEM_RETURNED
         else:
-            # set status to bought if the notes indicate it was
+            # set status to bought or returned if the notes indicate it
             if self.bought:
                 borrow.item_status = Borrow.ITEM_BOUGHT
+            elif self.returned:
+                borrow.item_status = Borrow.ITEM_RETURNED
 
         # NOTE: some records have an unclear title or partially unclear title
         #  with no mep id for the item
@@ -364,30 +369,33 @@ class BorrowingEvent(TeiXmlObject):
             # *should* already exist from regularized title import;
             # if item does not exist, create a new stub record
             borrow.item, created = Item.objects.get_or_create(mep_id=self.item.mep_id)
-            if created:
-                # a few borrowing events have an author and no title
-                borrow.item.title = self.item.title or '[no title]'
 
-            # if bibliographic details are present, document them in the item note
-            # to support book title data work
-            bibl_info = []
-            if self.item.author and self.item.author not in borrow.item.notes:
-                bibl_info.append('Author: %s' % self.item.author)
-            if self.item.publisher and self.item.publisher not in borrow.item.notes:
-                bibl_info.append('Publisher: %s' % self.item.publisher)
-            if self.item.date and self.item.date not in borrow.item.notes:
-                bibl_info.append('Date: %s' % self.item.date)
-            # TODO: might want to put volume/issue on borrowing event rather than item
-            for bibl_scope in self.item.scope_list:
-                # e.g. number/issue and any text...
-                bibl_info.append('%s %s' % (bibl_scope.unit, bibl_scope.text))
+        # if no mep id, we still want to create a stub record
+        else:
+            borrow.item = Item.objects.create()
+            created = True
 
-            if bibl_info:
-                borrow.item.notes += '\n'.join(bibl_info)
+        # if item was newly created, set the title
+        if created:
+            # some borrowing events have an author and no title
+            borrow.item.title = self.item.title or '[no title]'
 
-            # save the item if it is new or notes were added
-            if bibl_info or created:
-                borrow.item.save()
+        # if bibliographic details are present, document them in the item note
+        # to support book title data work
+        bibl_info = []
+        if self.item.author and self.item.author not in borrow.item.notes:
+            bibl_info.append('Author: %s' % self.item.author)
+        if self.item.publisher and self.item.publisher not in borrow.item.notes:
+            bibl_info.append('Publisher: %s' % self.item.publisher)
+        if self.item.date and self.item.date not in borrow.item.notes:
+            bibl_info.append('Date: %s' % self.item.date)
+
+        if bibl_info:
+            borrow.item.notes += '\n'.join(bibl_info)
+
+        # save the item if it is new or notes were added
+        if bibl_info or created:
+            borrow.item.save()
 
         # gather information to be included in borrowing events notes
         notes = []
@@ -400,6 +408,12 @@ class BorrowingEvent(TeiXmlObject):
         # untagged dates (could be a missed return date or similar)
         for extra_date in self.extra_dates:
             notes.append(extra_date.serialize(pretty=True).decode('utf-8'))
+
+        # bibliographic scope seems to be particular to this borrowing
+        # event rather than the title, so adding here
+        for bibl_scope in self.item.scope_list:
+            # e.g. number/issue and any text...
+            notes.append('%s %s' % (bibl_scope.unit, bibl_scope.text))
 
         borrow.notes = '\n'.join(notes)
 
