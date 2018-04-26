@@ -5,9 +5,9 @@ from django.test import TestCase
 from eulxml import xmlmap
 
 from mep.accounts.xml_models import LogBook, Measure, BorrowedItem, \
-    BorrowingEvent, LendingCard, BorrowedTitle, BorrowedTitles
+    BorrowingEvent, LendingCard, BorrowedTitle, BorrowedTitles, BorrowedItemTitle
 from mep.accounts.models import Event, Subscription, Reimbursement, Account, \
-    CurrencyMixin, Borrow, DatePrecision
+    CurrencyMixin, Borrow
 from mep.books.models import Item
 from mep.people.models import Person
 
@@ -279,7 +279,7 @@ class TestBorrowedItem(TestCase):
         item = xmlmap.load_xmlobject_from_string('''<bibl xmlns="http://www.tei-c.org/ns/1.0"
             ana="#borrowedItem"><title>Poets Two Painters</title></bibl>''',
             BorrowedItem)
-        assert item.title == 'Poets Two Painters'
+        assert str(item.title) == 'Poets Two Painters'
         assert not item.author
         assert not item.mep_id
 
@@ -287,9 +287,48 @@ class TestBorrowedItem(TestCase):
         item = xmlmap.load_xmlobject_from_string('''<bibl xmlns="http://www.tei-c.org/ns/1.0"
             corresp="mep:00018f"><title>Spider Boy</title> <author>C. Van Vechten</author></bibl>''',
             BorrowedItem)
-        assert item.title == 'Spider Boy'
+        assert str(item.title) == 'Spider Boy'
         assert item.author == 'C. Van Vechten'
         assert item.mep_id == 'mep:00018f'
+
+
+class TestBorrowedItemTitle(TestCase):
+
+    text_title = '<title>Poets Two Painters</title>'
+    unclear_title = '<title xmlns="http://www.tei-c.org/ns/1.0"><unclear/></title>'
+    partially_unclear = '<title xmlns="http://www.tei-c.org/ns/1.0"><unclear/> of Man</title>'
+
+    def test_str(self):
+        # text only
+        title = xmlmap.load_xmlobject_from_string(self.text_title,
+            BorrowedItemTitle)
+        assert str(title) == 'Poets Two Painters'
+
+        # totally unclear
+        title = xmlmap.load_xmlobject_from_string(self.unclear_title,
+            BorrowedItemTitle)
+        assert str(title) == '[unclear]'
+
+        # partially unclear
+        title = xmlmap.load_xmlobject_from_string(self.partially_unclear,
+            BorrowedItemTitle)
+        assert str(title) == '[unclear] of Man'
+
+    def test_unclear(self):
+        # text only
+        title = xmlmap.load_xmlobject_from_string(self.text_title,
+            BorrowedItemTitle)
+        assert not title.is_unclear
+
+        # totally unclear
+        title = xmlmap.load_xmlobject_from_string(self.unclear_title,
+            BorrowedItemTitle)
+        assert title.is_unclear
+
+        # partially unclear
+        title = xmlmap.load_xmlobject_from_string(self.partially_unclear,
+            BorrowedItemTitle)
+        assert title.is_unclear
 
 
 class TestBorrowingEvent(TestCase):
@@ -372,12 +411,12 @@ class TestBorrowingEvent(TestCase):
         assert event.checked_out == '1939-04-06'
         assert event.returned == '1939-04-13'
         assert isinstance(event.item, BorrowedItem)
-        assert event.item.title == 'Poets Two Painters'
+        assert str(event.item.title) == 'Poets Two Painters'
         assert event.item.mep_id == 'mep:006866'
 
         # bibl inside a <del>
         event = xmlmap.load_xmlobject_from_string(self.tromolt, BorrowingEvent)
-        assert event.item.title == 'Wife of Steffan Tromholt'
+        assert str(event.item.title) == 'Wife of Steffan Tromholt'
         # biblscope?
 
         # notes
@@ -489,12 +528,12 @@ class TestBorrowingEvent(TestCase):
         assert 'Publisher: %s' % xmlevent.item.publisher in db_borrow.item.notes
         assert 'Date: %s' % xmlevent.item.date in db_borrow.item.notes
 
-        # biblscope data added to notes
+        # biblscope data added to borrowing event notes (not item)
         xmlevent = xmlmap.load_xmlobject_from_string(self.biblscope,
             BorrowingEvent)
         db_borrow = xmlevent.to_db_event(account)
-        assert 'number (Henry James No' in db_borrow.item.notes
-        assert 'issue April - May 1934' in db_borrow.item.notes
+        assert 'number (Henry James No' in db_borrow.notes
+        assert 'issue April - May 1934' in db_borrow.notes
 
 
 class TestLendingCard(TestCase):

@@ -53,7 +53,6 @@ class Item(Notable):
     publishers = models.ManyToManyField(Publisher, blank=True)
     pub_places = models.ManyToManyField(PublisherPlace, blank=True, verbose_name="Places of Publication")
 
-
     def save(self, *args, **kwargs):
         # override save to ensure mep ID is None rather than empty string
         # if not set

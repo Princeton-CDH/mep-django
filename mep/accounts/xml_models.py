@@ -295,9 +295,25 @@ class BibliographicScope(TeiXmlObject):
     text = xmlmap.StringField('text()')
 
 
+class BorrowedItemTitle(TeiXmlObject):
+    #: contains an unclear tag
+    is_unclear = xmlmap.NodeField('t:unclear', TeiXmlObject)
+
+    def __str__(self):
+        # customize string method to include marker for <unclear/>
+        content = [self.node.text or '']
+        for node in self.node:
+            if node.tag == '{http://www.tei-c.org/ns/1.0}unclear':
+                content.append('[unclear]')
+            content.append(node.text or '')
+            content.append(node.tail or '')
+
+        if content:
+            return ''.join(content)
+
 class BorrowedItem(TeiXmlObject):
     '''an item within a borrowing event; may just have a title'''
-    title = xmlmap.StringField('t:title')
+    title = xmlmap.NodeField('t:title', BorrowedItemTitle)
     author = xmlmap.StringField('t:author')
     mep_id = xmlmap.StringField('@corresp')
     publisher = xmlmap.StringField('t:publisher')
@@ -324,14 +340,13 @@ class BorrowingEvent(TeiXmlObject):
     @property
     def bought(self):
         '''item was bought, based on text note ('BB', 'bought', 'to buy', etc)'''
-
-        #list of known terms in notes that indicate a book was bought
+        # list of known terms in notes that indicate a book was bought
         bought_terms = ['BB', 'B B', 'B.B.', 'bought', 'Bought', 'to buy']
         return bool(self.notes) and \
             any([bought in self.notes for bought in bought_terms])
 
     @property
-    def returned(self):
+    def returned_note(self):
         '''notes indicate item was returned even though there is no return date'''
         return_terms = ['return', 'returned', 'back']
         return bool(self.notes) and \
@@ -359,7 +374,7 @@ class BorrowingEvent(TeiXmlObject):
             # set status to bought or returned if the notes indicate it
             if self.bought:
                 borrow.item_status = Borrow.ITEM_BOUGHT
-            elif self.returned:
+            elif self.returned_note:
                 borrow.item_status = Borrow.ITEM_RETURNED
 
         # NOTE: some records have an unclear title or partially unclear title
@@ -375,8 +390,8 @@ class BorrowingEvent(TeiXmlObject):
             borrow.item = Item.objects.create()
             created = True
 
-        # if item was newly created, set the title
-        if created:
+        # if item was newly created OR borrow title is unclear, set the title
+        if created or self.item.title.is_unclear:
             # some borrowing events have an author and no title
             borrow.item.title = self.item.title or '[no title]'
 
