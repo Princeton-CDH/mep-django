@@ -416,19 +416,18 @@ class FacsimileSurface(TeiXmlObject):
     url = xmlmap.StringField('t:graphic/@url')
 
 
-class LendingCardPage(TeiXmlObject):
-    '''A single page (or side) of a lending card'''
+class LendingCardSide(TeiXmlObject):
+    '''A single side of a lending card'''
     #: id for the image that represents this page
     facsimile_id = xmlmap.StringField('substring-after(t:pb/@facs, "#")')
     #: any borrowing events on this card
     borrowing_events = xmlmap.NodeListField('.//t:ab[@ana="#borrowingEvent"]',
         BorrowingEvent)
     #: the card holder for this page should be the *first* person listed
-    cardholders = xmlmap.NodeListField('t:head/t:persName', Cardholder)
+    cardholders = xmlmap.NodeListField('t:head/t:persName[@ana or @ref]', Cardholder)
 
 
 class LendingCard(TeiXmlObject):
-    # TODO: person, card images, etc
 
     # use person element with card holder role to identify card holder
     # could be multiple
@@ -443,7 +442,7 @@ class LendingCard(TeiXmlObject):
     # surface could be inside a surface group (e.g. alvear includes an envelope and a letter)
     surfaces = xmlmap.NodeListField('t:facsimile//t:surface', FacsimileSurface)
 
-    pages = xmlmap.NodeListField('//t:div[@type="card"]/t:div', LendingCardPage)
+    sides = xmlmap.NodeListField('//t:div[@type="card"]/t:div', LendingCardSide)
 
     @property
     def surface_by_id(self):
