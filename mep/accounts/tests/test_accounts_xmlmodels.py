@@ -5,7 +5,8 @@ from django.test import TestCase
 from eulxml import xmlmap
 
 from mep.accounts.xml_models import LogBook, Measure, BorrowedItem, \
-    BorrowingEvent, LendingCard, BorrowedTitle, BorrowedTitles, BorrowedItemTitle
+    BorrowingEvent, LendingCard, BorrowedTitle, BorrowedTitles, \
+    BorrowedItemTitle, FacsimileSurface, LendingCardSide
 from mep.accounts.models import Event, Subscription, Reimbursement, Account, \
     CurrencyMixin, Borrow
 from mep.books.models import Item
@@ -566,6 +567,31 @@ class TestLendingCard(TestCase):
         assert card.cardholders[0].mep_id == 'alde.pa'
         assert len(card.borrowing_events) == 18
         assert isinstance(card.borrowing_events[0], BorrowingEvent)
+        assert card.image_base_path == 'pudl0123/825298/a/alderman/'
+        assert len(card.surfaces) == 2
+        assert isinstance(card.surfaces[0], FacsimileSurface)
+        assert card.surfaces[0].xml_id == 's1'
+        assert card.surfaces[0].url == '00000001.jp2'
+        assert len(card.sides) == 2
+        assert isinstance(card.sides[0], LendingCardSide)
+        assert card.sides[0].facsimile_id == 's1'
+        # in fixture, all borrows are on the first side
+        assert len(card.sides[0].borrowing_events) == len(card.borrowing_events)
+        assert isinstance(card.sides[0].borrowing_events[0], BorrowingEvent)
+        assert card.sides[0].cardholders[0].mep_id == 'alde.pa'
+
+    def test_surface_by_id(self):
+        card = xmlmap.load_xmlobject_from_file(os.path.join(FIXTURE_DIR, 'sample-card.xml'),
+            LendingCard)
+        assert len(card.surface_by_id.keys()) == len(card.surfaces)
+        assert card.surface_by_id['s1'] == card.surfaces[0].url
+        assert card.surface_by_id['s2'] == card.surfaces[1].url
+
+    def test_image_path(self):
+        card = xmlmap.load_xmlobject_from_file(os.path.join(FIXTURE_DIR, 'sample-card.xml'),
+            LendingCard)
+        assert card.image_path('s1') == '%s%s' % (card.image_base_path,
+            card.surfaces[0].url)
 
 
 class TestBorrowedTitle(TestCase):
