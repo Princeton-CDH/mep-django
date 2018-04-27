@@ -3,6 +3,7 @@ import re
 
 from cached_property import cached_property
 from eulxml import xmlmap
+from lxml.etree import cleanup_namespaces
 import pendulum
 
 from mep.accounts.models import Account, Subscription, SubscriptionType, \
@@ -19,6 +20,9 @@ class TeiXmlObject(xmlmap.XmlObject):
     def serialize_no_ns(self):
         # convenience function to serialize xml and strip out TEI
         # namespace declaration for brevity in database notes
+        # remove any unused namespaces before serializing
+        cleanup_namespaces(self.node.getroottree())
+        # strip out tei namespace declaration after serializing
         return self.serialize(pretty=True).decode('utf-8') \
             .replace(' xmlns="%s"' % self.ROOT_NAMESPACES['t'], '')
 
