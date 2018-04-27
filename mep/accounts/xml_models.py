@@ -16,6 +16,12 @@ class TeiXmlObject(xmlmap.XmlObject):
         't': 'http://www.tei-c.org/ns/1.0'
     }
 
+    def serialize_no_ns(self):
+        # convenience function to serialize xml and strip out TEI
+        # namespace declaration for brevity in database notes
+        return self.serialize(pretty=True).decode('utf-8') \
+            .replace(' xmlns="%s"' % self.ROOT_NAMESPACES['t'], '')
+
 
 class Measure(TeiXmlObject):
     unit = xmlmap.StringField('@unit')
@@ -290,6 +296,7 @@ class LogBook(TeiXmlObject):
 
 ## lending cards and borrowing events
 
+
 class BibliographicScope(TeiXmlObject):
     unit = xmlmap.StringField('@unit')
     text = xmlmap.StringField('text()')
@@ -310,6 +317,7 @@ class BorrowedItemTitle(TeiXmlObject):
 
         if content:
             return ''.join(content)
+
 
 class BorrowedItem(TeiXmlObject):
     '''an item within a borrowing event; may just have a title'''
@@ -419,10 +427,10 @@ class BorrowingEvent(TeiXmlObject):
             notes.append(self.notes)
         # include xml for any <del> tags
         for deleted_text in self.deletions:
-            notes.append(deleted_text.serialize(pretty=True).decode('utf-8'))
+            notes.append(deleted_text.serialize_no_ns())
         # untagged dates (could be a missed return date or similar)
         for extra_date in self.extra_dates:
-            notes.append(extra_date.serialize(pretty=True).decode('utf-8'))
+            notes.append(extra_date.serialize_no_ns())
 
         # bibliographic scope seems to be particular to this borrowing
         # event rather than the title, so adding here

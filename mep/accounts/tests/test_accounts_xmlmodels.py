@@ -533,8 +533,9 @@ class TestBorrowingEvent(TestCase):
             BorrowingEvent)
         db_borrow = xmlevent.to_db_event(account)
         # serialize preserves namespace
-        assert '<date xmlns="http://www.tei-c.org/ns/1.0" when="1938-02-11">Feb 11 1938</date>' in db_borrow.notes
-        assert '<date xmlns="http://www.tei-c.org/ns/1.0" when="1938-12-27">Dec 27</date>' in db_borrow.notes
+        assert '<date when="1938-02-11">Feb 11 1938</date>' in db_borrow.notes
+        assert '<date when="1938-02-11">Feb 11 1938</date>' in db_borrow.notes
+        assert '<date when="1938-12-27">Dec 27</date>' in db_borrow.notes
 
         # bibliographic data added to notes
         xmlevent = xmlmap.load_xmlobject_from_string(self.bibl_pub_date,
