@@ -283,7 +283,6 @@ class BorrowAdminForm(forms.ModelForm):
         widgets = {
             'account': AUTOCOMPLETE['account'],
             'item': AUTOCOMPLETE['item'],
-            'item_status' : forms.RadioSelect
         }
 
     def get_initial_for_field(self, field, name):
