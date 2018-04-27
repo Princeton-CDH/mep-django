@@ -76,6 +76,8 @@ class Command(BaseCommand):
 
                 # if all cardholders are not found, skip
                 if not len(accounts.values()) == len(lcard.cardholders):
+                    self.stdout.write(self.style.WARNING('Couldn\'t find or generate accounts for all cardholders' \
+                        % (lcard.cardholders[0].name, card_file)))
                     self.stats['skipped'] += 1
                     continue
 
@@ -92,7 +94,6 @@ class Command(BaseCommand):
             expected = len(lcard.borrowing_events)
             current = self.stats['borrow_created']
             # iterate through card sides
-            print('%d sides' % len(lcard.sides))
             for side in lcard.sides:
                 # if there are multiple card holders for this file,
                 # get the account based on the person name on the card
@@ -150,12 +151,10 @@ class Command(BaseCommand):
             except Person.DoesNotExist:
                 self.stdout.write(self.style.WARNING('Person not found for %s\n%s' \
                             % (mep_id, card_file)))
-                self.stats['skipped'] += 1
                 return
         except Account.MultipleObjectsReturned:
             self.stdout.write(self.style.ERROR('Multiple accounts found for %s\n%s' \
                             % (mep_id, card_file)))
-            self.stats['skipped'] += 1
             return
 
 

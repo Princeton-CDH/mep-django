@@ -399,7 +399,7 @@ class BorrowingEvent(TeiXmlObject):
             created = True
 
         # if item was newly created OR borrow title is unclear, set the title
-        if created or self.item.title.is_unclear:
+        if created or self.item.title and self.item.title.is_unclear:
             # some borrowing events have an author and no title
             borrow.item.title = self.item.title or '[no title]'
 
