@@ -23,7 +23,7 @@ class TestItemAdmin(TestCase):
         )
         # with no borrows, borrow count annotations in queryset should be zero
         for item in qs:
-            assert item.borrow__count == 0 
+            assert item.borrow__count == 0
         # create a test account and borrow some of the books
         acct = Account()
         acct.save()
@@ -45,6 +45,13 @@ class TestItemAdmin(TestCase):
         item2 = Item(title='Le foo et le bar: le sequel', year=1918, mep_id='lfelbls')
         item1.save()
         item2.save()
+
+        # get items via itemadmin queryset with borrow count annotation
+        item_admin = ItemAdmin(model=Item, admin_site=admin.site)
+        rqst = self.client.get(reverse('admin:books_item_changelist')).request
+        item1 = item_admin.get_queryset(rqst).get(pk=item1.pk)
+        item2 = item_admin.get_queryset(rqst).get(pk=item2.pk)
+
         # store the URLs that the borrow count links should point to
         borrows1 = (reverse('admin:accounts_borrow_changelist') +
             '?item__id__exact=' + str(item1.id))
@@ -60,5 +67,7 @@ class TestItemAdmin(TestCase):
         Borrow(item=item2, account=acct).save()
         Borrow(item=item2, account=acct).save()
         # check that the borrow counts inside the links are updated
+        item1 = item_admin.get_queryset(rqst).get(pk=item1.pk)
+        item2 = item_admin.get_queryset(rqst).get(pk=item2.pk)
         assert item_admin.borrow_count(item1) == '<a href="%s">1</a>' % borrows1
-        assert item_admin.borrow_count(item2) == '<a href="%s">2</a>' % borrows2  
+        assert item_admin.borrow_count(item2) == '<a href="%s">2</a>' % borrows2
