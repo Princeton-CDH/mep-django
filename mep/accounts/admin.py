@@ -318,7 +318,7 @@ class BorrowAdmin(admin.ModelAdmin):
     date_hierarchy = 'start_date'
     search_fields = ('account__persons__name', 'account__persons__mep_id',
         'notes', 'item__title', 'item__notes')
-    list_filter = ('item_status',)
+    list_filter = ('item_status', 'item')
     list_editable = ('item_status',)
     fields = (
         'account',
