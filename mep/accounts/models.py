@@ -501,6 +501,7 @@ class Borrow(Event):
     ITEM_BOUGHT = 'B'
     ITEM_MISSING = 'M'
     STATUS_CHOICES = (
+        ('', 'Unknown'),
         (ITEM_RETURNED, 'Returned'),
         (ITEM_BOUGHT, 'Bought'),
         (ITEM_MISSING, 'Missing'),
