@@ -26,19 +26,18 @@ class ItemCreatorInline(CollapsibleTabularInline):
 
 
 class ItemAdmin(admin.ModelAdmin):
-    list_display = ['mep_id', 'title', 'author_list', 'notes', 'borrow_count']
+    list_display = ['title', 'author_list', 'notes', 'borrow_count']
     inlines = [ItemCreatorInline]
     search_fields = ('mep_id', 'title', 'notes', 'creator__person__name')
     fieldsets = (
         ('Basic metadata', {
-            'fields': ('title', 'year', 'mep_id', 'borrow_count')
+            'fields': ('title', 'year', 'borrow_count')
         }),
         ('Additional metadata', {
             'fields': (
                 # ('publishers', 'pub_places'),
                 # ('volume'),
-                ('uri'),
-                ('notes')
+                'uri', 'notes', 'mep_id'
             )
         })
     )
