@@ -405,6 +405,23 @@ class TestBorrowingEvent(TestCase):
           <date ana="#returned" when="1947-03-29">March 29</date>
         </ab>'''
 
+    no_title = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+          <date ana="#checkedOut" when="1936-05-08">May 8</date>
+          <bibl ana="#borrowedItem">
+         <author>T.E. Lawrence</author>
+      </bibl>
+          <date ana="#returned" when="1936-05-14">"   14</date>
+        </ab>'''
+
+    edition = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+        <date ana="#checkedOut" when="1939-05-06"/>
+        <bibl ana="#borrowedItem" corresp="mep:009q7t">
+            <biblScope unit="volume" from="2">Vol 2.</biblScope>
+            <edition>Everyman</edition>
+        </bibl>
+        <date ana="#returned" when="1939-07-18">July 18</date>
+      </ab>'''
+
     def test_fields(self):
         event = xmlmap.load_xmlobject_from_string(self.two_painters,
             BorrowingEvent)
@@ -557,6 +574,19 @@ class TestBorrowingEvent(TestCase):
         db_borrow = xmlevent.to_db_event(account)
         assert isinstance(db_borrow.item, Item)
         assert str(db_borrow.item.title) == str(xmlevent.item.title)
+
+       # include edition with bibl scope info
+        xmlevent = xmlmap.load_xmlobject_from_string(self.edition,
+            BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        assert 'edition Everyman' in db_borrow.notes
+
+        # no title at all
+        xmlevent = xmlmap.load_xmlobject_from_string(self.no_title,
+            BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        assert isinstance(db_borrow.item, Item)
+        assert db_borrow.item.title == '[no title]'
 
 
 class TestLendingCard(TestCase):

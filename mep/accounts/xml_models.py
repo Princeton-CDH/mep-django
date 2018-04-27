@@ -326,7 +326,7 @@ class BorrowedItem(TeiXmlObject):
     mep_id = xmlmap.StringField('@corresp')
     publisher = xmlmap.StringField('t:publisher')
     date = xmlmap.StringField('t:date')
-    scope_list = xmlmap.NodeListField('t:biblScope', BibliographicScope)
+    scope_list = xmlmap.NodeListField('t:biblScope|t:edition', BibliographicScope)
 
 
 class BorrowingEvent(TeiXmlObject):
@@ -436,7 +436,7 @@ class BorrowingEvent(TeiXmlObject):
         # event rather than the title, so adding here
         for bibl_scope in self.item.scope_list:
             # e.g. number/issue and any text...
-            notes.append('%s %s' % (bibl_scope.unit, bibl_scope.text))
+            notes.append('%s %s' % (bibl_scope.unit or bibl_scope.node.tag, bibl_scope.text))
 
         borrow.notes = '\n'.join(notes)
 
