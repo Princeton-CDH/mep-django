@@ -306,6 +306,10 @@ class Person(Notable, DateRange):
             ).exists()
     in_logbooks.boolean = True
 
+    def has_card(self):
+        return self.account_set.filter(card__isnull=False).exists()
+    has_card.boolean = True
+
 
 class InfoURL(Notable):
     '''Informational urls (other than VIAF) associated with a :class:`Person`,
