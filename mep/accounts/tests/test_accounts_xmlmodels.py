@@ -444,6 +444,17 @@ class TestBorrowingEvent(TestCase):
         event.notes = 'to buy'
         assert event.bought
 
+    def test_returned_note(self):
+        # no returned flag in notes
+        event = xmlmap.load_xmlobject_from_string(self.tromolt, BorrowingEvent)
+        assert event.returned_note is False
+
+        # returned flag in notes
+        event.notes = 'returned'
+        assert event.returned_note
+        event.notes = 'back'
+        assert event.returned_note
+
     def test_to_db_event(self):
         xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
                                                      BorrowingEvent)
@@ -489,6 +500,10 @@ class TestBorrowingEvent(TestCase):
         # no item found - stub should automatically be created
         assert db_borrow.item
         assert db_borrow.item.title == xmlevent.item.title
+        # simulate returned note
+        xmlevent.notes = 'back'
+        db_borrow = xmlevent.to_db_event(account)
+        assert db_borrow.item_status == Borrow.ITEM_RETURNED
 
         # 1900 dates -> year unknown
         xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
@@ -534,6 +549,12 @@ class TestBorrowingEvent(TestCase):
         db_borrow = xmlevent.to_db_event(account)
         assert 'number (Henry James No' in db_borrow.notes
         assert 'issue April - May 1934' in db_borrow.notes
+
+        # item has no mep id
+        xmlevent.item.mep_id = None
+        db_borrow = xmlevent.to_db_event(account)
+        assert isinstance(db_borrow.item, Item)
+        assert str(db_borrow.item.title) == str(xmlevent.item.title)
 
 
 class TestLendingCard(TestCase):
