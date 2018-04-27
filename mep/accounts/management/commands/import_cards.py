@@ -8,6 +8,7 @@ from eulxml import xmlmap
 from mep.accounts.models import Account
 from mep.accounts.xml_models import LendingCard
 from mep.people.models import Person
+from mep.footnotes.models import SourceType, Bibliography, Footnote
 
 
 class Command(BaseCommand):
@@ -31,6 +32,9 @@ class Command(BaseCommand):
         # initialize values that might not get set, for use in format output
         self.stats['accounts_created'] = 0
         self.stats['skipped'] = 0
+
+        self.lending_card_sourcetype = SourceType.objects \
+            .get_or_create(name='Lending Library Card')[0]
 
         for i, card_file in enumerate(cardfiles):
             self.stats['files'] += 1
@@ -67,12 +71,19 @@ class Command(BaseCommand):
             # determined based on person name on each side
             multiple_cardholders = len(lcard.cardholders) > 1
 
+            # TODO: can this be consolidated?
+            # FIXME: set images properly for citations on multiple accounts
+            # in a single file
+            # TODO: can we fix image order based on xml?
+
             # get account records for combined account files
             if multiple_cardholders:
                 # create dictionary of accounts keyed on mepid to handle multiple
                 accounts = {}
                 for cardholder in lcard.cardholders:
-                    accounts[cardholder.mep_id] = self.get_account(cardholder.mep_id, card_file)
+                    account = self.get_account(cardholder.mep_id, card_file)
+                    self.add_card_citation(account, cardholder, lcard)
+                    accounts[cardholder.mep_id] = account
 
                 # if all cardholders are not found, skip
                 if not len(accounts.values()) == len(lcard.cardholders):
@@ -82,6 +93,7 @@ class Command(BaseCommand):
             # single cardholder
             else:
                 account = self.get_account(lcard.cardholders[0].mep_id, card_file)
+                self.add_card_citation(account, lcard.cardholders[0], lcard)
                 # skip if account not found and person not found
                 if not account:
                     self.stats['skipped'] += 1
@@ -107,7 +119,11 @@ class Command(BaseCommand):
 
                 # then iterate through borrowing events and associate with the acount
                 for xml_borrow in side.borrowing_events:
-                    xml_borrow.to_db_event(account).save()
+                    borrow = xml_borrow.to_db_event(account)
+                    borrow.save()
+                    borrow.footnotes.create(bibliography=account.card,
+                        location=lcard.image_path(side.facsimile_id),
+                        is_agree=True)
                     self.stats['borrow_created'] += 1
 
             # check that we found the expected number of borrowing events
@@ -157,6 +173,24 @@ class Command(BaseCommand):
                             % (mep_id, card_file)))
             self.stats['skipped'] += 1
             return
+
+    def add_card_citation(self, account, cardholder, card):
+        # if account already has a card, do nothing
+        if account.card:
+            return
+
+        # construct new reference bibliography and associate with the account
+        reference = 'Sylvia Beach, %s Lending Library Card' % cardholder.name + \
+            ', Box 43, Sylvia Beach Papers, Department of Rare Books ' + \
+            'and Special Collections, Princeton University Library.'
+
+        notes = 'Images:\n%s' % \
+            '\n'.join([card.image_path(surf.xml_id) for surf in card.surfaces])
+
+        account.card = Bibliography.objects.create(bibliographic_note=reference,
+            source_type=self.lending_card_sourcetype, notes=notes)
+        account.save()
+        # TODO: include image paths in notes
 
 
 
