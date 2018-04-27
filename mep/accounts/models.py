@@ -518,6 +518,13 @@ class Borrow(Event):
     partial_end_date.short_description = 'end date'
     partial_end_date.admin_order_field = 'end_date'
 
+    def save(self, *args, **kwargs):
+        # if end date is set and item status is not, automatically set
+        # status to returned
+        if self.end_date and not self.item_status:
+            self.item_status = self.ITEM_RETURNED
+        super(Borrow, self).save(*args, **kwargs)
+
 
 class Purchase(Event, CurrencyMixin):
     '''Inherited table indicating purchase events'''
