@@ -301,6 +301,13 @@ class BibliographicScope(TeiXmlObject):
     unit = xmlmap.StringField('@unit')
     text = xmlmap.StringField('text()')
 
+    @property
+    def label(self):
+        # label for this scope; use unit attribute if present,
+        # otherwise use tag name (i.e. for edition)
+        return self.unit or \
+            self.node.tag.replace('{%s}' % self.ROOT_NAMESPACES['t'], '')
+
 
 class BorrowedItemTitle(TeiXmlObject):
     #: contains an unclear tag
@@ -436,7 +443,7 @@ class BorrowingEvent(TeiXmlObject):
         # event rather than the title, so adding here
         for bibl_scope in self.item.scope_list:
             # e.g. number/issue and any text...
-            notes.append('%s %s' % (bibl_scope.unit or bibl_scope.node.tag, bibl_scope.text))
+            notes.append('%s %s' % (bibl_scope.label, bibl_scope.text))
 
         borrow.notes = '\n'.join(notes)
 

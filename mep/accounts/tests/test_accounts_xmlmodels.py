@@ -579,7 +579,7 @@ class TestBorrowingEvent(TestCase):
         xmlevent = xmlmap.load_xmlobject_from_string(self.edition,
             BorrowingEvent)
         db_borrow = xmlevent.to_db_event(account)
-        assert 'edition Everyman' in db_borrow.notes
+        assert db_borrow.notes.endswith('edition Everyman')
 
         # no title at all
         xmlevent = xmlmap.load_xmlobject_from_string(self.no_title,
