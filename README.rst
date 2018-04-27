@@ -5,11 +5,14 @@ mep-django
 .. sphinx-start-marker-do-not-remove
 
 
-This Github repository houses the Django web interface of the `Mapping Expatriate
-Paris <https://github.com/Princeton-CDH/mapping-expatriate-paris>`_ project, which
-examines the archives of Sylvia Beach's Shakespeare and Company lending library.
+Python/Django web application for the `Shakespeare and Company Lending Library Project
+<https://cdh.princeton.edu/projects/shakespeare-and-company-lending-library-project/>`_,
+which examines the archives of Sylvia Beach's Shakespeare and Company lending library.
+See also XML transcriptions for the materials on GitHub `mapping-expatriate-paris
+<https://github.com/Princeton-CDH/mapping-expatriate-paris>`_.  (This project
+was previously called "Mapping Expatriate Paris" or MEP).
 
-See the project's `page <http://mep.princeton.edu/>`_ for more details.
+See the preliminary `project website <http://mep.princeton.edu/>`_ for more details.
 
 Python 3.5 / Django 1.11
 
