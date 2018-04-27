@@ -33,11 +33,17 @@ class Publisher(Named, Notable):
 class Item(Notable):
     '''Primary model for :mod:`books` module, also used for journals,
     and other media types.'''
-    mep_id = models.CharField(max_length=255, blank=True, unique=True, verbose_name='MEP ID')
+    #: mep id from stub records imported from xml
+    mep_id = models.CharField(max_length=255, blank=True, unique=True,
+        verbose_name='MEP ID', null=True)
+    # NOTE: mep_id has null=true so we can enforce unique constraint but
+    # allow for items with no mep id
+
     title = models.CharField(max_length=255, blank=True)
     volume = models.PositiveSmallIntegerField(blank=True, null=True)
     number = models.PositiveSmallIntegerField(blank=True, null=True)
-    year = models.PositiveSmallIntegerField(blank=True,null=True, verbose_name='Date of Publication')
+    year = models.PositiveSmallIntegerField(blank=True, null=True,
+        verbose_name='Date of Publication')
     season = models.CharField(max_length=255, blank=True)
     edition = models.CharField(max_length=255, blank=True)
     uri = models.URLField(blank=True, verbose_name='URI', help_text="Linked data URI for this work")
@@ -46,6 +52,13 @@ class Item(Notable):
     # M2M (i.e. more than one publisher or more than one pub place?)
     publishers = models.ManyToManyField(Publisher, blank=True)
     pub_places = models.ManyToManyField(PublisherPlace, blank=True, verbose_name="Places of Publication")
+
+    def save(self, *args, **kwargs):
+        # override save to ensure mep ID is None rather than empty string
+        # if not set
+        if not self.mep_id:
+            self.mep_id = None
+        super(Item, self).save(*args, **kwargs)
 
     def __repr__(self):
         return '<Item %s>' % self.__dict__

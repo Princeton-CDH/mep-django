@@ -16,8 +16,9 @@ class Command(BaseCommand):
 
     v_normal = 1
 
-    def add_arguments(self, parser):
+    stats = defaultdict(int)
 
+    def add_arguments(self, parser):
         parser.add_argument('path',
             help='base path containing folders of lending card XML files')
 
@@ -27,14 +28,29 @@ class Command(BaseCommand):
 
         cardfiles = glob.iglob(search_path, recursive=True)
 
-        stats = defaultdict(int)
         # initialize values that might not get set, for use in format output
-        stats['accounts_created'] = 0
-        stats['skipped'] = 0
+        self.stats['accounts_created'] = 0
+        self.stats['skipped'] = 0
 
         for i, card_file in enumerate(cardfiles):
-            stats['files'] += 1
+            self.stats['files'] += 1
+
             lcard = xmlmap.load_xmlobject_from_file(card_file, LendingCard)
+
+            # special cases (mostly for organizations not tagged as persons, no ids)
+            if not lcard.cardholders:
+                self.stdout.write(self.style.WARNING(
+                    'No cardholder found - %s' % card_file))
+                self.stats['skipped'] += 1
+                continue
+            elif not lcard.cardholders[0].mep_id:
+                # id missing for libraries des deux lycee...
+                self.stdout.write(self.style.WARNING(
+                    'No MEP id for cardholder %s - %s' %
+                    (lcard.cardholders[0].name, card_file)))
+                self.stats['skipped'] += 1
+                continue
+
             # output file name, cardholders, and number of borrowing events
             # when running in verbose mode
             cardholders = ', '.join(['%s %s' % (cardholder.mep_id, cardholder.name)
@@ -42,50 +58,64 @@ class Command(BaseCommand):
             if verbosity > self.v_normal:
                 self.stdout.write('%s: %s' % (card_file, cardholders))
                 self.stdout.write('%d borrowing events' % len(lcard.borrowing_events))
-            stats['card_holders'] += len(lcard.cardholders)
-            stats['borrow_events'] += len(lcard.borrowing_events)
+            self.stats['card_holders'] += len(lcard.cardholders)
+            self.stats['borrow_events'] += len(lcard.borrowing_events)
 
-            # find the account associated with the cardholder
-            # (or all carholders, if there are multiple)
-            accounts = Account.objects.all()
-            for cardholder in lcard.cardholders:
-                accounts = accounts.filter(persons__mep_id=cardholder.mep_id)
+            account = None
+            # more than one cardholder in a single file means there are
+            # multiple accounts represented and the accound needs to be
+            # determined based on person name on each side
+            multiple_cardholders = len(lcard.cardholders) > 1
 
-            if accounts.exists():
-                account = accounts.first()
-                stats['accounts'] += 1
-            else:
-                # if account does not exist, find person and create it
-                # - single cardholder only for now (shared accounts logic TBD)
-                if len(lcard.cardholders) == 1:
-                    try:
-                        person = Person.objects.get(mep_id=lcard.cardholders[0].mep_id)
-                        account = Account.objects.create()
-                        account.persons.add(person)
-                        stats['accounts_created'] += 1
-                    except Person.DoesNotExist:
-                        self.stdout.write(self.style.WARNING('Person not found for %s\n%s' \
-                            % (lcard.cardholders[0].mep_id, card_file)))
-                        stats['skipped'] += 1
-                        continue
+            # get account records for combined account files
+            if multiple_cardholders:
+                # create dictionary of accounts keyed on mepid to handle multiple
+                accounts = {}
+                for cardholder in lcard.cardholders:
+                    accounts[cardholder.mep_id] = self.get_account(cardholder.mep_id, card_file)
 
-                # still TODO - shared accounts (logic TBD)
-                else:
-                    # Temporarily skipping for now
-                    self.stdout.write(self.style.WARNING('Account not found for %s\n%s' \
-                        % (cardholders, card_file)))
-                    stats['skipped'] += 1
+                # if all cardholders are not found, skip
+                if not len(accounts.values()) == len(lcard.cardholders):
+                    self.stdout.write(self.style.WARNING('Couldn\'t find or generate accounts for all cardholders' \
+                        % (lcard.cardholders[0].name, card_file)))
+                    self.stats['skipped'] += 1
                     continue
 
-            # iterate through borrowing events and associate with the acount
-            for xml_borrow in lcard.borrowing_events:
-                try:
+            # single cardholder
+            else:
+                account = self.get_account(lcard.cardholders[0].mep_id, card_file)
+                # skip if account not found and person not found
+                if not account:
+                    self.stats['skipped'] += 1
+                    continue
+
+            # document expected number of borrowing events as a sanity
+            # check to make sure they are all found when iterating card by card
+            expected = len(lcard.borrowing_events)
+            current = self.stats['borrow_created']
+            # iterate through card sides
+            for side in lcard.sides:
+                # if there are multiple card holders for this file,
+                # get the account based on the person name on the card
+                # print(side.facsimile_id)
+                # print(lcard.image_path(page.facsimile_id))
+
+                if multiple_cardholders and side.cardholders:
+                    account = accounts[side.cardholders[0].mep_id]
+                    # if multiple and no card holders on this side,
+                    # assume continuing with previous account
+                    # TODO: verify this approach is sane
+
+                # then iterate through borrowing events and associate with the acount
+                for xml_borrow in side.borrowing_events:
                     xml_borrow.to_db_event(account).save()
-                    stats['borrow_created'] += 1
-                except ValueError as verr:
-                    # TODO: handle partial dates
-                    # (skip for now)
-                    print(verr)
+                    self.stats['borrow_created'] += 1
+
+            # check that we found the expected number of borrowing events
+            if self.stats['borrow_created'] - current != expected:
+                self.stdout.write(self.style.WARNING(
+                    'Borrowing event mismatch for %s; expected %d but got %d' \
+                    % (card_file, expected, self.stats['borrow_created'] - current)))
 
             # skip after processing max number
             # NOTE: could add configurable max records option for testing
@@ -100,4 +130,32 @@ class Command(BaseCommand):
 {borrow_events:,} borrowing events found in XML
 {borrow_created:,} borrowing events created
 {skipped:,} files skipped
-'''.format(**stats))
+'''.format(**self.stats))
+
+    def get_account(self, mep_id, card_file):
+        '''Find a library account for a person based on MEP id.  If the account
+         does not exist, find the person and create it.  If the person does not
+         exist, print a warning.'''
+        try:
+            account = Account.objects.get(persons__mep_id=mep_id)
+            self.stats['accounts'] += 1
+            return account
+        except Account.DoesNotExist:
+            # if account does not exist, find person and create the account
+            try:
+                person = Person.objects.get(mep_id=mep_id)
+                account = Account.objects.create()
+                account.persons.add(person)
+                self.stats['accounts_created'] += 1
+                return account
+            except Person.DoesNotExist:
+                self.stdout.write(self.style.WARNING('Person not found for %s\n%s' \
+                            % (mep_id, card_file)))
+                return
+        except Account.MultipleObjectsReturned:
+            self.stdout.write(self.style.ERROR('Multiple accounts found for %s\n%s' \
+                            % (mep_id, card_file)))
+            return
+
+
+

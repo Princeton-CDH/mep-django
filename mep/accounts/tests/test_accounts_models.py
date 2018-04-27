@@ -610,6 +610,22 @@ class TestBorrow(TestCase):
         assert str(self.borrow) == ('Borrow for account #%s' %
                                     self.borrow.account.pk)
 
+    def test_save(self):
+        today = datetime.date.today()
+        borrow = Borrow(account=self.account, item=self.item)
+        # no end date, no item status; item status should not be set
+        borrow.save()
+        assert not borrow.item_status
+        # end date, status - item status should automatically be set
+        borrow.end_date = today
+        borrow.save()
+        assert borrow.item_status == borrow.ITEM_RETURNED
+        # if status set, it should not be changed
+        borrow.item_status = borrow.ITEM_MISSING
+        borrow.save()
+        assert borrow.item_status == borrow.ITEM_MISSING
+
+
 
 class TestCurrencyMixin(TestCase):
 
@@ -711,4 +727,4 @@ class TestPartialDates(TestCase):
         assert pdo.date_precision == DatePrecision.month | DatePrecision.day
 
 
-        
+
