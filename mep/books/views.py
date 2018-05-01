@@ -1,8 +1,9 @@
 import csv
+from io import StringIO
 
 from dal import autocomplete
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import StreamingHttpResponse
 from django.urls import reverse
 from django.utils.timezone import now
 from django.views.generic import ListView
@@ -42,24 +43,39 @@ class ItemCSV(ListView):
         return 'mep-items-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
 
     def get_data(self):
-        return ((reverse('admin:books_item_change', args=[item.id]),
-                 item.id, item.title, item.year, item.uri,
-                 ';'.join([str(auth) for auth in item.authors]),
-                 item.mep_id, item.notes
-                ) for item in self.get_queryset().prefetch_related('creator_set'))
-        # NOTE: prefetch collections so they are retrieved more efficiently
+        # generator of rows of data for inclusion in CSV download
+        yield self.header_row
+        # # NOTE: prefetch creators in an effort to rerieve them more efficiently
+        for item in self.get_queryset().prefetch_related('creator_set'):
+            yield (reverse('admin:books_item_change', args=[item.id]),
+                    item.id, item.title, item.year, item.uri,
+                    ';'.join([str(auth) for auth in item.authors]),
+                    item.mep_id, item.notes)
+
         # all at once, rather than one at a time for each item
 
     def render_to_csv(self, data):
-        response = HttpResponse(content_type='text/csv')
-        # response = StreamingHttpResponse(content_type='text/csv')
-        # response['Content-Disposition'] = 'attachment; filename="%s"' % \
-            # self.get_csv_filename()
 
-        writer = csv.writer(response)
-        writer.writerow(self.header_row)
-        for row in data:
-            writer.writerow(row)
+        # pesudo buffer class per django docs
+        # https://docs.djangoproject.com/en/1.11/howto/outputting-csv/#streaming-csv-files
+        class Echo:
+            """An object that implements just the write method of the file-like
+            interface.
+            """
+            def write(self, value):
+                """Write the value by returning it, instead of storing in a buffer."""
+                return value
+
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer)
+        # writer.writerow(self.header_row)
+
+        response = StreamingHttpResponse(
+            (writer.writerow(row) for row in self.get_data()),
+            content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="%s"' % \
+            self.get_csv_filename()
+
         return response
 
     def get(self, *args, **kwargs):
