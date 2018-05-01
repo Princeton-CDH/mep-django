@@ -23,6 +23,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='borrow',
             name='item_status',
-            field=models.CharField(blank=True, choices=[('R', 'Returned'), ('B', 'Bought'), ('M', 'Missing')], help_text='Status of borrowed item (bought, missing, returned)', max_length=2),
+            field=models.CharField(blank=True, choices=[('', 'Unknown'), ('R', 'Returned'), ('B', 'Bought'), ('M', 'Missing')], help_text='Status of borrowed item (bought, missing, returned)', max_length=2),
         ),
     ]
