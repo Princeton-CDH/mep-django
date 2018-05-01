@@ -33,6 +33,7 @@ class Command(BaseCommand):
         self.stats['accounts_created'] = 0
         self.stats['skipped'] = 0
 
+        #
         self.lending_card_sourcetype = SourceType.objects \
             .get_or_create(name='Lending Library Card')[0]
 
@@ -72,39 +73,31 @@ class Command(BaseCommand):
             multiple_cardholders = len(lcard.cardholders) > 1
 
             # TODO: can this be consolidated?
-            # FIXME: set images properly for citations on multiple accounts
-            # in a single file
-            # TODO: can we fix image order based on xml?
 
-            # get account records for combined account files
-            if multiple_cardholders:
-                # create dictionary of accounts keyed on mepid to handle multiple
-                accounts = {}
-                for cardholder in lcard.cardholders:
-                    account = self.get_account(cardholder.mep_id, card_file)
-                    self.add_card_citation(account, cardholder, lcard)
+            # get account records for all cardholders in the file
+            # create dictionary of accounts keyed on mepid to handle multiple
+            accounts = {}
+            for cardholder in lcard.cardholders:
+                account = self.get_account(cardholder.mep_id, card_file)
+                if account:
+                    self.add_card_citation(account, cardholder)
                     accounts[cardholder.mep_id] = account
 
-                # if all cardholders are not found, skip
-                if not len(accounts.values()) == len(lcard.cardholders):
-                    self.stats['skipped'] += 1
-                    continue
+            # if all cardholders are not found, skip
+            if not len(accounts.values()) == len(lcard.cardholders):
+                self.stats['skipped'] += 1
+                continue
 
-            # single cardholder
-            else:
-                account = self.get_account(lcard.cardholders[0].mep_id, card_file)
-                self.add_card_citation(account, lcard.cardholders[0], lcard)
-                # skip if account not found and person not found
-                if not account:
-                    self.stats['skipped'] += 1
-                    continue
+            # if not dealing with a file with multiple card holders,
+            # set the default account
+            if not multiple_cardholders:
+                account = list(accounts.values())[0]
 
             # document expected number of borrowing events as a sanity
             # check to make sure they are all found when iterating card by card
             expected = len(lcard.borrowing_events)
             current = self.stats['borrow_created']
             # iterate through card sides
-            print('%d sides' % len(lcard.sides))
             for side in lcard.sides:
                 # if there are multiple card holders for this file,
                 # get the account based on the person name on the card
@@ -114,8 +107,10 @@ class Command(BaseCommand):
                 if multiple_cardholders and side.cardholders:
                     account = accounts[side.cardholders[0].mep_id]
                     # if multiple and no card holders on this side,
-                    # assume continuing with previous account
-                    # TODO: verify this approach is sane
+                    # continue with previous account
+
+                # add image path to the notes for the appropriate account
+                account.card.notes += '\n%s' % lcard.image_path(side.facsimile_id)
 
                 # then iterate through borrowing events and associate with the acount
                 for xml_borrow in side.borrowing_events:
@@ -125,6 +120,10 @@ class Command(BaseCommand):
                         location=lcard.image_path(side.facsimile_id),
                         is_agree=True)
                     self.stats['borrow_created'] += 1
+
+            # save account citation with image paths
+            for account in accounts.values():
+                account.card.save()
 
             # check that we found the expected number of borrowing events
             if self.stats['borrow_created'] - current != expected:
@@ -174,7 +173,7 @@ class Command(BaseCommand):
             self.stats['skipped'] += 1
             return
 
-    def add_card_citation(self, account, cardholder, card):
+    def add_card_citation(self, account, cardholder):
         # if account already has a card, do nothing
         if account.card:
             return
@@ -184,8 +183,9 @@ class Command(BaseCommand):
             ', Box 43, Sylvia Beach Papers, Department of Rare Books ' + \
             'and Special Collections, Princeton University Library.'
 
-        notes = 'Images:\n%s' % \
-            '\n'.join([card.image_path(surf.xml_id) for surf in card.surfaces])
+        # add images label; actual image paths will be added when
+        # iterating through the sections of the file
+        notes = 'Images:'
 
         account.card = Bibliography.objects.create(bibliographic_note=reference,
             source_type=self.lending_card_sourcetype, notes=notes)
