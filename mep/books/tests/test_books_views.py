@@ -73,7 +73,8 @@ class TestBooksViews(TestCase):
         assert re.search(r'\d{8}T\d{2}:\d{2}:\d{2}', content_disposition)
 
         # read content as csv and inspect
-        csvreader = csv.reader(StringIO(response.content.decode()))
+        content = b''.join(response.streaming_content).decode()
+        csvreader = csv.reader(StringIO(content))
         rows = [row for row in csvreader]
         items = Item.objects.order_by('id').all()
         # check for header row
@@ -82,15 +83,19 @@ class TestBooksViews(TestCase):
         assert len(rows) == items.count() + 1
         # check expected data in CSV output
         for item, item_data in zip(items, rows[1:]):
-            assert item.id in item_data
+            assert str(item.id) in item_data
             assert reverse('admin:books_item_change', args=[item.id]) in item_data
             assert item.title in item_data
-            assert item.year in item_data
+            if item.year:
+                assert str(item.year) in item_data
             assert item.uri in item_data
-            assert item.mep_id in item_data
+            if item.mep_id:
+                assert item.mep_id in item_data
             assert item.notes in item_data
             for auth in item.authors:
                 assert str(auth) in item_data
+            # no None for empty fields
+            assert 'None' not in item_data
 
     def test_item_admin_changelist(self):
         # log in as admin to access admin site views

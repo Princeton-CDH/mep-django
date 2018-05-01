@@ -3,8 +3,8 @@
   "model": "books.item",
   "pk": 1,
   "fields": {
-    "notes": "",
-    "mep_id": null,
+    "notes": "Edition Everyman",
+    "mep_id": "exite",
     "title": "Exit Eliza",
     "volume": null,
     "number": null,
