@@ -4,6 +4,7 @@ import datetime
 
 from cached_property import cached_property
 from dateutil.relativedelta import relativedelta
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
 from django.db import models
@@ -13,6 +14,7 @@ from flags import Flags
 from mep.books.models import Item
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Location
+from mep.footnotes.models import Bibliography, Footnote
 
 
 class Account(models.Model):
@@ -24,6 +26,10 @@ class Account(models.Model):
     # convenience access to associated locations, although
     # we will probably use Address for most things
     locations = models.ManyToManyField(Location, through='Address', blank=True)
+
+    card = models.ForeignKey(Bibliography, blank=True, null=True,
+        help_text='Lending Library Card for this account',
+        limit_choices_to={'source_type__name': 'Lending Library Card'})
 
     def __repr__(self):
         return '<Account %s>' % self.__dict__
@@ -89,6 +95,10 @@ class Account(models.Model):
         '''List of associated :class:`mep.people.models.Location` '''
         return '; '.join([str(loc) for loc in self.locations.distinct()])
     list_locations.short_description = 'Locations'
+
+    def has_card(self):
+        return bool(self.card)
+    has_card.boolean = True
 
     def add_event(self, etype='event', **kwargs):
         '''Helper function to add a :class:`Event` or subclass to an
@@ -518,6 +528,8 @@ class Borrow(Event):
     partial_end_date = PartialDate('end_date', 'end_date_precision', UNKNOWN_YEAR)
     partial_end_date.short_description = 'end date'
     partial_end_date.admin_order_field = 'end_date'
+
+    footnotes = GenericRelation(Footnote)
 
     def save(self, *args, **kwargs):
         # if end date is set and item status is not, automatically set

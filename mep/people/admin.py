@@ -142,7 +142,7 @@ class PersonAdmin(admin.ModelAdmin):
     form = PersonAdminForm
     list_display = ('name', 'title', 'sort_name', 'list_nationalities',
         'birth_year', 'death_year', 'sex', 'profession', 'viaf_id',
-        'mep_id', 'address_count', 'in_logbooks', 'note_snippet')
+        'mep_id', 'address_count', 'in_logbooks', 'has_card', 'note_snippet')
     fields = ('mep_id', 'in_logbooks', 'title',
         ('name', 'sort_name'),
         'viaf_id',

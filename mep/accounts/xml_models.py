@@ -330,6 +330,22 @@ class BorrowedItemTitle(TeiXmlObject):
             return ''.join(content)
 
 
+class BorrowedItemTitle(TeiXmlObject):
+    #: contains an unclear tag
+    is_unclear = xmlmap.NodeField('t:unclear', TeiXmlObject)
+
+    def __str__(self):
+        # customize string method to include marker for <unclear/>
+        content = [self.node.text or '']
+        for node in self.node:
+            if node.tag == '{http://www.tei-c.org/ns/1.0}unclear':
+                content.append('[unclear]')
+            content.append(node.text or '')
+            content.append(node.tail or '')
+
+        if content:
+            return ''.join(content)
+
 class BorrowedItem(TeiXmlObject):
     '''an item within a borrowing event; may just have a title'''
     title = xmlmap.NodeField('t:title', BorrowedItemTitle)

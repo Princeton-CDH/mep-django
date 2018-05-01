@@ -47,7 +47,12 @@ class Footnote(Notable):
         # (otherwise, lookup is not possible)
         # TODO: add items here as the application expands
         limit_choices_to=models.Q(app_label='people',
-            model__in=['country', 'person', 'address', 'profession'])
+            model__in=['country', 'person', 'address', 'profession']) |
+            models.Q(app_label='accounts',
+                model__in=['account', 'event', 'subscription', 'borrow',
+                           'reimbursement']) |
+            models.Q(app_label='books',
+                model__in=['item'])
         )
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
