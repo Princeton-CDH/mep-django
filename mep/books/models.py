@@ -78,6 +78,11 @@ class Item(Notable):
     def author_list(self):
         return ', '.join([str(auth) for auth in self.authors()])
 
+    @property
+    def borrow_count(self):
+        '''Get the number of times the item was borrowed.'''
+        return self.borrow_set.count()
+
 
 class CreatorType(Named, Notable):
     '''Type of creator role a person can have to an item; author,

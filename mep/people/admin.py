@@ -147,7 +147,7 @@ class PersonAdmin(admin.ModelAdmin):
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
-        'sex', 'profession', 'nationalities', 'notes')
+        'sex', 'profession', 'nationalities', 'is_organization', 'notes')
     readonly_fields = ('mep_id', 'in_logbooks')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = ('sex', 'profession', 'nationalities', 'is_organization')

@@ -33,7 +33,6 @@ class Command(BaseCommand):
         self.stats['accounts_created'] = 0
         self.stats['skipped'] = 0
 
-        #
         self.lending_card_sourcetype = SourceType.objects \
             .get_or_create(name='Lending Library Card')[0]
 
@@ -72,8 +71,6 @@ class Command(BaseCommand):
             # determined based on person name on each side
             multiple_cardholders = len(lcard.cardholders) > 1
 
-            # TODO: can this be consolidated?
-
             # get account records for all cardholders in the file
             # create dictionary of accounts keyed on mepid to handle multiple
             accounts = {}
@@ -85,6 +82,8 @@ class Command(BaseCommand):
 
             # if all cardholders are not found, skip
             if not len(accounts.values()) == len(lcard.cardholders):
+                self.stdout.write(self.style.WARNING('Couldn\'t find or generate accounts for all cardholders' \
+                        % (lcard.cardholders[0].name, card_file)))
                 self.stats['skipped'] += 1
                 continue
 
@@ -165,12 +164,10 @@ class Command(BaseCommand):
             except Person.DoesNotExist:
                 self.stdout.write(self.style.WARNING('Person not found for %s\n%s' \
                             % (mep_id, card_file)))
-                self.stats['skipped'] += 1
                 return
         except Account.MultipleObjectsReturned:
             self.stdout.write(self.style.ERROR('Multiple accounts found for %s\n%s' \
                             % (mep_id, card_file)))
-            self.stats['skipped'] += 1
             return
 
     def add_card_citation(self, account, cardholder):
@@ -190,7 +187,6 @@ class Command(BaseCommand):
         account.card = Bibliography.objects.create(bibliographic_note=reference,
             source_type=self.lending_card_sourcetype, notes=notes)
         account.save()
-        # TODO: include image paths in notes
 
 
 

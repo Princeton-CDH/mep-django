@@ -279,11 +279,11 @@ class BorrowAdminForm(forms.ModelForm):
 
     class Meta:
         model = Borrow
-        fields = ('account', 'item', 'partial_start_date', 'partial_end_date',
-            'notes')
+        fields = ('account', 'item', 'item_status', 'partial_start_date',
+            'partial_end_date', 'notes')
         widgets = {
             'account': AUTOCOMPLETE['account'],
-            'item': AUTOCOMPLETE['item']
+            'item': AUTOCOMPLETE['item'],
         }
 
     def get_initial_for_field(self, field, name):
@@ -301,11 +301,23 @@ class BorrowAdminForm(forms.ModelForm):
             self.instance.partial_end_date = cleaned_data['partial_end_date']
             return cleaned_data
 
+
 class BorrowFootnoteInline(FootnoteInline):
     # customize standard footnote inline for borrowing event footnote
     classes = ('grp-collapse', )  # grapelli collapsible, but not closed
     fields = ('bibliography', 'location', 'notes')
     extra = 0
+
+
+class BorrowAdminListForm(forms.ModelForm):
+    # custom form for list-editable item status on borrow list
+
+    class Meta:
+        model = Borrow
+        exclude = []
+        widgets = {
+            'item_status' : forms.RadioSelect
+        }
 
 
 class BorrowAdmin(admin.ModelAdmin):
@@ -315,14 +327,29 @@ class BorrowAdmin(admin.ModelAdmin):
     date_hierarchy = 'start_date'
     search_fields = ('account__persons__name', 'account__persons__mep_id',
         'notes', 'item__title', 'item__notes')
-    list_filter = ('item_status',)
+    list_filter = ('item_status', 'item')
     list_editable = ('item_status',)
     fields = (
-        ('account', 'item'),
+        'account',
+        ('item', 'item_status'),
         ('partial_start_date', 'partial_end_date'),
         ('notes')
     )
     inlines = (BorrowFootnoteInline, )
+
+    class Media:
+        js = ['admin/borrow-admin-list.js']
+        css = {
+            'all': ['admin/borrow-admin-list.css']
+        }
+
+    def get_changelist_form(self, request, **kwargs):
+        # override the default changelist edit form in order to customize
+        # widget for editing item status
+        kwargs.setdefault('form', BorrowAdminListForm)
+        return super(BorrowAdmin, self).get_changelist_form(request, **kwargs)
+
+
 
 
 admin.site.register(Subscription, SubscriptionAdmin)

@@ -3,6 +3,7 @@ import re
 
 from cached_property import cached_property
 from eulxml import xmlmap
+from lxml.etree import cleanup_namespaces
 import pendulum
 
 from mep.accounts.models import Account, Subscription, SubscriptionType, \
@@ -15,6 +16,15 @@ class TeiXmlObject(xmlmap.XmlObject):
     ROOT_NAMESPACES = {
         't': 'http://www.tei-c.org/ns/1.0'
     }
+
+    def serialize_no_ns(self):
+        # convenience function to serialize xml and strip out TEI
+        # namespace declaration for brevity in database notes
+        # remove any unused namespaces before serializing
+        cleanup_namespaces(self.node.getroottree())
+        # strip out tei namespace declaration after serializing
+        return self.serialize(pretty=True).decode('utf-8') \
+            .replace(' xmlns="%s"' % self.ROOT_NAMESPACES['t'], '')
 
 
 class Measure(TeiXmlObject):
@@ -290,9 +300,34 @@ class LogBook(TeiXmlObject):
 
 ## lending cards and borrowing events
 
+
 class BibliographicScope(TeiXmlObject):
     unit = xmlmap.StringField('@unit')
     text = xmlmap.StringField('text()')
+
+    @property
+    def label(self):
+        # label for this scope; use unit attribute if present,
+        # otherwise use tag name (i.e. for edition)
+        return self.unit or \
+            self.node.tag.replace('{%s}' % self.ROOT_NAMESPACES['t'], '')
+
+
+class BorrowedItemTitle(TeiXmlObject):
+    #: contains an unclear tag
+    is_unclear = xmlmap.NodeField('t:unclear', TeiXmlObject)
+
+    def __str__(self):
+        # customize string method to include marker for <unclear/>
+        content = [self.node.text or '']
+        for node in self.node:
+            if node.tag == '{http://www.tei-c.org/ns/1.0}unclear':
+                content.append('[unclear]')
+            content.append(node.text or '')
+            content.append(node.tail or '')
+
+        if content:
+            return ''.join(content)
 
 
 class BorrowedItemTitle(TeiXmlObject):
@@ -318,7 +353,7 @@ class BorrowedItem(TeiXmlObject):
     mep_id = xmlmap.StringField('@corresp')
     publisher = xmlmap.StringField('t:publisher')
     date = xmlmap.StringField('t:date')
-    scope_list = xmlmap.NodeListField('t:biblScope', BibliographicScope)
+    scope_list = xmlmap.NodeListField('t:biblScope|t:edition', BibliographicScope)
 
 
 class BorrowingEvent(TeiXmlObject):
@@ -391,7 +426,7 @@ class BorrowingEvent(TeiXmlObject):
             created = True
 
         # if item was newly created OR borrow title is unclear, set the title
-        if created or self.item.title.is_unclear:
+        if created or self.item.title and self.item.title.is_unclear:
             # some borrowing events have an author and no title
             borrow.item.title = self.item.title or '[no title]'
 
@@ -419,16 +454,16 @@ class BorrowingEvent(TeiXmlObject):
             notes.append(self.notes)
         # include xml for any <del> tags
         for deleted_text in self.deletions:
-            notes.append(deleted_text.serialize(pretty=True).decode('utf-8'))
+            notes.append(deleted_text.serialize_no_ns())
         # untagged dates (could be a missed return date or similar)
         for extra_date in self.extra_dates:
-            notes.append(extra_date.serialize(pretty=True).decode('utf-8'))
+            notes.append(extra_date.serialize_no_ns())
 
         # bibliographic scope seems to be particular to this borrowing
         # event rather than the title, so adding here
         for bibl_scope in self.item.scope_list:
             # e.g. number/issue and any text...
-            notes.append('%s %s' % (bibl_scope.unit, bibl_scope.text))
+            notes.append('%s %s' % (bibl_scope.label, bibl_scope.text))
 
         borrow.notes = '\n'.join(notes)
 
