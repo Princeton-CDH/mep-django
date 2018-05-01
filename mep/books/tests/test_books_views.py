@@ -105,5 +105,5 @@ class TestBooksViews(TestCase):
 
         # link should not be on other change lists
         response = self.client.get(reverse('admin:auth_user_changelist'))
-        self.assertNotContains(response, reverse('books:item-csv'),
+        self.assertNotContains(response, reverse('books:items-csv'),
             msg_prefix='item CSV download link should only be on digitized work list')
