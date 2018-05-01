@@ -20,6 +20,9 @@ class TestBooksViews(TestCase):
             'admin', 'admin@example.com', self.admin_pass)
 
     def test_item_autocomplete(self):
+        # remove fixture items to duplicate previous test conditions
+        Item.objects.all().delete()
+
         url = reverse('books:item-autocomplete')
         res = self.client.get(url)
 
