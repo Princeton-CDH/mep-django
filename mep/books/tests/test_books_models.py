@@ -45,22 +45,26 @@ class TestItem(TestCase):
         Borrow(item=item, account=acct).save()
         assert item.borrow_count == 4
 
-    def test_authors(self):
+    def test_authors_editors_translators(self):
         item = Item.objects.create(title='Poems', year=1916)
         author1 = Person.objects.create(name='Smith')
         author2 = Person.objects.create(name='Jones')
         editor = Person.objects.create(name='Ed Mund')
+        translator = Person.objects.create(name='Juan Smythe')
         author_type = CreatorType.objects.get(name='Author')
         editor_type = CreatorType.objects.get(name='Editor')
+        translator_type = CreatorType.objects.get(name='Translator')
 
-        # add single author and editor
+        # add one each of author, editor, and translator
         Creator.objects.create(creator_type=author_type, person=author1,
             item=item)
         Creator.objects.create(creator_type=editor_type, person=editor,
             item=item)
+        Creator.objects.create(creator_type=translator_type, person=translator,
+            item=item)
 
         assert len(item.authors) == 1
-        assert item.authors[0] == author1
+        assert item.authors.first() == author1
         assert item.author_list() == str(author1)
 
         # add second author
@@ -71,6 +75,11 @@ class TestItem(TestCase):
         assert author2 in item.authors
         assert item.author_list() == '%s, %s' % (author1, author2)
 
+        assert len(item.editors) == 1
+        assert item.editors.first() == editor
+
+        assert len(item.translators) == 1
+        assert item.translators.first() == translator
 
 
 class TestPublisher(TestCase):

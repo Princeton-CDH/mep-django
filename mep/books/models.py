@@ -75,16 +75,31 @@ class Item(Notable):
             return str_value
         return '(No title, year)'
 
+    def creator_by_type(self, creator_type):
+        return self.creators.filter(creator__creator_type__name=creator_type)
+
     @property
     def authors(self):
-        return self.creators.filter(creator__creator_type__name='Author')
+        '''item creators with type author'''
+        return self.creator_by_type('Author')
 
     def author_list(self):
+        '''comma separated list of author names'''
         return ', '.join([str(auth) for auth in self.authors])
 
     @property
+    def editors(self):
+        '''item creators with type editor'''
+        return self.creator_by_type('Editor')
+
+    @property
+    def translators(self):
+        '''item creators with type translator'''
+        return self.creator_by_type('Translator')
+
+    @property
     def borrow_count(self):
-        '''Get the number of times the item was borrowed.'''
+        '''Number of times this item was borrowed.'''
         return self.borrow_set.count()
 
 
