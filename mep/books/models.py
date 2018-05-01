@@ -53,6 +53,9 @@ class Item(Notable):
     publishers = models.ManyToManyField(Publisher, blank=True)
     pub_places = models.ManyToManyField(PublisherPlace, blank=True, verbose_name="Places of Publication")
 
+    # direct access to all creator persons, using Creator as through model
+    creators = models.ManyToManyField(Person, through='Creator')
+
     def save(self, *args, **kwargs):
         # override save to ensure mep ID is None rather than empty string
         # if not set
@@ -72,11 +75,12 @@ class Item(Notable):
             return str_value
         return '(No title, year)'
 
+    @property
     def authors(self):
-        return Person.objects.filter(creator__item=self)
+        return self.creators.filter(creator__creator_type__name='Author')
 
     def author_list(self):
-        return ', '.join([str(auth) for auth in self.authors()])
+        return ', '.join([str(auth) for auth in self.authors])
 
     @property
     def borrow_count(self):

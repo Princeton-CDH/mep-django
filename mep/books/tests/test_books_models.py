@@ -1,8 +1,11 @@
 import re
 
 from django.test import TestCase
-from mep.books.models import Item, Publisher, PublisherPlace
+
 from mep.accounts.models import Borrow, Account
+from mep.books.models import Item, Publisher, PublisherPlace, Creator, \
+    CreatorType
+from mep.people.models import Person
 
 
 class TestItem(TestCase):
@@ -41,6 +44,33 @@ class TestItem(TestCase):
         Borrow(item=item, account=acct).save()
         Borrow(item=item, account=acct).save()
         assert item.borrow_count == 4
+
+    def test_authors(self):
+        item = Item.objects.create(title='Poems', year=1916)
+        author1 = Person.objects.create(name='Smith')
+        author2 = Person.objects.create(name='Jones')
+        editor = Person.objects.create(name='Ed Mund')
+        author_type = CreatorType.objects.get(name='Author')
+        editor_type = CreatorType.objects.get(name='Editor')
+
+        # add single author and editor
+        Creator.objects.create(creator_type=author_type, person=author1,
+            item=item)
+        Creator.objects.create(creator_type=editor_type, person=editor,
+            item=item)
+
+        assert len(item.authors) == 1
+        assert item.authors[0] == author1
+        assert item.author_list() == str(author1)
+
+        # add second author
+        Creator.objects.create(creator_type=author_type, person=author2,
+            item=item)
+        assert len(item.authors) == 2
+        assert author1 in item.authors
+        assert author2 in item.authors
+        assert item.author_list() == '%s, %s' % (author1, author2)
+
 
 
 class TestPublisher(TestCase):
