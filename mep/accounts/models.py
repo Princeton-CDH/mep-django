@@ -464,6 +464,11 @@ class PartialDate(object):
         parts = []
         # cast integer to date precision to check flags
         value = DatePrecision(value)
+
+        # no precision = no date
+        if not value:
+            return ''
+
         if value.year:
             parts.append('%Y')
         else:
@@ -542,6 +547,41 @@ class Borrow(Event):
         if self.end_date and not self.item_status:
             self.item_status = self.ITEM_RETURNED
         super(Borrow, self).save(*args, **kwargs)
+
+    def calculate_date(self, kind, dateval=None, earliest=None, latest=None):
+        '''Calculate end or start date based on a single value in a
+        supported partial date form or based on earliest/latest datetime.'''
+
+        # kind must be either start_date or end_date
+        if kind not in ['start_date', 'end_date']:
+            raise ValueError
+
+        # if there is a single date value, use partial date to parse it
+        # and set date precision
+        if dateval:
+            setattr(self, 'partial_%s' % kind, dateval)
+            # special case:
+            # 1900 dates were used to indicate unknown year; book store didn't
+            # open until 1919, so any year before that should be marked unknown
+            if getattr(self, kind).year < 1919:
+                setattr(self, '%s_precision' % kind,
+                        DatePrecision.month | DatePrecision.day)
+
+        # no exact date, but earliest/latest possible dates
+        elif earliest and latest:
+            # store earliest datetime
+            setattr(self, kind, earliest)
+            precision = DatePrecision()
+            # calculate the precision based on values in common
+            if earliest.year == latest.year:
+                precision |= DatePrecision.year
+            if earliest.month == latest.month:
+                precision |= DatePrecision.month
+            if earliest.day == latest.day:
+                precision |= DatePrecision.day
+
+            # store the precision
+            setattr(self, '%s_precision' % kind, precision)
 
 
 class Purchase(Event, CurrencyMixin):
