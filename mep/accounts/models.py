@@ -416,6 +416,7 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
     def to_python(self, value):
         return DatePrecision(value) if value else None
 
+
 class PartialDate(object):
     '''Descriptor that gets and sets a related :class:`datetime.date` and
     :class:`DatePrecision` from partial date strings, e.g. --05-02.'''
@@ -426,10 +427,16 @@ class PartialDate(object):
        r'^(?P<year>\d{4}|-)?(?:-(?P<month>[01]\d))?(?:-(?P<day>[0-3]\d))?$'
     )
 
-    def __init__(self, date_field, date_precision_field, unknown_year:int=1):
+    def __init__(self, date_field, date_precision_field, unknown_year:int=1,
+                 label=None):
         self.date_field = date_field
         self.date_precision_field = date_precision_field
         self.unknown_year = unknown_year
+
+        # set attributes for display/sort in django admin
+        self.admin_order_field = date_field
+        if label:
+            self.short_description = label
 
     def __get__(self, obj, objtype=None):
         '''Use :meth:`date_format` to transform a  :class:`datetime.date` and
@@ -522,12 +529,10 @@ class Borrow(Event):
     start_date_precision = DatePrecisionField(null=True, blank=True)
     end_date_precision = DatePrecisionField(null=True, blank=True)
     UNKNOWN_YEAR = 1900
-    partial_start_date = PartialDate('start_date', 'start_date_precision', UNKNOWN_YEAR)
-    partial_start_date.short_description = 'start date'
-    partial_start_date.admin_order_field = 'start_date'
-    partial_end_date = PartialDate('end_date', 'end_date_precision', UNKNOWN_YEAR)
-    partial_end_date.short_description = 'end date'
-    partial_end_date.admin_order_field = 'end_date'
+    partial_start_date = PartialDate('start_date', 'start_date_precision',
+        UNKNOWN_YEAR, label='start date')
+    partial_end_date = PartialDate('end_date', 'end_date_precision',
+        UNKNOWN_YEAR, label='end date')
 
     footnotes = GenericRelation(Footnote)
 
