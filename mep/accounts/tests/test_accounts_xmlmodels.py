@@ -422,12 +422,29 @@ class TestBorrowingEvent(TestCase):
         <date ana="#returned" when="1939-07-18">July 18</date>
       </ab>'''
 
+    not_before_after = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+      <date ana="#checkedOut" notBefore="1935-07-26" notAfter="1938-07-26">26 July</date>
+      <bibl ana="#borrowedItem" corresp="mep:00476f">
+         <title>Second Common Reader</title>
+      </bibl>
+      <date ana="#returned" notBefore="1935-09-04" notAfter="1938-09-04">Sept 4</date>
+    </ab>'''
+
+    not_before_after2 = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+        <date ana="#checkedOut" notBefore="1928-11-13" notAfter="1928-11-29">〃 〃</date>
+          <bibl ana="#borrowedItem" corresp="mep:001n05">
+         <title>Swan Song</title>
+      </bibl>
+          <note>0.25 = 4.</note>
+          <date ana="#returned" when="1928-11-29">Nov 29</date>
+    </ab>'''
+
     def test_fields(self):
         event = xmlmap.load_xmlobject_from_string(self.two_painters,
             BorrowingEvent)
 
-        assert event.checked_out == '1939-04-06'
-        assert event.returned == '1939-04-13'
+        assert event.checked_out.when == '1939-04-06'
+        assert event.returned.when == '1939-04-13'
         assert isinstance(event.item, BorrowedItem)
         assert str(event.item.title) == 'Poets Two Painters'
         assert event.item.mep_id == 'mep:006866'
@@ -440,6 +457,14 @@ class TestBorrowingEvent(TestCase):
         # notes
         event = xmlmap.load_xmlobject_from_string(self.bought, BorrowingEvent)
         assert event.notes == 'BB'
+
+        # not before/after dates; month/day known, but not year
+        event = xmlmap.load_xmlobject_from_string(self.not_before_after,
+            BorrowingEvent)
+        assert event.checked_out.not_before == datetime.date(1935, 7, 26)
+        assert event.checked_out.not_after == datetime.date(1938, 7, 26)
+        assert event.returned.not_before == datetime.date(1935, 9, 4)
+        assert event.returned.not_after == datetime.date(1938, 9, 4)
 
     def test_bought(self):
         # no bought flag in notes
@@ -483,8 +508,8 @@ class TestBorrowingEvent(TestCase):
         assert isinstance(db_borrow, Borrow)
         assert db_borrow.account == account
         assert db_borrow.item_status == Borrow.ITEM_RETURNED
-        assert db_borrow.start_date.isoformat() == xmlevent.checked_out
-        assert db_borrow.end_date.isoformat() == xmlevent.returned
+        assert db_borrow.start_date.isoformat() == xmlevent.checked_out.when
+        assert db_borrow.end_date.isoformat() == xmlevent.returned.when
         # currently returned unsaved
         assert not db_borrow.pk
         # notes should be copied
@@ -526,8 +551,8 @@ class TestBorrowingEvent(TestCase):
         # 1900 dates -> year unknown
         xmlevent = xmlmap.load_xmlobject_from_string(self.two_painters,
             BorrowingEvent)
-        xmlevent.checked_out = datetime.date(1900, 5, 1)
-        xmlevent.returned = datetime.date(1900, 6, 3)
+        xmlevent.checked_out.when = datetime.date(1900, 5, 1)
+        xmlevent.returned.when = datetime.date(1901, 6, 3)
         db_borrow = xmlevent.to_db_event(account)
         # check DatePrecision flags
         assert not db_borrow.start_date_precision.year
@@ -587,6 +612,42 @@ class TestBorrowingEvent(TestCase):
         db_borrow = xmlevent.to_db_event(account)
         assert isinstance(db_borrow.item, Item)
         assert db_borrow.item.title == '[no title]'
+
+        # ambiguous not before/after dates, month/year known but not year
+        xmlevent = xmlmap.load_xmlobject_from_string(self.not_before_after,
+            BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        # start date notBefore="1935-07-26" notAfter="1938-07-26"
+        assert db_borrow.partial_start_date == '--07-26'
+        assert db_borrow.start_date == datetime.date(1935, 7, 26)
+        assert not db_borrow.start_date_precision.year
+        assert db_borrow.start_date_precision.month
+        assert db_borrow.start_date_precision.day
+        checkout_note = 'checked out between %s / %s' % \
+            (xmlevent.checked_out.not_before, xmlevent.checked_out.not_after)
+        assert checkout_note in db_borrow.notes
+        # end date notBefore="1935-09-04" notAfter="1938-09-04"
+        assert db_borrow.partial_end_date == '--09-04'
+        assert db_borrow.end_date == datetime.date(1935, 9, 4)
+        assert not db_borrow.end_date_precision.year
+        assert db_borrow.end_date_precision.month
+        assert db_borrow.end_date_precision.day
+        return_note = 'returned between %s / %s' % \
+            (xmlevent.returned.not_before, xmlevent.returned.not_after)
+        assert return_note in db_borrow.notes
+
+        # ambiguous not before/after dates, year/month known but not day
+        xmlevent = xmlmap.load_xmlobject_from_string(self.not_before_after2,
+            BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+         # start date notBefore="1928-11-13" notAfter="1928-11-29"
+        assert db_borrow.partial_start_date == '1928-11'
+        assert db_borrow.start_date == datetime.date(1928, 11, 13)
+        assert db_borrow.start_date_precision.year
+        assert db_borrow.start_date_precision.month
+        assert not db_borrow.start_date_precision.day
+        # end date is normal when="1928-11-29
+        assert db_borrow.partial_end_date == '1928-11-29'
 
 
 class TestLendingCard(TestCase):

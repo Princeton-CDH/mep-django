@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 class NamedNotableAdmin(admin.ModelAdmin):
     '''Generic model admin for named/notable models.'''
-    list_display = ('name', 'has_notes')
+    list_display = ('name', 'note_snippet')
     # fields = ('name', 'notes')
     search_fields = ('name', 'notes')
 

@@ -330,6 +330,22 @@ class BorrowedItemTitle(TeiXmlObject):
             return ''.join(content)
 
 
+class BorrowedItemTitle(TeiXmlObject):
+    #: contains an unclear tag
+    is_unclear = xmlmap.NodeField('t:unclear', TeiXmlObject)
+
+    def __str__(self):
+        # customize string method to include marker for <unclear/>
+        content = [self.node.text or '']
+        for node in self.node:
+            if node.tag == '{http://www.tei-c.org/ns/1.0}unclear':
+                content.append('[unclear]')
+            content.append(node.text or '')
+            content.append(node.tail or '')
+
+        if content:
+            return ''.join(content)
+
 class BorrowedItem(TeiXmlObject):
     '''an item within a borrowing event; may just have a title'''
     title = xmlmap.NodeField('t:title', BorrowedItemTitle)
@@ -340,12 +356,18 @@ class BorrowedItem(TeiXmlObject):
     scope_list = xmlmap.NodeListField('t:biblScope|t:edition', BibliographicScope)
 
 
+class BorrowDate(TeiXmlObject):
+    # NOTE: mapping when date as string instead of DateTime because
+    # dates are not always complete; date parsing handled by PartialDate
+    when = xmlmap.StringField('@when')
+    # not before/after always full ISO date
+    not_before = xmlmap.DateField('@notBefore')
+    not_after = xmlmap.DateField('@notAfter')
+
 class BorrowingEvent(TeiXmlObject):
     '''a record of a borrowing event; item with check out and return date'''
-    # NOTE: mapping dates as string instead of DateTime because
-    # they are not always complete; date parsing handled by PartialDate
-    checked_out = xmlmap.StringField('t:date[@ana="#checkedOut"]/@when')
-    returned = xmlmap.StringField('t:date[@ana="#returned"]/@when')
+    checked_out = xmlmap.NodeField('t:date[@ana="#checkedOut"]', BorrowDate)
+    returned = xmlmap.NodeField('t:date[@ana="#returned"]', BorrowDate)
     # bibl could be directly in the event <ab> tag _or_ within a <del>
     item = xmlmap.NodeField('.//t:bibl[@ana="#borrowedItem"]', BorrowedItem)
     notes = xmlmap.StringField('t:note')
@@ -371,19 +393,62 @@ class BorrowingEvent(TeiXmlObject):
         return bool(self.notes) and \
             any([ret in self.notes for ret in return_terms])
 
+    def calculate_date(self, borrowingdate, partial_date):
+        print(partial_date)
+        if borrowingdate:
+            # date coded as when attribute; could be full or partial
+            if borrowingdate.when:
+                # use partial date to parse the date and determine certainty
+                partial_date = borrowingdate.when
+
+                # 1900 dates were used to indicate unknown year; book store didn't
+                # open until 1919, so any year before that should be marked
+                # as unknown
+                if partial_date.date.year < 1919:
+                    partial_date_precision = DatePrecision.month | DatePrecision.day
+
+            # no when attribute, but not before/after dates
+            elif borrowingdate.not_before and borrowingdate.not_after:
+                earliest, latest = borrowingdate.not_before, borrowingdate.not_after
+                # store datetime as earliest date
+                date = earliest
+                # calculate precision based on common values
+                if earliest.year == latest.year:
+                    date_precision |= DatePrecision.year
+                if earliest.month == latest.month:
+                    date_precision |= DatePrecision.month
+                if earliest.day == latest.day:
+                    date_precision |= DatePrecision.day
+
     def to_db_event(self, account):
         '''Generate a database :class:`~mep.accounts.models.Borrow` event
         for the current xml borrowing event.'''
 
         borrow = Borrow(account=account)
-        # use partial date to parse the date and determine certainty
-        borrow.partial_start_date = self.checked_out
-        borrow.partial_end_date = self.returned
-        # if year is set to 1900, it should be considered year unknown
-        if borrow.start_date and borrow.start_date.year == 1900:
-            borrow.start_date_precision = DatePrecision.month | DatePrecision.day
-        if borrow.end_date and borrow.end_date.year == 1900:
-            borrow.end_date_precision = DatePrecision.month | DatePrecision.day
+        # array to gather notes
+        notes = []
+
+        if self.checked_out:
+            borrow.calculate_date('start_date', self.checked_out.when,
+                self.checked_out.not_before, self.checked_out.not_after)
+
+            # document not before/after in notes when appropriate
+            if not self.checked_out.when and self.checked_out.not_before \
+              and self.checked_out.not_after:
+                notes.append('checked out between %s / %s' % \
+                             (self.checked_out.not_before,
+                              self.checked_out.not_after))
+
+        if self.returned:
+            borrow.calculate_date('end_date', self.returned.when,
+                self.returned.not_before, self.returned.not_after)
+
+            # document not before/after in notes when appropriate
+            if not self.returned.when and self.returned.not_before \
+              and self.returned.not_after:
+                notes.append('returned between %s / %s' % \
+                             (self.returned.not_before,
+                              self.returned.not_after))
 
         # set item status if possible
         # if there is a return date, item was returned
@@ -432,7 +497,7 @@ class BorrowingEvent(TeiXmlObject):
             borrow.item.save()
 
         # gather information to be included in borrowing events notes
-        notes = []
+
         # include text inside <note> tag in the xml
         if self.notes:
             notes.append(self.notes)

@@ -4,6 +4,7 @@ import datetime
 
 from cached_property import cached_property
 from dateutil.relativedelta import relativedelta
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
 from django.db import models
@@ -13,6 +14,7 @@ from flags import Flags
 from mep.books.models import Item
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Location
+from mep.footnotes.models import Bibliography, Footnote
 
 
 class Account(models.Model):
@@ -24,6 +26,10 @@ class Account(models.Model):
     # convenience access to associated locations, although
     # we will probably use Address for most things
     locations = models.ManyToManyField(Location, through='Address', blank=True)
+
+    card = models.ForeignKey(Bibliography, blank=True, null=True,
+        help_text='Lending Library Card for this account',
+        limit_choices_to={'source_type__name': 'Lending Library Card'})
 
     def __repr__(self):
         return '<Account %s>' % self.__dict__
@@ -89,6 +95,10 @@ class Account(models.Model):
         '''List of associated :class:`mep.people.models.Location` '''
         return '; '.join([str(loc) for loc in self.locations.distinct()])
     list_locations.short_description = 'Locations'
+
+    def has_card(self):
+        return bool(self.card)
+    has_card.boolean = True
 
     def add_event(self, etype='event', **kwargs):
         '''Helper function to add a :class:`Event` or subclass to an
@@ -406,6 +416,7 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
     def to_python(self, value):
         return DatePrecision(value) if value else None
 
+
 class PartialDate(object):
     '''Descriptor that gets and sets a related :class:`datetime.date` and
     :class:`DatePrecision` from partial date strings, e.g. --05-02.'''
@@ -416,10 +427,16 @@ class PartialDate(object):
        r'^(?P<year>\d{4}|-)?(?:-(?P<month>[01]\d))?(?:-(?P<day>[0-3]\d))?$'
     )
 
-    def __init__(self, date_field, date_precision_field, unknown_year:int=1):
+    def __init__(self, date_field, date_precision_field, unknown_year:int=1,
+                 label=None):
         self.date_field = date_field
         self.date_precision_field = date_precision_field
         self.unknown_year = unknown_year
+
+        # set attributes for display/sort in django admin
+        self.admin_order_field = date_field
+        if label:
+            self.short_description = label
 
     def __get__(self, obj, objtype=None):
         '''Use :meth:`date_format` to transform a  :class:`datetime.date` and
@@ -447,6 +464,11 @@ class PartialDate(object):
         parts = []
         # cast integer to date precision to check flags
         value = DatePrecision(value)
+
+        # no precision = no date
+        if not value:
+            return ''
+
         if value.year:
             parts.append('%Y')
         else:
@@ -512,12 +534,12 @@ class Borrow(Event):
     start_date_precision = DatePrecisionField(null=True, blank=True)
     end_date_precision = DatePrecisionField(null=True, blank=True)
     UNKNOWN_YEAR = 1900
-    partial_start_date = PartialDate('start_date', 'start_date_precision', UNKNOWN_YEAR)
-    partial_start_date.short_description = 'start date'
-    partial_start_date.admin_order_field = 'start_date'
-    partial_end_date = PartialDate('end_date', 'end_date_precision', UNKNOWN_YEAR)
-    partial_end_date.short_description = 'end date'
-    partial_end_date.admin_order_field = 'end_date'
+    partial_start_date = PartialDate('start_date', 'start_date_precision',
+        UNKNOWN_YEAR, label='start date')
+    partial_end_date = PartialDate('end_date', 'end_date_precision',
+        UNKNOWN_YEAR, label='end date')
+
+    footnotes = GenericRelation(Footnote)
 
     def save(self, *args, **kwargs):
         # if end date is set and item status is not, automatically set
@@ -525,6 +547,41 @@ class Borrow(Event):
         if self.end_date and not self.item_status:
             self.item_status = self.ITEM_RETURNED
         super(Borrow, self).save(*args, **kwargs)
+
+    def calculate_date(self, kind, dateval=None, earliest=None, latest=None):
+        '''Calculate end or start date based on a single value in a
+        supported partial date form or based on earliest/latest datetime.'''
+
+        # kind must be either start_date or end_date
+        if kind not in ['start_date', 'end_date']:
+            raise ValueError
+
+        # if there is a single date value, use partial date to parse it
+        # and set date precision
+        if dateval:
+            setattr(self, 'partial_%s' % kind, dateval)
+            # special case:
+            # 1900 dates were used to indicate unknown year; book store didn't
+            # open until 1919, so any year before that should be marked unknown
+            if getattr(self, kind).year < 1919:
+                setattr(self, '%s_precision' % kind,
+                        DatePrecision.month | DatePrecision.day)
+
+        # no exact date, but earliest/latest possible dates
+        elif earliest and latest:
+            # store earliest datetime
+            setattr(self, kind, earliest)
+            precision = DatePrecision()
+            # calculate the precision based on values in common
+            if earliest.year == latest.year:
+                precision |= DatePrecision.year
+            if earliest.month == latest.month:
+                precision |= DatePrecision.month
+            if earliest.day == latest.day:
+                precision |= DatePrecision.day
+
+            # store the precision
+            setattr(self, '%s_precision' % kind, precision)
 
 
 class Purchase(Event, CurrencyMixin):

@@ -75,7 +75,6 @@ class ItemCSV(ListView):
             content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="%s"' % \
             self.get_csv_filename()
-
         return response
 
     def get(self, *args, **kwargs):

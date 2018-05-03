@@ -9,6 +9,7 @@ from django.core.validators import RegexValidator
 from mep.accounts.models import Account, Address, Subscription,\
     Reimbursement, Event, SubscriptionType, Borrow, PartialDate
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
+from mep.footnotes.admin import FootnoteInline
 
 
 # predefine autocomplete lookups (most are used on more than one form)
@@ -249,11 +250,11 @@ class AccountAdmin(admin.ModelAdmin):
     model = Account
     form = AccountAdminForm
     list_display = ('id', 'list_persons', 'earliest_date', 'last_date',
-                    'list_locations')
+                    'has_card', 'list_locations')
     search_fields = ('id', 'address__location__street_address',
                      'address__location__name',
                      'address__location__country__name', 'persons__name')
-    fields = ('persons',)
+    fields = ('persons', 'card')
     inlines = [AccountAddressInline, SubscriptionInline, ReimbursementInline]
 
     class Media:
@@ -300,6 +301,14 @@ class BorrowAdminForm(forms.ModelForm):
             self.instance.partial_end_date = cleaned_data['partial_end_date']
             return cleaned_data
 
+
+class BorrowFootnoteInline(FootnoteInline):
+    # customize standard footnote inline for borrowing event footnote
+    classes = ('grp-collapse', )  # grapelli collapsible, but not closed
+    fields = ('bibliography', 'location', 'notes')
+    extra = 0
+
+
 class BorrowAdminListForm(forms.ModelForm):
     # custom form for list-editable item status on borrow list
 
@@ -326,6 +335,7 @@ class BorrowAdmin(admin.ModelAdmin):
         ('partial_start_date', 'partial_end_date'),
         ('notes')
     )
+    inlines = (BorrowFootnoteInline, )
 
     class Media:
         js = ['admin/borrow-admin-list.js']
