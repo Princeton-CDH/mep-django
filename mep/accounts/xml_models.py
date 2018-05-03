@@ -393,6 +393,35 @@ class BorrowingEvent(TeiXmlObject):
         return bool(self.notes) and \
             any([ret in self.notes for ret in return_terms])
 
+    # generic titles that should *not* be aggregated together in spite
+    # of shared mep id, because these are almost certainly not the same work
+    # in all cases
+    GENERIC_TITLES = ["Theatre", "Oscar Wilde", "James Joyce", "Blake",
+        "Shakespeare", "Tennyson", "Selected Poems", "Chaucer",
+        "Swinburne", "Hamlet", "Shelley", '"', "John Donne", "Trumpet major",
+        "D.H. Lawrence", "Coleridge", "Autobiography", "Hist. of England",
+        "English novel", "Hart Crane", "Irish Drama", "Letters", "Napoleon",
+        "William Blake", "Coll. Poems", "New Poetry", "Charls Dickens",
+        "C.", "American History 2", "Queen Elizabeth", "Life of Shakespeare",
+        "Walter Pater", "Mozart", "Dostoevsky", "[unclear]", "Edgar Allen Poe",
+        "Conrad", "Life of Oscar Wilde", "Meredith", "Dramatic Works",
+        "A.C. Swinburne", "Beethoven", "Poetry and Prose", "Memoirs",
+        "Poems and Plays", "Complete Poems", "Poetical Works", "Emerson",
+        "Life and Writings"]
+
+    # MEP title id based on generic titles above
+    GENERIC_TITLE_IDS = ["mep:00060b", "mep:00071x", "mep:000q6b",
+        "mep:000v26", "mep:001106", "mep:00128z", "mep:00137x", "mep:00181f",
+        "mep:001w8k", "mep:001x1p", "mep:00242w", "mep:002d6b", "mep:002p29",
+        "mep:00428p", "mep:004440", "mep:00470k", "mep:00480v", "mep:00486q",
+        "mep:004w6p", "mep:005q4x", "mep:006s0g", "mep:006w93", "mep:007184",
+        "mep:007915", "mep:009357", "mep:009t6b", "mep:00b21z", "mep:00b53d",
+        "mep:00bc60", "mep:00bh5s", "mep:00bk0s", "mep:00c34d", "mep:00c511",
+        "mep:00c69s", "mep:00cf5g", "mep:00cf6s", "mep:00d902", "mep:00dj00",
+        "mep:00f81b", "mep:00g47b", "mep:00g597", "mep:00hb2p", "mep:00j76b",
+        "mep:00k650", "mep:00qm2b", "mep:swinburnenicholson"
+    ]
+
     def to_db_event(self, account):
         '''Generate a database :class:`~mep.accounts.models.Borrow` event
         for the current xml borrowing event.'''
@@ -434,16 +463,18 @@ class BorrowingEvent(TeiXmlObject):
             elif self.returned_note:
                 borrow.item_status = Borrow.ITEM_RETURNED
 
-        # NOTE: some records have an unclear title or partially unclear title
-        #  with no mep id for the item
-        if self.item.mep_id:
+        # if we have an mep id and it is not flagged as a generic id
+        # that should not be aggregated, find the existing item record
+        if self.item.mep_id and self.item.mep_id not in self.GENERIC_TITLE_IDS:
             # find item that was borrowed
             # *should* already exist from regularized title import;
             # if item does not exist, create a new stub record
             borrow.item, created = Item.objects.get_or_create(mep_id=self.item.mep_id)
 
-        # if no mep id, we still want to create a stub record
+        # if no mep id or a generic id, create a new record
         else:
+            # NOTE: some records have an unclear title or partially unclear title
+            #  with no mep id for the item
             borrow.item = Item.objects.create()
             created = True
 

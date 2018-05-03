@@ -439,6 +439,12 @@ class TestBorrowingEvent(TestCase):
           <date ana="#returned" when="1928-11-29">Nov 29</date>
     </ab>'''
 
+    generic_title = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+       <date ana="#checkedOut" when="1952-01-14"></date>
+      <bibl ana="#borrowedItem" corresp="mep:00j76b"><title>T S Eliot</title><author>M C Bradbrook</author></bibl>
+          <date ana="returned" notBefore="1952-01-14"></date>
+    </ab>'''
+
     def test_fields(self):
         event = xmlmap.load_xmlobject_from_string(self.two_painters,
             BorrowingEvent)
@@ -649,6 +655,18 @@ class TestBorrowingEvent(TestCase):
         # end date is normal when="1928-11-29
         assert db_borrow.partial_end_date == '1928-11-29'
 
+        # generic title should not be aggregated by mep id
+        xmlevent = xmlmap.load_xmlobject_from_string(self.generic_title,
+            BorrowingEvent)
+        # create generic title item with matching mep id
+        existing_item = Item.objects.create(title=xmlevent.item.title,
+            mep_id=xmlevent.item.mep_id)
+        db_borrow = xmlevent.to_db_event(account)
+        assert db_borrow.item != existing_item
+        assert db_borrow.item.title == xmlevent.item.title
+        assert xmlevent.item.author in db_borrow.item.notes
+        # mep id ignored
+        assert not db_borrow.item.mep_id
 
 class TestLendingCard(TestCase):
 
