@@ -393,33 +393,6 @@ class BorrowingEvent(TeiXmlObject):
         return bool(self.notes) and \
             any([ret in self.notes for ret in return_terms])
 
-    def calculate_date(self, borrowingdate, partial_date):
-        print(partial_date)
-        if borrowingdate:
-            # date coded as when attribute; could be full or partial
-            if borrowingdate.when:
-                # use partial date to parse the date and determine certainty
-                partial_date = borrowingdate.when
-
-                # 1900 dates were used to indicate unknown year; book store didn't
-                # open until 1919, so any year before that should be marked
-                # as unknown
-                if partial_date.date.year < 1919:
-                    partial_date_precision = DatePrecision.month | DatePrecision.day
-
-            # no when attribute, but not before/after dates
-            elif borrowingdate.not_before and borrowingdate.not_after:
-                earliest, latest = borrowingdate.not_before, borrowingdate.not_after
-                # store datetime as earliest date
-                date = earliest
-                # calculate precision based on common values
-                if earliest.year == latest.year:
-                    date_precision |= DatePrecision.year
-                if earliest.month == latest.month:
-                    date_precision |= DatePrecision.month
-                if earliest.day == latest.day:
-                    date_precision |= DatePrecision.day
-
     def to_db_event(self, account):
         '''Generate a database :class:`~mep.accounts.models.Borrow` event
         for the current xml borrowing event.'''
