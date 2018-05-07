@@ -54,12 +54,12 @@ class TestItemAdmin(TestCase):
 
         # store the URLs that the borrow count links should point to
         borrows1 = (reverse('admin:accounts_borrow_changelist') +
-            '?item__id__exact=' + str(item1.id))
+                    '?item__id__exact=' + str(item1.id))
         borrows2 = (reverse('admin:accounts_borrow_changelist') +
-            '?item__id__exact=' + str(item2.id))
+                    '?item__id__exact=' + str(item2.id))
         # check that borrow count is rendered as a link with zero borrows
-        assert item_admin.borrow_count(item1) == '<a href="%s">0</a>' % borrows1
-        assert item_admin.borrow_count(item2) == '<a href="%s">0</a>' % borrows2
+        assert item_admin.borrow_count(item1) == '<a href="%s" target="_blank">0</a>' % borrows1
+        assert item_admin.borrow_count(item2) == '<a href="%s" target="_blank">0</a>' % borrows2
         # create a test account and borrow some of the books
         acct = Account()
         acct.save()
@@ -69,5 +69,5 @@ class TestItemAdmin(TestCase):
         # check that the borrow counts inside the links are updated
         item1 = item_admin.get_queryset(rqst).get(pk=item1.pk)
         item2 = item_admin.get_queryset(rqst).get(pk=item2.pk)
-        assert item_admin.borrow_count(item1) == '<a href="%s">1</a>' % borrows1
-        assert item_admin.borrow_count(item2) == '<a href="%s">2</a>' % borrows2
+        assert item_admin.borrow_count(item1) == '<a href="%s" target="_blank">1</a>' % borrows1
+        assert item_admin.borrow_count(item2) == '<a href="%s" target="_blank">2</a>' % borrows2

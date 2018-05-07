@@ -51,7 +51,7 @@ class ItemAdmin(admin.ModelAdmin):
     def borrow_count(self, obj):
         '''Display the borrow count as a link to view associated borrows'''
         return format_html(
-            '<a href="{0}?item__id__exact={1!s}">{2}</a>',
+            '<a href="{0}?item__id__exact={1!s}" target="_blank">{2}</a>',
             reverse('admin:accounts_borrow_changelist'), str(obj.id),
             # use the database annotation rather than the object property
             # for efficiency
