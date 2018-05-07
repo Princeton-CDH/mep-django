@@ -21,92 +21,68 @@ class CustomIndexDashboard(Dashboard):
     def init_with_context(self, context):
         site_name = get_admin_site_name(context)
 
-        # append a group for "Administration" & "Applications"
-        self.children.append(modules.Group(
-            _('Group: Administration & Applications'),
-            column=1,
-            collapsible=True,
-            children = [
-                modules.AppList(
-                    _('Administration'),
-                    column=1,
-                    collapsible=False,
-                    models=('django.contrib.*',),
-                ),
-                modules.AppList(
-                    _('Applications'),
-                    column=1,
-                    css_classes=('collapse closed',),
-                    exclude=('django.contrib.*',),
-                )
-            ]
-        ))
-
-        # append an app list module for "Applications"
-        self.children.append(modules.AppList(
-            _('AppList: Applications'),
-            collapsible=True,
-            column=1,
-            css_classes=('collapse closed',),
-            exclude=('django.contrib.*',),
-        ))
-
-        # append an app list module for "Administration"
+        # Accounts
         self.children.append(modules.ModelList(
-            _('ModelList: Administration'),
+            _('Library Accounts'),
+            column=1,
+            collapsible=False,
+            models=([
+                'mep.accounts.models.Account',
+                'mep.accounts.models.Event',
+                'mep.accounts.models.Subscription',
+                'mep.accounts.models.Reimbursement',
+                'mep.accounts.models.SubscriptionType',
+                'mep.accounts.models.Borrow'
+            ]),
+        ))
+
+        # Personography
+        self.children.append(modules.ModelList(
+            _('Personography'),
+            column=1,
+            collapsible=False,
+            models=([
+                'mep.people.models.Person',
+                'mep.people.models.Country',
+                'mep.people.models.Profession',
+                'mep.people.models.RelationshipType',
+                'mep.people.models.Location',
+            ]),
+        ))
+
+        # Bibliography
+        self.children.append(modules.ModelList(
+            _('Bibliography'),
+            column=1,
+            collapsible=False,
+            models=([
+                'mep.books.models.Item',
+            ]),
+        ))
+
+        # Footnotes
+        self.children.append(modules.ModelList(
+            _('Footnotes'),
+            column=1,
+            collapsible=False,
+            models=([
+                'mep.footnotes.models.SourceType',
+                'mep.footnotes.models.Bibliography',
+                'mep.footnotes.models.Footnote',
+            ]),
+        ))
+
+        # Administration
+        self.children.append(modules.ModelList(
+             _('Administration'),
             column=1,
             collapsible=False,
             models=('django.contrib.*',),
         ))
 
-        # append another link list module for "support".
-        self.children.append(modules.LinkList(
-            _('Media Management'),
-            column=2,
-            children=[
-                {
-                    'title': _('FileBrowser'),
-                    'url': '/admin/filebrowser/browse/',
-                    'external': False,
-                },
-            ]
-        ))
-
-        # append another link list module for "support".
-        self.children.append(modules.LinkList(
-            _('Support'),
-            column=2,
-            children=[
-                {
-                    'title': _('Django Documentation'),
-                    'url': 'http://docs.djangoproject.com/',
-                    'external': True,
-                },
-                {
-                    'title': _('Grappelli Documentation'),
-                    'url': 'http://packages.python.org/django-grappelli/',
-                    'external': True,
-                },
-                {
-                    'title': _('Grappelli Google-Code'),
-                    'url': 'http://code.google.com/p/django-grappelli/',
-                    'external': True,
-                },
-            ]
-        ))
-
-        # append a feed module
-        self.children.append(modules.Feed(
-            _('Latest Django News'),
-            column=2,
-            feed_url='http://www.djangoproject.com/rss/weblog/',
-            limit=5
-        ))
-
-        # append a recent actions module
+        # Recent Actions
         self.children.append(modules.RecentActions(
             _('Recent Actions'),
-            limit=5,
             collapsible=False,
-            column=3,
+            column=2,
         ))
