@@ -59,6 +59,12 @@ Initial setup and installation:
 Remember to add a ``SECRET_KEY`` setting!
 
 
+Note that the admin index page will not reflect some changes without a manual
+update - you will need to edit ``mep/dashboard.py`` to control the display and
+ordering of admin items. More information is available in the `django-admin-tools
+docs <http://django-admin-tools.readthedocs.io/en/latest/dashboard.html#>`_.
+
+
 Unit Tests
 ----------
 
