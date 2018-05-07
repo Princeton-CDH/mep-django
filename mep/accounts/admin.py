@@ -4,7 +4,7 @@ from dal import autocomplete
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib import admin
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, ValidationError
 
 from mep.accounts.models import Account, Address, Subscription,\
     Reimbursement, Event, SubscriptionType, Borrow, PartialDate
@@ -297,8 +297,11 @@ class BorrowAdminForm(forms.ModelForm):
         '''Parse partial dates and save them on form submission.'''
         cleaned_data = super(BorrowAdminForm, self).clean()
         if not self.errors:
-            self.instance.partial_start_date = cleaned_data['partial_start_date']
-            self.instance.partial_end_date = cleaned_data['partial_end_date']
+            try:
+                self.instance.partial_start_date = cleaned_data['partial_start_date']
+                self.instance.partial_end_date = cleaned_data['partial_end_date']
+            except ValueError as verr:
+                raise ValidationError('Date validation error: %s' % verr)
             return cleaned_data
 
 

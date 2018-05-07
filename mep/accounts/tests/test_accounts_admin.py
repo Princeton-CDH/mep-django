@@ -152,6 +152,14 @@ class TestBorrowAdminForm(TestCase):
         form = BorrowAdminForm(form_data, instance=borrow)
         assert not form.is_valid()
 
+        # number that's not a valid month
+        form_data = {
+            'partial_start_date': '1901-08-34',
+            'account': acct.id
+        }
+        form = BorrowAdminForm(form_data, instance=borrow)
+        assert not form.is_valid()
+
     def test_clean(self):
         acct = Account.objects.create()
         acct.save()
