@@ -125,6 +125,13 @@ class PersonAdminForm(forms.ModelForm):
             'sort_name': forms.TextInput(attrs={'class': 'prepopulate-noslug prepopulate-nospace'}),
         }
 
+    # NOTE: overriding Django's prepopulate.js with a local version that honors
+    # the custom classes for sort_name behavior. Explicitly including
+    # because when Django is not running in DEBUG mode it loads
+    # a minified version instead of the local override
+    class Media:
+        js = ('admin/js/prepopulate.js', )
+
 
 class PersonAddressInline(AddressInline):
     # extend address inline for person to specify foreign key field
