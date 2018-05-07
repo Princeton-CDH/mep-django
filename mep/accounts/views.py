@@ -19,4 +19,4 @@ class AccountAutocomplete(autocomplete.Select2QuerySetView):
             Q(locations__name__icontains=self.q) |
             Q(locations__street_address__icontains=self.q) |
             Q(locations__city__icontains=self.q)
-        ).order_by('id')
+        ).distinct().order_by('id')
