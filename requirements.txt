@@ -3,7 +3,8 @@ mysqlclient
 django-grappelli
 cached_property
 pucas
-pendulum
+# require pendulum 1.5; not compatible with 2.0
+pendulum==1.5.0
 eulxml
 viapy
 django-autocomplete-light
