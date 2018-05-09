@@ -396,7 +396,8 @@ class BorrowingEvent(TeiXmlObject):
     # generic titles that should *not* be aggregated together in spite
     # of shared mep id, because these are almost certainly not the same work
     # in all cases
-    GENERIC_TITLES = ["Theatre", "Oscar Wilde", "James Joyce", "Blake",
+    GENERIC_TITLES = [
+        "Theatre", "Oscar Wilde", "James Joyce", "Blake",
         "Shakespeare", "Tennyson", "Selected Poems", "Chaucer",
         "Swinburne", "Hamlet", "Shelley", '"', "John Donne", "Trumpet major",
         "D.H. Lawrence", "Coleridge", "Autobiography", "Hist. of England",
@@ -407,19 +408,31 @@ class BorrowingEvent(TeiXmlObject):
         "Conrad", "Life of Oscar Wilde", "Meredith", "Dramatic Works",
         "A.C. Swinburne", "Beethoven", "Poetry and Prose", "Memoirs",
         "Poems and Plays", "Complete Poems", "Poetical Works", "Emerson",
-        "Life and Writings"]
+        "Life and Writings", "Poems", "Collected Poems", "Plays", "Essays",
+        "Three Plays"
+    ]
 
     # MEP title id based on generic titles above
-    GENERIC_TITLE_IDS = ["mep:00060b", "mep:00071x", "mep:000q6b",
-        "mep:000v26", "mep:001106", "mep:00128z", "mep:00137x", "mep:00181f",
-        "mep:001w8k", "mep:001x1p", "mep:00242w", "mep:002d6b", "mep:002p29",
-        "mep:00428p", "mep:004440", "mep:00470k", "mep:00480v", "mep:00486q",
-        "mep:004w6p", "mep:005q4x", "mep:006s0g", "mep:006w93", "mep:007184",
-        "mep:007915", "mep:009357", "mep:009t6b", "mep:00b21z", "mep:00b53d",
-        "mep:00bc60", "mep:00bh5s", "mep:00bk0s", "mep:00c34d", "mep:00c511",
-        "mep:00c69s", "mep:00cf5g", "mep:00cf6s", "mep:00d902", "mep:00dj00",
-        "mep:00f81b", "mep:00g47b", "mep:00g597", "mep:00hb2p", "mep:00j76b",
-        "mep:00k650", "mep:00qm2b", "mep:swinburnenicholson"
+    GENERIC_TITLE_IDS = [
+        "mep:00060b", "mep:00071x", "mep:000q6b", "mep:000v26", "mep:001106",
+        "mep:00128z", "mep:00137x", "mep:00181f", "mep:001w8k", "mep:001x1p",
+        "mep:00242w", "mep:002d6b", "mep:002p29", "mep:00428p", "mep:004440",
+        "mep:00470k", "mep:00480v", "mep:00486q", "mep:004w6p", "mep:005q4x",
+        "mep:006s0g", "mep:006w93", "mep:007184", "mep:007915", "mep:009357",
+        "mep:009t6b", "mep:00b21z", "mep:00b53d", "mep:00bc60", "mep:00bh5s",
+        "mep:00bk0s", "mep:00c34d", "mep:00c511", "mep:00c69s", "mep:00cf5g",
+        "mep:00cf6s", "mep:00d902", "mep:00dj00", "mep:00f81b", "mep:00g47b",
+        "mep:00g597", "mep:00hb2p", "mep:00j76b", "mep:00k650", "mep:00qm2b",
+        "mep:swinburnenicholson", "mep:000z0d",
+        # multiple ids for poems:
+        "mep:00kb81", "mep:00209z", "mep:00jd5d", "mep:009f7m", "mep:00t00g",
+        "mep:001n61",
+        # multiple ids for collected poems:
+        "mep:001565", "mep:00rr77", "mep:007p72", "mep:00546v", "mep:002h8s",
+        # multiple ids for plays:
+        "mep:00dv4q", "mep:00g227", "mep:000s1b",
+        # multiple ids for three plays:
+        "mep:004q8x", "mep:007k9v"
     ]
 
     def to_db_event(self, account):
