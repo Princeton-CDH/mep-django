@@ -372,8 +372,8 @@ class BorrowingEvent(TeiXmlObject):
     item = xmlmap.NodeField('.//t:bibl[@ana="#borrowedItem"]', BorrowedItem)
     notes = xmlmap.StringField('t:note')
 
-    #: crossed out text within the borrowing event
-    deletions = xmlmap.NodeListField('t:del', TeiXmlObject)
+    #: crossed out text anywhere within the borrowing event
+    deletions = xmlmap.NodeListField('.//t:del', TeiXmlObject)
     #: dates that aren't tagged as checked out or returned
     extra_dates = xmlmap.NodeListField('t:date[not(@ana="#returned" or @ana="#checkedOut")]',
         TeiXmlObject)

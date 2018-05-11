@@ -376,6 +376,12 @@ class TestBorrowingEvent(TestCase):
         <date ana="#returned" when="1936-03-07">March 7</date>
       </ab>'''
 
+    nested_del_text = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
+        <date ana="#checkedOut" when="1938-10-28">Oct 28</date>
+        <bibl ana="#borrowedItem" corresp="mep:000488"><title><del>Those Barren</del> Joyful Delaneys</title></bibl>
+        <date ana="#returned" when="1938-11-07">Nov 7</date>
+    </ab>'''
+
     extra_dates = '''<ab xmlns="http://www.tei-c.org/ns/1.0" ana="#borrowingEvent">
         (<bibl ana="#borrowedItem" corresp="mep:000b97">
             <title>Holy Mountain</title>
@@ -575,6 +581,12 @@ class TestBorrowingEvent(TestCase):
         assert db_borrow.notes.startswith(xmlevent.notes)
         assert '<del' in db_borrow.notes
         assert '<bibl corresp="mep:000r7x">Wast</bibl>' in db_borrow.notes
+
+        # nested deleted text should also be added to notes
+        xmlevent = xmlmap.load_xmlobject_from_string(self.nested_del_text,
+            BorrowingEvent)
+        db_borrow = xmlevent.to_db_event(account)
+        assert '<del>Those Barren</del>' in db_borrow.notes
 
         # extra dates should be added to notes
         xmlevent = xmlmap.load_xmlobject_from_string(self.extra_dates,
