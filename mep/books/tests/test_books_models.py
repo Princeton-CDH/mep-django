@@ -104,3 +104,14 @@ class TestPublisherPlace(TestCase):
     def test_str(self):
         pub_place = PublisherPlace(name='London', latitude=23, longitude=45)
         assert str(pub_place) == 'London'
+
+
+
+class TestCreator(TestCase):
+
+    def test_str(self):
+        ctype = CreatorType.objects.get(name='Author')
+        person = Person.objects.create(name='Joyce')
+        item = Item.objects.create(title='Ulysses')
+        creator = Creator(creator_type=ctype, person=person, item=item)
+        assert str(creator) == ' '.join([str(person), ctype.name, str(item)])
