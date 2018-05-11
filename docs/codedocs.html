@@ -1,0 +1,1620 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.6.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CHANGELOG" href="changelog.html" />
+    <link rel="prev" title="Architecture" href="architecture.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="code-documentation">
+<h1>Code Documentation<a class="headerlink" href="#code-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="module-mep.common">
+<span id="common"></span><h2>Common<a class="headerlink" href="#module-mep.common" title="Permalink to this headline">¶</a></h2>
+<p>Django app for shared code and functionality used
+across other applications within the project.  Currently includes
+abstract database models with common functionality or fields that are
+used by models in multiple apps within the project.</p>
+<div class="section" id="module-mep.common.models">
+<span id="models"></span><h3>Models<a class="headerlink" href="#module-mep.common.models" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="mep.common.models.AliasIntegerField">
+<em class="property">class </em><code class="descclassname">mep.common.models.</code><code class="descname">AliasIntegerField</code><span class="sig-paren">(</span><em>verbose_name=None</em>, <em>name=None</em>, <em>primary_key=False</em>, <em>max_length=None</em>, <em>unique=False</em>, <em>blank=False</em>, <em>null=False</em>, <em>db_index=False</em>, <em>rel=None</em>, <em>default=&lt;class 'django.db.models.fields.NOT_PROVIDED'&gt;</em>, <em>editable=True</em>, <em>serialize=True</em>, <em>unique_for_date=None</em>, <em>unique_for_month=None</em>, <em>unique_for_year=None</em>, <em>choices=None</em>, <em>help_text=''</em>, <em>db_column=None</em>, <em>db_tablespace=None</em>, <em>auto_created=False</em>, <em>validators=()</em>, <em>error_messages=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#AliasIntegerField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.AliasIntegerField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias field adapted from <a class="reference external" href="https://djangosnippets.org/snippets/10440/">https://djangosnippets.org/snippets/10440/</a>
+to allow accessing an existing db field by a different name, both
+for user display and in model and queryset use.</p>
+<dl class="method">
+<dt id="mep.common.models.AliasIntegerField.contribute_to_class">
+<code class="descname">contribute_to_class</code><span class="sig-paren">(</span><em>cls</em>, <em>name</em>, <em>virtual_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#AliasIntegerField.contribute_to_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.AliasIntegerField.contribute_to_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register the field with the model class it belongs to.</p>
+<p>If private_only is True, a separate instance of this field will be
+created for every subclass of cls, even if cls is not an abstract
+model.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.common.models.DateRange">
+<em class="property">class </em><code class="descclassname">mep.common.models.</code><code class="descname">DateRange</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#DateRange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.DateRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract model with optional start and end years, and a
+custom dates property to display the date range nicely.  Includes
+validation that requires end year falls after start year.</p>
+<dl class="method">
+<dt id="mep.common.models.DateRange.clean_fields">
+<code class="descname">clean_fields</code><span class="sig-paren">(</span><em>exclude=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#DateRange.clean_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.DateRange.clean_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>validate that end year is greater than or equal to start year</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.common.models.DateRange.dates">
+<code class="descname">dates</code><a class="headerlink" href="#mep.common.models.DateRange.dates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Date or date range as a string for display</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.common.models.DateRange.end_year">
+<code class="descname">end_year</code><a class="headerlink" href="#mep.common.models.DateRange.end_year" title="Permalink to this definition">¶</a></dt>
+<dd><p>end year (optional)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.common.models.DateRange.start_year">
+<code class="descname">start_year</code><a class="headerlink" href="#mep.common.models.DateRange.start_year" title="Permalink to this definition">¶</a></dt>
+<dd><p>start year (optional)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.common.models.Named">
+<em class="property">class </em><code class="descclassname">mep.common.models.</code><code class="descname">Named</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#Named"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.Named" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract model with a ‘name’ field; by default, name is used as
+the string display.</p>
+<dl class="attribute">
+<dt id="mep.common.models.Named.name">
+<code class="descname">name</code><a class="headerlink" href="#mep.common.models.Named.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>unique name (required)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.common.models.Notable">
+<em class="property">class </em><code class="descclassname">mep.common.models.</code><code class="descname">Notable</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#Notable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.Notable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract model with an optional notes text field</p>
+<dl class="method">
+<dt id="mep.common.models.Notable.has_notes">
+<code class="descname">has_notes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#Notable.has_notes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.Notable.has_notes" title="Permalink to this definition">¶</a></dt>
+<dd><p>boolean flag indicating if notes are present, for display
+in admin lists</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.common.models.Notable.note_snippet">
+<code class="descname">note_snippet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#Notable.note_snippet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.Notable.note_snippet" title="Permalink to this definition">¶</a></dt>
+<dd><p>First 75 letters of the note, for brief display</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.common.models.Notable.notes">
+<code class="descname">notes</code><a class="headerlink" href="#mep.common.models.Notable.notes" title="Permalink to this definition">¶</a></dt>
+<dd><p>optional notes</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-mep.accounts">
+<span id="accounts"></span><h2>Accounts<a class="headerlink" href="#module-mep.accounts" title="Permalink to this headline">¶</a></h2>
+<p>Django app to manage information about accounts for people who
+were members of the Sylvia Beach lending library.</p>
+<div class="section" id="id1">
+<h3>Models<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-mep.accounts.models"></span><dl class="class">
+<dt id="mep.accounts.models.Account">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">Account</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account" title="Permalink to this definition">¶</a></dt>
+<dd><p>Central model for all account and related information, M2M explicity to
+<code class="xref py py-class docutils literal notranslate"><span class="pre">people.Person</span></code></p>
+<dl class="exception">
+<dt id="mep.accounts.models.Account.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.accounts.models.Account.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.accounts.models.Account.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Account.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Account.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>etype='event'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.add_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Helper function to add a <a class="reference internal" href="#mep.accounts.models.Event" title="mep.accounts.models.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> or subclass to an</dt>
+<dd>instance of <a class="reference internal" href="#mep.accounts.models.Account" title="mep.accounts.models.Account"><code class="xref py py-class docutils literal notranslate"><span class="pre">Account</span></code></a>. Requires that the <a class="reference internal" href="#mep.accounts.models.Account" title="mep.accounts.models.Account"><code class="xref py py-class docutils literal notranslate"><span class="pre">Account</span></code></a>
+object be saved first (so it has a set primary key).
+This provides functionality normally in the <code class="docutils literal notranslate"><span class="pre">self.*_set</span></code>
+functionality of Django, but not provided with subclassed
+table inheritence.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>etype</strong> – <code class="docutils literal notranslate"><span class="pre">str</span></code>
+One of <code class="docutils literal notranslate"><span class="pre">borrow</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">subscription</span></code>,
+<code class="docutils literal notranslate"><span class="pre">purchase</span></code>, <code class="docutils literal notranslate"><span class="pre">reimbursement</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Account.earliest_date">
+<code class="descname">earliest_date</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.earliest_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.earliest_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Earliest known date from all events associated with this account</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Account.get_events">
+<code class="descname">get_events</code><span class="sig-paren">(</span><em>etype='event'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.get_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.get_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to retrieve related events of any valid type for
+<a class="reference internal" href="#mep.accounts.models.Account.add_event" title="mep.accounts.models.Account.add_event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Account.add_event()</span></code></a>. This provides functionality normally in the
+<code class="docutils literal notranslate"><span class="pre">self.*_set</span></code> functionality, but not provided with subclassed
+table inheritence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>etype</strong> – <code class="docutils literal notranslate"><span class="pre">str</span></code>
+One of <code class="docutils literal notranslate"><span class="pre">borrow</span></code>, <code class="docutils literal notranslate"><span class="pre">event</span></code>, <code class="docutils literal notranslate"><span class="pre">subscription</span></code>,
+<code class="docutils literal notranslate"><span class="pre">purchase</span></code>, <code class="docutils literal notranslate"><span class="pre">reimbursement</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">Any valid query kwargs for <a class="reference internal" href="#mep.accounts.models.Account" title="mep.accounts.models.Account"><code class="xref py py-class docutils literal notranslate"><span class="pre">Account</span></code></a>, defaults to equivalent
+of <code class="docutils literal notranslate"><span class="pre">Foo.objects.all()</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Account.has_card">
+<code class="descname">has_card</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.has_card"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.has_card" title="Permalink to this definition">¶</a></dt>
+<dd><p>Account has an associated lending card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Account.last_date">
+<code class="descname">last_date</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.last_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.last_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Last known date from all events associated with this account</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Account.list_locations">
+<code class="descname">list_locations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.list_locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.list_locations" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of associated <a class="reference internal" href="#mep.people.models.Location" title="mep.people.models.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Location</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Account.list_persons">
+<code class="descname">list_persons</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.list_persons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.list_persons" title="Permalink to this definition">¶</a></dt>
+<dd><p>List <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Person</span></code></a> instances associated with this
+account.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.accounts.models.Account.reimbursement_set">
+<code class="descname">reimbursement_set</code><a class="headerlink" href="#mep.accounts.models.Account.reimbursement_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>associated reimbursement events, as queryset of <a class="reference internal" href="#mep.accounts.models.Reimbursement" title="mep.accounts.models.Reimbursement"><code class="xref py py-class docutils literal notranslate"><span class="pre">Reimbursement</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.accounts.models.Account.subscription_set">
+<code class="descname">subscription_set</code><a class="headerlink" href="#mep.accounts.models.Account.subscription_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>associated subscription events, as queryset of <a class="reference internal" href="#mep.accounts.models.Subscription" title="mep.accounts.models.Subscription"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subscription</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.Address">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">Address</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Address associated with an <a class="reference internal" href="#mep.accounts.models.Account" title="mep.accounts.models.Account"><code class="xref py py-class docutils literal notranslate"><span class="pre">Account</span></code></a> or
+a <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a>.  Used to associate locations with
+people and accounts, with optional start and end dates and a care/of person.</p>
+<dl class="exception">
+<dt id="mep.accounts.models.Address.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.accounts.models.Address.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.accounts.models.Address.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Address.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Address.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Address.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Address.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate to require one and only one of <a class="reference internal" href="#mep.accounts.models.Account" title="mep.accounts.models.Account"><code class="xref py py-class docutils literal notranslate"><span class="pre">Account</span></code></a> or
+<a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.Borrow">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">Borrow</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Borrow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Borrow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inherited table indicating borrow events</p>
+<dl class="exception">
+<dt id="mep.accounts.models.Borrow.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.accounts.models.Borrow.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.accounts.models.Borrow.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Borrow.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Borrow.calculate_date">
+<code class="descname">calculate_date</code><span class="sig-paren">(</span><em>kind</em>, <em>dateval=None</em>, <em>earliest=None</em>, <em>latest=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Borrow.calculate_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Borrow.calculate_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate end or start date based on a single value in a
+supported partial date form or based on earliest/latest datetime.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.accounts.models.Borrow.item">
+<code class="descname">item</code><a class="headerlink" href="#mep.accounts.models.Borrow.item" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#mep.books.models.Item" title="mep.books.models.Item"><code class="xref py py-class docutils literal notranslate"><span class="pre">Item</span></code></a> that was borrowed;
+optional to account for unclear titles</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Borrow.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Borrow.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Borrow.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the current instance. Override this in a subclass if you want to
+control the saving process.</p>
+<p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
+that the “save” must be an SQL insert or update (or equivalent for
+non-SQL backends), respectively. Normally, they should not be set.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.CurrencyMixin">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">CurrencyMixin</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#CurrencyMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.CurrencyMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mixin for currency field with currency symbol display</p>
+<dl class="method">
+<dt id="mep.accounts.models.CurrencyMixin.currency_symbol">
+<code class="descname">currency_symbol</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#CurrencyMixin.currency_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.CurrencyMixin.currency_symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>symbol for the selected currency</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.DatePrecision">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">DatePrecision</code><a class="reference internal" href="_modules/mep/accounts/models.html#DatePrecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.DatePrecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag class to indicate which parts of a date are known.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.DatePrecisionField">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">DatePrecisionField</code><span class="sig-paren">(</span><em>verbose_name=None</em>, <em>name=None</em>, <em>primary_key=False</em>, <em>max_length=None</em>, <em>unique=False</em>, <em>blank=False</em>, <em>null=False</em>, <em>db_index=False</em>, <em>rel=None</em>, <em>default=&lt;class 'django.db.models.fields.NOT_PROVIDED'&gt;</em>, <em>editable=True</em>, <em>serialize=True</em>, <em>unique_for_date=None</em>, <em>unique_for_month=None</em>, <em>unique_for_year=None</em>, <em>choices=None</em>, <em>help_text=''</em>, <em>db_column=None</em>, <em>db_tablespace=None</em>, <em>auto_created=False</em>, <em>validators=()</em>, <em>error_messages=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#DatePrecisionField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.DatePrecisionField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integer representation of a <a class="reference internal" href="#mep.accounts.models.DatePrecision" title="mep.accounts.models.DatePrecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatePrecision</span></code></a>.</p>
+<dl class="method">
+<dt id="mep.accounts.models.DatePrecisionField.to_python">
+<code class="descname">to_python</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#DatePrecisionField.to_python"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.DatePrecisionField.to_python" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the input value into the expected Python data type, raising
+django.core.exceptions.ValidationError if the data can’t be converted.
+Returns the converted value. Subclasses should override this.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.Event">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">Event</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base table for events in the Shakespeare and Co. Lending Library</p>
+<dl class="exception">
+<dt id="mep.accounts.models.Event.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.accounts.models.Event.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.accounts.models.Event.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Event.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.PartialDate">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">PartialDate</code><span class="sig-paren">(</span><em>date_field</em>, <em>date_precision_field</em>, <em>unknown_year: int = 1</em>, <em>label=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor that gets and sets a related <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a> and
+<a class="reference internal" href="#mep.accounts.models.DatePrecision" title="mep.accounts.models.DatePrecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatePrecision</span></code></a> from partial date strings, e.g. –05-02.</p>
+<dl class="staticmethod">
+<dt id="mep.accounts.models.PartialDate.date_format">
+<em class="property">static </em><code class="descname">date_format</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.date_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.date_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a format string for use with <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date.strftime" title="(in Python v3.6)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">datetime.date.strftime()</span></code></a>
+to output a date with the appropriate precision</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.PartialDate.parse_date">
+<code class="descname">parse_date</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.parse_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.parse_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a partial date string and return a <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a>
+and precision value.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.Purchase">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">Purchase</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Purchase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Purchase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inherited table indicating purchase events</p>
+<dl class="exception">
+<dt id="mep.accounts.models.Purchase.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.accounts.models.Purchase.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.accounts.models.Purchase.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Purchase.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.Reimbursement">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">Reimbursement</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Reimbursement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Reimbursement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reimbursement event; extends <a class="reference internal" href="#mep.accounts.models.Event" title="mep.accounts.models.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a></p>
+<dl class="exception">
+<dt id="mep.accounts.models.Reimbursement.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.accounts.models.Reimbursement.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.accounts.models.Reimbursement.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Reimbursement.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Reimbursement.date">
+<code class="descname">date</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Reimbursement.date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Reimbursement.date" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-attr docutils literal notranslate"><span class="pre">start_date</span></code> for display, since reimbersument
+is a single-day event</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Reimbursement.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Reimbursement.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Reimbursement.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reimbursement is a single-day event; populate end date on save
+to make that explicit and simplify any generic event date
+range searching and filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Reimbursement.validate_unique">
+<code class="descname">validate_unique</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Reimbursement.validate_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Reimbursement.validate_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validation check to prevent duplicate events from being
+added to the system.  Does not allow more than one reimbursement
+for the account and date.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.Subscription">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">Subscription</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Subscription"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Subscription" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records subscription events in the MEP database</p>
+<dl class="exception">
+<dt id="mep.accounts.models.Subscription.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.accounts.models.Subscription.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.accounts.models.Subscription.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Subscription.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Subscription.calculate_duration">
+<code class="descname">calculate_duration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Subscription.calculate_duration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Subscription.calculate_duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate and set subscription duration based on start and end
+date, when both are known</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Subscription.readable_duration">
+<code class="descname">readable_duration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Subscription.readable_duration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Subscription.readable_duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a human-readable version of the subscription duration.
+Intended to follow Beach’s conventions, e.g. 1 year rather than
+12 months; 1 week rather than 7 days.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Subscription.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Subscription.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Subscription.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the current instance. Override this in a subclass if you want to
+control the saving process.</p>
+<p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
+that the “save” must be an SQL insert or update (or equivalent for
+non-SQL backends), respectively. Normally, they should not be set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Subscription.validate_unique">
+<code class="descname">validate_unique</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Subscription.validate_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Subscription.validate_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validation check to prevent duplicate events from being
+added to the system.  Does not allow more than one subscription
+for the same account and date.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.SubscriptionType">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">SubscriptionType</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#SubscriptionType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.SubscriptionType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type of subscription</p>
+<dl class="exception">
+<dt id="mep.accounts.models.SubscriptionType.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.accounts.models.SubscriptionType.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.accounts.models.SubscriptionType.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.SubscriptionType.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-mep.books">
+<span id="books"></span><h2>Books<a class="headerlink" href="#module-mep.books" title="Permalink to this headline">¶</a></h2>
+<p>Django app to manage information about titles associated with
+the Sylvia Beach lending library.</p>
+<div class="section" id="id2">
+<h3>Models<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-mep.books.models"></span><dl class="class">
+<dt id="mep.books.models.Creator">
+<em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">Creator</code><span class="sig-paren">(</span><em>id</em>, <em>notes</em>, <em>creator_type</em>, <em>person</em>, <em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Creator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Creator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="exception">
+<dt id="mep.books.models.Creator.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.books.models.Creator.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.books.models.Creator.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.Creator.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.books.models.CreatorType">
+<em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">CreatorType</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#CreatorType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.CreatorType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type of creator role a person can have to an item; author,
+editor, translator, etc.</p>
+<dl class="exception">
+<dt id="mep.books.models.CreatorType.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.books.models.CreatorType.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.books.models.CreatorType.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.CreatorType.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.books.models.Item">
+<em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">Item</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary model for <code class="xref py py-mod docutils literal notranslate"><span class="pre">books</span></code> module, also used for journals,
+and other media types.</p>
+<dl class="exception">
+<dt id="mep.books.models.Item.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.books.models.Item.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.books.models.Item.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.Item.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.Item.author_list">
+<code class="descname">author_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.author_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.author_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>comma separated list of author names</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.authors">
+<code class="descname">authors</code><a class="headerlink" href="#mep.books.models.Item.authors" title="Permalink to this definition">¶</a></dt>
+<dd><p>item creators with type author</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.borrow_count">
+<code class="descname">borrow_count</code><a class="headerlink" href="#mep.books.models.Item.borrow_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of times this item was borrowed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.editors">
+<code class="descname">editors</code><a class="headerlink" href="#mep.books.models.Item.editors" title="Permalink to this definition">¶</a></dt>
+<dd><p>item creators with type editor</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.mep_id">
+<code class="descname">mep_id</code><a class="headerlink" href="#mep.books.models.Item.mep_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>mep id from stub records imported from xml</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.Item.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the current instance. Override this in a subclass if you want to
+control the saving process.</p>
+<p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
+that the “save” must be an SQL insert or update (or equivalent for
+non-SQL backends), respectively. Normally, they should not be set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.translators">
+<code class="descname">translators</code><a class="headerlink" href="#mep.books.models.Item.translators" title="Permalink to this definition">¶</a></dt>
+<dd><p>item creators with type translator</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.books.models.Publisher">
+<em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">Publisher</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Publisher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Publisher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model for publishers</p>
+<dl class="exception">
+<dt id="mep.books.models.Publisher.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.books.models.Publisher.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.books.models.Publisher.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.Publisher.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.books.models.PublisherPlace">
+<em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">PublisherPlace</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#PublisherPlace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.PublisherPlace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model for place where publishers are located</p>
+<dl class="exception">
+<dt id="mep.books.models.PublisherPlace.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.books.models.PublisherPlace.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.books.models.PublisherPlace.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.PublisherPlace.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-mep.people">
+<span id="people"></span><h2>People<a class="headerlink" href="#module-mep.people" title="Permalink to this headline">¶</a></h2>
+<p>Django app to manage information about people associated with
+the Sylvia Beach lending library.</p>
+<div class="section" id="id3">
+<h3>Models<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-mep.people.models"></span><dl class="class">
+<dt id="mep.people.models.Country">
+<em class="property">class </em><code class="descclassname">mep.people.models.</code><code class="descname">Country</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Country"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Country" title="Permalink to this definition">¶</a></dt>
+<dd><p>Countries, for documenting nationalities of a <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a>
+or location of an <code class="xref py py-class docutils literal notranslate"><span class="pre">Address</span></code></p>
+<dl class="exception">
+<dt id="mep.people.models.Country.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.people.models.Country.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.people.models.Country.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.people.models.Country.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.models.InfoURL">
+<em class="property">class </em><code class="descclassname">mep.people.models.</code><code class="descname">InfoURL</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#InfoURL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.InfoURL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Informational urls (other than VIAF) associated with a <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a>,
+e.g. Wikipedia page.</p>
+<dl class="exception">
+<dt id="mep.people.models.InfoURL.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.people.models.InfoURL.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.people.models.InfoURL.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.people.models.InfoURL.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.models.Location">
+<em class="property">class </em><code class="descclassname">mep.people.models.</code><code class="descname">Location</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Locations for addresses associated with people and accounts</p>
+<dl class="exception">
+<dt id="mep.people.models.Location.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.people.models.Location.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.people.models.Location.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.people.models.Location.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Location.city">
+<code class="descname">city</code><a class="headerlink" href="#mep.people.models.Location.city" title="Permalink to this definition">¶</a></dt>
+<dd><p>city or town</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Location.country">
+<code class="descname">country</code><a class="headerlink" href="#mep.people.models.Location.country" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#mep.people.models.Country" title="mep.people.models.Country"><code class="xref py py-class docutils literal notranslate"><span class="pre">Country</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Location.footnotes">
+<code class="descname">footnotes</code><a class="headerlink" href="#mep.people.models.Location.footnotes" title="Permalink to this definition">¶</a></dt>
+<dd><p>footnotes (<a class="reference internal" href="#mep.footnotes.models.Footnote" title="mep.footnotes.models.Footnote"><code class="xref py py-class docutils literal notranslate"><span class="pre">Footnote</span></code></a>)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Location.latitude">
+<code class="descname">latitude</code><a class="headerlink" href="#mep.people.models.Location.latitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>latitude</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Location.longitude">
+<code class="descname">longitude</code><a class="headerlink" href="#mep.people.models.Location.longitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>longitude</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Location.name">
+<code class="descname">name</code><a class="headerlink" href="#mep.people.models.Location.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>optional name of the location (e.g., hotel)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Location.street_address">
+<code class="descname">street_address</code><a class="headerlink" href="#mep.people.models.Location.street_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>street address</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.models.Person">
+<em class="property">class </em><code class="descclassname">mep.people.models.</code><code class="descname">Person</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model for people in the MEP dataset</p>
+<dl class="exception">
+<dt id="mep.people.models.Person.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.people.models.Person.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.people.models.Person.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.people.models.Person.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.Person.address_count">
+<code class="descname">address_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.address_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.address_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of documented addresses for this person</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.birth_year">
+<code class="descname">birth_year</code><a class="headerlink" href="#mep.people.models.Person.birth_year" title="Permalink to this definition">¶</a></dt>
+<dd><p>birth year</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.death_year">
+<code class="descname">death_year</code><a class="headerlink" href="#mep.people.models.Person.death_year" title="Permalink to this definition">¶</a></dt>
+<dd><p>death year</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.footnotes">
+<code class="descname">footnotes</code><a class="headerlink" href="#mep.people.models.Person.footnotes" title="Permalink to this definition">¶</a></dt>
+<dd><p>footnotes (<a class="reference internal" href="#mep.footnotes.models.Footnote" title="mep.footnotes.models.Footnote"><code class="xref py py-class docutils literal notranslate"><span class="pre">Footnote</span></code></a>)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.Person.has_account">
+<code class="descname">has_account</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.has_account"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.has_account" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether an instance of <a class="reference internal" href="#mep.accounts.models.Account" title="mep.accounts.models.Account"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.accounts.models.Account</span></code></a> exists for this person.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.Person.has_card">
+<code class="descname">has_card</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.has_card"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.has_card" title="Permalink to this definition">¶</a></dt>
+<dd><p>The library account for this person has an associated lending card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.Person.in_logbooks">
+<code class="descname">in_logbooks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.in_logbooks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.in_logbooks" title="Permalink to this definition">¶</a></dt>
+<dd><p>is there data for this person in the logbooks?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.is_organization">
+<code class="descname">is_organization</code><a class="headerlink" href="#mep.people.models.Person.is_organization" title="Permalink to this definition">¶</a></dt>
+<dd><p>flag to indicate organization instead of person</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.Person.list_nationalities">
+<code class="descname">list_nationalities</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.list_nationalities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.list_nationalities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return comma separated list of nationalities (if any) for <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> list_view.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.mep_id">
+<code class="descname">mep_id</code><a class="headerlink" href="#mep.people.models.Person.mep_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>MEP xml id</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.name">
+<code class="descname">name</code><a class="headerlink" href="#mep.people.models.Person.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>names (first middle last)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.nationalities">
+<code class="descname">nationalities</code><a class="headerlink" href="#mep.people.models.Person.nationalities" title="Permalink to this definition">¶</a></dt>
+<dd><p>nationalities, link to <a class="reference internal" href="#mep.people.models.Country" title="mep.people.models.Country"><code class="xref py py-class docutils literal notranslate"><span class="pre">Country</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.profession">
+<code class="descname">profession</code><a class="headerlink" href="#mep.people.models.Person.profession" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#mep.people.models.Profession" title="mep.people.models.Profession"><code class="xref py py-class docutils literal notranslate"><span class="pre">Profession</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.relations">
+<code class="descname">relations</code><a class="headerlink" href="#mep.people.models.Person.relations" title="Permalink to this definition">¶</a></dt>
+<dd><p>relationships to other people, via <a class="reference internal" href="#mep.people.models.Relationship" title="mep.people.models.Relationship"><code class="xref py py-class docutils literal notranslate"><span class="pre">Relationship</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.Person.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds birth and death dates if they aren’t already set
+and there’s a viaf id for the record</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.Person.set_birth_death_years">
+<code class="descname">set_birth_death_years</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.set_birth_death_years"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.set_birth_death_years" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set local birth and death dates based on information from VIAF</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.sex">
+<code class="descname">sex</code><a class="headerlink" href="#mep.people.models.Person.sex" title="Permalink to this definition">¶</a></dt>
+<dd><p>sex</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.sort_name">
+<code class="descname">sort_name</code><a class="headerlink" href="#mep.people.models.Person.sort_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>sort name; authorized name for people with VIAF</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.title">
+<code class="descname">title</code><a class="headerlink" href="#mep.people.models.Person.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>title</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.viaf">
+<code class="descname">viaf</code><a class="headerlink" href="#mep.people.models.Person.viaf" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">viapy.api.ViafEntity</span></code> for this record if <a class="reference internal" href="#mep.people.models.Person.viaf_id" title="mep.people.models.Person.viaf_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">viaf_id</span></code></a>
+is set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.viaf_id">
+<code class="descname">viaf_id</code><a class="headerlink" href="#mep.people.models.Person.viaf_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>viaf identifiers</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.models.PersonQuerySet">
+<em class="property">class </em><code class="descclassname">mep.people.models.</code><code class="descname">PersonQuerySet</code><span class="sig-paren">(</span><em>model=None</em>, <em>query=None</em>, <em>using=None</em>, <em>hints=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonQuerySet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonQuerySet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom <code class="xref py py-class docutils literal notranslate"><span class="pre">models.QuerySet</span></code> for <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a></p>
+<dl class="method">
+<dt id="mep.people.models.PersonQuerySet.merge_with">
+<code class="descname">merge_with</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonQuerySet.merge_with"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonQuerySet.merge_with" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge all person records in the current queryset with the
+specified person. This entails the following:</p>
+<ul class="simple">
+<li>all events from accounts associated with people in the
+queryset are reassociated with the specified person</li>
+<li>all addresses associated with people in the
+queryset or their accounts are reassociated with the
+specified person or their account</li>
+<li>TODO: copy other details and update other relationships</li>
+<li>after data has been copied over, people in the queryset and
+their accounts will be deleted</li>
+</ul>
+<p>Raises an error if the specified person has more than one
+account or if any people in the queryset have an account associated
+with another person.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>person</strong> – <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> person</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://django.readthedocs.io/en/latest/ref/exceptions.html#django.core.exceptions.ObjectDoesNotExist" title="(in Django v2.1)"><strong>django.core.exceptions.ObjectDoesNotExist</strong></a> – if selected <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> has no account</li>
+<li><a class="reference external" href="http://django.readthedocs.io/en/latest/ref/exceptions.html#django.core.exceptions.MultipleObjectsReturned" title="(in Django v2.1)"><strong>django.core.exceptions.MultipleObjectsReturned</strong></a> – if selected <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> has multiple accounts _or_ any person
+in the queryset has an account shared with another person</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.models.Profession">
+<em class="property">class </em><code class="descclassname">mep.people.models.</code><code class="descname">Profession</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Profession"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Profession" title="Permalink to this definition">¶</a></dt>
+<dd><p>Profession for a <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a></p>
+<dl class="exception">
+<dt id="mep.people.models.Profession.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.people.models.Profession.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.people.models.Profession.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.people.models.Profession.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.models.Relationship">
+<em class="property">class </em><code class="descclassname">mep.people.models.</code><code class="descname">Relationship</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Relationship"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Relationship" title="Permalink to this definition">¶</a></dt>
+<dd><p>Through model for <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> to <code class="docutils literal notranslate"><span class="pre">self</span></code></p>
+<dl class="exception">
+<dt id="mep.people.models.Relationship.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.people.models.Relationship.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.people.models.Relationship.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.people.models.Relationship.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.models.RelationshipType">
+<em class="property">class </em><code class="descclassname">mep.people.models.</code><code class="descname">RelationshipType</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#RelationshipType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.RelationshipType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Types of relationships between one <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> and another</p>
+<dl class="exception">
+<dt id="mep.people.models.RelationshipType.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.people.models.RelationshipType.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.people.models.RelationshipType.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.people.models.RelationshipType.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mep.people.xml_models">
+<span id="xml-models"></span><h3>XML Models<a class="headerlink" href="#module-mep.people.xml_models" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="mep.people.xml_models.Name">
+<em class="property">class </em><code class="descclassname">mep.people.xml_models.</code><code class="descname">Name</code><span class="sig-paren">(</span><em>node=None</em>, <em>context=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#Name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.Name" title="Permalink to this definition">¶</a></dt>
+<dd><p>person name</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.xml_models.Nationality">
+<em class="property">class </em><code class="descclassname">mep.people.xml_models.</code><code class="descname">Nationality</code><span class="sig-paren">(</span><em>node=None</em>, <em>context=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#Nationality"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.Nationality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Nationality associated with a <a class="reference internal" href="#mep.people.xml_models.Person" title="mep.people.xml_models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a></p>
+<dl class="method">
+<dt id="mep.people.xml_models.Nationality.db_country">
+<code class="descname">db_country</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#Nationality.db_country"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.Nationality.db_country" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use <a class="reference internal" href="#mep.people.geonames.GeoNamesAPI" title="mep.people.geonames.GeoNamesAPI"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoNamesAPI</span></code></a> to convert
+nationality in the XML to a <a class="reference internal" href="#mep.people.models.Country" title="mep.people.models.Country"><code class="xref py py-class docutils literal notranslate"><span class="pre">Country</span></code></a>.
+Creates the country record in the database if needed.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.xml_models.Note">
+<em class="property">class </em><code class="descclassname">mep.people.xml_models.</code><code class="descname">Note</code><span class="sig-paren">(</span><em>node=None</em>, <em>context=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#Note"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.Note" title="Permalink to this definition">¶</a></dt>
+<dd><p>TEI note. Includes logic for extracting ref attributes
+for inclusion as note text.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.xml_models.Person">
+<em class="property">class </em><code class="descclassname">mep.people.xml_models.</code><code class="descname">Person</code><span class="sig-paren">(</span><em>node=None</em>, <em>context=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#Person"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.Person" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mep.people.xml_models.Person.is_imported">
+<code class="descname">is_imported</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#Person.is_imported"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.Person.is_imported" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if person has already been imported into the database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.xml_models.Person.to_db_person">
+<code class="descname">to_db_person</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#Person.to_db_person"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.Person.to_db_person" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Person</span></code></a> database record
+and populate based on data in the xml.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.xml_models.PersonName">
+<em class="property">class </em><code class="descclassname">mep.people.xml_models.</code><code class="descname">PersonName</code><span class="sig-paren">(</span><em>node=None</em>, <em>context=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#PersonName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.PersonName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Person name, with various name parts</p>
+<dl class="method">
+<dt id="mep.people.xml_models.PersonName.display_birthname">
+<code class="descname">display_birthname</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#PersonName.display_birthname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.PersonName.display_birthname" title="Permalink to this definition">¶</a></dt>
+<dd><p>in some cases only one name is present but it is tagged as birth name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.xml_models.PersonName.first_name">
+<code class="descname">first_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#PersonName.first_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.PersonName.first_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>first name; handles multiple first names with sort attributes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.xml_models.PersonName.full_name">
+<code class="descname">full_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#PersonName.full_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.PersonName.full_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine first and last names into “firstname lastname” or
+“firstname (birth name) married name”.  Handles multiple first names,
+initials, etc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.xml_models.PersonName.last_name">
+<code class="descname">last_name</code><span class="sig-paren">(</span><em>sort=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#PersonName.last_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.PersonName.last_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>maried name or first last name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.xml_models.PersonName.sort_name">
+<code class="descname">sort_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#PersonName.sort_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.PersonName.sort_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine first and last names into “lastname, firstname” or
+“married name, firstname (birth name)”.  Handles multiple first names,
+initials, etc.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.xml_models.Personography">
+<em class="property">class </em><code class="descclassname">mep.people.xml_models.</code><code class="descname">Personography</code><span class="sig-paren">(</span><em>node=None</em>, <em>context=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#Personography"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.Personography" title="Permalink to this definition">¶</a></dt>
+<dd><p>collection of <a class="reference internal" href="#mep.people.xml_models.Person" title="mep.people.xml_models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> records in a single TEI file</p>
+<dl class="classmethod">
+<dt id="mep.people.xml_models.Personography.from_file">
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#Personography.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.Personography.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>load content from a file</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.xml_models.Residence">
+<em class="property">class </em><code class="descclassname">mep.people.xml_models.</code><code class="descname">Residence</code><span class="sig-paren">(</span><em>node=None</em>, <em>context=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#Residence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.Residence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Residence associated with a <a class="reference internal" href="#mep.people.xml_models.Person" title="mep.people.xml_models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a></p>
+<dl class="attribute">
+<dt id="mep.people.xml_models.Residence.city_country">
+<code class="descname">city_country</code><em class="property"> = {'Agon Coutainville': 'FR', 'Allouis': 'FR', 'Angers': 'FR', 'Antibes': 'FR', 'Arcachon': 'FR', 'Arcueil': 'FR', 'Arras': 'FR', 'Asnières-sous-Bois': 'FR', 'Asnières-sur-Seine': 'FR', &quot;Bagnoles-de-l'Orne&quot;: 'FR', 'Barcelona': 'ES', 'Beauvais': 'FR', 'Berck': 'FR', 'Biarritz': 'FR', 'Bitche': 'FR', 'Blennes': 'FR', 'Bougival': 'FR', 'Boulogne-Billancourt': 'FR', 'Brest': 'FR', 'Brooklyn': 'US', 'Brunnen': 'CH', 'Bègles': 'FR', 'Cachan': 'FR', 'Cagnes-sur-Mer': 'FR', 'Cambridge': 'GB', 'Cazoulès': 'FR', 'Champagné-Saint-Hilaire': 'FR', 'Champeaux': 'FR', 'Chicago': 'US', 'Châtenay-Malabry': 'FR', 'Clamart': 'FR', 'Copenhagen': 'DK', 'Courbevoie': 'FR', 'Courmayeur': 'IT', 'Courteilles': 'FR', &quot;Côtes-d'Armor&quot;: 'FR', 'Dalton': 'GB', 'Douai': 'FR', 'Edinburgh': 'GB', 'Ermont': 'FR', 'Fontainebleau': 'FR', 'Fontenay-aux-Roses': 'FR', 'Gargenville': 'FR', 'Grasse': 'FR', 'Gstaad': 'CH', 'Hautot-sur-Mer': 'FR', 'Hyères': 'FR', 'Issy-les-Moulineaux': 'FR', 'Ixelles': 'BE', 'Key West': 'US', &quot;L'Haÿ-les-Roses&quot;: 'FR', 'La Bourboule': 'FR', 'La Croix': 'FR', 'La Madelaine': 'FR', 'La Teste-de-Buch': 'FR', 'Laguépie': 'FR', 'Le Beausset': 'FR', 'Le Bourg Dun': 'FR', 'Le Chesnay': 'FR', 'Le Lavandaou': 'FR', 'Le Mesnil-sur-Blangy': 'FR', 'Le Pouldu': 'FR', 'Le Vésinet': 'FR', 'Les Praz de Chamonix': 'FR', 'Levallois-Perret': 'FR', 'Lezigne': 'FR', 'Lille': 'FR', 'Lodève': 'FR', 'London': 'GB', 'Lot-et-Garonne': 'FR', 'Madrid': 'ES', 'Marnes la Coquette': 'FR', 'Menton': 'FR', 'Montgaillard': 'FR', 'Montsoult': 'FR', 'Mortagne-sur-Sèvre': 'FR', 'München': 'DE', 'Nantes': 'FR', 'Neuilly': 'FR', 'Neuilly-sur-Seine': 'FR', 'Nevers': 'FR', 'New York': 'US', 'Nice': 'FR', 'Nimes': 'FR', 'Nogent-le-Rotrou': 'FR', 'Nogent-sur-Marne': 'FR', 'Omonville-la-Rogue': 'FR', 'Orléans': 'FR', 'Paris': 'FR', 'Parkersburg': 'US', 'Pornic': 'FR', 'Rome': 'IT', 'Rouen': 'FR', 'Rueil-Malmaison': 'FR', 'Saint Enogat': 'FR', 'Saint-Cloud': 'FR', 'Saint-Germain-en-Laye': 'FR', 'Saint-Magne-de-Castillon': 'FR', 'Saint-Mandé': 'FR', &quot;Saint-Pierre-d'Albigny&quot;: 'FR', 'Saint-Servan': 'FR', 'Sartilly': 'FR', 'Sassetot-le-Mauconduit': 'FR', 'Sceaux': 'FR', 'Shanghai': 'CN', 'Shoreham-by-Sea': 'GB', 'Strasbourg': 'FR', 'Sèvres': 'FR', 'Toulon': 'FR', 'Toulouse': 'FR', 'Trieste': 'IT', 'Trouville-sur-Mer': 'FR', 'Vanves': 'FR', 'Varengeville-sur-Mer': 'FR', 'Vernet-les-Bains': 'FR', 'Vernouillet': 'FR', 'Versailles': 'FR', 'Vesoul': 'FR', 'Vichy': 'FR', 'Vignoux-sur-Barangeon': 'FR', &quot;Ville d'Avray&quot;: 'FR', &quot;Ville-d'Avray&quot;: 'FR', 'Villecresnes': 'FR', 'Villers-sur-Mer': 'FR', 'Vitry-sur-Seine': 'FR', 'Warehorne': 'GB', 'West Hollywood': 'US', 'Witten': 'DE', 'Zürich': 'CH'}</em><a class="headerlink" href="#mep.people.xml_models.Residence.city_country" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of cities in the xml with known, unambiguous countries
+provided by MEP team for import</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.xml_models.Residence.db_address">
+<code class="descname">db_address</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#Residence.db_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.Residence.db_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Address</span></code> in the
+database, creating a new address if it does not exist.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.xml_models.TeiXmlObject">
+<em class="property">class </em><code class="descclassname">mep.people.xml_models.</code><code class="descname">TeiXmlObject</code><span class="sig-paren">(</span><em>node=None</em>, <em>context=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/xml_models.html#TeiXmlObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.xml_models.TeiXmlObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-mep.people.views">
+<span id="views"></span><h3>Views<a class="headerlink" href="#module-mep.people.views" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="mep.people.views.CountryAutocomplete">
+<em class="property">class </em><code class="descclassname">mep.people.views.</code><code class="descname">CountryAutocomplete</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#CountryAutocomplete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.CountryAutocomplete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic autocomplete lookup, for use with django-autocomplete-light and
+<a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Person</span></code></a> in nationalities many-to-many.</p>
+<dl class="method">
+<dt id="mep.people.views.CountryAutocomplete.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#CountryAutocomplete.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.CountryAutocomplete.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#mep.people.models.Country" title="mep.people.models.Country"><code class="xref py py-class docutils literal notranslate"><span class="pre">Country</span></code></a> queryset, filtered on
+text in name (case-insensitive, partial match)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.views.GeoNamesLookup">
+<em class="property">class </em><code class="descclassname">mep.people.views.</code><code class="descname">GeoNamesLookup</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#GeoNamesLookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.GeoNamesLookup" title="Permalink to this definition">¶</a></dt>
+<dd><p>GeoNames ajax lookup for use as autocomplete.
+Optional mode parameter to restrict to countries only.</p>
+<dl class="method">
+<dt id="mep.people.views.GeoNamesLookup.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>request</em>, <em>mode=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#GeoNamesLookup.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.GeoNamesLookup.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>“Return option list json response.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.GeoNamesLookup.get_label">
+<code class="descname">get_label</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#GeoNamesLookup.get_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.GeoNamesLookup.get_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>display country for context, if available</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.views.LocationAutocomplete">
+<em class="property">class </em><code class="descclassname">mep.people.views.</code><code class="descname">LocationAutocomplete</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#LocationAutocomplete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.LocationAutocomplete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic autocomplete lookup, for use with django-autocomplete-light and
+<a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Person</span></code></a> in address many-to-many</p>
+<dl class="method">
+<dt id="mep.people.views.LocationAutocomplete.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#LocationAutocomplete.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.LocationAutocomplete.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get queryset of <a class="reference internal" href="#mep.people.models.Location" title="mep.people.models.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Location</span></code></a> objects.
+Use Q objects to search all relevant fields in autocomplete.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.views.PersonAutocomplete">
+<em class="property">class </em><code class="descclassname">mep.people.views.</code><code class="descname">PersonAutocomplete</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonAutocomplete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonAutocomplete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic person autocomplete lookup, for use with django-autocomplete-light.
+Use Q objects to help distinguish people using mepid.</p>
+<dl class="method">
+<dt id="mep.people.views.PersonAutocomplete.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonAutocomplete.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonAutocomplete.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> queryset, filtered on
+text in name or MEP id (case-insensitive, partial match)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.PersonAutocomplete.get_result_label">
+<code class="descname">get_result_label</code><span class="sig-paren">(</span><em>person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonAutocomplete.get_result_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonAutocomplete.get_result_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide a more detailed result label for the people autocomplete that
+can help disambiguate people.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.views.PersonMerge">
+<em class="property">class </em><code class="descclassname">mep.people.views.</code><code class="descname">PersonMerge</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonMerge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonMerge" title="Permalink to this definition">¶</a></dt>
+<dd><p>View method to merge one or more <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a>
+records.  Displays <code class="xref py py-class docutils literal notranslate"><span class="pre">PersonMergeForm</span></code> on
+GET, processes merge with <a class="reference internal" href="#mep.people.models.PersonQuerySet.merge_with" title="mep.people.models.PersonQuerySet.merge_with"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mep.people.models.PersonQuerySet.merge_with()</span></code></a>
+on successful POST.  Should be called with a list of person ids
+in the querystring as a comma-separated list. Created for use
+with custom admin action
+<a class="reference internal" href="#mep.people.admin.PersonAdmin.merge_people" title="mep.people.admin.PersonAdmin.merge_people"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mep.people.admin.PersonAdmin.merge_people()</span></code></a>.</p>
+<dl class="attribute">
+<dt id="mep.people.views.PersonMerge.form_class">
+<code class="descname">form_class</code><a class="headerlink" href="#mep.people.views.PersonMerge.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.forms.PersonMergeForm</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.PersonMerge.form_valid">
+<code class="descname">form_valid</code><span class="sig-paren">(</span><em>form</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonMerge.form_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonMerge.form_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is valid, redirect to the supplied URL.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.PersonMerge.get_form_kwargs">
+<code class="descname">get_form_kwargs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonMerge.get_form_kwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonMerge.get_form_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the keyword arguments for instantiating the form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.PersonMerge.get_initial">
+<code class="descname">get_initial</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonMerge.get_initial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonMerge.get_initial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the initial data to use for forms on this view.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.PersonMerge.get_success_url">
+<code class="descname">get_success_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonMerge.get_success_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonMerge.get_success_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redirect to the <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Person</span></code></a> change_list in the
+Django admin with pagination and filters preserved.
+Expects <a class="reference internal" href="#mep.people.admin.PersonAdmin.merge_people" title="mep.people.admin.PersonAdmin.merge_people"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mep.people.admin.PersonAdmin.merge_people()</span></code></a>
+to have set ‘people_merge_filter’ in the request’s session.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mep.people.geonames">
+<span id="geonames"></span><h3>GeoNames<a class="headerlink" href="#module-mep.people.geonames" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="mep.people.geonames.GeoNamesAPI">
+<em class="property">class </em><code class="descclassname">mep.people.geonames.</code><code class="descname">GeoNamesAPI</code><a class="reference internal" href="_modules/mep/people/geonames.html#GeoNamesAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.geonames.GeoNamesAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minimal wrapper around GeoNames API.  Currently supports simple
+searching by name and generating a uri from an id.  Expects
+<strong>GEONAMES_USERNAME</strong> to be configured in django settings.</p>
+<dl class="method">
+<dt id="mep.people.geonames.GeoNamesAPI.call_api">
+<code class="descname">call_api</code><span class="sig-paren">(</span><em>method</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/geonames.html#GeoNamesAPI.call_api"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.geonames.GeoNamesAPI.call_api" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic method to handle calling geonames api and raising
+an exception if an error occurred.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.geonames.GeoNamesAPI.countries">
+<code class="descname">countries</code><a class="headerlink" href="#mep.people.geonames.GeoNamesAPI.countries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Country information as returned by countryInfoJSON.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.geonames.GeoNamesAPI.countries_by_code">
+<code class="descname">countries_by_code</code><a class="headerlink" href="#mep.people.geonames.GeoNamesAPI.countries_by_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of country information keyed on two-letter code.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.geonames.GeoNamesAPI.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>query</em>, <em>max_rows=None</em>, <em>feature_class=None</em>, <em>feature_code=None</em>, <em>name_start=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/geonames.html#GeoNamesAPI.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.geonames.GeoNamesAPI.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for places and return the list of results</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="mep.people.geonames.GeoNamesAPI.uri_from_id">
+<em class="property">classmethod </em><code class="descname">uri_from_id</code><span class="sig-paren">(</span><em>geonames_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/geonames.html#GeoNamesAPI.uri_from_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.geonames.GeoNamesAPI.uri_from_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a GeoNames id into a GeoNames URI</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="mep.people.geonames.GeoNamesError">
+<em class="property">exception </em><code class="descclassname">mep.people.geonames.</code><code class="descname">GeoNamesError</code><a class="reference internal" href="_modules/mep/people/geonames.html#GeoNamesError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.geonames.GeoNamesError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic GeoNames response error</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mep.people.geonames.GeoNamesUnauthorized">
+<em class="property">exception </em><code class="descclassname">mep.people.geonames.</code><code class="descname">GeoNamesUnauthorized</code><a class="reference internal" href="_modules/mep/people/geonames.html#GeoNamesUnauthorized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.geonames.GeoNamesUnauthorized" title="Permalink to this definition">¶</a></dt>
+<dd><p>GeoNames unauthorized response (raised when username is not set)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mep.people.admin">
+<span id="admin"></span><h3>Admin<a class="headerlink" href="#module-mep.people.admin" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="mep.people.admin.CountryAdmin">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">CountryAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#CountryAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.CountryAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="mep.people.admin.CountryAdmin.form">
+<code class="descname">form</code><a class="headerlink" href="#mep.people.admin.CountryAdmin.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.people.admin.CountryAdminForm" title="mep.people.admin.CountryAdminForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">CountryAdminForm</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.CountryAdminForm">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">CountryAdminForm</code><span class="sig-paren">(</span><em>data=None</em>, <em>files=None</em>, <em>auto_id='id_%s'</em>, <em>prefix=None</em>, <em>initial=None</em>, <em>error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em>label_suffix=None</em>, <em>empty_permitted=False</em>, <em>instance=None</em>, <em>use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#CountryAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.CountryAdminForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom model form for Place editing, used to add geonames lookup.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.GeoNamesLookupWidget">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">GeoNamesLookupWidget</code><span class="sig-paren">(</span><em>url=None</em>, <em>forward=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#GeoNamesLookupWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.GeoNamesLookupWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Customize autocomplete select widget to display Geonames URI
+as a link.</p>
+<dl class="method">
+<dt id="mep.people.admin.GeoNamesLookupWidget.render">
+<code class="descname">render</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#GeoNamesLookupWidget.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.GeoNamesLookupWidget.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling Django render together with <cite>render_forward_conf</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.InfoURLInline">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">InfoURLInline</code><span class="sig-paren">(</span><em>parent_model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#InfoURLInline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.InfoURLInline" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="mep.people.admin.InfoURLInline.model">
+<code class="descname">model</code><a class="headerlink" href="#mep.people.admin.InfoURLInline.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.people.models.InfoURL" title="mep.people.models.InfoURL"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.InfoURL</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.LocationAdmin">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">LocationAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#LocationAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.LocationAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="mep.people.admin.LocationAdmin.form">
+<code class="descname">form</code><a class="headerlink" href="#mep.people.admin.LocationAdmin.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.people.admin.LocationAdminForm" title="mep.people.admin.LocationAdminForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocationAdminForm</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.LocationAdminForm">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">LocationAdminForm</code><span class="sig-paren">(</span><em>data=None</em>, <em>files=None</em>, <em>auto_id='id_%s'</em>, <em>prefix=None</em>, <em>initial=None</em>, <em>error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em>label_suffix=None</em>, <em>empty_permitted=False</em>, <em>instance=None</em>, <em>use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#LocationAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.LocationAdminForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom model form for Address editing.</p>
+<dl class="attribute">
+<dt id="mep.people.admin.LocationAdminForm.mapbox_token">
+<code class="descname">mapbox_token</code><em class="property"> = None</em><a class="headerlink" href="#mep.people.admin.LocationAdminForm.mapbox_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>add a hidden field to pass in a mapbox access token from local settings</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.MapWidget">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">MapWidget</code><span class="sig-paren">(</span><em>attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#MapWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.MapWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Customize numeric input and add a map div to display a leaflet map
+for latitude and longitude values on the form.</p>
+<dl class="method">
+<dt id="mep.people.admin.MapWidget.render">
+<code class="descname">render</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#MapWidget.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.MapWidget.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns this Widget rendered as HTML, as a Unicode string.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.PersonAddressInline">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">PersonAddressInline</code><span class="sig-paren">(</span><em>parent_model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAddressInline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAddressInline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.PersonAdmin">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">PersonAdmin</code><span class="sig-paren">(</span><em>model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>ModelAdmin for <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a>.
+Uses custom template to display account subscription events and
+any relationships _to_ this person (only relationships to _other_
+people are edited here).</p>
+<dl class="attribute">
+<dt id="mep.people.admin.PersonAdmin.form">
+<code class="descname">form</code><a class="headerlink" href="#mep.people.admin.PersonAdmin.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.people.admin.PersonAdminForm" title="mep.people.admin.PersonAdminForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">PersonAdminForm</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.admin.PersonAdmin.merge_people">
+<code class="descname">merge_people</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdmin.merge_people"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdmin.merge_people" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consolidate duplicate person records.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.PersonAdminForm">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">PersonAdminForm</code><span class="sig-paren">(</span><em>data=None</em>, <em>files=None</em>, <em>auto_id='id_%s'</em>, <em>prefix=None</em>, <em>initial=None</em>, <em>error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em>label_suffix=None</em>, <em>empty_permitted=False</em>, <em>instance=None</em>, <em>use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdminForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom model form for Person editing; used to add VIAF lookup</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.RelationshipInline">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">RelationshipInline</code><span class="sig-paren">(</span><em>parent_model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#RelationshipInline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.RelationshipInline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inline class for Relationships</p>
+<dl class="attribute">
+<dt id="mep.people.admin.RelationshipInline.form">
+<code class="descname">form</code><a class="headerlink" href="#mep.people.admin.RelationshipInline.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.people.admin.RelationshipInlineForm" title="mep.people.admin.RelationshipInlineForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">RelationshipInlineForm</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.admin.RelationshipInline.model">
+<code class="descname">model</code><a class="headerlink" href="#mep.people.admin.RelationshipInline.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.people.models.Relationship" title="mep.people.models.Relationship"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Relationship</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.admin.RelationshipInlineForm">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">RelationshipInlineForm</code><span class="sig-paren">(</span><em>data=None</em>, <em>files=None</em>, <em>auto_id='id_%s'</em>, <em>prefix=None</em>, <em>initial=None</em>, <em>error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em>label_suffix=None</em>, <em>empty_permitted=False</em>, <em>instance=None</em>, <em>use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#RelationshipInlineForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.RelationshipInlineForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom model form for Book editing, used to add autocomplete
+for place lookup.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="manage-commands">
+<h3>Manage Commands<a class="headerlink" href="#manage-commands" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="module-mep.people.management.commands.import_personography">
+<span id="import-personography"></span><h4>import personography<a class="headerlink" href="#module-mep.people.management.commands.import_personography" title="Permalink to this headline">¶</a></h4>
+<p>Manage command to import personography from MEP XML.  Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">import_personography</span>  <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">personography</span><span class="o">.</span><span class="n">xml</span>
+</pre></div>
+</div>
+<p>If a person has already been imported
+(based on <a class="reference internal" href="#mep.people.models.Person.mep_id" title="mep.people.models.Person.mep_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">mep_id</span></code></a>), they will skipped
+when the import script is run again.</p>
+<p>See <code class="xref py py-meth docutils literal notranslate"><span class="pre">mep.people.xml_model.Person.to_db_person()</span></code> for more
+specifics on import logic.</p>
+</div>
+</div>
+</div>
+<div class="section" id="module-mep.footnotes">
+<span id="footnotes"></span><h2>Footnotes<a class="headerlink" href="#module-mep.footnotes" title="Permalink to this headline">¶</a></h2>
+<p>Django app for footnotes that can be associated with other content
+anywhere in the project.</p>
+<div class="section" id="id4">
+<h3>Models<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-mep.footnotes.models"></span><dl class="class">
+<dt id="mep.footnotes.models.Bibliography">
+<em class="property">class </em><code class="descclassname">mep.footnotes.models.</code><code class="descname">Bibliography</code><span class="sig-paren">(</span><em>id</em>, <em>notes</em>, <em>bibliographic_note</em>, <em>source_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#Bibliography"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.Bibliography" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="exception">
+<dt id="mep.footnotes.models.Bibliography.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.footnotes.models.Bibliography.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.footnotes.models.Bibliography.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.footnotes.models.Bibliography.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.Bibliography.footnote_count">
+<code class="descname">footnote_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#Bibliography.footnote_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.Bibliography.footnote_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of footnotes this item is referenced in</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.footnotes.models.Footnote">
+<em class="property">class </em><code class="descclassname">mep.footnotes.models.</code><code class="descname">Footnote</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#Footnote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.Footnote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Footnote that can be associated with any other model via
+generic relationship.  Used to provide supporting documentation
+for or against information in the system.</p>
+<dl class="exception">
+<dt id="mep.footnotes.models.Footnote.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.footnotes.models.Footnote.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.footnotes.models.Footnote.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.footnotes.models.Footnote.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.footnotes.models.SourceType">
+<em class="property">class </em><code class="descclassname">mep.footnotes.models.</code><code class="descname">SourceType</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#SourceType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.SourceType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type of source document.</p>
+<dl class="exception">
+<dt id="mep.footnotes.models.SourceType.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.footnotes.models.SourceType.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.footnotes.models.SourceType.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.footnotes.models.SourceType.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.SourceType.item_count">
+<code class="descname">item_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#SourceType.item_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.SourceType.item_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of associated bibliographic items</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Mapping Expatriate Paris - Django</a></h1>
+
+
+
+<p class="blurb">Django web application for "Mapping Expatriate Paris" CDH project</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Change Log</a></li>
+</ul>
+
+
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Code Documentation</a><ul>
+<li><a class="reference internal" href="#module-mep.common">Common</a><ul>
+<li><a class="reference internal" href="#module-mep.common.models">Models</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-mep.accounts">Accounts</a><ul>
+<li><a class="reference internal" href="#id1">Models</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-mep.books">Books</a><ul>
+<li><a class="reference internal" href="#id2">Models</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-mep.people">People</a><ul>
+<li><a class="reference internal" href="#id3">Models</a></li>
+<li><a class="reference internal" href="#module-mep.people.xml_models">XML Models</a></li>
+<li><a class="reference internal" href="#module-mep.people.views">Views</a></li>
+<li><a class="reference internal" href="#module-mep.people.geonames">GeoNames</a></li>
+<li><a class="reference internal" href="#module-mep.people.admin">Admin</a></li>
+<li><a class="reference internal" href="#manage-commands">Manage Commands</a><ul>
+<li><a class="reference internal" href="#module-mep.people.management.commands.import_personography">import personography</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-mep.footnotes">Footnotes</a><ul>
+<li><a class="reference internal" href="#id4">Models</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/codedocs.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
