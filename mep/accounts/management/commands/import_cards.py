@@ -19,6 +19,9 @@ class Command(BaseCommand):
 
     stats = defaultdict(int)
 
+    #: base path for image urls referenced in the xml
+    image_base_url = 'https://diglib.princeton.edu/tools/ib/'
+
     def add_arguments(self, parser):
         parser.add_argument('path',
             help='base path containing folders of lending card XML files')
@@ -109,14 +112,16 @@ class Command(BaseCommand):
                     # continue with previous account
 
                 # add image path to the notes for the appropriate account
-                account.card.notes += '\n%s' % lcard.image_path(side.facsimile_id)
+                account.card.notes += '\n%s%s' % \
+                    (self.image_base_url, lcard.image_path(side.facsimile_id))
 
                 # then iterate through borrowing events and associate with the acount
                 for xml_borrow in side.borrowing_events:
                     borrow = xml_borrow.to_db_event(account)
                     borrow.save()
                     borrow.footnotes.create(bibliography=account.card,
-                        location=lcard.image_path(side.facsimile_id),
+                        location=''.join([self.image_base_url,
+                                          lcard.image_path(side.facsimile_id)]),
                         is_agree=True)
                     self.stats['borrow_created'] += 1
 
