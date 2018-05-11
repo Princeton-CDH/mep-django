@@ -307,6 +307,7 @@ class Person(Notable, DateRange):
     in_logbooks.boolean = True
 
     def has_card(self):
+        '''The library account for this person has an associated lending card'''
         return self.account_set.filter(card__isnull=False).exists()
     has_card.boolean = True
 
