@@ -97,6 +97,7 @@ class Account(models.Model):
     list_locations.short_description = 'Locations'
 
     def has_card(self):
+        '''Account has an associated lending card'''
         return bool(self.card)
     has_card.boolean = True
 

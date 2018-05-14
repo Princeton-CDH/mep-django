@@ -3,6 +3,28 @@
 CHANGELOG
 =========
 
+0.6 Card import and basic item admin
+------------------------------------
+
+Provides editing functionality for borrowing events, including partial dates,
+and basic bibliographic data for lending library item records.
+Import script to migrate borrowing events and item information from
+marked up XML lending card transcriptions into the database.
+
+
+* As a global admin, I want a one-time import of regularized titles so that items can be managed in the database and associated with borrowing events.
+* As a global admin, I want a one-time import of data from lending card XML files so that I can manage borrowing events and borrowed items in the database.
+* As a global admin, I want the source of borrowing event information documented so that I can refer back to the item if necessary.
+* As a content editor, I want to view and edit borrowing events so that I can review data imported from the cards and correct any errors.
+* As a content editor, I need to view and edit partial dates for borrowing events so that I can see and record whatever portion of the date is available when the exact date is not known.
+* As an content editor, I want to view borrowing event notes and edit purchase status on the list view so that I can quickly mark bought items that can't be autodetected on import.
+* As a content editor, I want to create and edit library item records so that I can review, correct, and expand on basic metadata for imported library item stub data.
+* As a content editor, I want to create and edit item creator types so that I can track item creator roles including author, translator, and editor.
+* As an content editor, I want to see how many times an item has been borrowed and have an easy way to access all borrowing events for that item so I can investigate unclear titles and remove unused ones.
+* As a global admin, I want a CSV export of bibliographic item data so that I can track data work and explore bulk data enhancements.
+* As a content editor, I want to see an indicator if a person has an associated card so that I can distinguish library members with cards.
+* bugfix: Admin menu order on the main dashboard is unstable
+
 0.5 Data Entry Improvements II
 ------------------------------
 

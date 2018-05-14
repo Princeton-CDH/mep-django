@@ -24,8 +24,11 @@ DROP TABLE IF EXISTS `accounts_account`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `accounts_account` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5142 DEFAULT CHARSET=utf8;
+  `card_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `accounts_account_card_id_9ea3a165_fk_footnotes_bibliography_id` (`card_id`),
+  CONSTRAINT `accounts_account_card_id_9ea3a165_fk_footnotes_bibliography_id` FOREIGN KEY (`card_id`) REFERENCES `footnotes_bibliography` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5499 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +47,7 @@ CREATE TABLE `accounts_account_persons` (
   KEY `accounts_account_persons_person_id_a9a49baf_fk_people_person_id` (`person_id`),
   CONSTRAINT `accounts_account_per_account_id_fe47fc2e_fk_accounts_` FOREIGN KEY (`account_id`) REFERENCES `accounts_account` (`id`),
   CONSTRAINT `accounts_account_persons_person_id_a9a49baf_fk_people_person_id` FOREIGN KEY (`person_id`) REFERENCES `people_person` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5109 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5468 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -64,15 +67,15 @@ CREATE TABLE `accounts_address` (
   `care_of_person_id` int(11) DEFAULT NULL,
   `person_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `accounts_accountaddr_account_id_14f5ac4d_fk_accounts_` (`account_id`),
-  KEY `accounts_accountaddress_address_id_4cb75401_fk_people_address_id` (`location_id`),
-  KEY `accounts_accountaddr_care_of_person_id_f027cfc5_fk_people_pe` (`care_of_person_id`),
+  KEY `accounts_address_account_id_aa0fe0e4_fk_accounts_account_id` (`account_id`),
+  KEY `accounts_address_care_of_person_id_0753ed78_fk_people_person_id` (`care_of_person_id`),
+  KEY `accounts_address_location_id_630d6aa9_fk_people_location_id` (`location_id`),
   KEY `accounts_address_person_id_9a2b6dba_fk_people_person_id` (`person_id`),
   CONSTRAINT `accounts_address_account_id_aa0fe0e4_fk_accounts_account_id` FOREIGN KEY (`account_id`) REFERENCES `accounts_account` (`id`),
   CONSTRAINT `accounts_address_care_of_person_id_0753ed78_fk_people_person_id` FOREIGN KEY (`care_of_person_id`) REFERENCES `people_person` (`id`),
   CONSTRAINT `accounts_address_location_id_630d6aa9_fk_people_location_id` FOREIGN KEY (`location_id`) REFERENCES `people_location` (`id`),
   CONSTRAINT `accounts_address_person_id_9a2b6dba_fk_people_person_id` FOREIGN KEY (`person_id`) REFERENCES `people_person` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=910 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=916 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -84,11 +87,14 @@ DROP TABLE IF EXISTS `accounts_borrow`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `accounts_borrow` (
   `event_ptr_id` int(11) NOT NULL,
-  `purchase_id_id` int(11) DEFAULT NULL,
+  `item_id` int(11) DEFAULT NULL,
+  `end_date_precision` smallint(5) unsigned DEFAULT NULL,
+  `start_date_precision` smallint(5) unsigned DEFAULT NULL,
+  `item_status` varchar(2) NOT NULL,
   PRIMARY KEY (`event_ptr_id`),
-  KEY `accounts_borrow_purchase_id_id_7a39d50c_fk_accounts_` (`purchase_id_id`),
+  KEY `accounts_borrow_item_id_defb6274_fk_books_item_id` (`item_id`),
   CONSTRAINT `accounts_borrow_event_ptr_id_0843af63_fk_accounts_event_id` FOREIGN KEY (`event_ptr_id`) REFERENCES `accounts_event` (`id`),
-  CONSTRAINT `accounts_borrow_purchase_id_id_7a39d50c_fk_accounts_` FOREIGN KEY (`purchase_id_id`) REFERENCES `accounts_purchase` (`event_ptr_id`)
+  CONSTRAINT `accounts_borrow_item_id_defb6274_fk_books_item_id` FOREIGN KEY (`item_id`) REFERENCES `books_item` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -108,7 +114,7 @@ CREATE TABLE `accounts_event` (
   PRIMARY KEY (`id`),
   KEY `accounts_event_account_id_52fea54a_fk_accounts_account_id` (`account_id`),
   CONSTRAINT `accounts_event_account_id_52fea54a_fk_accounts_account_id` FOREIGN KEY (`account_id`) REFERENCES `accounts_account` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10182 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=31116 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -216,7 +222,7 @@ CREATE TABLE `auth_group_permissions` (
   KEY `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` (`permission_id`),
   CONSTRAINT `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),
   CONSTRAINT `auth_group_permissions_group_id_b120cbf9_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -234,7 +240,7 @@ CREATE TABLE `auth_permission` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
   CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=143 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -258,7 +264,7 @@ CREATE TABLE `auth_user` (
   `date_joined` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -277,7 +283,7 @@ CREATE TABLE `auth_user_groups` (
   KEY `auth_user_groups_group_id_97559544_fk_auth_group_id` (`group_id`),
   CONSTRAINT `auth_user_groups_group_id_97559544_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`),
   CONSTRAINT `auth_user_groups_user_id_6a12ed8b_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -300,6 +306,45 @@ CREATE TABLE `auth_user_user_permissions` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `books_creator`
+--
+
+DROP TABLE IF EXISTS `books_creator`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `books_creator` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `notes` longtext NOT NULL,
+  `creator_type_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `person_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `books_creator_creator_type_id_6a9eb7db_fk_books_creatortype_id` (`creator_type_id`),
+  KEY `books_creator_item_id_5b7fee25_fk_books_item_id` (`item_id`),
+  KEY `books_creator_person_id_16dbca83_fk_people_person_id` (`person_id`),
+  CONSTRAINT `books_creator_creator_type_id_6a9eb7db_fk_books_creatortype_id` FOREIGN KEY (`creator_type_id`) REFERENCES `books_creatortype` (`id`),
+  CONSTRAINT `books_creator_item_id_5b7fee25_fk_books_item_id` FOREIGN KEY (`item_id`) REFERENCES `books_item` (`id`),
+  CONSTRAINT `books_creator_person_id_16dbca83_fk_people_person_id` FOREIGN KEY (`person_id`) REFERENCES `people_person` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `books_creatortype`
+--
+
+DROP TABLE IF EXISTS `books_creatortype`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `books_creatortype` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `notes` longtext NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `books_item`
 --
 
@@ -309,54 +354,17 @@ DROP TABLE IF EXISTS `books_item`;
 CREATE TABLE `books_item` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `notes` longtext NOT NULL,
-  `mep_id` varchar(255) NOT NULL,
+  `mep_id` varchar(255) DEFAULT NULL,
   `title` varchar(255) NOT NULL,
   `volume` smallint(5) unsigned DEFAULT NULL,
   `number` smallint(5) unsigned DEFAULT NULL,
   `year` smallint(5) unsigned DEFAULT NULL,
   `season` varchar(255) NOT NULL,
   `edition` varchar(255) NOT NULL,
-  `viaf_id` varchar(200) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `books_item_authors`
---
-
-DROP TABLE IF EXISTS `books_item_authors`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `books_item_authors` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `item_id` int(11) NOT NULL,
-  `person_id` int(11) NOT NULL,
+  `uri` varchar(200) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `books_item_authors_item_id_person_id_9bddb8ff_uniq` (`item_id`,`person_id`),
-  KEY `books_item_authors_person_id_a1750a01_fk_people_person_id` (`person_id`),
-  CONSTRAINT `books_item_authors_item_id_844e857b_fk_books_item_id` FOREIGN KEY (`item_id`) REFERENCES `books_item` (`id`),
-  CONSTRAINT `books_item_authors_person_id_a1750a01_fk_people_person_id` FOREIGN KEY (`person_id`) REFERENCES `people_person` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `books_item_editors`
---
-
-DROP TABLE IF EXISTS `books_item_editors`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `books_item_editors` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `item_id` int(11) NOT NULL,
-  `person_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `books_item_editors_item_id_person_id_1ba28606_uniq` (`item_id`,`person_id`),
-  KEY `books_item_editors_person_id_45ff5759_fk_people_person_id` (`person_id`),
-  CONSTRAINT `books_item_editors_item_id_0d147669_fk_books_item_id` FOREIGN KEY (`item_id`) REFERENCES `books_item` (`id`),
-  CONSTRAINT `books_item_editors_person_id_45ff5759_fk_people_person_id` FOREIGN KEY (`person_id`) REFERENCES `people_person` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  UNIQUE KEY `books_item_mep_id_80ed6238_uniq` (`mep_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7232 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -394,25 +402,6 @@ CREATE TABLE `books_item_publishers` (
   KEY `books_item_publisher_publisher_id_717db081_fk_books_pub` (`publisher_id`),
   CONSTRAINT `books_item_publisher_publisher_id_717db081_fk_books_pub` FOREIGN KEY (`publisher_id`) REFERENCES `books_publisher` (`id`),
   CONSTRAINT `books_item_publishers_item_id_7b1b588f_fk_books_item_id` FOREIGN KEY (`item_id`) REFERENCES `books_item` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `books_item_translators`
---
-
-DROP TABLE IF EXISTS `books_item_translators`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `books_item_translators` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `item_id` int(11) NOT NULL,
-  `person_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `books_item_translators_item_id_person_id_a68fa913_uniq` (`item_id`,`person_id`),
-  KEY `books_item_translators_person_id_d78e2c96_fk_people_person_id` (`person_id`),
-  CONSTRAINT `books_item_translators_item_id_69a2b8b3_fk_books_item_id` FOREIGN KEY (`item_id`) REFERENCES `books_item` (`id`),
-  CONSTRAINT `books_item_translators_person_id_d78e2c96_fk_people_person_id` FOREIGN KEY (`person_id`) REFERENCES `people_person` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -524,7 +513,7 @@ CREATE TABLE `django_admin_log` (
   KEY `django_admin_log_user_id_c564eba6_fk_auth_user_id` (`user_id`),
   CONSTRAINT `django_admin_log_content_type_id_c4bce8eb_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
   CONSTRAINT `django_admin_log_user_id_c564eba6_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1335 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4426 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -560,7 +549,7 @@ CREATE TABLE `django_cas_ng_sessionticket` (
   `session_key` varchar(255) NOT NULL,
   `ticket` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -573,7 +562,7 @@ DROP TABLE IF EXISTS `django_comment_flags`;
 CREATE TABLE `django_comment_flags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `flag` varchar(30) NOT NULL,
-  `flag_date` datetime(6) NOT NULL,
+  `flag_date` datetime NOT NULL,
   `comment_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
@@ -599,7 +588,7 @@ CREATE TABLE `django_comments` (
   `user_email` varchar(254) NOT NULL,
   `user_url` varchar(200) NOT NULL,
   `comment` longtext NOT NULL,
-  `submit_date` datetime(6) NOT NULL,
+  `submit_date` datetime NOT NULL,
   `ip_address` char(39) DEFAULT NULL,
   `is_public` tinyint(1) NOT NULL,
   `is_removed` tinyint(1) NOT NULL,
@@ -630,7 +619,7 @@ CREATE TABLE `django_content_type` (
   `model` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -646,7 +635,7 @@ CREATE TABLE `django_migrations` (
   `name` varchar(255) NOT NULL,
   `applied` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=74 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -715,7 +704,7 @@ CREATE TABLE `footnotes_bibliography` (
   PRIMARY KEY (`id`),
   KEY `footnotes_bibliograp_source_type_id_9f345508_fk_footnotes` (`source_type_id`),
   CONSTRAINT `footnotes_bibliograp_source_type_id_9f345508_fk_footnotes` FOREIGN KEY (`source_type_id`) REFERENCES `footnotes_sourcetype` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=567 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -739,7 +728,7 @@ CREATE TABLE `footnotes_footnote` (
   KEY `footnotes_footnote_content_type_id_2044e4b6_fk_django_co` (`content_type_id`),
   CONSTRAINT `footnotes_footnote_bibliography_id_d331761a_fk_footnotes` FOREIGN KEY (`bibliography_id`) REFERENCES `footnotes_bibliography` (`id`),
   CONSTRAINT `footnotes_footnote_content_type_id_2044e4b6_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=20167 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -755,7 +744,7 @@ CREATE TABLE `footnotes_sourcetype` (
   `notes` longtext NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -807,7 +796,7 @@ DROP TABLE IF EXISTS `generic_rating`;
 CREATE TABLE `generic_rating` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `value` int(11) NOT NULL,
-  `rating_date` datetime(6) DEFAULT NULL,
+  `rating_date` datetime DEFAULT NULL,
   `object_pk` int(11) NOT NULL,
   `content_type_id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
@@ -869,11 +858,11 @@ CREATE TABLE `pages_page` (
   `_meta_title` varchar(500) DEFAULT NULL,
   `description` longtext NOT NULL,
   `gen_description` tinyint(1) NOT NULL,
-  `created` datetime(6) DEFAULT NULL,
-  `updated` datetime(6) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
   `status` int(11) NOT NULL,
-  `publish_date` datetime(6) DEFAULT NULL,
-  `expiry_date` datetime(6) DEFAULT NULL,
+  `publish_date` datetime DEFAULT NULL,
+  `expiry_date` datetime DEFAULT NULL,
   `short_url` varchar(200) DEFAULT NULL,
   `in_sitemap` tinyint(1) NOT NULL,
   `_order` int(11) DEFAULT NULL,
@@ -941,7 +930,7 @@ CREATE TABLE `people_infourl` (
   PRIMARY KEY (`id`),
   KEY `people_infourl_person_id_40265ba6_fk_people_person_id` (`person_id`),
   CONSTRAINT `people_infourl_person_id_40265ba6_fk_people_person_id` FOREIGN KEY (`person_id`) REFERENCES `people_person` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=210 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=234 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -987,10 +976,11 @@ CREATE TABLE `people_person` (
   `sex` varchar(1) NOT NULL,
   `title` varchar(255) NOT NULL,
   `profession_id` int(11) DEFAULT NULL,
+  `is_organization` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `people_person_profession_id_88564e21_fk_people_profession_id` (`profession_id`),
   CONSTRAINT `people_person_profession_id_88564e21_fk_people_profession_id` FOREIGN KEY (`profession_id`) REFERENCES `people_profession` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5052 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5396 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1009,7 +999,7 @@ CREATE TABLE `people_person_nationalities` (
   KEY `people_person_nation_country_id_7e0cd367_fk_people_co` (`country_id`),
   CONSTRAINT `people_person_nation_country_id_7e0cd367_fk_people_co` FOREIGN KEY (`country_id`) REFERENCES `people_country` (`id`),
   CONSTRAINT `people_person_nation_person_id_53fce882_fk_people_pe` FOREIGN KEY (`person_id`) REFERENCES `people_person` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=294 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=310 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1025,7 +1015,7 @@ CREATE TABLE `people_profession` (
   `notes` longtext NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1076,4 +1066,4 @@ CREATE TABLE `people_relationshiptype` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-02-20 14:17:01
+-- Dump completed on 2018-05-11 12:41:35

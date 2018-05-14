@@ -3,7 +3,7 @@
 Deploy and Upgrade notes
 ========================
 
-0.4? Borrowing events and Title stubs
+0.6 Borrowing events and Title stubs
 -------------------------------------
 
 * Title stub records should be imported from XML using the

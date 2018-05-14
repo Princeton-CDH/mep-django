@@ -76,6 +76,7 @@ class Item(Notable):
         return '(No title, year)'
 
     def creator_by_type(self, creator_type):
+        '''return item creators of a single type, e.g. author'''
         return self.creators.filter(creator__creator_type__name=creator_type)
 
     @property

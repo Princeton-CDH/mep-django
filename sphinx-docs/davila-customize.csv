@@ -18,7 +18,7 @@ title|Mapping Expatriate Paris - Django (v0.3)
 url|http://digitalhumanities.princeton.edu
 
 #creators|PEOPLE INVOLVED
-creators|Database design: Jean Bauer
+creators|Database design: Jean Bauer, Rebecca Koeser
 creators|Primary investigator: Joshua Kotin
 creators|Lead developer: Rebecca Koeser
 creators|Database implementation: Benjamin Hicks, Rebecca Koeser
@@ -63,11 +63,10 @@ accounts_reimbursement|accounts|
 accounts_subscription|accounts|
 accounts_subscriptiontype|accounts|
 books_item|books|
-books_item_authors|books|
-books_item_editors|books|
+books_creator|books|
+books_creatortype|books|
 books_item_pub_places|books|
 books_item_publishers|books|
-books_item_translators|books|
 books_publisher|books|
 books_publisherplace|books|
 footnotes_bibliography|footnotes|

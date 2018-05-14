@@ -2,9 +2,10 @@ import pytest
 import re
 from unittest.mock import Mock
 
-from django.test import TestCase
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
+from django.test import TestCase
+from django.urls import reverse
 
 from .models import AliasIntegerField, Named, Notable, DateRange
 from .validators import verify_latlon
@@ -158,4 +159,39 @@ class TestLocalUserAdmin(TestCase):
         user.groups.add(grp1)
         user.groups.add(grp2)
         assert localadmin.group_names(user) == 'Admins, Staff'
+
+
+
+class TestAdminDashboard(TestCase):
+
+    def test_dashboard(self):
+        # create admin user who can view the admin dashboard
+        su_password = 'itsasecret'
+        superuser = User.objects.create_superuser(username='admin',
+            password=su_password, email='su@example.com')
+        # login as admin user
+        self.client.login(username=superuser.username, password=su_password)
+
+        response = self.client.get(reverse('admin:index'))
+        # check expected order
+        response_content = response.content.decode()
+        # accounts before personography
+        assert re.search('Library Accounts.*Personography',
+                         response_content, flags=re.MULTILINE|re.DOTALL)
+        # personography before bibliography
+        assert re.search('Personography.*Bibliography',
+                         response_content, flags=re.MULTILINE|re.DOTALL)
+        # bibliography before footnotes
+        assert re.search('Bibliography.*Footnotes',
+                         response_content, flags=re.MULTILINE|re.DOTALL)
+        # bibliography before footnotes
+        assert re.search('Footnotes.*Administration',
+                         response_content, flags=re.MULTILINE|re.DOTALL)
+
+        # spot check a few expected urls
+        for admin_url in ['people_person_changelist', 'accounts_account_changelist',
+                          'accounts_borrow_changelist', 'footnotes_footnote_changelist',
+                          'books_item_changelist']:
+            assert reverse('admin:%s' % admin_url) in response_content
+
 
