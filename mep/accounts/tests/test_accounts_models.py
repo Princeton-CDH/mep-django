@@ -3,13 +3,15 @@ import re
 from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
+from django.db import models
 from django.db.models.query import QuerySet
 from django.core.validators import ValidationError
 from django.test import TestCase
 import pytest
 
 from mep.accounts.models import Account, Address, \
-    Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin
+    Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin, \
+    DatePrecisionField, DatePrecision, PartialDate
 from mep.books.models import Item
 from mep.people.models import Person, Location
 
@@ -271,6 +273,7 @@ class TestEvent(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
+        self.item = Item.objects.create(title='Selected poems')
         self.event = Event.objects.create(account=self.account)
 
     def test_repr(self):
@@ -311,13 +314,13 @@ class TestEvent(TestCase):
         assert reimbursement.event_ptr.event_type == 'Reimbursement'
 
         # borrow
-        borrow = Borrow.objects.create(account=self.account)
+        borrow = Borrow.objects.create(account=self.account, item=self.item)
         assert borrow.event_ptr.event_type == 'Borrow'
 
         # purchase
-        item = Item.objects.create()
-        borrow = Purchase.objects.create(account=self.account, item=item, price=5)
-        assert borrow.event_ptr.event_type == 'Purchase'
+        purchase = Purchase.objects.create(account=self.account,
+            item=self.item, price=5)
+        assert purchase.event_ptr.event_type == 'Purchase'
 
 
 class TestSubscription(TestCase):
@@ -592,8 +595,9 @@ class TestBorrow(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
+        self.item = Item.objects.create(title='Collected works')
         self.borrow = Borrow.objects.create(
-            account=self.account
+            account=self.account, item=self.item
         )
 
     def test_repr(self):
@@ -605,6 +609,76 @@ class TestBorrow(TestCase):
     def test_str(self):
         assert str(self.borrow) == ('Borrow for account #%s' %
                                     self.borrow.account.pk)
+
+    def test_save(self):
+        today = datetime.date.today()
+        borrow = Borrow(account=self.account, item=self.item)
+        # no end date, no item status; item status should not be set
+        borrow.save()
+        assert not borrow.item_status
+        # end date, status - item status should automatically be set
+        borrow.end_date = today
+        borrow.save()
+        assert borrow.item_status == borrow.ITEM_RETURNED
+        # if status set, it should not be changed
+        borrow.item_status = borrow.ITEM_MISSING
+        borrow.save()
+        assert borrow.item_status == borrow.ITEM_MISSING
+
+    def test_calculate_date(self):
+
+        borrow = Borrow(account=self.account, item=self.item)
+        with pytest.raises(ValueError):
+            # unsupported date name should error
+            borrow.calculate_date('bogus')
+
+        # partial date
+        borrow.calculate_date('start_date', '1935-05')
+        assert borrow.start_date == datetime.date(1935, 5, 1)
+        assert borrow.start_date_precision.year
+        assert borrow.start_date_precision.month
+        assert not borrow.start_date_precision.day
+
+        # 1900 date = unknown by project convention
+        borrow.calculate_date('end_date', '1901-06-30')
+        assert borrow.end_date == datetime.date(1901, 6, 30)
+        assert not borrow.end_date_precision.year
+        assert borrow.end_date_precision.month
+        assert borrow.end_date_precision.day
+
+        # earliest/latest dates
+        early = datetime.date(1930, 11, 5)
+        late = datetime.date(1930, 11, 25)
+        borrow.calculate_date('start_date', earliest=early, latest=late)
+        # stored as earliest date
+        assert borrow.start_date == early
+        assert borrow.partial_start_date == '1930-11'
+        # in this case, all but day match
+        assert borrow.start_date_precision.year
+        assert borrow.start_date_precision.month
+        assert not borrow.start_date_precision.day
+
+        # only year overlaps
+        late = datetime.date(1930, 12, 25)
+        borrow.calculate_date('start_date', earliest=early, latest=late)
+        assert borrow.partial_start_date == '1930'
+        assert borrow.start_date_precision.year
+        assert not borrow.start_date_precision.month
+
+        # different year but same month/day
+        late = datetime.date(1932, 11, 5)
+        borrow.calculate_date('start_date', earliest=early, latest=late)
+        assert borrow.start_date == early
+        assert borrow.partial_start_date == '--11-05'
+        assert not borrow.start_date_precision.year
+        assert borrow.start_date_precision.month
+        assert borrow.start_date_precision.day
+
+        # no overlap?
+        late = datetime.date(1932, 12, 22)
+        borrow.calculate_date('start_date', earliest=early, latest=late)
+        assert not borrow.partial_start_date
+        assert not borrow.start_date_precision
 
 
 class TestCurrencyMixin(TestCase):
@@ -633,3 +707,78 @@ class TestCurrencyMixin(TestCase):
         # when symbol is not known
         coin.currency = 'foo'
         assert coin.currency_symbol() == 'foo'
+
+class TestPartialDates(TestCase):
+
+    # test object for partial date descriptor behavior
+    class PartialDateObject(models.Model):
+        date = None
+        partial_date = PartialDate('date', 'date_precision')
+        date_precision = DatePrecisionField()
+
+        class Meta:
+            abstract = True
+
+    # version that uses 1900 for unknown years
+    class PartialDateObject1900(PartialDateObject):
+        partial_date = PartialDate('date', 'date_precision', 1900)
+
+        class Meta:
+            abstract = True
+
+    def test_get(self):
+        pdo = self.PartialDateObject()
+        # should not error if date is not set
+        assert pdo.partial_date is None
+        # full precision
+        pdo.date = datetime.date(1901, 3, 5)
+        pdo.date_precision = DatePrecision.year | DatePrecision.month | DatePrecision.day
+        assert pdo.partial_date == '1901-03-05'
+        # partial precision
+        pdo.date_precision = DatePrecision.year | DatePrecision.month
+        assert pdo.partial_date == '1901-03'
+        pdo.date_precision = DatePrecision.month | DatePrecision.day
+        assert pdo.partial_date == '--03-05'
+        pdo.date_precision = DatePrecision.year
+        assert pdo.partial_date == '1901'
+        # change default unknown year value
+        pdo = self.PartialDateObject1900()
+        pdo.date = datetime.date(1900, 3, 5)
+        pdo.date_precision = DatePrecision.month | DatePrecision.day
+        assert pdo.partial_date == '--03-05'
+
+    def test_set(self):
+        pdo = self.PartialDateObject()
+        # full precision
+        pdo.partial_date = '1901-03-05'
+        assert pdo.date == datetime.date(1901, 3, 5)
+        assert pdo.date_precision == DatePrecision.year | DatePrecision.month | DatePrecision.day
+        # partial precision
+        pdo.partial_date = '1901-03'
+        assert pdo.date == datetime.date(1901, 3, 1)
+        assert pdo.date_precision == DatePrecision.year | DatePrecision.month
+        pdo.partial_date = '--03-05'
+        assert pdo.date == datetime.date(1, 3, 5)
+        assert pdo.date_precision == DatePrecision.month | DatePrecision.day
+        pdo.partial_date = '1901'
+        assert pdo.date == datetime.date(1901, 1, 1)
+        assert pdo.date_precision == DatePrecision.year
+        # invalid partial precision
+        with pytest.raises(ValidationError):
+            pdo.partial_date = '05'
+        with pytest.raises(ValidationError):
+            pdo.partial_date = '1901--05'
+        with pytest.raises(ValidationError):
+            pdo.partial_date = 'definitely_not_a_date'
+        # should clear the values if None is passed
+        pdo.partial_date = None
+        assert pdo.date is None
+        assert pdo.date_precision is None
+        # change default unknown year value
+        pdo = self.PartialDateObject1900()
+        pdo.partial_date = '--03-05'
+        assert pdo.date == datetime.date(1900, 3, 5)
+        assert pdo.date_precision == DatePrecision.month | DatePrecision.day
+
+
+

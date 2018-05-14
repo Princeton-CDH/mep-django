@@ -3,9 +3,12 @@ import re
 
 from cached_property import cached_property
 from eulxml import xmlmap
+from lxml.etree import cleanup_namespaces
 import pendulum
 
-from mep.accounts.models import Account, Subscription, SubscriptionType
+from mep.accounts.models import Account, Subscription, SubscriptionType, \
+    Borrow, DatePrecision
+from mep.books.models import Item
 from mep.people.models import Person
 
 
@@ -13,6 +16,15 @@ class TeiXmlObject(xmlmap.XmlObject):
     ROOT_NAMESPACES = {
         't': 'http://www.tei-c.org/ns/1.0'
     }
+
+    def serialize_no_ns(self):
+        # convenience function to serialize xml and strip out TEI
+        # namespace declaration for brevity in database notes
+        # remove any unused namespaces before serializing
+        cleanup_namespaces(self.node.getroottree())
+        # strip out tei namespace declaration after serializing
+        return self.serialize(pretty=True).decode('utf-8') \
+            .replace(' xmlns="%s"' % self.ROOT_NAMESPACES['t'], '')
 
 
 class Measure(TeiXmlObject):
@@ -276,10 +288,7 @@ class XmlEvent(TeiXmlObject):
                           for key, value in self.common_dict.items() if value})
 
 
-class LogBook(xmlmap.XmlObject):
-    ROOT_NAMESPACES = {
-        't': 'http://www.tei-c.org/ns/1.0'
-    }
+class LogBook(TeiXmlObject):
 
     query = ('//t:event')
     events = xmlmap.NodeListField(query, XmlEvent)
@@ -287,3 +296,307 @@ class LogBook(xmlmap.XmlObject):
     @classmethod
     def from_file(cls, filename):
         return xmlmap.load_xmlobject_from_file(filename, cls)
+
+
+## lending cards and borrowing events
+
+
+class BibliographicScope(TeiXmlObject):
+    unit = xmlmap.StringField('@unit')
+    text = xmlmap.StringField('text()')
+
+    @property
+    def label(self):
+        # label for this scope; use unit attribute if present,
+        # otherwise use tag name (i.e. for edition)
+        return self.unit or \
+            self.node.tag.replace('{%s}' % self.ROOT_NAMESPACES['t'], '')
+
+
+class BorrowedItemTitle(TeiXmlObject):
+    #: contains an unclear tag
+    is_unclear = xmlmap.NodeField('t:unclear', TeiXmlObject)
+
+    def __str__(self):
+        # customize string method to include marker for <unclear/>
+        content = [self.node.text or '']
+        for node in self.node:
+            if node.tag == '{http://www.tei-c.org/ns/1.0}unclear':
+                content.append('[unclear]')
+            content.append(node.text or '')
+            content.append(node.tail or '')
+
+        if content:
+            return ''.join(content)
+
+
+class BorrowedItemTitle(TeiXmlObject):
+    #: contains an unclear tag
+    is_unclear = xmlmap.NodeField('t:unclear', TeiXmlObject)
+
+    def __str__(self):
+        # customize string method to include marker for <unclear/>
+        content = [self.node.text or '']
+        for node in self.node:
+            if node.tag == '{http://www.tei-c.org/ns/1.0}unclear':
+                content.append('[unclear]')
+            content.append(node.text or '')
+            content.append(node.tail or '')
+
+        if content:
+            return ''.join(content)
+
+class BorrowedItem(TeiXmlObject):
+    '''an item within a borrowing event; may just have a title'''
+    title = xmlmap.NodeField('t:title', BorrowedItemTitle)
+    author = xmlmap.StringField('t:author')
+    mep_id = xmlmap.StringField('@corresp')
+    publisher = xmlmap.StringField('t:publisher')
+    date = xmlmap.StringField('t:date')
+    scope_list = xmlmap.NodeListField('t:biblScope|t:edition', BibliographicScope)
+
+
+class BorrowDate(TeiXmlObject):
+    # NOTE: mapping when date as string instead of DateTime because
+    # dates are not always complete; date parsing handled by PartialDate
+    when = xmlmap.StringField('@when')
+    # not before/after always full ISO date
+    not_before = xmlmap.DateField('@notBefore')
+    not_after = xmlmap.DateField('@notAfter')
+
+class BorrowingEvent(TeiXmlObject):
+    '''a record of a borrowing event; item with check out and return date'''
+    checked_out = xmlmap.NodeField('t:date[@ana="#checkedOut"]', BorrowDate)
+    returned = xmlmap.NodeField('t:date[@ana="#returned"]', BorrowDate)
+    # bibl could be directly in the event <ab> tag _or_ within a <del>
+    item = xmlmap.NodeField('.//t:bibl[@ana="#borrowedItem"]', BorrowedItem)
+    notes = xmlmap.StringField('t:note')
+
+    #: crossed out text anywhere within the borrowing event
+    deletions = xmlmap.NodeListField('.//t:del', TeiXmlObject)
+    #: dates that aren't tagged as checked out or returned
+    extra_dates = xmlmap.NodeListField('t:date[not(@ana="#returned" or @ana="#checkedOut")]',
+        TeiXmlObject)
+
+    @property
+    def bought(self):
+        '''item was bought, based on text note ('BB', 'bought', 'to buy', etc)'''
+        # list of known terms in notes that indicate a book was bought
+        bought_terms = ['BB', 'B B', 'B.B.', 'bought', 'Bought', 'to buy']
+        return bool(self.notes) and \
+            any([bought in self.notes for bought in bought_terms])
+
+    @property
+    def returned_note(self):
+        '''notes indicate item was returned even though there is no return date'''
+        return_terms = ['return', 'returned', 'back']
+        return bool(self.notes) and \
+            any([ret in self.notes for ret in return_terms])
+
+    # generic titles that should *not* be aggregated together in spite
+    # of shared mep id, because these are almost certainly not the same work
+    # in all cases
+    GENERIC_TITLES = [
+        "Theatre", "Oscar Wilde", "James Joyce", "Blake",
+        "Shakespeare", "Tennyson", "Selected Poems", "Chaucer",
+        "Swinburne", "Hamlet", "Shelley", '"', "John Donne", "Trumpet major",
+        "D.H. Lawrence", "Coleridge", "Autobiography", "Hist. of England",
+        "English novel", "Hart Crane", "Irish Drama", "Letters", "Napoleon",
+        "William Blake", "Coll. Poems", "New Poetry", "Charls Dickens",
+        "C.", "American History 2", "Queen Elizabeth", "Life of Shakespeare",
+        "Walter Pater", "Mozart", "Dostoevsky", "[unclear]", "Edgar Allen Poe",
+        "Conrad", "Life of Oscar Wilde", "Meredith", "Dramatic Works",
+        "A.C. Swinburne", "Beethoven", "Poetry and Prose", "Memoirs",
+        "Poems and Plays", "Complete Poems", "Poetical Works", "Emerson",
+        "Life and Writings", "Poems", "Collected Poems", "Plays", "Essays",
+        "Three Plays"
+    ]
+
+    # MEP title id based on generic titles above
+    GENERIC_TITLE_IDS = [
+        "mep:00060b", "mep:00071x", "mep:000q6b", "mep:000v26", "mep:001106",
+        "mep:00128z", "mep:00137x", "mep:00181f", "mep:001w8k", "mep:001x1p",
+        "mep:00242w", "mep:002d6b", "mep:002p29", "mep:00428p", "mep:004440",
+        "mep:00470k", "mep:00480v", "mep:00486q", "mep:004w6p", "mep:005q4x",
+        "mep:006s0g", "mep:006w93", "mep:007184", "mep:007915", "mep:009357",
+        "mep:009t6b", "mep:00b21z", "mep:00b53d", "mep:00bc60", "mep:00bh5s",
+        "mep:00bk0s", "mep:00c34d", "mep:00c511", "mep:00c69s", "mep:00cf5g",
+        "mep:00cf6s", "mep:00d902", "mep:00dj00", "mep:00f81b", "mep:00g47b",
+        "mep:00g597", "mep:00hb2p", "mep:00j76b", "mep:00k650", "mep:00qm2b",
+        "mep:swinburnenicholson", "mep:000z0d",
+        # multiple ids for poems:
+        "mep:00kb81", "mep:00209z", "mep:00jd5d", "mep:009f7m", "mep:00t00g",
+        "mep:001n61",
+        # multiple ids for collected poems:
+        "mep:001565", "mep:00rr77", "mep:007p72", "mep:00546v", "mep:002h8s",
+        # multiple ids for plays:
+        "mep:00dv4q", "mep:00g227", "mep:000s1b",
+        # multiple ids for three plays:
+        "mep:004q8x", "mep:007k9v"
+    ]
+
+    def to_db_event(self, account):
+        '''Generate a database :class:`~mep.accounts.models.Borrow` event
+        for the current xml borrowing event.'''
+
+        borrow = Borrow(account=account)
+        # array to gather notes
+        notes = []
+
+        if self.checked_out:
+            borrow.calculate_date('start_date', self.checked_out.when,
+                self.checked_out.not_before, self.checked_out.not_after)
+
+            # document not before/after in notes when appropriate
+            if not self.checked_out.when and self.checked_out.not_before \
+              and self.checked_out.not_after:
+                notes.append('checked out between %s / %s' % \
+                             (self.checked_out.not_before,
+                              self.checked_out.not_after))
+
+        if self.returned:
+            borrow.calculate_date('end_date', self.returned.when,
+                self.returned.not_before, self.returned.not_after)
+
+            # document not before/after in notes when appropriate
+            if not self.returned.when and self.returned.not_before \
+              and self.returned.not_after:
+                notes.append('returned between %s / %s' % \
+                             (self.returned.not_before,
+                              self.returned.not_after))
+
+        # set item status if possible
+        # if there is a return date, item was returned
+        if self.returned:
+            borrow.item_status = Borrow.ITEM_RETURNED
+        else:
+            # set status to bought or returned if the notes indicate it
+            if self.bought:
+                borrow.item_status = Borrow.ITEM_BOUGHT
+            elif self.returned_note:
+                borrow.item_status = Borrow.ITEM_RETURNED
+
+        # if we have an mep id and it is not flagged as a generic id
+        # that should not be aggregated, find the existing item record
+        if self.item.mep_id and self.item.mep_id not in self.GENERIC_TITLE_IDS:
+            # find item that was borrowed
+            # *should* already exist from regularized title import;
+            # if item does not exist, create a new stub record
+            borrow.item, created = Item.objects.get_or_create(mep_id=self.item.mep_id)
+
+        # if no mep id or a generic id, create a new record
+        else:
+            # NOTE: some records have an unclear title or partially unclear title
+            #  with no mep id for the item
+            borrow.item = Item.objects.create()
+            created = True
+
+        # if item was newly created OR borrow title is unclear, set the title
+        if created or self.item.title and self.item.title.is_unclear:
+            # some borrowing events have an author and no title
+            borrow.item.title = self.item.title or '[no title]'
+
+        # if bibliographic details are present, document them in the item note
+        # to support book title data work
+        bibl_info = []
+        if self.item.author and self.item.author not in borrow.item.notes:
+            bibl_info.append('Author: %s' % self.item.author)
+        if self.item.publisher and self.item.publisher not in borrow.item.notes:
+            bibl_info.append('Publisher: %s' % self.item.publisher)
+        if self.item.date and self.item.date not in borrow.item.notes:
+            bibl_info.append('Date: %s' % self.item.date)
+
+        if bibl_info:
+            borrow.item.notes += '\n'.join(bibl_info)
+
+        # save the item if it is new or notes were added
+        if bibl_info or created:
+            borrow.item.save()
+
+        # gather information to be included in borrowing events notes
+
+        # include text inside <note> tag in the xml
+        if self.notes:
+            notes.append(self.notes)
+        # include xml for any <del> tags
+        for deleted_text in self.deletions:
+            notes.append(deleted_text.serialize_no_ns())
+        # untagged dates (could be a missed return date or similar)
+        for extra_date in self.extra_dates:
+            notes.append(extra_date.serialize_no_ns())
+
+        # bibliographic scope seems to be particular to this borrowing
+        # event rather than the title, so adding here
+        for bibl_scope in self.item.scope_list:
+            # e.g. number/issue and any text...
+            notes.append('%s %s' % (bibl_scope.label, bibl_scope.text))
+
+        borrow.notes = '\n'.join(notes)
+
+        return borrow
+
+class Cardholder(TeiXmlObject):
+    name = xmlmap.StringField('.', normalize=True)
+    # persName with cardholder role uses ana; persname in head uses ref
+    mep_id = xmlmap.StringField('substring-after(concat(@ana, @ref), "#")')
+
+
+class FacsimileSurface(TeiXmlObject):
+    xml_id = xmlmap.StringField('@xml:id')
+    url = xmlmap.StringField('t:graphic/@url')
+
+
+class LendingCardSide(TeiXmlObject):
+    '''A single side of a lending card'''
+    #: id for the image that represents this page
+    facsimile_id = xmlmap.StringField('substring-after(t:pb/@facs, "#")')
+    #: any borrowing events on this card
+    borrowing_events = xmlmap.NodeListField('.//t:ab[@ana="#borrowingEvent"]',
+        BorrowingEvent)
+    #: the card holder for this page should be the *first* person listed
+    cardholders = xmlmap.NodeListField('t:head/t:persName[@ana or @ref]', Cardholder)
+
+
+class LendingCard(TeiXmlObject):
+
+    # use person element with card holder role to identify card holder
+    # could be multiple; allow for organization as well as person
+    cardholders = xmlmap.NodeListField('//t:person[@role="cardholder"]|//t:org[@role="cardholder"]',
+        Cardholder)
+
+    # all borrowing events anywhere in the document
+    borrowing_events = xmlmap.NodeListField('//t:ab[@ana="#borrowingEvent"]',
+        BorrowingEvent)
+
+    image_base_path = xmlmap.StringField('t:facsimile/@xml:base')
+    # surface could be inside a surface group (e.g. alvear includes an envelope and a letter)
+    surfaces = xmlmap.NodeListField('t:facsimile//t:surface', FacsimileSurface)
+
+    sides = xmlmap.NodeListField('//t:div[@type="card"]/t:div', LendingCardSide)
+
+    @property
+    def surface_by_id(self):
+        # too bad eulxml never got a dictfield type...
+        return {surf.xml_id: surf.url for surf in self.surfaces}
+
+    def image_path(self, image_id):
+        return ''.join([self.image_base_path, self.surface_by_id[image_id]])
+
+
+
+
+
+# custom xml generated by previous project tech lead with
+# regularized title information
+
+class BorrowedTitle(xmlmap.XmlObject):
+    mep_id = xmlmap.StringField('titleid')
+    title = xmlmap.StringField('regularized_title', normalize=True)
+    unreg_title = xmlmap.StringField('title', normalize=True)
+
+
+class BorrowedTitles(xmlmap.XmlObject):
+    titles = xmlmap.NodeListField('row', BorrowedTitle)
+
+
+

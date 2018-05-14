@@ -46,14 +46,12 @@ def update_content_editor_group(apps, schema_editor):
                     codename = codename.replace('subscribe', 'subscription')
                     permissions.append(Permission.objects.get(codename=codename))
 
-    # add the new permissions without removig existing ones
+    # add the new permissions without removing existing ones
     editor_group.permissions.add(*permissions)
 
     # remove outdated permissions that are no longer needed (if present)
     for model, codenames in remove_content_editor_perms.items():
         editor_group.permissions.filter(codename__in=codenames).delete()
-
-
 
 
 class Migration(migrations.Migration):
@@ -63,6 +61,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-            migrations.RunPython(update_content_editor_group,
-                reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(update_content_editor_group,
+                             reverse_code=migrations.RunPython.noop),
     ]

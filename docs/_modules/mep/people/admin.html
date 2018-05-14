@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.admin &#8212; Mapping Expatriate Paris - Django 0.5.0 documentation</title>
+    <title>mep.people.admin &#8212; Mapping Expatriate Paris - Django 0.6.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
@@ -15,20 +15,20 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-
+   
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
-
-
+  
+  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head><body>
-
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body" role="main">
-
+            
   <h1>Source code for mep.people.admin</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">dal</span> <span class="k">import</span> <span class="n">autocomplete</span>
 <span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
@@ -155,7 +155,14 @@
             <span class="c1"># special css class to customize django prepopulate behavior</span>
             <span class="c1"># opt out of slugify, don&#39;t prepopulate if there are spaces</span>
             <span class="s1">&#39;sort_name&#39;</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;prepopulate-noslug prepopulate-nospace&#39;</span><span class="p">}),</span>
-        <span class="p">}</span></div>
+        <span class="p">}</span>
+
+    <span class="c1"># NOTE: overriding Django&#39;s prepopulate.js with a local version that honors</span>
+    <span class="c1"># the custom classes for sort_name behavior. Explicitly including</span>
+    <span class="c1"># because when Django is not running in DEBUG mode it loads</span>
+    <span class="c1"># a minified version instead of the local override</span>
+    <span class="k">class</span> <span class="nc">Media</span><span class="p">:</span>
+        <span class="n">js</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;admin/js/prepopulate.js&#39;</span><span class="p">,</span> <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PersonAddressInline"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAddressInline">[docs]</a><span class="k">class</span> <span class="nc">PersonAddressInline</span><span class="p">(</span><span class="n">AddressInline</span><span class="p">):</span>
@@ -174,15 +181,15 @@
     <span class="n">form</span> <span class="o">=</span> <span class="n">PersonAdminForm</span>
     <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;list_nationalities&#39;</span><span class="p">,</span>
         <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;address_count&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;note_snippet&#39;</span><span class="p">)</span>
+        <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;address_count&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span> <span class="s1">&#39;note_snippet&#39;</span><span class="p">)</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span>
         <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">),</span>
         <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span>
         <span class="p">(</span><span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">),</span>
-        <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;nationalities&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">)</span>
+        <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;nationalities&#39;</span><span class="p">,</span> <span class="s1">&#39;is_organization&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">)</span>
     <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">)</span>
     <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">,</span> <span class="s1">&#39;viaf_id&#39;</span><span class="p">)</span>
-    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;nationalities&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;nationalities&#39;</span><span class="p">,</span> <span class="s1">&#39;is_organization&#39;</span><span class="p">)</span>
     <span class="c1"># Note: moving relationships to last for adjacency to list of relationships</span>
     <span class="c1"># *to* this person included in the template</span>
     <span class="n">inlines</span> <span class="o">=</span> <span class="p">[</span><span class="n">InfoURLInline</span><span class="p">,</span> <span class="n">PersonAddressInline</span><span class="p">,</span> <span class="n">FootnoteInline</span><span class="p">,</span> <span class="n">RelationshipInline</span><span class="p">]</span>
@@ -292,7 +299,7 @@
 
 
 
-
+    
 
 <p>
 <a href="https://travis-ci.org/Princeton-CDH/mep-django">
@@ -306,7 +313,7 @@
 
 
 
-
+    
 
 <p>
 <a href="https://codecov.io/github/Princeton-CDH/mep-django">
@@ -349,15 +356,15 @@
     </div>
     <div class="footer">
       &copy;2017, Trustees of Princeton University.
-
+      
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
-
+      
     </div>
 
+    
 
-
-
+    
   </body>
 </html>

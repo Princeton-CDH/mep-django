@@ -32,6 +32,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('people', '0004_rename_address_to_location'),
+        ('accounts', '0013_rename_accountaddress_to_address'),
     ]
 
     operations = [

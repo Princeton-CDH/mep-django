@@ -198,6 +198,10 @@ class Person(Notable, DateRange):
     #: death year
     death_year = AliasIntegerField(db_column='end_year',
         blank=True, null=True)
+    #: flag to indicate organization instead of person
+    is_organization = models.BooleanField(default=False,
+        help_text='Mark as true to indicate this is an organization')
+
 
     MALE = 'M'
     FEMALE = 'F'
@@ -301,6 +305,11 @@ class Person(Notable, DateRange):
             models.Q(event__reimbursement__isnull=False)
             ).exists()
     in_logbooks.boolean = True
+
+    def has_card(self):
+        '''The library account for this person has an associated lending card'''
+        return self.account_set.filter(card__isnull=False).exists()
+    has_card.boolean = True
 
 
 class InfoURL(Notable):

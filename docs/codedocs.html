@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.5.0 documentation</title>
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.6.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -17,20 +17,20 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="CHANGELOG" href="changelog.html" />
     <link rel="prev" title="Architecture" href="architecture.html" />
-
+   
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-
-
+  
+  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head><body>
-
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body" role="main">
-
+            
   <div class="section" id="code-documentation">
 <h1>Code Documentation<a class="headerlink" href="#code-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
@@ -206,6 +206,12 @@ of <code class="docutils literal notranslate"><span class="pre">Foo.objects.all(
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.accounts.models.Account.has_card">
+<code class="descname">has_card</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.has_card"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.has_card" title="Permalink to this definition">¶</a></dt>
+<dd><p>Account has an associated lending card</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.accounts.models.Account.last_date">
 <code class="descname">last_date</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.last_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.last_date" title="Permalink to this definition">¶</a></dt>
 <dd><p>Last known date from all events associated with this account</p>
@@ -277,6 +283,30 @@ people and accounts, with optional start and end dates and a care/of person.</p>
 <em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Borrow.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="mep.accounts.models.Borrow.calculate_date">
+<code class="descname">calculate_date</code><span class="sig-paren">(</span><em>kind</em>, <em>dateval=None</em>, <em>earliest=None</em>, <em>latest=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Borrow.calculate_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Borrow.calculate_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate end or start date based on a single value in a
+supported partial date form or based on earliest/latest datetime.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.accounts.models.Borrow.item">
+<code class="descname">item</code><a class="headerlink" href="#mep.accounts.models.Borrow.item" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#mep.books.models.Item" title="mep.books.models.Item"><code class="xref py py-class docutils literal notranslate"><span class="pre">Item</span></code></a> that was borrowed;
+optional to account for unclear titles</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Borrow.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Borrow.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Borrow.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the current instance. Override this in a subclass if you want to
+control the saving process.</p>
+<p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
+that the “save” must be an SQL insert or update (or equivalent for
+non-SQL backends), respectively. Normally, they should not be set.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -287,6 +317,26 @@ people and accounts, with optional start and end dates and a care/of person.</p>
 <dt id="mep.accounts.models.CurrencyMixin.currency_symbol">
 <code class="descname">currency_symbol</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#CurrencyMixin.currency_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.CurrencyMixin.currency_symbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>symbol for the selected currency</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.DatePrecision">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">DatePrecision</code><a class="reference internal" href="_modules/mep/accounts/models.html#DatePrecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.DatePrecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag class to indicate which parts of a date are known.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.DatePrecisionField">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">DatePrecisionField</code><span class="sig-paren">(</span><em>verbose_name=None</em>, <em>name=None</em>, <em>primary_key=False</em>, <em>max_length=None</em>, <em>unique=False</em>, <em>blank=False</em>, <em>null=False</em>, <em>db_index=False</em>, <em>rel=None</em>, <em>default=&lt;class 'django.db.models.fields.NOT_PROVIDED'&gt;</em>, <em>editable=True</em>, <em>serialize=True</em>, <em>unique_for_date=None</em>, <em>unique_for_month=None</em>, <em>unique_for_year=None</em>, <em>choices=None</em>, <em>help_text=''</em>, <em>db_column=None</em>, <em>db_tablespace=None</em>, <em>auto_created=False</em>, <em>validators=()</em>, <em>error_messages=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#DatePrecisionField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.DatePrecisionField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integer representation of a <a class="reference internal" href="#mep.accounts.models.DatePrecision" title="mep.accounts.models.DatePrecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatePrecision</span></code></a>.</p>
+<dl class="method">
+<dt id="mep.accounts.models.DatePrecisionField.to_python">
+<code class="descname">to_python</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#DatePrecisionField.to_python"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.DatePrecisionField.to_python" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the input value into the expected Python data type, raising
+django.core.exceptions.ValidationError if the data can’t be converted.
+Returns the converted value. Subclasses should override this.</p>
 </dd></dl>
 
 </dd></dl>
@@ -304,6 +354,27 @@ people and accounts, with optional start and end dates and a care/of person.</p>
 <dt id="mep.accounts.models.Event.MultipleObjectsReturned">
 <em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Event.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.PartialDate">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">PartialDate</code><span class="sig-paren">(</span><em>date_field</em>, <em>date_precision_field</em>, <em>unknown_year: int = 1</em>, <em>label=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor that gets and sets a related <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a> and
+<a class="reference internal" href="#mep.accounts.models.DatePrecision" title="mep.accounts.models.DatePrecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatePrecision</span></code></a> from partial date strings, e.g. –05-02.</p>
+<dl class="staticmethod">
+<dt id="mep.accounts.models.PartialDate.date_format">
+<em class="property">static </em><code class="descname">date_format</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.date_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.date_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a format string for use with <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date.strftime" title="(in Python v3.6)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">datetime.date.strftime()</span></code></a>
+to output a date with the appropriate precision</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.PartialDate.parse_date">
+<code class="descname">parse_date</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.parse_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.parse_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a partial date string and return a <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a>
+and precision value.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -436,6 +507,38 @@ the Sylvia Beach lending library.</p>
 <div class="section" id="id2">
 <h3>Models<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <span class="target" id="module-mep.books.models"></span><dl class="class">
+<dt id="mep.books.models.Creator">
+<em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">Creator</code><span class="sig-paren">(</span><em>id</em>, <em>notes</em>, <em>creator_type</em>, <em>person</em>, <em>item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Creator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Creator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="exception">
+<dt id="mep.books.models.Creator.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.books.models.Creator.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.books.models.Creator.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.Creator.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.books.models.CreatorType">
+<em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">CreatorType</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#CreatorType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.CreatorType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type of creator role a person can have to an item; author,
+editor, translator, etc.</p>
+<dl class="exception">
+<dt id="mep.books.models.CreatorType.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.books.models.CreatorType.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.books.models.CreatorType.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.CreatorType.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="mep.books.models.Item">
 <em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">Item</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Primary model for <code class="xref py py-mod docutils literal notranslate"><span class="pre">books</span></code> module, also used for journals,
@@ -449,6 +552,58 @@ and other media types.</p>
 <dt id="mep.books.models.Item.MultipleObjectsReturned">
 <em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.Item.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.Item.author_list">
+<code class="descname">author_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.author_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.author_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>comma separated list of author names</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.authors">
+<code class="descname">authors</code><a class="headerlink" href="#mep.books.models.Item.authors" title="Permalink to this definition">¶</a></dt>
+<dd><p>item creators with type author</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.borrow_count">
+<code class="descname">borrow_count</code><a class="headerlink" href="#mep.books.models.Item.borrow_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of times this item was borrowed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.Item.creator_by_type">
+<code class="descname">creator_by_type</code><span class="sig-paren">(</span><em>creator_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.creator_by_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.creator_by_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>return item creators of a single type, e.g. author</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.editors">
+<code class="descname">editors</code><a class="headerlink" href="#mep.books.models.Item.editors" title="Permalink to this definition">¶</a></dt>
+<dd><p>item creators with type editor</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.mep_id">
+<code class="descname">mep_id</code><a class="headerlink" href="#mep.books.models.Item.mep_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>mep id from stub records imported from xml</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.Item.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the current instance. Override this in a subclass if you want to
+control the saving process.</p>
+<p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
+that the “save” must be an SQL insert or update (or equivalent for
+non-SQL backends), respectively. Normally, they should not be set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.translators">
+<code class="descname">translators</code><a class="headerlink" href="#mep.books.models.Item.translators" title="Permalink to this definition">¶</a></dt>
+<dd><p>item creators with type translator</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -629,9 +784,21 @@ e.g. Wikipedia page.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.people.models.Person.has_card">
+<code class="descname">has_card</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.has_card"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.has_card" title="Permalink to this definition">¶</a></dt>
+<dd><p>The library account for this person has an associated lending card</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.people.models.Person.in_logbooks">
 <code class="descname">in_logbooks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.in_logbooks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.in_logbooks" title="Permalink to this definition">¶</a></dt>
 <dd><p>is there data for this person in the logbooks?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.is_organization">
+<code class="descname">is_organization</code><a class="headerlink" href="#mep.people.models.Person.is_organization" title="Permalink to this definition">¶</a></dt>
+<dd><p>flag to indicate organization instead of person</p>
 </dd></dl>
 
 <dl class="method">
@@ -1350,7 +1517,7 @@ for or against information in the system.</p>
 
 
 
-
+    
 
 <p>
 <a href="https://travis-ci.org/Princeton-CDH/mep-django">
@@ -1364,7 +1531,7 @@ for or against information in the system.</p>
 
 
 
-
+    
 
 <p>
 <a href="https://codecov.io/github/Princeton-CDH/mep-django">
@@ -1442,18 +1609,18 @@ for or against information in the system.</p>
     </div>
     <div class="footer">
       &copy;2017, Trustees of Princeton University.
-
+      
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
-
+      
       |
       <a href="_sources/codedocs.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
+    
 
-
-
+    
   </body>
 </html>

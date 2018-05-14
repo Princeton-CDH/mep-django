@@ -4,6 +4,7 @@ from django.urls import reverse
 from mep.accounts.models import Account, Address
 from mep.people.models import Person, Location
 
+
 class TestAccountsViews(TestCase):
 
     def test_account_autocomplete(self):
@@ -27,6 +28,7 @@ class TestAccountsViews(TestCase):
         data = res.json()
         assert res.status_code == 200
         assert 'results' in data
+        assert len(data['results']) == 1
         assert data['results'][0]['text'] == 'Account #%s' % acc1.pk
 
         # search by persons
@@ -37,6 +39,7 @@ class TestAccountsViews(TestCase):
         data = res.json()
         assert res.status_code == 200
         assert 'results' in data
+        assert len(data['results']) == 1
         assert data['results'][0]['text'] == \
             'Account #%s: Mlle Foo, Msr Foo' % acc2.pk
 
@@ -47,4 +50,20 @@ class TestAccountsViews(TestCase):
         data = res.json()
         assert res.status_code == 200
         assert 'results' in data
+        assert len(data['results']) == 1
         assert data['results'][0]['text'] == 'Account #%s: 1 Rue St.' % acc1.pk
+
+        # query can end up listing account more than once
+        # note: couldn't actually duplicate the problem here that
+        # was happening on the site before adding distinct()
+        hemier = Person.objects.create(name='hemingway', mep_id="hemi.er")
+        acc3 = Account.objects.create()
+        acc3.persons.add(hemier)
+        loc2 = Location.objects.create(name='hemingway\'s place')
+        Address.objects.create(account=acc3, location=loc2)
+        res = self.client.get(url, {'q': 'hem'})
+        data = res.json()
+        assert 'results' in data
+        assert len(data['results']) == 1
+        assert data['results'][0]['text'] == 'Account #%s: %s' % (acc3.pk, hemier)
+

@@ -4,11 +4,12 @@ from dal import autocomplete
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib import admin
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, ValidationError
 
 from mep.accounts.models import Account, Address, Subscription,\
-    Reimbursement, Event, SubscriptionType
+    Reimbursement, Event, SubscriptionType, Borrow, PartialDate
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
+from mep.footnotes.admin import FootnoteInline
 
 
 # predefine autocomplete lookups (most are used on more than one form)
@@ -37,6 +38,12 @@ AUTOCOMPLETE = {
     'location': autocomplete.ModelSelect2(url='people:location-autocomplete',
         attrs={
             'data-placeholder': 'Type to search for location... ',
+            'data-minimum-input-length': 3
+        }
+    ),
+    'item': autocomplete.ModelSelect2(url='books:item-autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for item... ',
             'data-minimum-input-length': 3
         }
     ),
@@ -243,11 +250,11 @@ class AccountAdmin(admin.ModelAdmin):
     model = Account
     form = AccountAdminForm
     list_display = ('id', 'list_persons', 'earliest_date', 'last_date',
-                    'list_locations')
+                    'has_card', 'list_locations')
     search_fields = ('id', 'address__location__street_address',
                      'address__location__name',
                      'address__location__country__name', 'persons__name')
-    fields = ('persons',)
+    fields = ('persons', 'card')
     inlines = [AccountAddressInline, SubscriptionInline, ReimbursementInline]
 
     class Media:
@@ -258,9 +265,100 @@ class SubscriptionTypeAdmin(NamedNotableAdmin):
     list_display = ('name', 'notes')
 
 
+class BorrowAdminForm(forms.ModelForm):
+    partial_date_validator = RegexValidator(
+        regex=PartialDate.partial_date_re,
+        message="Value is not a recognized date."
+    )
+    partial_date_help_text = "Enter as much of the date as known, in any of the \
+        following formats: yyyy, yyyy-mm, yyyy-mm-dd, --mm-dd"
+    partial_start_date = forms.CharField(validators=[partial_date_validator],
+        required=False, help_text=partial_date_help_text, label="Start date")
+    partial_end_date = forms.CharField(validators=[partial_date_validator],
+        required=False, help_text=partial_date_help_text, label="End date")
+
+    class Meta:
+        model = Borrow
+        fields = ('account', 'item', 'item_status', 'partial_start_date',
+            'partial_end_date', 'notes')
+        widgets = {
+            'account': AUTOCOMPLETE['account'],
+            'item': AUTOCOMPLETE['item'],
+        }
+
+    def get_initial_for_field(self, field, name):
+        if name == 'partial_start_date':
+            return self.instance.partial_start_date
+        if name == 'partial_end_date':
+            return self.instance.partial_end_date
+        return super(BorrowAdminForm, self).get_initial_for_field(field, name)
+
+    def clean(self):
+        '''Parse partial dates and save them on form submission.'''
+        cleaned_data = super(BorrowAdminForm, self).clean()
+        if not self.errors:
+            try:
+                self.instance.partial_start_date = cleaned_data['partial_start_date']
+                self.instance.partial_end_date = cleaned_data['partial_end_date']
+            except ValueError as verr:
+                raise ValidationError('Date validation error: %s' % verr)
+            return cleaned_data
+
+
+class BorrowFootnoteInline(FootnoteInline):
+    # customize standard footnote inline for borrowing event footnote
+    classes = ('grp-collapse', )  # grapelli collapsible, but not closed
+    fields = ('bibliography', 'location', 'notes')
+    extra = 0
+
+
+class BorrowAdminListForm(forms.ModelForm):
+    # custom form for list-editable item status on borrow list
+
+    class Meta:
+        model = Borrow
+        exclude = []
+        widgets = {
+            'item_status' : forms.RadioSelect
+        }
+
+
+class BorrowAdmin(admin.ModelAdmin):
+    form = BorrowAdminForm
+    list_display = ('account', 'item', 'partial_start_date', 'partial_end_date',
+        'item_status', 'note_snippet')
+    date_hierarchy = 'start_date'
+    search_fields = ('account__persons__name', 'account__persons__mep_id',
+        'notes', 'item__title', 'item__notes')
+    list_filter = ('item_status', 'item')
+    list_editable = ('item_status',)
+    fields = (
+        'account',
+        ('item', 'item_status'),
+        ('partial_start_date', 'partial_end_date'),
+        ('notes')
+    )
+    inlines = (BorrowFootnoteInline, )
+
+    class Media:
+        js = ['admin/borrow-admin-list.js']
+        css = {
+            'all': ['admin/borrow-admin-list.css']
+        }
+
+    def get_changelist_form(self, request, **kwargs):
+        # override the default changelist edit form in order to customize
+        # widget for editing item status
+        kwargs.setdefault('form', BorrowAdminListForm)
+        return super(BorrowAdmin, self).get_changelist_form(request, **kwargs)
+
+
+
+
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Reimbursement, ReimbursementAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(SubscriptionType, SubscriptionTypeAdmin)
+admin.site.register(Borrow, BorrowAdmin)
 

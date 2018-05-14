@@ -11,6 +11,23 @@ Database
 Updates and Changes
 ~~~~~~~~~~~~~~~~~~~
 
+0.6 Updates
+^^^^^^^^^^^
+
+- :class:`~mep.people.models.Person` has a new boolean flag to indicate if the entity is an organization
+- :class:`~mep.books.models.Item` creators have been generalized to use a generic
+  :class:`~mep.books.models.Creator` and :class:`~mep.books.models.CreatorType`
+  rather than limited, specific relationships (Author, Editor, Translator).
+- :class:`~mep.accounts.models.Account` now has a relationship to a
+  footnote :class:`~mep.footnotes.models.Bibliography` to
+  document an associated lending card, if there is one
+- :class:`~mep.accounts.models.Borrow` event has date precision flags to track
+  partially known dates for both start and end date, a status field to indicate
+  if the item was returned,  bought, or missing, and a relationship to
+  :class:`~mep.books.models.Item` for the book borrowed.
+- The :class:`~mep.accounts.models.Purchase` event is still present in the
+  database but not currently in use.
+
 0.3 Updates
 ^^^^^^^^^^^
 
@@ -43,16 +60,37 @@ Database Diagrams
     The ``sphinx-docs`` directory includes a ``customize.csv`` and MySQL dump
     that was used to generate the following schema diagrams.
 
-Initial Schema Design (Version 004)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. image:: _static/mep-schema-004.png
-    :target: _static/mep-schema-004.png
-    :alt: MEP Schema Design 004
+Database Overview (v0.6)
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. NOTE::
-    This does not include additional complexity of URLs for people records
-    per 19 June 2017 project meeting.
+.. image:: _static/db-v06-overview.png
+    :target: _static/db-v06-overview.png
+    :alt: Database Overview v0.6
 
+Person detail (v0.6)
+^^^^^^^^^^^^^^^^^^^^
+
+.. image:: _static/db-v06-people.png
+    :target: _static/db-v06-people.png
+    :alt: MEP Schema - Person detail v0.6
+
+Account detail (v0.6)
+^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: _static/db-v06-accounts.png
+    :target: _static/db-v06-accounts.png
+    :alt: MEP Schema - Account detail v0.6
+
+Book detail (v0.6)
+^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: _static/db-v06-books.png
+    :target: _static/db-v06-books.png
+    :alt: MEP Schema - Book detail v0.6
+
+
+Previous versions
+~~~~~~~~~~~~~~~~~
 
 Database Overview (v0.3)
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -84,9 +122,6 @@ Book detail (v0.3)
     :alt: MEP Schema - Book detail v0.3
 
 
-Previous versions
-~~~~~~~~~~~~~~~~~
-
 People Detail (0004)
 ^^^^^^^^^^^^^^^^^^^^
 .. image:: _static/people-module-004.png
@@ -108,3 +143,15 @@ Account Detail (0004)
 .. image:: _static/accounts-module-004.png
     :target: _static/accounts-module-004.png
     :alt: Account Module Detail
+
+
+Initial Schema Design (Version 004)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. image:: _static/mep-schema-004.png
+    :target: _static/mep-schema-004.png
+    :alt: MEP Schema Design 004
+
+.. NOTE::
+    This does not include additional complexity of URLs for people records
+    per 19 June 2017 project meeting.
+

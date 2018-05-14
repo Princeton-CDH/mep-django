@@ -6,6 +6,8 @@ from .models import SourceType, Bibliography, Footnote
 
 
 class FootnoteAdmin(admin.ModelAdmin):
+    list_display = ('content_object', 'bibliography', 'location', 'is_agree')
+    list_filter = ('bibliography__source_type', 'content_type')
     CONTENT_LOOKUP_HELP = '''Select the kind of record you want to attach
     a footnote to, and then use the object id search button to select an item.'''
     fieldsets = [
@@ -36,10 +38,11 @@ class SourceTypeAdmin(NamedNotableAdmin):
 
 
 class BibliographyAdmin(admin.ModelAdmin):
-    list_display = ('bibliographic_note', 'source_type', 'has_notes',
-        'footnote_count')
+    list_display = ('bibliographic_note', 'source_type', 'footnote_count',
+        'note_snippet')
     search_fields = ('bibliographic_note', 'notes')
     fields = ('source_type', 'bibliographic_note', 'notes')
+    list_filter = ('source_type',)
 
 
 admin.site.register(SourceType, SourceTypeAdmin)

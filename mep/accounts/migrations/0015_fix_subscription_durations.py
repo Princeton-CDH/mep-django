@@ -51,5 +51,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(recalculate_durations)
+        migrations.RunPython(recalculate_durations, migrations.RunPython.noop)
     ]

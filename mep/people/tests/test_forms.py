@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.template.defaultfilters import date as format_date
 
 from mep.accounts.models import Account, Subscription, Borrow
+from mep.books.models import Item
 from mep.people.forms import PersonChoiceField, PersonMergeForm
 from mep.people.models import Person
 
@@ -43,7 +44,8 @@ class PersonChoiceFieldTest(TestCase):
         subs = Subscription.objects.create(account=acct,
             start_date=datetime.datetime(1923, 1, 1), end_date=datetime.datetime(1924, 1, 1),
             notes='img204c')
-        borrow = Borrow.objects.create(account=acct,
+        item = Item.objects.create(title='Selected poem')
+        borrow = Borrow.objects.create(account=acct, item=item,
             start_date=datetime.datetime(1923, 5, 1), end_date=datetime.datetime(1923, 5, 15))
         label = pchoicefield.label_from_instance(pers)
         assert 'Subscription' in label

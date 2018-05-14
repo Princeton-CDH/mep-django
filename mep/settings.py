@@ -25,10 +25,11 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'grappelli',
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'grappelli.dashboard',
+    'grappelli',
+    'django.contrib.admin',
     'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -194,18 +195,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SITE_ID = 1
 
-# use mezzanine config to customize admin so that project-specific content
-# is listed first - accounts, then people
-ADMIN_MENU_ORDER = (
-    ("Library Accounts", ("accounts.Account", "accounts.Event", "accounts.Subscription",
-        "accounts.Reimbursement", "accounts.SubscriptionType")),
-    ("Personography", ("people.Person", "people.Address", "people.Country",
-        "people.Profession", "people.RelationshipType")),
-    ("Footnotes", ("footnotes.SourceType", "footnotes.Bibliography",
-        "footnotes.Footnote")),
-    ("Content", ("pages.Page", "generic.ThreadedComment",)),
-    ("Site", ("sites.Site", "redirects.Redirect", "conf.Setting")),
-)
+# use grappelli custom dashboard for consistent admin menu ordering
+GRAPPELLI_INDEX_DASHBOARD = 'mep.dashboard.CustomIndexDashboard'
 
 
 ##################

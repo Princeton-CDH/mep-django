@@ -125,6 +125,13 @@ class PersonAdminForm(forms.ModelForm):
             'sort_name': forms.TextInput(attrs={'class': 'prepopulate-noslug prepopulate-nospace'}),
         }
 
+    # NOTE: overriding Django's prepopulate.js with a local version that honors
+    # the custom classes for sort_name behavior. Explicitly including
+    # because when Django is not running in DEBUG mode it loads
+    # a minified version instead of the local override
+    class Media:
+        js = ('admin/js/prepopulate.js', )
+
 
 class PersonAddressInline(AddressInline):
     # extend address inline for person to specify foreign key field
@@ -142,15 +149,15 @@ class PersonAdmin(admin.ModelAdmin):
     form = PersonAdminForm
     list_display = ('name', 'title', 'sort_name', 'list_nationalities',
         'birth_year', 'death_year', 'sex', 'profession', 'viaf_id',
-        'mep_id', 'address_count', 'in_logbooks', 'note_snippet')
+        'mep_id', 'address_count', 'in_logbooks', 'has_card', 'note_snippet')
     fields = ('mep_id', 'in_logbooks', 'title',
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
-        'sex', 'profession', 'nationalities', 'notes')
+        'sex', 'profession', 'nationalities', 'is_organization', 'notes')
     readonly_fields = ('mep_id', 'in_logbooks')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
-    list_filter = ('sex', 'profession', 'nationalities')
+    list_filter = ('sex', 'profession', 'nationalities', 'is_organization')
     # Note: moving relationships to last for adjacency to list of relationships
     # *to* this person included in the template
     inlines = [InfoURLInline, PersonAddressInline, FootnoteInline, RelationshipInline]
