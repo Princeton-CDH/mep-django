@@ -138,7 +138,7 @@ class PersonTypeListFilter(admin.SimpleListFilter):
     between people who are creators of books vs. those who are library members.
     '''
     # human-readable title for filter
-    title = 'person type'
+    title = 'Person Type'
 
     # this gets used in the URL as a query param
     parameter_name = 'person_type'
@@ -146,9 +146,9 @@ class PersonTypeListFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         # option tuples: left is query param name and right is human-readable name
         return (
-            ('creator', 'creator'),
-            ('member', 'library member'),
-            ('uncategorized', 'uncategorized')
+            ('creator', 'Creator'),
+            ('member', 'Library Member'),
+            ('uncategorized', 'Uncategorized')
         )
 
     def queryset(self, request, queryset):
