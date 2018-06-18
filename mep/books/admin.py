@@ -29,7 +29,7 @@ class ItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'author_list', 'notes', 'borrow_count')
     list_display_links = ('id', 'title')
     inlines = [ItemCreatorInline]
-    search_fields = ('mep_id', 'title', 'notes', 'creator__person__name')
+    search_fields = ('mep_id', 'title', 'notes', 'creator__person__name', 'id')
     fieldsets = (
         ('Basic metadata', {
             'fields': ('title', 'year', 'borrow_count')
