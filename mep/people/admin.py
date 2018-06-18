@@ -133,6 +133,34 @@ class PersonAdminForm(forms.ModelForm):
         js = ('admin/js/prepopulate.js', )
 
 
+class PersonTypeListFilter(admin.SimpleListFilter):
+    '''Filter that for :class:`~mep.people.models.Person` that can distinguish
+    between people who are creators of books vs. those who are library members.
+    '''
+    # human-readable title for filter
+    title = 'person type'
+
+    # this gets used in the URL as a query param
+    parameter_name = 'person_type'
+
+    def lookups(self, request, model_admin):
+        # option tuples: left is query param name and right is human-readable name
+        return (
+            ('creator', 'creator'),
+            ('member', 'library member'),
+            ('uncategorized', 'uncategorized')
+        )
+
+    def queryset(self, request, queryset):
+        # filter the queryset based on the selected option
+        if self.value() == 'creator': # is creator
+            return queryset.exclude(creator=None)
+        if self.value() == 'member': # has account
+            return queryset.exclude(account=None)
+        if self.value() == 'uncategorized': # no account or creator
+            return queryset.filter(account=None).filter(creator=None)
+
+
 class PersonAddressInline(AddressInline):
     # extend address inline for person to specify foreign key field
     # and remove account from editable fields
@@ -157,7 +185,8 @@ class PersonAdmin(admin.ModelAdmin):
         'sex', 'profession', 'nationalities', 'is_organization', 'notes')
     readonly_fields = ('mep_id', 'in_logbooks')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
-    list_filter = ('sex', 'profession', 'nationalities', 'is_organization')
+    list_filter = (PersonTypeListFilter, 'sex', 'profession', 'nationalities',
+                   'is_organization')
     # Note: moving relationships to last for adjacency to list of relationships
     # *to* this person included in the template
     inlines = [InfoURLInline, PersonAddressInline, FootnoteInline, RelationshipInline]

@@ -1,21 +1,19 @@
 import re
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError, MultipleObjectsReturned, \
-    ObjectDoesNotExist
-from django.http import HttpResponseRedirect
-from django.test import TestCase
-from django.urls import reverse
-from django.utils import timezone
 import pytest
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import (MultipleObjectsReturned,
+                                    ObjectDoesNotExist, ValidationError)
+from django.test import TestCase
+from django.utils import timezone
 from viapy.api import ViafEntity
 
-from mep.accounts.models import Account, Subscription, Reimbursement, Address
-from mep.footnotes.models import SourceType, Bibliography, Footnote
-from mep.people.models import InfoURL, Person, Profession, Relationship, \
-    RelationshipType, Location, Country, PersonQuerySet
-from mep.people.admin import PersonAdmin
+from mep.accounts.models import Account, Address, Reimbursement, Subscription
+from mep.books.models import Creator, CreatorType, Item
+from mep.footnotes.models import Bibliography, Footnote, SourceType
+from mep.people.models import (Country, InfoURL, Location, Person, Profession,
+                               Relationship, RelationshipType)
 
 
 class TestPerson(TestCase):
@@ -137,6 +135,20 @@ class TestPerson(TestCase):
         acct.persons.add(pers)
         acct.save()
         assert pers.has_account()
+
+    def test_is_creator(self):
+        # create a person
+        pers = Person.objects.create(name='Foobar')
+        # create an item and creator type
+        item = Item(title='Le foo et le bar', year=1916, mep_id='lfelb')
+        item.save()
+        ctype = CreatorType(1)
+        # not associated, returns False
+        assert not pers.is_creator()
+        # associate via Creator, should return True
+        creator = Creator(creator_type=ctype, person=pers, item=item)
+        creator.save()
+        assert pers.is_creator()
 
     def test_in_logbooks(self):
         # create test person & account and associate them
@@ -463,37 +475,3 @@ class TestInfoURL(TestCase):
         assert repr(info_url).endswith('>')
         assert info_url.url in repr(info_url)
         assert str(p) in repr(info_url)
-
-
-class TestPersonAdmin(TestCase):
-
-    def test_merge_people(self):
-        mockrequest = Mock()
-        test_ids = ['5', '33', '101']
-        # a dictionary mimes the request pattern of access
-        mockrequest.session = {}
-        mockrequest.POST.getlist.return_value = test_ids
-        # code uses the built in methods of a dict, so making GET an
-        # actual dict as it is for a request
-        mockrequest.GET = {}
-        resp = PersonAdmin(Person, Mock()).merge_people(mockrequest, Mock())
-        assert isinstance(resp, HttpResponseRedirect)
-        assert resp.status_code == 303
-        assert resp['location'].startswith(reverse('people:merge'))
-        assert resp['location'].endswith('?ids=%s' % ','.join(test_ids))
-        # key should be set, but it should be an empty string
-        assert 'people_merge_filter' in mockrequest.session
-        assert not mockrequest.session['people_merge_filter']
-        # Now add some values to be set as a query string on session
-        mockrequest.GET = {'p': '3', 'filter': 'foo'}
-        resp = PersonAdmin(Person, Mock()).merge_people(mockrequest, Mock())
-        assert isinstance(resp, HttpResponseRedirect)
-        assert resp.status_code == 303
-        assert resp['location'].startswith(reverse('people:merge'))
-        assert resp['location'].endswith('?ids=%s' % ','.join(test_ids))
-        # key should be set and have a urlencoded string
-        assert 'people_merge_filter' in mockrequest.session
-        # test agnostic as to order since the querystring
-        # works either way
-        assert mockrequest.session['people_merge_filter'] in \
-            ['p=3&filter=foo', 'filter=foo&p=3']
