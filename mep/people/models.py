@@ -297,6 +297,11 @@ class Person(Notable, DateRange):
         return self.account_set.exists()
     has_account.boolean = True
 
+    def is_creator(self):
+        '''Return whether this person is a :class:`mep.books.models.Creator` of an :class:`mep.books.models.Item` .'''
+        return self.creator_set.exists()
+    is_creator.boolean = True
+
     def in_logbooks(self):
         '''is there data for this person in the logbooks?'''
         # based on presense of subscription or reimbursement event
