@@ -79,9 +79,9 @@ class DateRange(models.Model):
     validation that requires end year falls after start year.'''
 
     #: start year (optional)
-    start_year = models.PositiveIntegerField(null=True, blank=True)
+    start_year = models.SmallIntegerField(null=True, blank=True)
     #: end year (optional)
-    end_year = models.PositiveIntegerField(null=True, blank=True)
+    end_year = models.SmallIntegerField(null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -90,16 +90,32 @@ class DateRange(models.Model):
     def dates(self):
         '''Date or date range as a string for display'''
 
-        # if no dates are set, return an empty string
-        if not self.start_year and not self.end_year:
+        if not self.start_year and not self.end_year: # no dates are set
             return ''
 
-        # if start and end year are the same just return one year
-        if self.start_year == self.end_year:
-            return self.start_year
+        if not self.end_year: # only start year
+            if self.start_year < 0: # and it's BCE
+                return str(abs(self.start_year)) + ' BCE-' # '100 BCE-'
+            return str(self.start_year) + '-' # '1900-
 
-        date_parts = [self.start_year, '-', self.end_year]
-        return ''.join([str(dp) for dp in date_parts if dp is not None])
+        if not self.start_year: # only end year
+            if self.end_year < 0: # it's BCE
+                return '-' + str(abs(self.end_year)) + ' BCE' # '-100 BCE'
+            return '-' + str(self.end_year) # it's CE, '-1900'
+
+        if self.start_year == self.end_year: # they're the same year
+            if self.start_year < 0: # it's BCE
+                return str(abs(self.start_year)) + ' BCE' # '100 BCE'
+            return str(self.start_year) # it's CE, '1900'
+
+        if self.start_year < 0: # start date is BCE
+            if self.end_year < 0: # end date is BCE
+                return str(abs(self.start_year)) + '-' + str(abs(self.end_year)) + ' BCE' # '100-50 BCE'
+            else: # end date is CE
+                return str(abs(self.start_year)) + ' BCE-' + str(self.end_year) + ' CE' # '100 BCE-20 CE'
+
+        return str(self.start_year) + '-' + str(self.end_year) # both CE, '1900-1901'
+
 
     def clean_fields(self, exclude=None):
         '''validate that end year is greater than or equal to start year'''
