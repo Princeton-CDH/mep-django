@@ -186,11 +186,6 @@ class TestPersonQuerySet(TestCase):
 
         # use Jonas as record to merge others to
         main_person = Person.objects.get(name='Jonas')
-        # person to merge with has no account - error
-        with pytest.raises(ObjectDoesNotExist) as err:
-            Person.objects.merge_with(main_person)
-        assert "Can't merge with a person record that has no account" in \
-            str(err)
 
         # create accounts with content to merge
         main_acct = Account.objects.create()
@@ -326,6 +321,18 @@ class TestPersonQuerySet(TestCase):
             Person.objects.merge_with(main)
         assert "Can't merge a person record with a shared account." in \
             str(err)
+
+        # main person with no account data should work normally; other accounts
+        # will be converted to their ownership
+        mike = Person.objects.create(name='Mike Mulshine')
+        spencer = Person.objects.create(name='Spencer Hadley', birth_year=1990)
+        spencer_acct = Account.objects.create()
+        spencer_acct.persons.add(spencer)
+        Person.objects.filter(pk=spencer.id).merge_with(mike)
+        assert mike.name == 'Mike Mulshine'
+        assert mike.birth_year == 1990
+        assert spencer_acct in mike.account_set.all()
+
 
 
 class TestProfession(TestCase):

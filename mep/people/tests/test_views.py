@@ -282,23 +282,14 @@ class TestPeopleViews(TestCase):
         self.assertContains(response, pers.name)
         self.assertContains(response, pers2.name)
 
-        # POST should attempt to merge - error message should be reported
-        response = self.client.post('%s?ids=%s' % \
-                                    (reverse('people:merge'), idstring),
-                                    {'primary_person': pers.id},
-                                    follow=True)
-        self.assertRedirects(response, reverse('admin:people_person_changelist'))
-        message = list(response.context.get('messages'))[0]
-        assert message.tags == 'error'
-        assert "Can't merge with a person record that has no account." \
-            == message.message
-
         # add accounts and events
         acct = Account.objects.create()
         acct.persons.add(pers)
         acct2 = Account.objects.create()
         acct2.persons.add(pers2)
         Subscription.objects.create(account=acct2)
+
+        # POST should execute the merge
         response = self.client.post('%s?ids=%s' % \
                                     (reverse('people:merge'), idstring),
                                     {'primary_person': pers.id},
@@ -315,6 +306,34 @@ class TestPeopleViews(TestCase):
         # confirm merge completed by checking objects were removed
         assert not Account.objects.filter(id=acct2.id).exists()
         assert not Person.objects.filter(id=pers2.id).exists()
+
+        # Test merge for people with no accounts
+        pers3 = Person.objects.create(name='M. Mulshine')
+        pers4 = Person.objects.create(name='Mike Mulshine')
+        person_ids = [pers3.id, pers4.id]
+        idstring = ','.join(str(pid) for pid in person_ids)
+
+        # GET should still work
+        response = self.client.get(reverse('people:merge'), {'ids': idstring})
+        assert response.status_code == 200
+        assert isinstance(response.context['form'], PersonMergeForm)
+        template_names = [tpl.name for tpl in response.templates]
+        assert 'people/merge_person.html' in template_names
+        self.assertContains(response, pers3.name)
+        self.assertContains(response, pers4.name)
+
+        # POST merge should work & report no accounts changed
+        response = self.client.post('%s?ids=%s' % \
+                                    (reverse('people:merge'), idstring),
+                                    {'primary_person': pers3.id},
+                                    follow=True)
+        message = list(response.context.get('messages'))[0]
+        assert message.tags == 'success'
+        assert 'no accounts to reassociate' in message.message
+        assert pers3.name in message.message
+        assert reverse('admin:people_person_change', args=[pers3.id]) \
+            in message.message
+        assert not Person.objects.filter(id=pers4.id).exists()
 
 
 class TestGeonamesLookup(TestCase):
