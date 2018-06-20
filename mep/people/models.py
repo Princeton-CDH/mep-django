@@ -201,6 +201,8 @@ class Person(Notable, DateRange):
     #: flag to indicate organization instead of person
     is_organization = models.BooleanField(default=False,
         help_text='Mark as true to indicate this is an organization')
+    #: update timestamp
+    updated_at = models.DateTimeField(auto_now=True, null=True)
 
 
     MALE = 'M'
