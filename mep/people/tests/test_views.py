@@ -335,6 +335,21 @@ class TestPeopleViews(TestCase):
             in message.message
         assert not Person.objects.filter(id=pers4.id).exists()
 
+        # Merging with shared account should fail
+        mike = Person.objects.create(name='Mike Mulshine')
+        spencer = Person.objects.create(name='Spencer Hadley')
+        nikitas = Person.objects.create(name='Nikitas Tampakis')
+        shared_acct = Account.objects.create()
+        shared_acct.persons.add(mike)
+        shared_acct.persons.add(spencer)
+        idstring = ','.join(str(pid) for pid in [mike.id, spencer.id, nikitas.id])
+        response = self.client.post('%s?ids=%s' % \
+                                    (reverse('people:merge'), idstring),
+                                    {'primary_person': mike.id},
+                                    follow=True)
+        message = list(response.context.get('messages'))[0]
+        assert message.tags == 'error'
+        assert 'shared account' in message.message
 
 class TestGeonamesLookup(TestCase):
 
