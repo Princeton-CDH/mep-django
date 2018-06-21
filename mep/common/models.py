@@ -94,27 +94,20 @@ class DateRange(models.Model):
             return ''
 
         if not self.end_year: # only start year
-            if self.start_year < 0: # and it's BCE
-                return str(abs(self.start_year)) + ' BCE-' # '100 BCE-'
-            return str(self.start_year) + '-' # '1900-
+            return '%s-' % DateRange._year_str(self.start_year) # '100 BCE-' / '1900-'
 
         if not self.start_year: # only end year
-            if self.end_year < 0: # it's BCE
-                return '-' + str(abs(self.end_year)) + ' BCE' # '-100 BCE'
-            return '-' + str(self.end_year) # it's CE, '-1900'
+            return '-%s' % DateRange._year_str(self.end_year) # '-100 BCE' / '-1900'
 
-        if self.start_year == self.end_year: # they're the same year
-            if self.start_year < 0: # it's BCE
-                return str(abs(self.start_year)) + ' BCE' # '100 BCE'
-            return str(self.start_year) # it's CE, '1900'
+        if self.start_year == self.end_year: # same year
+            return DateRange._year_str(self.start_year) # '100 BCE' / '1900'
 
         if self.start_year < 0: # start date is BCE
             if self.end_year < 0: # end date is BCE
-                return str(abs(self.start_year)) + '-' + str(abs(self.end_year)) + ' BCE' # '100-50 BCE'
-            else: # end date is CE
-                return str(abs(self.start_year)) + ' BCE-' + str(self.end_year) + ' CE' # '100 BCE-20 CE'
+                return '%s-%s BCE' % (abs(self.start_year), abs(self.end_year)) # '100-50 BCE'
+            return '%s BCE-%s CE' % (abs(self.start_year), self.end_year) # '100 BCE-20 CE'
 
-        return str(self.start_year) + '-' + str(self.end_year) # both CE, '1900-1901'
+        return '%s-%s' % (self.start_year, self.end_year) # both CE, '1900-1901'
 
 
     def clean_fields(self, exclude=None):
@@ -128,3 +121,9 @@ class DateRange(models.Model):
         if self.start_year and self.end_year and \
                 not self.end_year >= self.start_year:
             raise ValidationError('End year must be after start year')
+
+    @staticmethod
+    def _year_str(year):
+        if year < 0:
+            return '%s BCE' % abs(year)
+        return str(year)
