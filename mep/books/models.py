@@ -48,6 +48,9 @@ class Item(Notable):
     edition = models.CharField(max_length=255, blank=True)
     uri = models.URLField(blank=True, verbose_name='URI', help_text="Linked data URI for this work")
 
+    #: update timestamp
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
     # QUESTION: On the diagram these are labeled as FK, but they seem to imply
     # M2M (i.e. more than one publisher or more than one pub place?)
     publishers = models.ManyToManyField(Publisher, blank=True)
