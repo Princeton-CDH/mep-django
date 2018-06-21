@@ -17,6 +17,7 @@ from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person, Relationship, \
     RelationshipType
 from mep.people.views import GeoNamesLookup, PersonMerge
+from mep.books.models import Item, CreatorType, Creator
 
 
 class TestPeopleViews(TestCase):
@@ -289,6 +290,15 @@ class TestPeopleViews(TestCase):
         acct2.persons.add(pers2)
         Subscription.objects.create(account=acct2)
 
+        # add creator relationships to items
+        book1 = Item.objects.create()
+        book2 = Item.objects.create()
+        author = CreatorType.objects.get(name='Author')
+        editor = CreatorType.objects.get(name='Editor')
+        Creator.objects.create(creator_type=author, person=pers, item=book1) # pers author of book1
+        Creator.objects.create(creator_type=editor, person=pers2, item=book2) # pers2 editor of book2
+        Creator.objects.create(creator_type=author, person=pers2, item=book2) # pers2 author of book2
+
         # POST should execute the merge
         response = self.client.post('%s?ids=%s' % \
                                     (reverse('people:merge'), idstring),
@@ -297,6 +307,7 @@ class TestPeopleViews(TestCase):
         message = list(response.context.get('messages'))[0]
         assert message.tags == 'success'
         assert 'Reassociated 1 event ' in message.message
+        assert 'Reassociated 2 creator roles ' in message.message
         assert pers.name in message.message
         assert str(acct) in message.message
         assert reverse('admin:people_person_change', args=[pers.id]) \
@@ -306,6 +317,13 @@ class TestPeopleViews(TestCase):
         # confirm merge completed by checking objects were removed
         assert not Account.objects.filter(id=acct2.id).exists()
         assert not Person.objects.filter(id=pers2.id).exists()
+        # check new creator relationships
+        assert pers in book1.authors
+        assert pers in book2.authors
+        assert pers in book2.editors
+        assert not pers2 in book1.authors
+        assert not pers2 in book2.authors
+        assert not pers2 in book2.editors
 
         # Test merge for people with no accounts
         pers3 = Person.objects.create(name='M. Mulshine')
@@ -329,7 +347,7 @@ class TestPeopleViews(TestCase):
                                     follow=True)
         message = list(response.context.get('messages'))[0]
         assert message.tags == 'success'
-        assert 'no accounts to reassociate' in message.message
+        assert 'No accounts to reassociate' in message.message
         assert pers3.name in message.message
         assert reverse('admin:people_person_change', args=[pers3.id]) \
             in message.message
