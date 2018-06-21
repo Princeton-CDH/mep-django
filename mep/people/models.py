@@ -103,18 +103,14 @@ class PersonQuerySet(models.QuerySet):
         with another person.
 
         :param person: :class:`Person` person
-        :raises django.core.exceptions.ObjectDoesNotExist:
-            if selected :class:`Person` has no account
         :raises django.core.exceptions.MultipleObjectsReturned:
             if selected :class:`Person` has multiple accounts _or_ any person
             in the queryset has an account shared with another person
         '''
 
-        # error if person has no account
-        # NOTE: technically could allow person with no account if no
-        # people in the queryset have accounts, but currently not supported
-        if not person.account_set.exists():
-            raise ObjectDoesNotExist("Can't merge with a person record that has no account.")
+        # identify the account other events will be reassociated with, if exists
+        if person.has_account():
+            primary_account = person.account_set.first()
         # error if more than account, since we can't pick which to merge to
         if person.account_set.count() > 1:
             raise MultipleObjectsReturned("Can't merge with a person record that has multiple accounts.")
@@ -123,19 +119,20 @@ class PersonQuerySet(models.QuerySet):
                .filter(account_people__gt=1).exists():
             raise MultipleObjectsReturned("Can't merge a person record with a shared account.")
 
-        # identify the account other events will be reassociated with
-        primary_account = person.account_set.first()
         # make sure specified person is skipped even if in the current queryset
         merge_people = self.exclude(id=person.id)
 
         for merge_person in merge_people:
-            for account in merge_person.account_set.all():
-                # reassociate all events with the main account
-                account.event_set.update(account=primary_account)
-                # reassociate any addresses with the main account
-                account.address_set.update(account=primary_account)
-                # delete the empty account
-                account.delete()
+            if merge_person.has_account(): # if the merged person had an account
+                for account in merge_person.account_set.all():
+                    if not person.has_account(): # a merged person had an account, but the main person doesn't
+                        account.persons.add(person) # swap the account's owner to the main person
+                        account.persons.remove(merge_person)
+                        primary_account = person.account_set.first() # define the new primary account
+                    else:
+                        account.event_set.update(account=primary_account) # reassociate all events with the main account
+                        account.address_set.update(account=primary_account) # reassociate any addresses with the main account
+                        account.delete() # delete the empty account
 
             # update main person record with optional properties set on
             # the copy if not already present on the main record

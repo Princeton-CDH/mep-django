@@ -211,7 +211,9 @@ class PersonMerge(PermissionRequiredMixin, FormView):
 
         # user-selected person record to keep
         primary_person = form.cleaned_data['primary_person']
-        if primary_person.account_set.exists():
+        existing_events = 0
+
+        if primary_person.has_account(): # get existing events, if any
             primary_account = primary_person.account_set.first()
             existing_events = primary_account.event_set.count()
 
@@ -220,19 +222,26 @@ class PersonMerge(PermissionRequiredMixin, FormView):
             Person.objects.filter(id__in=self.person_ids) \
                           .merge_with(primary_person)
 
-            # is this a useful metric? potentially doing a lot more than that...
-            added_events = primary_account.event_set.count() - existing_events
-            messages.success(self.request,
-                mark_safe('Reassociated %d event%s with <a href="%s">%s</a> (<a href="%s">%s</a>).'
-             % (added_events,
-                's' if added_events != 1 else '',
-                reverse('admin:people_person_change', args=[primary_person.id]),
-                primary_person,
-                reverse('admin:accounts_account_change', args=[primary_account.id]),
-                primary_account)))
+            if primary_person.has_account():
+                # is this a useful metric? potentially doing a lot more than that...
+                primary_account = primary_person.account_set.first() # if there wasn't one before
+                added_events = primary_account.event_set.count() - existing_events
+                messages.success(self.request,
+                    mark_safe('Reassociated %d event%s with <a href="%s">%s</a> (<a href="%s">%s</a>).'
+                % (added_events,
+                    's' if added_events != 1 else '',
+                    reverse('admin:people_person_change', args=[primary_person.id]),
+                    primary_person,
+                    reverse('admin:accounts_account_change', args=[primary_account.id]),
+                    primary_account)))
+            else: # no accounts merged
+                messages.success(self.request,
+                    mark_safe('Merge for <a href="%s">%s</a> complete; no accounts to reassociate.'
+                    % (reverse('admin:people_person_change', args=[primary_person.id]),
+                    primary_person)))
 
-        # error if person has more than one account, no account
-        except (ObjectDoesNotExist, MultipleObjectsReturned) as err:
+        # error if person has more than one account
+        except MultipleObjectsReturned as err:
             messages.error(self.request, str(err))
 
         return super(PersonMerge, self).form_valid(form)
