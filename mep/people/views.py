@@ -211,8 +211,9 @@ class PersonMerge(PermissionRequiredMixin, FormView):
 
         # user-selected person record to keep
         primary_person = form.cleaned_data['primary_person']
+        existing_events = 0
 
-        if primary_person.has_account():
+        if primary_person.has_account(): # get existing events, if any
             primary_account = primary_person.account_set.first()
             existing_events = primary_account.event_set.count()
 
@@ -223,6 +224,7 @@ class PersonMerge(PermissionRequiredMixin, FormView):
 
             if primary_person.has_account():
                 # is this a useful metric? potentially doing a lot more than that...
+                primary_account = primary_person.account_set.first() # if there wasn't one before
                 added_events = primary_account.event_set.count() - existing_events
                 messages.success(self.request,
                     mark_safe('Reassociated %d event%s with <a href="%s">%s</a> (<a href="%s">%s</a>).'
