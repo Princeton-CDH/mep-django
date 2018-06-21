@@ -79,9 +79,9 @@ class DateRange(models.Model):
     validation that requires end year falls after start year.'''
 
     #: start year (optional)
-    start_year = models.PositiveIntegerField(null=True, blank=True)
+    start_year = models.SmallIntegerField(null=True, blank=True)
     #: end year (optional)
-    end_year = models.PositiveIntegerField(null=True, blank=True)
+    end_year = models.SmallIntegerField(null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -90,16 +90,25 @@ class DateRange(models.Model):
     def dates(self):
         '''Date or date range as a string for display'''
 
-        # if no dates are set, return an empty string
-        if not self.start_year and not self.end_year:
+        if not self.start_year and not self.end_year: # no dates are set
             return ''
 
-        # if start and end year are the same just return one year
-        if self.start_year == self.end_year:
-            return self.start_year
+        if not self.end_year: # only start year
+            return '%s-' % DateRange._year_str(self.start_year) # '100 BCE-' / '1900-'
 
-        date_parts = [self.start_year, '-', self.end_year]
-        return ''.join([str(dp) for dp in date_parts if dp is not None])
+        if not self.start_year: # only end year
+            return '-%s' % DateRange._year_str(self.end_year) # '-100 BCE' / '-1900'
+
+        if self.start_year == self.end_year: # same year
+            return DateRange._year_str(self.start_year) # '100 BCE' / '1900'
+
+        if self.start_year < 0: # start date is BCE
+            if self.end_year < 0: # end date is BCE
+                return '%s-%s BCE' % (abs(self.start_year), abs(self.end_year)) # '100-50 BCE'
+            return '%s BCE-%s CE' % (abs(self.start_year), self.end_year) # '100 BCE-20 CE'
+
+        return '%s-%s' % (self.start_year, self.end_year) # both CE, '1900-1901'
+
 
     def clean_fields(self, exclude=None):
         '''validate that end year is greater than or equal to start year'''
@@ -112,3 +121,9 @@ class DateRange(models.Model):
         if self.start_year and self.end_year and \
                 not self.end_year >= self.start_year:
             raise ValidationError('End year must be after start year')
+
+    @staticmethod
+    def _year_str(year):
+        if year < 0:
+            return '%s BCE' % abs(year)
+        return str(year)
