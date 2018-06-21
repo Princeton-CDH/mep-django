@@ -322,16 +322,32 @@ class TestPersonQuerySet(TestCase):
         assert "Can't merge a person record with a shared account." in \
             str(err)
 
-        # main person with no account data should work normally; other accounts
-        # will be converted to their ownership
+        # main person with no account data should receive the first merged
+        # account and all subsequent events/addresses will merge to that account
         mike = Person.objects.create(name='Mike Mulshine')
         spencer = Person.objects.create(name='Spencer Hadley', birth_year=1990)
+        nikitas = Person.objects.create(name='Nikitas Tampakis')
         spencer_acct = Account.objects.create()
         spencer_acct.persons.add(spencer)
-        Person.objects.filter(pk=spencer.id).merge_with(mike)
-        assert mike.name == 'Mike Mulshine'
-        assert mike.birth_year == 1990
-        assert spencer_acct in mike.account_set.all()
+        location = Location.objects.create()
+        spencer_address = Address.objects.create(account=spencer_acct,
+                                                 location=location)
+        spencer_event = Subscription.objects.create(account=spencer_acct)
+        nikitas_acct = Account.objects.create()
+        nikitas_acct.persons.add(nikitas)
+        nikitas_address = Address.objects.create(account=nikitas_acct,
+                                                 location=location)
+        nikitas_event = Subscription.objects.create(account=nikitas_acct)
+        qs = Person.objects.filter(pk=spencer.id) | Person.objects.filter(pk=nikitas.id)
+        qs.merge_with(mike)
+        assert mike.name == 'Mike Mulshine' # kept set properties
+        assert mike.birth_year == 1990 # merged new properties
+        assert spencer_acct in mike.account_set.all() # first account was used
+        assert nikitas_acct not in mike.account_set.all() # subsequent ones were deleted
+        assert spencer_address in mike.account_set.first().address_set.all() # addresses were merged
+        assert nikitas_address in mike.account_set.first().address_set.all()
+        assert spencer_event in mike.account_set.first().get_events(etype='subscription') # events were merged
+        assert nikitas_event in mike.account_set.first().get_events(etype='subscription')
 
 
 

@@ -123,24 +123,16 @@ class PersonQuerySet(models.QuerySet):
         merge_people = self.exclude(id=person.id)
 
         for merge_person in merge_people:
-            if merge_person.has_account():
-            # if the merged person had an account
-                if person.has_account():
-                    # *and* if the main person had an account
-                    for account in merge_person.account_set.all():
-                        # reassociate all events with the main account
-                        account.event_set.update(account=primary_account)
-                        # reassociate any addresses with the main account
-                        account.address_set.update(account=primary_account)
-                        # delete the empty account
-                        account.delete()
-                else:
-                # a merged person had an account, but the main person doesn't
-                    for account in merge_person.account_set.all():
-                        # swap the account's owner to the main person
-                        account.persons.add(person)
+            if merge_person.has_account(): # if the merged person had an account
+                for account in merge_person.account_set.all():
+                    if not person.has_account(): # a merged person had an account, but the main person doesn't
+                        account.persons.add(person) # swap the account's owner to the main person
                         account.persons.remove(merge_person)
-
+                        primary_account = person.account_set.first() # define the new primary account
+                    else:
+                        account.event_set.update(account=primary_account) # reassociate all events with the main account
+                        account.address_set.update(account=primary_account) # reassociate any addresses with the main account
+                        account.delete() # delete the empty account
 
             # update main person record with optional properties set on
             # the copy if not already present on the main record
