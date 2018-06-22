@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.admin &#8212; Mapping Expatriate Paris - Django 0.6.0 documentation</title>
+    <title>mep.people.admin &#8212; Mapping Expatriate Paris - Django 0.7.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
@@ -27,6 +27,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for mep.people.admin</h1><div class="highlight"><pre>
@@ -165,6 +167,34 @@
         <span class="n">js</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;admin/js/prepopulate.js&#39;</span><span class="p">,</span> <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="PersonTypeListFilter"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonTypeListFilter">[docs]</a><span class="k">class</span> <span class="nc">PersonTypeListFilter</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">SimpleListFilter</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Filter that for :class:`~mep.people.models.Person` that can distinguish</span>
+<span class="sd">    between people who are creators of books vs. those who are library members.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># human-readable title for filter</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Person Type&#39;</span>
+
+    <span class="c1"># this gets used in the URL as a query param</span>
+    <span class="n">parameter_name</span> <span class="o">=</span> <span class="s1">&#39;person_type&#39;</span>
+
+<div class="viewcode-block" id="PersonTypeListFilter.lookups"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonTypeListFilter.lookups">[docs]</a>    <span class="k">def</span> <span class="nf">lookups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">model_admin</span><span class="p">):</span>
+        <span class="c1"># option tuples: left is query param name and right is human-readable name</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s1">&#39;creator&#39;</span><span class="p">,</span> <span class="s1">&#39;Creator&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;member&#39;</span><span class="p">,</span> <span class="s1">&#39;Library Member&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;uncategorized&#39;</span><span class="p">,</span> <span class="s1">&#39;Uncategorized&#39;</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="PersonTypeListFilter.queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonTypeListFilter.queryset">[docs]</a>    <span class="k">def</span> <span class="nf">queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="c1"># filter the queryset based on the selected option</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;creator&#39;</span><span class="p">:</span> <span class="c1"># is creator</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">creator</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;member&#39;</span><span class="p">:</span> <span class="c1"># has account</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;uncategorized&#39;</span><span class="p">:</span> <span class="c1"># no account or creator</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">creator</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div></div>
+
+
 <div class="viewcode-block" id="PersonAddressInline"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAddressInline">[docs]</a><span class="k">class</span> <span class="nc">PersonAddressInline</span><span class="p">(</span><span class="n">AddressInline</span><span class="p">):</span>
     <span class="c1"># extend address inline for person to specify foreign key field</span>
     <span class="c1"># and remove account from editable fields</span>
@@ -180,8 +210,8 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">form</span> <span class="o">=</span> <span class="n">PersonAdminForm</span>
     <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;list_nationalities&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;address_count&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span> <span class="s1">&#39;note_snippet&#39;</span><span class="p">)</span>
+        <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span> <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;address_count&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_at&#39;</span><span class="p">,</span> <span class="s1">&#39;note_snippet&#39;</span><span class="p">)</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span>
         <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">),</span>
         <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span>
@@ -189,7 +219,8 @@
         <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;nationalities&#39;</span><span class="p">,</span> <span class="s1">&#39;is_organization&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">)</span>
     <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">)</span>
     <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">,</span> <span class="s1">&#39;viaf_id&#39;</span><span class="p">)</span>
-    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;nationalities&#39;</span><span class="p">,</span> <span class="s1">&#39;is_organization&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="n">PersonTypeListFilter</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;nationalities&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;is_organization&#39;</span><span class="p">)</span>
     <span class="c1"># Note: moving relationships to last for adjacency to list of relationships</span>
     <span class="c1"># *to* this person included in the template</span>
     <span class="n">inlines</span> <span class="o">=</span> <span class="p">[</span><span class="n">InfoURLInline</span><span class="p">,</span> <span class="n">PersonAddressInline</span><span class="p">,</span> <span class="n">FootnoteInline</span><span class="p">,</span> <span class="n">RelationshipInline</span><span class="p">]</span>
@@ -277,6 +308,7 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -358,8 +390,8 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
     </div>
 

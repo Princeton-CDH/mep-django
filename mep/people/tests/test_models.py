@@ -1,21 +1,19 @@
 import re
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError, MultipleObjectsReturned, \
-    ObjectDoesNotExist
-from django.http import HttpResponseRedirect
-from django.test import TestCase
-from django.urls import reverse
-from django.utils import timezone
 import pytest
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import (MultipleObjectsReturned,
+                                    ObjectDoesNotExist, ValidationError)
+from django.test import TestCase
+from django.utils import timezone
 from viapy.api import ViafEntity
 
-from mep.accounts.models import Account, Subscription, Reimbursement, Address
-from mep.footnotes.models import SourceType, Bibliography, Footnote
-from mep.people.models import InfoURL, Person, Profession, Relationship, \
-    RelationshipType, Location, Country, PersonQuerySet
-from mep.people.admin import PersonAdmin
+from mep.accounts.models import Account, Address, Reimbursement, Subscription
+from mep.books.models import Creator, CreatorType, Item
+from mep.footnotes.models import Bibliography, Footnote, SourceType
+from mep.people.models import (Country, InfoURL, Location, Person, Profession,
+                               Relationship, RelationshipType)
 
 
 class TestPerson(TestCase):
@@ -138,6 +136,20 @@ class TestPerson(TestCase):
         acct.save()
         assert pers.has_account()
 
+    def test_is_creator(self):
+        # create a person
+        pers = Person.objects.create(name='Foobar')
+        # create an item and creator type
+        item = Item(title='Le foo et le bar', year=1916, mep_id='lfelb')
+        item.save()
+        ctype = CreatorType(1)
+        # not associated, returns False
+        assert not pers.is_creator()
+        # associate via Creator, should return True
+        creator = Creator(creator_type=ctype, person=pers, item=item)
+        creator.save()
+        assert pers.is_creator()
+
     def test_in_logbooks(self):
         # create test person & account and associate them
         pers = Person.objects.create(name='John')
@@ -174,11 +186,6 @@ class TestPersonQuerySet(TestCase):
 
         # use Jonas as record to merge others to
         main_person = Person.objects.get(name='Jonas')
-        # person to merge with has no account - error
-        with pytest.raises(ObjectDoesNotExist) as err:
-            Person.objects.merge_with(main_person)
-        assert "Can't merge with a person record that has no account" in \
-            str(err)
 
         # create accounts with content to merge
         main_acct = Account.objects.create()
@@ -314,6 +321,55 @@ class TestPersonQuerySet(TestCase):
             Person.objects.merge_with(main)
         assert "Can't merge a person record with a shared account." in \
             str(err)
+
+        # merging a person who is a creator should change their items to point
+        # to the new person as creator
+        mike = Person.objects.create(name='Mike Mulshine')
+        spencer = Person.objects.create(name='Spencer Hadley')
+        nikitas = Person.objects.create(name='Nikitas Tampakis')
+        book1 = Item.objects.create()
+        book2 = Item.objects.create()
+        author = CreatorType.objects.get(name='Author')
+        editor = CreatorType.objects.get(name='Editor')
+        Creator.objects.create(creator_type=author, person=spencer, item=book1) # spencer author of book1
+        Creator.objects.create(creator_type=editor, person=nikitas, item=book2) # nikitas editor of book2
+        Creator.objects.create(creator_type=author, person=spencer, item=book2) # spencer author of book2
+        qs = Person.objects.filter(pk=spencer.id) | Person.objects.filter(pk=nikitas.id)
+        qs.merge_with(mike)
+        assert mike in book1.authors
+        assert mike in book2.authors
+        assert mike in book2.editors
+        assert not spencer in book1.authors
+        assert not spencer in book2.authors
+        assert not nikitas in book2.editors
+
+        # main person with no account data should receive the first merged
+        # account and all subsequent events/addresses will merge to that account
+        mike = Person.objects.create(name='Mike Mulshine')
+        spencer = Person.objects.create(name='Spencer Hadley', birth_year=1990)
+        nikitas = Person.objects.create(name='Nikitas Tampakis')
+        spencer_acct = Account.objects.create()
+        spencer_acct.persons.add(spencer)
+        location = Location.objects.create()
+        spencer_address = Address.objects.create(account=spencer_acct,
+                                                 location=location)
+        spencer_event = Subscription.objects.create(account=spencer_acct)
+        nikitas_acct = Account.objects.create()
+        nikitas_acct.persons.add(nikitas)
+        nikitas_address = Address.objects.create(account=nikitas_acct,
+                                                 location=location)
+        nikitas_event = Subscription.objects.create(account=nikitas_acct)
+        qs = Person.objects.filter(pk=spencer.id) | Person.objects.filter(pk=nikitas.id)
+        qs.merge_with(mike)
+        assert mike.name == 'Mike Mulshine' # kept set properties
+        assert mike.birth_year == 1990 # merged new properties
+        assert spencer_acct in mike.account_set.all() # first account was used
+        assert nikitas_acct not in mike.account_set.all() # subsequent ones were deleted
+        assert spencer_address in mike.account_set.first().address_set.all() # addresses were merged
+        assert nikitas_address in mike.account_set.first().address_set.all()
+        assert spencer_event in mike.account_set.first().get_events(etype='subscription') # events were merged
+        assert nikitas_event in mike.account_set.first().get_events(etype='subscription')
+
 
 
 class TestProfession(TestCase):
@@ -463,37 +519,3 @@ class TestInfoURL(TestCase):
         assert repr(info_url).endswith('>')
         assert info_url.url in repr(info_url)
         assert str(p) in repr(info_url)
-
-
-class TestPersonAdmin(TestCase):
-
-    def test_merge_people(self):
-        mockrequest = Mock()
-        test_ids = ['5', '33', '101']
-        # a dictionary mimes the request pattern of access
-        mockrequest.session = {}
-        mockrequest.POST.getlist.return_value = test_ids
-        # code uses the built in methods of a dict, so making GET an
-        # actual dict as it is for a request
-        mockrequest.GET = {}
-        resp = PersonAdmin(Person, Mock()).merge_people(mockrequest, Mock())
-        assert isinstance(resp, HttpResponseRedirect)
-        assert resp.status_code == 303
-        assert resp['location'].startswith(reverse('people:merge'))
-        assert resp['location'].endswith('?ids=%s' % ','.join(test_ids))
-        # key should be set, but it should be an empty string
-        assert 'people_merge_filter' in mockrequest.session
-        assert not mockrequest.session['people_merge_filter']
-        # Now add some values to be set as a query string on session
-        mockrequest.GET = {'p': '3', 'filter': 'foo'}
-        resp = PersonAdmin(Person, Mock()).merge_people(mockrequest, Mock())
-        assert isinstance(resp, HttpResponseRedirect)
-        assert resp.status_code == 303
-        assert resp['location'].startswith(reverse('people:merge'))
-        assert resp['location'].endswith('?ids=%s' % ','.join(test_ids))
-        # key should be set and have a urlencoded string
-        assert 'people_merge_filter' in mockrequest.session
-        # test agnostic as to order since the querystring
-        # works either way
-        assert mockrequest.session['people_merge_filter'] in \
-            ['p=3&filter=foo', 'filter=foo&p=3']

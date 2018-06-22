@@ -51,6 +51,9 @@
 # the SELinux or Apache modules because we only have limited sudo and rights
 # for both these statements
 - name: Call restorecon just in case
-  command: 'restorecon -R {{ deploy }}'
+  shell: '/usr/sbin/restorecon -R {{ install_root }}'
+  args:
+    warn: False
+    executable: /bin/bash
 - name: Restart Apache (scl-httpd24-httpd)
   command: "sudo systemctl restart httpd24-httpd"

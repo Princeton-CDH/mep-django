@@ -211,28 +211,51 @@ class PersonMerge(PermissionRequiredMixin, FormView):
 
         # user-selected person record to keep
         primary_person = form.cleaned_data['primary_person']
-        if primary_person.account_set.exists():
+        existing_events = 0
+        existing_creators = 0
+
+        if primary_person.has_account(): # get existing events, if any
             primary_account = primary_person.account_set.first()
             existing_events = primary_account.event_set.count()
+
+        if primary_person.is_creator():
+            existing_creators = primary_person.creator_set.count()
 
         try:
             # find duplicate person records to be consolidated and merge
             Person.objects.filter(id__in=self.person_ids) \
                           .merge_with(primary_person)
 
-            # is this a useful metric? potentially doing a lot more than that...
-            added_events = primary_account.event_set.count() - existing_events
-            messages.success(self.request,
-                mark_safe('Reassociated %d event%s with <a href="%s">%s</a> (<a href="%s">%s</a>).'
-             % (added_events,
-                's' if added_events != 1 else '',
+            message = 'Merge for <a href="%s">%s</a> complete.' % (
                 reverse('admin:people_person_change', args=[primary_person.id]),
-                primary_person,
-                reverse('admin:accounts_account_change', args=[primary_account.id]),
-                primary_account)))
+                primary_person
+            )
 
-        # error if person has more than one account, no account
-        except (ObjectDoesNotExist, MultipleObjectsReturned) as err:
+            if primary_person.has_account(): # calculate events reassociated
+                primary_account = primary_person.account_set.first() # if there wasn't one before
+                added_events = primary_account.event_set.count() - existing_events
+                message += ' Reassociated %d event%s with <a href="%s">%s</a>.' % (
+                    added_events,
+                    's' if added_events != 1 else '',
+                    reverse('admin:accounts_account_change', args=[primary_account.id]),
+                    primary_account
+                )
+            else: # no accounts merged
+                message += ' No accounts to reassociate.'
+
+            if primary_person.is_creator(): # calculate creator roles reassociated
+                added_creators = primary_person.creator_set.count() - existing_creators
+                message += ' Reassociated %d creator role%s on items.' % (
+                    added_creators,
+                    's' if added_creators != 1 else ''
+                )
+            else: # no creators reassociated
+                message += ' No creator relationships to reassociate.'
+
+            messages.success(self.request, mark_safe(message))
+
+        # error if person has more than one account
+        except MultipleObjectsReturned as err:
             messages.error(self.request, str(err))
 
         return super(PersonMerge, self).form_valid(form)

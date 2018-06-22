@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.6.0 documentation</title>
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.7.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -29,6 +29,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="code-documentation">
@@ -67,8 +69,8 @@ model.</p>
 custom dates property to display the date range nicely.  Includes
 validation that requires end year falls after start year.</p>
 <dl class="method">
-<dt id="mep.common.models.DateRange.clean_fields">
-<code class="descname">clean_fields</code><span class="sig-paren">(</span><em>exclude=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#DateRange.clean_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.DateRange.clean_fields" title="Permalink to this definition">¶</a></dt>
+<dt id="mep.common.models.DateRange.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#DateRange.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.DateRange.clean" title="Permalink to this definition">¶</a></dt>
 <dd><p>validate that end year is greater than or equal to start year</p>
 </dd></dl>
 
@@ -605,6 +607,12 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 <dd><p>item creators with type translator</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="mep.books.models.Item.updated_at">
+<code class="descname">updated_at</code><a class="headerlink" href="#mep.books.models.Item.updated_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>update timestamp</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -795,6 +803,12 @@ e.g. Wikipedia page.</p>
 <dd><p>is there data for this person in the logbooks?</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="mep.people.models.Person.is_creator">
+<code class="descname">is_creator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.is_creator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.is_creator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether this person is a <a class="reference internal" href="#mep.books.models.Creator" title="mep.books.models.Creator"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.books.models.Creator</span></code></a> of an <a class="reference internal" href="#mep.books.models.Item" title="mep.books.models.Item"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.books.models.Item</span></code></a> .</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="mep.people.models.Person.is_organization">
 <code class="descname">is_organization</code><a class="headerlink" href="#mep.people.models.Person.is_organization" title="Permalink to this definition">¶</a></dt>
@@ -869,6 +883,12 @@ and there’s a viaf id for the record</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="mep.people.models.Person.updated_at">
+<code class="descname">updated_at</code><a class="headerlink" href="#mep.people.models.Person.updated_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>update timestamp</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="mep.people.models.Person.viaf">
 <code class="descname">viaf</code><a class="headerlink" href="#mep.people.models.Person.viaf" title="Permalink to this definition">¶</a></dt>
 <dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">viapy.api.ViafEntity</span></code> for this record if <a class="reference internal" href="#mep.people.models.Person.viaf_id" title="mep.people.models.Person.viaf_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">viaf_id</span></code></a>
@@ -909,15 +929,10 @@ with another person.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>person</strong> – <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> person</p>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>person</strong> – <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> person</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://django.readthedocs.io/en/latest/ref/exceptions.html#django.core.exceptions.ObjectDoesNotExist" title="(in Django v2.1)"><strong>django.core.exceptions.ObjectDoesNotExist</strong></a> – if selected <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> has no account</li>
-<li><a class="reference external" href="http://django.readthedocs.io/en/latest/ref/exceptions.html#django.core.exceptions.MultipleObjectsReturned" title="(in Django v2.1)"><strong>django.core.exceptions.MultipleObjectsReturned</strong></a> – if selected <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> has multiple accounts _or_ any person
-in the queryset has an account shared with another person</li>
-</ul>
-</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="http://django.readthedocs.io/en/latest/ref/exceptions.html#django.core.exceptions.MultipleObjectsReturned" title="(in Django v2.2)"><strong>django.core.exceptions.MultipleObjectsReturned</strong></a> – if selected <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> has multiple accounts _or_ any person
+in the queryset has an account shared with another person</td>
 </tr>
 </tbody>
 </table>
@@ -1381,6 +1396,25 @@ people are edited here).</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="mep.people.admin.PersonTypeListFilter">
+<em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">PersonTypeListFilter</code><span class="sig-paren">(</span><em>request</em>, <em>params</em>, <em>model</em>, <em>model_admin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonTypeListFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonTypeListFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter that for <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> that can distinguish
+between people who are creators of books vs. those who are library members.</p>
+<dl class="method">
+<dt id="mep.people.admin.PersonTypeListFilter.lookups">
+<code class="descname">lookups</code><span class="sig-paren">(</span><em>request</em>, <em>model_admin</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonTypeListFilter.lookups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonTypeListFilter.lookups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Must be overridden to return a list of tuples (value, verbose value)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.admin.PersonTypeListFilter.queryset">
+<code class="descname">queryset</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonTypeListFilter.queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonTypeListFilter.queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the filtered queryset.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="mep.people.admin.RelationshipInline">
 <em class="property">class </em><code class="descclassname">mep.people.admin.</code><code class="descname">RelationshipInline</code><span class="sig-paren">(</span><em>parent_model</em>, <em>admin_site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#RelationshipInline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.RelationshipInline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inline class for Relationships</p>
@@ -1495,6 +1529,7 @@ for or against information in the system.</p>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -1611,8 +1646,8 @@ for or against information in the system.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
       |
       <a href="_sources/codedocs.rst.txt"

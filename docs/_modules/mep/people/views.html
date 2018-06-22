@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.6.0 documentation</title>
+    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.7.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
@@ -27,6 +27,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for mep.people.views</h1><div class="highlight"><pre>
@@ -243,34 +245,58 @@
 
         <span class="c1"># user-selected person record to keep</span>
         <span class="n">primary_person</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;primary_person&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">existing_events</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">existing_creators</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span> <span class="c1"># get existing events, if any</span>
             <span class="n">primary_account</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
             <span class="n">existing_events</span> <span class="o">=</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">is_creator</span><span class="p">():</span>
+            <span class="n">existing_creators</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># find duplicate person records to be consolidated and merge</span>
             <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span><span class="p">)</span> \
                           <span class="o">.</span><span class="n">merge_with</span><span class="p">(</span><span class="n">primary_person</span><span class="p">)</span>
 
-            <span class="c1"># is this a useful metric? potentially doing a lot more than that...</span>
-            <span class="n">added_events</span> <span class="o">=</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">-</span> <span class="n">existing_events</span>
-            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span>
-                <span class="n">mark_safe</span><span class="p">(</span><span class="s1">&#39;Reassociated </span><span class="si">%d</span><span class="s1"> event</span><span class="si">%s</span><span class="s1"> with &lt;a href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt; (&lt;a href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt;).&#39;</span>
-             <span class="o">%</span> <span class="p">(</span><span class="n">added_events</span><span class="p">,</span>
-                <span class="s1">&#39;s&#39;</span> <span class="k">if</span> <span class="n">added_events</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Merge for &lt;a href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt; complete.&#39;</span> <span class="o">%</span> <span class="p">(</span>
                 <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:people_person_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_person</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
-                <span class="n">primary_person</span><span class="p">,</span>
-                <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:accounts_account_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_account</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
-                <span class="n">primary_account</span><span class="p">)))</span>
+                <span class="n">primary_person</span>
+            <span class="p">)</span>
 
-        <span class="c1"># error if person has more than one account, no account</span>
-        <span class="k">except</span> <span class="p">(</span><span class="n">ObjectDoesNotExist</span><span class="p">,</span> <span class="n">MultipleObjectsReturned</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span> <span class="c1"># calculate events reassociated</span>
+                <span class="n">primary_account</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span> <span class="c1"># if there wasn&#39;t one before</span>
+                <span class="n">added_events</span> <span class="o">=</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">-</span> <span class="n">existing_events</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; Reassociated </span><span class="si">%d</span><span class="s1"> event</span><span class="si">%s</span><span class="s1"> with &lt;a href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt;.&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">added_events</span><span class="p">,</span>
+                    <span class="s1">&#39;s&#39;</span> <span class="k">if</span> <span class="n">added_events</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:accounts_account_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_account</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
+                    <span class="n">primary_account</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># no accounts merged</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; No accounts to reassociate.&#39;</span>
+
+            <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">is_creator</span><span class="p">():</span> <span class="c1"># calculate creator roles reassociated</span>
+                <span class="n">added_creators</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">-</span> <span class="n">existing_creators</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; Reassociated </span><span class="si">%d</span><span class="s1"> creator role</span><span class="si">%s</span><span class="s1"> on items.&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">added_creators</span><span class="p">,</span>
+                    <span class="s1">&#39;s&#39;</span> <span class="k">if</span> <span class="n">added_creators</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># no creators reassociated</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; No creator relationships to reassociate.&#39;</span>
+
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+        <span class="c1"># error if person has more than one account</span>
+        <span class="k">except</span> <span class="n">MultipleObjectsReturned</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonMerge</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">form_valid</span><span class="p">(</span><span class="n">form</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -352,8 +378,8 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
     </div>
 
