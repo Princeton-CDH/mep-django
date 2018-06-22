@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models, transaction
@@ -122,6 +123,8 @@ class PersonQuerySet(models.QuerySet):
         # make sure specified person is skipped even if in the current queryset
         merge_people = self.exclude(id=person.id)
 
+        Creator = apps.get_model('books', 'Creator') # prevents circular import issue
+
         for merge_person in merge_people:
             if merge_person.has_account(): # if the merged person had an account
                 for account in merge_person.account_set.all():
@@ -133,6 +136,11 @@ class PersonQuerySet(models.QuerySet):
                         account.event_set.update(account=primary_account) # reassociate all events with the main account
                         account.address_set.update(account=primary_account) # reassociate any addresses with the main account
                         account.delete() # delete the empty account
+
+            if merge_person.is_creator(): # if the merged person was a creator
+                for creator in merge_person.creator_set.all():
+                    creator.person = person # reassociate the creator relationship to the primary person
+                    creator.save()
 
             # update main person record with optional properties set on
             # the copy if not already present on the main record

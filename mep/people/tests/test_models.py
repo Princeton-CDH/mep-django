@@ -322,6 +322,27 @@ class TestPersonQuerySet(TestCase):
         assert "Can't merge a person record with a shared account." in \
             str(err)
 
+        # merging a person who is a creator should change their items to point
+        # to the new person as creator
+        mike = Person.objects.create(name='Mike Mulshine')
+        spencer = Person.objects.create(name='Spencer Hadley')
+        nikitas = Person.objects.create(name='Nikitas Tampakis')
+        book1 = Item.objects.create()
+        book2 = Item.objects.create()
+        author = CreatorType.objects.get(name='Author')
+        editor = CreatorType.objects.get(name='Editor')
+        Creator.objects.create(creator_type=author, person=spencer, item=book1) # spencer author of book1
+        Creator.objects.create(creator_type=editor, person=nikitas, item=book2) # nikitas editor of book2
+        Creator.objects.create(creator_type=author, person=spencer, item=book2) # spencer author of book2
+        qs = Person.objects.filter(pk=spencer.id) | Person.objects.filter(pk=nikitas.id)
+        qs.merge_with(mike)
+        assert mike in book1.authors
+        assert mike in book2.authors
+        assert mike in book2.editors
+        assert not spencer in book1.authors
+        assert not spencer in book2.authors
+        assert not nikitas in book2.editors
+
         # main person with no account data should receive the first merged
         # account and all subsequent events/addresses will merge to that account
         mike = Person.objects.create(name='Mike Mulshine')
