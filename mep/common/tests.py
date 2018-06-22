@@ -59,7 +59,7 @@ class TestDateRange(TestCase):
         # date range with start and end
         span.start_year = 1900
         span.end_year = 1901
-        assert '1900-1901' == span.dates
+        assert span.dates == '1900-1901'
         # start and end dates are same year = single year
         span.end_year = span.start_year
         assert span.dates == str(span.start_year)
@@ -90,21 +90,18 @@ class TestDateRange(TestCase):
         span.start_year = span.end_year = -100
         assert span.dates == '100 BCE'
 
-    def test_clean_fields(self):
+    def test_clean(self):
         with pytest.raises(ValidationError):
-            DateRange(start_year=1901, end_year=1900).clean_fields()
+            DateRange(start_year=1901, end_year=1900).clean()
 
         # should not raise exception
         # - same year is ok (single year range)
-        DateRange(start_year=1901, end_year=1901).clean_fields()
+        DateRange(start_year=1901, end_year=1901).clean()
         # - end after start
-        DateRange(start_year=1901, end_year=1905).clean_fields()
+        DateRange(start_year=1901, end_year=1905).clean()
         # - only one date set
-        DateRange(start_year=1901).clean_fields()
-        DateRange(end_year=1901).clean_fields()
-        # exclude set
-        DateRange(start_year=1901, end_year=1900).clean_fields(exclude=['start_year'])
-        DateRange(start_year=1901, end_year=1900).clean_fields(exclude=['end_year'])
+        DateRange(start_year=1901).clean()
+        DateRange(end_year=1901).clean()
 
 
 class TestAliasIntegerField(TestCase):
@@ -115,26 +112,16 @@ class TestAliasIntegerField(TestCase):
             bar_year = AliasIntegerField(db_column='end_year')
         # Should pass the exact same tests as date range with the new fields
         with pytest.raises(ValidationError):
-            TestModel(foo_year=1901, bar_year=1900).clean_fields()
+            TestModel(foo_year=1901, bar_year=1900).clean()
 
         # should not raise exception
         # - same year is ok (single year range)
-        TestModel(foo_year=1901, bar_year=1901).clean_fields()
+        TestModel(foo_year=1901, bar_year=1901).clean()
         # - end after start
-        TestModel(foo_year=1901, bar_year=1905).clean_fields()
+        TestModel(foo_year=1901, bar_year=1905).clean()
         # - only one date set
-        TestModel(foo_year=1901).clean_fields()
-        TestModel(bar_year=1901).clean_fields()
-        # exclude set (still using old attributes in exclude since we're just
-        # linking here)
-        TestModel(
-            foo_year=1901,
-            bar_year=1900
-        ).clean_fields(exclude=['start_year'])
-        TestModel(
-            foo_year=1901,
-            bar_year=1900
-        ).clean_fields(exclude=['end_year'])
+        TestModel(foo_year=1901).clean()
+        TestModel(bar_year=1901).clean()
 
     def test_error_on_create_non_field(self):
         with pytest.raises(AttributeError) as e:

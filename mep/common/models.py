@@ -110,12 +110,9 @@ class DateRange(models.Model):
         return '%s-%s' % (self.start_year, self.end_year) # both CE, '1900-1901'
 
 
-    def clean_fields(self, exclude=None):
+    def clean(self):
         '''validate that end year is greater than or equal to start year'''
-        if exclude is None:
-            exclude = []
-        if 'start_year' in exclude or 'end_year' in exclude:
-            return
+
         # require end year to be greater than or equal to start year
         # (allowing equal to support single-year ranges)
         if self.start_year and self.end_year and \
