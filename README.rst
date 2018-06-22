@@ -89,7 +89,7 @@ To generate documentation them, first install development requirements::
 Then build documentation using the customized make file in the `docs`
 directory::
 
-    cd docs
+    cd sphinx-docs
     make html
 
 When building for a release ``make docs`` will create a folder called ``docs``,
