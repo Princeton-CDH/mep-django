@@ -3,6 +3,20 @@
 CHANGELOG
 =========
 
+0.7 Item and Person admin improvements
+--------------------------------------
+
+Adds filters and sorting options to the Person and Item admin views that enhance
+content editor tasks, including tracking/sorting by update timestamps, filtering
+Persons by role (member/creator/uncategorized), merging Persons without accounts,
+searching items by database ID, and tracking BCE DateRanges for Person lifetimes.
+
+* As a content editor, I want to see and sort on the date an item or person record was last updated so I can easily find recently edited records.
+* As a content editor, I want to enter negative birth and death years so I can track biographical data for authors like Euripides.
+* As a content editor, I want to search items by database id so that I can easily find items using the identifiers in the CSV export or notes.
+* As a content editor, I want the option of merging people without accounts so that I can merge records for creators who were accidentally entered twice.
+* As a content editor, I want to filter people in the personography by creator or library member so I can look at a subset of the people based on the kind of data work I'm doing.
+
 0.6 Card import and basic item admin
 ------------------------------------
 
