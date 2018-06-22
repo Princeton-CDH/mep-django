@@ -3,7 +3,7 @@
   remote_user: deploy
   # Set environment to use scl rh-python35
   environment:
-    PATH: '/opt/rh/rh-python35/root/usr/bin/:{{ lookup("env","PATH") }}'
+    PATH: '/opt/rh/rh-python35/root/usr/bin/:{{ ansible_env.PATH }}'
     LD_LIBRARY_PATH: '/opt/rh/rh-python35/root/usr/lib64'
   roles:
       # Creates repo variable names and builds repo
