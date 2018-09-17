@@ -1,0 +1,53 @@
+.ui.search.dropdown {
+    min-width: 0;
+}
+
+.demographics.field i {
+    transition: all .2s ease-in-out;
+}
+
+.demographics.field.active i {
+    transform: rotate(180deg);
+}
+
+.filters .books-borrowed,
+.filters .demographics {
+    /* visibility: hidden; */
+}
+
+.nationality .item,
+.arrondissement .item {
+    /* two column list */
+    width: 50%;
+}
+
+.profession .item
+{
+    /* one column list */
+    width: 100%;
+}
+
+.filters .nationality .grid,
+.filters .profession .grid,
+.filters .arrondissement .grid
+{
+    margin-top: 0;
+    height: 16rem;
+    overflow-y: scroll;
+}
+
+.filters .count {
+    float: right;
+}
+
+main .grid.container {
+    transition: all .2s ease-in-out;
+}
+
+.rolodex {
+    transition: all .2s ease-in-out;
+    position: fixed;
+    overflow-y: auto;
+    top: 25rem;
+    left: 12rem;
+}

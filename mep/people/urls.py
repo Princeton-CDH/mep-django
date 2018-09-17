@@ -2,8 +2,11 @@ from django.conf.urls import url
 
 from mep.people import views
 
+app_name = 'people'
 
 urlpatterns = [
+    url(r'^$', views.MembersList.as_view(), name='list'),
+    url(r'^(?P<pk>\d+)/$', views.MembersDetail.as_view(), name='detail'),
     url(r'^places/geonames/$', views.GeoNamesLookup.as_view(),
         name='geonames-lookup'),
     url(r'^places/geonames/country/$', views.GeoNamesLookup.as_view(),

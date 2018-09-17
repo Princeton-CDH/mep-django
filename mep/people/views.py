@@ -1,18 +1,21 @@
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from string import ascii_uppercase
+
+from dal import autocomplete
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
-from dal import autocomplete
 
 from mep.accounts.models import Event
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import Location, Country, Person
+from mep.people.models import Country, Location, Person
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):
@@ -259,3 +262,16 @@ class PersonMerge(PermissionRequiredMixin, FormView):
             messages.error(self.request, str(err))
 
         return super(PersonMerge, self).form_valid(form)
+
+class MembersList(ListView):
+    model = Person
+    template_name = 'people/members_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['alphabet'] = ascii_uppercase
+        return context
+
+class MembersDetail(DetailView):
+    model = Person
+    template_name = 'people/members_detail.html'

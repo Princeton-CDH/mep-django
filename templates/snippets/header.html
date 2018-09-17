@@ -1,0 +1,14 @@
+<header class="ui masthead center aligned basic segment">
+    <div class="ui container">
+        <div class="ui large menu">
+            <a class="item" href="/">S</a>
+            <a class="item right"><i class="sidebar icon"></i>Menu</a>
+        </div>
+    </div>
+    <div class="ui text container">
+        <h1 class="ui header">{% block title %}{% endblock %}</h1>
+        <h2 class="ui header">{% block subtitle %}{% endblock %}</h2>
+    </div>
+    {% block header_filters %}
+    {% endblock %}
+</header>
