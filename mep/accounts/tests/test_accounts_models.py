@@ -283,16 +283,37 @@ class TestEvent(TestCase):
         assert re.search(overall, repr(self.event))
 
     def test_str(self):
-        assert str(self.event) == 'Event for account #%s' % self.account.pk
+        assert str(self.event) == \
+            'Event for account #%s ??/??' % self.account.pk
+
+    def test_date_range(self):
+        assert self.event.date_range == '??/??'
+
+        # start only
+        self.event.start_date = datetime.date(2018, 5, 1)
+        assert self.event.date_range == '%s/??' % self.event.start_date.isoformat()
+
+        # both start and end set, different values
+        self.event.end_date = datetime.date(2020, 6, 11)
+        assert self.event.date_range == '{}/{}'.format(self.event.start_date,
+                                                       self.event.end_date)
+
+        # both set, same values
+        self.event.end_date = self.event.start_date
+        assert self.event.date_range == self.event.start_date.isoformat()
+
+        # end date only
+        self.event.start_date = None
+        assert self.event.date_range == '??/{}'.format(self.event.end_date.isoformat())
 
     def test_event_type(self):
         assert self.event.event_type == 'Generic'
         # Create a subscription and check its generic event type
         subscription = Subscription.objects.create(
-                account=self.account,
-                duration=1,
-                volumes=2,
-                price_paid=3.20
+            account=self.account,
+            duration=1,
+            volumes=2,
+            price_paid=3.20
         )
         # subscriptio, not otherwise specified
         assert subscription.event_ptr.event_type == 'Subscription'
@@ -342,7 +363,7 @@ class TestSubscription(TestCase):
         assert re.search(overall, repr(self.subscription))
 
     def test_str(self):
-        assert str(self.subscription) == ('Subscription for account #%s' %
+        assert str(self.subscription) == ('Subscription for account #%s ??/??' %
                                        self.subscription.account.pk)
 
     def test_validate_unique(self):
@@ -547,7 +568,7 @@ class TestPurchase(TestCase):
         assert re.search(overall, repr(self.purchase))
 
     def test_str(self):
-        assert str(self.purchase) == ('Purchase for account #%s' %
+        assert str(self.purchase) == ('Purchase for account #%s ??/??' %
                                       self.purchase.account.pk)
 
 
@@ -568,7 +589,7 @@ class TestReimbursement(TestCase):
         assert re.search(overall, repr(self.reimbursement))
 
     def test_str(self):
-        assert str(self.reimbursement) == ('Reimbursement for account #%s' %
+        assert str(self.reimbursement) == ('Reimbursement for account #%s ??/??' %
                                            self.reimbursement.account.pk)
 
     def test_validate_unique(self):
@@ -607,8 +628,12 @@ class TestBorrow(TestCase):
         assert re.search(overall, repr(self.borrow))
 
     def test_str(self):
-        assert str(self.borrow) == ('Borrow for account #%s' %
+        assert str(self.borrow) == ('Borrow for account #%s ??/??' %
                                     self.borrow.account.pk)
+
+        self.borrow.start_date = datetime.date(2018, 5, 1)
+        assert str(self.borrow).endswith(self.borrow.start_date.isoformat())
+
 
     def test_save(self):
         today = datetime.date.today()

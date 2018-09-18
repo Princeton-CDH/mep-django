@@ -219,14 +219,28 @@ class Event(Notable):
         # ordering = ('start_date', 'account__persons__sort_name')
         ordering = ('start_date', )
 
-    # These provide generic string representation for the Event class
-    # and its subclasses
     def __repr__(self):
+        '''Generic representation string for Event and subclasses'''
         return '<%s %s>' % (self.__class__.__name__, self.__dict__)
 
     def __str__(self):
-        return '%s Event for account #%s %s/%s' % \
-            (self.event_type, self.account.pk, self.start_date, self.end_date)
+        '''Generic string method for Event and subclasses'''
+        return '%s for account #%s %s' % \
+            (self.__class__.__name__, self.account.pk, self.date_range)
+
+    @property
+    def date_range(self):
+        '''Event date range as string. Returns a single date in isoformat
+        if both dates are set to the same date. Uses "??" for unset dates,
+        and returns in format start/end.'''
+
+        # if both dates are set and the same, return a single date
+        if self.start_date and self.end_date and self.start_date == self.end_date:
+            return self.start_date.isoformat()
+
+        # otherwise, use both dates with ?? to indicate unknown date
+        return '/'.join([dt.isoformat() if dt else '??'
+                         for dt in [self.start_date, self.end_date]])
 
     @cached_property
     def event_type(self):
