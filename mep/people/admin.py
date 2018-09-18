@@ -6,14 +6,17 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
+from tabular_export.core import get_field_names_from_queryset
+from tabular_export.admin import export_to_csv_response
 from viapy.widgets import ViafWidget
 
-from mep.common.admin import NamedNotableAdmin, CollapsedTabularInline, \
-    CollapsibleTabularInline
 from mep.accounts.admin import AddressInline
+from mep.common.admin import (CollapsedTabularInline, CollapsibleTabularInline,
+                              NamedNotableAdmin)
 from mep.footnotes.admin import FootnoteInline
-from .models import Person, Country, Location, Profession, InfoURL, \
-    Relationship, RelationshipType
+
+from .models import (Country, InfoURL, Location, Person, Profession,
+                     Relationship, RelationshipType)
 
 
 class InfoURLInline(CollapsibleTabularInline):
@@ -197,7 +200,7 @@ class PersonAdmin(admin.ModelAdmin):
     # NOTE: using a locally customized version of django's prepopulate.js
     # to allow using the prepopulate behavior without slugifying the value
 
-    actions = ['merge_people']
+    actions = ['merge_people', 'export_to_csv']
 
     class Media:
         js = ['admin/viaf-lookup.js']
@@ -215,6 +218,27 @@ class PersonAdmin(admin.ModelAdmin):
         redirect = '%s?ids=%s' % (reverse('people:merge'), ','.join(selected))
         return HttpResponseRedirect(redirect, status=303)   # 303 = See Other
     merge_people.short_description = 'Merge selected people'
+
+    # add custom fields to the tabular export
+    def tabular_headers(self, request, queryset):
+        return get_field_names_from_queryset(queryset) + \
+            ['is_creator', 'in_logbooks', 'has_card', 'has_account', 'url']
+
+    def tabulate_queryset(self, request, queryset):
+        fields = get_field_names_from_queryset(queryset)
+        for person in queryset.prefetch_related('account_set'):
+            values = [getattr(person, field) for field in fields]
+            # logic for custom tabular export fields
+            values.extend((person.is_creator(), person.in_logbooks(),
+                          person.has_card(), person.has_account(),
+                          reverse('admin:people_person_change', args=[person.id])))
+            yield values
+
+    def export_to_csv(self, request, queryset):
+        return export_to_csv_response('people.csv',
+                                      self.tabular_headers(request, queryset),
+                                      self.tabulate_queryset(request, queryset))
+    export_to_csv.short_description = 'Export selected people to CSV'
 
 
 class LocationAdminForm(forms.ModelForm):
