@@ -109,10 +109,12 @@ class Command(BaseCommand):
             # skip borrow events with partially known dates
             if evt.event_type == 'Borrow':
                 # if dates are set and are only partially known, skip
+                # NOTE: might merit a method on the class to check if dates
+                # are partially/fully known
                 if evt.start_date and \
-                  evt.borrow.partial_start_date != evt.start_date.strftime('%Y-%m-%d') \
+                  evt.borrow.partial_start_date != evt.start_date.isoformat() \
                   or evt.end_date and \
-                  evt.borrow.partial_end_date != evt.end_date.strftime('%Y-%m-%d'):
+                  evt.borrow.partial_end_date != evt.end_date.isoformat():
                     continue
 
             # if previous date is set, compare it with current event start
