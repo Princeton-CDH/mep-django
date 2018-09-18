@@ -73,7 +73,7 @@ class TestReportTimegaps(TestCase):
         account.event_set.all().delete()
 
         # multiple events + gaps
-        start_date = datetime(1922, 1, 1)
+        start_date = date(1922, 1, 1)
         # create multiple objects; start and end date 30 days apart,
         # next event 30 days after previous end
         for i in range(5):
