@@ -220,11 +220,11 @@ class PersonAdmin(admin.ModelAdmin):
     merge_people.short_description = 'Merge selected people'
 
     # add custom fields to the tabular export
-    def tabular_headers(self, request, queryset):
+    def tabular_headers(self, queryset):
         return get_field_names_from_queryset(queryset) + \
             ['is_creator', 'in_logbooks', 'has_card', 'has_account', 'url']
 
-    def tabulate_queryset(self, request, queryset):
+    def tabulate_queryset(self, queryset):
         fields = get_field_names_from_queryset(queryset)
         for person in queryset.prefetch_related('account_set'):
             values = [getattr(person, field) for field in fields]
@@ -234,10 +234,10 @@ class PersonAdmin(admin.ModelAdmin):
                           reverse('admin:people_person_change', args=[person.id])))
             yield values
 
-    def export_to_csv(self, request, queryset):
+    def export_to_csv(self, queryset):
         return export_to_csv_response('people.csv',
-                                      self.tabular_headers(request, queryset),
-                                      self.tabulate_queryset(request, queryset))
+                                      self.tabular_headers(queryset),
+                                      self.tabulate_queryset(queryset))
     export_to_csv.short_description = 'Export selected people to CSV'
 
 

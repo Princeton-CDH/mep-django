@@ -66,10 +66,10 @@ class ItemAdmin(admin.ModelAdmin):
     borrow_count.admin_order_field = 'borrow__count'
 
     # add custom fields to the tabular export
-    def tabular_headers(self, request, queryset):
+    def tabular_headers(self, queryset):
         return get_field_names_from_queryset(queryset) + ['authors', 'url']
 
-    def tabulate_queryset(self, request, queryset):
+    def tabulate_queryset(self, queryset):
         fields = get_field_names_from_queryset(queryset)
         for item in queryset.prefetch_related('creator_set'):
             values = [getattr(item, field) for field in fields]
@@ -78,10 +78,10 @@ class ItemAdmin(admin.ModelAdmin):
                            reverse('admin:books_item_change', args=[item.id])))
             yield values
 
-    def export_to_csv(self, request, queryset):
+    def export_to_csv(self, queryset):
         return export_to_csv_response('items.csv',
-                                      self.tabular_headers(request, queryset),
-                                      self.tabulate_queryset(request, queryset))
+                                      self.tabular_headers(queryset),
+                                      self.tabulate_queryset(queryset))
     export_to_csv.short_description = 'Export selected items to CSV'
 
 
