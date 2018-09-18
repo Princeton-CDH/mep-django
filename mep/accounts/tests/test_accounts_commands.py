@@ -1,5 +1,7 @@
-from io import StringIO
+import codecs
 from datetime import date, timedelta
+from io import StringIO
+from tempfile import NamedTemporaryFile
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
@@ -17,9 +19,51 @@ class TestReportTimegaps(TestCase):
 
     # @patch('mep.people.management.commands.import_personography.Personography')
     def test_command_line(self):
-        # TODO
         # test calling via command line with args
-        pass
+        csvtempfile = NamedTemporaryFile(suffix='csv')
+        stdout = StringIO()
+        call_command('report_timegaps', csvtempfile.name, stdout=stdout)
+
+        output = stdout.getvalue()
+        # no accounts, nothing done
+        assert 'Examining 0 accounts with at least two events' in output
+        # check that summarize is called
+        assert 'Found 0 accounts with gaps larger than 6 months' in output
+
+        # alternate gap size honored
+        stdout = StringIO()
+        call_command('report_timegaps', csvtempfile.name, gap=12, stdout=stdout)
+        output = stdout.getvalue()
+        assert 'Found 0 accounts with gaps larger than 1 year' in output
+
+        csvtempfile.seek(0)
+        csv_content = csvtempfile.read().decode()
+        assert csv_content.startswith(codecs.BOM_UTF8.decode())
+        assert ','.join(self.cmd.csv_header) in csv_content
+
+        # create account and events
+        account = Account.objects.create()
+        Event.objects.create(
+            account=account, start_date=date(1943, 1, 1),
+            end_date=date(1943, 2, 1))
+        Event.objects.create(
+            account=account, start_date=date(1963, 3, 1),
+            end_date=date(1943, 4, 1))
+        call_command('report_timegaps', csvtempfile.name, stdout=stdout)
+        csvtempfile.seek(0)
+        csv_content = csvtempfile.read().decode()
+        # account number/person name included in report
+        assert str(account) in csv_content
+        # account summary dates included
+        assert account.earliest_date().isoformat() in csv_content
+        assert account.last_date().isoformat() in csv_content
+        # generate gap and report to check inclusion in csv
+        gaps = self.cmd.find_gaps(account, timedelta(days=30 * 6))
+        max_gap, msg = self.cmd.report_gap_details(gaps)
+        # number of gaps, max gap in days, detail all included
+        assert str(len(gaps)) in csv_content
+        assert str(max_gap) in csv_content
+        assert msg in csv_content
 
     def test_format_relativedelta(self):
         assert self.cmd.format_relativedelta(relativedelta(years=1)) == '1 year'

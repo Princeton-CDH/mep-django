@@ -14,11 +14,17 @@ class Command(BaseCommand):
     possible candidates for demerge'''
     help = __doc__
 
+    #: default verbosity
     v_normal = 1
+    #: columns for CSV output
+    csv_header = ['Account', 'Account Date Range', '# Gaps',
+                  'Longest Gap in days', 'Details']
 
     def add_arguments(self, parser):
         parser.add_argument('-g', '--gap', default=6, type=int,
             help='Minimum time gap in months. Default: %(default)d')
+        parser.add_argument('filename',
+            help='Filename to use for generated CSV report.')
 
     def format_relativedelta(self, rel_delta):
         '''Generate a human-readable display for a relativedelta in years,
@@ -49,14 +55,16 @@ class Command(BaseCommand):
         # gap size to look for; assume 1 month = 30 days
         gap = timedelta(days=30*kwargs['gap'])
 
-        with open('account-timegaps-{}months.csv'.format(kwargs['gap']), 'w', newline='') as csvfile:
+        total = 0
+        with open(kwargs['filename'], 'w') as csvfile:
             # write utf-8 byte order mark at the beginning of the file
             csvfile.write(codecs.BOM_UTF8.decode())
+
+            # initialize csv writer and write header row
             csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(self.csv_header)
 
-            csvwriter.writerow(['Account', 'Account Date Range', '# Gaps',
-                                'Longest Gap in days', 'Details'])
-
+            # loop through all accounts to find and report on time gaps
             for acct in accounts:
                 # print summary info: account and full date range
                 date_range = '{}/{}'.format(acct.earliest_date(), acct.last_date())
@@ -69,13 +77,18 @@ class Command(BaseCommand):
 
                 # if any gaps were found, include the account in the report
                 if gaps:
+                    total += 1
+
                     max_gap, message = self.report_gap_details(gaps)
                     if verbosity > self.v_normal:
-                        self.stdout.write('\n'.join(message))
+                        self.stdout.write(message)
 
                     # output account and date gap information to CSV report
                     csvwriter.writerow([str(acct), date_range, len(gaps),
-                                        max_gap, '; '.join(message)])
+                                        max_gap, message])
+
+        self.stdout.write('Found {} accounts with gaps larger than {}'.format(
+            total, self.format_relativedelta(relativedelta(months=kwargs['gap']))))
 
     def find_gaps(self, account, gapsize):
         '''Identify and return gaps between account events that are larger than the
