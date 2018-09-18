@@ -6,7 +6,6 @@ from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
 from django.db.models import Count
 
-
 from mep.accounts.models import Account
 
 
@@ -65,44 +64,8 @@ class Command(BaseCommand):
                 if verbosity > self.v_normal:
                     self.stdout.write('{} ({})'.format(acct, date_range))
 
-                # list of gaps for the current account
-                gaps = []
-                # set previous date and event to none for the first loop
-                prev_date = None
-                prev_event = None
-
-                for evt in acct.event_set.all():
-                    # skip borrow events with partially known dates
-                    if evt.event_type == 'Borrow':
-                        # if dates are set and are only partially known, skip
-                        if evt.start_date and evt.borrow.partial_start_date != evt.start_date.strftime('%Y-%m-%d') \
-                          or evt.end_date and evt.borrow.partial_end_date != evt.end_date.strftime('%Y-%m-%d'):
-                            continue
-
-                    # if previous date is set, compare it with current event start
-                    if prev_date:
-
-                        # some borrow events in the database are currently
-                        # reporting no start date but an end date; use end date
-                        # if start date is not set
-                        # (and some borrows have no dates at all)
-                        compare_date = evt.start_date or evt.end_date
-
-                        # if current event is after the last one, then check gap
-                        # (i.e. ignore borrowing events during a subscription)
-                        if compare_date and compare_date > prev_date:
-                            # generate timedelta for current event and the last one
-                            delta = compare_date - prev_date
-                            # if the delta is larger than our threshold, store the gap
-                            if delta >= gap:
-                                # store the two events so a relativedelta can
-                                # be calculated and event types can be displayed
-                                gaps.append((prev_event, evt))
-
-                    # store current event as previous event and previous date;
-                    # use end date if set, start date if not
-                    prev_date = evt.end_date or evt.start_date
-                    prev_event = evt
+                # get a list of gaps (if any) for the current account
+                gaps = self.find_gaps(acct, gap)
 
                 # if any gaps were found, include the account in the report
                 if gaps:
@@ -132,3 +95,53 @@ class Command(BaseCommand):
 
                     # output account and date gap information to CSV report
                     csvwriter.writerow([str(acct), date_range, len(gaps), max_gap, '; '.join(details)])
+
+    def find_gaps(self, account, gapsize):
+        '''Identify and return gaps between account events that are larger than the
+        specified gap size. Returns a list of tuples of start and event dates
+        for any gaps found.  Currently ignores borrow events with partially known
+        dates.
+
+        :param account: :class:`mep.accounts.models.Account`
+        :param gapsize: :class:`datetime.timedelta`
+        '''
+
+        gaps = []
+        # set previous date and event to none for the first loop
+        prev_date = None
+        prev_event = None
+
+        for evt in account.event_set.all():
+            # skip borrow events with partially known dates
+            if evt.event_type == 'Borrow':
+                # if dates are set and are only partially known, skip
+                if evt.start_date and evt.borrow.partial_start_date != evt.start_date.strftime('%Y-%m-%d') \
+                  or evt.end_date and evt.borrow.partial_end_date != evt.end_date.strftime('%Y-%m-%d'):
+                    continue
+
+            # if previous date is set, compare it with current event start
+            if prev_date:
+
+                # some borrow events in the database are currently
+                # reporting no start date but an end date; use end date
+                # if start date is not set
+                # (and some borrows have no dates at all)
+                compare_date = evt.start_date or evt.end_date
+
+                # if current event is after the last one, then check gap
+                # (i.e. ignore borrowing events during a subscription)
+                if compare_date and compare_date > prev_date:
+                    # generate timedelta for current event and the last one
+                    delta = compare_date - prev_date
+                    # if the delta is larger than our threshold, store the gap
+                    if delta >= gapsize:
+                        # store the two events so a relativedelta can
+                        # be calculated and event types can be displayed
+                        gaps.append((prev_event, evt))
+
+            # store current event as previous event and previous date;
+            # use end date if set, start date if not
+            prev_date = evt.end_date or evt.start_date
+            prev_event = evt
+
+        return gaps
