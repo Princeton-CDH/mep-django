@@ -1,5 +1,8 @@
+import csv
+from io import StringIO
 from unittest.mock import Mock
 
+from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
@@ -42,6 +45,30 @@ class TestPersonAdmin(TestCase):
         # works either way
         assert mockrequest.session['people_merge_filter'] in \
             ['p=3&filter=foo', 'filter=foo&p=3']
+
+    def test_export_csv(self):
+        fixtures = ['sample_people']
+        person_admin = PersonAdmin(model=Person, admin_site=admin.site)
+        people = Person.objects.order_by('id').all()
+        # get the csv and inspect its contents
+        response = person_admin.export_to_csv(people)
+        content = b''.join(response.streaming_content).decode()
+        csvreader = csv.reader(StringIO(content))
+        rows = [row for row in csvreader]
+        # check for header row with custom fields
+        assert rows[0] == person_admin.tabular_headers(people)
+        # check for expected number of records - header + one row for each work
+        assert len(rows) == people.count() + 1
+        # check custom fields are in csv data
+        for person, person_data in zip(people, rows[1:]):
+            # url to item
+            assert reverse('admin:people_person_change', args=[person.id]) in person_data
+            # flags
+            assert person_data['is_creator'] == person.is_creator()
+            assert person_data['in_logbooks'] == person.in_logbooks()
+            assert person_data['has_card'] == person.has_card()
+            assert person_data['has_account'] == person.has_account()
+
 
 class TestPersonTypeListFilter(TestCase):
     

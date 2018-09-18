@@ -1,3 +1,6 @@
+import csv
+from io import StringIO
+
 from django.test import TestCase
 from django.contrib import admin
 from django.urls import reverse
@@ -73,39 +76,21 @@ class TestItemAdmin(TestCase):
         assert item_admin.borrow_count(item2) == '<a href="%s" target="_blank">2</a>' % borrows2
 
     def test_export_csv(self):
-        return True
-        # get the csv export and inspect the response
-        # response = self.client.get(reverse('books:items-csv'))
-        # assert response.status_code == 200
-        # assert response['content-type'] == 'text/csv'
-        # content_disposition = response['content-disposition']
-        # assert content_disposition.startswith('attachment; filename="')
-        # assert 'mep-items-' in content_disposition
-        # assert content_disposition.endswith('.csv"')
-        # assert now().strftime('%Y%m%d') in content_disposition
-        # assert re.search(r'\d{8}T\d{2}:\d{2}:\d{2}', content_disposition)
-
-        # # read content as csv and inspect
-        # content = b''.join(response.streaming_content).decode()
-        # csvreader = csv.reader(StringIO(content))
-        # rows = [row for row in csvreader]
-        # items = Item.objects.order_by('id').all()
-        # # check for header row
-        # assert rows[0] == ItemCSV.header_row
-        # # check for expected number of records - header + one row for each work
-        # assert len(rows) == items.count() + 1
-        # # check expected data in CSV output
-        # for item, item_data in zip(items, rows[1:]):
-        #     assert str(item.id) in item_data
-        #     assert reverse('admin:books_item_change', args=[item.id]) in item_data
-        #     assert item.title in item_data
-        #     if item.year:
-        #         assert str(item.year) in item_data
-        #     assert item.uri in item_data
-        #     if item.mep_id:
-        #         assert item.mep_id in item_data
-        #     assert item.notes in item_data
-        #     for auth in item.authors:
-        #         assert str(auth) in item_data
-        #     # no None for empty fields
-        #     assert 'None' not in item_data
+        fixtures = ['sample_items']
+        item_admin = ItemAdmin(model=Item, admin_site=admin.site)
+        items = Item.objects.order_by('id').all()
+        # get the csv and inspect its contents
+        response = item_admin.export_to_csv(items)
+        content = b''.join(response.streaming_content).decode()
+        csvreader = csv.reader(StringIO(content))
+        rows = [row for row in csvreader]
+        # check for header row with custom fields
+        assert rows[0] == item_admin.tabular_headers(items)
+        # check for expected number of records - header + one row for each work
+        assert len(rows) == items.count() + 1
+        # check custom fields are in csv data
+        for item, item_data in zip(items, rows[1:]):
+            # url to item
+            assert reverse('admin:books_item_change', args=[item.id]) in item_data
+            # item authors
+            assert ';'.join([str(auth) for auth in item.authors]) in item_data

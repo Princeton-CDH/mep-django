@@ -8,7 +8,6 @@ from django.test import TestCase
 from django.utils.timezone import now
 
 from mep.books.models import Item
-from mep.books.views import ItemCSV
 
 
 class TestBooksViews(TestCase):
@@ -59,19 +58,3 @@ class TestBooksViews(TestCase):
         data = res.json()
         assert len(data['results']) == 1
         assert data['results'][0]['text'] == item2.title
-
-    def test_item_admin_changelist(self):
-        # log in as admin to access admin site views
-        self.client.login(username=self.admin_user.username,
-            password=self.admin_pass)
-        # get item change list
-        response = self.client.get(reverse('admin:books_item_changelist'))
-        self.assertContains(response, reverse('books:items-csv'),
-            msg_prefix='item change list should include CSV download link')
-        self.assertContains(response, 'Download as CSV',
-            msg_prefix='item change list should include CSV download button')
-
-        # link should not be on other change lists
-        response = self.client.get(reverse('admin:auth_user_changelist'))
-        self.assertNotContains(response, reverse('books:items-csv'),
-            msg_prefix='item CSV download link should only be on digitized work list')
