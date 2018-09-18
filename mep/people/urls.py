@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^people/location/autocomplete', views.LocationAutocomplete.as_view(),
         name='location-autocomplete'),
     url(r'^people/merge/$', views.PersonMerge.as_view(), name='merge'),
+    url(r'^people/csv/$', views.PersonCSV.as_view(), name='person-csv'),
 ]

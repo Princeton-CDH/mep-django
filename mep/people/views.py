@@ -1,18 +1,22 @@
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+import csv
+
+from dal import autocomplete
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
+from django.views.generic import ListView
 from django.views.generic.edit import FormView
-from dal import autocomplete
 
 from mep.accounts.models import Event
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import Location, Country, Person
+from mep.people.models import Country, Location, Person
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):
@@ -259,3 +263,59 @@ class PersonMerge(PermissionRequiredMixin, FormView):
             messages.error(self.request, str(err))
 
         return super(PersonMerge, self).form_valid(form)
+
+
+class PersonCSV(ListView):
+    '''Export of Person details as CSV download.'''
+    # NOTE: adapted from PPA: could be extracted as a view mixin for reuse
+    model = Person
+    # order by id for now, for simplicity
+    ordering = 'id'
+    header_row = ['Admin link', 'Database ID', 'Name', 'Birth Year', 'Death Year',
+                  'Sex', 'VIAF', 'MEP ID', 'Notes']
+
+    def get_csv_filename(self):
+        return 'mep-people-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
+
+    def get_data(self):
+        # generator of rows of data for inclusion in CSV download
+        yield self.header_row
+        for person in self.get_queryset():
+            yield (
+                    reverse('admin:people_person_change', args=[person.id]),
+                    person.id,
+                    person.name,
+                    person.birth_year,
+                    person.death_year,
+                    person.sex,
+                    person.viaf_id,
+                    person.mep_id,
+                    person.notes,
+            )
+
+        # all at once, rather than one at a time for each item
+
+    def render_to_csv(self, data):
+        # pseudo buffer class per django docs
+        # https://docs.djangoproject.com/en/1.11/howto/outputting-csv/#streaming-csv-files
+        class Echo:
+            """An object that implements just the write method of the file-like
+            interface.
+            """
+            def write(self, value):
+                """Write the value by returning it, instead of storing in a buffer."""
+                return value
+
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer)
+        # writer.writerow(self.header_row)
+
+        response = StreamingHttpResponse(
+            (writer.writerow(row) for row in self.get_data()),
+            content_type='text/csv')
+        response['Content-Disposition'] = "attachment; filename*=UTF-8''%s" % \
+            self.get_csv_filename()
+        return response
+
+    def get(self, *args, **kwargs):
+        return self.render_to_csv(self.get_data())
