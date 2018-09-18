@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Count
 
 
-from mep.accounts.models import Account, Event
+from mep.accounts.models import Account
 
 
 class Command(BaseCommand):
