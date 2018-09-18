@@ -225,8 +225,8 @@ class Event(Notable):
         return '<%s %s>' % (self.__class__.__name__, self.__dict__)
 
     def __str__(self):
-        return '%s for account #%s' % (self.__class__.__name__,
-                                      self.account.pk)
+        return '%s Event for account #%s %s/%s' % \
+            (self.event_type, self.account.pk, self.start_date, self.end_date)
 
     @cached_property
     def event_type(self):
