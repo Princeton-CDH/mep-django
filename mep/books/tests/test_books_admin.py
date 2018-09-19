@@ -1,5 +1,6 @@
 import csv
 from io import StringIO
+from unittest.mock import Mock
 
 from django.test import TestCase
 from django.contrib import admin
@@ -80,7 +81,7 @@ class TestItemAdmin(TestCase):
         item_admin = ItemAdmin(model=Item, admin_site=admin.site)
         items = Item.objects.order_by('id').all()
         # get the csv and inspect its contents
-        response = item_admin.export_to_csv(items)
+        response = item_admin.export_to_csv(Mock(), items)
         content = b''.join(response.streaming_content).decode()
         csvreader = csv.reader(StringIO(content))
         rows = [row for row in csvreader]

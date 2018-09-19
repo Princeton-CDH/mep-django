@@ -46,7 +46,7 @@ class ItemAdmin(admin.ModelAdmin):
         })
     )
     readonly_fields = ('mep_id', 'borrow_count')
-    actions = ('export_to_csv')
+    actions = ('export_to_csv',)
 
     def get_queryset(self, request):
         '''Annotate the queryset with the number of borrows for sorting'''
@@ -65,20 +65,21 @@ class ItemAdmin(admin.ModelAdmin):
     # use the annotated queryset value to make the field sortable
     borrow_count.admin_order_field = 'borrow__count'
 
-    # add custom fields to the tabular export
     def tabular_headers(self, queryset):
+        '''Get the headers for exported tabular data, including custom fields'''
         return get_field_names_from_queryset(queryset) + ['authors', 'url']
 
     def tabulate_queryset(self, queryset):
+        '''Generator for item data in tabular form, including custom fields'''
         fields = get_field_names_from_queryset(queryset)
         for item in queryset.prefetch_related('creator_set'):
             values = [getattr(item, field) for field in fields]
-            # logic for custom tabular export fields
-            values.extend((';'.join([str(auth) for auth in item.authors]),
+            values.extend((item.author_list(),
                            reverse('admin:books_item_change', args=[item.id])))
             yield values
 
-    def export_to_csv(self, queryset):
+    def export_to_csv(self, request, queryset):
+        '''Stream tabular data as a CSV file'''
         return export_to_csv_response('items.csv',
                                       self.tabular_headers(queryset),
                                       self.tabulate_queryset(queryset))

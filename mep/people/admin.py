@@ -219,22 +219,23 @@ class PersonAdmin(admin.ModelAdmin):
         return HttpResponseRedirect(redirect, status=303)   # 303 = See Other
     merge_people.short_description = 'Merge selected people'
 
-    # add custom fields to the tabular export
     def tabular_headers(self, queryset):
+        '''Get the headers for exported tabular data, including custom fields'''
         return get_field_names_from_queryset(queryset) + \
             ['is_creator', 'in_logbooks', 'has_card', 'has_account', 'url']
 
     def tabulate_queryset(self, queryset):
+        '''Generator for item data in tabular form, including custom fields'''
         fields = get_field_names_from_queryset(queryset)
         for person in queryset.prefetch_related('account_set'):
             values = [getattr(person, field) for field in fields]
-            # logic for custom tabular export fields
             values.extend((person.is_creator(), person.in_logbooks(),
                           person.has_card(), person.has_account(),
                           reverse('admin:people_person_change', args=[person.id])))
             yield values
 
-    def export_to_csv(self, queryset):
+    def export_to_csv(self, request, queryset):
+        '''Stream tabular data as a CSV file'''
         return export_to_csv_response('people.csv',
                                       self.tabular_headers(queryset),
                                       self.tabulate_queryset(queryset))

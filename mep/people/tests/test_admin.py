@@ -51,7 +51,7 @@ class TestPersonAdmin(TestCase):
         person_admin = PersonAdmin(model=Person, admin_site=admin.site)
         people = Person.objects.order_by('id').all()
         # get the csv and inspect its contents
-        response = person_admin.export_to_csv(people)
+        response = person_admin.export_to_csv(Mock(), people)
         content = b''.join(response.streaming_content).decode()
         csvreader = csv.reader(StringIO(content))
         rows = [row for row in csvreader]
