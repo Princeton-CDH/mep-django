@@ -98,24 +98,3 @@ class TestItemAdmin(TestCase):
             first_item = Item.objects.first()
             item_admin.export_to_csv(Mock(), first_item)
             assert tabulate_queryset.called_once_with(first_item)
-
-    # def test_export_csv(self):
-    #     fixtures = ['sample_items']
-    #     item_admin = ItemAdmin(model=Item, admin_site=admin.site)
-    #     items = Item.objects.order_by('id').all()
-    #     # get the csv and inspect its contents
-    #     response = item_admin.export_to_csv(Mock(), items)
-    #     content = b''.join(response.streaming_content).decode()
-    #     csvreader = csv.reader(StringIO(content))
-    #     rows = [row for row in csvreader]
-    #     # check for header row with custom fields
-    #     assert rows[0] == item_admin.export_fields
-    #     # check for expected number of records - header + one row for each work
-    #     assert len(rows) == items.count() + 1
-    #     # check all data is correct
-    #     for item, item_data in zip(items, rows[1:]):
-    #         for field in item_admin.export_fields:
-    #             if callable(getattr(item, field)):
-    #                 assert item.field() == item_data[field]
-    #             else:
-    #                 assert item.field == item_data[field]
