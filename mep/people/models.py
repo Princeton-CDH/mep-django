@@ -1,3 +1,5 @@
+import logging
+
 from django.apps import apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.contrib.contenttypes.fields import GenericRelation
@@ -8,6 +10,9 @@ from viapy.api import ViafEntity
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.validators import verify_latlon
 from mep.footnotes.models import Footnote
+
+
+logger = logging.getLogger(__name__)
 
 
 class Country(Named):
@@ -110,6 +115,7 @@ class PersonQuerySet(models.QuerySet):
         '''
 
         # identify the account other events will be reassociated with, if exists
+        primary_account = None
         if person.has_account():
             primary_account = person.account_set.first()
         # error if more than account, since we can't pick which to merge to
@@ -127,15 +133,41 @@ class PersonQuerySet(models.QuerySet):
 
         for merge_person in merge_people:
             if merge_person.has_account(): # if the merged person had an account
+
+                # store primary account card reference if there is one
+                account_card = primary_account.card if primary_account else None
+
                 for account in merge_person.account_set.all():
-                    if not person.has_account(): # a merged person had an account, but the main person doesn't
-                        account.persons.add(person) # swap the account's owner to the main person
+
+                    # if the account to be merged has an associated library card
+                    if account.card:
+                        # store the first account card reference we find,
+                        # if we don't already have one
+                        if not account_card:
+                            account_card = account.card
+                        else:
+                            # unlikely, but if we're merging two accounts with cards
+                            # log a warning so we can track it down later if necessary
+                            logger.warn('Acount %s card %s association will be lost in merge',
+                                        account, account.card)
+
+                    # if a merge person has an account, but the main person doesn't,
+                    # swap the account's owner to the main person
+                    if not person.has_account():
+                        account.persons.add(person)
                         account.persons.remove(merge_person)
-                        primary_account = person.account_set.first() # define the new primary account
+                         # define the new primary account
+                        primary_account = person.account_set.first()
                     else:
                         account.event_set.update(account=primary_account) # reassociate all events with the main account
                         account.address_set.update(account=primary_account) # reassociate any addresses with the main account
                         account.delete() # delete the empty account
+
+                # if a card was present on the account to be merged and *not*
+                # on the primary account, copy it
+                if not primary_account.card and account_card:
+                    primary_account.card = account_card
+                    primary_account.save()
 
             if merge_person.is_creator(): # if the merged person was a creator
                 for creator in merge_person.creator_set.all():
