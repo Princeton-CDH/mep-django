@@ -12,6 +12,7 @@ from mep.people.models import Person
 
 
 class TestPersonAdmin(TestCase):
+    fixtures = ['sample_people']
 
     def test_merge_people(self):
         mockrequest = Mock()
@@ -46,19 +47,20 @@ class TestPersonAdmin(TestCase):
 
 
     def test_tabulate_queryset(self):
-        fixtures = ['sample_people']
         person_admin = PersonAdmin(model=Person, admin_site=admin.site)
         people = Person.objects.order_by('id').all()
         # test that tabular data matches queryset data
         for person, person_data in zip(people, person_admin.tabulate_queryset(people)):
-            for field in person_admin.export_fields:
-                if callable(getattr(person, field)):
-                    assert person.field() == person_data[field]
-                else:
-                    assert person.field == person_data[field]
+            # test some properties
+            assert person.name in person_data
+            assert person.mep_id in person_data
+            assert person.updated_at in person_data
+            # test some methods
+            assert person.is_creator() in person_data
+            assert person.has_account() in person_data
+            assert person.admin_url() in person_data
 
     def test_export_csv(self):
-        fixtures = ['sample_people']
         person_admin = PersonAdmin(model=Person, admin_site=admin.site)
         with patch.object(person_admin, 'tabulate_queryset') as tabulate_queryset:
             # if no queryset provided, should use default queryset

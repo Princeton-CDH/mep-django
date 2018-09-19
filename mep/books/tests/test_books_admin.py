@@ -10,6 +10,7 @@ from mep.books.models import Item
 
 
 class TestItemAdmin(TestCase):
+    fixtures = ['sample_items']
 
     def test_get_queryset(self):
         # create a test admin instance - don't think admin_site is actually called?
@@ -75,19 +76,18 @@ class TestItemAdmin(TestCase):
         assert item_admin.borrow_count(item2) == '<a href="%s" target="_blank">2</a>' % borrows2
 
     def test_tabulate_queryset(self):
-        fixtures = ['sample_items']
         item_admin = ItemAdmin(model=Item, admin_site=admin.site)
         items = Item.objects.order_by('id').all()
         # test that tabular data matches queryset data
         for item, item_data in zip(items, item_admin.tabulate_queryset(items)):
-            for field in item_admin.export_fields:
-                if callable(getattr(item, field)):
-                    assert item.field() == item_data[field]
-                else:
-                    assert item.field == item_data[field]
+            # test some properties
+            assert item.title in item_data
+            assert item.year in item_data
+            # test some methods
+            assert item.author_list() in item_data
+            assert item.admin_url() in item_data
 
     def test_export_csv(self):
-        fixtures = ['sample_items']
         item_admin = ItemAdmin(model=Item, admin_site=admin.site)
         with patch.object(item_admin, 'tabulate_queryset') as tabulate_queryset:
             # if no queryset provided, should use default queryset
