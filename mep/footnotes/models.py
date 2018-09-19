@@ -56,8 +56,9 @@ class Footnote(Notable):
         )
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    is_agree = models.BooleanField(help_text='True if the evidence ' +
-        'supports the information in the system, False if it contradicts.')
+    is_agree = models.BooleanField('Supports', help_text='True if the evidence ' +
+        'supports the information in the system, False if it contradicts.',
+        default=True)
 
     def __str__(self):
         return 'Footnote on %s (%s)' % (self.content_object,
