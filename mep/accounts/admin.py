@@ -308,7 +308,6 @@ class BorrowAdminForm(forms.ModelForm):
 class BorrowFootnoteInline(FootnoteInline):
     # customize standard footnote inline for borrowing event footnote
     classes = ('grp-collapse', )  # grapelli collapsible, but not closed
-    fields = ('bibliography', 'location', 'notes')
     extra = 0
 
 
