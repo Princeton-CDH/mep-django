@@ -1,6 +1,4 @@
-import csv
-from io import StringIO
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from django.contrib import admin
 from django.http import HttpResponseRedirect
@@ -46,28 +44,31 @@ class TestPersonAdmin(TestCase):
         assert mockrequest.session['people_merge_filter'] in \
             ['p=3&filter=foo', 'filter=foo&p=3']
 
-    def test_export_csv(self):
+
+    def test_tabulate_queryset(self):
         fixtures = ['sample_people']
         person_admin = PersonAdmin(model=Person, admin_site=admin.site)
         people = Person.objects.order_by('id').all()
-        # get the csv and inspect its contents
-        response = person_admin.export_to_csv(Mock(), people)
-        content = b''.join(response.streaming_content).decode()
-        csvreader = csv.reader(StringIO(content))
-        rows = [row for row in csvreader]
-        # check for header row with custom fields
-        assert rows[0] == person_admin.tabular_headers(people)
-        # check for expected number of records - header + one row for each work
-        assert len(rows) == people.count() + 1
-        # check custom fields are in csv data
-        for person, person_data in zip(people, rows[1:]):
-            # url to item
-            assert reverse('admin:people_person_change', args=[person.id]) in person_data
-            # flags
-            assert person_data['is_creator'] == person.is_creator()
-            assert person_data['in_logbooks'] == person.in_logbooks()
-            assert person_data['has_card'] == person.has_card()
-            assert person_data['has_account'] == person.has_account()
+        # test that tabular data matches queryset data
+        for person, person_data in zip(people, person_admin.tabulate_queryset(people)):
+            for field in person_admin.export_fields:
+                if callable(getattr(person, field)):
+                    assert person.field() == person_data[field]
+                else:
+                    assert person.field == person_data[field]
+
+    def test_export_csv(self):
+        fixtures = ['sample_people']
+        person_admin = PersonAdmin(model=Person, admin_site=admin.site)
+        with patch.object(person_admin, 'tabulate_queryset') as tabulate_queryset:
+            # if no queryset provided, should use default queryset
+            people = person_admin.get_queryset(Mock())
+            person_admin.export_to_csv(Mock())
+            assert tabulate_queryset.called_once_with(people)
+            # otherwise should respect the provided queryset
+            first_person = Person.objects.first()
+            person_admin.export_to_csv(Mock(), first_person)
+            assert tabulate_queryset.called_once_with(first_person)
 
 
 class TestPersonTypeListFilter(TestCase):

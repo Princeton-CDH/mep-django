@@ -1,6 +1,4 @@
-import csv
-from io import StringIO
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from django.test import TestCase
 from django.contrib import admin
@@ -76,22 +74,48 @@ class TestItemAdmin(TestCase):
         assert item_admin.borrow_count(item1) == '<a href="%s" target="_blank">1</a>' % borrows1
         assert item_admin.borrow_count(item2) == '<a href="%s" target="_blank">2</a>' % borrows2
 
-    def test_export_csv(self):
+    def test_tabulate_queryset(self):
         fixtures = ['sample_items']
         item_admin = ItemAdmin(model=Item, admin_site=admin.site)
         items = Item.objects.order_by('id').all()
-        # get the csv and inspect its contents
-        response = item_admin.export_to_csv(Mock(), items)
-        content = b''.join(response.streaming_content).decode()
-        csvreader = csv.reader(StringIO(content))
-        rows = [row for row in csvreader]
-        # check for header row with custom fields
-        assert rows[0] == item_admin.tabular_headers(items)
-        # check for expected number of records - header + one row for each work
-        assert len(rows) == items.count() + 1
-        # check custom fields are in csv data
-        for item, item_data in zip(items, rows[1:]):
-            # url to item
-            assert reverse('admin:books_item_change', args=[item.id]) in item_data
-            # item authors
-            assert ';'.join([str(auth) for auth in item.authors]) in item_data
+        # test that tabular data matches queryset data
+        for item, item_data in zip(items, item_admin.tabulate_queryset(items)):
+            for field in item_admin.export_fields:
+                if callable(getattr(item, field)):
+                    assert item.field() == item_data[field]
+                else:
+                    assert item.field == item_data[field]
+
+    def test_export_csv(self):
+        fixtures = ['sample_items']
+        item_admin = ItemAdmin(model=Item, admin_site=admin.site)
+        with patch.object(item_admin, 'tabulate_queryset') as tabulate_queryset:
+            # if no queryset provided, should use default queryset
+            items = item_admin.get_queryset(Mock())
+            item_admin.export_to_csv(Mock())
+            assert tabulate_queryset.called_once_with(items)
+            # otherwise should respect the provided queryset
+            first_item = Item.objects.first()
+            item_admin.export_to_csv(Mock(), first_item)
+            assert tabulate_queryset.called_once_with(first_item)
+
+    # def test_export_csv(self):
+    #     fixtures = ['sample_items']
+    #     item_admin = ItemAdmin(model=Item, admin_site=admin.site)
+    #     items = Item.objects.order_by('id').all()
+    #     # get the csv and inspect its contents
+    #     response = item_admin.export_to_csv(Mock(), items)
+    #     content = b''.join(response.streaming_content).decode()
+    #     csvreader = csv.reader(StringIO(content))
+    #     rows = [row for row in csvreader]
+    #     # check for header row with custom fields
+    #     assert rows[0] == item_admin.export_fields
+    #     # check for expected number of records - header + one row for each work
+    #     assert len(rows) == items.count() + 1
+    #     # check all data is correct
+    #     for item, item_data in zip(items, rows[1:]):
+    #         for field in item_admin.export_fields:
+    #             if callable(getattr(item, field)):
+    #                 assert item.field() == item_data[field]
+    #             else:
+    #                 assert item.field == item_data[field]
