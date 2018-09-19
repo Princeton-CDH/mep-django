@@ -89,7 +89,7 @@ class Item(Notable):
 
     def author_list(self):
         '''comma separated list of author names'''
-        return ', '.join([str(auth) for auth in self.authors])
+        return '; '.join([str(auth) for auth in self.authors])
 
     @property
     def editors(self):
