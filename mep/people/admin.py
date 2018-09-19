@@ -219,20 +219,24 @@ class PersonAdmin(admin.ModelAdmin):
         return HttpResponseRedirect(redirect, status=303)   # 303 = See Other
     merge_people.short_description = 'Merge selected people'
 
+    #: fields to be included in CSV export
+    export_fields = [
+        'id', 'name', 'sort_name', 'mep_id', 'birth_year', 'death_year',
+        'sex', 'title', 'profession', 'is_organization', 'is_creator', 'has_account',
+        'in_logbooks', 'has_card', 'updated_at', 'admin_url']
+
     def tabular_headers(self, queryset):
         '''Get the headers for exported tabular data, including custom fields'''
-        return get_field_names_from_queryset(queryset) + \
-            ['is_creator', 'in_logbooks', 'has_card', 'has_account', 'url']
+        return self.export_fields
 
     def tabulate_queryset(self, queryset):
         '''Generator for item data in tabular form, including custom fields'''
-        fields = get_field_names_from_queryset(queryset)
+        fields = self.export_fields
         for person in queryset.prefetch_related('account_set'):
-            values = [getattr(person, field) for field in fields]
-            values.extend((person.is_creator(), person.in_logbooks(),
-                          person.has_card(), person.has_account(),
-                          reverse('admin:people_person_change', args=[person.id])))
-            yield values
+            # retrieve values for configured export fields; if the attribute
+            # is a callable (i.e., a custom property method), call it
+            yield [value() if callable(value) else value
+                   for value in (getattr(person, field) for field in fields)]
 
     def export_to_csv(self, request, queryset):
         '''Stream tabular data as a CSV file'''

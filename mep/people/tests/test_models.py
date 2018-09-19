@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import (MultipleObjectsReturned,
                                     ObjectDoesNotExist, ValidationError)
 from django.test import TestCase
+from django.urls import resolve
 from django.utils import timezone
 from viapy.api import ViafEntity
 
@@ -172,6 +173,12 @@ class TestPerson(TestCase):
         # still true if only reimbursement and no subscription
         subs.delete()
         assert pers.in_logbooks()
+
+    def test_admin_url(self):
+        pers = Person.objects.create(name='John')
+        resolved_url = resolve(pers.admin_url())
+        assert resolved_url.args[0] == str(pers.id)
+        assert resolved_url.view_name == 'admin:people_person_change'
 
 
 class TestPersonQuerySet(TestCase):

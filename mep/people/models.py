@@ -2,6 +2,7 @@ from django.apps import apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models, transaction
+from django.urls import reverse
 from django.utils import timezone
 from viapy.api import ViafEntity
 
@@ -322,6 +323,10 @@ class Person(Notable, DateRange):
         '''The library account for this person has an associated lending card'''
         return self.account_set.filter(card__isnull=False).exists()
     has_card.boolean = True
+
+    def admin_url(self):
+        '''URL to edit this record in the admin site'''
+        return reverse('admin:people_person_change', args=[self.id])
 
 
 class InfoURL(Notable):
