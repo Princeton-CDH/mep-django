@@ -1,12 +1,13 @@
 from dal import autocomplete
 from django import forms
 from django.conf import settings
+from django.conf.urls import url
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
-from tabular_export.core import get_field_names_from_queryset
+from django.utils.timezone import now
 from tabular_export.admin import export_to_csv_response
 from viapy.widgets import ViafWidget
 
@@ -225,25 +226,31 @@ class PersonAdmin(admin.ModelAdmin):
         'sex', 'title', 'profession', 'is_organization', 'is_creator', 'has_account',
         'in_logbooks', 'has_card', 'updated_at', 'admin_url']
 
-    def tabular_headers(self, queryset):
-        '''Get the headers for exported tabular data, including custom fields'''
-        return self.export_fields
+    def csv_filename(self):
+        return 'mep-people-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
 
     def tabulate_queryset(self, queryset):
-        '''Generator for item data in tabular form, including custom fields'''
-        fields = self.export_fields
+        '''Generator for data in tabular form, including custom fields'''
         for person in queryset.prefetch_related('account_set'):
             # retrieve values for configured export fields; if the attribute
             # is a callable (i.e., a custom property method), call it
             yield [value() if callable(value) else value
-                   for value in (getattr(person, field) for field in fields)]
+                   for value in (getattr(person, field) for field in self.export_fields)]
 
-    def export_to_csv(self, request, queryset):
+    def export_to_csv(self, request, queryset=None):
         '''Stream tabular data as a CSV file'''
-        return export_to_csv_response('people.csv',
-                                      self.tabular_headers(queryset),
+        queryset = self.get_queryset(request) if queryset is None else queryset
+        return export_to_csv_response(self.csv_filename(), self.export_fields,
                                       self.tabulate_queryset(queryset))
     export_to_csv.short_description = 'Export selected people to CSV'
+
+    def get_urls(self):
+        # adds a custom URL for exporting all people as CSV
+        urls = [
+            url(r'^csv/$', self.admin_site.admin_view(self.export_to_csv),
+                name='people_person_csv')
+        ]
+        return urls + super(PersonAdmin, self).get_urls()
 
 
 class LocationAdminForm(forms.ModelForm):
