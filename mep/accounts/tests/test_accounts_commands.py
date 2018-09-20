@@ -17,7 +17,6 @@ class TestReportTimegaps(TestCase):
         self.cmd = report_timegaps.Command()
         self.cmd.stdout = StringIO()
 
-    # @patch('mep.people.management.commands.import_personography.Personography')
     def test_command_line(self):
         # test calling via command line with args
         csvtempfile = NamedTemporaryFile(suffix='csv')
@@ -73,7 +72,6 @@ class TestReportTimegaps(TestCase):
         stdout = StringIO()
         call_command('report_timegaps', csvtempfile.name, verbosity=2, stdout=stdout)
         output = stdout.getvalue()
-        # assert 'Found 0 accounts with gaps larger than 1 year' in output
         # verbose output includes account summary
         assert str(account) in output
         assert str(account.earliest_date()) in output
