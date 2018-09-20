@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.timezone import now
 
 from mep.accounts.models import Account
 from mep.books.models import Creator, CreatorType, Item
@@ -60,7 +61,8 @@ class TestPersonAdmin(TestCase):
             assert person.has_account() in person_data
             assert person.admin_url() in person_data
 
-    def test_export_csv(self):
+    @patch('mep.people.admin.export_to_csv_response')
+    def test_export_csv(self, mock_export_to_csv_response):
         person_admin = PersonAdmin(model=Person, admin_site=admin.site)
         with patch.object(person_admin, 'tabulate_queryset') as tabulate_queryset:
             # if no queryset provided, should use default queryset
@@ -68,13 +70,28 @@ class TestPersonAdmin(TestCase):
             person_admin.export_to_csv(Mock())
             assert tabulate_queryset.called_once_with(people)
             # otherwise should respect the provided queryset
-            first_person = Person.objects.first()
+            first_person = Person.objects.all()[:0]
             person_admin.export_to_csv(Mock(), first_person)
             assert tabulate_queryset.called_once_with(first_person)
 
+            export_args, export_kwargs = mock_export_to_csv_response.call_args
+            # first arg is filename
+            csvfilename = export_args[0]
+            assert csvfilename.endswith('.csv')
+            assert csvfilename.startswith('mep-people')
+            # should include current date
+            assert now().strftime('%Y%m%d') in csvfilename
+            headers = export_args[1]
+            # should use verbose name from db model field
+            assert 'MEP id' in headers
+            # or verbose name for property
+            assert 'Admin Link' in headers
+            # or title case for property with no verbose name
+            assert 'Is Creator' in headers
+
 
 class TestPersonTypeListFilter(TestCase):
-    
+
     def test_queryset(self):
         # create some test people
         humperdinck = Person(name='Humperdinck') # has an account

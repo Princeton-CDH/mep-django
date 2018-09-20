@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 from django.test import TestCase
 from django.contrib import admin
 from django.urls import reverse
+from django.utils.timezone import now
 
 from mep.accounts.models import Borrow, Account
 from mep.books.admin import ItemAdmin
@@ -11,7 +12,7 @@ from mep.books.models import Item
 
 class TestItemAdmin(TestCase):
     fixtures = ['sample_items']
-    
+
     @classmethod
     def setUpTestData(cls):
         cls.item_admin = ItemAdmin(model=Item, admin_site=admin.site)
@@ -78,13 +79,27 @@ class TestItemAdmin(TestCase):
             assert item.author_list() in item_data
             assert item.admin_url() in item_data
 
-    def test_export_csv(self):
+    @patch('mep.books.admin.export_to_csv_response')
+    def test_export_csv(self, mock_export_to_csv_response):
         with patch.object(self.item_admin, 'tabulate_queryset') as tabulate_queryset:
             # if no queryset provided, should use default queryset
             items = self.item_admin.get_queryset(Mock())
             self.item_admin.export_to_csv(Mock())
             assert tabulate_queryset.called_once_with(items)
             # otherwise should respect the provided queryset
-            first_item = Item.objects.first()
+            first_item = Item.objects.all()[:0]
             self.item_admin.export_to_csv(Mock(), first_item)
             assert tabulate_queryset.called_once_with(first_item)
+
+            export_args, export_kwargs = mock_export_to_csv_response.call_args
+            # first arg is filename
+            csvfilename = export_args[0]
+            assert csvfilename.endswith('.csv')
+            assert csvfilename.startswith('mep-items')
+            # should include current date
+            assert now().strftime('%Y%m%d') in csvfilename
+            headers = export_args[1]
+            # should use verbose name from db model field
+            assert 'MEP ID' in headers
+            # or verbose name for property
+            assert 'Admin Link' in headers

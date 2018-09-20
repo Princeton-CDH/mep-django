@@ -70,7 +70,7 @@ class ItemAdmin(admin.ModelAdmin):
     #: fields to be included in CSV export
     export_fields = ['admin_url', 'id', 'title', 'year', 'uri', 'author_list',
                      'mep_id', 'notes']
-    
+
     def csv_filename(self):
         return 'mep-items-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
 
@@ -85,12 +85,23 @@ class ItemAdmin(admin.ModelAdmin):
     def export_to_csv(self, request, queryset=None):
         '''Stream tabular data as a CSV file'''
         queryset = self.get_queryset(request) if queryset is None else queryset
-        return export_to_csv_response(self.csv_filename(), self.export_fields,
+        # use verbose names to label the columns (adapted from django-tabular-export)
+
+        # get verbose names for model fields
+        verbose_names = {i.name: i.verbose_name for i in queryset.model._meta.fields}
+
+        # get verbose field name if there is one; look for verbose name
+        # on a non-field attribute (e.g. a method); otherwise, title case the field name
+        headers = [verbose_names.get(field, None) or
+                   getattr(getattr(queryset.model, field), 'verbose_name', field.title())
+                   for field in self.export_fields]
+
+        return export_to_csv_response(self.csv_filename(), headers,
                                       self.tabulate_queryset(queryset))
     export_to_csv.short_description = 'Export selected items to CSV'
 
     def get_urls(self):
-        # adds a custom URL for exporting all items as CSV
+            # adds a custom URL for exporting all items as CSRF_FAILURE_VIEW = ''
         urls = [
             url(r'^csv/$', self.admin_site.admin_view(self.export_to_csv),
                 name='books_item_csv')

@@ -359,6 +359,7 @@ class Person(Notable, DateRange):
     def admin_url(self):
         '''URL to edit this record in the admin site'''
         return reverse('admin:people_person_change', args=[self.id])
+    admin_url.verbose_name = 'Admin Link'
 
 
 class InfoURL(Notable):
