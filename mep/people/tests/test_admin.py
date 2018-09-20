@@ -1,5 +1,6 @@
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
+from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
@@ -11,6 +12,7 @@ from mep.people.models import Person
 
 
 class TestPersonAdmin(TestCase):
+    fixtures = ['sample_people']
 
     def test_merge_people(self):
         mockrequest = Mock()
@@ -42,6 +44,34 @@ class TestPersonAdmin(TestCase):
         # works either way
         assert mockrequest.session['people_merge_filter'] in \
             ['p=3&filter=foo', 'filter=foo&p=3']
+
+
+    def test_tabulate_queryset(self):
+        person_admin = PersonAdmin(model=Person, admin_site=admin.site)
+        people = Person.objects.order_by('id').all()
+        # test that tabular data matches queryset data
+        for person, person_data in zip(people, person_admin.tabulate_queryset(people)):
+            # test some properties
+            assert person.name in person_data
+            assert person.mep_id in person_data
+            assert person.updated_at in person_data
+            # test some methods
+            assert person.is_creator() in person_data
+            assert person.has_account() in person_data
+            assert person.admin_url() in person_data
+
+    def test_export_csv(self):
+        person_admin = PersonAdmin(model=Person, admin_site=admin.site)
+        with patch.object(person_admin, 'tabulate_queryset') as tabulate_queryset:
+            # if no queryset provided, should use default queryset
+            people = person_admin.get_queryset(Mock())
+            person_admin.export_to_csv(Mock())
+            assert tabulate_queryset.called_once_with(people)
+            # otherwise should respect the provided queryset
+            first_person = Person.objects.first()
+            person_admin.export_to_csv(Mock(), first_person)
+            assert tabulate_queryset.called_once_with(first_person)
+
 
 class TestPersonTypeListFilter(TestCase):
     

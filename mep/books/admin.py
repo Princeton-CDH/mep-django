@@ -1,12 +1,15 @@
-from django.contrib import admin
 from django import forms
+from django.conf.urls import url
+from django.contrib import admin
+from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.utils.html import format_html
-from django.core.urlresolvers import reverse
+from django.utils.timezone import now
+from tabular_export.admin import export_to_csv_response
 
-from mep.books.models import Item, Creator, CreatorType
-from mep.common.admin import CollapsibleTabularInline
 from mep.accounts.admin import AUTOCOMPLETE
+from mep.books.models import Creator, CreatorType, Item
+from mep.common.admin import CollapsibleTabularInline
 
 
 class ItemCreatorInlineForm(forms.ModelForm):
@@ -45,6 +48,8 @@ class ItemAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('mep_id', 'borrow_count')
 
+    actions = ['export_to_csv']
+
     def get_queryset(self, request):
         '''Annotate the queryset with the number of borrows for sorting'''
         return super(ItemAdmin, self).get_queryset(request) \
@@ -61,6 +66,36 @@ class ItemAdmin(admin.ModelAdmin):
         )
     # use the annotated queryset value to make the field sortable
     borrow_count.admin_order_field = 'borrow__count'
+
+    #: fields to be included in CSV export
+    export_fields = ['admin_url', 'id', 'title', 'year', 'uri', 'author_list',
+                     'mep_id', 'notes']
+    
+    def csv_filename(self):
+        return 'mep-items-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
+
+    def tabulate_queryset(self, queryset):
+        '''Generator for data in tabular form, including custom fields'''
+        for item in queryset.prefetch_related('creator_set'):
+            # retrieve values for configured export fields; if the attribute
+            # is a callable (i.e., a custom property method), call it
+            yield [value() if callable(value) else value
+                   for value in (getattr(item, field) for field in self.export_fields)]
+
+    def export_to_csv(self, request, queryset=None):
+        '''Stream tabular data as a CSV file'''
+        queryset = self.get_queryset(request) if queryset is None else queryset
+        return export_to_csv_response(self.csv_filename(), self.export_fields,
+                                      self.tabulate_queryset(queryset))
+    export_to_csv.short_description = 'Export selected items to CSV'
+
+    def get_urls(self):
+        # adds a custom URL for exporting all items as CSV
+        urls = [
+            url(r'^csv/$', self.admin_site.admin_view(self.export_to_csv),
+                name='books_item_csv')
+        ]
+        return urls + super(ItemAdmin, self).get_urls()
 
 
 class CreatorTypeAdmin(admin.ModelAdmin):

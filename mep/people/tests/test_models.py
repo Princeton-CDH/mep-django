@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import (MultipleObjectsReturned,
                                     ObjectDoesNotExist, ValidationError)
 from django.test import TestCase
+from django.urls import resolve
 from django.utils import timezone
 from viapy.api import ViafEntity
 
@@ -173,6 +174,14 @@ class TestPerson(TestCase):
         subs.delete()
         assert pers.in_logbooks()
 
+
+    def test_admin_url(self):
+        pers = Person.objects.create(name='John')
+        resolved_url = resolve(pers.admin_url())
+        assert resolved_url.args[0] == str(pers.id)
+        assert resolved_url.view_name == 'admin:people_person_change'
+
+
     def test_has_card(self):
         # create test person & account and associate them
         pers = Person.objects.create(name='John')
@@ -191,6 +200,7 @@ class TestPerson(TestCase):
         acct.card = card
         acct.save()
         assert pers.has_card()
+
 
 class TestPersonQuerySet(TestCase):
 
