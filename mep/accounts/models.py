@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import datetime
+from itertools import chain
 
 from cached_property import cached_property
 from dateutil.relativedelta import relativedelta
@@ -63,21 +64,27 @@ class Account(models.Model):
                          person in self.persons.all().order_by('name'))
     list_persons.short_description = 'Account holder(s)'
 
+    @property
+    def event_dates(self):
+        '''sorted list of all unique event dates associated with this account'''
+        # get value list of all start and end dates
+        date_values = self.event_set.values_list('start_date', 'end_date')
+        # flatten list of tuples into a list, filter out None, and make unique
+        uniq_dates = set(filter(None, chain.from_iterable(date_values)))
+        # return as a sorted lsit
+        return sorted(list(uniq_dates))
+
     def earliest_date(self):
         '''Earliest known date from all events associated with this account'''
-        evt = self.event_set.order_by('start_date').first()
-        if evt:
-            return evt.start_date
+        dates = self.event_dates
+        if dates:
+            return dates[0]
 
     def last_date(self):
         '''Last known date from all events associated with this account'''
-
-        # sort by end date then start date; if end dates are missing this
-        # may not be quite right...
-        evt = self.event_set.order_by('end_date', 'start_date').last()
-        if evt:
-            # if no end date is present, return start date
-            return evt.end_date or evt.start_date
+        dates = self.event_dates
+        if dates:
+            return dates[-1]
 
     @property
     def subscription_set(self):
@@ -219,14 +226,28 @@ class Event(Notable):
         # ordering = ('start_date', 'account__persons__sort_name')
         ordering = ('start_date', )
 
-    # These provide generic string representation for the Event class
-    # and its subclasses
     def __repr__(self):
+        '''Generic representation string for Event and subclasses'''
         return '<%s %s>' % (self.__class__.__name__, self.__dict__)
 
     def __str__(self):
-        return '%s for account #%s' % (self.__class__.__name__,
-                                      self.account.pk)
+        '''Generic string method for Event and subclasses'''
+        return '%s for account #%s %s' % \
+            (self.__class__.__name__, self.account.pk, self.date_range)
+
+    @property
+    def date_range(self):
+        '''Event date range as string. Returns a single date in isoformat
+        if both dates are set to the same date. Uses "??" for unset dates,
+        and returns in format start/end.'''
+
+        # if both dates are set and the same, return a single date
+        if self.start_date and self.end_date and self.start_date == self.end_date:
+            return self.start_date.isoformat()
+
+        # otherwise, use both dates with ?? to indicate unknown date
+        return '/'.join([dt.isoformat() if dt else '??'
+                         for dt in [self.start_date, self.end_date]])
 
     @cached_property
     def event_type(self):
@@ -583,6 +604,26 @@ class Borrow(Event):
 
             # store the precision
             setattr(self, '%s_precision' % kind, precision)
+
+    @property
+    def date_range(self):
+        '''Borrowing event date range as string, using partial dates.
+        Returns a single date in partial date format if both dates are
+        set to the same date. Uses "??" for unset dates,
+        and returns in format start/end.'''
+
+        # NOTE: this is the same logic as the Event date range method,
+        # just substituting partial start and end dates and dropping the
+        # isoformat method call.
+
+        # if both dates are set and the same, return a single date
+        if self.partial_start_date and self.partial_end_date and \
+            self.partial_start_date == self.partial_end_date:
+            return self.partial_start_date
+
+        # otherwise, use both dates with ?? to indicate unknown date
+        return '/'.join([dt if dt else '??'
+                         for dt in [self.partial_start_date, self.partial_end_date]])
 
 
 class Purchase(Event, CurrencyMixin):

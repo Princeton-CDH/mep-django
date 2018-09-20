@@ -110,6 +110,31 @@ class TestAccount(TestCase):
         # displays name first, then street_address, and city as a last resort
         account.list_locations() == 'Berlin; 1 Foo St.; Hotel Foo'
 
+    def test_event_dates(self):
+        account = Account.objects.create()
+        # no dates, no error
+        assert account.event_dates == []
+
+        # single date
+        date1 = datetime.date(1943, 1, 1)
+        event1 = Subscription.objects.create(account=account, start_date=date1)
+        assert account.event_dates == [date1]
+
+        # multiple dates
+        date2 = datetime.date(1945, 5, 1)
+        event1.end_date = date2
+        event1.save()
+        date3 = datetime.date(1945, 6, 1)
+        Subscription.objects.create(account=account, start_date=date3)
+
+        # should include all dates in order
+        assert account.event_dates == [date1, date2, date3]
+
+        # duplicate dates are not repeated
+        Subscription.objects.create(account=account, start_date=date2,
+                                    end_date=date3)
+        assert account.event_dates == [date1, date2, date3]
+
     def test_earliest_date(self):
         account = Account.objects.create()
         # no date, no error
@@ -123,6 +148,11 @@ class TestAccount(TestCase):
 
         assert account.earliest_date() == event1.start_date
 
+        # skip empty start date
+        event1.start_date = None
+        event1.save()
+        assert account.earliest_date() == event1.end_date
+
     def test_last_date(self):
         account = Account.objects.create()
         # no date, no error
@@ -130,16 +160,16 @@ class TestAccount(TestCase):
 
         # subscription with no end date - start date should
         # be used
-        event = Subscription.objects.create(account=account,
-            start_date=datetime.date(1943, 1, 1))
+        event = Subscription.objects.create(
+            account=account, start_date=datetime.date(1943, 1, 1))
         assert account.last_date() == event.start_date
 
         # multiple events; use the last
-        event1 = Subscription.objects.create(account=account,
-            start_date=datetime.date(1943, 1, 1),
+        event1 = Subscription.objects.create(
+            account=account, start_date=datetime.date(1943, 1, 1),
             end_date=datetime.date(1944, 1, 1))
-        event2 = Reimbursement.objects.create(account=account,
-            start_date=datetime.date(1944, 5, 1))
+        event2 = Reimbursement.objects.create(
+            account=account, start_date=datetime.date(1944, 5, 1))
 
         assert account.last_date() == event2.end_date
 
@@ -283,16 +313,37 @@ class TestEvent(TestCase):
         assert re.search(overall, repr(self.event))
 
     def test_str(self):
-        assert str(self.event) == 'Event for account #%s' % self.account.pk
+        assert str(self.event) == \
+            'Event for account #%s ??/??' % self.account.pk
+
+    def test_date_range(self):
+        assert self.event.date_range == '??/??'
+
+        # start only
+        self.event.start_date = datetime.date(2018, 5, 1)
+        assert self.event.date_range == '%s/??' % self.event.start_date.isoformat()
+
+        # both start and end set, different values
+        self.event.end_date = datetime.date(2020, 6, 11)
+        assert self.event.date_range == '{}/{}'.format(self.event.start_date,
+                                                       self.event.end_date)
+
+        # both set, same values
+        self.event.end_date = self.event.start_date
+        assert self.event.date_range == self.event.start_date.isoformat()
+
+        # end date only
+        self.event.start_date = None
+        assert self.event.date_range == '??/{}'.format(self.event.end_date.isoformat())
 
     def test_event_type(self):
         assert self.event.event_type == 'Generic'
         # Create a subscription and check its generic event type
         subscription = Subscription.objects.create(
-                account=self.account,
-                duration=1,
-                volumes=2,
-                price_paid=3.20
+            account=self.account,
+            duration=1,
+            volumes=2,
+            price_paid=3.20
         )
         # subscriptio, not otherwise specified
         assert subscription.event_ptr.event_type == 'Subscription'
@@ -342,8 +393,9 @@ class TestSubscription(TestCase):
         assert re.search(overall, repr(self.subscription))
 
     def test_str(self):
-        assert str(self.subscription) == ('Subscription for account #%s' %
-                                       self.subscription.account.pk)
+        assert str(self.subscription) == \
+            'Subscription for account #%s %s/??' % \
+            (self.subscription.account.pk, self.subscription.start_date.isoformat())
 
     def test_validate_unique(self):
         # resaving existing record should not error
@@ -547,7 +599,7 @@ class TestPurchase(TestCase):
         assert re.search(overall, repr(self.purchase))
 
     def test_str(self):
-        assert str(self.purchase) == ('Purchase for account #%s' %
+        assert str(self.purchase) == ('Purchase for account #%s ??/??' %
                                       self.purchase.account.pk)
 
 
@@ -568,7 +620,7 @@ class TestReimbursement(TestCase):
         assert re.search(overall, repr(self.reimbursement))
 
     def test_str(self):
-        assert str(self.reimbursement) == ('Reimbursement for account #%s' %
+        assert str(self.reimbursement) == ('Reimbursement for account #%s ??/??' %
                                            self.reimbursement.account.pk)
 
     def test_validate_unique(self):
@@ -607,8 +659,16 @@ class TestBorrow(TestCase):
         assert re.search(overall, repr(self.borrow))
 
     def test_str(self):
-        assert str(self.borrow) == ('Borrow for account #%s' %
+        assert str(self.borrow) == ('Borrow for account #%s ??/??' %
                                     self.borrow.account.pk)
+
+        start_date = datetime.date(2018, 5, 1)
+        self.borrow.partial_start_date = start_date.isoformat()
+        assert str(self.borrow).endswith('%s/??' % start_date.isoformat())
+
+        # handle partial dates
+        self.borrow.partial_start_date = '2018-05'
+        assert str(self.borrow).endswith('%s/??' % self.borrow.partial_start_date)
 
     def test_save(self):
         today = datetime.date.today()
