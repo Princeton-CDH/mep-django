@@ -16,6 +16,7 @@ class Command(BaseCommand):
 
     #: default verbosity
     v_normal = 1
+    verbosity = v_normal
     #: columns for CSV output
     csv_header = ['Account', 'Account Date Range', '# Gaps',
                   'Longest Gap in days', 'Details']
@@ -42,7 +43,7 @@ class Command(BaseCommand):
         return ', '.join(parts)
 
     def handle(self, *args, **kwargs):
-        verbosity = kwargs['verbosity']
+        self.verbosity = kwargs['verbosity']
 
         # find accounts with at least two events; order by id for now to avoid
         # issues with ordering on person sort name
@@ -69,7 +70,7 @@ class Command(BaseCommand):
                 # print summary info: account and full date range
                 date_range = '{}/{}'.format(acct.earliest_date(), acct.last_date())
 
-                if verbosity > self.v_normal:
+                if self.verbosity > self.v_normal:
                     self.stdout.write('{} ({})'.format(acct, date_range))
 
                 # get a list of gaps (if any) for the current account
@@ -80,7 +81,7 @@ class Command(BaseCommand):
                     total += 1
 
                     max_gap, message = self.report_gap_details(gaps)
-                    if verbosity > self.v_normal:
+                    if self.verbosity > self.v_normal:
                         self.stdout.write(message)
 
                     # output account and date gap information to CSV report
@@ -115,6 +116,11 @@ class Command(BaseCommand):
                   evt.borrow.partial_start_date != evt.start_date.isoformat() \
                   or evt.end_date and \
                   evt.borrow.partial_end_date != evt.end_date.isoformat():
+
+                    # report the skipped event in verbose mode
+                    if self.verbosity > self.v_normal:
+                        self.stdout.write('Skipping borrow event with partial dates {}'.format(evt))
+
                     continue
 
             # if previous date is set, compare it with current event start

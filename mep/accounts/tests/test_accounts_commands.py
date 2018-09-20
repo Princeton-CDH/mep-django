@@ -65,6 +65,21 @@ class TestReportTimegaps(TestCase):
         assert str(max_gap) in csv_content
         assert msg in csv_content
 
+        # test verbosity, including skipping a borrow with partial date
+        borrow = Borrow.objects.create(account=account)
+        borrow.partial_start_date = '1950-01'
+        borrow.save()
+
+        stdout = StringIO()
+        call_command('report_timegaps', csvtempfile.name, verbosity=2, stdout=stdout)
+        output = stdout.getvalue()
+        # assert 'Found 0 accounts with gaps larger than 1 year' in output
+        # verbose output includes account summary
+        assert str(account) in output
+        assert str(account.earliest_date()) in output
+        assert str(account.last_date()) in output
+        assert 'Skipping borrow event with partial dates' in output
+
     def test_format_relativedelta(self):
         assert self.cmd.format_relativedelta(relativedelta(years=1)) == '1 year'
         assert self.cmd.format_relativedelta(relativedelta(years=2)) == '2 years'
