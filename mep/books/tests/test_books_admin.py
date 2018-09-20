@@ -11,75 +11,66 @@ from mep.books.models import Item
 
 class TestItemAdmin(TestCase):
     fixtures = ['sample_items']
+    
+    @classmethod
+    def setUpTestData(cls):
+        cls.item_admin = ItemAdmin(model=Item, admin_site=admin.site)
+        cls.francisque_gay = Account.objects.get(pk=4852) # account of library member Francisque Gay
+        cls.kreuzer_sonata = Item.objects.get(pk=3) # book 'The Kreutzer Sonata' by Leo Tolstoy
+        cls.exit_eliza = Item.objects.get(pk=1) # book 'Exit Eliza' by Barry Pain
 
     def test_get_queryset(self):
-        # create a test admin instance - don't think admin_site is actually called?
-        item_admin = ItemAdmin(model=Item, admin_site=admin.site)
-        # create some test books
-        item1 = Item(title='Le foo et le bar', year=1916, mep_id='lfelb')
-        item2 = Item(title='Le foo et le bar: le sequel', year=1918, mep_id='lfelbls')
-        item1.save()
-        item2.save()
         # make a request to the admin and check that the queryset is annotated
-        qs = item_admin.get_queryset(
+        qs = self.item_admin.get_queryset(
             self.client.get(reverse('admin:books_item_changelist')).request
         )
         # with no borrows, borrow count annotations in queryset should be zero
         for item in qs:
             assert item.borrow__count == 0
-        # create a test account and borrow some of the books
-        acct = Account()
-        acct.save()
-        Borrow(item=item1, account=acct).save()
-        Borrow(item=item2, account=acct).save()
-        Borrow(item=item2, account=acct).save()
+        # francisque borrows "the kreutzer sonata" once
+        Borrow(item=self.kreuzer_sonata, account=self.francisque_gay).save()
+        # francisque borrows "exit eliza" twice
+        Borrow(item=self.exit_eliza, account=self.francisque_gay).save()
+        Borrow(item=self.exit_eliza, account=self.francisque_gay).save()
         # make another request and check that borrows are annotated correctly
-        qs = item_admin.get_queryset(
+        qs = self.item_admin.get_queryset(
             self.client.get(reverse('admin:books_item_changelist')).request
         )
-        assert qs[0].borrow__count == 1
-        assert qs[1].borrow__count == 2
+        assert qs.get(pk=self.kreuzer_sonata.id).borrow__count == 1
+        assert qs.get(pk=self.exit_eliza.id).borrow__count == 2
 
     def test_borrow_count(self):
-        # create a test admin instance - don't think admin_site is actually called?
-        item_admin = ItemAdmin(model=Item, admin_site=admin.site)
-        # create some test books; don't borrow them yet
-        item1 = Item(title='Le foo et le bar', year=1916, mep_id='lfelb')
-        item2 = Item(title='Le foo et le bar: le sequel', year=1918, mep_id='lfelbls')
-        item1.save()
-        item2.save()
-
         # get items via itemadmin queryset with borrow count annotation
-        item_admin = ItemAdmin(model=Item, admin_site=admin.site)
         rqst = self.client.get(reverse('admin:books_item_changelist')).request
-        item1 = item_admin.get_queryset(rqst).get(pk=item1.pk)
-        item2 = item_admin.get_queryset(rqst).get(pk=item2.pk)
-
+        kreuzer_sonata_annotated = self.item_admin.get_queryset(rqst).get(pk=self.kreuzer_sonata.pk)
+        exit_eliza_annotated = self.item_admin.get_queryset(rqst).get(pk=self.exit_eliza.pk)
         # store the URLs that the borrow count links should point to
-        borrows1 = (reverse('admin:accounts_borrow_changelist') +
-                    '?item__id__exact=' + str(item1.id))
-        borrows2 = (reverse('admin:accounts_borrow_changelist') +
-                    '?item__id__exact=' + str(item2.id))
+        kreuzer_sonata_link = (reverse('admin:accounts_borrow_changelist') +
+                    '?item__id__exact=' + str(self.kreuzer_sonata.id))
+        exit_eliza_link = (reverse('admin:accounts_borrow_changelist') +
+                    '?item__id__exact=' + str(self.exit_eliza.id))
         # check that borrow count is rendered as a link with zero borrows
-        assert item_admin.borrow_count(item1) == '<a href="%s" target="_blank">0</a>' % borrows1
-        assert item_admin.borrow_count(item2) == '<a href="%s" target="_blank">0</a>' % borrows2
-        # create a test account and borrow some of the books
-        acct = Account()
-        acct.save()
-        Borrow(item=item1, account=acct).save()
-        Borrow(item=item2, account=acct).save()
-        Borrow(item=item2, account=acct).save()
+        assert self.item_admin.borrow_count(kreuzer_sonata_annotated) == \
+            '<a href="%s" target="_blank">0</a>' % kreuzer_sonata_link
+        assert self.item_admin.borrow_count(exit_eliza_annotated) == \
+            '<a href="%s" target="_blank">0</a>' % exit_eliza_link
+        # francisque borrows "the kreutzer sonata" once
+        Borrow(item=self.kreuzer_sonata, account=self.francisque_gay).save()
+        # francisque borrows "exit eliza" twice
+        Borrow(item=self.exit_eliza, account=self.francisque_gay).save()
+        Borrow(item=self.exit_eliza, account=self.francisque_gay).save()
         # check that the borrow counts inside the links are updated
-        item1 = item_admin.get_queryset(rqst).get(pk=item1.pk)
-        item2 = item_admin.get_queryset(rqst).get(pk=item2.pk)
-        assert item_admin.borrow_count(item1) == '<a href="%s" target="_blank">1</a>' % borrows1
-        assert item_admin.borrow_count(item2) == '<a href="%s" target="_blank">2</a>' % borrows2
+        kreuzer_sonata_annotated = self.item_admin.get_queryset(rqst).get(pk=self.kreuzer_sonata.pk)
+        exit_eliza_annotated = self.item_admin.get_queryset(rqst).get(pk=self.exit_eliza.pk)
+        assert self.item_admin.borrow_count(kreuzer_sonata_annotated) == \
+            '<a href="%s" target="_blank">1</a>' % kreuzer_sonata_link
+        assert self.item_admin.borrow_count(exit_eliza_annotated) == \
+            '<a href="%s" target="_blank">2</a>' % exit_eliza_link
 
     def test_tabulate_queryset(self):
-        item_admin = ItemAdmin(model=Item, admin_site=admin.site)
         items = Item.objects.order_by('id').all()
         # test that tabular data matches queryset data
-        for item, item_data in zip(items, item_admin.tabulate_queryset(items)):
+        for item, item_data in zip(items, self.item_admin.tabulate_queryset(items)):
             # test some properties
             assert item.title in item_data
             assert item.year in item_data
@@ -88,13 +79,12 @@ class TestItemAdmin(TestCase):
             assert item.admin_url() in item_data
 
     def test_export_csv(self):
-        item_admin = ItemAdmin(model=Item, admin_site=admin.site)
-        with patch.object(item_admin, 'tabulate_queryset') as tabulate_queryset:
+        with patch.object(self.item_admin, 'tabulate_queryset') as tabulate_queryset:
             # if no queryset provided, should use default queryset
-            items = item_admin.get_queryset(Mock())
-            item_admin.export_to_csv(Mock())
+            items = self.item_admin.get_queryset(Mock())
+            self.item_admin.export_to_csv(Mock())
             assert tabulate_queryset.called_once_with(items)
             # otherwise should respect the provided queryset
             first_item = Item.objects.first()
-            item_admin.export_to_csv(Mock(), first_item)
+            self.item_admin.export_to_csv(Mock(), first_item)
             assert tabulate_queryset.called_once_with(first_item)
