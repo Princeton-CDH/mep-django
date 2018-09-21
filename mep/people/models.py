@@ -238,10 +238,12 @@ class Person(Notable, DateRange):
         blank=True, null=True)
     #: flag to indicate organization instead of person
     is_organization = models.BooleanField(default=False,
-        help_text='Mark as true to indicate this is an organization')
+        help_text='Check to indicate this entity is an organization rather than a person')
+    #: verified flag
+    verified = models.BooleanField(default=False,
+        help_text='Check to indicate information in this record has been checked against the relevant archival sources.')
     #: update timestamp
     updated_at = models.DateTimeField(auto_now=True, null=True)
-
 
     MALE = 'M'
     FEMALE = 'F'

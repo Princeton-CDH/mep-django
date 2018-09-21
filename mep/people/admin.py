@@ -181,13 +181,17 @@ class PersonAdmin(admin.ModelAdmin):
     form = PersonAdminForm
     list_display = ('name', 'title', 'sort_name', 'list_nationalities',
         'birth_year', 'death_year', 'sex', 'profession', 'viaf_id', 'mep_id',
-        'address_count', 'in_logbooks', 'has_card', 'updated_at', 'note_snippet')
-    fields = ('mep_id', 'in_logbooks', 'title',
+        'address_count', 'in_logbooks', 'has_card', 'verified', 'updated_at', 'note_snippet')
+    fields = ('mep_id',
+        ('has_account', 'in_logbooks', 'has_card', 'is_creator'),
+        'title',
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
-        'sex', 'profession', 'nationalities', 'is_organization', 'notes')
-    readonly_fields = ('mep_id', 'in_logbooks')
+        'sex', 'profession', 'nationalities', 'is_organization', 'verified',
+        'notes')
+    readonly_fields = ('mep_id', 'in_logbooks', 'has_account', 'has_card',
+                       'is_creator')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = (PersonTypeListFilter, 'sex', 'profession', 'nationalities',
                    'is_organization')
