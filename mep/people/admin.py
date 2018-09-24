@@ -228,7 +228,7 @@ class PersonAdmin(admin.ModelAdmin):
     export_fields = [
         'id', 'name', 'sort_name', 'mep_id', 'birth_year', 'death_year',
         'sex', 'title', 'profession', 'is_organization', 'is_creator', 'has_account',
-        'in_logbooks', 'has_card', 'updated_at', 'admin_url']
+        'in_logbooks', 'has_card', 'verified', 'updated_at', 'admin_url']
 
     def csv_filename(self):
         return 'mep-people-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
