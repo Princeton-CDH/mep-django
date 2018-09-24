@@ -30,7 +30,8 @@ class Account(models.Model):
 
     card = models.ForeignKey(Bibliography, blank=True, null=True,
         help_text='Lending Library Card for this account',
-        limit_choices_to={'source_type__name': 'Lending Library Card'})
+        limit_choices_to={'source_type__name': 'Lending Library Card'},
+        on_delete=models.SET_NULL)
 
     def __repr__(self):
         return '<Account %s>' % self.__dict__
