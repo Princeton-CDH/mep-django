@@ -60,5 +60,14 @@
         <div>No account events</div>
         {% endif %}
     </div>
+
+    {# display associated library card or indicate there is none #}
+    {% if account.card %}
+    <div>Associated lending library card: {{ account.card }}</div>
+    {% else %}
+    <div>No associated lending library card.</div>
+    {% endif %}
+
+
   {% endfor %}
 </div>
