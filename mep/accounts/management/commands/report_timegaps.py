@@ -18,7 +18,7 @@ class Command(BaseCommand):
     v_normal = 1
     verbosity = v_normal
     #: columns for CSV output
-    csv_header = ['Account', 'Account Date Range', '# Gaps',
+    csv_header = ['Admin URL(s)', 'Account', 'Account Date Range', '# Gaps',
                   'Longest Gap in days', 'Details']
 
     def add_arguments(self, parser):
@@ -85,7 +85,9 @@ class Command(BaseCommand):
                         self.stdout.write(message)
 
                     # output account and date gap information to CSV report
-                    csvwriter.writerow([str(acct), date_range, len(gaps),
+                    admin_links = ';'.join(['http://test-mep.cdh.princeton.edu' + \
+                        pers.admin_url() for pers in acct.persons.all()])
+                    csvwriter.writerow([admin_links, str(acct), date_range, len(gaps),
                                         max_gap, message])
 
         self.stdout.write('Found {} accounts with gaps larger than {}'.format(
@@ -107,21 +109,9 @@ class Command(BaseCommand):
         prev_event = None
 
         for evt in account.event_set.all():
-            # skip borrow events with partially known dates
+            # skip all borrow events
             if evt.event_type == 'Borrow':
-                # if dates are set and are only partially known, skip
-                # NOTE: might merit a method on the class to check if dates
-                # are partially/fully known
-                if evt.start_date and \
-                  evt.borrow.partial_start_date != evt.start_date.isoformat() \
-                  or evt.end_date and \
-                  evt.borrow.partial_end_date != evt.end_date.isoformat():
-
-                    # report the skipped event in verbose mode
-                    if self.verbosity > self.v_normal:
-                        self.stdout.write('Skipping borrow event with partial dates {}'.format(evt))
-
-                    continue
+                continue
 
             # if previous date is set, compare it with current event start
             if prev_date:
