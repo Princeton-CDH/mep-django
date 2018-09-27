@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Count
 
 from mep.accounts.models import Account
+from mep.common.utils import absolutize_url
 
 
 class Command(BaseCommand):
@@ -21,11 +22,18 @@ class Command(BaseCommand):
     csv_header = ['Admin URL(s)', 'Account', 'Account Date Range', '# Gaps',
                   'Longest Gap in days', 'Details']
 
+    #: include borrowing events when checking for gaps between events?
+    include_borrows = False
+
     def add_arguments(self, parser):
-        parser.add_argument('-g', '--gap', default=6, type=int,
+        parser.add_argument(
+            '-g', '--gap', default=6, type=int,
             help='Minimum time gap in months. Default: %(default)d')
-        parser.add_argument('filename',
-            help='Filename to use for generated CSV report.')
+        parser.add_argument(
+            '-b', '--borrows', default=self.include_borrows, action='store_true',
+            help='Include borrowing events when looking for gaps (excluded by default).')
+        parser.add_argument(
+            'filename', help='Filename to use for generated CSV report.')
 
     def format_relativedelta(self, rel_delta):
         '''Generate a human-readable display for a relativedelta in years,
@@ -44,6 +52,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.verbosity = kwargs['verbosity']
+        self.include_borrows = kwargs['borrows']
 
         # find accounts with at least two events; order by id for now to avoid
         # issues with ordering on person sort name
@@ -85,10 +94,10 @@ class Command(BaseCommand):
                         self.stdout.write(message)
 
                     # output account and date gap information to CSV report
-                    admin_links = ';'.join(['http://test-mep.cdh.princeton.edu' + \
-                        pers.admin_url() for pers in acct.persons.all()])
-                    csvwriter.writerow([admin_links, str(acct), date_range, len(gaps),
-                                        max_gap, message])
+                    admin_links = ';'.join([absolutize_url(pers.admin_url())
+                                            for pers in acct.persons.all()])
+                    csvwriter.writerow([admin_links, str(acct), date_range,
+                                        len(gaps), max_gap, message])
 
         self.stdout.write('Found {} accounts with gaps larger than {}'.format(
             total, self.format_relativedelta(relativedelta(months=kwargs['gap']))))
@@ -109,9 +118,26 @@ class Command(BaseCommand):
         prev_event = None
 
         for evt in account.event_set.all():
-            # skip all borrow events
+            # skip borrow events with partially known dates
             if evt.event_type == 'Borrow':
-                continue
+
+                # if include borrows not requested, skip
+                if not self.include_borrows:
+                    continue
+
+                # if dates are set and are only partially known, skip
+                # NOTE: might merit a method on the class to check if dates
+                # are partially/fully known
+                if evt.start_date and \
+                  evt.borrow.partial_start_date != evt.start_date.isoformat() \
+                  or evt.end_date and \
+                  evt.borrow.partial_end_date != evt.end_date.isoformat():
+
+                    # report the skipped event in verbose mode
+                    if self.verbosity > self.v_normal:
+                        self.stdout.write('Skipping borrow event with partial dates {}'.format(evt))
+
+                    continue
 
             # if previous date is set, compare it with current event start
             if prev_date:

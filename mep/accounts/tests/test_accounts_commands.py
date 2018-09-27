@@ -76,6 +76,14 @@ class TestReportTimegaps(TestCase):
         assert str(account) in output
         assert str(account.earliest_date()) in output
         assert str(account.last_date()) in output
+        # should not skip partial borrow event if borrows are not included
+        assert not 'Skipping borrow event with partial dates' in output
+
+        stdout = StringIO()
+        call_command('report_timegaps', csvtempfile.name, verbosity=2,
+                     stdout=stdout, borrows=True)
+        output = stdout.getvalue()
+        # should note skipped partial borrow event when borrows are included
         assert 'Skipping borrow event with partial dates' in output
 
     def test_format_relativedelta(self):
