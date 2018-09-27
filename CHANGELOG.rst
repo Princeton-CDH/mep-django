@@ -3,6 +3,20 @@
 CHANGELOG
 =========
 
+
+0.8 Personography reports and other fixes
+-----------------------------------------
+
+Exports and a new verified flag for Person records to support personography
+data work, including identifying records to be merged or demerged
+
+* As a content admin, I want to export information about people in the database so I can work with it in other systems such as OpenRefine.
+* As an admin, I want to generate a report of library members with large time gaps between events in their account history to identify records that may need demerging.
+* As a content admin, I want to mark a person record as verified so that I can document that all the information in the record has been checked against the relevant archival sources.
+* bugfix: merging into a logbook only person deletes account/lending card association if present
+* bugfix: footnote editing causes a server error
+
+
 0.7 Item and Person admin improvements
 --------------------------------------
 
