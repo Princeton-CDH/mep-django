@@ -5,7 +5,7 @@ from unittest.mock import Mock
 from django.contrib.auth.models import User, Group
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from mep.common.models import AliasIntegerField, Named, Notable, DateRange
@@ -227,3 +227,10 @@ def test_absolutize_url():
     # site with https:// included
     current_site.domain = 'https://example.org'
     assert absolutize_url(local_path) == 'https://example.org/sub/foo/bar/'
+
+
+    with override_settings(DEBUG=True):
+        assert absolutize_url(local_path) == 'https://example.org/sub/foo/bar/'
+        mockrqst = Mock(scheme='http')
+        assert absolutize_url(local_path, mockrqst) == \
+            'http://example.org/sub/foo/bar/'
