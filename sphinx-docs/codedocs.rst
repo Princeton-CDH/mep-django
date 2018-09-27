@@ -24,6 +24,27 @@ Models
 .. automodule:: mep.accounts.models
     :members:
 
+Manage Commands
+^^^^^^^^^^^^^^^
+
+import titles
+~~~~~~~~~~~~~
+
+.. automodule:: mep.accounts.management.commands.import_titles
+
+
+import cards
+~~~~~~~~~~~~
+
+.. automodule:: mep.accounts.management.commands.import_cards
+
+
+report timegaps
+~~~~~~~~~~~~~~~
+
+.. automodule:: mep.accounts.management.commands.report_timegaps
+
+
 Books
 -----
 .. automodule:: mep.books

@@ -1,3 +1,21 @@
+'''
+Manage command to identify and report on large gaps in time between
+events in a single library account, to identify possible candidates for
+demerging.  Options allow specifying the minimum gap to look for in months
+(default is 6 months) and a required filename to use for CSV output.
+By default, borrowing events are not included.  If specified, borrowing
+events will be included but borrow events with partially know dates
+will be skipped.
+
+Example usage::
+
+    python manage.py report_timegaps -o 6month-gaps.csv
+    python manage.py report_timegaps -g 12 months -o 12month-gaps.csv
+    python manage.py report_timegaps -g 12 months --borrows -o 12month-gaps-with-borrows.csv
+
+
+'''
+
 import codecs
 import csv
 from datetime import timedelta

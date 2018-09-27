@@ -1,3 +1,19 @@
+'''
+Manage command to import lending card data from MEP XML.  Example usage::
+
+    python manage.py import_cards  /path/to/transcriptions/cards/
+
+The command expects to be given the cards directory in the MEP XML
+GitHub data, and will find all xml files under it, including in
+subdirectories.
+
+Finds associated people and their accounts (if no account exists,
+it will be created if possible) and then processes xml borrowing events
+and adds them to the account.
+
+'''
+
+
 from collections import defaultdict
 import glob
 import os.path
@@ -8,7 +24,7 @@ from eulxml import xmlmap
 from mep.accounts.models import Account
 from mep.accounts.xml_models import LendingCard
 from mep.people.models import Person
-from mep.footnotes.models import SourceType, Bibliography, Footnote
+from mep.footnotes.models import SourceType, Bibliography
 
 
 class Command(BaseCommand):
