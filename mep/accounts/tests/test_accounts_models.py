@@ -14,6 +14,7 @@ from mep.accounts.models import Account, Address, \
     DatePrecisionField, DatePrecision, PartialDate
 from mep.books.models import Item
 from mep.people.models import Person, Location
+from mep.footnotes.models import Bibliography, SourceType
 
 
 class TestAccount(TestCase):
@@ -219,6 +220,16 @@ class TestAccount(TestCase):
         # a Subscription and generic Event are not
         assert subs not in reimbursements
         assert generic not in reimbursements
+
+    def test_has_card(self):
+        account = Account()
+        assert not account.has_card()
+
+        src_type = SourceType.objects.get_or_create(name='Lending Library Card')[0]
+        card = Bibliography.objects.create(bibliographic_note='John\'s library card',
+            source_type=src_type)
+        account.card = card
+        assert account.has_card()
 
 
 class TestAddress(TestCase):
