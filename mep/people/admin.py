@@ -231,6 +231,7 @@ class PersonAdmin(admin.ModelAdmin):
         'in_logbooks', 'has_card', 'verified', 'updated_at', 'admin_url']
 
     def csv_filename(self):
+        '''Generate filename for CSV download'''
         return 'mep-people-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
 
     def tabulate_queryset(self, queryset):
@@ -259,7 +260,8 @@ class PersonAdmin(admin.ModelAdmin):
     export_to_csv.short_description = 'Export selected people to CSV'
 
     def get_urls(self):
-        # adds a custom URL for exporting all people as CSV
+        '''Return admin urls; adds a custom URL for exporting all people
+        as CSV'''
         urls = [
             url(r'^csv/$', self.admin_site.admin_view(self.export_to_csv),
                 name='people_person_csv')
