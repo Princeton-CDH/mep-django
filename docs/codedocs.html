@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.7.0 documentation</title>
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.8.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -29,8 +29,6 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="code-documentation">
@@ -184,6 +182,12 @@ One of <code class="docutils literal notranslate"><span class="pre">borrow</span
 <dd><p>Earliest known date from all events associated with this account</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="mep.accounts.models.Account.event_dates">
+<code class="descname">event_dates</code><a class="headerlink" href="#mep.accounts.models.Account.event_dates" title="Permalink to this definition">¶</a></dt>
+<dd><p>sorted list of all unique event dates associated with this account</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="mep.accounts.models.Account.get_events">
 <code class="descname">get_events</code><span class="sig-paren">(</span><em>etype='event'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.get_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.get_events" title="Permalink to this definition">¶</a></dt>
@@ -293,6 +297,15 @@ supported partial date form or based on earliest/latest datetime.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="mep.accounts.models.Borrow.date_range">
+<code class="descname">date_range</code><a class="headerlink" href="#mep.accounts.models.Borrow.date_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Borrowing event date range as string, using partial dates.
+Returns a single date in partial date format if both dates are
+set to the same date. Uses “??” for unset dates,
+and returns in format start/end.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="mep.accounts.models.Borrow.item">
 <code class="descname">item</code><a class="headerlink" href="#mep.accounts.models.Borrow.item" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference internal" href="#mep.books.models.Item" title="mep.books.models.Item"><code class="xref py py-class docutils literal notranslate"><span class="pre">Item</span></code></a> that was borrowed;
@@ -357,24 +370,32 @@ Returns the converted value. Subclasses should override this.</p>
 <em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Event.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="mep.accounts.models.Event.date_range">
+<code class="descname">date_range</code><a class="headerlink" href="#mep.accounts.models.Event.date_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event date range as string. Returns a single date in isoformat
+if both dates are set to the same date. Uses “??” for unset dates,
+and returns in format start/end.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="mep.accounts.models.PartialDate">
 <em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">PartialDate</code><span class="sig-paren">(</span><em>date_field</em>, <em>date_precision_field</em>, <em>unknown_year: int = 1</em>, <em>label=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor that gets and sets a related <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a> and
+<dd><p>Descriptor that gets and sets a related <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a> and
 <a class="reference internal" href="#mep.accounts.models.DatePrecision" title="mep.accounts.models.DatePrecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatePrecision</span></code></a> from partial date strings, e.g. –05-02.</p>
 <dl class="staticmethod">
 <dt id="mep.accounts.models.PartialDate.date_format">
-<em class="property">static </em><code class="descname">date_format</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.date_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.date_format" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a format string for use with <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date.strftime" title="(in Python v3.6)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">datetime.date.strftime()</span></code></a>
+<em class="property">static </em><code class="descname">date_format</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.date_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.date_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a format string for use with <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date.strftime" title="(in Python v3.7)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">datetime.date.strftime()</span></code></a>
 to output a date with the appropriate precision</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mep.accounts.models.PartialDate.parse_date">
 <code class="descname">parse_date</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.parse_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.parse_date" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse a partial date string and return a <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a>
+<dd><p>Parse a partial date string and return a <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a>
 and precision value.</p>
 </dd></dl>
 
@@ -501,6 +522,50 @@ for the same account and date.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="manage-commands">
+<h3>Manage Commands<a class="headerlink" href="#manage-commands" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="module-mep.accounts.management.commands.import_titles">
+<span id="import-titles"></span><h4>import titles<a class="headerlink" href="#module-mep.accounts.management.commands.import_titles" title="Permalink to this headline">¶</a></h4>
+<p>Manage command to import borrowed title data from MEP XML.  Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">import_titles</span>  <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">borrowed</span><span class="o">-</span><span class="n">titles</span><span class="o">.</span><span class="n">xml</span>
+</pre></div>
+</div>
+<p>Creates item records, groups items by MEP id, and notes variant titles.</p>
+<p>This script should be run before
+<a class="reference internal" href="#module-mep.accounts.management.commands.import_cards" title="mep.accounts.management.commands.import_cards"><code class="xref py py-mod docutils literal notranslate"><span class="pre">import_cards</span></code></a>.</p>
+<p>This script is intended to be used as a <strong>ONE TIME</strong> import to migrate
+from XML to relation database.</p>
+</div>
+<div class="section" id="module-mep.accounts.management.commands.import_cards">
+<span id="import-cards"></span><h4>import cards<a class="headerlink" href="#module-mep.accounts.management.commands.import_cards" title="Permalink to this headline">¶</a></h4>
+<p>Manage command to import lending card data from MEP XML.  Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">import_cards</span>  <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">transcriptions</span><span class="o">/</span><span class="n">cards</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>The command expects to be given the cards directory in the MEP XML
+GitHub data, and will find all xml files under it, including in
+subdirectories.</p>
+<p>Finds associated people and their accounts (if no account exists,
+it will be created if possible) and then processes xml borrowing events
+and adds them to the account.</p>
+</div>
+<div class="section" id="module-mep.accounts.management.commands.report_timegaps">
+<span id="report-timegaps"></span><h4>report timegaps<a class="headerlink" href="#module-mep.accounts.management.commands.report_timegaps" title="Permalink to this headline">¶</a></h4>
+<p>Manage command to identify and report on large gaps in time between
+events in a single library account, to identify possible candidates for
+demerging.  Options allow specifying the minimum gap to look for in months
+(default is 6 months) and a required filename to use for CSV output.
+By default, borrowing events are not included.  If specified, borrowing
+events will be included but borrow events with partially know dates
+will be skipped.</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">report_timegaps</span> <span class="o">-</span><span class="n">o</span> <span class="mi">6</span><span class="n">month</span><span class="o">-</span><span class="n">gaps</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">report_timegaps</span> <span class="o">-</span><span class="n">g</span> <span class="mi">12</span> <span class="n">months</span> <span class="o">-</span><span class="n">o</span> <span class="mi">12</span><span class="n">month</span><span class="o">-</span><span class="n">gaps</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">report_timegaps</span> <span class="o">-</span><span class="n">g</span> <span class="mi">12</span> <span class="n">months</span> <span class="o">--</span><span class="n">borrows</span> <span class="o">-</span><span class="n">o</span> <span class="mi">12</span><span class="n">month</span><span class="o">-</span><span class="n">gaps</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">borrows</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+</div>
+</div>
 </div>
 <div class="section" id="module-mep.books">
 <span id="books"></span><h2>Books<a class="headerlink" href="#module-mep.books" title="Permalink to this headline">¶</a></h2>
@@ -554,6 +619,12 @@ and other media types.</p>
 <dt id="mep.books.models.Item.MultipleObjectsReturned">
 <em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.Item.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.Item.admin_url">
+<code class="descname">admin_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.admin_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.admin_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL to edit this record in the admin site</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mep.books.models.Item.author_list">
@@ -767,6 +838,12 @@ e.g. Wikipedia page.</p>
 <dd><p>Number of documented addresses for this person</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="mep.people.models.Person.admin_url">
+<code class="descname">admin_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.admin_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.admin_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL to edit this record in the admin site</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="mep.people.models.Person.birth_year">
 <code class="descname">birth_year</code><a class="headerlink" href="#mep.people.models.Person.birth_year" title="Permalink to this definition">¶</a></dt>
@@ -889,6 +966,12 @@ and there’s a viaf id for the record</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="mep.people.models.Person.verified">
+<code class="descname">verified</code><a class="headerlink" href="#mep.people.models.Person.verified" title="Permalink to this definition">¶</a></dt>
+<dd><p>verified flag</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="mep.people.models.Person.viaf">
 <code class="descname">viaf</code><a class="headerlink" href="#mep.people.models.Person.viaf" title="Permalink to this definition">¶</a></dt>
 <dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">viapy.api.ViafEntity</span></code> for this record if <a class="reference internal" href="#mep.people.models.Person.viaf_id" title="mep.people.models.Person.viaf_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">viaf_id</span></code></a>
@@ -931,7 +1014,7 @@ with another person.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>person</strong> – <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> person</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="http://django.readthedocs.io/en/latest/ref/exceptions.html#django.core.exceptions.MultipleObjectsReturned" title="(in Django v2.2)"><strong>django.core.exceptions.MultipleObjectsReturned</strong></a> – if selected <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> has multiple accounts _or_ any person
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://django.readthedocs.io/en/latest/ref/exceptions.html#django.core.exceptions.MultipleObjectsReturned" title="(in Django v2.2)"><strong>django.core.exceptions.MultipleObjectsReturned</strong></a> – if selected <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> has multiple accounts _or_ any person
 in the queryset has an account shared with another person</td>
 </tr>
 </tbody>
@@ -1375,6 +1458,24 @@ for latitude and longitude values on the form.</p>
 Uses custom template to display account subscription events and
 any relationships _to_ this person (only relationships to _other_
 people are edited here).</p>
+<dl class="method">
+<dt id="mep.people.admin.PersonAdmin.csv_filename">
+<code class="descname">csv_filename</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdmin.csv_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdmin.csv_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate filename for CSV download</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.admin.PersonAdmin.export_fields">
+<code class="descname">export_fields</code><em class="property"> = ['id', 'name', 'sort_name', 'mep_id', 'birth_year', 'death_year', 'sex', 'title', 'profession', 'is_organization', 'is_creator', 'has_account', 'in_logbooks', 'has_card', 'verified', 'updated_at', 'admin_url']</em><a class="headerlink" href="#mep.people.admin.PersonAdmin.export_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>fields to be included in CSV export</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.admin.PersonAdmin.export_to_csv">
+<code class="descname">export_to_csv</code><span class="sig-paren">(</span><em>request</em>, <em>queryset=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdmin.export_to_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdmin.export_to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stream tabular data as a CSV file</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="mep.people.admin.PersonAdmin.form">
 <code class="descname">form</code><a class="headerlink" href="#mep.people.admin.PersonAdmin.form" title="Permalink to this definition">¶</a></dt>
@@ -1382,9 +1483,22 @@ people are edited here).</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.people.admin.PersonAdmin.get_urls">
+<code class="descname">get_urls</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdmin.get_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdmin.get_urls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return admin urls; adds a custom URL for exporting all people
+as CSV</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.people.admin.PersonAdmin.merge_people">
 <code class="descname">merge_people</code><span class="sig-paren">(</span><em>request</em>, <em>queryset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdmin.merge_people"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdmin.merge_people" title="Permalink to this definition">¶</a></dt>
 <dd><p>Consolidate duplicate person records.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.admin.PersonAdmin.tabulate_queryset">
+<code class="descname">tabulate_queryset</code><span class="sig-paren">(</span><em>queryset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdmin.tabulate_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdmin.tabulate_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator for data in tabular form, including custom fields</p>
 </dd></dl>
 
 </dd></dl>
@@ -1440,8 +1554,8 @@ for place lookup.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="manage-commands">
-<h3>Manage Commands<a class="headerlink" href="#manage-commands" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>Manage Commands<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="module-mep.people.management.commands.import_personography">
 <span id="import-personography"></span><h4>import personography<a class="headerlink" href="#module-mep.people.management.commands.import_personography" title="Permalink to this headline">¶</a></h4>
 <p>Manage command to import personography from MEP XML.  Example usage:</p>
@@ -1460,8 +1574,8 @@ specifics on import logic.</p>
 <span id="footnotes"></span><h2>Footnotes<a class="headerlink" href="#module-mep.footnotes" title="Permalink to this headline">¶</a></h2>
 <p>Django app for footnotes that can be associated with other content
 anywhere in the project.</p>
-<div class="section" id="id4">
-<h3>Models<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3>Models<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <span class="target" id="module-mep.footnotes.models"></span><dl class="class">
 <dt id="mep.footnotes.models.Bibliography">
 <em class="property">class </em><code class="descclassname">mep.footnotes.models.</code><code class="descname">Bibliography</code><span class="sig-paren">(</span><em>id</em>, <em>notes</em>, <em>bibliographic_note</em>, <em>source_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#Bibliography"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.Bibliography" title="Permalink to this definition">¶</a></dt>
@@ -1529,7 +1643,6 @@ for or against information in the system.</p>
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -1594,6 +1707,12 @@ for or against information in the system.</p>
 </li>
 <li><a class="reference internal" href="#module-mep.accounts">Accounts</a><ul>
 <li><a class="reference internal" href="#id1">Models</a></li>
+<li><a class="reference internal" href="#manage-commands">Manage Commands</a><ul>
+<li><a class="reference internal" href="#module-mep.accounts.management.commands.import_titles">import titles</a></li>
+<li><a class="reference internal" href="#module-mep.accounts.management.commands.import_cards">import cards</a></li>
+<li><a class="reference internal" href="#module-mep.accounts.management.commands.report_timegaps">report timegaps</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-mep.books">Books</a><ul>
@@ -1606,14 +1725,14 @@ for or against information in the system.</p>
 <li><a class="reference internal" href="#module-mep.people.views">Views</a></li>
 <li><a class="reference internal" href="#module-mep.people.geonames">GeoNames</a></li>
 <li><a class="reference internal" href="#module-mep.people.admin">Admin</a></li>
-<li><a class="reference internal" href="#manage-commands">Manage Commands</a><ul>
+<li><a class="reference internal" href="#id4">Manage Commands</a><ul>
 <li><a class="reference internal" href="#module-mep.people.management.commands.import_personography">import personography</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-mep.footnotes">Footnotes</a><ul>
-<li><a class="reference internal" href="#id4">Models</a></li>
+<li><a class="reference internal" href="#id5">Models</a></li>
 </ul>
 </li>
 </ul>
@@ -1646,8 +1765,8 @@ for or against information in the system.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/codedocs.rst.txt"
