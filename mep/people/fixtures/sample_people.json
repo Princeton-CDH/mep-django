@@ -1,0 +1,164 @@
+[
+    {
+        "model": "people.country",
+        "pk": 1,
+        "fields": {
+            "name": "United States",
+            "geonames_id": "http://sws.geonames.org/6252001/",
+            "code": "US"
+        }
+    },
+    {
+        "model": "people.country",
+        "pk": 2,
+        "fields": {
+            "name": "France",
+            "geonames_id": "http://sws.geonames.org/3017382/",
+            "code": "FR"
+        }
+    },
+    {
+        "model": "people.person",
+        "pk": 189,
+        "fields": {
+            "notes": "Merged Gay on 2018-05-09\r\nMerged Gay on 2018-05-09",
+            "start_year": 1885,
+            "end_year": 1963,
+            "mep_id": "gay.fr",
+            "name": "Francisque Gay",
+            "sort_name": "Gay, Francisque",
+            "viaf_id": "http://viaf.org/viaf/9857613",
+            "is_organization": false,
+            "updated_at": "2018-06-22T19:13:53Z",
+            "sex": "M",
+            "title": "M.",
+            "profession": null,
+            "nationalities": [
+                2
+            ]
+        }
+    },
+    {
+        "model": "people.person",
+        "pk": 224,
+        "fields": {
+            "notes": "Crossed out: 113 Rue Notre Dame des Champs; 69 Rue Froidevaux\nGerald and Sara Murphy listed on card; Madame Jeanie Leiter listed on card with address\nMaxwell Perkins listed on cardwith address",
+            "start_year": 1899,
+            "end_year": 1961,
+            "mep_id": "hemi.er",
+            "name": "Ernest Hemingway",
+            "sort_name": "Hemingway, Ernest",
+            "viaf_id": "http://viaf.org/viaf/97006051",
+            "is_organization": false,
+            "updated_at": "2018-06-22T19:13:53Z",
+            "sex": "M",
+            "title": "",
+            "profession": null,
+            "nationalities": [
+                1
+            ]
+        }
+    },
+    {
+        "model": "people.person",
+        "pk": 7152,
+        "fields": {
+            "notes": "",
+            "start_year": null,
+            "end_year": null,
+            "mep_id": "",
+            "name": "Aeschylus",
+            "sort_name": "Aeschylus",
+            "viaf_id": "http://viaf.org/viaf/268526195/",
+            "is_organization": false,
+            "updated_at": "2018-07-02T00:21:22Z",
+            "sex": "M",
+            "title": "",
+            "profession": null,
+            "nationalities": []
+        }
+    },
+    {
+        "model": "accounts.account",
+        "pk": 4852,
+        "fields": {
+            "persons": [
+                189
+            ]
+        }
+    },
+    {
+        "model": "accounts.account",
+        "pk": 533,
+        "fields": {
+            "persons": [
+                224
+            ]
+        }
+    },
+    {
+        "model": "books.item",
+        "pk": 5276,
+        "fields": {
+            "notes": "Variant titles: Sun also Rises; Sun also rises.; The sun also rises.; The Sun also Rises; . Sun also rises; Sun Also Rises; Sun Also Rises.; The sun also rises; Sun also rises",
+            "mep_id": "mep:002m04",
+            "title": "The Sun Also Rises",
+            "volume": null,
+            "number": null,
+            "year": 1926,
+            "season": "",
+            "edition": "",
+            "uri": "",
+            "updated_at": "2018-07-13T23:19:49Z",
+            "publishers": [],
+            "pub_places": []
+        }
+    },
+    {
+        "model": "books.item",
+        "pk": 3528,
+        "fields": {
+            "notes": "Author: Aeschylus",
+            "mep_id": "mep:00dz09",
+            "title": "Suppliant Maidens",
+            "volume": null,
+            "number": null,
+            "year": 1922,
+            "season": "",
+            "edition": "",
+            "uri": "",
+            "updated_at": "2018-07-02T00:24:06Z",
+            "publishers": [],
+            "pub_places": []
+        }
+    },
+    {
+        "model": "books.creatortype",
+        "pk": 1,
+        "fields": {
+            "name": "Author",
+            "notes": ""
+        }
+    },
+    {
+        "model": "books.creator",
+        "pk": 4332,
+        "fields": {
+            "notes": "",
+            "creator_type": 1,
+            "person": 224,
+            "item": 5276
+        }
+    },
+    {
+        "model": "books.creator",
+        "pk": 2983,
+        "fields": {
+            "notes": "",
+            "creator_type": 1,
+            "person": 7152,
+            "item": 3528
+        }
+    }
+]
+    

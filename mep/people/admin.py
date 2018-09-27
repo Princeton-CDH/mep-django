@@ -1,19 +1,23 @@
 from dal import autocomplete
 from django import forms
 from django.conf import settings
+from django.conf.urls import url
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
+from tabular_export.admin import export_to_csv_response
 from viapy.widgets import ViafWidget
 
-from mep.common.admin import NamedNotableAdmin, CollapsedTabularInline, \
-    CollapsibleTabularInline
 from mep.accounts.admin import AddressInline
+from mep.common.admin import (CollapsedTabularInline, CollapsibleTabularInline,
+                              NamedNotableAdmin)
 from mep.footnotes.admin import FootnoteInline
-from .models import Person, Country, Location, Profession, InfoURL, \
-    Relationship, RelationshipType
+
+from .models import (Country, InfoURL, Location, Person, Profession,
+                     Relationship, RelationshipType)
 
 
 class InfoURLInline(CollapsibleTabularInline):
@@ -177,13 +181,17 @@ class PersonAdmin(admin.ModelAdmin):
     form = PersonAdminForm
     list_display = ('name', 'title', 'sort_name', 'list_nationalities',
         'birth_year', 'death_year', 'sex', 'profession', 'viaf_id', 'mep_id',
-        'address_count', 'in_logbooks', 'has_card', 'updated_at', 'note_snippet')
-    fields = ('mep_id', 'in_logbooks', 'title',
+        'address_count', 'in_logbooks', 'has_card', 'verified', 'updated_at', 'note_snippet')
+    fields = ('mep_id',
+        ('has_account', 'in_logbooks', 'has_card', 'is_creator'),
+        'title',
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
-        'sex', 'profession', 'nationalities', 'is_organization', 'notes')
-    readonly_fields = ('mep_id', 'in_logbooks')
+        'sex', 'profession', 'nationalities', 'is_organization', 'verified',
+        'notes')
+    readonly_fields = ('mep_id', 'in_logbooks', 'has_account', 'has_card',
+                       'is_creator')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
     list_filter = (PersonTypeListFilter, 'sex', 'profession', 'nationalities',
                    'is_organization')
@@ -197,7 +205,7 @@ class PersonAdmin(admin.ModelAdmin):
     # NOTE: using a locally customized version of django's prepopulate.js
     # to allow using the prepopulate behavior without slugifying the value
 
-    actions = ['merge_people']
+    actions = ['merge_people', 'export_to_csv']
 
     class Media:
         js = ['admin/viaf-lookup.js']
@@ -215,6 +223,50 @@ class PersonAdmin(admin.ModelAdmin):
         redirect = '%s?ids=%s' % (reverse('people:merge'), ','.join(selected))
         return HttpResponseRedirect(redirect, status=303)   # 303 = See Other
     merge_people.short_description = 'Merge selected people'
+
+    #: fields to be included in CSV export
+    export_fields = [
+        'id', 'name', 'sort_name', 'mep_id', 'birth_year', 'death_year',
+        'sex', 'title', 'profession', 'is_organization', 'is_creator', 'has_account',
+        'in_logbooks', 'has_card', 'verified', 'updated_at', 'admin_url']
+
+    def csv_filename(self):
+        '''Generate filename for CSV download'''
+        return 'mep-people-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
+
+    def tabulate_queryset(self, queryset):
+        '''Generator for data in tabular form, including custom fields'''
+        for person in queryset.prefetch_related('account_set'):
+            # retrieve values for configured export fields; if the attribute
+            # is a callable (i.e., a custom property method), call it
+            yield [value() if callable(value) else value
+                   for value in (getattr(person, field) for field in self.export_fields)]
+
+    def export_to_csv(self, request, queryset=None):
+        '''Stream tabular data as a CSV file'''
+        queryset = self.get_queryset(request) if queryset is None else queryset
+
+        # use verbose names to label the columns (adapted from django-tabular-export)
+        # get verbose names for model fields
+        verbose_names = {i.name: i.verbose_name for i in queryset.model._meta.fields}
+        # get verbose field name if there is one; look for verbose name
+        # on a non-field attribute (e.g. a method); otherwise, title case the field name
+        headers = [verbose_names.get(field, None) or
+                   getattr(getattr(queryset.model, field), 'verbose_name',
+                           field.replace('_', ' ').title())
+                   for field in self.export_fields]
+        return export_to_csv_response(self.csv_filename(), headers,
+                                      self.tabulate_queryset(queryset))
+    export_to_csv.short_description = 'Export selected people to CSV'
+
+    def get_urls(self):
+        '''Return admin urls; adds a custom URL for exporting all people
+        as CSV'''
+        urls = [
+            url(r'^csv/$', self.admin_site.admin_view(self.export_to_csv),
+                name='people_person_csv')
+        ]
+        return urls + super(PersonAdmin, self).get_urls()
 
 
 class LocationAdminForm(forms.ModelForm):

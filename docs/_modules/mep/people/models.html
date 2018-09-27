@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.7.0 documentation</title>
+    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.8.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
@@ -27,21 +27,25 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <h1>Source code for mep.people.models</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">django.apps</span> <span class="k">import</span> <span class="n">apps</span>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">django.apps</span> <span class="k">import</span> <span class="n">apps</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span><span class="p">,</span> <span class="n">ObjectDoesNotExist</span>
 <span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericRelation</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">transaction</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">timezone</span>
 <span class="kn">from</span> <span class="nn">viapy.api</span> <span class="k">import</span> <span class="n">ViafEntity</span>
 
 <span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">AliasIntegerField</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">,</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
 <span class="kn">from</span> <span class="nn">mep.common.validators</span> <span class="k">import</span> <span class="n">verify_latlon</span>
 <span class="kn">from</span> <span class="nn">mep.footnotes.models</span> <span class="k">import</span> <span class="n">Footnote</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Country"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Country">[docs]</a><span class="k">class</span> <span class="nc">Country</span><span class="p">(</span><span class="n">Named</span><span class="p">):</span>
@@ -144,6 +148,7 @@
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="c1"># identify the account other events will be reassociated with, if exists</span>
+        <span class="n">primary_account</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span>
             <span class="n">primary_account</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
         <span class="c1"># error if more than account, since we can&#39;t pick which to merge to</span>
@@ -161,15 +166,41 @@
 
         <span class="k">for</span> <span class="n">merge_person</span> <span class="ow">in</span> <span class="n">merge_people</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span> <span class="c1"># if the merged person had an account</span>
+
+                <span class="c1"># store primary account card reference if there is one</span>
+                <span class="n">account_card</span> <span class="o">=</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">card</span> <span class="k">if</span> <span class="n">primary_account</span> <span class="k">else</span> <span class="kc">None</span>
+
                 <span class="k">for</span> <span class="n">account</span> <span class="ow">in</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span> <span class="c1"># a merged person had an account, but the main person doesn&#39;t</span>
-                        <span class="n">account</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">person</span><span class="p">)</span> <span class="c1"># swap the account&#39;s owner to the main person</span>
+
+                    <span class="c1"># if the account to be merged has an associated library card</span>
+                    <span class="k">if</span> <span class="n">account</span><span class="o">.</span><span class="n">card</span><span class="p">:</span>
+                        <span class="c1"># store the first account card reference we find,</span>
+                        <span class="c1"># if we don&#39;t already have one</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">account_card</span><span class="p">:</span>
+                            <span class="n">account_card</span> <span class="o">=</span> <span class="n">account</span><span class="o">.</span><span class="n">card</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1"># unlikely, but if we&#39;re merging two accounts with cards</span>
+                            <span class="c1"># log a warning so we can track it down later if necessary</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Acount </span><span class="si">%s</span><span class="s1"> card </span><span class="si">%s</span><span class="s1"> association will be lost in merge&#39;</span><span class="p">,</span>
+                                        <span class="n">account</span><span class="p">,</span> <span class="n">account</span><span class="o">.</span><span class="n">card</span><span class="p">)</span>
+
+                    <span class="c1"># if a merge person has an account, but the main person doesn&#39;t,</span>
+                    <span class="c1"># swap the account&#39;s owner to the main person</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span>
+                        <span class="n">account</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
                         <span class="n">account</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">merge_person</span><span class="p">)</span>
-                        <span class="n">primary_account</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span> <span class="c1"># define the new primary account</span>
+                         <span class="c1"># define the new primary account</span>
+                        <span class="n">primary_account</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="n">primary_account</span><span class="p">)</span> <span class="c1"># reassociate all events with the main account</span>
                         <span class="n">account</span><span class="o">.</span><span class="n">address_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="n">primary_account</span><span class="p">)</span> <span class="c1"># reassociate any addresses with the main account</span>
                         <span class="n">account</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span> <span class="c1"># delete the empty account</span>
+
+                <span class="c1"># if a card was present on the account to be merged and *not*</span>
+                <span class="c1"># on the primary account, copy it</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">card</span> <span class="ow">and</span> <span class="n">account_card</span><span class="p">:</span>
+                    <span class="n">primary_account</span><span class="o">.</span><span class="n">card</span> <span class="o">=</span> <span class="n">account_card</span>
+                    <span class="n">primary_account</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">is_creator</span><span class="p">():</span> <span class="c1"># if the merged person was a creator</span>
                 <span class="k">for</span> <span class="n">creator</span> <span class="ow">in</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
@@ -239,10 +270,12 @@
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1">#: flag to indicate organization instead of person</span>
     <span class="n">is_organization</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Mark as true to indicate this is an organization&#39;</span><span class="p">)</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Check to indicate this entity is an organization rather than a person&#39;</span><span class="p">)</span>
+    <span class="c1">#: verified flag</span>
+    <span class="n">verified</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Check to indicate information in this record has been checked against the relevant archival sources.&#39;</span><span class="p">)</span>
     <span class="c1">#: update timestamp</span>
     <span class="n">updated_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
 
     <span class="n">MALE</span> <span class="o">=</span> <span class="s1">&#39;M&#39;</span>
     <span class="n">FEMALE</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span>
@@ -355,7 +388,12 @@
 <div class="viewcode-block" id="Person.has_card"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.has_card">[docs]</a>    <span class="k">def</span> <span class="nf">has_card</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;The library account for this person has an associated lending card&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">card__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
-    <span class="n">has_card</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span></div>
+    <span class="n">has_card</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="Person.admin_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.admin_url">[docs]</a>    <span class="k">def</span> <span class="nf">admin_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;URL to edit this record in the admin site&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:people_person_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">])</span></div>
+    <span class="n">admin_url</span><span class="o">.</span><span class="n">verbose_name</span> <span class="o">=</span> <span class="s1">&#39;Admin Link&#39;</span></div>
 
 
 <div class="viewcode-block" id="InfoURL"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.InfoURL">[docs]</a><span class="k">class</span> <span class="nc">InfoURL</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
@@ -405,7 +443,6 @@
 </pre></div>
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -487,8 +524,8 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
 

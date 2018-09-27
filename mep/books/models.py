@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 from mep.common.models import Named, Notable
 from mep.common.validators import verify_latlon
@@ -89,7 +90,8 @@ class Item(Notable):
 
     def author_list(self):
         '''comma separated list of author names'''
-        return ', '.join([str(auth) for auth in self.authors])
+        return '; '.join([str(auth) for auth in self.authors])
+    author_list.verbose_name = 'Authors'
 
     @property
     def editors(self):
@@ -105,6 +107,11 @@ class Item(Notable):
     def borrow_count(self):
         '''Number of times this item was borrowed.'''
         return self.borrow_set.count()
+
+    def admin_url(self):
+        '''URL to edit this record in the admin site'''
+        return reverse('admin:books_item_change', args=[self.id])
+    admin_url.verbose_name = 'Admin Link'
 
 
 class CreatorType(Named, Notable):

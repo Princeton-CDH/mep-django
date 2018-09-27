@@ -299,6 +299,19 @@ class TestPeopleViews(TestCase):
         Creator.objects.create(creator_type=editor, person=pers2, item=book2) # pers2 editor of book2
         Creator.objects.create(creator_type=author, person=pers2, item=book2) # pers2 author of book2
 
+        # GET should include account info
+        response = self.client.get(reverse('people:merge'), {'ids': idstring})
+        # account should be displayed with link to admin edit page
+        self.assertContains(response, str(acct))
+        self.assertContains(response, str(acct2))
+        self.assertContains(
+            response, reverse('admin:accounts_account_change', args=[acct.id]))
+        self.assertContains(
+            response, reverse('admin:accounts_account_change', args=[acct2.id]))
+        # should indicate if account has no events and no card
+        self.assertContains(response, 'No account events')
+        self.assertContains(response, 'No associated lending library card')
+
         # POST should execute the merge
         response = self.client.post('%s?ids=%s' % \
                                     (reverse('people:merge'), idstring),
@@ -339,6 +352,7 @@ class TestPeopleViews(TestCase):
         assert 'people/merge_person.html' in template_names
         self.assertContains(response, pers3.name)
         self.assertContains(response, pers4.name)
+
 
         # POST merge should work & report no accounts changed
         response = self.client.post('%s?ids=%s' % \

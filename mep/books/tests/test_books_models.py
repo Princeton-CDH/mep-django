@@ -73,7 +73,7 @@ class TestItem(TestCase):
         assert len(item.authors) == 2
         assert author1 in item.authors
         assert author2 in item.authors
-        assert item.author_list() == '%s, %s' % (author1, author2)
+        assert item.author_list() == '%s; %s' % (author1, author2)
 
         assert len(item.editors) == 1
         assert item.editors.first() == editor

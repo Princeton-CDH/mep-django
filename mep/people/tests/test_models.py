@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import (MultipleObjectsReturned,
                                     ObjectDoesNotExist, ValidationError)
 from django.test import TestCase
+from django.urls import resolve
 from django.utils import timezone
 from viapy.api import ViafEntity
 
@@ -172,6 +173,33 @@ class TestPerson(TestCase):
         # still true if only reimbursement and no subscription
         subs.delete()
         assert pers.in_logbooks()
+
+
+    def test_admin_url(self):
+        pers = Person.objects.create(name='John')
+        resolved_url = resolve(pers.admin_url())
+        assert resolved_url.args[0] == str(pers.id)
+        assert resolved_url.view_name == 'admin:people_person_change'
+
+
+    def test_has_card(self):
+        # create test person & account and associate them
+        pers = Person.objects.create(name='John')
+        # no account, no card
+        assert not pers.has_card()
+
+        acct = Account.objects.create()
+        acct.persons.add(pers)
+        # account but no card
+        assert not pers.has_card()
+
+        # create card and add to account
+        src_type = SourceType.objects.get_or_create(name='Lending Library Card')[0]
+        card = Bibliography.objects.create(bibliographic_note='John\'s Library Card',
+            source_type=src_type)
+        acct.card = card
+        acct.save()
+        assert pers.has_card()
 
 
 class TestPersonQuerySet(TestCase):
@@ -359,7 +387,7 @@ class TestPersonQuerySet(TestCase):
         nikitas_address = Address.objects.create(account=nikitas_acct,
                                                  location=location)
         nikitas_event = Subscription.objects.create(account=nikitas_acct)
-        qs = Person.objects.filter(pk=spencer.id) | Person.objects.filter(pk=nikitas.id)
+        qs = Person.objects.filter(pk__in=[spencer.id, nikitas.id])
         qs.merge_with(mike)
         assert mike.name == 'Mike Mulshine' # kept set properties
         assert mike.birth_year == 1990 # merged new properties
@@ -370,6 +398,34 @@ class TestPersonQuerySet(TestCase):
         assert spencer_event in mike.account_set.first().get_events(etype='subscription') # events were merged
         assert nikitas_event in mike.account_set.first().get_events(etype='subscription')
 
+        # merge a record with associated card bibliography to
+        # a record without should copy the card
+        nicholas = Person.objects.create(name='Nicholas')
+        src_type = SourceType.objects.get_or_create(name='Lending Library Card')[0]
+        card = Bibliography.objects.create(bibliographic_note='Nicholas\' library card, North Pole Library',
+            source_type=src_type)
+        nicholas_acct = Account.objects.create(card=card)
+        nicholas_acct.persons.add(nicholas)
+        qs = Person.objects.filter(pk=nicholas.id)
+        assert not mike.has_card()
+        qs.merge_with(mike)
+        assert mike.account_set.first().card
+        assert mike.has_card()
+
+        # merging a record with a card to another record with a card
+        # should log a warning
+        john = Person.objects.create(name='John')
+        card = Bibliography.objects.create(bibliographic_note='John\'s library card',
+            source_type=src_type)
+        john_acct = Account.objects.create(card=card)
+        john_acct.persons.add(john)
+        qs = Person.objects.filter(pk=john.id)
+        assert mike.has_card()
+        with self.assertLogs('mep', level='WARN') as logs:
+            qs.merge_with(mike)
+            # mike's existing card should not be overwritten with the john's card
+            assert mike.account_set.first().card != card
+        assert 'association will be lost in merge' in logs.output[0]
 
 
 class TestProfession(TestCase):

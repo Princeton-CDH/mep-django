@@ -1,3 +1,18 @@
+'''
+Manage command to import borrowed title data from MEP XML.  Example usage::
+
+    python manage.py import_titles  /path/to/borrowed-titles.xml
+
+Creates item records, groups items by MEP id, and notes variant titles.
+
+This script should be run before
+:mod:`~mep.accounts.management.commands.import_cards`.
+
+This script is intended to be used as a **ONE TIME** import to migrate
+from XML to relation database.
+
+'''
+
 from collections import defaultdict
 
 from django.core.management.base import BaseCommand
@@ -37,4 +52,3 @@ class Command(BaseCommand):
             item.save()
 
         self.stdout.write('Created %d item records' % len(titles_by_id.keys()))
-
