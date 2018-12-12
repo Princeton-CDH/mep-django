@@ -49,6 +49,13 @@ AUTOCOMPLETE = {
     ),
 }
 
+
+class OpenFootnoteInline(FootnoteInline):
+    '''Customize footnote inline for borrowing and purchase events'''
+    classes = ('grp-collapse', )  # grapelli collapsible, but not closed
+    extra = 0
+
+
 class EventAdminForm(forms.ModelForm):
     '''Admin form for the Event model, adds autocomplete to account'''
     class Meta:
@@ -256,6 +263,7 @@ class PurchaseAdmin(admin.ModelAdmin):
     list_display = ('account', 'date', 'price', 'currency_symbol',)
     list_filter = ('currency',)
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
+    inlines = [OpenFootnoteInline]
 
 
 class PurchaseInline(CollapsibleTabularInline):
@@ -348,12 +356,6 @@ class BorrowAdminForm(PartialDateFormMixin):
         }
 
 
-class BorrowFootnoteInline(FootnoteInline):
-    # customize standard footnote inline for borrowing event footnote
-    classes = ('grp-collapse', )  # grapelli collapsible, but not closed
-    extra = 0
-
-
 class BorrowAdminListForm(forms.ModelForm):
     # custom form for list-editable item status on borrow list
 
@@ -380,7 +382,7 @@ class BorrowAdmin(admin.ModelAdmin):
         ('partial_start_date', 'partial_end_date'),
         ('notes')
     )
-    inlines = (BorrowFootnoteInline, )
+    inlines = (OpenFootnoteInline, )
 
     class Media:
         js = ['admin/borrow-admin-list.js']
