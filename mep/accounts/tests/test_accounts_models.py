@@ -678,6 +678,7 @@ class TestBorrow(TestCase):
 
         # handle partial dates
         self.borrow.partial_start_date = '2018-05'
+        print(self.borrow)
         assert str(self.borrow).endswith('%s/??' % self.borrow.partial_start_date)
 
     def test_save(self):

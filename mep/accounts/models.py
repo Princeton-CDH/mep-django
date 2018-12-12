@@ -607,7 +607,7 @@ class PartialDateMixin(models.Model):
                          for dt in [self.partial_start_date, self.partial_end_date]])
 
 
-class Borrow(Event, PartialDateMixin):
+class Borrow(PartialDateMixin, Event):
     '''Inherited table indicating borrow events'''
     #: :class:`~mep.books.models.Item` that was borrowed;
     #: optional to account for unclear titles
