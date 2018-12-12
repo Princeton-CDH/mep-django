@@ -11,7 +11,7 @@ import pytest
 
 from mep.accounts.models import Account, Address, \
     Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin, \
-    DatePrecisionField, DatePrecision, PartialDate
+    DatePrecisionField, DatePrecision, PartialDate, PartialDateMixin
 from mep.books.models import Item
 from mep.people.models import Person, Location
 from mep.footnotes.models import Bibliography, SourceType
@@ -588,7 +588,6 @@ class TestSubscription(TestCase):
             "Month of February should display as '%s', got '%s'" % (expect, dur)
 
 
-
 class TestPurchase(TestCase):
 
     def setUp(self):
@@ -696,60 +695,88 @@ class TestBorrow(TestCase):
         borrow.save()
         assert borrow.item_status == borrow.ITEM_MISSING
 
+
+class TestPartialDateMixin(TestCase):
+
+    class PartialMixinObject(PartialDateMixin):
+
+        class Meta:
+            abstract = True
+
     def test_calculate_date(self):
 
-        borrow = Borrow(account=self.account, item=self.item)
+        pmo = self.PartialMixinObject()
         with pytest.raises(ValueError):
             # unsupported date name should error
-            borrow.calculate_date('bogus')
+            pmo.calculate_date('bogus')
 
         # partial date
-        borrow.calculate_date('start_date', '1935-05')
-        assert borrow.start_date == datetime.date(1935, 5, 1)
-        assert borrow.start_date_precision.year
-        assert borrow.start_date_precision.month
-        assert not borrow.start_date_precision.day
+        pmo.calculate_date('start_date', '1935-05')
+        assert pmo.start_date == datetime.date(1935, 5, 1)
+        assert pmo.start_date_precision.year
+        assert pmo.start_date_precision.month
+        assert not pmo.start_date_precision.day
 
         # 1900 date = unknown by project convention
-        borrow.calculate_date('end_date', '1901-06-30')
-        assert borrow.end_date == datetime.date(1901, 6, 30)
-        assert not borrow.end_date_precision.year
-        assert borrow.end_date_precision.month
-        assert borrow.end_date_precision.day
+        pmo.calculate_date('end_date', '1901-06-30')
+        assert pmo.end_date == datetime.date(1901, 6, 30)
+        assert not pmo.end_date_precision.year
+        assert pmo.end_date_precision.month
+        assert pmo.end_date_precision.day
 
         # earliest/latest dates
         early = datetime.date(1930, 11, 5)
         late = datetime.date(1930, 11, 25)
-        borrow.calculate_date('start_date', earliest=early, latest=late)
+        pmo.calculate_date('start_date', earliest=early, latest=late)
         # stored as earliest date
-        assert borrow.start_date == early
-        assert borrow.partial_start_date == '1930-11'
+        assert pmo.start_date == early
+        assert pmo.partial_start_date == '1930-11'
         # in this case, all but day match
-        assert borrow.start_date_precision.year
-        assert borrow.start_date_precision.month
-        assert not borrow.start_date_precision.day
+        assert pmo.start_date_precision.year
+        assert pmo.start_date_precision.month
+        assert not pmo.start_date_precision.day
 
         # only year overlaps
         late = datetime.date(1930, 12, 25)
-        borrow.calculate_date('start_date', earliest=early, latest=late)
-        assert borrow.partial_start_date == '1930'
-        assert borrow.start_date_precision.year
-        assert not borrow.start_date_precision.month
+        pmo.calculate_date('start_date', earliest=early, latest=late)
+        assert pmo.partial_start_date == '1930'
+        assert pmo.start_date_precision.year
+        assert not pmo.start_date_precision.month
 
         # different year but same month/day
         late = datetime.date(1932, 11, 5)
-        borrow.calculate_date('start_date', earliest=early, latest=late)
-        assert borrow.start_date == early
-        assert borrow.partial_start_date == '--11-05'
-        assert not borrow.start_date_precision.year
-        assert borrow.start_date_precision.month
-        assert borrow.start_date_precision.day
+        pmo.calculate_date('start_date', earliest=early, latest=late)
+        assert pmo.start_date == early
+        assert pmo.partial_start_date == '--11-05'
+        assert not pmo.start_date_precision.year
+        assert pmo.start_date_precision.month
+        assert pmo.start_date_precision.day
 
         # no overlap?
         late = datetime.date(1932, 12, 22)
-        borrow.calculate_date('start_date', earliest=early, latest=late)
-        assert not borrow.partial_start_date
-        assert not borrow.start_date_precision
+        pmo.calculate_date('start_date', earliest=early, latest=late)
+        assert not pmo.partial_start_date
+        assert not pmo.start_date_precision
+
+    def test_date_range(self):
+
+        # test both dates being the same returning date in partial date format
+        pmo = self.PartialMixinObject()
+        pmo.start_date = datetime.date(1930, 1, 1)
+        pmo.end_date = datetime.date(1930, 1, 1)
+        pmo.calculate_date('start_date', '1930-01-01')
+        pmo.calculate_date('end_date', '1930-01-01')
+        assert pmo.date_range == '1930-01-01'
+
+        # test that two dates produce / joined dates
+        pmo.end_date = datetime.date(1930, 1, 2)
+        pmo.calculate_date('end_date', '1930-01-02')
+        assert pmo.date_range == '1930-01-01/1930-01-02'
+
+        # test that an unknown date is rendered as ??
+        pmo.end_date = None
+        pmo.calculate_date('end_date')
+        assert pmo.date_range == '1930-01-01/??'
 
 
 class TestCurrencyMixin(TestCase):
@@ -778,6 +805,7 @@ class TestCurrencyMixin(TestCase):
         # when symbol is not known
         coin.currency = 'foo'
         assert coin.currency_symbol() == 'foo'
+
 
 class TestPartialDates(TestCase):
 
@@ -850,6 +878,3 @@ class TestPartialDates(TestCase):
         pdo.partial_date = '--03-05'
         assert pdo.date == datetime.date(1900, 3, 5)
         assert pdo.date_precision == DatePrecision.month | DatePrecision.day
-
-
-

@@ -537,39 +537,19 @@ class PartialDate(object):
             raise ValidationError('"%s" is not a recognized date.''' % value)
 
 
-class Borrow(Event):
-    '''Inherited table indicating borrow events'''
-    #: :class:`~mep.books.models.Item` that was borrowed;
-    #: optional to account for unclear titles
-    item = models.ForeignKey(Item, null=True, blank=True)
-    ITEM_RETURNED = 'R'
-    ITEM_BOUGHT = 'B'
-    ITEM_MISSING = 'M'
-    STATUS_CHOICES = (
-        ('', 'Unknown'),
-        (ITEM_RETURNED, 'Returned'),
-        (ITEM_BOUGHT, 'Bought'),
-        (ITEM_MISSING, 'Missing'),
-    )
-    item_status = models.CharField(max_length=2, blank=True,
-        help_text='Status of borrowed item (bought, missing, returned)',
-        choices=STATUS_CHOICES)
+class PartialDateMixin(models.Model):
+
+    UNKNOWN_YEAR = 1900
+
     start_date_precision = DatePrecisionField(null=True, blank=True)
     end_date_precision = DatePrecisionField(null=True, blank=True)
-    UNKNOWN_YEAR = 1900
     partial_start_date = PartialDate('start_date', 'start_date_precision',
         UNKNOWN_YEAR, label='start date')
     partial_end_date = PartialDate('end_date', 'end_date_precision',
         UNKNOWN_YEAR, label='end date')
 
-    footnotes = GenericRelation(Footnote)
-
-    def save(self, *args, **kwargs):
-        # if end date is set and item status is not, automatically set
-        # status to returned
-        if self.end_date and not self.item_status:
-            self.item_status = self.ITEM_RETURNED
-        super(Borrow, self).save(*args, **kwargs)
+    class Meta:
+        abstract = True
 
     def calculate_date(self, kind, dateval=None, earliest=None, latest=None):
         '''Calculate end or start date based on a single value in a
@@ -625,6 +605,33 @@ class Borrow(Event):
         # otherwise, use both dates with ?? to indicate unknown date
         return '/'.join([dt if dt else '??'
                          for dt in [self.partial_start_date, self.partial_end_date]])
+
+
+class Borrow(Event, PartialDateMixin):
+    '''Inherited table indicating borrow events'''
+    #: :class:`~mep.books.models.Item` that was borrowed;
+    #: optional to account for unclear titles
+    item = models.ForeignKey(Item, null=True, blank=True)
+    ITEM_RETURNED = 'R'
+    ITEM_BOUGHT = 'B'
+    ITEM_MISSING = 'M'
+    STATUS_CHOICES = (
+        ('', 'Unknown'),
+        (ITEM_RETURNED, 'Returned'),
+        (ITEM_BOUGHT, 'Bought'),
+        (ITEM_MISSING, 'Missing'),
+    )
+    item_status = models.CharField(max_length=2, blank=True,
+        help_text='Status of borrowed item (bought, missing, returned)',
+        choices=STATUS_CHOICES)
+    footnotes = GenericRelation(Footnote)
+
+    def save(self, *args, **kwargs):
+        # if end date is set and item status is not, automatically set
+        # status to returned
+        if self.end_date and not self.item_status:
+            self.item_status = self.ITEM_RETURNED
+        super(Borrow, self).save(*args, **kwargs)
 
 
 class Purchase(Event, CurrencyMixin):
