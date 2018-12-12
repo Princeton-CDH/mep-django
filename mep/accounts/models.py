@@ -635,18 +635,23 @@ class Borrow(PartialDateMixin, Event):
         super(Borrow, self).save(*args, **kwargs)
 
 
-class Purchase(PartialDateMixin, Event, CurrencyMixin):
-    '''Inherited table indicating purchase events'''
+class Purchase(PartialDateMixin, CurrencyMixin, Event):
+    '''Inherited table indicating purchase events; extends :class:`Event`'''
     price = models.DecimalField(max_digits=8, decimal_places=2)
     item = models.ForeignKey(Item)
     footnotes = GenericRelation(Footnote)
+
+    def date(self):
+        '''alias of :attr:`` for display, since reimbersument
+        is a single-day event'''
+        return self.start_date
+    date.admin_order_field = 'start_date'
 
     def save(self, *args, **kwargs):
         # override save to always set start = end, end will be disabled in
         # admin
         self.end_date_precision = self.start_date_precision
         self.end_date = self.start_date
-
         super().save(*args, **kwargs)
 
     def validate_unique(self, *args, **kwargs):
@@ -658,8 +663,14 @@ class Purchase(PartialDateMixin, Event, CurrencyMixin):
         # NOTE: Mixin? Not sure it will actually save much code reduplication.
         super().validate_unique(*args, **kwargs)
         # check to prevent duplicate event (date + account + item)
-        qs = Purchase.objects.filter(start_date=self.start_date,
-            account=self.account, item=self.item)
+        try:
+            qs = Purchase.objects.filter(start_date=self.start_date,
+                account=self.account, item=self.item)
+        except ObjectDoesNotExist:
+            # bail out without making any further assertions because
+            # we've had a missing related field and other checks
+            # will catch it
+            return
 
         # if current item is already saved, exclude it from the queryset
         if not self._state.adding and self.pk is not None:
@@ -695,9 +706,14 @@ class Reimbursement(Event, CurrencyMixin):
 
         # check to prevent duplicate event (reimbursement + date + account)
         # should not have same date + account
-        qs = Reimbursement.objects.filter(start_date=self.start_date,
-            account=self.account)
-
+        try:
+            qs = Reimbursement.objects.filter(start_date=self.start_date,
+                account=self.account)
+        except ObjectDoesNotExist:
+            # bail out without making any further assertions because
+            # we've had a missing related field and other checks
+            # will catch it
+            return
         # if current item is already saved, exclude it from the queryset
         if not self._state.adding and self.pk is not None:
             qs = qs.exclude(pk=self.pk)

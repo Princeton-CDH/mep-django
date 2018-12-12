@@ -65,7 +65,13 @@ class TestSubscriptionAdminForm(TestCase):
         assert form.is_valid()
         assert form.cleaned_data['end_date'] == form_data['end_date']
 
-class TestBorrowAdminForm(TestCase):
+
+class TestPartialDateMixin(TestCase):
+
+    # Letting this test stand for the partial date mixin,
+    # since that's the only functionality being checked here,
+    # and it is common to both sets + mixin needs a concrete
+    # case to test against
 
     def test_get_initial_for_field(self):
         acct = Account.objects.create()
@@ -183,4 +189,3 @@ class TestBorrowAdminForm(TestCase):
         assert borrow.start_date_precision == DatePrecision.year | DatePrecision.month | DatePrecision.day
         assert borrow.end_date == datetime.date(1900, 5, 3)
         assert borrow.end_date_precision == DatePrecision.month | DatePrecision.day
-

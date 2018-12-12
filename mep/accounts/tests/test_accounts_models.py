@@ -635,13 +635,18 @@ class TestPurchase(TestCase):
             purchase.validate_unique()
 
         # a new purchase on same date and account, but different item,
-        # should not
+        # should not trigger ValidationError
         purchase = Purchase(
             account=self.account,
             start_date=self.purchase.start_date,
             item=Item.objects.create(title='Le Bar'),
             price=self.purchase.price
         )
+        purchase.validate_unique()
+
+        # not setting an account should not raise an error (caught by other
+        # checks)
+        Purchase().validate_unique()
 
 
 class TestReimbursement(TestCase):
@@ -651,7 +656,7 @@ class TestReimbursement(TestCase):
         self.reimbursement = Reimbursement.objects.create(
             account=self.account,
             refund=2.30,
-            currency='USD'
+            currency='USD',
         )
 
     def test_repr(self):
@@ -673,6 +678,16 @@ class TestReimbursement(TestCase):
             reimburse = Reimbursement(account=self.account,
                 start_date=self.reimbursement.start_date)
             reimburse.validate_unique()
+
+        # a new reimbursement that is not on the same date should not be caught
+        reimburse = Reimbursement(account=self.account,
+            start_date=datetime.date(1919, 1, 1))
+        reimburse.validate_unique()
+
+        # a reimbursement withment without an account should not raise
+        # a related object error
+        Reimbursement().validate_unique()
+
 
     def test_auto_end_date(self):
         self.reimbursement.start_date = datetime.datetime.now()
