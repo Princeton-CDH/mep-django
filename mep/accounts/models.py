@@ -599,12 +599,13 @@ class PartialDateMixin(models.Model):
 
         # if both dates are set and the same, return a single date
         if self.partial_start_date and self.partial_end_date and \
-            self.partial_start_date == self.partial_end_date:
+                self.partial_start_date == self.partial_end_date:
             return self.partial_start_date
 
         # otherwise, use both dates with ?? to indicate unknown date
         return '/'.join([dt if dt else '??'
-                         for dt in [self.partial_start_date, self.partial_end_date]])
+                         for dt in [self.partial_start_date,
+                                    self.partial_end_date]])
 
 
 class Borrow(PartialDateMixin, Event):
@@ -634,10 +635,19 @@ class Borrow(PartialDateMixin, Event):
         super(Borrow, self).save(*args, **kwargs)
 
 
-class Purchase(Event, CurrencyMixin):
+class Purchase(PartialDateMixin, Event, CurrencyMixin):
     '''Inherited table indicating purchase events'''
     price = models.DecimalField(max_digits=8, decimal_places=2)
     item = models.ForeignKey(Item)
+    footnotes = GenericRelation(Footnote)
+
+    def save(self, *args, **kwargs):
+        # override save to always set start = end, end will be disabled in
+        # admin
+        self.end_date_precision = self.start_date_precision
+        self.end_date = self.start_date
+
+        super().save(*args, **kwargs)
 
 
 class Reimbursement(Event, CurrencyMixin):
