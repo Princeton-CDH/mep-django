@@ -592,15 +592,14 @@ class TestPurchase(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
-        self.item = Item.objects.create(
-            title='Foobar'
-        )
-        self.purchase = Purchase.objects.create(
+        self.purchase = Purchase(
             account=self.account,
             price=2.30,
             currency='USD',
-            item=self.item,
+            item=Item.objects.create(title='Le Foo'),
         )
+        self.purchase.calculate_date('start_date', '1920-02-03')
+        self.purchase.save()
 
     def test_repr(self):
         # Using self.__dict__ so relying on method being correct
@@ -609,8 +608,40 @@ class TestPurchase(TestCase):
         assert re.search(overall, repr(self.purchase))
 
     def test_str(self):
-        assert str(self.purchase) == ('Purchase for account #%s ??/??' %
+        assert str(self.purchase) == ('Purchase for account #%s 1920-02-03' %
                                       self.purchase.account.pk)
+
+    def test_save(self):
+        # no end date or precision
+        self.purchase.end_date = None
+        self.purchase.end_date_precision = None
+        self.purchase.save()
+        # save should set end_date and end_date_precision
+        assert self.purchase.end_date == self.purchase.start_date
+        assert self.purchase.end_date_precision == self.purchase.start_date_precision
+
+    def test_validate_unique(self):
+        # resaving existing record should not error
+        self.purchase.validate_unique()
+
+        # creating new purchase for same account, date, and item should error
+        with pytest.raises(ValidationError):
+            purchase = Purchase(
+                account=self.account,
+                start_date=self.purchase.start_date,
+                item=self.purchase.item,
+                price=self.purchase.price
+            )
+            purchase.validate_unique()
+
+        # a new purchase on same date and account, but different item,
+        # should not
+        purchase = Purchase(
+            account=self.account,
+            start_date=self.purchase.start_date,
+            item=Item.objects.create(title='Le Bar'),
+            price=self.purchase.price
+        )
 
 
 class TestReimbursement(TestCase):
@@ -763,14 +794,11 @@ class TestPartialDateMixin(TestCase):
 
         # test both dates being the same returning date in partial date format
         pmo = self.PartialMixinObject()
-        pmo.start_date = datetime.date(1930, 1, 1)
-        pmo.end_date = datetime.date(1930, 1, 1)
         pmo.calculate_date('start_date', '1930-01-01')
         pmo.calculate_date('end_date', '1930-01-01')
         assert pmo.date_range == '1930-01-01'
 
         # test that two dates produce / joined dates
-        pmo.end_date = datetime.date(1930, 1, 2)
         pmo.calculate_date('end_date', '1930-01-02')
         assert pmo.date_range == '1930-01-01/1930-01-02'
 
