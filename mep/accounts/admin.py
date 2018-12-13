@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.core.validators import RegexValidator, ValidationError
 
 from mep.accounts.models import Account, Address, Subscription,\
-    Reimbursement, Event, SubscriptionType, Borrow, PartialDate
+    Reimbursement, Event, SubscriptionType, Borrow, PartialDate, Purchase
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 from mep.footnotes.admin import FootnoteInline
 
@@ -48,6 +48,13 @@ AUTOCOMPLETE = {
         }
     ),
 }
+
+
+class OpenFootnoteInline(FootnoteInline):
+    '''Customize footnote inline for borrowing and purchase events.'''
+    classes = ('grp-collapse', )  # grapelli collapsible, but not closed
+    extra = 1
+
 
 class EventAdminForm(forms.ModelForm):
     '''Admin form for the Event model, adds autocomplete to account'''
@@ -196,6 +203,77 @@ class ReimbursementAdmin(admin.ModelAdmin):
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
 
 
+class PartialDateFormMixin(forms.ModelForm):
+    '''Provides form validation and setting for models that inherit from
+    :class:`mep.accounts.models.PartialDateMixin`.'''
+    partial_date_validator = RegexValidator(
+        regex=PartialDate.partial_date_re,
+        message="Value is not a recognized date."
+    )
+    partial_date_help_text = "Enter as much of the date as known, in any of the \
+        following formats: yyyy, yyyy-mm, yyyy-mm-dd, --mm-dd"
+    partial_start_date = forms.CharField(validators=[partial_date_validator],
+        required=False, help_text=partial_date_help_text, label="Start date")
+    partial_end_date = forms.CharField(validators=[partial_date_validator],
+        required=False, help_text=partial_date_help_text, label="End date")
+
+    def get_initial_for_field(self, field, name):
+        if name == 'partial_start_date':
+            return self.instance.partial_start_date
+        if name == 'partial_end_date':
+            return self.instance.partial_end_date
+        return super().get_initial_for_field(field, name)
+
+    def clean(self):
+        '''Parse partial dates and save them on form submission.'''
+        cleaned_data = super().clean()
+        if not self.errors:
+            try:
+                self.instance.partial_start_date = cleaned_data['partial_start_date']
+                self.instance.partial_end_date = cleaned_data['partial_end_date']
+            except ValueError as verr:
+                raise ValidationError('Date validation error: %s' % verr)
+            return cleaned_data
+
+
+class PurchaseAdminForm(PartialDateFormMixin):
+    class Meta:
+        model = Purchase
+        fields = ('account', 'item', 'partial_start_date', 'price', 'currency', 'notes')
+        help_texts = {
+            'account': ('Searches and displays on system assigned '
+                        'account id, as well as associated person and '
+                        'address data.'),
+        }
+        widgets = {
+            'account': AUTOCOMPLETE['account'],
+            'item': AUTOCOMPLETE['item']
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # override start date label to just date, since purchases
+        # are single-day events
+        self.fields['partial_start_date'].label = 'Date'
+
+
+class PurchaseAdmin(admin.ModelAdmin):
+    form = PurchaseAdminForm
+    date_hierarchy = 'start_date'
+    fields = ('account', 'item', ('partial_start_date', 'price', 'currency'), 'notes')
+    list_display = ('account', 'date', 'price', 'currency_symbol',)
+    list_filter = ('currency',)
+    search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
+    inlines = [OpenFootnoteInline]
+
+
+class PurchaseInline(CollapsibleTabularInline):
+    model = Purchase
+    form = PurchaseAdminForm
+    extra = 1
+    fields = ('item', ('partial_start_date', 'price', 'currency'), 'notes')
+
+
 class ReimbursementInline(CollapsibleTabularInline):
     model = Reimbursement
     form = ReimbursementAdminForm
@@ -229,6 +307,7 @@ class AddressInline(CollapsibleTabularInline):
     extra = 1
     fields = ('account', 'person', 'location', 'start_date', 'end_date',
               'care_of_person', 'notes')
+
 
 class AccountAddressInline(AddressInline):
     # when associating a location with an account, don't allow editing
@@ -265,17 +344,7 @@ class SubscriptionTypeAdmin(NamedNotableAdmin):
     list_display = ('name', 'notes')
 
 
-class BorrowAdminForm(forms.ModelForm):
-    partial_date_validator = RegexValidator(
-        regex=PartialDate.partial_date_re,
-        message="Value is not a recognized date."
-    )
-    partial_date_help_text = "Enter as much of the date as known, in any of the \
-        following formats: yyyy, yyyy-mm, yyyy-mm-dd, --mm-dd"
-    partial_start_date = forms.CharField(validators=[partial_date_validator],
-        required=False, help_text=partial_date_help_text, label="Start date")
-    partial_end_date = forms.CharField(validators=[partial_date_validator],
-        required=False, help_text=partial_date_help_text, label="End date")
+class BorrowAdminForm(PartialDateFormMixin):
 
     class Meta:
         model = Borrow
@@ -286,30 +355,6 @@ class BorrowAdminForm(forms.ModelForm):
             'item': AUTOCOMPLETE['item'],
         }
 
-    def get_initial_for_field(self, field, name):
-        if name == 'partial_start_date':
-            return self.instance.partial_start_date
-        if name == 'partial_end_date':
-            return self.instance.partial_end_date
-        return super(BorrowAdminForm, self).get_initial_for_field(field, name)
-
-    def clean(self):
-        '''Parse partial dates and save them on form submission.'''
-        cleaned_data = super(BorrowAdminForm, self).clean()
-        if not self.errors:
-            try:
-                self.instance.partial_start_date = cleaned_data['partial_start_date']
-                self.instance.partial_end_date = cleaned_data['partial_end_date']
-            except ValueError as verr:
-                raise ValidationError('Date validation error: %s' % verr)
-            return cleaned_data
-
-
-class BorrowFootnoteInline(FootnoteInline):
-    # customize standard footnote inline for borrowing event footnote
-    classes = ('grp-collapse', )  # grapelli collapsible, but not closed
-    extra = 0
-
 
 class BorrowAdminListForm(forms.ModelForm):
     # custom form for list-editable item status on borrow list
@@ -318,7 +363,7 @@ class BorrowAdminListForm(forms.ModelForm):
         model = Borrow
         exclude = []
         widgets = {
-            'item_status' : forms.RadioSelect
+            'item_status': forms.RadioSelect
         }
 
 
@@ -337,7 +382,7 @@ class BorrowAdmin(admin.ModelAdmin):
         ('partial_start_date', 'partial_end_date'),
         ('notes')
     )
-    inlines = (BorrowFootnoteInline, )
+    inlines = (OpenFootnoteInline, )
 
     class Media:
         js = ['admin/borrow-admin-list.js']
@@ -352,12 +397,10 @@ class BorrowAdmin(admin.ModelAdmin):
         return super(BorrowAdmin, self).get_changelist_form(request, **kwargs)
 
 
-
-
 admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Reimbursement, ReimbursementAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(SubscriptionType, SubscriptionTypeAdmin)
 admin.site.register(Borrow, BorrowAdmin)
-
+admin.site.register(Purchase, PurchaseAdmin)

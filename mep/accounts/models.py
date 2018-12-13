@@ -537,39 +537,20 @@ class PartialDate(object):
             raise ValidationError('"%s" is not a recognized date.''' % value)
 
 
-class Borrow(Event):
-    '''Inherited table indicating borrow events'''
-    #: :class:`~mep.books.models.Item` that was borrowed;
-    #: optional to account for unclear titles
-    item = models.ForeignKey(Item, null=True, blank=True)
-    ITEM_RETURNED = 'R'
-    ITEM_BOUGHT = 'B'
-    ITEM_MISSING = 'M'
-    STATUS_CHOICES = (
-        ('', 'Unknown'),
-        (ITEM_RETURNED, 'Returned'),
-        (ITEM_BOUGHT, 'Bought'),
-        (ITEM_MISSING, 'Missing'),
-    )
-    item_status = models.CharField(max_length=2, blank=True,
-        help_text='Status of borrowed item (bought, missing, returned)',
-        choices=STATUS_CHOICES)
+class PartialDateMixin(models.Model):
+    '''Mixin to add fields for partial start and end dates to a model using
+    :class:`DatePrecisionField` and :class:`PartialDate`.'''
+    UNKNOWN_YEAR = 1900
+
     start_date_precision = DatePrecisionField(null=True, blank=True)
     end_date_precision = DatePrecisionField(null=True, blank=True)
-    UNKNOWN_YEAR = 1900
     partial_start_date = PartialDate('start_date', 'start_date_precision',
         UNKNOWN_YEAR, label='start date')
     partial_end_date = PartialDate('end_date', 'end_date_precision',
         UNKNOWN_YEAR, label='end date')
 
-    footnotes = GenericRelation(Footnote)
-
-    def save(self, *args, **kwargs):
-        # if end date is set and item status is not, automatically set
-        # status to returned
-        if self.end_date and not self.item_status:
-            self.item_status = self.ITEM_RETURNED
-        super(Borrow, self).save(*args, **kwargs)
+    class Meta:
+        abstract = True
 
     def calculate_date(self, kind, dateval=None, earliest=None, latest=None):
         '''Calculate end or start date based on a single value in a
@@ -619,18 +600,85 @@ class Borrow(Event):
 
         # if both dates are set and the same, return a single date
         if self.partial_start_date and self.partial_end_date and \
-            self.partial_start_date == self.partial_end_date:
+                self.partial_start_date == self.partial_end_date:
             return self.partial_start_date
 
         # otherwise, use both dates with ?? to indicate unknown date
         return '/'.join([dt if dt else '??'
-                         for dt in [self.partial_start_date, self.partial_end_date]])
+                         for dt in [self.partial_start_date,
+                                    self.partial_end_date]])
 
 
-class Purchase(Event, CurrencyMixin):
-    '''Inherited table indicating purchase events'''
+class Borrow(PartialDateMixin, Event):
+    '''Inherited table indicating borrow events'''
+    #: :class:`~mep.books.models.Item` that was borrowed;
+    #: optional to account for unclear titles
+    item = models.ForeignKey(Item, null=True, blank=True)
+    ITEM_RETURNED = 'R'
+    ITEM_BOUGHT = 'B'
+    ITEM_MISSING = 'M'
+    STATUS_CHOICES = (
+        ('', 'Unknown'),
+        (ITEM_RETURNED, 'Returned'),
+        (ITEM_BOUGHT, 'Bought'),
+        (ITEM_MISSING, 'Missing'),
+    )
+    item_status = models.CharField(max_length=2, blank=True,
+        help_text='Status of borrowed item (bought, missing, returned)',
+        choices=STATUS_CHOICES)
+    footnotes = GenericRelation(Footnote)
+
+    def save(self, *args, **kwargs):
+        # if end date is set and item status is not, automatically set
+        # status to returned
+        if self.end_date and not self.item_status:
+            self.item_status = self.ITEM_RETURNED
+        super(Borrow, self).save(*args, **kwargs)
+
+
+class Purchase(PartialDateMixin, CurrencyMixin, Event):
+    '''Inherited table indicating purchase events; extends :class:`Event`'''
     price = models.DecimalField(max_digits=8, decimal_places=2)
     item = models.ForeignKey(Item)
+    footnotes = GenericRelation(Footnote)
+
+    def date(self):
+        '''alias of :attr:`date_range` for display; since reimbersument
+        is a single-day event will always be a single partial date.'''
+        return self.date_range
+    date.admin_order_field = 'start_date'
+
+    def save(self, *args, **kwargs):
+        # override save to always set start = end, end will be disabled in
+        # admin
+        self.end_date_precision = self.start_date_precision
+        self.end_date = self.start_date
+        super().save(*args, **kwargs)
+
+    def validate_unique(self, *args, **kwargs):
+        '''Validation check to prevent duplicate purchase events from happening.
+        Differs from
+        :class:`~mep.accounts.models.Reimbursement.validate_unique` by also
+        allowing for multiple purchases of different items per day. Used
+        instead of `unique_together` because of multi-table inheritance.
+        '''
+        super().validate_unique(*args, **kwargs)
+        # check to prevent duplicate event (date + account + item)
+        try:
+            qs = Purchase.objects.filter(start_date=self.start_date,
+                account=self.account, item=self.item)
+        except ObjectDoesNotExist:
+            # bail out without making any further assertions because
+            # we've had a missing required related field and other checks
+            # will catch it
+            return
+
+        # if current item is already saved, exclude it from the queryset
+        if not self._state.adding and self.pk is not None:
+            qs = qs.exclude(pk=self.pk)
+
+        if qs.exists():
+            raise ValidationError('Purchase event is not unique')
 
 
 class Reimbursement(Event, CurrencyMixin):
@@ -654,14 +702,20 @@ class Reimbursement(Event, CurrencyMixin):
     def validate_unique(self, *args, **kwargs):
         '''Validation check to prevent duplicate events from being
         added to the system.  Does not allow more than one reimbursement
-        for the account and date.'''
+        for the account and date. Used instead of
+        `unique_together` because of multi-table inheritance.'''
         super(Reimbursement, self).validate_unique(*args, **kwargs)
 
         # check to prevent duplicate event (reimbursement + date + account)
         # should not have same date + account
-        qs = Reimbursement.objects.filter(start_date=self.start_date,
-            account=self.account)
-
+        try:
+            qs = Reimbursement.objects.filter(start_date=self.start_date,
+                account=self.account)
+        except ObjectDoesNotExist:
+            # bail out without making any further assertions because
+            # we've had a missing related field and other checks
+            # will catch it
+            return
         # if current item is already saved, exclude it from the queryset
         if not self._state.adding and self.pk is not None:
             qs = qs.exclude(pk=self.pk)
