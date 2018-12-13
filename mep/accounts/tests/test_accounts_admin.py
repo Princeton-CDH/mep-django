@@ -66,12 +66,10 @@ class TestSubscriptionAdminForm(TestCase):
         assert form.cleaned_data['end_date'] == form_data['end_date']
 
 
-class TestPartialDateMixin(TestCase):
+class TestPartialDateFormMixin(TestCase):
 
-    # Letting this test stand for the partial date mixin,
-    # since that's the only functionality being checked here,
-    # and it is common to both sets + mixin needs a concrete
-    # case to test against
+    # Testing PartialDateFormMixin via Borrow, since we need a concrete model
+    # to run validation checks against.
 
     def test_get_initial_for_field(self):
         acct = Account.objects.create()

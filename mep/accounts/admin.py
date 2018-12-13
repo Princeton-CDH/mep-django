@@ -252,7 +252,7 @@ class PurchaseAdminForm(PartialDateFormMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # override start date label to just date, since reimbursements
+        # override start date label to just date, since purchases
         # are single-day events
         self.fields['partial_start_date'].label = 'Date'
 
@@ -334,8 +334,7 @@ class AccountAdmin(admin.ModelAdmin):
                      'address__location__name',
                      'address__location__country__name', 'persons__name')
     fields = ('persons', 'card')
-    inlines = [AccountAddressInline, SubscriptionInline, PurchaseInline,
-               ReimbursementInline]
+    inlines = [AccountAddressInline, SubscriptionInline, ReimbursementInline]
 
     class Media:
         js = ("admin/js/person-editlink.js",)
