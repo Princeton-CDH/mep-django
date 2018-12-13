@@ -659,9 +659,9 @@ class Purchase(PartialDateMixin, CurrencyMixin, Event):
         '''Validation check to prevent duplicate purchase events from happening.
         Differs from
         :class:`~mep.accounts.models.Reimbursement.validate_unique` by also
-        allowing for multiple purchases of different items per day.
+        allowing for multiple purchases of different items per day. Used
+        instead of `unique_together` because of multi-table inheritance.
         '''
-        # NOTE: Mixin? Not sure it will actually save much code reduplication.
         super().validate_unique(*args, **kwargs)
         # check to prevent duplicate event (date + account + item)
         try:
@@ -702,7 +702,8 @@ class Reimbursement(Event, CurrencyMixin):
     def validate_unique(self, *args, **kwargs):
         '''Validation check to prevent duplicate events from being
         added to the system.  Does not allow more than one reimbursement
-        for the account and date.'''
+        for the account and date. Used instead of
+        `unique_together` because of multi-table inheritance.'''
         super(Reimbursement, self).validate_unique(*args, **kwargs)
 
         # check to prevent duplicate event (reimbursement + date + account)
