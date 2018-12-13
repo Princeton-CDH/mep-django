@@ -53,7 +53,7 @@ AUTOCOMPLETE = {
 class OpenFootnoteInline(FootnoteInline):
     '''Customize footnote inline for borrowing and purchase events.'''
     classes = ('grp-collapse', )  # grapelli collapsible, but not closed
-    extra = 0
+    extra = 1
 
 
 class EventAdminForm(forms.ModelForm):
