@@ -538,7 +538,8 @@ class PartialDate(object):
 
 
 class PartialDateMixin(models.Model):
-
+    '''Mixin to add fields for partial start and end dates to a model using
+    :class:`DatePrecisionField` and :class:`PartialDate`.'''
     UNKNOWN_YEAR = 1900
 
     start_date_precision = DatePrecisionField(null=True, blank=True)
@@ -642,8 +643,8 @@ class Purchase(PartialDateMixin, CurrencyMixin, Event):
     footnotes = GenericRelation(Footnote)
 
     def date(self):
-        '''alias of :attr:`` for display, since reimbersument
-        is a single-day event'''
+        '''alias of :attr:`date_range` for display; since reimbersument
+        is a single-day event will always be a single partial date.'''
         return self.start_date
     date.admin_order_field = 'start_date'
 
@@ -668,7 +669,7 @@ class Purchase(PartialDateMixin, CurrencyMixin, Event):
                 account=self.account, item=self.item)
         except ObjectDoesNotExist:
             # bail out without making any further assertions because
-            # we've had a missing related field and other checks
+            # we've had a missing required related field and other checks
             # will catch it
             return
 

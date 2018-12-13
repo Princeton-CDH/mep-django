@@ -51,7 +51,7 @@ AUTOCOMPLETE = {
 
 
 class OpenFootnoteInline(FootnoteInline):
-    '''Customize footnote inline for borrowing and purchase events'''
+    '''Customize footnote inline for borrowing and purchase events.'''
     classes = ('grp-collapse', )  # grapelli collapsible, but not closed
     extra = 0
 
@@ -204,7 +204,8 @@ class ReimbursementAdmin(admin.ModelAdmin):
 
 
 class PartialDateFormMixin(forms.ModelForm):
-
+    '''Provides form validation and setting for models that inherit from
+    :class:`mep.accounts.models.PartialDateMixin`.'''
     partial_date_validator = RegexValidator(
         regex=PartialDate.partial_date_re,
         message="Value is not a recognized date."
