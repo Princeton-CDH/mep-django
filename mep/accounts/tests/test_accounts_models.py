@@ -611,6 +611,9 @@ class TestPurchase(TestCase):
         assert str(self.purchase) == ('Purchase for account #%s 1920-02-03' %
                                       self.purchase.account.pk)
 
+    def test_date(self):
+        assert self.purchase.date() == self.purchase.date_range
+
     def test_save(self):
         # no end date or precision
         self.purchase.end_date = None
@@ -667,7 +670,12 @@ class TestReimbursement(TestCase):
 
     def test_str(self):
         assert str(self.reimbursement) == ('Reimbursement for account #%s ??/??' %
-                                           self.reimbursement.account.pk)
+                                            self.reimbursement.account.pk)
+
+    def test_date(self):
+        self.reimbursement.start_date = datetime.date(1920, 1, 1)
+        self.reimbursement.save()
+        assert self.reimbursement.date() == self.reimbursement.start_date
 
     def test_validate_unique(self):
         # resaving existing record should not error

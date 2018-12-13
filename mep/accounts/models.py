@@ -645,7 +645,7 @@ class Purchase(PartialDateMixin, CurrencyMixin, Event):
     def date(self):
         '''alias of :attr:`date_range` for display; since reimbersument
         is a single-day event will always be a single partial date.'''
-        return self.start_date
+        return self.date_range
     date.admin_order_field = 'start_date'
 
     def save(self, *args, **kwargs):
