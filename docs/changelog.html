@@ -1,0 +1,304 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CHANGELOG &#8212; Mapping Expatriate Paris - Django 0.9.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Code Documentation" href="codedocs.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="changelog">
+<span id="id1"></span><h1>CHANGELOG<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="add-purchasing-events-to-admin">
+<h2>0.9 Add Purchasing events to admin<a class="headerlink" href="#add-purchasing-events-to-admin" title="Permalink to this headline">¶</a></h2>
+<p>Exposes Purchase events for use on the Django admin</p>
+<ul class="simple">
+<li>As a content editor, I want to add and edit purchasing events so that I can add identified purchases visible on lending library cards.</li>
+<li>As a content editor, I need to add and edit partial dates for purchasing events so that I can record whatever portion of the date is available when the exact date is not known.</li>
+<li>As a content editor, I want to document the source of purchasing event information so that it will be linked to the card image for eventual public display.</li>
+</ul>
+</div>
+<div class="section" id="personography-reports-and-other-fixes">
+<h2>0.8 Personography reports and other fixes<a class="headerlink" href="#personography-reports-and-other-fixes" title="Permalink to this headline">¶</a></h2>
+<p>Exports and a new verified flag for Person records to support personography
+data work, including identifying records to be merged or demerged</p>
+<ul class="simple">
+<li>As a content admin, I want to export information about people in the database so I can work with it in other systems such as OpenRefine.</li>
+<li>As an admin, I want to generate a report of library members with large time gaps between events in their account history to identify records that may need demerging.</li>
+<li>As a content admin, I want to mark a person record as verified so that I can document that all the information in the record has been checked against the relevant archival sources.</li>
+<li>bugfix: merging into a logbook only person deletes account/lending card association if present</li>
+<li>bugfix: footnote editing causes a server error</li>
+</ul>
+</div>
+<div class="section" id="item-and-person-admin-improvements">
+<h2>0.7 Item and Person admin improvements<a class="headerlink" href="#item-and-person-admin-improvements" title="Permalink to this headline">¶</a></h2>
+<p>Adds filters and sorting options to the Person and Item admin views that enhance
+content editor tasks, including tracking/sorting by update timestamps, filtering
+Persons by role (member/creator/uncategorized), merging Persons without accounts,
+searching items by database ID, and tracking BCE DateRanges for Person lifetimes.</p>
+<ul class="simple">
+<li>As a content editor, I want to see and sort on the date an item or person record was last updated so I can easily find recently edited records.</li>
+<li>As a content editor, I want to enter negative birth and death years so I can track biographical data for authors like Euripides.</li>
+<li>As a content editor, I want to search items by database id so that I can easily find items using the identifiers in the CSV export or notes.</li>
+<li>As a content editor, I want the option of merging people without accounts so that I can merge records for creators who were accidentally entered twice.</li>
+<li>As a content editor, I want to filter people in the personography by creator or library member so I can look at a subset of the people based on the kind of data work I’m doing.</li>
+</ul>
+</div>
+<div class="section" id="card-import-and-basic-item-admin">
+<h2>0.6 Card import and basic item admin<a class="headerlink" href="#card-import-and-basic-item-admin" title="Permalink to this headline">¶</a></h2>
+<p>Provides editing functionality for borrowing events, including partial dates,
+and basic bibliographic data for lending library item records.
+Import script to migrate borrowing events and item information from
+marked up XML lending card transcriptions into the database.</p>
+<ul class="simple">
+<li>As a global admin, I want a one-time import of regularized titles so that items can be managed in the database and associated with borrowing events.</li>
+<li>As a global admin, I want a one-time import of data from lending card XML files so that I can manage borrowing events and borrowed items in the database.</li>
+<li>As a global admin, I want the source of borrowing event information documented so that I can refer back to the item if necessary.</li>
+<li>As a content editor, I want to view and edit borrowing events so that I can review data imported from the cards and correct any errors.</li>
+<li>As a content editor, I need to view and edit partial dates for borrowing events so that I can see and record whatever portion of the date is available when the exact date is not known.</li>
+<li>As an content editor, I want to view borrowing event notes and edit purchase status on the list view so that I can quickly mark bought items that can’t be autodetected on import.</li>
+<li>As a content editor, I want to create and edit library item records so that I can review, correct, and expand on basic metadata for imported library item stub data.</li>
+<li>As a content editor, I want to create and edit item creator types so that I can track item creator roles including author, translator, and editor.</li>
+<li>As an content editor, I want to see how many times an item has been borrowed and have an easy way to access all borrowing events for that item so I can investigate unclear titles and remove unused ones.</li>
+<li>As a global admin, I want a CSV export of bibliographic item data so that I can track data work and explore bulk data enhancements.</li>
+<li>As a content editor, I want to see an indicator if a person has an associated card so that I can distinguish library members with cards.</li>
+<li>bugfix: Admin menu order on the main dashboard is unstable</li>
+</ul>
+</div>
+<div class="section" id="data-entry-improvements-ii">
+<h2>0.5 Data Entry Improvements II<a class="headerlink" href="#data-entry-improvements-ii" title="Permalink to this headline">¶</a></h2>
+<p>Minor improvements to Django admin site functionality and data migration to
+resolve Subscriptions with durations left in months as part of a previous
+migration.</p>
+<ul class="simple">
+<li>As a content editor, when I merge two individuals, I want the notes field to include the date when the merge was completed, so that I can keep track of biographical work in the archive.</li>
+<li>As a content editor, I want to return to the page I was on when I started the process of merging people records so that I can continue working where I left off.</li>
+<li>As a content editor, I want to see a listing of reimbursements that an individual’s account received, so that I can examine patterns in reimbursements as part of the lending library.</li>
+<li>One-time data migration to correct subscription durations not converted from months to days</li>
+</ul>
+</div>
+<div class="section" id="personography-merge">
+<h2>0.4 Personography Merge<a class="headerlink" href="#personography-merge" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>As a content editor, I want to merge person records so that I can combine account records when I’ve identified duplicated people</li>
+<li>Removes now obsolete <cite>import_logbooks</cite> manage command.</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>0.3.1<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Remove unneeded database backup from Ansible deploy.</li>
+</ul>
+</div>
+<div class="section" id="data-entry-improvements">
+<h2>0.3 Data Entry Improvements<a class="headerlink" href="#data-entry-improvements" title="Permalink to this headline">¶</a></h2>
+<p>Improvements to the admin interface to make data entry and content management
+easier and more streamlined (particular emphasis on personography &amp; accounts).</p>
+<ul class="simple">
+<li>As a global admin, I want addresses automatically associated with accounts in the logbook where possible to minimize the amount of manual cleanup required.</li>
+<li>As a content editor, I want to enter optional start and/or end dates for a person’s addresses so I can document when they lived there if known.</li>
+<li>As a content editor, I want a one-time update to set people’s gender based on titles where possible so that I don’t have to edit all the records manually.</li>
+<li>As a content editor, I want the end date of a subscription automatically calculated based on start date and duration, so that I can enter subscriptions more quickly.</li>
+<li>As a content editor, I want event duplication to be prevented so I don’t accidentally enter the same event twice.</li>
+<li>As a content editor, I want subscription event fields relabeled and ordered as they occur in the logbook so that I can add new subscriptions more efficiently.</li>
+<li>As a content editor, I want the reimbursement event form simplified so I can efficiently add new events.</li>
+<li>As a content editor, I want the personography list to include note previews so I can differentiate ambiguous names.</li>
+<li>As a content editor, I want a person’s sort name to autopopulate when I type a single name with no spaces so that I don’t have to retype it.</li>
+<li>As a content editor, I want an easy way to get from an account record to the associated person record so I can view and correct person details.</li>
+<li>As a content editor, I need a way to distinguish people with the same name when I’m selecting a person via autocomplete.</li>
+<li>As a content editor, I want currency for all events to default to “Franc” so that I don’t have to set it every time.</li>
+<li>As a content editor, I want to edit and add new subscription categories so that I can document them as I discover them.</li>
+<li>As a content editor, I want to see account information when I’m editing a person record so I have enough context to make decisions and find sources.</li>
+<li>As a content editor, I want to see if people in the personography are in the logbooks rather than just that they have an account, because it tells me what data is available for them.</li>
+<li>As a content editor, I want the account list to include first and last known events dates so I can easily see membership timeline.</li>
+<li>As a content editor, when I’m editing accounts I want subscription and reimbursement sections to be open by default so I don’t have to click to view membership dates.</li>
+<li>As a content editor, I want the event list to display type before notes so I can easily scan and differentiate events.</li>
+<li>As a content editor, I want project-specific data sections displayed first on the admin dashboard so I can easily get to the data I need to work with.</li>
+</ul>
+<div class="section" id="known-issues">
+<h3>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Customized ordering on admin dashboard is not consistently displayed as configured.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="logbook-admin-import">
+<h2>0.2 Logbook Admin &amp; Import<a class="headerlink" href="#logbook-admin-import" title="Permalink to this headline">¶</a></h2>
+<p>Admin functionality and data release. Provides administrative functionality for
+describing and managing data related to the logbooks for Sylvia Beach’s lending
+library and their associated accounts.</p>
+<ul class="simple">
+<li>As a global admin, I want a one-time import of data from the logbook XML files so that I can manage lending library account and subscription information in the database.</li>
+<li>As a content editor, I want to see an indicator if a person has an account associated so that I can distinguish library members from others associated with the library.</li>
+<li>As a content editor, I want to create and edit account records so I can track how people associated with the library.</li>
+<li>As a content editor, I want to add and edit subscription information so I can track how and when members interacted with the library.</li>
+<li>As a content editor, I want to be able to view subscription events associated with an account so that I can see activity relating to an account at a glance.</li>
+<li>As a content editor, I want to be be able to see information about deposits refunded so that I can learn more about the habits of Beach and her clerks.</li>
+<li>As a content editor, I want to be able to see a listing of all events (regardless of type), so that I can look up their generic fields and any non-standard types that do not have a subcategory such as overdue notices.</li>
+</ul>
+</div>
+<div class="section" id="personography-admin-import">
+<h2>0.1 Personography Admin &amp; Import<a class="headerlink" href="#personography-admin-import" title="Permalink to this headline">¶</a></h2>
+<p>Initial release.  Provides administrative functionality for describing and
+managing data about people associated with Sylvia Beach’s lending library.</p>
+<ul class="simple">
+<li>As a global admin, I want a one-time import of data from the personography XML file so that I can manage person information in the database.</li>
+<li>As a global admin, when personography data is imported I want birth and death dates populated from the XML if available or else from VIAF if an id is available, so that dates will be complete and corrected dates will not be lost on import.</li>
+<li>As a content editor, I want to create and edit person records so that I can document biographical details about people associated with Sylvia Beach’s lending library.</li>
+<li>As a content editor, I want to add and edit professions so I can categorize people associated with the library by their work.</li>
+<li>As a content editor, I want to add relationships between people in the database so that I can document known associates.</li>
+<li>As a content editor, when I’m viewing the list of people I want to see nationalities and number of associated addresses so I scan for records that need more data.</li>
+<li>As a content editor, I want to add URLs to a person record so I can document the person’s wikipedia URL or other relevant websites.</li>
+<li>As a content editor, when I edit a person and add or change the VIAF ID, I want the birth and death dates in the system populated from data available in VIAF in order to make data entry more efficient.</li>
+<li>As a content editor, when I’m editing a person I want to add nationalities via autocomplete so the page loads faster and the list of countries don’t take up as much space.</li>
+<li>As a content editor, when I’m editing a person I want to associate addresses via autocomplete so the page loads faster and the list of addresses don’t take up as much space.</li>
+<li>As a content editor, when I edit an address with latitude and longitude I want to see a map so I can easily check that the coordinates.</li>
+<li>As a content editor, I want to add and edit countries so I can manage the list of countries available for documenting people’s nationalities.</li>
+<li>As a content editor, I want to add a new or edit an existing footnote and associate it with any other kind of record in the system so that I can document evidence related to assertions made elsewhere in the data.</li>
+<li>As a content editor, when I’m editing a person or address record, I want to be able to add footnotes on the same page so that I can easily document research about names and locations.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Mapping Expatriate Paris - Django</a></h1>
+
+
+
+<p class="blurb">Django web application for "Mapping Expatriate Paris" CDH project</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Change Log</a></li>
+</ul>
+
+
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">CHANGELOG</a><ul>
+<li><a class="reference internal" href="#add-purchasing-events-to-admin">0.9 Add Purchasing events to admin</a></li>
+<li><a class="reference internal" href="#personography-reports-and-other-fixes">0.8 Personography reports and other fixes</a></li>
+<li><a class="reference internal" href="#item-and-person-admin-improvements">0.7 Item and Person admin improvements</a></li>
+<li><a class="reference internal" href="#card-import-and-basic-item-admin">0.6 Card import and basic item admin</a></li>
+<li><a class="reference internal" href="#data-entry-improvements-ii">0.5 Data Entry Improvements II</a></li>
+<li><a class="reference internal" href="#personography-merge">0.4 Personography Merge</a></li>
+<li><a class="reference internal" href="#id2">0.3.1</a></li>
+<li><a class="reference internal" href="#data-entry-improvements">0.3 Data Entry Improvements</a><ul>
+<li><a class="reference internal" href="#known-issues">Known issues</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#logbook-admin-import">0.2 Logbook Admin &amp; Import</a></li>
+<li><a class="reference internal" href="#personography-admin-import">0.1 Personography Admin &amp; Import</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/changelog.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
