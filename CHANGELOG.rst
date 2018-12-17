@@ -3,6 +3,15 @@
 CHANGELOG
 =========
 
+0.9 Add Purchasing events to admin
+----------------------------------
+
+Exposes Purchase events for use on the Django admin
+
+* As a content editor, I want to add and edit purchasing events so that I can add identified purchases visible on lending library cards.
+* As a content editor, I need to add and edit partial dates for purchasing events so that I can record whatever portion of the date is available when the exact date is not known.
+* As a content editor, I want to document the source of purchasing event information so that it will be linked to the card image for eventual public display.
+
 
 0.8 Personography reports and other fixes
 -----------------------------------------
