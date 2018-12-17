@@ -11,6 +11,11 @@ Database
 Updates and Changes
 ~~~~~~~~~~~~~~~~~~~
 
+0.9 Updates
+^^^^^^^^^^^
+- :class:`~mep.accounts.models.Purchase` now has fields and flags for partial start and end dates.
+- :class:`~mep.account.models.PartialDateMixin` now contains fields and validation for partial dates, including date precision flags.
+
 0.6 Updates
 ^^^^^^^^^^^
 
@@ -154,4 +159,3 @@ Initial Schema Design (Version 004)
 .. NOTE::
     This does not include additional complexity of URLs for people records
     per 19 June 2017 project meeting.
-
