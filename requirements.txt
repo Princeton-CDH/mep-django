@@ -2,6 +2,8 @@ Django>=1.11,<2.0
 mysqlclient
 django-grappelli
 cached_property
+# required to avoid url route issues
+django-cas-ng<3.6
 pucas
 # require pendulum 1.5; not compatible with 2.0
 pendulum==1.5.0

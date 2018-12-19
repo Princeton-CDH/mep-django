@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.8.0 documentation</title>
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.9.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -29,6 +29,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="code-documentation">
@@ -289,22 +291,6 @@ people and accounts, with optional start and end dates and a care/of person.</p>
 <em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Borrow.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="mep.accounts.models.Borrow.calculate_date">
-<code class="descname">calculate_date</code><span class="sig-paren">(</span><em>kind</em>, <em>dateval=None</em>, <em>earliest=None</em>, <em>latest=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Borrow.calculate_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Borrow.calculate_date" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate end or start date based on a single value in a
-supported partial date form or based on earliest/latest datetime.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="mep.accounts.models.Borrow.date_range">
-<code class="descname">date_range</code><a class="headerlink" href="#mep.accounts.models.Borrow.date_range" title="Permalink to this definition">¶</a></dt>
-<dd><p>Borrowing event date range as string, using partial dates.
-Returns a single date in partial date format if both dates are
-set to the same date. Uses “??” for unset dates,
-and returns in format start/end.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="mep.accounts.models.Borrow.item">
 <code class="descname">item</code><a class="headerlink" href="#mep.accounts.models.Borrow.item" title="Permalink to this definition">¶</a></dt>
@@ -387,7 +373,7 @@ and returns in format start/end.</p>
 <a class="reference internal" href="#mep.accounts.models.DatePrecision" title="mep.accounts.models.DatePrecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatePrecision</span></code></a> from partial date strings, e.g. –05-02.</p>
 <dl class="staticmethod">
 <dt id="mep.accounts.models.PartialDate.date_format">
-<em class="property">static </em><code class="descname">date_format</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.date_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.date_format" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">date_format</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.date_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.date_format" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a format string for use with <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date.strftime" title="(in Python v3.7)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">datetime.date.strftime()</span></code></a>
 to output a date with the appropriate precision</p>
 </dd></dl>
@@ -402,9 +388,32 @@ and precision value.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="mep.accounts.models.PartialDateMixin">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">PartialDateMixin</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDateMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDateMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mixin to add fields for partial start and end dates to a model using
+<a class="reference internal" href="#mep.accounts.models.DatePrecisionField" title="mep.accounts.models.DatePrecisionField"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatePrecisionField</span></code></a> and <a class="reference internal" href="#mep.accounts.models.PartialDate" title="mep.accounts.models.PartialDate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PartialDate</span></code></a>.</p>
+<dl class="method">
+<dt id="mep.accounts.models.PartialDateMixin.calculate_date">
+<code class="descname">calculate_date</code><span class="sig-paren">(</span><em>kind</em>, <em>dateval=None</em>, <em>earliest=None</em>, <em>latest=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDateMixin.calculate_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDateMixin.calculate_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate end or start date based on a single value in a
+supported partial date form or based on earliest/latest datetime.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.accounts.models.PartialDateMixin.date_range">
+<code class="descname">date_range</code><a class="headerlink" href="#mep.accounts.models.PartialDateMixin.date_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Borrowing event date range as string, using partial dates.
+Returns a single date in partial date format if both dates are
+set to the same date. Uses “??” for unset dates,
+and returns in format start/end.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="mep.accounts.models.Purchase">
 <em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">Purchase</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Purchase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Purchase" title="Permalink to this definition">¶</a></dt>
-<dd><p>Inherited table indicating purchase events</p>
+<dd><p>Inherited table indicating purchase events; extends <a class="reference internal" href="#mep.accounts.models.Event" title="mep.accounts.models.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a></p>
 <dl class="exception">
 <dt id="mep.accounts.models.Purchase.DoesNotExist">
 <em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.accounts.models.Purchase.DoesNotExist" title="Permalink to this definition">¶</a></dt>
@@ -414,6 +423,33 @@ and precision value.</p>
 <dt id="mep.accounts.models.Purchase.MultipleObjectsReturned">
 <em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Purchase.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Purchase.date">
+<code class="descname">date</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Purchase.date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Purchase.date" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-attr docutils literal notranslate"><span class="pre">date_range</span></code> for display; since reimbersument
+is a single-day event will always be a single partial date.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Purchase.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Purchase.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Purchase.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the current instance. Override this in a subclass if you want to
+control the saving process.</p>
+<p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
+that the “save” must be an SQL insert or update (or equivalent for
+non-SQL backends), respectively. Normally, they should not be set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.Purchase.validate_unique">
+<code class="descname">validate_unique</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Purchase.validate_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Purchase.validate_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validation check to prevent duplicate purchase events from happening.
+Differs from
+<a class="reference internal" href="#mep.accounts.models.Reimbursement.validate_unique" title="mep.accounts.models.Reimbursement.validate_unique"><code class="xref py py-class docutils literal notranslate"><span class="pre">validate_unique</span></code></a> by also
+allowing for multiple purchases of different items per day. Used
+instead of <cite>unique_together</cite> because of multi-table inheritance.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -451,7 +487,8 @@ range searching and filtering.</p>
 <code class="descname">validate_unique</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Reimbursement.validate_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Reimbursement.validate_unique" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validation check to prevent duplicate events from being
 added to the system.  Does not allow more than one reimbursement
-for the account and date.</p>
+for the account and date. Used instead of
+<cite>unique_together</cite> because of multi-table inheritance.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1643,6 +1680,7 @@ for or against information in the system.</p>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -1668,7 +1706,7 @@ for or against information in the system.</p>
     
 
 <p>
-<a href="https://travis-ci.org/Princeton-CDH/mep-django">
+<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
     <img
         alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
         src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
@@ -1682,7 +1720,7 @@ for or against information in the system.</p>
     
 
 <p>
-<a href="https://codecov.io/github/Princeton-CDH/mep-django">
+<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
     <img
     alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
     src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
@@ -1698,7 +1736,7 @@ for or against information in the system.</p>
 </ul>
 
 
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Code Documentation</a><ul>
 <li><a class="reference internal" href="#module-mep.common">Common</a><ul>
@@ -1765,8 +1803,8 @@ for or against information in the system.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/codedocs.rst.txt"

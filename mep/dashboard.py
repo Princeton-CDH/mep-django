@@ -31,7 +31,8 @@ class CustomIndexDashboard(Dashboard):
                 'mep.accounts.models.Subscription',
                 'mep.accounts.models.Reimbursement',
                 'mep.accounts.models.SubscriptionType',
-                'mep.accounts.models.Borrow'
+                'mep.accounts.models.Borrow',
+                'mep.accounts.models.Purchase',
             ]),
         ))
 

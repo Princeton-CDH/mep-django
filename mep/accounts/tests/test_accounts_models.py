@@ -11,7 +11,7 @@ import pytest
 
 from mep.accounts.models import Account, Address, \
     Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin, \
-    DatePrecisionField, DatePrecision, PartialDate
+    DatePrecisionField, DatePrecision, PartialDate, PartialDateMixin
 from mep.books.models import Item
 from mep.people.models import Person, Location
 from mep.footnotes.models import Bibliography, SourceType
@@ -588,20 +588,18 @@ class TestSubscription(TestCase):
             "Month of February should display as '%s', got '%s'" % (expect, dur)
 
 
-
 class TestPurchase(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
-        self.item = Item.objects.create(
-            title='Foobar'
-        )
-        self.purchase = Purchase.objects.create(
+        self.purchase = Purchase(
             account=self.account,
             price=2.30,
             currency='USD',
-            item=self.item,
+            item=Item.objects.create(title='Le Foo'),
         )
+        self.purchase.calculate_date('start_date', '1920-02-03')
+        self.purchase.save()
 
     def test_repr(self):
         # Using self.__dict__ so relying on method being correct
@@ -610,8 +608,48 @@ class TestPurchase(TestCase):
         assert re.search(overall, repr(self.purchase))
 
     def test_str(self):
-        assert str(self.purchase) == ('Purchase for account #%s ??/??' %
+        assert str(self.purchase) == ('Purchase for account #%s 1920-02-03' %
                                       self.purchase.account.pk)
+
+    def test_date(self):
+        assert self.purchase.date() == self.purchase.date_range
+
+    def test_save(self):
+        # no end date or precision
+        self.purchase.end_date = None
+        self.purchase.end_date_precision = None
+        self.purchase.save()
+        # save should set end_date and end_date_precision
+        assert self.purchase.end_date == self.purchase.start_date
+        assert self.purchase.end_date_precision == self.purchase.start_date_precision
+
+    def test_validate_unique(self):
+        # resaving existing record should not error
+        self.purchase.validate_unique()
+
+        # creating new purchase for same account, date, and item should error
+        with pytest.raises(ValidationError):
+            purchase = Purchase(
+                account=self.account,
+                start_date=self.purchase.start_date,
+                item=self.purchase.item,
+                price=self.purchase.price
+            )
+            purchase.validate_unique()
+
+        # a new purchase on same date and account, but different item,
+        # should not trigger ValidationError
+        purchase = Purchase(
+            account=self.account,
+            start_date=self.purchase.start_date,
+            item=Item.objects.create(title='Le Bar'),
+            price=self.purchase.price
+        )
+        purchase.validate_unique()
+
+        # not setting an account should not raise an error (caught by other
+        # checks)
+        Purchase().validate_unique()
 
 
 class TestReimbursement(TestCase):
@@ -621,7 +659,7 @@ class TestReimbursement(TestCase):
         self.reimbursement = Reimbursement.objects.create(
             account=self.account,
             refund=2.30,
-            currency='USD'
+            currency='USD',
         )
 
     def test_repr(self):
@@ -632,7 +670,12 @@ class TestReimbursement(TestCase):
 
     def test_str(self):
         assert str(self.reimbursement) == ('Reimbursement for account #%s ??/??' %
-                                           self.reimbursement.account.pk)
+                                            self.reimbursement.account.pk)
+
+    def test_date(self):
+        self.reimbursement.start_date = datetime.date(1920, 1, 1)
+        self.reimbursement.save()
+        assert self.reimbursement.date() == self.reimbursement.start_date
 
     def test_validate_unique(self):
         # resaving existing record should not error
@@ -643,6 +686,16 @@ class TestReimbursement(TestCase):
             reimburse = Reimbursement(account=self.account,
                 start_date=self.reimbursement.start_date)
             reimburse.validate_unique()
+
+        # a new reimbursement that is not on the same date should not be caught
+        reimburse = Reimbursement(account=self.account,
+            start_date=datetime.date(1919, 1, 1))
+        reimburse.validate_unique()
+
+        # a reimbursement withment without an account should not raise
+        # a related object error
+        Reimbursement().validate_unique()
+
 
     def test_auto_end_date(self):
         self.reimbursement.start_date = datetime.datetime.now()
@@ -679,6 +732,7 @@ class TestBorrow(TestCase):
 
         # handle partial dates
         self.borrow.partial_start_date = '2018-05'
+        print(self.borrow)
         assert str(self.borrow).endswith('%s/??' % self.borrow.partial_start_date)
 
     def test_save(self):
@@ -696,60 +750,85 @@ class TestBorrow(TestCase):
         borrow.save()
         assert borrow.item_status == borrow.ITEM_MISSING
 
+
+class TestPartialDateMixin(TestCase):
+
+    class PartialMixinObject(PartialDateMixin):
+
+        class Meta:
+            abstract = True
+
     def test_calculate_date(self):
 
-        borrow = Borrow(account=self.account, item=self.item)
+        pmo = self.PartialMixinObject()
         with pytest.raises(ValueError):
             # unsupported date name should error
-            borrow.calculate_date('bogus')
+            pmo.calculate_date('bogus')
 
         # partial date
-        borrow.calculate_date('start_date', '1935-05')
-        assert borrow.start_date == datetime.date(1935, 5, 1)
-        assert borrow.start_date_precision.year
-        assert borrow.start_date_precision.month
-        assert not borrow.start_date_precision.day
+        pmo.calculate_date('start_date', '1935-05')
+        assert pmo.start_date == datetime.date(1935, 5, 1)
+        assert pmo.start_date_precision.year
+        assert pmo.start_date_precision.month
+        assert not pmo.start_date_precision.day
 
         # 1900 date = unknown by project convention
-        borrow.calculate_date('end_date', '1901-06-30')
-        assert borrow.end_date == datetime.date(1901, 6, 30)
-        assert not borrow.end_date_precision.year
-        assert borrow.end_date_precision.month
-        assert borrow.end_date_precision.day
+        pmo.calculate_date('end_date', '1901-06-30')
+        assert pmo.end_date == datetime.date(1901, 6, 30)
+        assert not pmo.end_date_precision.year
+        assert pmo.end_date_precision.month
+        assert pmo.end_date_precision.day
 
         # earliest/latest dates
         early = datetime.date(1930, 11, 5)
         late = datetime.date(1930, 11, 25)
-        borrow.calculate_date('start_date', earliest=early, latest=late)
+        pmo.calculate_date('start_date', earliest=early, latest=late)
         # stored as earliest date
-        assert borrow.start_date == early
-        assert borrow.partial_start_date == '1930-11'
+        assert pmo.start_date == early
+        assert pmo.partial_start_date == '1930-11'
         # in this case, all but day match
-        assert borrow.start_date_precision.year
-        assert borrow.start_date_precision.month
-        assert not borrow.start_date_precision.day
+        assert pmo.start_date_precision.year
+        assert pmo.start_date_precision.month
+        assert not pmo.start_date_precision.day
 
         # only year overlaps
         late = datetime.date(1930, 12, 25)
-        borrow.calculate_date('start_date', earliest=early, latest=late)
-        assert borrow.partial_start_date == '1930'
-        assert borrow.start_date_precision.year
-        assert not borrow.start_date_precision.month
+        pmo.calculate_date('start_date', earliest=early, latest=late)
+        assert pmo.partial_start_date == '1930'
+        assert pmo.start_date_precision.year
+        assert not pmo.start_date_precision.month
 
         # different year but same month/day
         late = datetime.date(1932, 11, 5)
-        borrow.calculate_date('start_date', earliest=early, latest=late)
-        assert borrow.start_date == early
-        assert borrow.partial_start_date == '--11-05'
-        assert not borrow.start_date_precision.year
-        assert borrow.start_date_precision.month
-        assert borrow.start_date_precision.day
+        pmo.calculate_date('start_date', earliest=early, latest=late)
+        assert pmo.start_date == early
+        assert pmo.partial_start_date == '--11-05'
+        assert not pmo.start_date_precision.year
+        assert pmo.start_date_precision.month
+        assert pmo.start_date_precision.day
 
         # no overlap?
         late = datetime.date(1932, 12, 22)
-        borrow.calculate_date('start_date', earliest=early, latest=late)
-        assert not borrow.partial_start_date
-        assert not borrow.start_date_precision
+        pmo.calculate_date('start_date', earliest=early, latest=late)
+        assert not pmo.partial_start_date
+        assert not pmo.start_date_precision
+
+    def test_date_range(self):
+
+        # test both dates being the same returning date in partial date format
+        pmo = self.PartialMixinObject()
+        pmo.calculate_date('start_date', '1930-01-01')
+        pmo.calculate_date('end_date', '1930-01-01')
+        assert pmo.date_range == '1930-01-01'
+
+        # test that two dates produce / joined dates
+        pmo.calculate_date('end_date', '1930-01-02')
+        assert pmo.date_range == '1930-01-01/1930-01-02'
+
+        # test that an unknown date is rendered as ??
+        pmo.end_date = None
+        pmo.calculate_date('end_date')
+        assert pmo.date_range == '1930-01-01/??'
 
 
 class TestCurrencyMixin(TestCase):
@@ -778,6 +857,7 @@ class TestCurrencyMixin(TestCase):
         # when symbol is not known
         coin.currency = 'foo'
         assert coin.currency_symbol() == 'foo'
+
 
 class TestPartialDates(TestCase):
 
@@ -850,6 +930,3 @@ class TestPartialDates(TestCase):
         pdo.partial_date = '--03-05'
         assert pdo.date == datetime.date(1900, 3, 5)
         assert pdo.date_precision == DatePrecision.month | DatePrecision.day
-
-
-
