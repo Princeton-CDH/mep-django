@@ -638,7 +638,8 @@ class Borrow(PartialDateMixin, Event):
 
 class Purchase(PartialDateMixin, CurrencyMixin, Event):
     '''Inherited table indicating purchase events; extends :class:`Event`'''
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+    price = models.DecimalField(max_digits=8, decimal_places=2,
+        blank=True, null=True)
     item = models.ForeignKey(Item)
     footnotes = GenericRelation(Footnote)
 
