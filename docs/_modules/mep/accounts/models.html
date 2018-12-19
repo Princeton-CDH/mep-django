@@ -672,7 +672,8 @@
 
 <div class="viewcode-block" id="Purchase"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Purchase">[docs]</a><span class="k">class</span> <span class="nc">Purchase</span><span class="p">(</span><span class="n">PartialDateMixin</span><span class="p">,</span> <span class="n">CurrencyMixin</span><span class="p">,</span> <span class="n">Event</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Inherited table indicating purchase events; extends :class:`Event`&#39;&#39;&#39;</span>
-    <span class="n">price</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">price</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">item</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Item</span><span class="p">)</span>
     <span class="n">footnotes</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="n">Footnote</span><span class="p">)</span>
 

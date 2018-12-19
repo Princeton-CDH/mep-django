@@ -14,7 +14,7 @@ Updates and Changes
 0.9 Updates
 ^^^^^^^^^^^
 - :class:`~mep.accounts.models.Purchase` now has fields and flags for partial start and end dates.
-- :class:`~mep.account.models.PartialDateMixin` now contains fields and validation for partial dates, including date precision flags.
+- :class:`~mep.accounts.models.PartialDateMixin` now contains fields and validation for partial dates, including date precision flags.
 
 0.6 Updates
 ^^^^^^^^^^^

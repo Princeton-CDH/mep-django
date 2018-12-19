@@ -3,7 +3,7 @@
 CHANGELOG
 =========
 
-0.9 Add Purchasing events to admin
+0.9 Add Purchase events to admin
 ----------------------------------
 
 Exposes Purchase events for use on the Django admin
