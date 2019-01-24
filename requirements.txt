@@ -16,3 +16,4 @@ git+https://github.com/stephenmcd/mezzanine.git@397409d#egg=mezzanine
 django-apptemplates
 py-flags
 django-tabular-export
+django-webpack-loader

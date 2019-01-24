@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+
+{% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
+
+{% block js %}{% render_bundle 'search' 'js' %}{% endblock %}
+
+{% block content %}
+members search page
+{% endblock %}
