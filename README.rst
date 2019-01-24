@@ -14,7 +14,7 @@ was previously called "Mapping Expatriate Paris" or MEP).
 
 See the preliminary `project website <http://mep.princeton.edu/>`_ for more details.
 
-Python 3.5 / Django 1.11
+Python 3.5 / Django 1.11 / Node 10.5.0
 
 .. image:: https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=master
     :target: https://travis-ci.org/Princeton-CDH/mep-django
@@ -51,6 +51,13 @@ Initial setup and installation:
     pip install -r requirements.txt
     pip install -r dev-requirements.txt
 
+- npm install javascript dependencies::
+
+
+    npm install
+
+This will automatically run webpack to build all of the static assets.
+
 - copy sample local settings and configure for your environment::
 
 
@@ -65,10 +72,25 @@ ordering of admin items. More information is available in the `django-admin-tool
 docs <http://django-admin-tools.readthedocs.io/en/latest/dashboard.html#>`_.
 
 
+For frontend development, you can activate a webpack dev server with hot reload
+using::
+
+
+    npm start
+
+If you just want to rebuild the static assets once, you can use::
+
+
+    npm run build
+
+Switching between the webpack dev server and serving from ``static/`` requires a
+restart of your Django dev server to pick up the changed file paths.
+
+
 Unit Tests
 ----------
 
-Unit tests are written with `py.test <http://doc.pytest.org/>`__ but use
+Python unit tests are written with `py.test <http://doc.pytest.org/>`__ but use
 Django fixture loading and convenience testing methods when that makes
 things easier. To run them, first install development requirements::
 
@@ -82,7 +104,7 @@ Documentation
 -------------
 
 Documentation is generated using `sphinx <http://www.sphinx-doc.org/>`__
-To generate documentation them, first install development requirements::
+To generate documentation, first install development requirements::
 
     pip install -r dev-requirements.txt
 
