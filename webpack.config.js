@@ -3,6 +3,8 @@ const BundleTracker = require('webpack-bundle-tracker')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const prod = process.env.NODE_ENV === 'production'
 
 module.exports = {
@@ -18,7 +20,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'static'), // where to output bundles
         publicPath: prod ? '/static/' : 'http://localhost:3000/', // tell Django where to serve bundles from
-        filename: prod ? 'js/[name]-[hash].js' : 'js/[name].js', // append hashes in prod
+        filename: prod ? 'js/[name]-[hash].min.js' : 'js/[name].js', // append hashes in prod
     },
     module: {
         rules: [
@@ -68,13 +70,13 @@ module.exports = {
         new BundleTracker({ filename: 'webpack-stats.json' }), // tells Django where to find webpack output
         new VueLoaderPlugin(), // necessary for vue-loader to work
         new MiniCssExtractPlugin({ // extracts CSS to a single file per entrypoint
-            filename: prod ? 'css/[name]-[hash].css' : 'css/[name].css', // append hashes in prod
+            filename: prod ? 'css/[name]-[hash].min.css' : 'css/[name].css', // append hashes in prod
         }),
         ...(prod ? [new CleanWebpackPlugin('static')] : []), // clear out static when rebuilding
     ],
     resolve: {
         alias: { 'vue$': 'vue/dist/vue.esm.js' }, // use the esmodule version of Vue
-        extensions: ['*', '.js', '.vue', '.json'] // enables importing these without extensions
+        extensions: ['*', '.js', '.vue', '.json'] // enables importing these without extensions in a js file
     },
     devServer: {
         contentBase: path.join(__dirname, 'static'), // serve this as webroot
@@ -92,4 +94,18 @@ module.exports = {
         }
     },
     devtool: prod ? 'source-map' : 'eval-source-map', // enable sourcemaps
+    optimization: {
+        minimizer: [
+            new UglifyJSPlugin({ // minify JS in prod
+                cache: true, // cache unchanged assets
+                parallel: true, // run in parallel (recommended)
+                sourceMap: true // preserve sourcemaps
+            }),
+            new OptimizeCSSAssetsPlugin({ // minify CSS in prod
+                cssProcessorOptions: {
+                    map: { inline: false, annotation: true } // preserve sourcemaps
+                }
+            })
+        ]
+    }
 }
