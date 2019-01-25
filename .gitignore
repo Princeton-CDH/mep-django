@@ -13,6 +13,7 @@ dev.db
 # JS ignores
 node_modules/
 webpack-stats.json
+js/test/unit/coverage
 
 # Static files
 static/
