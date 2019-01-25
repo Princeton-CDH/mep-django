@@ -81,7 +81,12 @@ using::
 If you just want to rebuild the static assets once, you can use::
 
 
-    npm run build
+    npm run build:qa
+
+This will compile and minify all assets and generate sourcemaps.
+To run a production build without sourcemaps, you can use::
+
+    npm run build:prod
 
 Switching between the webpack dev server and serving from ``static/`` requires a
 restart of your Django dev server to pick up the changed file paths.

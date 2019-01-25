@@ -5,11 +5,11 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
-const prod = process.env.NODE_ENV === 'production'
+const devMode = process.env.NODE_ENV !== 'production' // i.e. not prod or qa
 
-module.exports = {
+module.exports = env => ({
     context: __dirname,
-    mode: prod ? 'production' : 'development',
+    mode: devMode ?  'development' : 'production',
     entry: {
         main: [
             './js/src/main.js', // main site js
@@ -19,8 +19,8 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, 'static'), // where to output bundles
-        publicPath: prod ? '/static/' : 'http://localhost:3000/', // tell Django where to serve bundles from
-        filename: prod ? 'js/[name]-[hash].min.js' : 'js/[name].js', // append hashes in prod
+        publicPath: devMode ? 'http://localhost:3000/' : '/static/', // tell Django where to serve bundles from
+        filename: devMode ? 'js/[name].js' : 'js/[name]-[hash].min.js', // append hashes in prod
     },
     module: {
         rules: [
@@ -30,7 +30,7 @@ module.exports = {
                 options: {
                     loaders: {
                         'scss': [ // compile <style lang=scss> blocks inside SFCs
-                            prod ? MiniCssExtractPlugin.loader : 'vue-style-loader', // use vue-style-loader for hot reload in dev
+                            devMode ? 'vue-style-loader' : MiniCssExtractPlugin.loader, // use vue-style-loader for hot reload in dev
                             'css-loader',
                             'postcss-loader', // for autoprefixer
                             'sass-loader',
@@ -40,18 +40,18 @@ module.exports = {
             },
             { // transpile ES6+ to ES5 using Babel, including tests
                 test: /^(?!.*\.spec\.js$).*\.js$/,
-                use: prod ? ['babel-loader'] : [
+                use: devMode ? [
                     { // use istanbul for coverage when developing
                         loader: 'istanbul-instrumenter-loader',
                         options: { esModules: true }
                     }, 'babel-loader'
-                ],
+                ] : ['babel-loader'], // otherwise just babel
                 exclude: /node_modules/, // don't transpile dependencies
             },
             { // load and compile styles to CSS
                 test: /\.(sa|sc|c)ss$/,
                 use: [
-                    prod ? MiniCssExtractPlugin.loader : 'style-loader', // use style-loader for hot reload in dev
+                    devMode ? 'style-loader' : MiniCssExtractPlugin.loader, // use style-loader for hot reload in dev
                     'css-loader',
                     'postcss-loader', // for autoprefixer
                     'sass-loader',
@@ -61,7 +61,7 @@ module.exports = {
                 test: /\.(png|jpg|gif|svg)$/,
                 loader: 'file-loader',
                 options: {
-                  name: prod ? 'img/[name]-[hash].[ext]' : 'img/[name].[ext]', // append hashes in prod
+                  name: devMode ? 'img/[name].[ext]' : 'img/[name]-[hash].[ext]', // append hashes in prod
                 }
             }
         ]
@@ -70,9 +70,9 @@ module.exports = {
         new BundleTracker({ filename: 'webpack-stats.json' }), // tells Django where to find webpack output
         new VueLoaderPlugin(), // necessary for vue-loader to work
         new MiniCssExtractPlugin({ // extracts CSS to a single file per entrypoint
-            filename: prod ? 'css/[name]-[hash].min.css' : 'css/[name].css', // append hashes in prod
+            filename: devMode ? 'css/[name].css' : 'css/[name]-[hash].min.css', // append hashes in prod
         }),
-        ...(prod ? [new CleanWebpackPlugin('static')] : []), // clear out static when rebuilding
+        ...(devMode ? [] : [new CleanWebpackPlugin('static')]), // clear out static when rebuilding in prod
     ],
     resolve: {
         alias: { 'vue$': 'vue/dist/vue.esm.js' }, // use the esmodule version of Vue
@@ -93,19 +93,19 @@ module.exports = {
             modules: false,
         }
     },
-    devtool: prod ? 'source-map' : 'eval-source-map', // enable sourcemaps
+    devtool: devMode ? 'eval-source-map' : 'source-map', // allow sourcemaps in dev & qa
     optimization: {
         minimizer: [
             new UglifyJSPlugin({ // minify JS in prod
                 cache: true, // cache unchanged assets
                 parallel: true, // run in parallel (recommended)
-                sourceMap: true // preserve sourcemaps
+                sourceMap: env.maps // preserve sourcemaps if env.maps was passed
             }),
             new OptimizeCSSAssetsPlugin({ // minify CSS in prod
-                cssProcessorOptions: {
+                ... (env.maps && { cssProcessorOptions: { // if env.maps was passed, 
                     map: { inline: false, annotation: true } // preserve sourcemaps
-                }
+                }})
             })
         ]
     }
-}
+})

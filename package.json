@@ -9,12 +9,13 @@
         "url": "https://github.com/Princeton-CDH/mep-django"
     },
     "scripts": {
-        "dev": "webpack-dev-server --progress --hot --inline",
+        "dev": "webpack-dev-server --progress --hot --inline --env.maps",
         "start": "npm run dev",
         "unit": "jest --coverage",
         "test": "npm run unit",
-        "build": "NODE_ENV=production webpack",
-        "postinstall": "npm run build"
+        "build:qa": "NODE_ENV=production webpack --env.maps",
+        "build:prod": "NODE_ENV=production webpack --env",
+        "postinstall": "npm run build:qa"
     },
     "browserslist": [
         "> 1%",
