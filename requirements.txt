@@ -1,5 +1,5 @@
 Django>=1.11,<2.0
-mysqlclient
+mysqlclient<1.4
 django-grappelli
 cached_property
 # required to avoid url route issues
