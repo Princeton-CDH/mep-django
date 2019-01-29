@@ -3,6 +3,7 @@ const BundleTracker = require('webpack-bundle-tracker')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
+const GlobImporter = require('node-sass-glob-importer')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const devMode = process.env.NODE_ENV !== 'production' // i.e. not prod or qa
@@ -27,34 +28,19 @@ module.exports = env => ({
             { // compile Vue Single-File Components (SFCs)
                 test: /\.vue$/,
                 loader: 'vue-loader',
-                options: {
-                    loaders: {
-                        'scss': [ // compile <style lang=scss> blocks inside SFCs
-                            devMode ? 'vue-style-loader' : MiniCssExtractPlugin.loader, // use vue-style-loader for hot reload in dev
-                            'css-loader',
-                            'postcss-loader', // for autoprefixer
-                            'sass-loader',
-                        ]
-                    }
-                }
             },
-            { // transpile ES6+ to ES5 using Babel, including tests
-                test: /^(?!.*\.spec\.js$).*\.js$/,
-                use: devMode ? [
-                    { // use istanbul for coverage when developing
-                        loader: 'istanbul-instrumenter-loader',
-                        options: { esModules: true }
-                    }, 'babel-loader'
-                ] : ['babel-loader'], // otherwise just babel
+            { // transpile ES6+ to ES5 using Babel
+                test: /\.js$/,
+                loader: 'babel-loader',
                 exclude: /node_modules/, // don't transpile dependencies
             },
-            { // load and compile styles to CSS
+            { // load and compile styles to CSS, including <style> blocks in SFCs
                 test: /\.(sa|sc|c)ss$/,
                 use: [
                     devMode ? 'style-loader' : MiniCssExtractPlugin.loader, // use style-loader for hot reload in dev
                     'css-loader',
                     'postcss-loader', // for autoprefixer
-                    'sass-loader',
+                    { loader: 'sass-loader', options: { importer: GlobImporter() } }, // allow glob scss imports
                 ],
             },
             { // load images
@@ -72,11 +58,11 @@ module.exports = env => ({
         new MiniCssExtractPlugin({ // extracts CSS to a single file per entrypoint
             filename: devMode ? 'css/[name].css' : 'css/[name]-[hash].min.css', // append hashes in prod
         }),
-        ...(devMode ? [] : [new CleanWebpackPlugin('static')]), // clear out static when rebuilding in prod
+        ...(devMode ? [] : [new CleanWebpackPlugin('static')]), // clear out static when rebuilding in prod/qa
     ],
     resolve: {
-        alias: { 'vue$': 'vue/dist/vue.esm.js' }, // use the esmodule version of Vue
-        extensions: ['*', '.js', '.vue', '.json'] // enables importing these without extensions in a js file
+        alias: { '^vue$': 'vue/dist/vue.esm.js' }, // use the esmodule version of Vue
+        extensions: ['*', '.js', '.vue', '.json', '.scss'] // enables importing these without extensions
     },
     devServer: {
         contentBase: path.join(__dirname, 'static'), // serve this as webroot
