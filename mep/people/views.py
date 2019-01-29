@@ -266,4 +266,4 @@ class PersonMerge(PermissionRequiredMixin, FormView):
 
 class MembersList(ListView):
     model = Person
-    template_name = 'books/person_list.html'
+    template_name = 'people/person_list.html'
