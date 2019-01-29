@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.redirects',
+    'django.contrib.humanize',
     'django_cas_ng',
     'pucas',
     'dal',

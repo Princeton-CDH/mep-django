@@ -19,6 +19,19 @@ from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 
 
+class MembersList(ListView):
+    model = Person
+    template_name = 'people/member_list.html'
+    # pagination not yet designed
+    # paginate_by = 100
+    context_object_name = 'members'
+
+    def get_queryset(self):
+        # limit to people with library accounts, do not include
+        # item creators who are not library members
+        return super().get_queryset().exclude(account=None)
+
+
 class GeoNamesLookup(autocomplete.Select2ListView):
     '''GeoNames ajax lookup for use as autocomplete.
     Optional mode parameter to restrict to countries only.
@@ -263,7 +276,3 @@ class PersonMerge(PermissionRequiredMixin, FormView):
             messages.error(self.request, str(err))
 
         return super(PersonMerge, self).form_valid(form)
-
-class MembersList(ListView):
-    model = Person
-    template_name = 'people/person_list.html'

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load render_bundle from webpack_loader %}
+
+{% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
+
+{% block js %}{% render_bundle 'search' 'js' %}{% endblock %}
+
+{% block page-subtitle %}Library Members · {% endblock %}
+
+{% block content %}
+<h1>Members</h1>
+
+<p>Showing {{ object_list.count|intcomma }} member{{ object_list.count|pluralize }}</p>
+
+<div>
+{% for person in members %}
+<p>{{ person.sort_name }}</p>
+{% endfor %}
+</div>
+
+
+{% endblock %}
