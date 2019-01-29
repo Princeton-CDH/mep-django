@@ -7,8 +7,10 @@ install:
 - pip install codecov
 - cp ci/testsettings.py mep/local_settings.py
 - python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
+- npm install
 script:
 - py.test --cov=mep
+- npm test
 sevices:
 - mysql
 after_success:

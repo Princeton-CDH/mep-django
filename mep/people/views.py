@@ -263,3 +263,7 @@ class PersonMerge(PermissionRequiredMixin, FormView):
             messages.error(self.request, str(err))
 
         return super(PersonMerge, self).form_valid(form)
+
+class MembersList(ListView):
+    model = Person
+    template_name = 'people/person_list.html'

@@ -10,6 +10,14 @@ dev.db
 .floo
 .flooignore
 
+# JS ignores
+node_modules/
+webpack-stats.json
+js/test/unit/coverage
+
+# Static files
+static/
+
 # stock python git-ignores provided by github
 
 # Byte-compiled / optimized / DLL files

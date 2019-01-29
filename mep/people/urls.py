@@ -4,6 +4,7 @@ from mep.people import views
 
 
 urlpatterns = [
+    url(r'^members/$', views.MembersList.as_view(), name='members-list'),
     url(r'^places/geonames/$', views.GeoNamesLookup.as_view(),
         name='geonames-lookup'),
     url(r'^places/geonames/country/$', views.GeoNamesLookup.as_view(),

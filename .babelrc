@@ -1,0 +1,14 @@
+{
+    "presets": [
+        ["@babel/preset-env", {
+            "useBuiltIns": "usage", // uses browserslist config in package.json to auto-inject polyfills
+            "modules": false, // don't transform es6 modules; webpack 4 handles them natively
+        }]
+    ],
+    "env": {
+        "test": {
+            "presets": ["@babel/preset-env"],
+        }
+    }
+  }
+  

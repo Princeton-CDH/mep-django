@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'mezzanine.core',
     'mezzanine.generic',
     'mezzanine.pages',
+    'webpack_loader',
     # local apps
     'mep.common',
     'mep.people',
@@ -155,6 +156,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 # These will be added to ``INSTALLED_APPS``, only if available.
 OPTIONAL_APPS = (
     "debug_toolbar",
@@ -198,6 +201,14 @@ SITE_ID = 1
 # use grappelli custom dashboard for consistent admin menu ordering
 GRAPPELLI_INDEX_DASHBOARD = 'mep.dashboard.CustomIndexDashboard'
 
+# Django webpack loader
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'CACHE': not DEBUG,
+        'BUNDLE_DIR_NAME': 'static/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+    }
+}
 
 ##################
 # LOCAL SETTINGS #

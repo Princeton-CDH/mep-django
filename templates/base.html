@@ -1,0 +1,22 @@
+{% load render_bundle from webpack_loader %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns:schema="http://schema.org/" xmlns:og="http://ogp.me/ns#">
+    <head>
+        <!-- metadata -->
+        <title>Shakespeare & Company</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- styles -->
+        <link rel="stylesheet" type="text/css" href="{% static 'css/test-banner.css' %}">
+        {% render_bundle 'main' 'css' %}
+        {% block css %}{% endblock %}
+        <!-- scripts -->
+        {% render_bundle 'main' 'js' %}
+        {% block js %}{% endblock %}
+    </head>
+    <body>
+        {% include 'snippets/test_banner.html' %}
+        <main>{% block content %}{% endblock %}</main>
+    </body>
+</html>
