@@ -71,22 +71,21 @@ update - you will need to edit ``mep/dashboard.py`` to control the display and
 ordering of admin items. More information is available in the `django-admin-tools
 docs <http://django-admin-tools.readthedocs.io/en/latest/dashboard.html#>`_.
 
-
-For frontend development, you can activate a webpack dev server with hot reload
-using::
-
-
-    npm start
-
-If you just want to rebuild the static assets once, you can use::
+If you make changes to js or scss files and need to rebuild static assets::
 
 
     npm run build:qa
 
-This will compile and minify all assets and generate sourcemaps.
-To run a production build without sourcemaps, you can use::
+This will compile and minify all assets to ``static/`` with sourcemaps.
+Alternatively, to run a production build without sourcemaps, you can use::
 
     npm run build:prod
+
+Finally, for iterative frontend development, you can activate a webpack dev
+server with hot reload using::
+
+
+    npm start
 
 Switching between the webpack dev server and serving from ``static/`` requires a
 restart of your Django dev server to pick up the changed file paths.
@@ -104,6 +103,12 @@ things easier. To run them, first install development requirements::
 Run tests using py.test::
 
     py.test
+
+Javascript unit tests are written with `jest <https://jestjs.io/>`__. To run
+them::
+
+    npm run unit
+
 
 Documentation
 -------------
