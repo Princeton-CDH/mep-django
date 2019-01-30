@@ -1,0 +1,28 @@
+/* introductory main content, e.g. on homepage */
+
+section.intro {
+    width: 100%;
+    background: $white;
+    font-family: $headerFont;
+    line-height: 1.5rem;
+    padding-top: 2.5rem;
+
+    @media (min-width: $breakpoint-s) {
+        padding-top: 3rem;
+    }
+
+    @media (min-width: $breakpoint-l) {
+        padding-top: 3.5rem;
+    }
+
+    .inner {
+        @include container;
+    }
+
+    .footnote {
+        font-family: $pageFont;
+        font-size: .8rem;
+        line-height: 1.2rem;
+        padding: 2rem 0;
+    }
+}
