@@ -9,11 +9,13 @@ import mezzanine.urls
 from mep.people import urls as people_urls
 from mep.accounts import urls as accounts_urls
 from mep.books import urls as books_urls
+from mep.common.views import Homepage, About
 
 urlpatterns = [
-    # for now, since there is not yet any public-facing site,
-    # redirect base url to admin index page
-    url(r'^$', RedirectView.as_view(pattern_name='admin:index'), name='home'),
+    # for now, since wagtail isn't implemented, redirect base url to a simple
+    # homepage view and '/about' to a simple about page view
+    url(r'^$', Homepage.as_view(), name='home'),
+    url(r'^about/$', About.as_view(), name='about'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^accounts/', include('pucas.cas_urls')),

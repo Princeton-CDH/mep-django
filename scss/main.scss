@@ -17,6 +17,9 @@
 // The Center for Digital Humanities @ Princeton University
 // https://github.com/Princeton-CDH/mep-django
 
-body {
-    transition: all 1s;
-}
+@import 'reset';
+@import 'variables';
+@import 'mixins';
+@import 'typography';
+@import 'pages/*';
+@import 'snippets/*';

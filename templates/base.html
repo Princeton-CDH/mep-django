@@ -17,6 +17,8 @@
     </head>
     <body>
         {% include 'snippets/test_banner.html' %}
+        {% block header %}{% endblock %}
         <main>{% block content %}{% endblock %}</main>
+        {% include 'snippets/footer.html' %}
     </body>
 </html>

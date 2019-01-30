@@ -1,0 +1,43 @@
+@mixin container {
+    margin-left: auto;
+    margin-right: auto;
+    height: 100%;
+    width: calc(#{$breakpoint-xs} - 2 * #{$gutter-xs});
+
+    @media (min-width: $breakpoint-s) {
+        width: calc(#{$breakpoint-s} - 2 * #{$gutter});
+    }
+
+    @media (min-width: $breakpoint-m) {
+        width: calc(#{$breakpoint-m} - 2 * #{$gutter});
+    }
+}
+
+@mixin responsive-banner($src) {
+    // xs -> s
+    background-image: url("#{$src}_S@1x.jpg");
+
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        background-image: url("#{$src}_S@2x.jpg");
+    }
+
+    // s -> l
+    @media (min-width: $breakpoint-s) {
+        background-image: url("#{$src}_M@1x.jpg");
+
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            background-image: url("#{$src}_M@2x.jpg");
+                
+        }
+    }
+
+    // l -> xl
+    @media (min-width: $breakpoint-l) {
+        background-image: url("#{$src}@1x.jpg");
+        
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            background-image: url("#{$src}@2x.jpg");
+                
+        }
+    }
+}
