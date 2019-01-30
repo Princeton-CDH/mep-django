@@ -83,7 +83,7 @@
 
     .links {
         width: 100%;
-        padding-top: 2rem;
+        padding-top: 1rem;
         display: flex;
         flex-flow: row wrap;
 
@@ -110,15 +110,6 @@
                 text-align: left;
                 flex: none;
                 margin-left: 2rem;
-            }
-        }
-
-        #copyright,
-        #sw-version {
-            margin-top: .5rem;
-
-            @media (min-width: $breakpoint-s) {
-                margin-top: 0;
             }
         }
 
