@@ -1,0 +1,38 @@
+{% load static %}
+<footer id="page-footer">
+    <div class="inner">
+        <nav>
+            <ul class="primary">
+                <li><a href="/members">members</a><li>
+                <li><a href="/cards">lending library cards</a><li>
+                <li><a href="/books">books</a><li>
+                <li><a href="/analysis">analysis</a><li>
+                <li><a href="/sources">sources</a><li>
+                <li><a href="/about">about</a><li>
+            </ul>
+            <ul class="secondary">
+                <li><a href="/">home</a><li>
+                <li><a href="/contact">contact</a><li>
+                <li><a href="/data-export">data export</a><li>
+                <li><a href="/how-to-cite">how to cite</a><li>
+                <li><a href="/credits">credits</a><li>
+                <li><a href="/technical">technical</a><li>
+            </ul>
+        </nav>
+        <img id="sco-logo" src="{% static 'img/logo/SCo_logo_vert.png' %}">
+        <div class="logos">
+            <a id="pu-logo" href="https://www.princeton.edu/">
+                <img src="{% static 'img/logo/PUsig2-bw-bs.svg' %}" alt="princeton university">
+            </a>
+            <a id="cdh-logo" href="https://cdh.princeton.edu/">
+                <img src="{% static 'img/logo/cdh-logo.svg' %}" alt="center for digital humanities">
+            </a>
+        </div>
+        <div class="links">
+            <a href="https://accessibility.princeton.edu/" id="a11y">Accessibility</a>
+            <a href="https://accessibility.princeton.edu/accessibility-assistance" id="a11y-assist">Accessibility Assistance</a>
+            <span id="copyright">&copy;{% now 'Y' %} Trustees of Princeton University</span>
+            <a href="https://github.com/Princeton-CDH/mep-django" id="sw-version">{{ SW_VERSION }}</a>
+        </div>
+    </div>
+</footer>

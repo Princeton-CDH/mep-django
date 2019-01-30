@@ -1,0 +1,199 @@
+/* basic header */
+#page-header {
+    flex: none;
+    width: 100%;
+    position: relative;
+    text-align: center;
+    padding: 2rem 0 1rem;
+    background: $white;
+    background-repeat: no-repeat;
+
+    h1 {
+        font-size: 1.4rem;
+
+        @media (min-width: $breakpoint-s) {
+            font-size: 2.5rem;
+        }
+    }
+
+    .tagline,
+    .bookmark,
+    .chevron,
+    .logotype {
+        display: none;
+    }
+
+    .logotype {
+        width: 12rem;
+        margin: 0 auto;
+
+        @media (min-width: $breakpoint-s) {
+            display: block;
+        }
+    }
+
+    .chevron {
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+
+        @media (min-width: $breakpoint-s) {
+            width: 2.1rem;
+        }
+    }
+}
+
+/* header with banner image and 'bookmark' shape */
+#page-header.banner {
+    &.about {
+        @include responsive-banner('/static/img/headers/SCo_banner_about');
+    }
+
+    &.analysis {
+        @include responsive-banner('/static/img/headers/SCo_banner_anlys');
+    }
+
+    &.sources {
+        @include responsive-banner('/static/img/headers/SCo_banner_src');
+    }
+
+    padding: 0;
+    height: 22.5rem;
+    z-index: -2;
+    background-position: bottom;
+    background-size: auto 20rem;
+
+    @media (min-width: $breakpoint-s) {
+        height: 18rem;
+        background-size: cover;
+        background-position: center;
+    }
+
+    @media (min-width: $breakpoint-l) {
+        height: 30rem;
+        background-position: top;
+    }
+
+    h1 {
+        font-size: 1.4rem;
+        padding: 0.55rem 0;
+
+        @media (min-width: $breakpoint-s) {
+            padding: 1rem 0 0;
+        }
+
+        @media (min-width: $breakpoint-l) {
+            font-size: 2.5rem;
+        }
+    }
+
+    .logotype {
+        width: 10rem;
+
+        @media (min-width: $breakpoint-s) {
+            display: block;
+        }
+
+        @media (min-width: $breakpoint-l) {
+            width: 12rem;
+        }
+    }
+
+    .bookmark {
+        z-index: -1;
+        width: 13rem;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        margin: 0 auto;
+
+        @media (min-width: $breakpoint-s) {
+            display: block;
+        }
+
+        @media (min-width: $breakpoint-l) {
+            width: 18rem;
+        }
+    }
+
+    .chevron {
+        display: block;
+        bottom: 2.5rem;
+
+        @media (min-width: $breakpoint-s) {
+            bottom: 1rem;
+        }
+    }
+}
+
+/* homepage header */
+#page-header.home {
+    @include responsive-banner('/static/img/headers/SCo_home');
+
+    height: 20rem;
+    background-position: center;
+    background-size: cover;
+    
+    @media (min-width: $breakpoint-s) {
+        height: 27rem;
+    }
+
+    @media (min-width: $breakpoint-l) {
+        height: 45rem;
+    }
+
+    h1 {
+        display: none;
+    }
+
+    .logotype {
+        display: block;
+        width: $breakpoint-xs;
+        padding-top: 4rem;
+
+        @media (min-width: $breakpoint-s) {
+            padding-top: 8rem;
+            width: 22rem;
+        }
+
+        @media (min-width: $breakpoint-l) {
+            padding-top: 12rem;
+            width: 41rem;
+        }
+    }
+
+    .tagline {
+        display: block;
+        margin: 0 auto;
+        font-family: $headerFont;
+        font-style: italic;
+        font-size: 0.8rem;
+        max-width: 10rem;
+        padding-top: 2rem;
+        padding-bottom: 8.5rem;
+
+        @media (min-width: $breakpoint-s) {
+            padding-top: 0;
+            max-width: none;
+        }
+
+        @media (min-width: $breakpoint-l) {
+            font-size: 1.4rem;
+        }
+    }
+
+    .chevron {
+        display: block;
+        bottom: .5rem;
+
+        @media (min-width: $breakpoint-s) {
+            bottom: 10rem;
+        }
+
+        @media (min-width: $breakpoint-l) {
+            bottom: 15rem;
+        }
+    }
+}

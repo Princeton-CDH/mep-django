@@ -8,9 +8,11 @@
 
 {% block page-subtitle %}Library Members · {% endblock %}
 
-{% block content %}
-<h1>Members</h1>
+{% block header %}
+{% include 'snippets/header.html' with title="members" %}
+{% endblock %}
 
+{% block content %}
 <p>Showing {{ object_list.count|intcomma }} member{{ object_list.count|pluralize }}</p>
 
 <div>

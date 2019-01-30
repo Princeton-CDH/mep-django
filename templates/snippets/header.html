@@ -1,0 +1,8 @@
+{% load static %}
+<header id="page-header"{% if style %} class="{{ style }}"{% endif %}>
+    <img class="bookmark" src="{% static 'img/headers/header-bookmark.svg' %}">
+    <h1>{{ title }}</h1>
+    <img class="logotype" src="{% static 'img/logo/SCo_logo_text.png' %}">
+    <p class="tagline">Recreating the world of the Lost Generation in interwar Paris.</p>
+    <img class="chevron" src="{% static 'img/icons/chevron_down.svg' %}">
+</header>
