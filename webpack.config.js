@@ -5,7 +5,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const GlobImporter = require('node-sass-glob-importer')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 const devMode = process.env.NODE_ENV !== 'production' // i.e. not prod or qa
 
 module.exports = env => ({
@@ -82,7 +82,7 @@ module.exports = env => ({
     devtool: devMode ? 'eval-source-map' : 'source-map', // allow sourcemaps in dev & qa
     optimization: {
         minimizer: [
-            new UglifyJSPlugin({ // minify JS in prod
+            new TerserPlugin({ // minify JS in prod
                 cache: true, // cache unchanged assets
                 parallel: true, // run in parallel (recommended)
                 sourceMap: env.maps // preserve sourcemaps if env.maps was passed
