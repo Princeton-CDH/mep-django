@@ -1,0 +1,138 @@
+#main-nav {
+    width: 100%;
+    position: fixed;
+    z-index: 10;
+
+    a {
+        text-decoration: none;
+        color: $black;
+
+        &:visited {
+            color: $black;
+        }
+    }
+
+    ul.corners {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    li.square {
+        background-color: rgba(255, 255, 255, 0.8);
+        transition: background-color 0.2s;
+        width: 2.5rem;
+        height: 2.5rem;
+
+        &:hover {
+            background-color: white;
+        }
+
+        @media (min-width: $breakpoint-s) {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        @media (min-width: $breakpoint-l) {
+            width: 4rem;
+            height: 4rem;
+        }
+    }
+
+    .home a,
+    .menu a {
+        display: block;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .home img,
+    .menu img {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+    }
+
+    .home img {
+        width: 70%;
+        height: 100%;
+    }
+
+    .menu img {
+        width: 50%;
+        height: 50%;
+    }
+
+    #main-menu {
+        z-index: 1;
+        position: fixed;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        opacity: 0;
+        pointer-events: none;
+        background: $white;
+        transition: opacity 0.5s ease;
+        padding-top: 2rem;
+
+        @media (min-width: $breakpoint-s) {
+            padding-top: 2.5rem;
+        }
+
+        &:target { // when menu button is clicked
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        li.menu { // close button
+            position: absolute;
+            background: transparent;
+            top: 0;
+            right: 0;
+        }
+
+        li:not(.menu) { // nav menu items
+            text-align: center;
+            padding: .5rem 0;
+            border-bottom: 1px solid $white-two;
+            margin-left: auto;
+            margin-right: auto;
+            width: calc(#{$breakpoint-xs} - 2 * #{$gutter-xs});
+
+            @media (min-width: $breakpoint-s) {
+                width: calc(#{$breakpoint-s} - 2 * #{$gutter});
+                line-height: 3rem;
+            }
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+
+        .title,
+        .subtitle {
+            display: block;
+        }
+
+        .title {
+            font-family: $headerFont;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+
+            @media (min-width: $breakpoint-s) {
+                font-size: 2.5rem;
+            }
+        }
+
+        .subtitle {
+            font-size: 0.7rem;
+            line-height: normal;
+            padding-top: .5rem;
+        }
+    }
+}
