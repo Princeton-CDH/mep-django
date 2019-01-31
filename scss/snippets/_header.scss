@@ -16,13 +16,6 @@
         }
     }
 
-    .tagline,
-    .bookmark,
-    .chevron,
-    .logotype {
-        display: none;
-    }
-
     .logotype {
         width: 12rem;
         margin: 0 auto;
@@ -195,7 +188,7 @@
         }
 
         @media (min-width: $breakpoint-l) {
-            bottom: 15rem;
+            bottom: 16rem;
         }
     }
 }
