@@ -30,9 +30,10 @@
         left: 0;
         right: 0;
         margin: 0 auto;
+        width: 2rem;
 
-        @media (min-width: $breakpoint-s) {
-            width: 2.1rem;
+        @media (min-width: $breakpoint-l) {
+            width: 4rem;
         }
     }
 }
