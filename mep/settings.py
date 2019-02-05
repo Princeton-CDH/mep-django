@@ -41,12 +41,14 @@ INSTALLED_APPS = [
     'dal',
     'dal_select2',
     'viapy',
-    'mezzanine.boot',
-    'mezzanine.conf',
-    'mezzanine.core',
-    'mezzanine.generic',
-    'mezzanine.pages',
     'webpack_loader',
+    'wagtail.sites',
+    'wagtail.users',
+    'wagtail.snippets',
+    'wagtail.documents',
+    'wagtail.images',
+    'wagtail.admin',
+    'wagtail.core',
     # local apps
     'mep.common',
     'mep.people',
@@ -56,7 +58,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'mezzanine.core.middleware.UpdateCacheMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -64,12 +65,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'mezzanine.core.request.CurrentRequestMiddleware',
-    'mezzanine.core.middleware.RedirectFallbackMiddleware',
-    'mezzanine.core.middleware.AdminLoginInterfaceSelectorMiddleware',
-    # 'mezzanine.core.middleware.SitePermissionMiddleware',
-    'mezzanine.pages.middleware.PageMiddleware',
-    'mezzanine.core.middleware.FetchFromCacheMiddleware',
+    'wagtail.core.middleware.SiteMiddleware',
+    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -91,17 +88,11 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'mezzanine.conf.context_processors.settings',
-                'mezzanine.pages.context_processors.page',
                 'mep.context_extras',
                 'mep.context_processors.template_settings',
             ],
-            'builtins': [
-                'mezzanine.template.loader_tags',
-            ],
            'loaders': [
                 'apptemplates.Loader',
-                # 'mezzanine.template.loaders.host_themes.Loader',
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
             ]
@@ -111,7 +102,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mep.wsgi.application'
 
-GRAPPELLI_ADMIN_TITLE = 'MEP Admin'
+GRAPPELLI_ADMIN_TITLE = 'Shakespeare & Company Project Admin'
+
+WAGTAIL_SITE_NAME = 'Shakespeare & Company Project'
 
 
 # mezzanine integration package names (normally uses custom forks)
