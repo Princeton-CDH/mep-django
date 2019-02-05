@@ -3,8 +3,6 @@ mep URL Configuration
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.views.generic.base import RedirectView
-import mezzanine.urls
 
 from mep.people import urls as people_urls
 from mep.accounts import urls as accounts_urls
@@ -23,8 +21,5 @@ urlpatterns = [
     url(r'^', include(people_urls, namespace='people')),
     url(r'^', include(accounts_urls, namespace='accounts')),
     url(r'^', include(books_urls, namespace='books')),
-
-    # content pages managed by mezzanine
-    url(r'^', include(mezzanine.urls))
 ]
 
