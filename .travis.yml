@@ -10,8 +10,8 @@ install:
 - npm i -g npm # required for use of `npm ci`
 - npm ci
 script:
-- py.test --cov=mep
 - npm run build:prod
+- py.test --cov=mep
 - npm test
 services:
 - mysql
