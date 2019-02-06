@@ -56,7 +56,10 @@ Initial setup and installation:
 
     npm install
 
-This will automatically run webpack to build all of the static assets.
+- compile static assets (css and javascript) with sourcemaps for development::
+
+
+    npm run build:qa
 
 - copy sample local settings and configure for your environment::
 

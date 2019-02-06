@@ -14,8 +14,7 @@
         "unit": "jest --coverage",
         "test": "npm run unit",
         "build:qa": "NODE_ENV=production webpack --env.maps",
-        "build:prod": "NODE_ENV=production webpack --env",
-        "postinstall": "npm run build:qa"
+        "build:prod": "NODE_ENV=production webpack --env"
     },
     "browserslist": [
         "> 1%",
