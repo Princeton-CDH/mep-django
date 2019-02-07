@@ -2,24 +2,24 @@
 <nav id="main-nav" aria-label="header navigation">
     <ul class="corners">
         <li class="home square">
-            <a href="{% slugurl 'home' %}" title="home">
+            <a href="{% slugurl 'home' %}" aria-label="home">
                 <img src="{% static 'img/logo/SCo_logo_graphic.png' %}" alt="shakespeare & company">
             </a>
         </li>
         <li class="menu square">
-            <a id="open-main-menu" title="open main menu" href="#main-menu" role="button">
-                <img src="{% static 'img/icons/Menu.svg' %}" alt="">
+            <a id="open-main-menu" href="#main-menu" role="button">
+                <img src="{% static 'img/icons/Menu.svg' %}" alt="open main menu">
             </a>
         </li>
     </ul>
     <ul id="main-menu" aria-label="primary navigation">
         <li class="menu square">
-            <a id="close-main-menu" title="close main menu" href="#" role="button">
-                <img src="{% static 'img/icons/Delete.svg' %}" alt="">
+            <a id="close-main-menu" href="#" role="button">
+                <img src="{% static 'img/icons/Delete.svg' %}" alt="close main menu">
             </a>
         </li>
         <li>
-            <a href="{% url 'people:members-list' %}" title="members">
+            <a href="{% url 'people:members-list' %}">
                 <span class="title">members</span>
                 <span class="subtitle">Explore the lending library membership.</span>
             </a>
