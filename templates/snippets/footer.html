@@ -1,22 +1,22 @@
-{% load static %}
+{% load static wagtailcore_tags %}
 <footer id="page-footer">
     <div class="inner">
         <nav aria-label="footer navigation">
             <ul class="primary" aria-label="primary navigation">
-                <li><a href="/members">members</a><li>
-                <li><a href="/cards">lending library cards</a><li>
-                <li><a href="/books">books</a><li>
-                <li><a href="/analysis">analysis</a><li>
-                <li><a href="/sources">sources</a><li>
-                <li><a href="/about">about</a><li>
+                <li><a href="{% url 'people:members-list' %}">members</a><li>
+                <li><a>lending library cards</a><li>
+                <li><a>books</a><li>
+                <li><a>analysis</a><li>
+                <li><a>sources</a><li>
+                <li><a href="{% slugurl 'about' %}">about</a><li>
             </ul>
             <ul class="secondary" aria-label="secondary navigation">
-                <li><a href="/">home</a><li>
-                <li><a href="/contact">contact</a><li>
-                <li><a href="/data-export">data export</a><li>
-                <li><a href="/how-to-cite">how to cite</a><li>
-                <li><a href="/credits">credits</a><li>
-                <li><a href="/technical">technical</a><li>
+                <li><a href="{% slugurl 'home' %}">home</a><li>
+                <li><a>contact</a><li>
+                <li><a>data export</a><li>
+                <li><a>how to cite</a><li>
+                <li><a>credits</a><li>
+                <li><a>technical</a><li>
             </ul>
         </nav>
         <img id="sco-logo" src="{% static 'img/logo/SCo_logo_vert.png' %}">

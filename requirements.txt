@@ -9,10 +9,9 @@ pucas
 pendulum==1.5.0
 eulxml
 viapy
+wagtail>=2.3,<2.4
 django-autocomplete-light<3.3
 python-dateutil
-# mezzanine from github required for django 1.11 compatibility; should be > 4.2.3
-git+https://github.com/stephenmcd/mezzanine.git@397409d#egg=mezzanine
 django-apptemplates
 py-flags
 django-tabular-export

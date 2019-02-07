@@ -1,8 +1,8 @@
-{% load static %}
+{% load static wagtailcore_tags %}
 <nav id="main-nav" aria-label="header navigation">
     <ul class="corners">
         <li class="home square">
-            <a href="/" title="home">
+            <a href="{% slugurl 'home' %}" title="home">
                 <img src="{% static 'img/logo/SCo_logo_graphic.png' %}" alt="shakespeare & company">
             </a>
         </li>
@@ -19,7 +19,7 @@
             </a>
         </li>
         <li>
-            <a href="/members" title="members">
+            <a href="{% url 'people:members-list' %}" title="members">
                 <span class="title">members</span>
                 <span class="subtitle">Explore the lending library membership.</span>
             </a>
@@ -49,7 +49,7 @@
             </a>
         </li>
         <li>
-            <a href="/about">
+            <a href="{% slugurl 'about' %}">
                 <span class="title">about</span>
                 <span class="subtitle">Learn about the Shakespeare and Company Project.</span>
             </a>

@@ -1,21 +1,28 @@
 """
 mep URL Configuration
 """
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.views.generic.base import RedirectView
-import mezzanine.urls
+from wagtail.admin import urls as wagtailadmin_urls
+from wagtail.contrib.sitemaps import Sitemap
+from wagtail.contrib.sitemaps import views as sitemap_views
+from wagtail.core import urls as wagtail_urls
+from wagtail.documents import urls as wagtaildocs_urls
 
-from mep.people import urls as people_urls
 from mep.accounts import urls as accounts_urls
 from mep.books import urls as books_urls
-from mep.common.views import Homepage, About
+from mep.people import urls as people_urls
+
+# sitemap configuration for sections of the site
+SITEMAPS = {
+    'pages': Sitemap,  # wagtail content pages
+    # 'people': PeopleSitemap, # not implemented
+    # 'books': BooksSitemap, # not implemented
+    # 'cards': CardsSitemap, # not implemented
+}
 
 urlpatterns = [
-    # for now, since wagtail isn't implemented, redirect base url to a simple
-    # homepage view and '/about' to a simple about page view
-    url(r'^$', Homepage.as_view(), name='home'),
-    url(r'^about/$', About.as_view(), name='about'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^accounts/', include('pucas.cas_urls')),
@@ -24,7 +31,19 @@ urlpatterns = [
     url(r'^', include(accounts_urls, namespace='accounts')),
     url(r'^', include(books_urls, namespace='books')),
 
-    # content pages managed by mezzanine
-    url(r'^', include(mezzanine.urls))
+    # sitemaps
+    url(r'^sitemap\.xml$', sitemap_views.index, {'sitemaps': SITEMAPS},
+        name='sitemap-index'),
+    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap_views.sitemap,
+        {'sitemaps': SITEMAPS}, name='django.contrib.sitemaps.views.sitemap'),
+
+    # wagtail urls
+    url(r'^cms/', include(wagtailadmin_urls)),
+    url(r'^documents/', include(wagtaildocs_urls)),
+    url(r'', include(wagtail_urls)),
 ]
 
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]

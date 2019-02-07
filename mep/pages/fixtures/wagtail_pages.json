@@ -1,0 +1,193 @@
+[
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "",
+        "last_login": "2019-02-05T22:32:45Z",
+        "is_superuser": true,
+        "username": "user",
+        "first_name": "u.",
+        "last_name": "zerr",
+        "email": "user@example.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2019-02-05T22:32:10Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 6,
+    "fields": {
+        "path": "0001000200020001",
+        "depth": 4,
+        "numchild": 0,
+        "title": "Logbooks",
+        "draft_title": "Logbooks",
+        "slug": "logbooks",
+        "content_type": [
+            "pages",
+            "contentpage"
+        ],
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/sources/logbooks/",
+        "owner": [
+            "user"
+        ],
+        "seo_title": "",
+        "show_in_menus": false,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": "2019-02-05T23:01:06.070Z",
+        "last_published_at": "2019-02-05T23:01:06.070Z",
+        "latest_revision_created_at": "2019-02-05T23:01:05.886Z",
+        "live_revision": 8
+    }
+},
+{
+    "model": "wagtailcore.pagerevision",
+    "pk": 8,
+    "fields": {
+        "page": 6,
+        "submitted_for_moderation": false,
+        "created_at": "2019-02-05T23:01:05.886Z",
+        "user": [
+            "user"
+        ],
+        "content_json": "{\"seo_title\": \"\", \"latest_revision_created_at\": null, \"body\": \"[{\\\"id\\\": \\\"8567532d-b385-48ad-a792-d168f833c7a2\\\", \\\"value\\\": \\\"<p>Sylvia Beach kept logbooks that list, day by day, every financial transaction at Shakespeare and Company, including every lending library membership and renewal. The logbooks vary in size and style. Some are large hardback ledgers that cover a year or more. Others are slim paperback notebooks that cover a few months. Occasionally, two or more logbooks cover the same dates\\\\u2014a draft version with rough notes and a final, neater version.</p><p>Yet all the logbooks adhere to the same record keeping format. A two-page spread (verso and recto) covers a single day. The verso lists expenditures. The recto lists revenues: memberships sold; invoices paid; books and magazines sold. The recto also includes a special section for revenue related to Joyce\\\\u2019s Ulysses. Often, the verso and recto both include miscellaneous notes about particular books and transactions, and Shakespeare and Company events.</p><p>The page reproduced above, from Friday, February 8, 1929, is representative. Expenditures are recorded on the verso: an electricity bill; a refunded deposit for a library membership; etc. There is also a note about a meeting with Joyce. Revenues appear on the recto: a membership purchased by a B. Williams; a large check from a Miss Gruening; a note that Beach will \\\\u201cperhaps buy back\\\\u201d a copy of Halid\\\\u00e9 Edib\\\\u2019s Memoirs; a list of books sold, including two books by Charles Dickens; etc. The non-Ulysses purchases add up to 1504.25 F. The special section for revenue related to Ulysses lists payments for eight copies, totaling 668.75 F.</p><p>Unlike our work with the lending library cards, we are not, at this stage of the project, transcribing the logbooks in their entirety. We are only capturing transactions that pertain to the operation of the lending library: subscriptions; renewals; reimbursements; supplements; and overdue notices. Such transactions almost always include the member\\\\u2019s name, the duration of the membership, the amount of the deposit, and how many books the member can borrow at a time.</p><p>The first entry on the recto above, for example\\\\u2014\\\\u201cSr dep 100 B. Williams 1m 2v 35.00\\\\u201d\\\\u2014tells us that B. Williams purchased a one-month membership, which allowed him to borrow two books at a time, for thirty-five francs and a deposit of one hundred francs. We encode the event in this way:</p><p>The encoded logbooks thus constitute a collective database of fielded membership data, keyed by member and date. Eventually, the database will include all the members of the lending library, and will serve a resource for the study of the Lost Generation and interwar Paris.</p>\\\", \\\"type\\\": \\\"paragraph\\\"}]\", \"slug\": \"logbooks\", \"first_published_at\": null, \"title\": \"Logbooks\", \"has_unpublished_changes\": false, \"expire_at\": null, \"numchild\": 0, \"live\": true, \"owner\": 22, \"last_published_at\": null, \"go_live_at\": null, \"search_description\": \"\", \"expired\": false, \"content_type\": 61, \"draft_title\": \"Logbooks\", \"url_path\": \"/home/sources/logbooks/\", \"depth\": 4, \"live_revision\": null, \"pk\": 6, \"locked\": false, \"path\": \"0001000200020001\", \"show_in_menus\": false}",
+        "approved_go_live_at": null
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 6,
+    "fields": {
+        "body": "[{\"type\": \"paragraph\", \"value\": \"<p>Sylvia Beach kept logbooks that list, day by day, every financial transaction at Shakespeare and Company, including every lending library membership and renewal. The logbooks vary in size and style. Some are large hardback ledgers that cover a year or more. Others are slim paperback notebooks that cover a few months. Occasionally, two or more logbooks cover the same dates\\u2014a draft version with rough notes and a final, neater version.</p><p>Yet all the logbooks adhere to the same record keeping format. A two-page spread (verso and recto) covers a single day. The verso lists expenditures. The recto lists revenues: memberships sold; invoices paid; books and magazines sold. The recto also includes a special section for revenue related to Joyce\\u2019s Ulysses. Often, the verso and recto both include miscellaneous notes about particular books and transactions, and Shakespeare and Company events.</p><p>The page reproduced above, from Friday, February 8, 1929, is representative. Expenditures are recorded on the verso: an electricity bill; a refunded deposit for a library membership; etc. There is also a note about a meeting with Joyce. Revenues appear on the recto: a membership purchased by a B. Williams; a large check from a Miss Gruening; a note that Beach will \\u201cperhaps buy back\\u201d a copy of Halid\\u00e9 Edib\\u2019s Memoirs; a list of books sold, including two books by Charles Dickens; etc. The non-Ulysses purchases add up to 1504.25 F. The special section for revenue related to Ulysses lists payments for eight copies, totaling 668.75 F.</p><p>Unlike our work with the lending library cards, we are not, at this stage of the project, transcribing the logbooks in their entirety. We are only capturing transactions that pertain to the operation of the lending library: subscriptions; renewals; reimbursements; supplements; and overdue notices. Such transactions almost always include the member\\u2019s name, the duration of the membership, the amount of the deposit, and how many books the member can borrow at a time.</p><p>The first entry on the recto above, for example\\u2014\\u201cSr dep 100 B. Williams 1m 2v 35.00\\u201d\\u2014tells us that B. Williams purchased a one-month membership, which allowed him to borrow two books at a time, for thirty-five francs and a deposit of one hundred francs. We encode the event in this way:</p><p>The encoded logbooks thus constitute a collective database of fielded membership data, keyed by member and date. Eventually, the database will include all the members of the lending library, and will serve a resource for the study of the Lost Generation and interwar Paris.</p>\", \"id\": \"8567532d-b385-48ad-a792-d168f833c7a2\"}]"
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 5,
+    "fields": {
+        "path": "000100020002",
+        "depth": 3,
+        "numchild": 1,
+        "title": "Sources",
+        "draft_title": "Sources",
+        "slug": "sources",
+        "content_type": [
+            "pages",
+            "landingpage"
+        ],
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/sources/",
+        "owner": [
+            "user"
+        ],
+        "seo_title": "",
+        "show_in_menus": false,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": "2019-02-05T22:34:26.798Z",
+        "last_published_at": "2019-02-05T22:34:26.798Z",
+        "latest_revision_created_at": "2019-02-05T22:34:26.605Z",
+        "live_revision": 6
+    }
+},
+{
+    "model": "wagtailcore.pagerevision",
+    "pk": 6,
+    "fields": {
+        "page": 5,
+        "submitted_for_moderation": false,
+        "created_at": "2019-02-05T22:34:26.605Z",
+        "user": [
+            "user"
+        ],
+        "content_json": "{\"last_published_at\": null, \"url_path\": \"/home/sources/\", \"path\": \"000100020002\", \"live_revision\": null, \"latest_revision_created_at\": null, \"draft_title\": \"Sources\", \"owner\": 22, \"pk\": 5, \"title\": \"Sources\", \"go_live_at\": null, \"search_description\": \"\", \"body\": \"[{\\\"type\\\": \\\"paragraph\\\", \\\"id\\\": \\\"88c820d9-83b0-4e4a-998c-afb3eb064245\\\", \\\"value\\\": \\\"<p>MEP analyzes two sets of documents in the Beach Papers: logbooks that detail every library membership and renewal, and lending library cards that detail the addresses and borrowing histories of individual library members.</p>\\\"}]\", \"seo_title\": \"\", \"content_type\": 62, \"slug\": \"sources\", \"locked\": false, \"first_published_at\": null, \"numchild\": 0, \"expire_at\": null, \"depth\": 3, \"tagline\": \"Learn about the lending library cards and logbooks.\", \"has_unpublished_changes\": false, \"show_in_menus\": false, \"live\": true, \"expired\": false, \"header_image\": null}",
+        "approved_go_live_at": null
+    }
+},
+{
+    "model": "pages.landingpage",
+    "pk": 5,
+    "fields": {
+        "tagline": "Learn about the lending library cards and logbooks.",
+        "body": "[{\"type\": \"paragraph\", \"value\": \"<p>MEP analyzes two sets of documents in the Beach Papers: logbooks that detail every library membership and renewal, and lending library cards that detail the addresses and borrowing histories of individual library members.</p>\", \"id\": \"88c820d9-83b0-4e4a-998c-afb3eb064245\"}]",
+        "header_image": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 3,
+    "fields": {
+        "path": "00010002",
+        "depth": 2,
+        "numchild": 1,
+        "title": "Shakespeare & Company Project",
+        "draft_title": "Shakespeare & Company Project",
+        "slug": "home",
+        "content_type": [
+            "pages",
+            "homepage"
+        ],
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/",
+        "owner": [
+            "user"
+        ],
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "The Shakespeare and Company Project is a digital humanities initiative that recreates the world of the bookshop and lending library of the same name\u2014the world of the Lost Generation, high modernism, and the avant-garde.",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": "2019-02-05T19:42:35.920Z",
+        "last_published_at": "2019-02-05T22:44:29.527Z",
+        "latest_revision_created_at": "2019-02-05T22:44:29.266Z",
+        "live_revision": 7
+    }
+},
+{
+    "model": "wagtailcore.pagerevision",
+    "pk": 7,
+    "fields": {
+        "page": 3,
+        "submitted_for_moderation": false,
+        "created_at": "2019-02-05T22:44:29.266Z",
+        "user": [
+            "user"
+        ],
+        "content_json": "{\"seo_title\": \"\", \"latest_revision_created_at\": \"2019-02-05T20:42:54.041Z\", \"body\": \"[{\\\"id\\\": \\\"f13ce1bd-c59d-47fd-8521-bca52a5f077d\\\", \\\"value\\\": \\\"<p>In 1919, an American named Sylvia Beach opened an English-language bookshop and lending library in Paris. She called it Shakespeare and Company*, and it soon became the meeting place of a community of expatriates writers and artists that included Gertrude Stein,\\\\u00a0Ernest Hemingway, James Joyce, and Ezra Pound. In 1922, Beach published Joyce\\\\u2019s <i>Ulysses</i> under the Shakespeare and Company imprint\\\\u2014a feat that assured the bookshop and lending library\\\\u2019s iconic status.</p><p>The Shakespeare and Company Project is a digital humanities initiative that recreates world of the bookshop and lending library\\\\u2014the world of the Lost Generation, and high modernism and the avant-garde. Using two sets of records* from Beach\\\\u2019s archives at Princeton University, the Project tracks what members of the bookshop and lending library community read and where\\\\u00a0they lived. The Project also captures how the community changed from the\\\\u00a0end of World War I to the German Occupation of France in 1940, and the community\\\\u2019s connections to French writers and artists\\\\u2014Andr\\\\u00e9 Gide, Simone de Beauvoir, and\\\\u00a0Jacques Lacan, among others\\\\u2014who patronized Shakespeare and Company.</p><p>What did Hemingway read after completing <i>The Sun Also Rises</i>? \\\\u27f6 What books did Stein and Hemingway read in common? \\\\u27f6 Who lived in the 16th arrondissement? \\\\u27f6 How did the bookshop and lending library community change after the publication of <i>Ulysses</i>? After Black Tuesday? Was the community composed solely of writers and artists? The Shakespeare and Company Project answers these questions and many more.</p><p></p>\\\", \\\"type\\\": \\\"paragraph\\\"}, {\\\"id\\\": \\\"690ec572-ca52-4c86-a7a5-90d8417121c0\\\", \\\"value\\\": \\\"<p>* The Shakespeare and Company Project uses two sets of records from Beach&#x27;s archives to recreate the world of the bookshop and lending library. Logbooks capture every book purchase, and\\\\u00a0library\\\\u00a0membership and renewal, day-by-day from 1919 to 1941. Lending library cards capture the addresses and borrowing\\\\u00a0histories of individual library members.</p>\\\", \\\"type\\\": \\\"footnotes\\\"}]\", \"slug\": \"home\", \"first_published_at\": \"2019-02-05T19:42:35.920Z\", \"title\": \"Shakespeare & Company Project\", \"has_unpublished_changes\": false, \"expire_at\": null, \"numchild\": 1, \"live\": true, \"owner\": 21, \"last_published_at\": \"2019-02-05T20:42:54.292Z\", \"go_live_at\": null, \"search_description\": \"The Shakespeare and Company Project is a digital humanities initiative that recreates the world of the bookshop and lending library of the same name\\u2014the world of the Lost Generation, high modernism, and the avant-garde.\", \"expired\": false, \"content_type\": 63, \"draft_title\": \"Shakespeare & Company Project\", \"url_path\": \"/home/\", \"depth\": 2, \"live_revision\": 4, \"pk\": 3, \"locked\": false, \"path\": \"00010002\", \"show_in_menus\": true}",
+        "approved_go_live_at": null
+    }
+},
+{
+    "model": "pages.homepage",
+    "pk": 3,
+    "fields": {
+        "body": "[{\"id\": \"f13ce1bd-c59d-47fd-8521-bca52a5f077d\", \"value\": \"<p>In 1919, an American named Sylvia Beach opened an English-language bookshop and lending library in Paris. She called it Shakespeare and Company*, and it soon became the meeting place of a community of expatriates writers and artists that included Gertrude Stein,\\u00a0Ernest Hemingway, James Joyce, and Ezra Pound. In 1922, Beach published Joyce\\u2019s <i>Ulysses</i> under the Shakespeare and Company imprint\\u2014a feat that assured the bookshop and lending library\\u2019s iconic status.</p><p>The Shakespeare and Company Project is a digital humanities initiative that recreates world of the bookshop and lending library\\u2014the world of the Lost Generation, and high modernism and the avant-garde. Using two sets of records* from Beach\\u2019s archives at Princeton University, the Project tracks what members of the bookshop and lending library community read and where\\u00a0they lived. The Project also captures how the community changed from the\\u00a0end of World War I to the German Occupation of France in 1940, and the community\\u2019s connections to French writers and artists\\u2014Andr\\u00e9 Gide, Simone de Beauvoir, and\\u00a0Jacques Lacan, among others\\u2014who patronized Shakespeare and Company.</p><p>What did Hemingway read after completing <i>The Sun Also Rises</i>? \\u27f6 What books did Stein and Hemingway read in common? \\u27f6 Who lived in the 16th arrondissement? \\u27f6 How did the bookshop and lending library community change after the publication of <i>Ulysses</i>? After Black Tuesday? Was the community composed solely of writers and artists? The Shakespeare and Company Project answers these questions and many more.</p><p></p>\", \"type\": \"paragraph\"}, {\"id\": \"690ec572-ca52-4c86-a7a5-90d8417121c0\", \"value\": \"<p>* The Shakespeare and Company Project uses two sets of records from Beach&#x27;s archives to recreate the world of the bookshop and lending library. Logbooks capture every book purchase, and\\u00a0library\\u00a0membership and renewal, day-by-day from 1919 to 1941. Lending library cards capture the addresses and borrowing\\u00a0histories of individual library members.</p>\", \"type\": \"footnotes\"}]"
+    }
+},
+{
+    "model": "wagtailcore.site",
+    "fields": {
+        "hostname": "localhost",
+        "port": 8000,
+        "site_name": "dev",
+        "root_page": 3,
+        "is_default_site": true
+    }
+}
+]
