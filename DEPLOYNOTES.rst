@@ -3,6 +3,15 @@
 Deploy and Upgrade notes
 ========================
 
+0.10 Members frontend
+---------------------
+
+* Switching from Mezzanine to Wagtail requires a manual migration *before*
+  installing the new version to avoid migration dependency conflicts::
+
+     python manage.py migrate pages zero
+
+
 0.6 Borrowing events and Title stubs
 -------------------------------------
 
