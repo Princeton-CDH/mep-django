@@ -110,8 +110,25 @@ Run tests using py.test::
 Javascript unit tests are written with `jest <https://jestjs.io/>`__. To run
 them::
 
-    npm run unit
+    npm run test:unit
 
+
+Accessibility Tests
+-------------------
+
+Automated accessibility tests run in travis using `pa11y-ci <https://github.com/pa11y/pa11y-ci>`_.
+To run them locally, ensure that you have compiled frontend assets and a running
+server::
+
+    npm run build:prod
+    python manage.py runserver --insecure
+
+Then, run pa11y-ci to craw the sitemap and test for accessibility issues::
+
+    npm run test:a11y
+
+Running with ``DEBUG`` enabled will include the (inaccessible) Django
+debug toolbar, so you'll probably want to turn it off.
 
 Documentation
 -------------
