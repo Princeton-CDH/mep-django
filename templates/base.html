@@ -1,5 +1,5 @@
 {% load render_bundle from webpack_loader %}
-{% load static %}
+{% load static wagtailuserbar %}
 <!DOCTYPE html>
 <html lang="en" xmlns:schema="http://schema.org/" xmlns:og="http://ogp.me/ns#">
     <head>
@@ -21,5 +21,6 @@
         {% block header %}{% endblock %}
         <main>{% block content %}{% endblock %}</main>
         {% include 'snippets/footer.html' %}
+        {% wagtailuserbar %}
     </body>
 </html>
