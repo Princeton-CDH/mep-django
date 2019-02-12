@@ -86,7 +86,10 @@
         }
 
         #a11y {
+            padding-bottom: .5rem;
+
             @media(min-width: $breakpoint-s) {
+                padding-bottom: 0;
                 flex: none;
             }
         }
