@@ -13,11 +13,28 @@
 {% endblock %}
 
 {% block content %}
-<p>Showing {{ object_list.count|intcomma }} member{{ object_list.count|pluralize }}</p>
+<p>Showing {{ members.count|intcomma }} member{{ members.count|pluralize }}</p>
 <ol>
     {% for person in members %}
     <li>
-        <a href="{% url 'people:member-detail' pk=person.pk %}">{{ person.sort_name }}</a>
+        <a href="{% url 'people:member-detail' pk=person.pk_i %}">{{ person.sort_name_t.0 }}</a>
+        {% if person.birth_year_i or person.death_year_i %}
+        <div class="dates">
+            {{ person.birth_year_i|default:'' }} - {{ person.death_year_i|default:'' }}
+        </div>
+
+        {% if person.account_start_i or person.account_end_i %}
+            <div class="account-dates">
+                <dt>Account Dates</dt>
+                <dd>{{ person.account_start_i|default:'' }}
+                {% if person.account_start_i != person.account_end_i %}- {{ person.account_end_i|default:'' }}
+                {% endif %}
+                </dd>
+            </div>
+        {% endif %}
+
+        {% endif %}
+
     </li>
     {% endfor %}
 </ol>

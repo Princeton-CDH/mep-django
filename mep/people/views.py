@@ -12,6 +12,8 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
+from parasol.solr.django import SolrClient
+from parasol.query import SolrQuerySet
 
 from mep.accounts.models import Event
 from mep.people.forms import PersonMergeForm
@@ -28,9 +30,19 @@ class MembersList(ListView):
     context_object_name = 'members'
 
     def get_queryset(self):
-        # limit to people with library accounts, do not include
-        # item creators who are not library members
-        return super().get_queryset().exclude(account=None)
+        sqs = SolrQuerySet().filter(item_type='person') \
+                            .order_by('sort_name_sort_s') \
+
+        # NOTE: using [:100000] to make sure we retrieve everything
+        # (remove when we turn on pagination)
+        sqs = sqs[:10000]
+
+        # TODO: add field limit and alias like this with
+        # fl='name:name_t,sort_name:sort_name_t',
+
+        return sqs
+
+
 
 
 class MemberDetail(DetailView):
