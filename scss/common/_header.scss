@@ -52,6 +52,10 @@
     &.member { // added space for member detail pages
         h1 {
             padding-top: 2.5rem;
+
+            @media (min-width: $breakpoint-s) {
+                padding-top: 0;
+            }
         }
     }
 }
