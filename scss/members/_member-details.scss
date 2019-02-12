@@ -1,0 +1,50 @@
+/* member details */
+
+.tabs {
+    height: 3rem;
+    flex: none;
+    display: flex;
+    flex-direction: row;
+}
+
+.tab {
+    flex: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &[aria-selected="true"] {
+        background: white;
+    }
+
+    a {
+        text-decoration: none;
+        text-transform: uppercase;
+        color: black;
+        font-size: 0.9rem;
+    }
+}
+
+.personography,
+.books-borrowed,
+.lending-cards {
+    height: 100%;
+    background: white;
+    padding: 3rem 5rem;
+    font-size: 0.8rem;
+}
+
+.personography {
+    dl {
+        display: flex;
+        flex-direction: row wrap;
+
+        > div {
+            flex: auto;
+        }
+    }
+
+    dt {
+        color: $mid-grey;
+    }
+}

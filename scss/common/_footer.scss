@@ -1,22 +1,11 @@
 #page-footer {
+    @include container;
+    padding: 4rem 0 1rem;
     flex: none;
-    position: relative;
-    height: 32rem;
     background: $white;
-
-    @media (min-width: $breakpoint-s) {
-        height: 16rem;
-    }
-
-    .inner {
-        @include container;
-
-        @media (min-width: $breakpoint-s) {
-            display: flex;
-            flex-flow: row wrap;
-            align-items: center;
-        }
-    }
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
 
     a,
     span {
@@ -26,14 +15,14 @@
     }
 
     nav {
-        padding-top: 4rem;
+        width: 100%;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
 
         @media (min-width: $breakpoint-s) {
+            width: fit-content;
             flex: auto;
-            padding-top: 0;
         }
 
         ul {
@@ -65,10 +54,12 @@
 
     .logos {
         display: flex;
+        width: 100%;
         flex-direction: row;
         justify-content: space-between;
 
         @media (min-width: $breakpoint-s) {
+            width: fit-content;
             flex: auto;
         }
     }
@@ -86,10 +77,6 @@
         padding-top: 1rem;
         display: flex;
         flex-flow: row wrap;
-
-        @media (min-width: $breakpoint-s) {
-            padding-top: 0;
-        }
 
         a,
         span {
