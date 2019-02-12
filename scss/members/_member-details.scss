@@ -12,6 +12,7 @@ main.tabbed {
     flex: none;
     display: flex;
     flex-direction: row;
+    list-style: none;
 
     @media (min-width: $breakpoint-s) {
         height: 3rem;
@@ -20,15 +21,17 @@ main.tabbed {
 
 .tab {
     flex: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 
     &[aria-selected="true"] {
         background: white;
     }
 
     a {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         border: none;
         text-transform: uppercase;
         color: black;

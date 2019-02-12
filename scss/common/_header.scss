@@ -51,10 +51,12 @@
 
     &.member { // added space for member detail pages
         h1 {
-            padding-top: 2.5rem;
+            height: inherit;
+            padding-top: 3rem;
+            padding-bottom: 0.5rem;
 
             @media (min-width: $breakpoint-s) {
-                padding-top: 0;
+                padding: 0;
             }
         }
     }
