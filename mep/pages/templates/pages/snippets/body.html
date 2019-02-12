@@ -1,5 +1,12 @@
 {% load wagtailcore_tags %}
-{% for block in blocks %}
+<article class="main">
+{% if page.tagline %}
+<h2 class="tagline">{{ page.tagline }}<hr/></h2>
+{% endif %}
+{% if subtitle %}
+<h2 class="subtitle">{{ subtitle }}</h2>
+{% endif %}
+{% for block in page.body %}
     {% if block.block_type == 'captioned_image' %}
         {% include "pages/snippets/figure.html" with captioned_img=block.value %}
     {% elif block.block_type == 'image' %}
@@ -10,3 +17,4 @@
         </div>
     {% endif %}
 {% endfor %}
+</article>

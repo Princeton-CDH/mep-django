@@ -1,10 +1,11 @@
-{% extends 'pages/page.html' %}
+{% extends 'base.html' %}
 
 {% block header %}
 {% include 'snippets/header.html' with title=page.get_parent.title %}
 {% endblock %}
 
+{% block main-style %}white{% endblock %}
+
 {% block content %}
-<h2 class="subtitle">{{ page.title }}</h2>
-{% include 'snippets/body.html' with blocks=page.body %}
+{% include 'pages/snippets/body.html' with subtitle=page.title %}
 {% endblock %}

@@ -1,4 +1,4 @@
-@mixin container {
+@mixin container { // locks to breakpoint widths, for non-text content
     margin-left: auto;
     margin-right: auto;
     width: calc(#{$breakpoint-xs} - 2 * #{$gutter-xs});
@@ -9,6 +9,50 @@
 
     @media (min-width: $breakpoint-m) {
         width: calc(#{$breakpoint-m} - 2 * #{$gutter});
+    }
+
+    @media (min-width: $breakpoint-l) {
+        width: $breakpoint-m;
+    }
+}
+
+@mixin text-container { // expands in between breakpoints to allow text reflow
+    margin-left: $gutter-xs;
+    margin-right: $gutter-xs;
+
+    @media (min-width: $breakpoint-s) {
+        margin-left: $gutter;
+        margin-right: $gutter;
+    }
+
+    @media (min-width: $breakpoint-m) {
+        margin-left: auto;
+        margin-right: auto;
+        width: calc(#{$breakpoint-m} - 2 * #{$gutter});
+    }
+
+    @media (min-width: $breakpoint-l) {
+        width: $breakpoint-m;
+    }
+}
+
+@mixin padding-container { // full-width; uses padding instead of margin
+    padding-left: $gutter-xs;
+    padding-right: $gutter-xs;
+
+    @media (min-width: $breakpoint-s) {
+        padding-left: $gutter;
+        padding-right: $gutter;
+    }
+
+    @media (min-width: $breakpoint-m) {
+        padding-left: calc((100vw - #{$breakpoint-m} + 2 * #{$gutter}) / 2);
+        padding-right: calc((100vw - #{$breakpoint-m} + 2 * #{$gutter}) / 2);
+    }
+
+    @media (min-width: $breakpoint-l) {
+        padding-left: calc((100vw - #{$breakpoint-m}) / 2);
+        padding-right: calc((100vw - #{$breakpoint-m}) / 2);
     }
 }
 

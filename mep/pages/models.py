@@ -20,7 +20,8 @@ class CaptionedImageBlock(StructBlock):
 
 class BodyContentBlock(StreamBlock):
     '''Common set of content blocks for content/analysis pages.'''
-    paragraph = RichTextBlock()
+    paragraph = RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link',
+        'ol', 'ul', 'blockquote'])
     image = ImageChooserBlock()
     captioned_image = CaptionedImageBlock()
     document = DocumentChooserBlock()
