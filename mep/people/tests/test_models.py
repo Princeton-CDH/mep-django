@@ -1,3 +1,4 @@
+import datetime
 import re
 from unittest.mock import patch
 
@@ -200,6 +201,39 @@ class TestPerson(TestCase):
         acct.card = card
         acct.save()
         assert pers.has_card()
+
+    def test_index_data(self):
+        pers = Person.objects.create(
+            name='John Smith', sort_name='Smith, John', birth_year=1801,
+            death_year=1847)
+        # no account = minimal index data
+        index_data = pers.index_data()
+        assert index_data['id'] == pers.index_id()
+        assert 'item_type' not in index_data
+        assert len(index_data) == 1
+
+        # add account
+        acct = Account.objects.create()
+        acct.persons.add(pers)
+        index_data = pers.index_data()
+        assert 'item_type' in index_data
+        assert index_data['pk_i'] == pers.pk
+        assert index_data['name_t'] == pers.name
+        assert index_data['sort_name_t'] == pers.sort_name
+        assert index_data['birth_year_i'] == pers.birth_year
+        assert index_data['death_year_i'] == pers.death_year
+        # account start/end should be none
+        assert index_data['account_start_i'] is None
+        assert index_data['account_end_i'] is None
+
+        # add account events for earliest/latest
+        Subscription.objects.create(account=acct,
+                                    start_date=datetime.date(1921, 1, 1))
+        Reimbursement.objects.create(account=acct,
+                                    start_date=datetime.date(1922, 1, 1))
+        index_data = pers.index_data()
+        assert index_data['account_start_i'] == 1921
+        assert index_data['account_end_i'] == 1922
 
 
 class TestPersonQuerySet(TestCase):

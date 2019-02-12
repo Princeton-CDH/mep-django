@@ -6,6 +6,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
+from parasol.indexing import Indexable
 from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
@@ -214,7 +215,7 @@ class PersonQuerySet(models.QuerySet):
         person.save()
 
 
-class Person(Notable, DateRange):
+class Person(Notable, DateRange, Indexable):
     '''Model for people in the MEP dataset'''
 
     #: MEP xml id
@@ -362,6 +363,37 @@ class Person(Notable, DateRange):
         '''URL to edit this record in the admin site'''
         return reverse('admin:people_person_change', args=[self.id])
     admin_url.verbose_name = 'Admin Link'
+
+    def index_data(self):
+        '''data for indexing in Solr'''
+
+        index_data = super().index_data()
+        # only library members are indexed; if person has no
+        # account, return id only.
+        # This will blank out any previously indexed values, and item
+        # will not be findable by any public searchable fields.
+        if not self.has_account():
+            del index_data['item_type']
+            return index_data
+
+        # get account membership dates
+        account = self.account_set.first()
+        account_start = account.earliest_date()
+        account_end = account.last_date()
+
+        index_data.update({
+            'name_t': self.name,
+            # include pk for now for member detail url
+            'pk_i': self.pk,
+            'sort_name_t': self.sort_name,
+            'sort_name_sort_s': self.sort_name,
+            'birth_year_i': self.birth_year,
+            'death_year_i': self.death_year,
+            'account_start_i': account_start.year if account_start else None,
+            'account_end_i': account_end.year if account_end else None
+        })
+
+        return index_data
 
 
 class InfoURL(Notable):
