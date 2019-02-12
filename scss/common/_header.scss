@@ -4,11 +4,12 @@
     width: 100%;
     position: relative;
     text-align: center;
-    padding: 2rem 0 1rem;
+    padding: 1rem 0;
     background: $white;
     background-repeat: no-repeat;
 
     h1 {
+        line-height: normal;
         font-size: 1.4rem;
 
         @media (min-width: $breakpoint-s) {
@@ -71,15 +72,14 @@
 
     h1 {
         font-size: 1.4rem;
-        padding: 0.55rem 0;
+        padding-top: 0.5rem;
 
         @media (min-width: $breakpoint-s) {
-            padding: 1rem 0 0;
+            padding-top: 1rem;
         }
 
         @media (min-width: $breakpoint-l) {
             font-size: 2.5rem;
-            padding: 1.75rem 0 0;
         }
     }
 
@@ -92,7 +92,6 @@
 
         @media (min-width: $breakpoint-l) {
             width: 12rem;
-            padding-top: 0.5rem;
         }
     }
 

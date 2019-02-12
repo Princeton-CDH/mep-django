@@ -14,12 +14,11 @@
 
 {% block content %}
 <p>Showing {{ object_list.count|intcomma }} member{{ object_list.count|pluralize }}</p>
-
-<div>
-{% for person in members %}
-<p>{{ person.sort_name }}</p>
-{% endfor %}
-</div>
-
-
+<ol>
+    {% for person in members %}
+    <li>
+        <a href="{% url 'people:member-detail' pk=person.pk %}">{{ person.sort_name }}</a>
+    </li>
+    {% endfor %}
+</ol>
 {% endblock %}
