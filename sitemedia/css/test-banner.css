@@ -43,3 +43,8 @@ font-size: 16px; }
     top: 55px;
     transform: rotate(45deg);
     width: 400px; }
+.ribbon p {
+    width: 50%;
+    margin: auto;
+    padding: 0;
+}

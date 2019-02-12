@@ -1,46 +1,90 @@
 /* member details */
 
+main.tabbed {
+    @include container;
+    @media (max-width: $breakpoint-s) {
+        width: 100%;
+    }
+}
+
 .tabs {
-    height: 3rem;
+    height: 1.5rem;
     flex: none;
     display: flex;
     flex-direction: row;
+    list-style: none;
+
+    @media (min-width: $breakpoint-s) {
+        height: 3rem;
+    }
 }
 
 .tab {
     flex: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 
     &[aria-selected="true"] {
         background: white;
     }
 
     a {
-        text-decoration: none;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
         text-transform: uppercase;
         color: black;
-        font-size: 0.9rem;
+        font-size: 0.5rem;
+        
+        @media (min-width: $breakpoint-s) {
+            font-size: 0.9rem;
+        }
+
+        &:hover {
+            border: none;
+        }
     }
 }
 
 .personography,
 .books-borrowed,
 .lending-cards {
+    box-sizing: border-box;
     height: 100%;
     background: white;
-    padding: 3rem 5rem;
     font-size: 0.8rem;
+    padding: 2rem 0.75rem;
+    
+    @media (min-width: $breakpoint-s) {
+        padding: 3rem 1.5rem;
+    }
+
+    @media (min-width: $breakpoint-l) {
+        padding: 3rem 5rem;
+    }
 }
 
 .personography {
     dl {
+        width: 100%;
         display: flex;
-        flex-direction: row wrap;
+        flex-flow: row wrap;
 
         > div {
-            flex: auto;
+            width: 100%;
+            flex: none;
+            margin-bottom: 1rem;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            @media (min-width: $breakpoint-s) {
+                width: fit-content;
+                flex: auto;
+                margin-bottom: 0;
+            }
         }
     }
 

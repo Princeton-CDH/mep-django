@@ -7,12 +7,13 @@ html {
 }
 
 body {
-    font-family: $pageFont;
-    line-height: 1.2rem;
+    font-family: $sans;
+    line-height: 1.5;
 }
 
 h1, h2, h3, h4, h5 {
-    font-family: $headerFont;
+    font-family: $serif;
+    line-height: normal;
 }
 
 h1 {
@@ -21,12 +22,11 @@ h1 {
 }
 
 h2 {
-    font-size: 1.75rem;
+    font-size: 1.4rem;
 }
 
 h3, h4, h5 {
     font-size: 1.2rem;
-    text-transform: uppercase;
 }
 
 p {
@@ -35,5 +35,46 @@ p {
 
 i {
     font-style: italic;
+}
+
+blockquote {
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+
+    @media (min-width: $breakpoint-s) {
+        margin-left: 4rem;
+    }
+}
+
+.rich-text {
+    font-family: $serif;
+
+    .footnotes & {
+        font-family: $sans;
+        font-size: 0.8rem;
+    }
+}
+
+h2.subtitle,
+h2.tagline {
+    text-align: center;
+    padding-bottom: 1.5rem;
+
+    @media (min-width: $breakpoint-s) {
+        padding-bottom: 2rem; 
+    }
+
+    @media (min-width: $breakpoint-l) {
+        padding-bottom: 2.5rem;
+    }
+}
+
+h2.tagline {
+    font-style: italic;
+
+    > hr {
+        width: 2.5rem;
+        margin-top: 1.5rem;
+    }
 }
 

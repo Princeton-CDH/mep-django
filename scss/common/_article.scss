@@ -1,0 +1,12 @@
+article.main {
+    @include text-container;
+    padding: 1.5rem 0;
+
+    @media (min-width: $breakpoint-s) {
+        padding: 2rem 0; 
+    }
+
+    @media (min-width: $breakpoint-l) {
+        padding: 2.5rem 0;
+    }
+}

@@ -5,6 +5,7 @@ $white-two: #d8d8d8;
 $brownish-grey: #646464;
 $mid-grey: #737373;
 $black: #000000;
+$green: #07ae79;
 
 /* breakpoints */
 
@@ -21,8 +22,8 @@ $gutter: 30px;
 
 /* fonts */
 
-$pageFont: 'Univers', 'Helvetica', 'Segoe UI', sans-serif;
-$headerFont: 'Louize', 'Didot', 'Perpetua', serif;
+$sans: 'Univers', 'Helvetica', 'Segoe UI', sans-serif;
+$serif: 'Louize', 'Didot', 'Perpetua', serif;
 $displayFont: 'Louize Display', 'Louize', 'Didot', 'Perpetua', serif;
 
 @font-face {

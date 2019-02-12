@@ -12,6 +12,8 @@
 {% include 'snippets/header.html' with title="members" %}
 {% endblock %}
 
+{% block main-style %}white{% endblock %}
+
 {% block content %}
 <p>Showing {{ members.count|intcomma }} member{{ members.count|pluralize }}</p>
 <ol>

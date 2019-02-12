@@ -3,6 +3,7 @@ mep URL Configuration
 """
 from django.conf import settings
 from django.conf.urls import include, url
+from django.conf.urls.static import serve
 from django.contrib import admin
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.contrib.sitemaps import Sitemap
@@ -46,4 +47,9 @@ urlpatterns = [
 
 if settings.DEBUG:
     import debug_toolbar
-    urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)), # debug toolbar
+        url(r'^media/(?P<path>.*)$', serve, { # uploaded media
+            'document_root': settings.MEDIA_ROOT
+        })
+    ]

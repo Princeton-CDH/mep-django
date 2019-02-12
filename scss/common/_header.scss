@@ -4,16 +4,27 @@
     width: 100%;
     position: relative;
     text-align: center;
-    padding: 1rem 0;
+    padding: 0;
     background: $white;
     background-repeat: no-repeat;
 
+    @media (min-width: $breakpoint-s) {
+        padding: 1rem 0;
+    }
+
     h1 {
-        line-height: normal;
+        display: flex;
+        flex: auto;
+        justify-content: center;
+        align-items: center;
+        height: 2.5rem;
         font-size: 1.4rem;
 
         @media (min-width: $breakpoint-s) {
+            display: block;
+            height: fit-content;
             font-size: 2.5rem;
+            padding: 0;
         }
     }
 
@@ -35,6 +46,18 @@
 
         @media (min-width: $breakpoint-l) {
             width: 4rem;
+        }
+    }
+
+    &.member { // added space for member detail pages
+        h1 {
+            height: inherit;
+            padding-top: 3rem;
+            padding-bottom: 0.5rem;
+
+            @media (min-width: $breakpoint-s) {
+                padding: 0;
+            }
         }
     }
 }
@@ -72,10 +95,11 @@
 
     h1 {
         font-size: 1.4rem;
-        padding-top: 0.5rem;
-
+        
         @media (min-width: $breakpoint-s) {
-            padding-top: 1rem;
+            display: block;
+            height: fit-content;
+            padding-top: 0.75rem;
         }
 
         @media (min-width: $breakpoint-l) {
@@ -162,7 +186,7 @@
     .tagline {
         display: block;
         margin: 0 auto;
-        font-family: $headerFont;
+        font-family: $serif;
         font-style: italic;
         font-size: 0.8rem;
         max-width: 10rem;
