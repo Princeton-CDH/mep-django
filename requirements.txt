@@ -16,3 +16,4 @@ django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader
+git+https://github.com/Princeton-CDH/parasol@feature/query#egg=parasol
