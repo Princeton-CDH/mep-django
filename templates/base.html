@@ -19,7 +19,9 @@
         {% include 'snippets/test_banner.html' %}
         {% include 'snippets/nav.html' %}
         {% block header %}{% endblock %}
-        <main>{% block content %}{% endblock %}</main>
+        <main class="{% block main-style %}default{% endblock %}">
+        {% block content %}{% endblock %}
+        </main>
         {% include 'snippets/footer.html' %}
         {% wagtailuserbar %}
     </body>

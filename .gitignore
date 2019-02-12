@@ -17,6 +17,7 @@ js/test/unit/coverage
 
 # Static files
 static/
+media/
 
 # stock python git-ignores provided by github
 

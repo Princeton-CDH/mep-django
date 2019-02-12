@@ -3,8 +3,10 @@
 {% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
 
 {% block header %}
-{% include 'snippets/header.html' with title=member.name %}
+{% include 'snippets/header.html' with title=member.name style="member" %}
 {% endblock %}
+
+{% block main-style %}tabbed{% endblock %}
 
 {% block content %}
 <nav class="tabs">

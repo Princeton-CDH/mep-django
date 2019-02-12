@@ -31,7 +31,6 @@ class TestHomePage(WagtailPageTests):
         home = HomePage.objects.first()
         response = self.client.get(home.relative_url(site))
         self.assertTemplateUsed(response, 'base.html')
-        self.assertTemplateUsed(response, 'pages/page.html')
         self.assertTemplateUsed(response, 'pages/home_page.html')
 
 
@@ -61,7 +60,6 @@ class TestLandingPage(WagtailPageTests):
         landing_page = LandingPage.objects.first()
         response = self.client.get(landing_page.relative_url(site))
         self.assertTemplateUsed(response, 'base.html')
-        self.assertTemplateUsed(response, 'pages/page.html')
         self.assertTemplateUsed(response, 'pages/landing_page.html')
 
 
@@ -89,5 +87,4 @@ class TestContentPage(WagtailPageTests):
         content_page = ContentPage.objects.first()
         response = self.client.get(content_page.relative_url(site))
         self.assertTemplateUsed(response, 'base.html')
-        self.assertTemplateUsed(response, 'pages/page.html')
         self.assertTemplateUsed(response, 'pages/content_page.html')
