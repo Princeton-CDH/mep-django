@@ -36,6 +36,14 @@ DATABASES = {
 }
 
 
+SOLR_CONNECTIONS = {
+    'default': {
+        'URL': 'http://localhost:8983/solr/',
+        'COLLECTION': 'mep-test',
+    }
+}
+
+
 # required by mezzanine for unit tests
 ALLOWED_HOSTS = ['*']
 
