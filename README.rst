@@ -41,32 +41,38 @@ Initial setup and installation:
 
 - recommended: create and activate a python 3.5 virtualenv::
 
-
     virtualenv mep -p python3.5
     source mep/bin/activate
 
-- pip install required python dependencies::
-
+- Install required python dependencies::
 
     pip install -r requirements.txt
     pip install -r dev-requirements.txt
 
-- npm install javascript dependencies::
-
+- Install javascript dependencies::
 
     npm install
 
-- compile static assets (css and javascript) with sourcemaps for development::
-
+- Compile static assets (css and javascript) with sourcemaps for development::
 
     npm run build:qa
 
-- copy sample local settings and configure for your environment::
-
+- Copy sample local settings and configure for your environment::
 
     cp mep/local_settings.py.sample mep/local_settings.py
 
 Remember to add a ``SECRET_KEY`` setting!
+
+- Run the manage command to create your Solr core and configure the schema::
+
+    python manage.py solr_schema
+
+  The manage command will automatically reload the core to ensure schema
+  changes take effect.
+
+- Index all indexable content into Solr::
+
+    python manage.py index
 
 
 Note that the admin index page will not reflect some changes without a manual
