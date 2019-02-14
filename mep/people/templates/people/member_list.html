@@ -17,7 +17,7 @@
 {% block content %}
 <p>{{ members.count|intcomma }} result{{ members.count|pluralize }} –
    displaying {{ page_obj.start_index }} - {{ page_obj.end_index }}</p>
-<ol start="{{ page_obj.start_index }}"">
+<ol start="{{ page_obj.start_index }}">
     {% for person in members %}
     <li>
         <a href="{% url 'people:member-detail' pk=person.pk %}">{{ person.sort_name.0 }}</a>
