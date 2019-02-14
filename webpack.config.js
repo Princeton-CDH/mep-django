@@ -9,19 +9,19 @@ const TerserPlugin = require('terser-webpack-plugin')
 const devMode = process.env.NODE_ENV !== 'production' // i.e. not prod or qa
 
 module.exports = env => ({
-    context: __dirname,
+    context: path.resolve(__dirname, 'srcmedia'),
     mode: devMode ?  'development' : 'production',
     entry: {
         main: [
-            './js/src/main.js', // main site js
+            './js/main.js', // main site js
             './scss/main.scss' // main site styles
         ],
-        search: './js/src/search.js', // vue components & styles for search pages
+        search: './js/search.js', // vue components & styles for search pages
     },
     output: {
-        path: path.resolve(__dirname, 'static'), // where to output bundles
+        path: path.resolve(__dirname, 'bundles'), // where to output bundles
         publicPath: devMode ? 'http://localhost:3000/' : '/static/', // tell Django where to serve bundles from
-        filename: devMode ? 'js/[name].js' : 'js/[name]-[hash].min.js', // append hashes in prod
+        filename: devMode ? 'js/[name].js' : 'js/[name]-[hash].min.js', // append hashes in prod/qa
     },
     module: {
         rules: [
@@ -47,7 +47,7 @@ module.exports = env => ({
                 test: /\.(png|jpg|gif|svg)$/,
                 loader: 'file-loader',
                 options: {
-                  name: devMode ? 'img/[name].[ext]' : 'img/[name]-[hash].[ext]', // append hashes in prod
+                  name: devMode ? 'img/[name].[ext]' : 'img/[name]-[hash].[ext]', // append hashes in prod/qa
                 }
             }
         ]
@@ -56,16 +56,16 @@ module.exports = env => ({
         new BundleTracker({ filename: 'webpack-stats.json' }), // tells Django where to find webpack output
         new VueLoaderPlugin(), // necessary for vue-loader to work
         new MiniCssExtractPlugin({ // extracts CSS to a single file per entrypoint
-            filename: devMode ? 'css/[name].css' : 'css/[name]-[hash].min.css', // append hashes in prod
+            filename: devMode ? 'css/[name].css' : 'css/[name]-[hash].min.css', // append hashes in prod/qa
         }),
-        ...(devMode ? [] : [new CleanWebpackPlugin('static')]), // clear out static when rebuilding in prod/qa
+        ...(devMode ? [] : [new CleanWebpackPlugin('bundles')]), // clear out static when rebuilding in prod/qa
     ],
     resolve: {
         alias: { '^vue$': 'vue/dist/vue.esm.js' }, // use the esmodule version of Vue
         extensions: ['*', '.js', '.vue', '.json', '.scss'] // enables importing these without extensions
     },
     devServer: {
-        contentBase: path.join(__dirname, 'static'), // serve this as webroot
+        contentBase: path.join(__dirname, 'bundles'), // serve this as webroot
         overlay: true,
         port: 3000,
         allowedHosts: ['localhost'],
@@ -87,8 +87,8 @@ module.exports = env => ({
                 parallel: true, // run in parallel (recommended)
                 sourceMap: env.maps // preserve sourcemaps if env.maps was passed
             }),
-            new OptimizeCSSAssetsPlugin({ // minify CSS in prod
-                ... (env.maps && { cssProcessorOptions: { // if env.maps was passed, 
+            new OptimizeCSSAssetsPlugin({ // minify CSS in prod/qa
+                ... (env.maps && { cssProcessorOptions: { // if env.maps was passed,
                     map: { inline: false, annotation: true } // preserve sourcemaps
                 }})
             })

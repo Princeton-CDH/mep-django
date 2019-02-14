@@ -12,11 +12,13 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Full filesystem path to the project.
+PROJECT_APP_PATH = os.path.dirname(os.path.abspath(__file__))
+PROJECT_APP = os.path.basename(PROJECT_APP_PATH)
+PROJECT_ROOT = BASE_DIR = os.path.dirname(PROJECT_APP_PATH)
 
 # Default debug to False, override locally
-DEBUG = False
+DEBUG = True
 
 # Override in local settings, if using DEBUG = True locally, 'localhost'
 # and variations allowed
@@ -141,7 +143,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
@@ -157,17 +159,19 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+# Additional locations of static files
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'sitemedia'),
+    os.path.join(BASE_DIR, 'bundles'),
+]
+
 # These will be added to ``INSTALLED_APPS``, only if available.
 OPTIONAL_APPS = (
     "debug_toolbar",
     "django_extensions",
-    "compressor",
     PACKAGE_NAME_FILEBROWSER,
     PACKAGE_NAME_GRAPPELLI,
 )
-
-# override mezzanine version of jquery-ui with a more up-to-date version
-JQUERY_UI_FILENAME = 'jquery-ui-1.12.1.min.js'
 
 # pucas configuration that is not expected to change across deploys
 # and does not reference local server configurations or fields
@@ -181,11 +185,6 @@ PUCAS_LDAP = {
     },
 }
 
-# Additional locations of static files
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'sitemedia'),
-]
-
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
@@ -193,7 +192,7 @@ MEDIA_URL = "/media/"
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, *MEDIA_URL.strip("/").split("/"))
 
 SITE_ID = 1
 

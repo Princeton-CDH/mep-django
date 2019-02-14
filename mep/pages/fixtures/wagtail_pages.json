@@ -17,6 +17,109 @@
     }
 },
 {
+    "model": "wagtailcore.pagerevision",
+    "pk": 15,
+    "fields": {
+        "page": 7,
+        "submitted_for_moderation": false,
+        "created_at": "2019-02-12T19:47:28.312Z",
+        "user": [
+            "user"
+        ],
+        "content_json": "{\"live\": true, \"has_unpublished_changes\": false, \"path\": \"0001000200020002\", \"slug\": \"cards\", \"draft_title\": \"Lending Library Cards\", \"first_published_at\": \"2019-02-07T21:32:09.161Z\", \"go_live_at\": null, \"depth\": 4, \"url_path\": \"/home/sources/lending-library-cards/\", \"latest_revision_created_at\": \"2019-02-11T16:44:18.159Z\", \"body\": \"[{\\\"value\\\": 3, \\\"id\\\": \\\"1321f2f0-e1bf-4758-b952-8d420b60f8c1\\\", \\\"type\\\": \\\"image\\\"}, {\\\"value\\\": \\\"<p>Beach used 12 cm \\\\u00d7 17 cm index cards to record the borrowing activities of her lending library members. (She playfully called them \\\\u201cbunnies,\\\\u201d from the French word abonn\\\\u00e9, subscriber.) Beach typically wrote the name of the member in block letters at the top of the card, with the current year to the left and the member\\\\u2019s address below. As members moved, she would cross out the old address and write in the new one: Hemingway\\\\u2019s card is full of old addresses. Below the address, she frequently recorded the terms of the membership: 1 m 1 v, for example, to indicate a one-month membership entitling the member to borrow one volume at a time.</p><p>When a member borrowed a book, Beach or one of her assistants would record the fact on the member\\\\u2019s lending library card, writing the date on which the book was lent, followed by the title of the book (or the magazine; Shakespeare and Company also lent magazines). When the book was returned, the date was noted on the card.</p><p>The typical three-column pattern made transcribing and encoding the lending transactions relatively simple. The dates and titles are preserved as written; encoders supplement the dates with machine-readable representations and annotate the titles with references to a uniform version. Ditto marks and abbreviations are preserved but supplemented with annotations.</p><p>MEP is now embarking on a second stage of encoding, in which the dates and titles will be combined into discrete borrowing events. When the encoding is complete, it will be possible to trace the circulation of books in great detail.</p><p>The cards served a number of uses. They often include columns of figures registering renewals and purchases. MEP transcribes these (when they are legible) but does not attempt to encode them in any way.</p><p>Beach and her staff also used the cards to leave notes to one another. David Gascoyne borrowed Gertrude Stein\\\\u2019s Geography and Plays on October 12, 1933; below that entry is a note instructing someone to ask him if he saw a new copy of the book. On Mme. Jean Genet\\\\u2019s card someone has written \\\\u201cenquired at PO Feb 10 whether parcel from Barcelona was delivered\\\\u201d; in another hand below is a response: \\\\u201cp.o. reports parcel delivered SB wrote to inform Mme g. received money order 16.50 Feb 17.\\\\u201d</p><blockquote>These notes will be fully searchable through the MEP web interface, making the library cards not only the source of data for computational analysis but documents for research.</blockquote><blockquote>Before Joyce left that 12 July day, he requested a membership in the lending library. Sylvia took out a long lending-library card and wrote down: \\\\u201cJames Joyce: rue de l\\\\u2019Assomption, Paris; subscription for one month; seven francs.\\\\u201d</blockquote><blockquote>(Fitch, 67)</blockquote><p>Sylvia Beach\\\\u2019s archives at Princeton University contain the lending records for over 560 members of the Shakespeare and Company lending library, from Pauline Alderman to Isabelle Zimmer. The collection is incomplete. Hemingway and Gide are missing specific cards. James Joyce\\\\u2019s cards are missing. We do not yet know why Beach kept some cards and discarded others. We do know that some cards have been preserved in other archives, and we hope to have digital facsimiles for the next version of this website. Nevertheless, the cards we have tell a fascinating story about the operations of Shakespeare and Company and the borrowing habits of its members.</p>\\\", \\\"id\\\": \\\"89128c79-1cc9-4bdb-a55c-766bfa284122\\\", \\\"type\\\": \\\"paragraph\\\"}]\", \"search_description\": \"\", \"show_in_menus\": false, \"locked\": false, \"title\": \"Lending Library Cards\", \"last_published_at\": \"2019-02-11T16:44:18.207Z\", \"expired\": false, \"owner\": 22, \"content_type\": 62, \"expire_at\": null, \"numchild\": 0, \"seo_title\": \"\", \"live_revision\": 13, \"pk\": 7}",
+        "approved_go_live_at": null
+    }
+},
+{
+    "model": "wagtailcore.pagerevision",
+    "pk": 11,
+    "fields": {
+        "page": 6,
+        "submitted_for_moderation": false,
+        "created_at": "2019-02-11T16:00:38.219Z",
+        "user": [
+            "user"
+        ],
+        "content_json": "{\"title\": \"Logbooks\", \"body\": \"[{\\\"type\\\": \\\"image\\\", \\\"value\\\": 2, \\\"id\\\": \\\"22df46c3-24f3-45ab-860e-5ca5047aeceb\\\"}, {\\\"type\\\": \\\"paragraph\\\", \\\"value\\\": \\\"<p>Sylvia Beach kept logbooks that list, day by day, every financial transaction at Shakespeare and Company, including every lending library membership and renewal. The logbooks vary in size and style. Some are large hardback ledgers that cover a year or more. Others are slim paperback notebooks that cover a few months. Occasionally, two or more logbooks cover the same dates\\\\u2014a draft version with rough notes and a final, neater version.</p><p>Yet all the logbooks adhere to the same record keeping format. A two-page spread (verso and recto) covers a single day. The verso lists expenditures. The recto lists revenues: memberships sold; invoices paid; books and magazines sold. The recto also includes a special section for revenue related to Joyce\\\\u2019s Ulysses. Often, the verso and recto both include miscellaneous notes about particular books and transactions, and Shakespeare and Company events.</p><p>The page reproduced above, from Friday, February 8, 1929, is representative. Expenditures are recorded on the verso: an electricity bill; a refunded deposit for a library membership; etc. There is also a note about a meeting with Joyce. Revenues appear on the recto: a membership purchased by a B. Williams; a large check from a Miss Gruening; a note that Beach will \\\\u201cperhaps buy back\\\\u201d a copy of Halid\\\\u00e9 Edib\\\\u2019s Memoirs; a list of books sold, including two books by Charles Dickens; etc. The non-Ulysses purchases add up to 1504.25 F. The special section for revenue related to Ulysses lists payments for eight copies, totaling 668.75 F.</p><p>Unlike our work with the lending library cards, we are not, at this stage of the project, transcribing the logbooks in their entirety. We are only capturing transactions that pertain to the operation of the lending library: subscriptions; renewals; reimbursements; supplements; and overdue notices. Such transactions almost always include the member\\\\u2019s name, the duration of the membership, the amount of the deposit, and how many books the member can borrow at a time.</p><p>The first entry on the recto above, for example\\\\u2014\\\\u201cSr dep 100 B. Williams 1m 2v 35.00\\\\u201d\\\\u2014tells us that B. Williams purchased a one-month membership, which allowed him to borrow two books at a time, for thirty-five francs and a deposit of one hundred francs. We encode the event in this way:</p><p>The encoded logbooks thus constitute a collective database of fielded membership data, keyed by member and date. Eventually, the database will include all the members of the lending library, and will serve a resource for the study of the Lost Generation and interwar Paris.</p>\\\", \\\"id\\\": \\\"8567532d-b385-48ad-a792-d168f833c7a2\\\"}]\", \"draft_title\": \"Logbooks\", \"pk\": 6, \"go_live_at\": null, \"numchild\": 0, \"seo_title\": \"\", \"first_published_at\": \"2019-02-05T23:01:06.070Z\", \"show_in_menus\": false, \"live_revision\": 10, \"has_unpublished_changes\": false, \"depth\": 4, \"live\": true, \"path\": \"0001000200020001\", \"locked\": false, \"content_type\": 62, \"slug\": \"logbooks\", \"expired\": false, \"last_published_at\": \"2019-02-11T15:57:53.983Z\", \"owner\": 21, \"expire_at\": null, \"latest_revision_created_at\": \"2019-02-11T15:57:53.936Z\", \"url_path\": \"/home/sources/logbooks/\", \"search_description\": \"\"}",
+        "approved_go_live_at": null
+    }
+},
+{
+    "model": "wagtailcore.pagerevision",
+    "pk": 14,
+    "fields": {
+        "page": 5,
+        "submitted_for_moderation": false,
+        "created_at": "2019-02-12T14:49:54.538Z",
+        "user": [
+            "user"
+        ],
+        "content_json": "{\"locked\": false, \"expired\": false, \"slug\": \"sources\", \"first_published_at\": \"2019-02-05T22:34:26.798Z\", \"content_type\": 63, \"title\": \"Sources\", \"seo_title\": \"\", \"last_published_at\": \"2019-02-05T22:34:26.798Z\", \"draft_title\": \"Sources\", \"go_live_at\": null, \"path\": \"000100020002\", \"url_path\": \"/home/sources/\", \"search_description\": \"\", \"tagline\": \"Learn about the lending library cards and logbooks.\", \"expire_at\": null, \"show_in_menus\": false, \"body\": \"[{\\\"type\\\": \\\"paragraph\\\", \\\"value\\\": \\\"<p>MEP analyzes two sets of documents in the Beach Papers: logbooks that detail every library membership and renewal, and lending library cards that detail the addresses and borrowing histories of individual library members.</p>\\\", \\\"id\\\": \\\"88c820d9-83b0-4e4a-998c-afb3eb064245\\\"}]\", \"pk\": 5, \"depth\": 3, \"live_revision\": 6, \"header_image\": null, \"has_unpublished_changes\": false, \"owner\": 21, \"live\": true, \"numchild\": 2, \"latest_revision_created_at\": \"2019-02-05T22:34:26.605Z\"}",
+        "approved_go_live_at": null
+    }
+},
+{
+    "model": "wagtailcore.pagerevision",
+    "pk": 16,
+    "fields": {
+        "page": 8,
+        "submitted_for_moderation": false,
+        "created_at": "2019-02-14T17:28:28.317Z",
+        "user": [
+            "user"
+        ],
+        "content_json": "{\"search_description\": \"\", \"live\": true, \"locked\": false, \"header_image\": null, \"latest_revision_created_at\": null, \"owner\": null, \"pk\": 8, \"expire_at\": null, \"live_revision\": null, \"show_in_menus\": true, \"expired\": false, \"last_published_at\": null, \"depth\": 3, \"seo_title\": \"\", \"numchild\": 5, \"tagline\": \"Learn about the Shakespeare and Company Project.\", \"url_path\": \"/home/about/\", \"content_type\": 63, \"first_published_at\": null, \"draft_title\": \"About\", \"has_unpublished_changes\": false, \"body\": \"[{\\\"id\\\": \\\"529e631b-1135-47e3-a54d-10981c49c23b\\\", \\\"type\\\": \\\"paragraph\\\", \\\"value\\\": \\\"<p>Mapping Expatriate Paris: The Shakespeare and Company Lending Library Project (MEP) is a digital humanities project, sponsored by the <a href=\\\\\\\"http://cdh.princeton.edu\\\\\\\">Center for Digital Humanities (CDH)</a> at <a href=\\\\\\\"http://princeton.edu\\\\\\\">Princeton University</a>, that examines the Lost Generation using the documents, books, and memorabilia in the <a href=\\\\\\\"http://catalog.princeton.edu/catalog/825298\\\\\\\">Sylvia Beach Papers</a> in the <a href=\\\\\\\"http://rbsc.princeton.edu\\\\\\\">Department of Rare Books and Special Collections (RBSC)</a> at Princeton\\\\u2019s Firestone Library.</p><h3>Project History</h3><p>MEP grew out of a graduate seminar taught by Professor Joshua Kotin in 2013. During a visit to RBSC, Jesse McCarthy, a student in the seminar, suggested that the Shakespeare and Company lending library cards would make an excellent dataset for a mapping project about the Lost Generation and interwar Paris.</p><p>In the spring of 2015, Princeton\\\\u2019s CDH awarded Kotin and McCarthy a one-year grant to digitize the lending library cards, and develop display and access tools. That summer, the Library\\\\u2019s Digital Photography Studio photographed the lending library cards, and a team of graduate students transcribed them.</p><p>When the grant began in the fall, Clifford Wulfman, Digital Initiatives Coordinator at Firestone, joined the MEP team and began to teach the team to use the Guidelines of the Text Encoding Initiative (TEI) to encode the cards to capture names, places, dates, financial transactions, and book titles. Kotin began to develop a prosopographical database (personography) of the lending library members. The team soon discovered a second rich source of data in the Shakespeare and Company logbooks. These documents, too, were soon encoded. Together with the lending library cards, they constitute MEP\\\\u2019s textbase, the major outcome of the first CDH grant.</p><p>In the spring of 2016, the CDH renewed its grant to MEP. In the coming year, the MEP team will extend the library card encoding to include regularization of book titles and the representation of borrowing events, and the CDH will develop a robust and interactive website that the public can use to explore the textbase.</p>\\\"}]\", \"path\": \"000100020000\", \"go_live_at\": null, \"slug\": \"about\", \"title\": \"About\"}",
+        "approved_go_live_at": null
+    }
+},
+{
+    "model": "wagtailcore.pagerevision",
+    "pk": 7,
+    "fields": {
+        "page": 3,
+        "submitted_for_moderation": false,
+        "created_at": "2019-02-05T22:44:29.266Z",
+        "user": [
+            "user"
+        ],
+        "content_json": "{\"seo_title\": \"\", \"latest_revision_created_at\": \"2019-02-05T20:42:54.041Z\", \"body\": \"[{\\\"id\\\": \\\"f13ce1bd-c59d-47fd-8521-bca52a5f077d\\\", \\\"value\\\": \\\"<p>In 1919, an American named Sylvia Beach opened an English-language bookshop and lending library in Paris. She called it Shakespeare and Company*, and it soon became the meeting place of a community of expatriates writers and artists that included Gertrude Stein,\\\\u00a0Ernest Hemingway, James Joyce, and Ezra Pound. In 1922, Beach published Joyce\\\\u2019s <i>Ulysses</i> under the Shakespeare and Company imprint\\\\u2014a feat that assured the bookshop and lending library\\\\u2019s iconic status.</p><p>The Shakespeare and Company Project is a digital humanities initiative that recreates world of the bookshop and lending library\\\\u2014the world of the Lost Generation, and high modernism and the avant-garde. Using two sets of records* from Beach\\\\u2019s archives at Princeton University, the Project tracks what members of the bookshop and lending library community read and where\\\\u00a0they lived. The Project also captures how the community changed from the\\\\u00a0end of World War I to the German Occupation of France in 1940, and the community\\\\u2019s connections to French writers and artists\\\\u2014Andr\\\\u00e9 Gide, Simone de Beauvoir, and\\\\u00a0Jacques Lacan, among others\\\\u2014who patronized Shakespeare and Company.</p><p>What did Hemingway read after completing <i>The Sun Also Rises</i>? \\\\u27f6 What books did Stein and Hemingway read in common? \\\\u27f6 Who lived in the 16th arrondissement? \\\\u27f6 How did the bookshop and lending library community change after the publication of <i>Ulysses</i>? After Black Tuesday? Was the community composed solely of writers and artists? The Shakespeare and Company Project answers these questions and many more.</p><p></p>\\\", \\\"type\\\": \\\"paragraph\\\"}, {\\\"id\\\": \\\"690ec572-ca52-4c86-a7a5-90d8417121c0\\\", \\\"value\\\": \\\"<p>* The Shakespeare and Company Project uses two sets of records from Beach&#x27;s archives to recreate the world of the bookshop and lending library. Logbooks capture every book purchase, and\\\\u00a0library\\\\u00a0membership and renewal, day-by-day from 1919 to 1941. Lending library cards capture the addresses and borrowing\\\\u00a0histories of individual library members.</p>\\\", \\\"type\\\": \\\"footnotes\\\"}]\", \"slug\": \"home\", \"first_published_at\": \"2019-02-05T19:42:35.920Z\", \"title\": \"Shakespeare & Company Project\", \"has_unpublished_changes\": false, \"expire_at\": null, \"numchild\": 1, \"live\": true, \"owner\": 21, \"last_published_at\": \"2019-02-05T20:42:54.292Z\", \"go_live_at\": null, \"search_description\": \"The Shakespeare and Company Project is a digital humanities initiative that recreates the world of the bookshop and lending library of the same name\\u2014the world of the Lost Generation, high modernism, and the avant-garde.\", \"expired\": false, \"content_type\": 63, \"draft_title\": \"Shakespeare & Company Project\", \"url_path\": \"/home/\", \"depth\": 2, \"live_revision\": 4, \"pk\": 3, \"locked\": false, \"path\": \"00010002\", \"show_in_menus\": true}",
+        "approved_go_live_at": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 7,
+    "fields": {
+        "path": "0001000200020002",
+        "depth": 4,
+        "numchild": 0,
+        "title": "Lending Library Cards",
+        "draft_title": "Lending Library Cards",
+        "slug": "cards",
+        "content_type": [
+            "pages",
+            "contentpage"
+        ],
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/sources/cards/",
+        "owner": [
+            "user"
+        ],
+        "seo_title": "",
+        "show_in_menus": false,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": "2019-02-07T21:32:09.161Z",
+        "last_published_at": "2019-02-12T19:47:28.378Z",
+        "latest_revision_created_at": "2019-02-12T19:47:28.312Z",
+        "live_revision": 15
+    }
+},
+{
     "model": "wagtailcore.page",
     "pk": 6,
     "fields": {
@@ -44,30 +147,9 @@
         "expired": false,
         "locked": false,
         "first_published_at": "2019-02-05T23:01:06.070Z",
-        "last_published_at": "2019-02-05T23:01:06.070Z",
-        "latest_revision_created_at": "2019-02-05T23:01:05.886Z",
-        "live_revision": 8
-    }
-},
-{
-    "model": "wagtailcore.pagerevision",
-    "pk": 8,
-    "fields": {
-        "page": 6,
-        "submitted_for_moderation": false,
-        "created_at": "2019-02-05T23:01:05.886Z",
-        "user": [
-            "user"
-        ],
-        "content_json": "{\"seo_title\": \"\", \"latest_revision_created_at\": null, \"body\": \"[{\\\"id\\\": \\\"8567532d-b385-48ad-a792-d168f833c7a2\\\", \\\"value\\\": \\\"<p>Sylvia Beach kept logbooks that list, day by day, every financial transaction at Shakespeare and Company, including every lending library membership and renewal. The logbooks vary in size and style. Some are large hardback ledgers that cover a year or more. Others are slim paperback notebooks that cover a few months. Occasionally, two or more logbooks cover the same dates\\\\u2014a draft version with rough notes and a final, neater version.</p><p>Yet all the logbooks adhere to the same record keeping format. A two-page spread (verso and recto) covers a single day. The verso lists expenditures. The recto lists revenues: memberships sold; invoices paid; books and magazines sold. The recto also includes a special section for revenue related to Joyce\\\\u2019s Ulysses. Often, the verso and recto both include miscellaneous notes about particular books and transactions, and Shakespeare and Company events.</p><p>The page reproduced above, from Friday, February 8, 1929, is representative. Expenditures are recorded on the verso: an electricity bill; a refunded deposit for a library membership; etc. There is also a note about a meeting with Joyce. Revenues appear on the recto: a membership purchased by a B. Williams; a large check from a Miss Gruening; a note that Beach will \\\\u201cperhaps buy back\\\\u201d a copy of Halid\\\\u00e9 Edib\\\\u2019s Memoirs; a list of books sold, including two books by Charles Dickens; etc. The non-Ulysses purchases add up to 1504.25 F. The special section for revenue related to Ulysses lists payments for eight copies, totaling 668.75 F.</p><p>Unlike our work with the lending library cards, we are not, at this stage of the project, transcribing the logbooks in their entirety. We are only capturing transactions that pertain to the operation of the lending library: subscriptions; renewals; reimbursements; supplements; and overdue notices. Such transactions almost always include the member\\\\u2019s name, the duration of the membership, the amount of the deposit, and how many books the member can borrow at a time.</p><p>The first entry on the recto above, for example\\\\u2014\\\\u201cSr dep 100 B. Williams 1m 2v 35.00\\\\u201d\\\\u2014tells us that B. Williams purchased a one-month membership, which allowed him to borrow two books at a time, for thirty-five francs and a deposit of one hundred francs. We encode the event in this way:</p><p>The encoded logbooks thus constitute a collective database of fielded membership data, keyed by member and date. Eventually, the database will include all the members of the lending library, and will serve a resource for the study of the Lost Generation and interwar Paris.</p>\\\", \\\"type\\\": \\\"paragraph\\\"}]\", \"slug\": \"logbooks\", \"first_published_at\": null, \"title\": \"Logbooks\", \"has_unpublished_changes\": false, \"expire_at\": null, \"numchild\": 0, \"live\": true, \"owner\": 22, \"last_published_at\": null, \"go_live_at\": null, \"search_description\": \"\", \"expired\": false, \"content_type\": 61, \"draft_title\": \"Logbooks\", \"url_path\": \"/home/sources/logbooks/\", \"depth\": 4, \"live_revision\": null, \"pk\": 6, \"locked\": false, \"path\": \"0001000200020001\", \"show_in_menus\": false}",
-        "approved_go_live_at": null
-    }
-},
-{
-    "model": "pages.contentpage",
-    "pk": 6,
-    "fields": {
-        "body": "[{\"type\": \"paragraph\", \"value\": \"<p>Sylvia Beach kept logbooks that list, day by day, every financial transaction at Shakespeare and Company, including every lending library membership and renewal. The logbooks vary in size and style. Some are large hardback ledgers that cover a year or more. Others are slim paperback notebooks that cover a few months. Occasionally, two or more logbooks cover the same dates\\u2014a draft version with rough notes and a final, neater version.</p><p>Yet all the logbooks adhere to the same record keeping format. A two-page spread (verso and recto) covers a single day. The verso lists expenditures. The recto lists revenues: memberships sold; invoices paid; books and magazines sold. The recto also includes a special section for revenue related to Joyce\\u2019s Ulysses. Often, the verso and recto both include miscellaneous notes about particular books and transactions, and Shakespeare and Company events.</p><p>The page reproduced above, from Friday, February 8, 1929, is representative. Expenditures are recorded on the verso: an electricity bill; a refunded deposit for a library membership; etc. There is also a note about a meeting with Joyce. Revenues appear on the recto: a membership purchased by a B. Williams; a large check from a Miss Gruening; a note that Beach will \\u201cperhaps buy back\\u201d a copy of Halid\\u00e9 Edib\\u2019s Memoirs; a list of books sold, including two books by Charles Dickens; etc. The non-Ulysses purchases add up to 1504.25 F. The special section for revenue related to Ulysses lists payments for eight copies, totaling 668.75 F.</p><p>Unlike our work with the lending library cards, we are not, at this stage of the project, transcribing the logbooks in their entirety. We are only capturing transactions that pertain to the operation of the lending library: subscriptions; renewals; reimbursements; supplements; and overdue notices. Such transactions almost always include the member\\u2019s name, the duration of the membership, the amount of the deposit, and how many books the member can borrow at a time.</p><p>The first entry on the recto above, for example\\u2014\\u201cSr dep 100 B. Williams 1m 2v 35.00\\u201d\\u2014tells us that B. Williams purchased a one-month membership, which allowed him to borrow two books at a time, for thirty-five francs and a deposit of one hundred francs. We encode the event in this way:</p><p>The encoded logbooks thus constitute a collective database of fielded membership data, keyed by member and date. Eventually, the database will include all the members of the lending library, and will serve a resource for the study of the Lost Generation and interwar Paris.</p>\", \"id\": \"8567532d-b385-48ad-a792-d168f833c7a2\"}]"
+        "last_published_at": "2019-02-11T16:00:38.264Z",
+        "latest_revision_created_at": "2019-02-11T16:00:38.219Z",
+        "live_revision": 11
     }
 },
 {
@@ -76,7 +158,7 @@
     "fields": {
         "path": "000100020002",
         "depth": 3,
-        "numchild": 1,
+        "numchild": 2,
         "title": "Sources",
         "draft_title": "Sources",
         "slug": "sources",
@@ -98,32 +180,195 @@
         "expired": false,
         "locked": false,
         "first_published_at": "2019-02-05T22:34:26.798Z",
-        "last_published_at": "2019-02-05T22:34:26.798Z",
-        "latest_revision_created_at": "2019-02-05T22:34:26.605Z",
-        "live_revision": 6
+        "last_published_at": "2019-02-12T14:49:54.611Z",
+        "latest_revision_created_at": "2019-02-12T14:49:54.538Z",
+        "live_revision": 14
     }
 },
 {
-    "model": "wagtailcore.pagerevision",
-    "pk": 6,
+    "model": "wagtailcore.page",
+    "pk": 13,
     "fields": {
-        "page": 5,
-        "submitted_for_moderation": false,
-        "created_at": "2019-02-05T22:34:26.605Z",
-        "user": [
-            "user"
+        "path": "0001000200000004",
+        "depth": 4,
+        "numchild": 0,
+        "title": "Technical",
+        "draft_title": "Technical",
+        "slug": "technical",
+        "content_type": [
+            "pages",
+            "contentpage"
         ],
-        "content_json": "{\"last_published_at\": null, \"url_path\": \"/home/sources/\", \"path\": \"000100020002\", \"live_revision\": null, \"latest_revision_created_at\": null, \"draft_title\": \"Sources\", \"owner\": 22, \"pk\": 5, \"title\": \"Sources\", \"go_live_at\": null, \"search_description\": \"\", \"body\": \"[{\\\"type\\\": \\\"paragraph\\\", \\\"id\\\": \\\"88c820d9-83b0-4e4a-998c-afb3eb064245\\\", \\\"value\\\": \\\"<p>MEP analyzes two sets of documents in the Beach Papers: logbooks that detail every library membership and renewal, and lending library cards that detail the addresses and borrowing histories of individual library members.</p>\\\"}]\", \"seo_title\": \"\", \"content_type\": 62, \"slug\": \"sources\", \"locked\": false, \"first_published_at\": null, \"numchild\": 0, \"expire_at\": null, \"depth\": 3, \"tagline\": \"Learn about the lending library cards and logbooks.\", \"has_unpublished_changes\": false, \"show_in_menus\": false, \"live\": true, \"expired\": false, \"header_image\": null}",
-        "approved_go_live_at": null
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/about/technical/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "latest_revision_created_at": null,
+        "live_revision": null
     }
 },
 {
-    "model": "pages.landingpage",
-    "pk": 5,
+    "model": "wagtailcore.page",
+    "pk": 12,
     "fields": {
-        "tagline": "Learn about the lending library cards and logbooks.",
-        "body": "[{\"type\": \"paragraph\", \"value\": \"<p>MEP analyzes two sets of documents in the Beach Papers: logbooks that detail every library membership and renewal, and lending library cards that detail the addresses and borrowing histories of individual library members.</p>\", \"id\": \"88c820d9-83b0-4e4a-998c-afb3eb064245\"}]",
-        "header_image": null
+        "path": "0001000200000003",
+        "depth": 4,
+        "numchild": 0,
+        "title": "Credits",
+        "draft_title": "Credits",
+        "slug": "credits",
+        "content_type": [
+            "pages",
+            "contentpage"
+        ],
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/about/credits/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "latest_revision_created_at": null,
+        "live_revision": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 11,
+    "fields": {
+        "path": "0001000200000002",
+        "depth": 4,
+        "numchild": 0,
+        "title": "How to Cite",
+        "draft_title": "How to Cite",
+        "slug": "cite",
+        "content_type": [
+            "pages",
+            "contentpage"
+        ],
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/about/cite/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "latest_revision_created_at": null,
+        "live_revision": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 10,
+    "fields": {
+        "path": "0001000200000001",
+        "depth": 4,
+        "numchild": 0,
+        "title": "Data Export",
+        "draft_title": "Data Export",
+        "slug": "data",
+        "content_type": [
+            "pages",
+            "contentpage"
+        ],
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/about/data/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "latest_revision_created_at": null,
+        "live_revision": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 9,
+    "fields": {
+        "path": "0001000200000000",
+        "depth": 4,
+        "numchild": 0,
+        "title": "Contact Us",
+        "draft_title": "Contact Us",
+        "slug": "contact",
+        "content_type": [
+            "pages",
+            "contentpage"
+        ],
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/about/contact/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "latest_revision_created_at": null,
+        "live_revision": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 8,
+    "fields": {
+        "path": "000100020000",
+        "depth": 3,
+        "numchild": 5,
+        "title": "About",
+        "draft_title": "About",
+        "slug": "about",
+        "content_type": [
+            "pages",
+            "landingpage"
+        ],
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/about/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": "2019-02-14T17:28:28.383Z",
+        "last_published_at": "2019-02-14T17:28:28.383Z",
+        "latest_revision_created_at": "2019-02-14T17:28:28.317Z",
+        "live_revision": 16
     }
 },
 {
@@ -132,7 +377,7 @@
     "fields": {
         "path": "00010002",
         "depth": 2,
-        "numchild": 1,
+        "numchild": 2,
         "title": "Shakespeare & Company Project",
         "draft_title": "Shakespeare & Company Project",
         "slug": "home",
@@ -160,17 +405,34 @@
     }
 },
 {
-    "model": "wagtailcore.pagerevision",
-    "pk": 7,
+    "model": "wagtailcore.page",
+    "pk": 1,
     "fields": {
-        "page": 3,
-        "submitted_for_moderation": false,
-        "created_at": "2019-02-05T22:44:29.266Z",
-        "user": [
-            "user"
+        "path": "0001",
+        "depth": 1,
+        "numchild": 1,
+        "title": "Root",
+        "draft_title": "Root",
+        "slug": "root",
+        "content_type": [
+            "wagtailcore",
+            "page"
         ],
-        "content_json": "{\"seo_title\": \"\", \"latest_revision_created_at\": \"2019-02-05T20:42:54.041Z\", \"body\": \"[{\\\"id\\\": \\\"f13ce1bd-c59d-47fd-8521-bca52a5f077d\\\", \\\"value\\\": \\\"<p>In 1919, an American named Sylvia Beach opened an English-language bookshop and lending library in Paris. She called it Shakespeare and Company*, and it soon became the meeting place of a community of expatriates writers and artists that included Gertrude Stein,\\\\u00a0Ernest Hemingway, James Joyce, and Ezra Pound. In 1922, Beach published Joyce\\\\u2019s <i>Ulysses</i> under the Shakespeare and Company imprint\\\\u2014a feat that assured the bookshop and lending library\\\\u2019s iconic status.</p><p>The Shakespeare and Company Project is a digital humanities initiative that recreates world of the bookshop and lending library\\\\u2014the world of the Lost Generation, and high modernism and the avant-garde. Using two sets of records* from Beach\\\\u2019s archives at Princeton University, the Project tracks what members of the bookshop and lending library community read and where\\\\u00a0they lived. The Project also captures how the community changed from the\\\\u00a0end of World War I to the German Occupation of France in 1940, and the community\\\\u2019s connections to French writers and artists\\\\u2014Andr\\\\u00e9 Gide, Simone de Beauvoir, and\\\\u00a0Jacques Lacan, among others\\\\u2014who patronized Shakespeare and Company.</p><p>What did Hemingway read after completing <i>The Sun Also Rises</i>? \\\\u27f6 What books did Stein and Hemingway read in common? \\\\u27f6 Who lived in the 16th arrondissement? \\\\u27f6 How did the bookshop and lending library community change after the publication of <i>Ulysses</i>? After Black Tuesday? Was the community composed solely of writers and artists? The Shakespeare and Company Project answers these questions and many more.</p><p></p>\\\", \\\"type\\\": \\\"paragraph\\\"}, {\\\"id\\\": \\\"690ec572-ca52-4c86-a7a5-90d8417121c0\\\", \\\"value\\\": \\\"<p>* The Shakespeare and Company Project uses two sets of records from Beach&#x27;s archives to recreate the world of the bookshop and lending library. Logbooks capture every book purchase, and\\\\u00a0library\\\\u00a0membership and renewal, day-by-day from 1919 to 1941. Lending library cards capture the addresses and borrowing\\\\u00a0histories of individual library members.</p>\\\", \\\"type\\\": \\\"footnotes\\\"}]\", \"slug\": \"home\", \"first_published_at\": \"2019-02-05T19:42:35.920Z\", \"title\": \"Shakespeare & Company Project\", \"has_unpublished_changes\": false, \"expire_at\": null, \"numchild\": 1, \"live\": true, \"owner\": 21, \"last_published_at\": \"2019-02-05T20:42:54.292Z\", \"go_live_at\": null, \"search_description\": \"The Shakespeare and Company Project is a digital humanities initiative that recreates the world of the bookshop and lending library of the same name\\u2014the world of the Lost Generation, high modernism, and the avant-garde.\", \"expired\": false, \"content_type\": 63, \"draft_title\": \"Shakespeare & Company Project\", \"url_path\": \"/home/\", \"depth\": 2, \"live_revision\": 4, \"pk\": 3, \"locked\": false, \"path\": \"00010002\", \"show_in_menus\": true}",
-        "approved_go_live_at": null
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": false,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "latest_revision_created_at": null,
+        "live_revision": null
     }
 },
 {
@@ -178,6 +440,73 @@
     "pk": 3,
     "fields": {
         "body": "[{\"id\": \"f13ce1bd-c59d-47fd-8521-bca52a5f077d\", \"value\": \"<p>In 1919, an American named Sylvia Beach opened an English-language bookshop and lending library in Paris. She called it Shakespeare and Company*, and it soon became the meeting place of a community of expatriates writers and artists that included Gertrude Stein,\\u00a0Ernest Hemingway, James Joyce, and Ezra Pound. In 1922, Beach published Joyce\\u2019s <i>Ulysses</i> under the Shakespeare and Company imprint\\u2014a feat that assured the bookshop and lending library\\u2019s iconic status.</p><p>The Shakespeare and Company Project is a digital humanities initiative that recreates world of the bookshop and lending library\\u2014the world of the Lost Generation, and high modernism and the avant-garde. Using two sets of records* from Beach\\u2019s archives at Princeton University, the Project tracks what members of the bookshop and lending library community read and where\\u00a0they lived. The Project also captures how the community changed from the\\u00a0end of World War I to the German Occupation of France in 1940, and the community\\u2019s connections to French writers and artists\\u2014Andr\\u00e9 Gide, Simone de Beauvoir, and\\u00a0Jacques Lacan, among others\\u2014who patronized Shakespeare and Company.</p><p>What did Hemingway read after completing <i>The Sun Also Rises</i>? \\u27f6 What books did Stein and Hemingway read in common? \\u27f6 Who lived in the 16th arrondissement? \\u27f6 How did the bookshop and lending library community change after the publication of <i>Ulysses</i>? After Black Tuesday? Was the community composed solely of writers and artists? The Shakespeare and Company Project answers these questions and many more.</p><p></p>\", \"type\": \"paragraph\"}, {\"id\": \"690ec572-ca52-4c86-a7a5-90d8417121c0\", \"value\": \"<p>* The Shakespeare and Company Project uses two sets of records from Beach&#x27;s archives to recreate the world of the bookshop and lending library. Logbooks capture every book purchase, and\\u00a0library\\u00a0membership and renewal, day-by-day from 1919 to 1941. Lending library cards capture the addresses and borrowing\\u00a0histories of individual library members.</p>\", \"type\": \"footnotes\"}]"
+    }
+},
+{
+    "model": "pages.landingpage",
+    "pk": 5,
+    "fields": {
+        "tagline": "Learn about the lending library cards and logbooks.",
+        "body": "[{\"id\": \"88c820d9-83b0-4e4a-998c-afb3eb064245\", \"value\": \"<p>MEP analyzes two sets of documents in the Beach Papers: logbooks that detail every library membership and renewal, and lending library cards that detail the addresses and borrowing histories of individual library members.</p>\", \"type\": \"paragraph\"}]",
+        "header_image": null
+    }
+},
+{
+    "model": "pages.landingpage",
+    "pk": 8,
+    "fields": {
+        "tagline": "Learn about the Shakespeare and Company Project.",
+        "body": "[{\"id\": \"529e631b-1135-47e3-a54d-10981c49c23b\", \"value\": \"<p>Mapping Expatriate Paris: The Shakespeare and Company Lending Library Project (MEP) is a digital humanities project, sponsored by the <a href=\\\"http://cdh.princeton.edu\\\">Center for Digital Humanities (CDH)</a> at <a href=\\\"http://princeton.edu\\\">Princeton University</a>, that examines the Lost Generation using the documents, books, and memorabilia in the <a href=\\\"http://catalog.princeton.edu/catalog/825298\\\">Sylvia Beach Papers</a> in the <a href=\\\"http://rbsc.princeton.edu\\\">Department of Rare Books and Special Collections (RBSC)</a> at Princeton\\u2019s Firestone Library.</p><h3>Project History</h3><p>MEP grew out of a graduate seminar taught by Professor Joshua Kotin in 2013. During a visit to RBSC, Jesse McCarthy, a student in the seminar, suggested that the Shakespeare and Company lending library cards would make an excellent dataset for a mapping project about the Lost Generation and interwar Paris.</p><p>In the spring of 2015, Princeton\\u2019s CDH awarded Kotin and McCarthy a one-year grant to digitize the lending library cards, and develop display and access tools. That summer, the Library\\u2019s Digital Photography Studio photographed the lending library cards, and a team of graduate students transcribed them.</p><p>When the grant began in the fall, Clifford Wulfman, Digital Initiatives Coordinator at Firestone, joined the MEP team and began to teach the team to use the Guidelines of the Text Encoding Initiative (TEI) to encode the cards to capture names, places, dates, financial transactions, and book titles. Kotin began to develop a prosopographical database (personography) of the lending library members. The team soon discovered a second rich source of data in the Shakespeare and Company logbooks. These documents, too, were soon encoded. Together with the lending library cards, they constitute MEP\\u2019s textbase, the major outcome of the first CDH grant.</p><p>In the spring of 2016, the CDH renewed its grant to MEP. In the coming year, the MEP team will extend the library card encoding to include regularization of book titles and the representation of borrowing events, and the CDH will develop a robust and interactive website that the public can use to explore the textbase.</p>\", \"type\": \"paragraph\"}]",
+        "header_image": null
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 7,
+    "fields": {
+        "body": "[{\"id\": \"1321f2f0-e1bf-4758-b952-8d420b60f8c1\", \"value\": 3, \"type\": \"image\"}, {\"id\": \"89128c79-1cc9-4bdb-a55c-766bfa284122\", \"value\": \"<p>Beach used 12 cm \\u00d7 17 cm index cards to record the borrowing activities of her lending library members. (She playfully called them \\u201cbunnies,\\u201d from the French word abonn\\u00e9, subscriber.) Beach typically wrote the name of the member in block letters at the top of the card, with the current year to the left and the member\\u2019s address below. As members moved, she would cross out the old address and write in the new one: Hemingway\\u2019s card is full of old addresses. Below the address, she frequently recorded the terms of the membership: 1 m 1 v, for example, to indicate a one-month membership entitling the member to borrow one volume at a time.</p><p>When a member borrowed a book, Beach or one of her assistants would record the fact on the member\\u2019s lending library card, writing the date on which the book was lent, followed by the title of the book (or the magazine; Shakespeare and Company also lent magazines). When the book was returned, the date was noted on the card.</p><p>The typical three-column pattern made transcribing and encoding the lending transactions relatively simple. The dates and titles are preserved as written; encoders supplement the dates with machine-readable representations and annotate the titles with references to a uniform version. Ditto marks and abbreviations are preserved but supplemented with annotations.</p><p>MEP is now embarking on a second stage of encoding, in which the dates and titles will be combined into discrete borrowing events. When the encoding is complete, it will be possible to trace the circulation of books in great detail.</p><p>The cards served a number of uses. They often include columns of figures registering renewals and purchases. MEP transcribes these (when they are legible) but does not attempt to encode them in any way.</p><p>Beach and her staff also used the cards to leave notes to one another. David Gascoyne borrowed Gertrude Stein\\u2019s Geography and Plays on October 12, 1933; below that entry is a note instructing someone to ask him if he saw a new copy of the book. On Mme. Jean Genet\\u2019s card someone has written \\u201cenquired at PO Feb 10 whether parcel from Barcelona was delivered\\u201d; in another hand below is a response: \\u201cp.o. reports parcel delivered SB wrote to inform Mme g. received money order 16.50 Feb 17.\\u201d</p><blockquote>These notes will be fully searchable through the MEP web interface, making the library cards not only the source of data for computational analysis but documents for research.</blockquote><blockquote>Before Joyce left that 12 July day, he requested a membership in the lending library. Sylvia took out a long lending-library card and wrote down: \\u201cJames Joyce: rue de l\\u2019Assomption, Paris; subscription for one month; seven francs.\\u201d</blockquote><blockquote>(Fitch, 67)</blockquote><p>Sylvia Beach\\u2019s archives at Princeton University contain the lending records for over 560 members of the Shakespeare and Company lending library, from Pauline Alderman to Isabelle Zimmer. The collection is incomplete. Hemingway and Gide are missing specific cards. James Joyce\\u2019s cards are missing. We do not yet know why Beach kept some cards and discarded others. We do know that some cards have been preserved in other archives, and we hope to have digital facsimiles for the next version of this website. Nevertheless, the cards we have tell a fascinating story about the operations of Shakespeare and Company and the borrowing habits of its members.</p>\", \"type\": \"paragraph\"}]"
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 6,
+    "fields": {
+        "body": "[{\"id\": \"22df46c3-24f3-45ab-860e-5ca5047aeceb\", \"value\": 2, \"type\": \"image\"}, {\"id\": \"8567532d-b385-48ad-a792-d168f833c7a2\", \"value\": \"<p>Sylvia Beach kept logbooks that list, day by day, every financial transaction at Shakespeare and Company, including every lending library membership and renewal. The logbooks vary in size and style. Some are large hardback ledgers that cover a year or more. Others are slim paperback notebooks that cover a few months. Occasionally, two or more logbooks cover the same dates\\u2014a draft version with rough notes and a final, neater version.</p><p>Yet all the logbooks adhere to the same record keeping format. A two-page spread (verso and recto) covers a single day. The verso lists expenditures. The recto lists revenues: memberships sold; invoices paid; books and magazines sold. The recto also includes a special section for revenue related to Joyce\\u2019s Ulysses. Often, the verso and recto both include miscellaneous notes about particular books and transactions, and Shakespeare and Company events.</p><p>The page reproduced above, from Friday, February 8, 1929, is representative. Expenditures are recorded on the verso: an electricity bill; a refunded deposit for a library membership; etc. There is also a note about a meeting with Joyce. Revenues appear on the recto: a membership purchased by a B. Williams; a large check from a Miss Gruening; a note that Beach will \\u201cperhaps buy back\\u201d a copy of Halid\\u00e9 Edib\\u2019s Memoirs; a list of books sold, including two books by Charles Dickens; etc. The non-Ulysses purchases add up to 1504.25 F. The special section for revenue related to Ulysses lists payments for eight copies, totaling 668.75 F.</p><p>Unlike our work with the lending library cards, we are not, at this stage of the project, transcribing the logbooks in their entirety. We are only capturing transactions that pertain to the operation of the lending library: subscriptions; renewals; reimbursements; supplements; and overdue notices. Such transactions almost always include the member\\u2019s name, the duration of the membership, the amount of the deposit, and how many books the member can borrow at a time.</p><p>The first entry on the recto above, for example\\u2014\\u201cSr dep 100 B. Williams 1m 2v 35.00\\u201d\\u2014tells us that B. Williams purchased a one-month membership, which allowed him to borrow two books at a time, for thirty-five francs and a deposit of one hundred francs. We encode the event in this way:</p><p>The encoded logbooks thus constitute a collective database of fielded membership data, keyed by member and date. Eventually, the database will include all the members of the lending library, and will serve a resource for the study of the Lost Generation and interwar Paris.</p>\", \"type\": \"paragraph\"}]"
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 13,
+    "fields": {
+        "body": "[]"
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 12,
+    "fields": {
+        "body": "[]"
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 11,
+    "fields": {
+        "body": "[]"
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 10,
+    "fields": {
+        "body": "[]"
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 9,
+    "fields": {
+        "body": "[]"
     }
 },
 {

@@ -74,6 +74,11 @@ Remember to add a ``SECRET_KEY`` setting!
 
     python manage.py index
 
+- optionally, you can populate the Wagtail CMS with stub pages for the main
+    navigation::
+
+    python manage.py setup_site_pages
+
 
 Note that the admin index page will not reflect some changes without a manual
 update - you will need to edit ``mep/dashboard.py`` to control the display and
