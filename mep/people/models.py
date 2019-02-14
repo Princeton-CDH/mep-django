@@ -307,6 +307,14 @@ class Person(Notable, DateRange, Indexable):
 
         super(Person, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        '''
+        Return the public url to view library member's detail page
+        '''
+        # NOTE: using pk temporarily until we add slugs
+        # FIXME: should this return None for people without accounts?
+        return reverse('people:member-detail', args=[self.pk])
+
     @property
     def viaf(self):
         ''':class:`viapy.api.ViafEntity` for this record if :attr:`viaf_id`
@@ -390,7 +398,8 @@ class Person(Notable, DateRange, Indexable):
             'birth_year_i': self.birth_year,
             'death_year_i': self.death_year,
             'account_start_i': account_start.year if account_start else None,
-            'account_end_i': account_end.year if account_end else None
+            'account_end_i': account_end.year if account_end else None,
+            'has_card_b': self.has_card()
         })
 
         return index_data

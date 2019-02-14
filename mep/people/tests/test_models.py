@@ -3,6 +3,7 @@ import re
 from unittest.mock import patch
 
 import pytest
+from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import (MultipleObjectsReturned,
                                     ObjectDoesNotExist, ValidationError)
@@ -201,6 +202,13 @@ class TestPerson(TestCase):
         acct.card = card
         acct.save()
         assert pers.has_card()
+
+    def test_get_absolute_url(self):
+        pers = Person.objects.create(name='John Smith')
+        # uses pk for now
+        assert pers.get_absolute_url() == \
+            reverse('people:member-detail', args=[pers.pk])
+
 
     def test_index_data(self):
         pers = Person.objects.create(
