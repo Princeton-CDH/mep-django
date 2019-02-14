@@ -30,7 +30,8 @@ fi
 
 # Try to make a core
 echo "Creating solr core with managed schema"
-$bin create -c $SOLR_CORE -d ../solr_conf
+# $bin create -c $SOLR_CORE -d ../solr_conf
+$bin create -c $SOLR_CORE -n basic_configs
 
 if [ $? -ne 0 ];
 then
