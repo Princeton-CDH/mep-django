@@ -6,16 +6,16 @@
             <li><a>lending library cards</a><li>
             <li><a>books</a><li>
             <li><a>analysis</a><li>
-            <li><a>sources</a><li>
+            <li><a href="{% slugurl 'sources' %}">sources</a><li>
             <li><a href="{% slugurl 'about' %}">about</a><li>
         </ul>
         <ul class="secondary" aria-label="secondary navigation">
             <li><a href="{% slugurl 'home' %}">home</a><li>
-            <li><a>contact</a><li>
-            <li><a>data export</a><li>
-            <li><a>how to cite</a><li>
-            <li><a>credits</a><li>
-            <li><a>technical</a><li>
+            <li><a href="{% slugurl 'contact' %}">contact</a><li>
+            <li><a href="{% slugurl 'data' %}">data export</a><li>
+            <li><a href="{% slugurl 'cite' %}">how to cite</a><li>
+            <li><a href="{% slugurl 'credits' %}">credits</a><li>
+            <li><a href="{% slugurl 'technical' %}">technical</a><li>
         </ul>
     </nav>
     <img id="sco-logo" src="{% static 'img/logo/SCo_logo_vert.png' %}" alt="shakespeare & company">
