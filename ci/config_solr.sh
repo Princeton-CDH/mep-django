@@ -18,7 +18,7 @@ fi
 tar xzf $file
 
 # Start the solr instance with all default settings
-echo "Starting solr and creating core ${SOLR_CORE}..."
+echo "Starting solr..."
 bin="solr-${version}/bin/solr"
 $bin start
 if [ $? -eq 0 ];
@@ -28,15 +28,4 @@ else
         exit 1
 fi
 
-# Try to make a core
-echo "Creating solr core with managed schema"
-# $bin create -c $SOLR_CORE -d ../solr_conf
-$bin create -c $SOLR_CORE -n basic_configs
-
-if [ $? -ne 0 ];
-then
-        echo "There was an error while creating the Solr core"
-        exit 1
-fi
-
-echo "Core created and Solr running on default port of 8983..."
+echo "Solr running on default port of 8983..."
