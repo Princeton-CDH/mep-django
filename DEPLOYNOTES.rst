@@ -11,6 +11,13 @@ Deploy and Upgrade notes
 
      python manage.py migrate pages zero
 
+* Wagtail provides predefined groups for *Editor* and *Moderator*. Users
+  who were previously in the *Content Editor* group should be added
+  to one of these, and the *Content Editor* group should be removed.
+
+* Run ``python manage.py setup_site_pages`` to create stub pages for all
+  site content needed for main site navigation.
+
 
 0.6 Borrowing events and Title stubs
 -------------------------------------
