@@ -16,8 +16,8 @@ webpack-stats.json
 js/test/unit/coverage
 
 # Static files
-static/
 media/
+bundles/
 
 # stock python git-ignores provided by github
 
@@ -60,6 +60,7 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+coverage/
 .coverage
 .coverage.*
 .cache
