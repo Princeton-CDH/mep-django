@@ -2,7 +2,7 @@ language: python
 python:
 - '3.5'
 env:
-	global:
+  global:
   - SOLR_VERSION=6.6.5
   - SOLR_CORE=test-mep
   - PA11Y_SOLR_CORE=mep-pa11y
