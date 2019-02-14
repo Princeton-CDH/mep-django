@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 
-import FacetChoice from '../../src/components/FacetChoice'
+import FacetChoice from '../../js/components/FacetChoice'
 
 describe('FacetChoice', () => {
 
