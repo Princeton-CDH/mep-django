@@ -22,7 +22,6 @@ from mep.people.views import GeoNamesLookup, PersonMerge
 from mep.footnotes.models import Bibliography, SourceType
 
 
-pytest_plugins = "parasol.pytest_plugin"
 
 
 class TestPeopleViews(TestCase):
@@ -559,7 +558,6 @@ class TestPersonMergeView(TestCase):
         assert form_kwargs['person_ids'] == pmview.person_ids
 
     # form_valid method tested through client post request above
-
 
 
 class TestMembersListView(TestCase):
