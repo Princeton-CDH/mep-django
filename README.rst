@@ -69,7 +69,7 @@ Initial setup and installation:
 Remember to add a ``SECRET_KEY`` setting!
 
 - optionally, you can populate the Wagtail CMS with stub pages for the main
-    navigation::
+  navigation::
 
 
     python manage.py setup_site_pages
