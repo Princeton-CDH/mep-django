@@ -18,6 +18,13 @@ Deploy and Upgrade notes
 * Run ``python manage.py setup_site_pages`` to create stub pages for all
   site content needed for main site navigation.
 
+* The parasol package will automatically create a core if one does
+  not already exist. It does require custom settings that are contained in
+  ``solr_conf_sco`` be installed on the Solr instance under the ``configsets``
+  directory prior to deployment. It also requires that ``CONFIGSET`` name is
+  provided in the `default` dictionary under ``SOLR_CONNECTIONS``.
+  See the sample Solr config in ``local_settings.py.sample``.
+
 
 0.6 Borrowing events and Title stubs
 -------------------------------------
