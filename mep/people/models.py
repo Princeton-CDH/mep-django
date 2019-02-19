@@ -312,8 +312,10 @@ class Person(Notable, DateRange, Indexable):
         Return the public url to view library member's detail page
         '''
         # NOTE: using pk temporarily until we add slugs
-        # FIXME: should this return None for people without accounts?
-        return reverse('people:member-detail', args=[self.pk])
+        if self.has_account():
+            # Only people with accounts have member detail pages
+            return reverse('people:member-detail', args=[self.pk])
+        # for now returning no url for person with no account
 
     @property
     def viaf(self):

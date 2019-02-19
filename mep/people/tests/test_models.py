@@ -205,10 +205,15 @@ class TestPerson(TestCase):
 
     def test_get_absolute_url(self):
         pers = Person.objects.create(name='John Smith')
+        # none for non-member
+        assert pers.get_absolute_url() is None
+
+        # add account
+        acct = Account.objects.create()
+        acct.persons.add(pers)
         # uses pk for now
         assert pers.get_absolute_url() == \
             reverse('people:member-detail', args=[pers.pk])
-
 
     def test_index_data(self):
         pers = Person.objects.create(
