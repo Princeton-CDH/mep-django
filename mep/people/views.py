@@ -10,13 +10,38 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
 
 from mep.accounts.models import Event
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
+
+
+class MembersList(ListView):
+    '''List page for searching and browsing library members.'''
+    model = Person
+    template_name = 'people/member_list.html'
+    # pagination not yet designed
+    # paginate_by = 100
+    context_object_name = 'members'
+
+    def get_queryset(self):
+        # limit to people with library accounts, do not include
+        # item creators who are not library members
+        return super().get_queryset().exclude(account=None)
+
+
+class MemberDetail(DetailView):
+    '''Detail page for a single library member.'''
+    model = Person
+    template_name = 'people/member_detail.html'
+    context_object_name = 'member'
+
+    def get_queryset(self):
+        # throw a 404 if a non-member is accessed via this route
+        return super().get_queryset().exclude(account=None)
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):

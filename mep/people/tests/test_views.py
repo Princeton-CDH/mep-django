@@ -554,3 +554,48 @@ class TestPersonMergeView(TestCase):
         assert form_kwargs['person_ids'] == pmview.person_ids
 
     # form_valid method tested through client post request above
+
+
+class TestMembersListView(TestCase):
+    pass
+    # TODO write these tests once solr is set up to generate this page
+
+
+class TestMemberDetailView(TestCase):
+    fixtures = ['sample_people.json']
+
+    def test_get_member(self):
+        gay = Person.objects.get(name='Francisque Gay')
+        url = reverse('people:member-detail', kwargs={'pk': gay.pk})
+        # create some events to check the account event date display
+        account = gay.account_set.first()
+        account.add_event('borrow', **{'start_date': date(1934, 3, 4)})
+        account.add_event('borrow', **{'start_date': date(1941, 2, 3)})
+        response = self.client.get(url)
+        # check correct templates used & context passed
+        self.assertTemplateUsed('member_detail.html')
+        assert response.status_code == 200, \
+            'library members should have a detail page'
+        assert response.context['member'] == gay, \
+            'page should correspond to the correct member'
+        # check name
+        self.assertContains(response, 'Francisque Gay')
+        # check dates
+        self.assertContains(response, '1885 - 1963')
+        # check account dates
+        self.assertContains(response, 'Account Dates')
+        self.assertContains(response, 'March 4, 1934 - Feb. 3, 1941')
+        # check VIAF
+        self.assertContains(response, 'Reference')
+        self.assertContains(response, 'http://viaf.org/viaf/9857613')
+        # check nationalities
+        self.assertContains(response, 'Nationality')
+        self.assertContains(response, 'France')
+        # NOTE currently not including/checking profession
+
+    def test_get_non_member(self):
+        aeschylus = Person.objects.get(name='Aeschylus')
+        url = reverse('people:member-detail', kwargs={'pk': aeschylus.pk})
+        response = self.client.get(url)
+        assert response.status_code == 404, \
+            'non-members should not have a detail page'

@@ -1,0 +1,7 @@
+{% load wagtailcore_tags %}
+<article class="preview">
+    <h2>{{ item.title }}</h2>
+    <hr/>
+    <p>{{ item.description }}</p>
+    <a class="read-more" href="{% pageurl item %}">Read More</a>
+</article>

@@ -1,0 +1,28 @@
+{% load render_bundle from webpack_loader %}
+{% load static wagtailuserbar %}
+<!DOCTYPE html>
+<html lang="en" xmlns:schema="http://schema.org/" xmlns:og="http://ogp.me/ns#">
+    <head>
+        <!-- metadata -->
+        <title>{% block page-subtitle %}{% endblock %}Shakespeare and Company Project</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- styles -->
+        <link rel="stylesheet" type="text/css" href="{% static 'css/test-banner.css' %}">
+        {% render_bundle 'main' 'css' %}
+        {% block css %}{% endblock %}
+        <!-- scripts -->
+        {% render_bundle 'main' 'js' %}
+        {% block js %}{% endblock %}
+    </head>
+    <body>
+        {% include 'snippets/test_banner.html' %}
+        {% include 'snippets/nav.html' %}
+        {% block header %}{% endblock %}
+        <main class="{% block main-style %}default{% endblock %}">
+        {% block content %}{% endblock %}
+        </main>
+        {% include 'snippets/footer.html' %}
+        {% wagtailuserbar %}
+    </body>
+</html>
