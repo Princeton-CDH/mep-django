@@ -1,0 +1,118 @@
+#page-footer {
+    @include container;
+    padding: 4rem 0 1rem;
+    flex: none;
+    background: $white;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    line-height: 1.25;
+
+    a,
+    span {
+        text-decoration: none;
+        color: $brownish-grey;
+        font-size: .6rem;
+    }
+
+    nav {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        @media (min-width: $breakpoint-s) {
+            width: fit-content;
+            flex: auto;
+        }
+
+        ul {
+            flex: none;
+        }
+
+        li {
+            padding-bottom: .2rem;
+        }
+
+        a {
+            text-transform: uppercase;
+        }
+    }
+
+    #sco-logo {
+        width: 6rem;
+        margin: 1rem auto;
+        display: block;
+
+        @media (min-width: $breakpoint-s) {
+            margin: 1rem 2rem;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            margin: 1rem 4rem;
+        }
+    }
+
+    .logos {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+
+        @media (min-width: $breakpoint-s) {
+            width: fit-content;
+            flex: auto;
+        }
+    }
+
+    #pu-logo {
+        width: 6.25rem; 
+    }
+
+    #cdh-logo {
+        width: 5rem;
+    }
+
+    .links {
+        width: 100%;
+        padding-top: 1rem;
+        display: flex;
+        flex-flow: row wrap;
+
+        a,
+        span {
+            display: inline-block;
+            flex: auto;
+        }
+
+        #a11y {
+            padding-bottom: .5rem;
+
+            @media(min-width: $breakpoint-s) {
+                padding-bottom: 0;
+                flex: none;
+            }
+        }
+
+        #a11y-assist {
+            text-align: right;
+    
+            @media (min-width: $breakpoint-s) {
+                text-align: left;
+                flex: none;
+                margin-left: 2rem;
+            }
+        }
+
+        #copyright {
+            @media(min-width: $breakpoint-s) {
+                flex: none;
+                margin-left: 2rem;
+            }
+        }
+    
+        #sw-version {
+            text-align: right;
+        }
+    }
+} 

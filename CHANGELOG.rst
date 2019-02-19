@@ -3,6 +3,15 @@
 CHANGELOG
 =========
 
+0.10 Initial member list and Wagtail CMS functionality
+------------------------------------------------------
+
+Adds front-end styles and Webpack functionality, as well as Wagtail CMS.
+
+* As a user, I want to see available demographic and library information (birth/death dates, nationality, membership dates, link to VIAF if available) for an individual library member, so that I can find out more about the person.
+* As a content editor, I want to create and edit content pages on the site so that I can update text on the site when information changes
+
+
 0.9 Add Purchase events to admin
 ----------------------------------
 
