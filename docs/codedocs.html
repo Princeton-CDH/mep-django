@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.9.0 documentation</title>
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.10.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="CHANGELOG" href="changelog.html" />
@@ -1284,6 +1285,46 @@ Use Q objects to search all relevant fields in autocomplete.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="mep.people.views.MemberDetail">
+<em class="property">class </em><code class="descclassname">mep.people.views.</code><code class="descname">MemberDetail</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberDetail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberDetail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detail page for a single library member.</p>
+<dl class="method">
+<dt id="mep.people.views.MemberDetail.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberDetail.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberDetail.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <cite>QuerySet</cite> that will be used to look up the object.</p>
+<p>Note that this method is called by the default implementation of
+<cite>get_object</cite> and may not be called if <cite>get_object</cite> is overridden.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.views.MemberDetail.model">
+<code class="descname">model</code><a class="headerlink" href="#mep.people.views.MemberDetail.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Person</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.views.MembersList">
+<em class="property">class </em><code class="descclassname">mep.people.views.</code><code class="descname">MembersList</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MembersList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MembersList" title="Permalink to this definition">¶</a></dt>
+<dd><p>List page for searching and browsing library members.</p>
+<dl class="method">
+<dt id="mep.people.views.MembersList.get_queryset">
+<code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MembersList.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MembersList.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of items for this view.</p>
+<p>The return value must be an iterable and may be an instance of
+<cite>QuerySet</cite> in which case <cite>QuerySet</cite> specific behavior will be enabled.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.views.MembersList.model">
+<code class="descname">model</code><a class="headerlink" href="#mep.people.views.MembersList.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Person</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="mep.people.views.PersonAutocomplete">
 <em class="property">class </em><code class="descclassname">mep.people.views.</code><code class="descname">PersonAutocomplete</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonAutocomplete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonAutocomplete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Basic person autocomplete lookup, for use with django-autocomplete-light.
@@ -1803,7 +1844,7 @@ for or against information in the system.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

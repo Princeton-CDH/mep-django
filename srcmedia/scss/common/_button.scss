@@ -1,0 +1,19 @@
+a.read-more {
+    width: 6rem;
+    height: 2rem;
+    font-size: 0.8rem;
+    border: 2px solid $black;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: black;
+
+    &:hover {
+        border: 2px solid $black; 
+        background: $black;
+        color: white;
+    }
+}

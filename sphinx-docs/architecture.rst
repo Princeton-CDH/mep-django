@@ -11,6 +11,12 @@ Database
 Updates and Changes
 ~~~~~~~~~~~~~~~~~~~
 
+0.10 Updates
+^^^^^^^^^^^^
+
+- Remove Mezzanine and add Wagtail dependencies.
+- Add ``Pages`` module with CMS functionality.
+
 0.9 Updates
 ^^^^^^^^^^^
 - :class:`~mep.accounts.models.Purchase` now has fields and flags for partial start and end dates.
@@ -64,6 +70,14 @@ Database Diagrams
     Detail charts are generated with `DAVILA <https://github.com/jabauer/DAVILA>`_.
     The ``sphinx-docs`` directory includes a ``customize.csv`` and MySQL dump
     that was used to generate the following schema diagrams.
+
+
+Database Overview (v0.10) - Wagtail
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: _static/db-v010-wagtail.png
+    :target: _static/dv-v010-wagtail.png
+    :alt: Database Overview (v0.10) - Wagtail
 
 Database Overview (v0.6)
 ^^^^^^^^^^^^^^^^^^^^^^^^

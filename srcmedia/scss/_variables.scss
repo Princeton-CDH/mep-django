@@ -1,0 +1,74 @@
+/* color palette */
+
+$white: #f5f5f5;
+$white-two: #d8d8d8;
+$brownish-grey: #646464;
+$mid-grey: #737373;
+$black: #000000;
+$green: #07ae79;
+
+/* breakpoints */
+
+$breakpoint-xs: 320px;
+$breakpoint-s: 768px;
+$breakpoint-m: 1024px;
+$breakpoint-l: 1440px;
+$breakpoint-xl: 1920px;
+
+/* container */
+
+$gutter-xs: 15px;
+$gutter: 30px;
+
+/* fonts */
+
+$sans: 'Univers', 'Helvetica', 'Segoe UI', sans-serif;
+$serif: 'Louize', 'Didot', 'Perpetua', serif;
+$displayFont: 'Louize Display', 'Louize', 'Didot', 'Perpetua', serif;
+
+@font-face {
+    font-family: 'Univers';
+    font-style: normal;
+    font-weight: normal;
+    src: url('/static/fonts/Univers/UniversLTPro-55Roman.otf');
+}
+
+@font-face {
+    font-family: 'Univers';
+    font-style: italic;
+    font-weight: normal;
+    src: url('/static/fonts/Univers/UniversLTPro-55Oblique.otf');
+}
+
+@font-face {
+    font-family: 'Univers';
+    font-style: normal;
+    font-weight: bold;
+    src: url('/static/fonts/Univers/UniversLTPro-65Bold.otf');
+}
+
+@font-face {
+    font-family: 'Louize';
+    font-style: normal;
+    font-weight: normal;
+    src: url('/static/fonts/Louize/Louize - Regular-205TF.eot');
+    src: url('/static/fonts/Louize/Louize - Regular-205TF.eot?#iefix') format('embedded-opentype'),
+        url('/static/fonts/Louize/Louize - Regular-205TF.woff2') format('woff2'),
+        url('/static/fonts/Louize/Louize - Regular-205TF.woff') format('woff'),
+        url('/static/fonts/Louize/Louize - Regular-205TF.otf') format('opentype'),
+        url('/static/fonts/Louize/Louize - Regular-205TF.ttf') format('truetype'),
+        url('/static/fonts/Louize/Louize - Regular-205TF.svg') format('svg'),
+}
+
+@font-face {
+    font-family: 'Louize';
+    font-style: italic;
+    font-weight: normal;
+    src: url('/static/fonts/Louize/Louize - Italic-205TF.eot');
+    src: url('/static/fonts/Louize/Louize - Italic-205TF.eot?#iefix') format('embedded-opentype'),
+        url('/static/fonts/Louize/Louize - Italic-205TF.woff2') format('woff2'),
+        url('/static/fonts/Louize/Louize - Italic-205TF.woff') format('woff'),
+        url('/static/fonts/Louize/Louize - Italic-205TF.otf') format('opentype'),
+        url('/static/fonts/Louize/Louize - Italic-205TF.ttf') format('truetype'),
+        url('/static/fonts/Louize/Louize - Italic-205TF.svg') format('svg'),
+}

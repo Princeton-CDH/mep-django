@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load render_bundle from webpack_loader %}
+
+{% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
+
+{% block js %}{% render_bundle 'search' 'js' %}{% endblock %}
+
+{% block page-subtitle %}Library Members · {% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title="members" %}
+{% endblock %}
+
+{% block main-style %}white{% endblock %}
+
+{% block content %}
+<p>Showing {{ object_list.count|intcomma }} member{{ object_list.count|pluralize }}</p>
+<ol>
+    {% for person in members %}
+    <li>
+        <a href="{% url 'people:member-detail' pk=person.pk %}">{{ person.sort_name }}</a>
+    </li>
+    {% endfor %}
+</ol>
+{% endblock %}
