@@ -1,15 +1,31 @@
 language: python
 python:
 - '3.5'
+cache:
+  pip: true
+  directories:
+  - downloads
+  - node_modules
+before_install:
+- npm i -g npm # required for use of `npm ci`
+- cp ci/testsettings.py mep/local_settings.py
+- python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
 install:
 - pip install -r requirements.txt
 - pip install -r dev-requirements.txt
 - pip install codecov
-- cp ci/testsettings.py mep/local_settings.py
-- python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
+- npm ci # installs from package-lock.json
+before_script:
+- npm run build:prod # compile static assets
+- mysql -u root -e "create database travismep"; # setup a test db for pa11y
+- mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
+- python manage.py migrate
+- python manage.py loaddata wagtail_pages # load test site and sample pages
+- python manage.py runserver --insecure &  # serve in background for pa11y
 script:
 - py.test --cov=mep
-sevices:
+- npm test
+services:
 - mysql
 after_success:
 - codecov

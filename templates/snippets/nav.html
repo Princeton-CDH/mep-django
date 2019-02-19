@@ -1,0 +1,58 @@
+{% load static wagtailcore_tags %}
+<nav id="main-nav" aria-label="header navigation">
+    <ul class="corners">
+        <li class="home square">
+            <a href="{% slugurl 'home' %}" aria-label="home">
+                <img src="{% static 'img/logo/SCo_logo_graphic.png' %}" alt="shakespeare & company">
+            </a>
+        </li>
+        <li class="menu square">
+            <a id="open-main-menu" href="#main-menu" role="button">
+                <img src="{% static 'img/icons/Menu.svg' %}" alt="open main menu">
+            </a>
+        </li>
+    </ul>
+    <ul id="main-menu" aria-label="primary navigation">
+        <li class="menu square">
+            <a id="close-main-menu" href="#" role="button">
+                <img src="{% static 'img/icons/Delete.svg' %}" alt="close main menu">
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'people:members-list' %}">
+                <span class="title">members</span>
+                <span class="subtitle">Explore the lending library membership.</span>
+            </a>
+        </li>
+        <li>
+            <a href="/cards">
+                <span class="title">lending library cards</span>
+                <span class="subtitle">Explore the extant lending library cards.</span>
+            </a>
+        </li>
+        <li>
+            <a href="/books">
+                <span class="title">books</span>
+                <span class="subtitle">Explore the lending library holdings.</span>
+            </a>
+        </li>
+        <li>
+            <a href="/analysis">
+                <span class="title">analysis</span>
+                <span class="subtitle">Analyze the Shakespeare and Company community.</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% slugurl 'sources' %}">
+                <span class="title">sources</span>
+                <span class="subtitle">Learn about the lending library cards and logbooks.</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% slugurl 'about' %}">
+                <span class="title">about</span>
+                <span class="subtitle">Learn about the Shakespeare and Company Project.</span>
+            </a>
+        </li>
+    </ul>
+</nav>

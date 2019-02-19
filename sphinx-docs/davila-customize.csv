@@ -12,10 +12,10 @@
 #These lines set the metadata for your diagram, the information will display in the top left corner, in bold
 
 #title|NAME OF DIAGRAM
-title|Mapping Expatriate Paris - Django (v0.3)
+title|Shakespeare and Company Project - Django (v0.10)
 
 #url|LOCATION OF PROJECT
-url|http://digitalhumanities.princeton.edu
+url|http://cdh.princeton.edu
 
 #creators|PEOPLE INVOLVED
 creators|Database design: Jean Bauer, Rebecca Koeser
@@ -36,10 +36,8 @@ module|footnotes|#9A68B7|footnotes_footnote
 module|people|#EF2E42|people_person
 module|django|#5B806B|django_content_type
 module|djiffy|#0EE1D1|djiffy_manifest
-module|mezzanine|#f46241|pages_page
-#module|organizational|#BFA778|organizations
-#module|correspondence|#888888|letters
-#module|places|#422E14|locations
+module|wagtail|#FF6600|wagtailcore_page
+module|pages|#993300|pages_homepage
 
 #This next line lets you license your diagram under the copyright(or copyleft) of your choice
 #The license will display in the bottom left corner
@@ -101,13 +99,23 @@ django_cas_ng_sessionticket|django|
 django_cas_ng_proxygrantingticket|django|
 django_session|django|
 django_site|django|
-pages_page|mezzanine|
-pages_link|mezzanine|
-generic_threadedcomment|mezzanine|
-pages_richtextpage|mezzanine|
-generic_rating|mezzanine|
-generic_keyword|mezzanine|
-generic_assignedkeyword|mezzanine|
-conf_setting|mezzanine|
-core_sitepermission|mezzanine|
-core_sitepermission_sites|mezzanine|
+taggit_tag|wagtail|
+taggit_taggeditem|wagtail|
+wagtailredirects_redirect|wagtail|
+wagtailcore_page|wagtail|
+wagtailcore_site|wagtail|
+wagtailcore_pagerevision|wagtail|
+wagtailcore_groupcollectionpermission|wagtail|
+wagtailcore_grouppagepermission|wagtail|
+wagtailcore_pageviewrestriction|wagtail|
+wagtailcore_pageviewrestriction_groups|wagtail|
+wagtailcore_collectionviewrestriction|wagtail|
+wagtailcore_collectionviewrestriction_groups|wagtail|
+wagtailimages_image|wagtail|
+wagtailimages_rendition|wagtail|
+wagtailusers_userprofile|wagtail|
+wagtailcore_collection|wagtail|
+wagtaildocs_document|wagtail|
+pages_homepage|pages|
+pages_landingpage|pages|
+pages_contentpage|pages|

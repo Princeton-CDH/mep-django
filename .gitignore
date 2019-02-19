@@ -10,6 +10,15 @@ dev.db
 .floo
 .flooignore
 
+# JS ignores
+node_modules/
+webpack-stats.json
+js/test/unit/coverage
+
+# Static files
+media/
+bundles/
+
 # stock python git-ignores provided by github
 
 # Byte-compiled / optimized / DLL files
@@ -51,6 +60,7 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+coverage/
 .coverage
 .coverage.*
 .cache

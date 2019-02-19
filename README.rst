@@ -14,7 +14,7 @@ was previously called "Mapping Expatriate Paris" or MEP).
 
 See the preliminary `project website <http://mep.princeton.edu/>`_ for more details.
 
-Python 3.5 / Django 1.11
+Python 3.5 / Django 1.11 / Node 10.5.0
 
 .. image:: https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=master
     :target: https://travis-ci.org/Princeton-CDH/mep-django
@@ -51,6 +51,16 @@ Initial setup and installation:
     pip install -r requirements.txt
     pip install -r dev-requirements.txt
 
+- npm install javascript dependencies::
+
+
+    npm install
+
+- compile static assets (css and javascript) with sourcemaps for development::
+
+
+    npm run build:qa
+
 - copy sample local settings and configure for your environment::
 
 
@@ -58,17 +68,42 @@ Initial setup and installation:
 
 Remember to add a ``SECRET_KEY`` setting!
 
+- optionally, you can populate the Wagtail CMS with stub pages for the main
+  navigation::
+
+
+    python manage.py setup_site_pages
+
 
 Note that the admin index page will not reflect some changes without a manual
 update - you will need to edit ``mep/dashboard.py`` to control the display and
 ordering of admin items. More information is available in the `django-admin-tools
 docs <http://django-admin-tools.readthedocs.io/en/latest/dashboard.html#>`_.
 
+If you make changes to js or scss files and need to rebuild static assets::
+
+
+    npm run build:qa
+
+This will compile and minify all assets to ``static/`` with sourcemaps.
+Alternatively, to run a production build without sourcemaps, you can use::
+
+    npm run build:prod
+
+Finally, for iterative frontend development, you can activate a webpack dev
+server with hot reload using::
+
+
+    npm start
+
+Switching between the webpack dev server and serving from ``static/`` requires a
+restart of your Django dev server to pick up the changed file paths.
+
 
 Unit Tests
 ----------
 
-Unit tests are written with `py.test <http://doc.pytest.org/>`__ but use
+Python unit tests are written with `py.test <http://doc.pytest.org/>`__ but use
 Django fixture loading and convenience testing methods when that makes
 things easier. To run them, first install development requirements::
 
@@ -78,11 +113,34 @@ Run tests using py.test::
 
     py.test
 
+Javascript unit tests are written with `jest <https://jestjs.io/>`__. To run
+them::
+
+    npm run test:unit
+
+
+Accessibility Tests
+-------------------
+
+Automated accessibility tests run in travis using `pa11y-ci <https://github.com/pa11y/pa11y-ci>`_.
+To run them locally, ensure that you have compiled frontend assets and a running
+server::
+
+    npm run build:prod
+    python manage.py runserver --insecure
+
+Then, run pa11y-ci to craw the sitemap and test for accessibility issues::
+
+    npm run test:a11y
+
+Running with ``DEBUG`` enabled will include the (inaccessible) Django
+debug toolbar, so you'll probably want to turn it off.
+
 Documentation
 -------------
 
 Documentation is generated using `sphinx <http://www.sphinx-doc.org/>`__
-To generate documentation them, first install development requirements::
+To generate documentation, first install development requirements::
 
     pip install -r dev-requirements.txt
 

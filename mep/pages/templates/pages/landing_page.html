@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{% include 'snippets/header.html' with title=page.title style=page.title|lower|add:' banner' %}
+{% endblock %}
+
+{% block content %}
+{% include 'pages/snippets/body.html' %}
+<section class="subpages">
+    {% for subpage in page.get_children %}
+    {% include 'pages/snippets/preview.html' with item=subpage %}
+    {% endfor %}
+</section>
+{% endblock %}
