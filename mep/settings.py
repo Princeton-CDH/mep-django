@@ -18,7 +18,7 @@ PROJECT_APP = os.path.basename(PROJECT_APP_PATH)
 PROJECT_ROOT = BASE_DIR = os.path.dirname(PROJECT_APP_PATH)
 
 # Default debug to False, override locally
-DEBUG = True
+DEBUG = False
 
 # Override in local settings, if using DEBUG = True locally, 'localhost'
 # and variations allowed
