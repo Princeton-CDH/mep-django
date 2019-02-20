@@ -1,5 +1,5 @@
-pytest>=3.6 # required for pytest-django
-pytest-django
+pytest>=4.2.1
+pytest-django>=3.4.7
 pytest-cov
 # note: pytest-sugar is optional but pretty
 pytest-sugar

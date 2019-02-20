@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
+from parasol.django import SolrClient, SolrQuerySet
 
 from mep.accounts.models import Event
 from mep.people.forms import PersonMergeForm
@@ -23,14 +24,24 @@ class MembersList(ListView):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
-    # pagination not yet designed
-    # paginate_by = 100
+    # pagination not yet designed; using 100000 to make sure we return all
+    # paginate_by = 10000
+    paginate_by = 50
     context_object_name = 'members'
 
     def get_queryset(self):
-        # limit to people with library accounts, do not include
-        # item creators who are not library members
-        return super().get_queryset().exclude(account=None)
+        sqs = SolrQuerySet().filter(item_type='person') \
+                            .order_by('sort_name_sort_s') \
+                            .only(name='name_t', sort_name='sort_name_t',
+                                  birth_year='birth_year_i', death_year='death_year_i',
+                                  account_start='account_start_i',
+                                  account_end='account_end_i',
+                                  has_card='has_card_b',
+                                  pk='pk_i')
+        # NOTE: using only / field limit to alias dynamic field names
+        # to something closer to model attribute names
+
+        return sqs
 
 
 class MemberDetail(DetailView):
