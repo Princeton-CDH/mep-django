@@ -100,6 +100,30 @@ Switching between the webpack dev server and serving from ``static/`` requires a
 restart of your Django dev server to pick up the changed file paths.
 
 
+You must also configure Solr and install the configSet found under ``solr_conf_sco``.
+If a core does not exist, and the configSet is installed correctly, an appropriate
+core will be made for you.
+
+To install the configSet::
+
+
+    (using root privileges)
+    cp -r solr_config_sco /path/to/solr/server/solr/configsets/
+    chown solr:solr -R /path/to/solr/server/solr/configsets/solr_config_sco
+
+You will need to configure Django to use the Solr instance in
+``local_settings.py``::
+
+
+    SOLR_CONNECTIONS = {
+        'default': {
+            'URL': 'http://localhost:8983/solr/',
+            'COLLECTION': 'scodev',
+            'CONFIGSET': 'solr_conf_sco'
+        }
+    }
+
+
 Unit Tests
 ----------
 
