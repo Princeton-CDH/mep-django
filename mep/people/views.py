@@ -25,8 +25,8 @@ class MembersList(ListView):
     model = Person
     template_name = 'people/member_list.html'
     # pagination not yet designed; using 100000 to make sure we return all
-    # paginate_by = 10000
-    paginate_by = 50
+    paginate_by = 10000
+    # paginate_by = 50
     context_object_name = 'members'
 
     def get_queryset(self):
