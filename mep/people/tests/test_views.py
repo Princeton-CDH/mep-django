@@ -1,23 +1,27 @@
 import json
 from datetime import date
+import time
 from unittest.mock import patch, Mock
 
-from django.contrib.messages import get_messages
 from django.contrib.auth.models import User, Permission
 from django.http import JsonResponse
 from django.template.defaultfilters import date as format_date
 from django.test import TestCase
 from django.urls import reverse, resolve
+from parasol.django import SolrClient
 
 from mep.accounts.models import Account, Address, Event, Subscription, \
     Reimbursement
+from mep.books.models import Item, CreatorType, Creator
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person, Relationship, \
     RelationshipType
 from mep.people.views import GeoNamesLookup, PersonMerge
-from mep.books.models import Item, CreatorType, Creator
+from mep.footnotes.models import Bibliography, SourceType
+
+
 
 
 class TestPeopleViews(TestCase):
@@ -557,8 +561,51 @@ class TestPersonMergeView(TestCase):
 
 
 class TestMembersListView(TestCase):
-    pass
-    # TODO write these tests once solr is set up to generate this page
+    fixtures = ['sample_people.json']
+
+    def test_list(self):
+        # fixture doesn't include any cards or events,
+        # so add some before indexing in Solr
+        card_member = Person.objects.filter(account__isnull=False).first()
+        account = card_member.account_set.first()
+        Subscription.objects.create(account=account, start_date=date(1942, 3, 4))
+        Subscription.objects.create(account=account, end_date=date(1950, 1, 1))
+
+        # create card and add to account
+        src_type = SourceType.objects.get_or_create(name='Lending Library Card')[0]
+        card = Bibliography.objects.create(bibliographic_note='A Library Card',
+                                           source_type=src_type)
+        account.card = card
+        account.save()
+
+        Person.index_items(Person.objects.all())
+        # give time for index to take effect
+        # commit changes
+        # solr = SolrClient()
+        # solr.update.index([], commit=True)
+        time.sleep(1)
+
+        url = reverse('people:members-list')
+        response = self.client.get(url)
+
+        # should display all library members in the database
+        members = Person.objects.filter(account__isnull=False)
+        assert response.context['members'].count() == members.count()
+        self.assertContains(response, '%d results' % members.count())
+        for person in members:
+            self.assertContains(response, person.sort_name)
+            self.assertContains(response, person.birth_year)
+            self.assertContains(response, person.death_year)
+            # should link to person detail page
+            self.assertContains(response, person.get_absolute_url())
+
+        # only card member has account dates and card
+        self.assertContains(response, account.earliest_date().year)
+        self.assertContains(response, account.last_date().year)
+
+        # 'has card' should only show up once
+        # NOTE: 'has card' text is provisional
+        self.assertContains(response, 'has card', count=1)
 
 
 class TestMemberDetailView(TestCase):
@@ -569,8 +616,8 @@ class TestMemberDetailView(TestCase):
         url = reverse('people:member-detail', kwargs={'pk': gay.pk})
         # create some events to check the account event date display
         account = gay.account_set.first()
-        account.add_event('borrow', **{'start_date': date(1934, 3, 4)})
-        account.add_event('borrow', **{'start_date': date(1941, 2, 3)})
+        account.add_event('borrow', start_date=date(1934, 3, 4))
+        account.add_event('borrow', start_date=date(1941, 2, 3))
         response = self.client.get(url)
         # check correct templates used & context passed
         self.assertTemplateUsed('member_detail.html')
