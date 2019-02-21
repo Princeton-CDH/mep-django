@@ -112,11 +112,15 @@ core will be made for you.
 To install the configSet::
 
 
-    (using root privileges)
+    (using root privileges for chown and permission as needed)
     cp -r solr_conf /path/to/solr/server/solr/configsets/sandco
     chown solr:solr -R /path/to/solr/server/solr/configsets/sandco
 
-You will need to configure Django to use the Solr instance in
+Note that this location will vary if your Solr instance has a separate data 
+folder. See ``DEPLOYNOTES`` for an example of that setup, which is commmon on 
+server installs of Solr.
+
+You will also need to configure Django to use the Solr instance in
 ``local_settings.py``::
 
 
