@@ -28,11 +28,14 @@ Deploy and Upgrade notes
 
 
      (locally)
-     scp -r mep-django/solr_config_sco solr-server:
+     scp -r mep-django/solr_config solr-server:sandco
      (on the server, as root)
-     # solr may also be located in /opt/solr
-     cp -r solr_config_sco /usr/local/solr/server/solr/configsets/
-     chown solr:solr -R /usr/local/solr/server/solr/configsets/solr_config_sco
+     # Both QA and production have separate data folders from
+     # the main Solr config where the conf must live. This uses the production
+     # location. (QA is /var/solr)
+     mkdir -p /var/lib/solr/data/configsets
+     cp -r sandco /var/lib/solr/data/configsets/
+     chown solr:solr -R /var/lib/solr/data/configsets/sandco
 
 
 0.6 Borrowing events and Title stubs
