@@ -150,7 +150,7 @@ class PersonQuerySet(models.QuerySet):
                         else:
                             # unlikely, but if we're merging two accounts with cards
                             # log a warning so we can track it down later if necessary
-                            logger.warn('Acount %s card %s association will be lost in merge',
+                            logger.warning('Acount %s card %s association will be lost in merge',
                                         account, account.card)
 
                     # if a merge person has an account, but the main person doesn't,
