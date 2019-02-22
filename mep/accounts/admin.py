@@ -68,7 +68,42 @@ class EventAdminForm(forms.ModelForm):
         }
         widgets = {
             'account': AUTOCOMPLETE['account'],
+            'item': AUTOCOMPLETE['item'],
         }
+
+
+class EventTypeListFilter(admin.SimpleListFilter):
+    '''Filter that for :class:`~mep.accounts.models.Event` that can distinguish
+    between event subtypes.
+    '''
+    # human-readable title for filter
+    title = 'Event Type'
+
+    # this gets used in the URL as a query param
+    parameter_name = 'person_type'
+
+    def lookups(self, request, model_admin):
+        # option tuples: left is query param name and right is human-readable name
+        return (
+            ('subscription', 'Subscription'),
+            ('reimbursement', 'Reimbursement'),
+            ('borrow', 'Borrow'),
+            ('purchase', 'Purchase'),
+            ('generic', 'Generic')
+        )
+
+    def queryset(self, request, queryset):
+        # filter the queryset based on the selected option
+        if self.value() == 'generic':
+            return queryset.filter(subscription__isnull=True,
+                                   reimbursement__isnull=True,
+                                   borrow__isnull=True,
+                                   purchase__isnull=True)
+        elif self.value():
+            return queryset.filter(**{'%s__isnull' % self.value(): False})
+
+        # otherwise return unfilterd
+        return queryset
 
 
 class EventAdmin(admin.ModelAdmin):
@@ -77,11 +112,16 @@ class EventAdmin(admin.ModelAdmin):
     model = Event
     form = EventAdminForm
     date_hierarchy = 'start_date'
-    fields = ('account', 'event_type', 'start_date', 'end_date', 'notes')
+    fields = ('account', 'event_type', 'start_date', 'end_date',
+              'item', 'notes')
     readonly_fields = ('event_type',)
-    list_display = ('account', 'event_type', 'start_date', 'end_date', 'notes')
+    list_display = ('account', 'event_type', 'start_date', 'end_date',
+                    'item', 'notes')
     search_fields = ('account__persons__name', 'account__persons__mep_id',
-                     'start_date', 'end_date', 'notes')
+                     'start_date', 'end_date', 'notes', 'item__title',
+                     'item__notes')
+    list_filter = (EventTypeListFilter, )
+    inlines = [OpenFootnoteInline]
 
 
 class SubscriptionAdminForm(forms.ModelForm):
@@ -370,10 +410,10 @@ class BorrowAdminListForm(forms.ModelForm):
 class BorrowAdmin(admin.ModelAdmin):
     form = BorrowAdminForm
     list_display = ('account', 'item', 'partial_start_date', 'partial_end_date',
-        'item_status', 'note_snippet')
+                    'item_status', 'note_snippet')
     date_hierarchy = 'start_date'
     search_fields = ('account__persons__name', 'account__persons__mep_id',
-        'notes', 'item__title', 'item__notes')
+                     'notes', 'item__title', 'item__notes')
     list_filter = ('item_status', 'item')
     list_editable = ('item_status',)
     fields = (
