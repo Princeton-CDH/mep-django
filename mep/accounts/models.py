@@ -220,6 +220,9 @@ class Event(Notable):
     account = models.ForeignKey(Account)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
+    #: Optional associated :class:`~mep.books.models.Item`
+    item = models.ForeignKey(Item, null=True, blank=True,
+        help_text='Item associated with this event, if any.')
 
     class Meta:
         # NOTE: ordering events by account person seems to be very slow
@@ -613,7 +616,6 @@ class Borrow(PartialDateMixin, Event):
     '''Inherited table indicating borrow events'''
     #: :class:`~mep.books.models.Item` that was borrowed;
     #: optional to account for unclear titles
-    item = models.ForeignKey(Item, null=True, blank=True)
     ITEM_RETURNED = 'R'
     ITEM_BOUGHT = 'B'
     ITEM_MISSING = 'M'
@@ -640,7 +642,6 @@ class Purchase(PartialDateMixin, CurrencyMixin, Event):
     '''Inherited table indicating purchase events; extends :class:`Event`'''
     price = models.DecimalField(max_digits=8, decimal_places=2,
         blank=True, null=True)
-    item = models.ForeignKey(Item)
     footnotes = GenericRelation(Footnote)
 
     def date(self):

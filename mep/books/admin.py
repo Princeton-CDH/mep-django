@@ -53,7 +53,7 @@ class ItemAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         '''Annotate the queryset with the number of borrows for sorting'''
         return super(ItemAdmin, self).get_queryset(request) \
-                                     .annotate(Count('borrow'))
+                                     .annotate(borrow_count=Count('event__borrow'))
 
     def borrow_count(self, obj):
         '''Display the borrow count as a link to view associated borrows'''
@@ -62,7 +62,7 @@ class ItemAdmin(admin.ModelAdmin):
             reverse('admin:accounts_borrow_changelist'), str(obj.id),
             # use the database annotation rather than the object property
             # for efficiency
-            obj.borrow__count
+            obj.borrow_count
         )
     # use the annotated queryset value to make the field sortable
     borrow_count.admin_order_field = 'borrow__count'
