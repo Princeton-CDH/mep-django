@@ -12,16 +12,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # migrations.RenameField(
-        #     model_name='borrow',
-        #     old_name='item',
-        #     new_name='old_item',
-        # ),
-        # migrations.RenameField(
-        #     model_name='borrow',
-        #     old_name='item',
-        #     new_name='old_item',
-        # ),
         migrations.RemoveField(
             model_name='purchase',
             name='item',
