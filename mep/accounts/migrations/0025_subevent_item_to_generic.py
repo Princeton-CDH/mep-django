@@ -38,12 +38,21 @@ def copy_items_from_generic_event(apps, schema_editor):
     Borrow = apps.get_model('accounts', 'Borrow')
     Purchase = apps.get_model('accounts', 'Purchase')
 
+    for borrow in Borrow.objects.filter(item__isnull=False):
+        borrow.item = borrow.generic_item
+        borrow.save()
+
+    for purchase in Purchase.objects.filter(item__isnull=False):
+        purchase.item = purchase.generic_item
+        purchase.save()
+
     # copy generic item back to item so we don't lose data
     # if we  migrate backwards too far
-    Borrow.objects.filter(generic_item__isnull=False) \
-          .update(item=models.F('generic_item'))
-    Purchase.objects.filter(generic_item__isnull=False) \
-          .update(item=models.F('generic_item'))
+    # NOTE: this doesn't work either
+    # Borrow.objects.filter(generic_item__isnull=False) \
+    #       .update(item=models.F('generic_item'))
+    # Purchase.objects.filter(generic_item__isnull=False) \
+    #       .update(item=models.F('generic_item'))
 
 
 class Migration(migrations.Migration):
