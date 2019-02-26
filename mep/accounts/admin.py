@@ -80,7 +80,7 @@ class EventTypeListFilter(admin.SimpleListFilter):
     title = 'Event Type'
 
     # this gets used in the URL as a query param
-    parameter_name = 'person_type'
+    parameter_name = 'event_type'
 
     def lookups(self, request, model_admin):
         # option tuples: left is query param name and right is human-readable name
@@ -99,7 +99,7 @@ class EventTypeListFilter(admin.SimpleListFilter):
                                    reimbursement__isnull=True,
                                    borrow__isnull=True,
                                    purchase__isnull=True)
-        elif self.value():
+        if self.value():
             return queryset.filter(**{'%s__isnull' % self.value(): False})
 
         # otherwise return unfilterd
