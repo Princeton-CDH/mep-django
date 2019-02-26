@@ -27,7 +27,7 @@ class TestItemAdmin(TestCase):
         )
         # with no borrows, borrow count annotations in queryset should be zero
         for item in qs:
-            assert item.borrow__count == 0
+            assert item.event__borrow__count == 0
         # francisque borrows "the kreutzer sonata" once
         Borrow(item=self.kreuzer_sonata, account=self.francisque_gay).save()
         # francisque borrows "exit eliza" twice
@@ -37,8 +37,8 @@ class TestItemAdmin(TestCase):
         qs = self.item_admin.get_queryset(
             self.client.get(reverse('admin:books_item_changelist')).request
         )
-        assert qs.get(pk=self.kreuzer_sonata.id).borrow__count == 1
-        assert qs.get(pk=self.exit_eliza.id).borrow__count == 2
+        assert qs.get(pk=self.kreuzer_sonata.id).event__borrow__count == 1
+        assert qs.get(pk=self.exit_eliza.id).event__borrow__count == 2
 
     def test_borrow_count(self):
         # get items via itemadmin queryset with borrow count annotation
