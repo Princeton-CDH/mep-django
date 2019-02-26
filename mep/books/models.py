@@ -105,7 +105,7 @@ class Item(Notable):
     @property
     def borrow_count(self):
         '''Number of times this item was borrowed.'''
-        return self.event_set(borrow__isnull=False).count()
+        return self.event_set.filter(borrow__isnull=False).count()
 
     def admin_url(self):
         '''URL to edit this record in the admin site'''
