@@ -1,6 +1,53 @@
+from dal import autocomplete
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+
+
+# predefine autocomplete lookups (most are used on more than one form)
+AUTOCOMPLETE = {
+    'person': autocomplete.ModelSelect2(url='people:autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for people...',
+            'data-minimum-input-length': 3,
+            'data-html': True
+        }
+    ),
+    'person-multiple': autocomplete.ModelSelect2Multiple(
+        url='people:autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for people...',
+            'data-minimum-input-length': 3,
+            'data-html': True
+        }
+    ),
+    'account': autocomplete.ModelSelect2(url='accounts:autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for account...',
+            'data-minimum-input-length': 3
+        }
+    ),
+    'location': autocomplete.ModelSelect2(url='people:location-autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for location... ',
+            'data-minimum-input-length': 3
+        }
+    ),
+    'item': autocomplete.ModelSelect2(url='books:item-autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for item... ',
+            'data-minimum-input-length': 3
+        }
+    ),
+    'bibliography': autocomplete.ModelSelect2(
+        url='footnotes:bibliography-autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for bibliography... ',
+        '   data-minimum-input-length': 3
+        }
+    ),
+}
+
 
 
 class NamedNotableAdmin(admin.ModelAdmin):
