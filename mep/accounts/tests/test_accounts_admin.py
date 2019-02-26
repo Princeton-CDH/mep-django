@@ -3,8 +3,10 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 
-from mep.accounts.models import Account, Subscription, Borrow, DatePrecision
-from mep.accounts.admin import SubscriptionAdminForm, BorrowAdminForm
+from mep.accounts.models import Account, Subscription, Borrow, DatePrecision, \
+    Event, Purchase, Reimbursement
+from mep.accounts.admin import SubscriptionAdminForm, BorrowAdminForm, \
+    EventAdmin, EventTypeListFilter
 
 
 class TestSubscriptionAdminForm(TestCase):
@@ -187,3 +189,32 @@ class TestPartialDateFormMixin(TestCase):
         assert borrow.start_date_precision == DatePrecision.year | DatePrecision.month | DatePrecision.day
         assert borrow.end_date == datetime.date(1900, 5, 3)
         assert borrow.end_date_precision == DatePrecision.month | DatePrecision.day
+
+
+
+class TestEventTypeListFilter(TestCase):
+
+    def test_queryset(self):
+        # create test events
+        acct = Account.objects.create()
+        acct.save()
+        # create one event of each type to test with
+        event_types = {
+            'subscription': Subscription.objects.create(account=acct),
+            'reimbursement': Reimbursement.objects.create(account=acct),
+            'borrow': Borrow.objects.create(account=acct),
+            'purchase': Purchase.objects.create(account=acct),
+            'generic': Event.objects.create(account=acct)
+        }
+
+        for event_type, event_obj in event_types.items():
+            # create event type filter for requested event type
+            efilter = EventTypeListFilter(None, {'event_type': event_type}, Event, EventAdmin)
+            qs = efilter.queryset(None, Event.objects.all())
+            assert qs.count() == 1
+            # generic event *is* an event object
+            if event_type == 'generic':
+                assert event_obj  in qs
+            # everything else is a subclass with a pointer to event
+            else:
+                assert event_obj.event_ptr in qs
