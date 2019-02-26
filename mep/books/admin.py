@@ -7,9 +7,8 @@ from django.utils.html import format_html
 from django.utils.timezone import now
 from tabular_export.admin import export_to_csv_response
 
-from mep.accounts.admin import AUTOCOMPLETE
 from mep.books.models import Creator, CreatorType, Item
-from mep.common.admin import CollapsibleTabularInline
+from mep.common.admin import AUTOCOMPLETE, CollapsibleTabularInline
 
 
 class ItemCreatorInlineForm(forms.ModelForm):
