@@ -18,9 +18,16 @@ def copy_items_to_generic_event(apps, schema_editor):
         borrow.generic_item = borrow.item
         borrow.save()
 
+        assert Borrow.objects.filter(item__isnull=False).count() == \
+            Borrow.objects.filter(generic_item__isnull=False).count()
+
     for purchase in Purchase.objects.filter(item__isnull=False):
         purchase.generic_item = purchase.item
         purchase.save()
+
+        assert Purchase.objects.filter(item__isnull=False).count() == \
+            Purchase.objects.filter(generic_item__isnull=False).count()
+
 
     # NOTE: should be possible to use update with a field reference,
     # but django complains that it can't resolve 'item' into a field
