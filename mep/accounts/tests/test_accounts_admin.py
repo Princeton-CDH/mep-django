@@ -218,3 +218,8 @@ class TestEventTypeListFilter(TestCase):
             # everything else is a subclass with a pointer to event
             else:
                 assert event_obj.event_ptr in qs
+
+        # unfiltered
+        efilter = EventTypeListFilter(None, {}, Event, EventAdmin)
+        assert efilter.queryset(None, Event.objects.all()).count() == \
+            len(event_types)
