@@ -18,6 +18,7 @@ js/test/unit/coverage
 # Static files
 media/
 bundles/
+sitemedia/fonts/
 
 # stock python git-ignores provided by github
 
