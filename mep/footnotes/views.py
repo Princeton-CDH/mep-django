@@ -10,6 +10,4 @@ class BibliographyAutocomplete(autocomplete.Select2QuerySetView):
         '''Get a queryset filtered by query string.
         Filters on :class:`~mep.footnotes.models.Bibliography`.bibliographic_note.
         '''
-        return Bibliography.objects\
-                .filter(bibliographic_note__icontains=self.q)\
-                .order_by('bibliographic_note')
+        return Bibliography.objects.filter(bibliographic_note__icontains=self.q)

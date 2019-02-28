@@ -21,6 +21,7 @@ class Bibliography(Notable):  # would citation be a better singular?
 
     class Meta:
         verbose_name_plural = 'Bibliographies'
+        ordering = ('bibliographic_note',)
 
     def __str__(self):
         return self.bibliographic_note
