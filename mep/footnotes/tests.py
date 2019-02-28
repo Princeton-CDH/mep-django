@@ -1,6 +1,6 @@
-from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
-
+from django.test import TestCase
+from django.urls import reverse
 
 from .models import SourceType, Bibliography, Footnote
 
@@ -53,4 +53,45 @@ class TestFootnote(TestCase):
         assert '(%s)' % bibl in str(fn)
         fn.location = 'http://so.me/url/'
         assert '(%s %s)' % (bibl, fn.location) in str(fn)
+
+
+class TestBibliographyAutocomplete(TestCase):
+
+    def test_bibliography_autocomplete(self):
+
+        url = reverse('footnotes:bibliography-autocomplete')
+        res = self.client.get(url)
+
+        # getting the view returns 200
+        assert res.status_code == 200
+        data = res.json()
+        # there is a results list in the JSON
+        assert 'results' in data
+        # it is empty because there are no accounts or query
+        assert not data['results']
+
+        # - test search and sort
+        source_type = SourceType.objects.create(name='card')
+        bib1 = Bibliography.objects.create(
+            source_type=source_type,
+            bibliographic_note='Found in a box with some foobars.'
+        )
+        bib2 = Bibliography.objects.create(
+            source_type=source_type,
+            bibliographic_note='The private collection of Mr. Baz'
+        )
+        # return all
+        res = self.client.get(url)
+        data = res.json()
+        assert res.status_code == 200
+        assert 'results' in data
+        assert len(data['results']) == 2
+        assert data['results'][0]['text'] == str(bib1)
+
+        # return one based on search
+        data = self.client.get(url, {'q': 'baz'}).json()
+        assert res.status_code == 200
+        assert 'results' in data
+        assert len(data['results']) == 1
+        assert data['results'][0]['text'] == str(bib2)
 

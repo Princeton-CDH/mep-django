@@ -1,11 +1,29 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
 
-from mep.common.admin import NamedNotableAdmin
+from dal import autocomplete
+
+from mep.common.admin import AUTOCOMPLETE, NamedNotableAdmin
 from .models import SourceType, Bibliography, Footnote
 
 
+class FootnoteAdminForm(forms.ModelForm):
+    class Meta:
+        model = Footnote
+        fields = ('__all__')
+        widgets = {
+            'bibliography': autocomplete.ModelSelect2(
+                url='footnotes:bibliography-autocomplete',
+                attrs={
+                    'data-placeholder': 'Type to search for bibliography... ',
+                    'data-minimum-input-length': 3
+                }
+            ),
+        }
+
 class FootnoteAdmin(admin.ModelAdmin):
+    form = FootnoteAdminForm
     list_display = ('content_object', 'bibliography', 'location', 'is_agree')
     list_filter = ('bibliography__source_type', 'content_type')
     CONTENT_LOOKUP_HELP = '''Select the kind of record you want to attach
@@ -28,6 +46,7 @@ class FootnoteAdmin(admin.ModelAdmin):
 
 class FootnoteInline(GenericTabularInline):
     model = Footnote
+    form = FootnoteAdminForm
     classes = ('grp-collapse grp-closed', )  # grapelli collapsible
     fields = ('bibliography', 'location', 'snippet_text', 'is_agree', 'notes')
     extra = 1

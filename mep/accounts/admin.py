@@ -11,7 +11,6 @@ from mep.accounts.models import Account, Address, Subscription,\
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 from mep.footnotes.admin import FootnoteInline
 
-
 # predefine autocomplete lookups (most are used on more than one form)
 AUTOCOMPLETE = {
     'person': autocomplete.ModelSelect2(url='people:autocomplete',
