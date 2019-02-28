@@ -8,10 +8,45 @@ from django.core.validators import RegexValidator, ValidationError
 
 from mep.accounts.models import Account, Address, Subscription,\
     Reimbursement, Event, SubscriptionType, Borrow, PartialDate, Purchase
-from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline, AUTOCOMPLETE
+from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 from mep.footnotes.admin import FootnoteInline
 
-
+# predefine autocomplete lookups (most are used on more than one form)
+AUTOCOMPLETE = {
+    'person': autocomplete.ModelSelect2(url='people:autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for people...',
+            'data-minimum-input-length': 3,
+            'data-html': True
+        }
+    ),
+    'person-multiple': autocomplete.ModelSelect2Multiple(
+        url='people:autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for people...',
+            'data-minimum-input-length': 3,
+            'data-html': True
+        }
+    ),
+    'account': autocomplete.ModelSelect2(url='accounts:autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for account...',
+            'data-minimum-input-length': 3
+        }
+    ),
+    'location': autocomplete.ModelSelect2(url='people:location-autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for location... ',
+            'data-minimum-input-length': 3
+        }
+    ),
+    'item': autocomplete.ModelSelect2(url='books:item-autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for item... ',
+            'data-minimum-input-length': 3
+        }
+    ),
+}
 
 
 class OpenFootnoteInline(FootnoteInline):

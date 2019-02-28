@@ -13,10 +13,17 @@ class FootnoteAdminForm(forms.ModelForm):
         model = Footnote
         fields = ('__all__')
         widgets = {
-            'bibliography': AUTOCOMPLETE['bibliography'],
+            'bibliography': autocomplete.ModelSelect2(
+                url='footnotes:bibliography-autocomplete',
+                attrs={
+                    'data-placeholder': 'Type to search for bibliography... ',
+                    'data-minimum-input-length': 3
+                }
+            ),
         }
 
 class FootnoteAdmin(admin.ModelAdmin):
+    form = FootnoteAdminForm
     list_display = ('content_object', 'bibliography', 'location', 'is_agree')
     list_filter = ('bibliography__source_type', 'content_type')
     CONTENT_LOOKUP_HELP = '''Select the kind of record you want to attach
