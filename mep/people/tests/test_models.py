@@ -140,7 +140,7 @@ class TestPerson(TestCase):
         acct.save()
         assert pers.has_account()
 
-    def test_subscription_list(self):
+    def test_subscription_dates(self):
         pers = Person.objects.create(name='Foo')
         acc = Account.objects.create()
         acc.persons.add(pers)
@@ -153,8 +153,8 @@ class TestPerson(TestCase):
             start_date=date(1950, 2, 10),
             account=acc
         )
-        assert pers.subscription_list() == '; '.join(s.date_range
-                                                     for s in [sub1, sub2])
+        assert pers.subscription_dates() == '; '.join(s.date_range
+                                                      for s in [sub1, sub2])
 
     def test_is_creator(self):
         # create a person

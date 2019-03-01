@@ -228,7 +228,7 @@ class PersonAdmin(admin.ModelAdmin):
     export_fields = [
         'id', 'name', 'sort_name', 'mep_id', 'birth_year', 'death_year',
         'sex', 'title', 'profession', 'is_organization', 'is_creator', 'has_account',
-        'in_logbooks', 'has_card', 'subscription_list',
+        'in_logbooks', 'has_card', 'subscription_dates',
         'verified', 'updated_at', 'admin_url']
 
     def csv_filename(self):
@@ -238,7 +238,8 @@ class PersonAdmin(admin.ModelAdmin):
     def tabulate_queryset(self, queryset):
         '''Generator for data in tabular form, including custom fields'''
         prefetched = queryset.\
-            prefetch_related('account_set', 'creator_set').\
+            prefetch_related('account_set', 'creator_set',
+                             'account_set__event_set', 'account_set__event_set__subscription').\
             select_related('profession')
         for person in prefetched:
             # retrieve values for configured export fields; if the attribute

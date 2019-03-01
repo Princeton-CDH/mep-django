@@ -70,7 +70,7 @@ class TestPersonAdmin(TestCase):
             assert person.is_creator() in person_data
             assert person.has_account() in person_data
             assert person.admin_url() in person_data
-            assert person.subscription_list() in person_data
+            assert person.subscription_dates() in person_data
 
     @patch('mep.people.admin.export_to_csv_response')
     def test_export_csv(self, mock_export_to_csv_response):

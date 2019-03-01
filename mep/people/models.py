@@ -350,13 +350,13 @@ class Person(Notable, DateRange, Indexable):
         return self.account_set.exists()
     has_account.boolean = True
 
-    def subscription_list(self):
+    def subscription_dates(self):
         '''Return a semi-colon separated list of
         :class:`mep.accounts.models.Subscription` instances associated with
         this person's account(s).'''
 
         if self.account_set.exists():
-            subscriptions = self.account_set.first().subscription_set
+            subscriptions = self.account_set.first().event_set.subscriptions()
             # NOTE: This will return unknown year events first, followed by
             # actual years since presumably all correct years will follow 1900
             # as the value for UNKNOWN_YEAR
