@@ -223,6 +223,7 @@ class Event(Notable):
     #: Optional associated :class:`~mep.books.models.Item`
     item = models.ForeignKey(Item, null=True, blank=True,
         help_text='Item associated with this event, if any.')
+    footnotes = GenericRelation(Footnote)
 
     class Meta:
         # NOTE: ordering events by account person seems to be very slow
