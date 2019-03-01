@@ -26,6 +26,7 @@ class FootnoteAdmin(admin.ModelAdmin):
     form = FootnoteAdminForm
     list_display = ('content_object', 'bibliography', 'location', 'is_agree')
     list_filter = ('bibliography__source_type', 'content_type')
+    search_fields = ('bibliography__bibliographic_note', 'location', 'notes')
     CONTENT_LOOKUP_HELP = '''Select the kind of record you want to attach
     a footnote to, and then use the object id search button to select an item.'''
     fieldsets = [
