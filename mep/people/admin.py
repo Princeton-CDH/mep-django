@@ -237,7 +237,10 @@ class PersonAdmin(admin.ModelAdmin):
 
     def tabulate_queryset(self, queryset):
         '''Generator for data in tabular form, including custom fields'''
-        for person in queryset.prefetch_related( 'account_set'):
+        prefetched = queryset.\
+            prefetch_related('account_set', 'creator_set').\
+            select_related('profession')
+        for person in prefetched:
             # retrieve values for configured export fields; if the attribute
             # is a callable (i.e., a custom property method), call it
             yield [value() if callable(value) else value
