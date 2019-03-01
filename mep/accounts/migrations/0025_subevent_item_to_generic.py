@@ -14,19 +14,19 @@ def copy_items_to_generic_event(apps, schema_editor):
     Purchase = apps.get_model('accounts', 'Purchase')
 
     # update generic item to use the value of item
-    for borrow in Borrow.objects.filter(item__isnull=False):
+    for borrow in Borrow.objects.filter(item__isnull=False).iterator():
         borrow.generic_item = borrow.item
         borrow.save()
 
-        assert Borrow.objects.filter(item__isnull=False).count() == \
-            Borrow.objects.filter(generic_item__isnull=False).count()
+    assert Borrow.objects.filter(item__isnull=False).count() == \
+        Borrow.objects.filter(generic_item__isnull=False).count()
 
     for purchase in Purchase.objects.filter(item__isnull=False):
         purchase.generic_item = purchase.item
         purchase.save()
 
-        assert Purchase.objects.filter(item__isnull=False).count() == \
-            Purchase.objects.filter(generic_item__isnull=False).count()
+    assert Purchase.objects.filter(item__isnull=False).count() == \
+        Purchase.objects.filter(generic_item__isnull=False).count()
 
 
     # NOTE: should be possible to use update with a field reference,
