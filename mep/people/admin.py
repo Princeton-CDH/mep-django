@@ -228,7 +228,8 @@ class PersonAdmin(admin.ModelAdmin):
     export_fields = [
         'id', 'name', 'sort_name', 'mep_id', 'birth_year', 'death_year',
         'sex', 'title', 'profession', 'is_organization', 'is_creator', 'has_account',
-        'in_logbooks', 'has_card', 'verified', 'updated_at', 'admin_url']
+        'in_logbooks', 'has_card', 'subscription_list',
+        'verified', 'updated_at', 'admin_url']
 
     def csv_filename(self):
         '''Generate filename for CSV download'''
@@ -236,7 +237,10 @@ class PersonAdmin(admin.ModelAdmin):
 
     def tabulate_queryset(self, queryset):
         '''Generator for data in tabular form, including custom fields'''
-        for person in queryset.prefetch_related('account_set'):
+        prefetched = queryset.\
+            prefetch_related('account_set', 'creator_set').\
+            select_related('profession')
+        for person in prefetched:
             # retrieve values for configured export fields; if the attribute
             # is a callable (i.e., a custom property method), call it
             yield [value() if callable(value) else value

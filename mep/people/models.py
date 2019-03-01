@@ -350,6 +350,20 @@ class Person(Notable, DateRange, Indexable):
         return self.account_set.exists()
     has_account.boolean = True
 
+    def subscription_list(self):
+        '''Return a semi-colon separated list of
+        :class:`mep.accounts.models.Subscription` instances associated with
+        this person's account(s).'''
+
+        if self.account_set.exists():
+            subscriptions = self.account_set.first().subscription_set
+            # NOTE: This will return unknown year events first, followed by
+            # actual years since presumably all correct years will follow 1900
+            # as the value for UNKNOWN_YEAR
+            return '; '.join([sub.date_range for sub in
+                                subscriptions.order_by('start_date')])
+        return ''
+
     def is_creator(self):
         '''Return whether this person is a :class:`mep.books.models.Creator` of an :class:`mep.books.models.Item` .'''
         return self.creator_set.exists()
