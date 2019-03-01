@@ -215,6 +215,38 @@ class Address(Notable):
             raise ValidationError('Address must only be associated with one of account or person')
 
 
+class EventQuerySet(models.QuerySet):
+    '''Custom :class:`~django.db.models.Queryset` for :class:`Event`
+    with filter methods for generic events and each event subtype.'''
+
+    def generic(self):
+        '''Generic events only (excludes subscriptions, reimbursements,
+        borrows, and purchases).'''
+        return self.filter(subscription__isnull=True,
+                               reimbursement__isnull=True,
+                               borrow__isnull=True,
+                               purchase__isnull=True)
+
+    def _subtype(self, event_type):
+        return self.filter(**{'%s__isnull' % event_type: False})
+
+    def subscriptions(self):
+        '''Events with associated subscription event only'''
+        return self._subtype('subscription')
+
+    def reimbursements(self,):
+        '''Events with associated reimbursement event only'''
+        return self._subtype('reimbursement')
+
+    def borrows(self):
+        '''Events with associated borrow event only'''
+        return self._subtype('borrow')
+
+    def purchases(self):
+        '''Events with associated purchase event only'''
+        return self._subtype('purchase')
+
+
 class Event(Notable):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
     account = models.ForeignKey(Account)
@@ -222,8 +254,10 @@ class Event(Notable):
     end_date = models.DateField(blank=True, null=True)
     #: Optional associated :class:`~mep.books.models.Item`
     item = models.ForeignKey(Item, null=True, blank=True,
-        help_text='Item associated with this event, if any.')
+                             help_text='Item associated with this event, if any.')
     event_footnotes = GenericRelation(Footnote)
+
+    objects = EventQuerySet.as_manager()
 
     class Meta:
         # NOTE: ordering events by account person seems to be very slow

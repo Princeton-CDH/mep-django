@@ -95,12 +95,11 @@ class EventTypeListFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         # filter the queryset based on the selected option
         if self.value() == 'generic':
-            return queryset.filter(subscription__isnull=True,
-                                   reimbursement__isnull=True,
-                                   borrow__isnull=True,
-                                   purchase__isnull=True)
+            return queryset.generic()
         if self.value():
-            return queryset.filter(**{'%s__isnull' % self.value(): False})
+            # call the queryset filter method for the requested type
+            # filter is named for event type + s
+            return getattr(queryset, '%ss' % self.value())()
 
         # otherwise return unfilterd
         return queryset
