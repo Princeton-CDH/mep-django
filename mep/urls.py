@@ -14,6 +14,7 @@ from wagtail.documents import urls as wagtaildocs_urls
 from mep.accounts import urls as accounts_urls
 from mep.books import urls as books_urls
 from mep.people import urls as people_urls
+from mep.footnotes import urls as footnote_urls
 
 # sitemap configuration for sections of the site
 SITEMAPS = {
@@ -31,6 +32,7 @@ urlpatterns = [
     url(r'^', include(people_urls, namespace='people')),
     url(r'^', include(accounts_urls, namespace='accounts')),
     url(r'^', include(books_urls, namespace='books')),
+    url(r'^', include(footnote_urls, namespace='footnotes')),
 
     # sitemaps
     url(r'^sitemap\.xml$', sitemap_views.index, {'sitemaps': SITEMAPS},

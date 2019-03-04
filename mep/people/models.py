@@ -150,8 +150,8 @@ class PersonQuerySet(models.QuerySet):
                         else:
                             # unlikely, but if we're merging two accounts with cards
                             # log a warning so we can track it down later if necessary
-                            logger.warn('Acount %s card %s association will be lost in merge',
-                                        account, account.card)
+                            logger.warning('Account %s card %s association will be lost in merge',
+                                            account, account.card)
 
                     # if a merge person has an account, but the main person doesn't,
                     # swap the account's owner to the main person
@@ -349,6 +349,20 @@ class Person(Notable, DateRange, Indexable):
         '''Return whether an instance of :class:`mep.accounts.models.Account` exists for this person.'''
         return self.account_set.exists()
     has_account.boolean = True
+
+    def subscription_dates(self):
+        '''Return a semi-colon separated list of
+        :class:`mep.accounts.models.Subscription` instances associated with
+        this person's account(s).'''
+
+        if self.account_set.exists():
+            subscriptions = self.account_set.first().event_set.subscriptions()
+            # NOTE: This will return unknown year events first, followed by
+            # actual years since presumably all correct years will follow 1900
+            # as the value for UNKNOWN_YEAR
+            return '; '.join([sub.date_range for sub in
+                                subscriptions.order_by('start_date')])
+        return ''
 
     def is_creator(self):
         '''Return whether this person is a :class:`mep.books.models.Creator` of an :class:`mep.books.models.Item` .'''

@@ -215,11 +215,49 @@ class Address(Notable):
             raise ValidationError('Address must only be associated with one of account or person')
 
 
+class EventQuerySet(models.QuerySet):
+    '''Custom :class:`~django.db.models.Queryset` for :class:`Event`
+    with filter methods for generic events and each event subtype.'''
+
+    def generic(self):
+        '''Generic events only (excludes subscriptions, reimbursements,
+        borrows, and purchases).'''
+        return self.filter(subscription__isnull=True,
+                               reimbursement__isnull=True,
+                               borrow__isnull=True,
+                               purchase__isnull=True)
+
+    def _subtype(self, event_type):
+        return self.filter(**{'%s__isnull' % event_type: False})
+
+    def subscriptions(self):
+        '''Events with associated subscription event only'''
+        return self._subtype('subscription')
+
+    def reimbursements(self,):
+        '''Events with associated reimbursement event only'''
+        return self._subtype('reimbursement')
+
+    def borrows(self):
+        '''Events with associated borrow event only'''
+        return self._subtype('borrow')
+
+    def purchases(self):
+        '''Events with associated purchase event only'''
+        return self._subtype('purchase')
+
+
 class Event(Notable):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
     account = models.ForeignKey(Account)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
+    #: Optional associated :class:`~mep.books.models.Item`
+    item = models.ForeignKey(Item, null=True, blank=True,
+                             help_text='Item associated with this event, if any.')
+    event_footnotes = GenericRelation(Footnote)
+
+    objects = EventQuerySet.as_manager()
 
     class Meta:
         # NOTE: ordering events by account person seems to be very slow
@@ -613,7 +651,6 @@ class Borrow(PartialDateMixin, Event):
     '''Inherited table indicating borrow events'''
     #: :class:`~mep.books.models.Item` that was borrowed;
     #: optional to account for unclear titles
-    item = models.ForeignKey(Item, null=True, blank=True)
     ITEM_RETURNED = 'R'
     ITEM_BOUGHT = 'B'
     ITEM_MISSING = 'M'
@@ -640,7 +677,6 @@ class Purchase(PartialDateMixin, CurrencyMixin, Event):
     '''Inherited table indicating purchase events; extends :class:`Event`'''
     price = models.DecimalField(max_digits=8, decimal_places=2,
         blank=True, null=True)
-    item = models.ForeignKey(Item)
     footnotes = GenericRelation(Footnote)
 
     def date(self):

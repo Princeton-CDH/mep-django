@@ -1,5 +1,6 @@
 import datetime
 import re
+from datetime import date
 from unittest.mock import patch
 
 import pytest
@@ -138,6 +139,22 @@ class TestPerson(TestCase):
         acct.persons.add(pers)
         acct.save()
         assert pers.has_account()
+
+    def test_subscription_dates(self):
+        pers = Person.objects.create(name='Foo')
+        acc = Account.objects.create()
+        acc.persons.add(pers)
+        sub1 = Subscription.objects.create(
+            start_date=date(1950, 1, 5),
+            end_date=date(1950, 1, 8),
+            account=acc
+        )
+        sub2 = Subscription.objects.create(
+            start_date=date(1950, 2, 10),
+            account=acc
+        )
+        assert pers.subscription_dates() == '; '.join(s.date_range
+                                                      for s in [sub1, sub2])
 
     def test_is_creator(self):
         # create a person

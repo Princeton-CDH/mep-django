@@ -385,6 +385,45 @@ class TestEvent(TestCase):
         assert purchase.event_ptr.event_type == 'Purchase'
 
 
+class TestEventQuerySet(TestCase):
+
+    def setUp(self):
+        # create account with test events
+        acct = Account.objects.create()
+        # create one event of each type to test with
+        self.event_types = {
+            'subscription': Subscription.objects.create(account=acct),
+            'reimbursement': Reimbursement.objects.create(account=acct),
+            'borrow': Borrow.objects.create(account=acct),
+            'purchase': Purchase.objects.create(account=acct),
+            'generic': Event.objects.create(account=acct)
+        }
+
+    def test_generic(self):
+        assert Event.objects.generic().count() == 1
+        assert self.event_types['generic'] in Event.objects.generic()
+
+    def test_subscriptions(self):
+        assert Event.objects.subscriptions().count() == 1
+        assert self.event_types['subscription'].event_ptr in \
+            Event.objects.subscriptions()
+
+    def test_reimbursements(self):
+        assert Event.objects.reimbursements().count() == 1
+        assert self.event_types['reimbursement'].event_ptr in \
+            Event.objects.reimbursements()
+
+    def test_borrows(self):
+        assert Event.objects.borrows().count() == 1
+        assert self.event_types['borrow'].event_ptr in \
+            Event.objects.borrows()
+
+    def test_purchases(self):
+        assert Event.objects.purchases().count() == 1
+        assert self.event_types['purchase'].event_ptr in \
+            Event.objects.purchases()
+
+
 class TestSubscription(TestCase):
 
     def setUp(self):
