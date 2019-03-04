@@ -17,7 +17,7 @@
 {% block content %}
 <p>{{ members.count|intcomma }} result{{ members.count|pluralize }} –
    displaying {{ page_obj.start_index }} - {{ page_obj.end_index }}</p>
-<ol start="{{ page_obj.start_index }}">
+<ol class="members results-list" start="{{ page_obj.start_index }}">
     {% for person in members %}
         {% include 'people/snippets/member_result.html' with member=person %}
     {% endfor %}

@@ -1,0 +1,23 @@
+<li class="members result">
+    <a href="{% url 'people:member-detail' pk=member.pk %}" title="{{ member.sort_name.0 }}">
+    <span class="name">{{ member.sort_name.0 }}</span>
+    {% if member.birth_year or member.death_year %}
+    <span class="dates">
+        {{ member.birth_year|default:'' }} - {{ member.death_year|default:'' }}
+    </span>
+    {% endif %}
+    {% if member.account_start or member.account_end %}
+        <div class="account-dates">
+            <dt>Account Dates</dt>
+            <dd>{{ member.account_start|default:'' }}
+            {% if member.account_start != member.account_end %}- {{ member.account_end|default:'' }}
+            {% endif %}
+            </dd>
+        </div>
+    {% endif %}
+    <span class="see-more">See more details ▶</span>
+    {% comment %} {% if member.has_card %}
+    <p>has card</p>
+    {% endif %} {% endcomment %}
+    </a>
+</li>

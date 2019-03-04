@@ -1,5 +1,5 @@
 article.main {
-    @include text-container;
+    @include flex-container;
     padding: 1.5rem 0;
 
     @media (min-width: $breakpoint-s) {

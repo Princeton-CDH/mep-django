@@ -1,0 +1,51 @@
+.members.result {
+    border-bottom: 1px solid $white-two;
+    padding: 1rem 0;
+
+    a {
+        display: flex;
+        flex-flow: column nowrap;
+        width: 100%;
+        height: 100%;
+        border: none;
+
+        @media (min-width: $breakpoint-s) {
+            width: auto;
+            padding-left: calc((100% - 500px) / 2);
+            padding-right: calc((100% - 500px) / 2);
+        }
+    }
+
+    .name {
+        font-family: $serif;
+        font-size: 1rem;
+    }
+
+    .dates {
+        font-size: 0.8rem;
+        // margin-top: 0.25rem;
+    }
+    
+    .account-dates {
+        align-self: flex-end;
+        
+        dt {
+            // margin-bottom: .25rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        dd {
+            font-size: 0.8rem;
+            text-align: right;
+        }
+    }
+
+    .see-more {
+        margin-top: .5rem;
+        align-self: flex-end;
+        color: $dark-green;
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+}
