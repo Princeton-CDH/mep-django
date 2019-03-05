@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'dal',
     'dal_select2',
     'viapy',
-    'parasol',
+    'parasolr',
     'webpack_loader',
     'wagtail.sites',
     'wagtail.users',

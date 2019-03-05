@@ -1,4 +1,4 @@
-from parasol import schema
+from parasolr import schema
 
 
 class SolrSchema(schema.SolrSchema):

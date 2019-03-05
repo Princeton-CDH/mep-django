@@ -6,7 +6,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
-from parasol.indexing import Indexable
+from parasolr.indexing import Indexable
 from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
