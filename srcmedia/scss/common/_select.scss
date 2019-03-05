@@ -1,0 +1,15 @@
+select {
+    position: relative;
+    appearance: none;
+    font-family: $sans;
+    font-size: 0.7rem;
+    padding: 8px 8px 5px;
+    border: none;
+    box-shadow: 0 2px 4px 0 rgba(106, 106, 106, 0.5);
+    background: white;
+    border-radius: 0;
+
+    option {
+        color: black;
+    }
+}

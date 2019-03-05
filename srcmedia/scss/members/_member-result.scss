@@ -24,7 +24,7 @@ $result-width: 500px;
     }
 
     .counter::after {
-        content:counter(results);
+        content: counter(results);
         font-size: 0.8rem;
         margin-right: 0.5rem;
     }

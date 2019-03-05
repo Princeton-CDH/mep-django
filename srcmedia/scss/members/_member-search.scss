@@ -1,4 +1,6 @@
 .members.search-form {
+    @include padding-container;
+
     height: 3rem;
     background: $white;
     display: flex;
@@ -13,11 +15,18 @@
 }
 
 .members.sort-pages {
-    height: 4rem;
+    @include flex-container;
+
+    height: 6rem;
     display: flex;
     flex-flow: row wrap;
-    justify-content: space-evenly;
+    justify-content: flex-end;
     align-items: center;
+
+    @media (min-width: $breakpoint-s) {
+        height: 4rem;
+        justify-content: space-evenly
+    }
 
     label {
         font-size: 0.7rem;
@@ -25,6 +34,14 @@
 
     select {
         margin-left: 0.5rem;
+    }
+
+    .sort {
+        width: 7.5rem;
+    }
+
+    .pagination {
+        width: 5rem;
     }
 }
 
