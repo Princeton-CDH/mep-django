@@ -13,3 +13,17 @@ select {
         color: black;
     }
 }
+
+label > select + .dropdown.icon {
+    width: .75rem;
+    height: .5rem;
+    position: absolute;
+    right: .5rem;
+    top: calc(50% - .25rem);
+    filter: invert(100%);
+    transition: all 0.2s;
+}
+
+label:target > select + .dropdown.icon {
+    transform: rotate(180deg);
+}

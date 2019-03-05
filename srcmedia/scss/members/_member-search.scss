@@ -15,9 +15,8 @@
 }
 
 .members.sort-pages {
-    @include flex-container;
-
     height: 6rem;
+    margin: 0 $gutter-xs;
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-end;
@@ -25,7 +24,9 @@
 
     @media (min-width: $breakpoint-s) {
         height: 4rem;
-        justify-content: space-evenly
+        width: $members-result-width;
+        margin: 0 auto;
+        justify-content: space-between;
     }
 
     label {
