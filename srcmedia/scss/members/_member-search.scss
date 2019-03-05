@@ -1,3 +1,33 @@
+.members.search-form {
+    height: 3rem;
+    background: $white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .total-results {
+        font-family: $serif;
+        font-style: italic;
+        font-size: 0.8rem;
+    }
+}
+
+.members.sort-pages {
+    height: 4rem;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    align-items: center;
+
+    label {
+        font-size: 0.7rem;
+    }
+
+    select {
+        margin-left: 0.5rem;
+    }
+}
+
 .members.results-list {
     @include flex-container;
 }

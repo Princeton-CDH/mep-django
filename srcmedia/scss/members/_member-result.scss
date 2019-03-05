@@ -1,51 +1,87 @@
-.members.result {
-    border-bottom: 1px solid $white-two;
-    padding: 1rem 0;
+$result-width: 500px;
 
-    a {
+.members.result {
+    counter-increment: results;
+    position: relative;
+    border-top: 1px solid $white-two;
+
+    article {
+        position: relative;
         display: flex;
-        flex-flow: column nowrap;
+        align-items: baseline;
+        flex-flow: row wrap;
         width: 100%;
+        max-width: 500px;
         height: 100%;
+        padding-top: 1rem;
+        padding-bottom: 2rem;
         border: none;
+        margin: 0 auto;
+
+        &:hover .see-more {
+            visibility: visible;
+        }
+    }
+
+    .counter::after {
+        content:counter(results);
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+    }
+
+    .bio,
+    .account {
+        flex: none;
 
         @media (min-width: $breakpoint-s) {
-            width: auto;
-            padding-left: calc((100% - 500px) / 2);
-            padding-right: calc((100% - 500px) / 2);
+            flex: auto;
+        }
+    }
+
+    .account {
+        text-align: right;
+        width: 100%;
+        margin-top: 0.5rem;
+
+        @media (min-width: $breakpoint-s) {
+            margin-top: 0;
+            width: initial;
         }
     }
 
     .name {
+        text-transform: none;
         font-family: $serif;
         font-size: 1rem;
     }
 
     .dates {
         font-size: 0.8rem;
-        // margin-top: 0.25rem;
     }
-    
-    .account-dates {
-        align-self: flex-end;
-        
-        dt {
-            // margin-bottom: .25rem;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-        
-        dd {
-            font-size: 0.8rem;
-            text-align: right;
-        }
+
+    .account-dates-label {
+        font-family: $sans;
+        text-align: right;
+        font-size: 0.7rem;
+        font-weight: bold;
     }
 
     .see-more {
-        margin-top: .5rem;
-        align-self: flex-end;
+        position: absolute;
+        right: 0;
+        bottom: 0.5rem;
+        visibility: visible;
         color: $dark-green;
         font-size: 0.7rem;
         font-weight: bold;
+
+        @media (min-width: $breakpoint-s) {
+            visibility: hidden;
+            right: calc((100% - 500px) / 2);
+        }
+    }
+
+    .has-card {
+        display: none;
     }
 }

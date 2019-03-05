@@ -15,9 +15,25 @@
 {% block main-style %}white{% endblock %}
 
 {% block content %}
-<p>{{ members.count|intcomma }} result{{ members.count|pluralize }} –
-   displaying {{ page_obj.start_index }} - {{ page_obj.end_index }}</p>
-<ol class="members results-list" start="{{ page_obj.start_index }}">
+<section class="members search-form">
+    <span class="total-results">Displaying {{ members.count|intcomma }} result{{ members.count|pluralize }}</span>
+</section>
+<section class="members sort-pages">
+    <label>
+        SORTED BY
+        <select class="sort">
+            <option selected>Last Name A-Z</option>
+            <option disabled>Relevance</option>
+        </select>
+    </label>
+    <label>
+        DISPLAYING
+        <select class="pagination">
+            <option selected>{{ page_obj.start_index }} - {{ page_obj.end_index }}</option>
+        </select>
+    </label>
+</section>
+<ol class="members results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
     {% for person in members %}
         {% include 'people/snippets/member_result.html' with member=person %}
     {% endfor %}
