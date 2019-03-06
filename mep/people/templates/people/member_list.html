@@ -25,14 +25,14 @@
             <option selected>Last Name A-Z</option>
             <option disabled>Relevance</option>
         </select>
-        <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}">
+        <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
     </label>
     <label>
         DISPLAYING
         <select class="pagination">
             <option selected>{{ page_obj.start_index }} - {{ page_obj.end_index }}</option>
         </select>
-        <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}">
+        <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
     </label>
 </section>
 <ol class="members results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
