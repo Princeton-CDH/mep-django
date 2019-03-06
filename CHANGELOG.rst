@@ -11,6 +11,7 @@ CHANGELOG
 * As a user, I want to browse a list of library members sorted alphabetically by last name so that I can see all the names of people known to have patronized the library.
 
 * Adds Solr functionality and configset installation instructions.
+* Adds styles for member list search results.
 
 0.10 Initial member list and Wagtail CMS functionality
 ------------------------------------------------------
