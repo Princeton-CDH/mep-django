@@ -102,7 +102,7 @@
             right: calc((100% - #{$members-result-width}) / 2);
         }
 
-        @media (hover: hover) {
+        @media (pointer: fine) { // hide "see more" on non-touch devices
             visibility: hidden;
         }
 
