@@ -16,7 +16,7 @@
     }
 }
 
-@mixin text-container { // expands in between breakpoints to allow text reflow
+@mixin flex-container { // expands in between breakpoints to allow text reflow
     margin-left: $gutter-xs;
     margin-right: $gutter-xs;
 

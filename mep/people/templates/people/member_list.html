@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load humanize %}
+{% load static humanize %}
 {% load render_bundle from webpack_loader %}
 
 {% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
@@ -15,30 +15,29 @@
 {% block main-style %}white{% endblock %}
 
 {% block content %}
-<p>{{ members.count|intcomma }} result{{ members.count|pluralize }} –
-   displaying {{ page_obj.start_index }} - {{ page_obj.end_index }}</p>
-<ol start="{{ page_obj.start_index }}">
+<section class="members search-form">
+    <span class="total-results">Displaying {{ members.count|intcomma }} result{{ members.count|pluralize }}</span>
+</section>
+<section class="members sort-pages">
+    <label>
+        SORTED BY
+        <select class="sort">
+            <option selected>Last Name A-Z</option>
+            <option disabled>Relevance</option>
+        </select>
+        <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+    </label>
+    <label>
+        DISPLAYING
+        <select class="pagination">
+            <option selected>{{ page_obj.start_index }} - {{ page_obj.end_index }}</option>
+        </select>
+        <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+    </label>
+</section>
+<ol class="members results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
     {% for person in members %}
-    <li>
-        <a href="{% url 'people:member-detail' pk=person.pk %}">{{ person.sort_name.0 }}</a>
-        {% if person.birth_year or person.death_year %}
-        <div class="dates">
-            {{ person.birth_year|default:'' }} - {{ person.death_year|default:'' }}
-        </div>
-        {% endif %}
-        {% if person.account_start or person.account_end %}
-            <div class="account-dates">
-                <dt>Account Dates</dt>
-                <dd>{{ person.account_start|default:'' }}
-                {% if person.account_start != person.account_end %}- {{ person.account_end|default:'' }}
-                {% endif %}
-                </dd>
-            </div>
-        {% endif %}
-        {% if person.has_card %}
-        <p>has card</p>
-        {% endif %}
-    </li>
+        {% include 'people/snippets/member_result.html' with member=person %}
     {% endfor %}
 </ol>
 {% endblock %}

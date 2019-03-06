@@ -603,9 +603,8 @@ class TestMembersListView(TestCase):
         self.assertContains(response, account.earliest_date().year)
         self.assertContains(response, account.last_date().year)
 
-        # 'has card' should only show up once
-        # NOTE: 'has card' text is provisional
-        self.assertContains(response, 'has card', count=1)
+        # icon for 'has card' should only show up once
+        self.assertContains(response, 'card icon', count=1)
 
 
 class TestMemberDetailView(TestCase):
