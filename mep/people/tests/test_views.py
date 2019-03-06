@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.template.defaultfilters import date as format_date
 from django.test import TestCase
 from django.urls import reverse, resolve
-from parasol.django import SolrClient
+from parasolr.django import SolrClient
 
 from mep.accounts.models import Account, Address, Event, Subscription, \
     Reimbursement

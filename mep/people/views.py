@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
-from parasol.django import SolrClient, SolrQuerySet
+from parasolr.django import SolrClient, SolrQuerySet
 
 from mep.accounts.models import Event
 from mep.people.forms import PersonMergeForm
