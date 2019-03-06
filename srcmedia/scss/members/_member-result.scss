@@ -56,6 +56,10 @@
         width: 100%;
         position: relative;
         display: flex;
+
+        @media (min-width: $breakpoint-s) {
+            width: fit-content;
+        }
     }
 
     .account {
