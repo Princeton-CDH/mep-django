@@ -15,26 +15,46 @@
 }
 
 .members.sort-pages {
-    height: 6rem;
-    margin: 0 $gutter-xs;
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: flex-end;
-    align-items: center;
+    position: sticky;
+    top: 2.5rem;
+    background: white;
+    width: 100%;
+    z-index: 1;
 
     @media (min-width: $breakpoint-s) {
-        height: 4rem;
-        width: $members-result-width;
-        margin: 0 auto;
+        top: 0;
+    }
+
+    .inner {
+        height: 2.5rem;
+        margin: 0 $gutter-xs;
+        display: flex;
+        flex-flow: row wrap;
         justify-content: space-between;
+        align-items: center;
+
+        @media (min-width: $breakpoint-s) {
+            height: 3rem;
+            width: $members-result-width;
+            margin: 0 auto;
+        }
+
+        @media (min-width: $breakpoint-l) {
+            height: 4rem;
+        }
     }
 
     label {
         font-size: 0.7rem;
-    }
 
-    select {
-        margin-left: 0.5rem;
+        span {
+            margin-right: 0.5rem;
+            display: none;
+
+            @media (min-width: $breakpoint-s) {
+                display: inline;
+            }
+        }
     }
 
     .sort {

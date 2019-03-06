@@ -24,7 +24,7 @@
                 </div>
             </div>
             <div class="account">
-                <h2 class="account-dates-label">Account Dates</h2>
+                <h2 class="account-dates-label">Membership Dates</h2>
                 {% if member.account_start or member.account_end %}
                 <span class="dates">
                     {% if member.account_start %}
@@ -37,7 +37,10 @@
                 </span>
                 {% endif %}
             </div>
-            <span class="see-more">See more details ▶</span>
+            <span class="see-more">
+                See more details
+                <img class="triangle icon" src="{% static 'img/icons/more_triangle.svg' %}" alt="">
+            </span>
         </article>
     </a>
 </li>

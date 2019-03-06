@@ -15,10 +15,6 @@
         padding-bottom: 2rem;
         border: none;
         margin: 0 auto;
-
-        &:hover .see-more {
-            visibility: visible;
-        }
     }
 
     .card.icon {
@@ -90,18 +86,33 @@
         font-weight: bold;
     }
 
+    a:hover .see-more {
+        visibility: visible;
+    }
+
     .see-more {
         position: absolute;
         right: 0;
         bottom: 0.5rem;
-        visibility: visible;
         color: $dark-green;
         font-size: 0.7rem;
         font-weight: bold;
 
         @media (min-width: $breakpoint-s) {
-            visibility: hidden;
             right: calc((100% - #{$members-result-width}) / 2);
+        }
+
+        @media (hover: hover) {
+            visibility: hidden;
+        }
+
+        .triangle.icon {
+            height: .75rem;
+            vertical-align: middle;
+        }
+
+        a:hover & {
+            visibility: visible;
         }
     }
 
