@@ -11,6 +11,12 @@ Database
 Updates and Changes
 ~~~~~~~~~~~~~~~~~~~
 
+0.11 Updates
+^^^^^^^^^^^^
+
+- Refactor `item` from :class:`~mep.accounts.models.Purchase` and
+  :class:`~mep.accounts.models.Borrow` to :class:`~mep.accounts.models.Event`.
+
 0.10 Updates
 ^^^^^^^^^^^^
 
