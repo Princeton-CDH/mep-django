@@ -25,14 +25,14 @@ SITEMAPS = {
 }
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^accounts/', include('pucas.cas_urls')),
     url(r'^viaf/', include('viapy.urls', namespace='viaf')),
-    url(r'^', include(people_urls, namespace='people')),
-    url(r'^', include(accounts_urls, namespace='accounts')),
-    url(r'^', include(books_urls, namespace='books')),
-    url(r'^', include(footnote_urls, namespace='footnotes')),
+    url(r'^', include(people_urls)),
+    url(r'^', include(accounts_urls)),
+    url(r'^', include(books_urls)),
+    url(r'^', include(footnote_urls)),
 
     # sitemaps
     url(r'^sitemap\.xml$', sitemap_views.index, {'sitemaps': SITEMAPS},
