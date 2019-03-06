@@ -21,19 +21,41 @@
         }
     }
 
+    .card.icon {
+        width: 1.5rem;
+        position: absolute;
+        bottom: -2.5rem;
+        right: -1.5rem;
+
+        @media (min-width: $breakpoint-s) {
+            left: -2.5rem;
+            top: 0;
+        }
+    }
+
+    .counter {
+        position: relative;
+    }
+
     .counter::after {
         content: counter(results);
         font-size: 0.8rem;
         margin-right: 0.5rem;
     }
 
-    .bio,
+    .main,
     .account {
         flex: none;
 
         @media (min-width: $breakpoint-s) {
             flex: auto;
         }
+    }
+
+    .main {
+        width: 100%;
+        position: relative;
+        display: flex;
     }
 
     .account {

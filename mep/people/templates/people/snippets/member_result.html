@@ -1,21 +1,27 @@
+{% load static %}
 <li class="members result">
     <a href="{% url 'people:member-detail' pk=member.pk %}" aria-label="{{ member.sort_name.0 }}">
         <article>
-            <img class="has-card">
-            <span class="counter"></span>
-            <div class="bio">
-                <h1 class="name">{{ member.sort_name.0 }}</h1>
-                {% if member.birth_year or member.death_year %}
-                <span class="dates">
-                    {% if member.birth_year %}
-                    <time datetime="{{ member.birth_year }}">{{ member.birth_year }}</time>
-                    {% endif %}
-                    <span> - </span>
-                    {% if member.death_year %}
-                    <time datetime="{{ member.death_year }}">{{ member.death_year }}</time>
-                    {% endif %}
-                </span>
+            <div class="main">
+                <span class="counter">
+                {% if member.has_card %}
+                    <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="member has card">
                 {% endif %}
+                </span>
+                <div class="bio">
+                    <h1 class="name">{{ member.sort_name.0 }}</h1>
+                    {% if member.birth_year or member.death_year %}
+                    <span class="dates">
+                        {% if member.birth_year %}
+                        <time datetime="{{ member.birth_year }}">{{ member.birth_year }}</time>
+                        {% endif %}
+                        <span> - </span>
+                        {% if member.death_year %}
+                        <time datetime="{{ member.death_year }}">{{ member.death_year }}</time>
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                </div>
             </div>
             <div class="account">
                 <h2 class="account-dates-label">Account Dates</h2>
