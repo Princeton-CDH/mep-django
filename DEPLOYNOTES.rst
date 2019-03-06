@@ -20,7 +20,7 @@ Deploy and Upgrade notes
 
 * The parasol package will automatically create a core if one does
   not already exist. It does require custom settings that are contained in
-  ``solr_conf_sco`` be installed on the Solr instance under the ``configsets``
+  ``solr_conf`` be installed on the Solr instance under the ``configsets``
   directory prior to deployment. It also requires that the ``CONFIGSET`` name is
   provided in the ``default`` dictionary under ``SOLR_CONNECTIONS``.
   See the sample Solr config in ``local_settings.py.sample``. The sequence of

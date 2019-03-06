@@ -10,7 +10,7 @@ CHANGELOG
 * As a content editor, I want to see a list of subscription events for people in the csv export so that I can make more informed decisions about merging people.
 * As a user, I want to browse a list of library members sorted alphabetically by last name so that I can see all the names of people known to have patronized the library.
 
-* Adds Solr functionality and configset installation instructions
+* Adds Solr functionality and configset installation instructions.
 
 0.10 Initial member list and Wagtail CMS functionality
 ------------------------------------------------------
