@@ -35,7 +35,7 @@ Deploy and Upgrade notes
      # location. (QA is /var/solr)
      mkdir -p /var/lib/solr/data/configsets
      cp -r sandco /var/lib/solr/data/configsets/
-     chown solr:solr -R /var/lib/solr/data/configsets/sandco
+     chown solr:solr -R /var/lib/solr/data/configsets
 
 
 0.6 Borrowing events and Title stubs
