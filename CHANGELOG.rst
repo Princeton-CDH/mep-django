@@ -3,6 +3,15 @@
 CHANGELOG
 =========
 
+0.11 Admin enhancements and initial Solr functionality
+------------------------------------------------------
+* As a data editor I want to document generic events related to books so that I can reflect the idiosyncrasies of non-standard borrowing events.
+* As a data editor I want to search for footnote bibliography records by autocomplete so that I can more easily document events from the cards.
+* As a content editor, I want to see a list of subscription events for people in the csv export so that I can make more informed decisions about merging people.
+* As a user, I want to browse a list of library members sorted alphabetically by last name so that I can see all the names of people known to have patronized the library.
+
+* Adds Solr functionality and configset installation instructions
+
 0.10 Initial member list and Wagtail CMS functionality
 ------------------------------------------------------
 
