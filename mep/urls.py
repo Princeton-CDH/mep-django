@@ -5,6 +5,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import serve
 from django.contrib import admin
+from django.views.generic.base import RedirectView
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.contrib.sitemaps import Sitemap
 from wagtail.contrib.sitemaps import views as sitemap_views
@@ -25,6 +26,9 @@ SITEMAPS = {
 }
 
 urlpatterns = [
+    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/favicon/favicon.ico',
+                                                permanent=True)),
+
     url(r'^admin/', admin.site.urls),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^accounts/', include('pucas.cas_urls')),
