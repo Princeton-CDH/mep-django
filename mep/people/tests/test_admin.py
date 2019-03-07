@@ -1,12 +1,14 @@
 from unittest.mock import Mock, patch
 
 from django.contrib import admin
+from datetime import date
+
 from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.timezone import now
 
-from mep.accounts.models import Account
+from mep.accounts.models import Account, Subscription
 from mep.books.models import Creator, CreatorType, Item
 from mep.people.admin import PersonAdmin, PersonTypeListFilter
 from mep.people.models import Person
@@ -50,6 +52,14 @@ class TestPersonAdmin(TestCase):
     def test_tabulate_queryset(self):
         person_admin = PersonAdmin(model=Person, admin_site=admin.site)
         people = Person.objects.order_by('id').all()
+        # create at least one subscription so that the subscription_list
+        # test is meaningful
+        account = people[0].account_set.first()
+        Subscription.objects.create(
+            start_date=date(1955, 1, 6),
+            end_date=date(1955, 1, 8),
+            account=account
+        )
         # test that tabular data matches queryset data
         for person, person_data in zip(people, person_admin.tabulate_queryset(people)):
             # test some properties
@@ -60,6 +70,7 @@ class TestPersonAdmin(TestCase):
             assert person.is_creator() in person_data
             assert person.has_account() in person_data
             assert person.admin_url() in person_data
+            assert person.subscription_dates() in person_data
 
     @patch('mep.people.admin.export_to_csv_response')
     def test_export_csv(self, mock_export_to_csv_response):

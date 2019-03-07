@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from mep.people import views
 
+# url namespace
+app_name = 'people'
 
 urlpatterns = [
     url(r'^members/$', views.MembersList.as_view(), name='members-list'),

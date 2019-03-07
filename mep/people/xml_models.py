@@ -44,7 +44,7 @@ class Nationality(TeiXmlObject):
             code = geoname['countryCode']
 
         else:
-            logger.warn('country code %s not found', self.code.upper())
+            logger.warning('country code %s not found', self.code.upper())
             return
 
         # get existing country or add if not yet present

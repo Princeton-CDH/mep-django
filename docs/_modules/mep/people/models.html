@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.10.0 documentation</title>
+    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.11.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -41,6 +41,7 @@
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">transaction</span>
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">timezone</span>
+<span class="kn">from</span> <span class="nn">parasolr.indexing</span> <span class="k">import</span> <span class="n">Indexable</span>
 <span class="kn">from</span> <span class="nn">viapy.api</span> <span class="k">import</span> <span class="n">ViafEntity</span>
 
 <span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">AliasIntegerField</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">,</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
@@ -184,8 +185,8 @@
                         <span class="k">else</span><span class="p">:</span>
                             <span class="c1"># unlikely, but if we&#39;re merging two accounts with cards</span>
                             <span class="c1"># log a warning so we can track it down later if necessary</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Acount </span><span class="si">%s</span><span class="s1"> card </span><span class="si">%s</span><span class="s1"> association will be lost in merge&#39;</span><span class="p">,</span>
-                                        <span class="n">account</span><span class="p">,</span> <span class="n">account</span><span class="o">.</span><span class="n">card</span><span class="p">)</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Account </span><span class="si">%s</span><span class="s1"> card </span><span class="si">%s</span><span class="s1"> association will be lost in merge&#39;</span><span class="p">,</span>
+                                            <span class="n">account</span><span class="p">,</span> <span class="n">account</span><span class="o">.</span><span class="n">card</span><span class="p">)</span>
 
                     <span class="c1"># if a merge person has an account, but the main person doesn&#39;t,</span>
                     <span class="c1"># swap the account&#39;s owner to the main person</span>
@@ -249,7 +250,7 @@
         <span class="n">person</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="Person"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person">[docs]</a><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">):</span>
+<div class="viewcode-block" id="Person"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person">[docs]</a><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Model for people in the MEP dataset&#39;&#39;&#39;</span>
 
     <span class="c1">#: MEP xml id</span>
@@ -341,6 +342,16 @@
 
         <span class="nb">super</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Person.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the public url to view library member&#39;s detail page</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># NOTE: using pk temporarily until we add slugs</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span>
+            <span class="c1"># Only people with accounts have member detail pages</span>
+            <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:member-detail&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">])</span></div>
+        <span class="c1"># for now returning no url for person with no account</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">viaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;:class:`viapy.api.ViafEntity` for this record if :attr:`viaf_id`</span>
@@ -374,6 +385,20 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
     <span class="n">has_account</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span>
 
+<div class="viewcode-block" id="Person.subscription_dates"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.subscription_dates">[docs]</a>    <span class="k">def</span> <span class="nf">subscription_dates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return a semi-colon separated list of</span>
+<span class="sd">        :class:`mep.accounts.models.Subscription` instances associated with</span>
+<span class="sd">        this person&#39;s account(s).&#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">subscriptions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">subscriptions</span><span class="p">()</span>
+            <span class="c1"># NOTE: This will return unknown year events first, followed by</span>
+            <span class="c1"># actual years since presumably all correct years will follow 1900</span>
+            <span class="c1"># as the value for UNKNOWN_YEAR</span>
+            <span class="k">return</span> <span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">sub</span><span class="o">.</span><span class="n">date_range</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span>
+                                <span class="n">subscriptions</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span></div>
+
 <div class="viewcode-block" id="Person.is_creator"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.is_creator">[docs]</a>    <span class="k">def</span> <span class="nf">is_creator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Return whether this person is a :class:`mep.books.models.Creator` of an :class:`mep.books.models.Item` .&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
@@ -396,7 +421,39 @@
 <div class="viewcode-block" id="Person.admin_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.admin_url">[docs]</a>    <span class="k">def</span> <span class="nf">admin_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;URL to edit this record in the admin site&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:people_person_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">])</span></div>
-    <span class="n">admin_url</span><span class="o">.</span><span class="n">verbose_name</span> <span class="o">=</span> <span class="s1">&#39;Admin Link&#39;</span></div>
+    <span class="n">admin_url</span><span class="o">.</span><span class="n">verbose_name</span> <span class="o">=</span> <span class="s1">&#39;Admin Link&#39;</span>
+
+<div class="viewcode-block" id="Person.index_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.index_data">[docs]</a>    <span class="k">def</span> <span class="nf">index_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;data for indexing in Solr&#39;&#39;&#39;</span>
+
+        <span class="n">index_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">index_data</span><span class="p">()</span>
+        <span class="c1"># only library members are indexed; if person has no</span>
+        <span class="c1"># account, return id only.</span>
+        <span class="c1"># This will blank out any previously indexed values, and item</span>
+        <span class="c1"># will not be findable by any public searchable fields.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span>
+            <span class="k">del</span> <span class="n">index_data</span><span class="p">[</span><span class="s1">&#39;item_type&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">index_data</span>
+
+        <span class="c1"># get account membership dates</span>
+        <span class="n">account</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="n">account_start</span> <span class="o">=</span> <span class="n">account</span><span class="o">.</span><span class="n">earliest_date</span><span class="p">()</span>
+        <span class="n">account_end</span> <span class="o">=</span> <span class="n">account</span><span class="o">.</span><span class="n">last_date</span><span class="p">()</span>
+
+        <span class="n">index_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;name_t&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="c1"># include pk for now for member detail url</span>
+            <span class="s1">&#39;pk_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
+            <span class="s1">&#39;sort_name_t&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span><span class="p">,</span>
+            <span class="s1">&#39;sort_name_sort_s&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span><span class="p">,</span>
+            <span class="s1">&#39;birth_year_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">birth_year</span><span class="p">,</span>
+            <span class="s1">&#39;death_year_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">death_year</span><span class="p">,</span>
+            <span class="s1">&#39;account_start_i&#39;</span><span class="p">:</span> <span class="n">account_start</span><span class="o">.</span><span class="n">year</span> <span class="k">if</span> <span class="n">account_start</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;account_end_i&#39;</span><span class="p">:</span> <span class="n">account_end</span><span class="o">.</span><span class="n">year</span> <span class="k">if</span> <span class="n">account_end</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;has_card_b&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_card</span><span class="p">()</span>
+        <span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">index_data</span></div></div>
 
 
 <div class="viewcode-block" id="InfoURL"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.InfoURL">[docs]</a><span class="k">class</span> <span class="nc">InfoURL</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
@@ -528,7 +585,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

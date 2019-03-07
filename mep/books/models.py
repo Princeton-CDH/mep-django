@@ -6,7 +6,6 @@ from mep.common.validators import verify_latlon
 from mep.people.models import Person
 
 
-
 class PublisherPlace(Named, Notable):
     '''Model for place where publishers are located'''
     # NOTE: Using decimal field here to set precision on the head
@@ -106,7 +105,7 @@ class Item(Notable):
     @property
     def borrow_count(self):
         '''Number of times this item was borrowed.'''
-        return self.borrow_set.count()
+        return self.event_set.filter(borrow__isnull=False).count()
 
     def admin_url(self):
         '''URL to edit this record in the admin site'''

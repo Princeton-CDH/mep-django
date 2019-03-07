@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.admin &#8212; Mapping Expatriate Paris - Django 0.10.0 documentation</title>
+    <title>mep.people.admin &#8212; Mapping Expatriate Paris - Django 0.11.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -263,7 +263,8 @@
     <span class="n">export_fields</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">,</span>
         <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;is_organization&#39;</span><span class="p">,</span> <span class="s1">&#39;is_creator&#39;</span><span class="p">,</span> <span class="s1">&#39;has_account&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span> <span class="s1">&#39;verified&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_at&#39;</span><span class="p">,</span> <span class="s1">&#39;admin_url&#39;</span><span class="p">]</span>
+        <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span> <span class="s1">&#39;subscription_dates&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;verified&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_at&#39;</span><span class="p">,</span> <span class="s1">&#39;admin_url&#39;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="PersonAdmin.csv_filename"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAdmin.csv_filename">[docs]</a>    <span class="k">def</span> <span class="nf">csv_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Generate filename for CSV download&#39;&#39;&#39;</span>
@@ -271,7 +272,11 @@
 
 <div class="viewcode-block" id="PersonAdmin.tabulate_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAdmin.tabulate_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">tabulate_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Generator for data in tabular form, including custom fields&#39;&#39;&#39;</span>
-        <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">queryset</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;account_set&#39;</span><span class="p">):</span>
+        <span class="n">prefetched</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span>\
+            <span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;account_set&#39;</span><span class="p">,</span> <span class="s1">&#39;creator_set&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;account_set__event_set&#39;</span><span class="p">,</span> <span class="s1">&#39;account_set__event_set__subscription&#39;</span><span class="p">)</span><span class="o">.</span>\
+            <span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;profession&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">prefetched</span><span class="p">:</span>
             <span class="c1"># retrieve values for configured export fields; if the attribute</span>
             <span class="c1"># is a callable (i.e., a custom property method), call it</span>
             <span class="k">yield</span> <span class="p">[</span><span class="n">value</span><span class="p">()</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
@@ -443,7 +448,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

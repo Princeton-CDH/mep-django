@@ -11,9 +11,9 @@ class AliasIntegerField(models.IntegerField):
     for user display and in model and queryset use.
     '''
 
-    def contribute_to_class(self, cls, name, virtual_only=False):
+    def contribute_to_class(self, cls, name, private_only=False):
         # configure as a non-concrete field (no db column associated)
-        super(AliasIntegerField, self).contribute_to_class(cls, name, virtual_only=True,)
+        super(AliasIntegerField, self).contribute_to_class(cls, name, private_only=True,)
         self.concrete = False
         setattr(cls, name, self)
 

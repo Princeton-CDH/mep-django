@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.10.0 documentation</title>
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.11.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -54,7 +54,7 @@ to allow accessing an existing db field by a different name, both
 for user display and in model and queryset use.</p>
 <dl class="method">
 <dt id="mep.common.models.AliasIntegerField.contribute_to_class">
-<code class="descname">contribute_to_class</code><span class="sig-paren">(</span><em>cls</em>, <em>name</em>, <em>virtual_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#AliasIntegerField.contribute_to_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.AliasIntegerField.contribute_to_class" title="Permalink to this definition">¶</a></dt>
+<code class="descname">contribute_to_class</code><span class="sig-paren">(</span><em>cls</em>, <em>name</em>, <em>private_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#AliasIntegerField.contribute_to_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.AliasIntegerField.contribute_to_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register the field with the model class it belongs to.</p>
 <p>If private_only is True, a separate instance of this field will be
 created for every subclass of cls, even if cls is not an abstract
@@ -287,17 +287,17 @@ people and accounts, with optional start and end dates and a care/of person.</p>
 <em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.accounts.models.Borrow.DoesNotExist" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="mep.accounts.models.Borrow.ITEM_RETURNED">
+<code class="descname">ITEM_RETURNED</code><em class="property"> = 'R'</em><a class="headerlink" href="#mep.accounts.models.Borrow.ITEM_RETURNED" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#mep.books.models.Item" title="mep.books.models.Item"><code class="xref py py-class docutils literal notranslate"><span class="pre">Item</span></code></a> that was borrowed;
+optional to account for unclear titles</p>
+</dd></dl>
+
 <dl class="exception">
 <dt id="mep.accounts.models.Borrow.MultipleObjectsReturned">
 <em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Borrow.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="attribute">
-<dt id="mep.accounts.models.Borrow.item">
-<code class="descname">item</code><a class="headerlink" href="#mep.accounts.models.Borrow.item" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#mep.books.models.Item" title="mep.books.models.Item"><code class="xref py py-class docutils literal notranslate"><span class="pre">Item</span></code></a> that was borrowed;
-optional to account for unclear titles</p>
-</dd></dl>
 
 <dl class="method">
 <dt id="mep.accounts.models.Borrow.save">
@@ -363,6 +363,50 @@ Returns the converted value. Subclasses should override this.</p>
 <dd><p>Event date range as string. Returns a single date in isoformat
 if both dates are set to the same date. Uses “??” for unset dates,
 and returns in format start/end.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.accounts.models.Event.item">
+<code class="descname">item</code><a class="headerlink" href="#mep.accounts.models.Event.item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional associated <a class="reference internal" href="#mep.books.models.Item" title="mep.books.models.Item"><code class="xref py py-class docutils literal notranslate"><span class="pre">Item</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.accounts.models.EventQuerySet">
+<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">EventQuerySet</code><span class="sig-paren">(</span><em>model=None</em>, <em>query=None</em>, <em>using=None</em>, <em>hints=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#EventQuerySet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.EventQuerySet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom <code class="xref py py-class docutils literal notranslate"><span class="pre">Queryset</span></code> for <a class="reference internal" href="#mep.accounts.models.Event" title="mep.accounts.models.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a>
+with filter methods for generic events and each event subtype.</p>
+<dl class="method">
+<dt id="mep.accounts.models.EventQuerySet.borrows">
+<code class="descname">borrows</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#EventQuerySet.borrows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.EventQuerySet.borrows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Events with associated borrow event only</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.EventQuerySet.generic">
+<code class="descname">generic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#EventQuerySet.generic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.EventQuerySet.generic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic events only (excludes subscriptions, reimbursements,
+borrows, and purchases).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.EventQuerySet.purchases">
+<code class="descname">purchases</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#EventQuerySet.purchases"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.EventQuerySet.purchases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Events with associated purchase event only</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.EventQuerySet.reimbursements">
+<code class="descname">reimbursements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#EventQuerySet.reimbursements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.EventQuerySet.reimbursements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Events with associated reimbursement event only</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.EventQuerySet.subscriptions">
+<code class="descname">subscriptions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#EventQuerySet.subscriptions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.EventQuerySet.subscriptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Events with associated subscription event only</p>
 </dd></dl>
 
 </dd></dl>
@@ -901,6 +945,12 @@ e.g. Wikipedia page.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.people.models.Person.get_absolute_url">
+<code class="descname">get_absolute_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.get_absolute_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.get_absolute_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the public url to view library member’s detail page</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.people.models.Person.has_account">
 <code class="descname">has_account</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.has_account"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.has_account" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether an instance of <a class="reference internal" href="#mep.accounts.models.Account" title="mep.accounts.models.Account"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.accounts.models.Account</span></code></a> exists for this person.</p>
@@ -916,6 +966,12 @@ e.g. Wikipedia page.</p>
 <dt id="mep.people.models.Person.in_logbooks">
 <code class="descname">in_logbooks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.in_logbooks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.in_logbooks" title="Permalink to this definition">¶</a></dt>
 <dd><p>is there data for this person in the logbooks?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.Person.index_data">
+<code class="descname">index_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.index_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.index_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>data for indexing in Solr</p>
 </dd></dl>
 
 <dl class="method">
@@ -989,6 +1045,14 @@ and there’s a viaf id for the record</p>
 <dt id="mep.people.models.Person.sort_name">
 <code class="descname">sort_name</code><a class="headerlink" href="#mep.people.models.Person.sort_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>sort name; authorized name for people with VIAF</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.Person.subscription_dates">
+<code class="descname">subscription_dates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.subscription_dates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.subscription_dates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a semi-colon separated list of
+<a class="reference internal" href="#mep.accounts.models.Subscription" title="mep.accounts.models.Subscription"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.accounts.models.Subscription</span></code></a> instances associated with
+this person’s account(s).</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1544,7 +1608,7 @@ people are edited here).</p>
 
 <dl class="attribute">
 <dt id="mep.people.admin.PersonAdmin.export_fields">
-<code class="descname">export_fields</code><em class="property"> = ['id', 'name', 'sort_name', 'mep_id', 'birth_year', 'death_year', 'sex', 'title', 'profession', 'is_organization', 'is_creator', 'has_account', 'in_logbooks', 'has_card', 'verified', 'updated_at', 'admin_url']</em><a class="headerlink" href="#mep.people.admin.PersonAdmin.export_fields" title="Permalink to this definition">¶</a></dt>
+<code class="descname">export_fields</code><em class="property"> = ['id', 'name', 'sort_name', 'mep_id', 'birth_year', 'death_year', 'sex', 'title', 'profession', 'is_organization', 'is_creator', 'has_account', 'in_logbooks', 'has_card', 'subscription_dates', 'verified', 'updated_at', 'admin_url']</em><a class="headerlink" href="#mep.people.admin.PersonAdmin.export_fields" title="Permalink to this definition">¶</a></dt>
 <dd><p>fields to be included in CSV export</p>
 </dd></dl>
 
@@ -1844,7 +1908,7 @@ for or against information in the system.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

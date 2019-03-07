@@ -216,3 +216,13 @@
         }
     }
 }
+
+/* search pages header; can stick to top on mobile */
+#page-header.search {
+    position: fixed;
+    z-index: 1;
+
+    @media (min-width: $breakpoint-s) {
+        position: relative;
+    }
+}

@@ -6,6 +6,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
+from parasolr.indexing import Indexable
 from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
@@ -149,8 +150,8 @@ class PersonQuerySet(models.QuerySet):
                         else:
                             # unlikely, but if we're merging two accounts with cards
                             # log a warning so we can track it down later if necessary
-                            logger.warn('Acount %s card %s association will be lost in merge',
-                                        account, account.card)
+                            logger.warning('Account %s card %s association will be lost in merge',
+                                            account, account.card)
 
                     # if a merge person has an account, but the main person doesn't,
                     # swap the account's owner to the main person
@@ -214,7 +215,7 @@ class PersonQuerySet(models.QuerySet):
         person.save()
 
 
-class Person(Notable, DateRange):
+class Person(Notable, DateRange, Indexable):
     '''Model for people in the MEP dataset'''
 
     #: MEP xml id
@@ -306,6 +307,16 @@ class Person(Notable, DateRange):
 
         super(Person, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        '''
+        Return the public url to view library member's detail page
+        '''
+        # NOTE: using pk temporarily until we add slugs
+        if self.has_account():
+            # Only people with accounts have member detail pages
+            return reverse('people:member-detail', args=[self.pk])
+        # for now returning no url for person with no account
+
     @property
     def viaf(self):
         ''':class:`viapy.api.ViafEntity` for this record if :attr:`viaf_id`
@@ -339,6 +350,20 @@ class Person(Notable, DateRange):
         return self.account_set.exists()
     has_account.boolean = True
 
+    def subscription_dates(self):
+        '''Return a semi-colon separated list of
+        :class:`mep.accounts.models.Subscription` instances associated with
+        this person's account(s).'''
+
+        if self.account_set.exists():
+            subscriptions = self.account_set.first().event_set.subscriptions()
+            # NOTE: This will return unknown year events first, followed by
+            # actual years since presumably all correct years will follow 1900
+            # as the value for UNKNOWN_YEAR
+            return '; '.join([sub.date_range for sub in
+                                subscriptions.order_by('start_date')])
+        return ''
+
     def is_creator(self):
         '''Return whether this person is a :class:`mep.books.models.Creator` of an :class:`mep.books.models.Item` .'''
         return self.creator_set.exists()
@@ -362,6 +387,38 @@ class Person(Notable, DateRange):
         '''URL to edit this record in the admin site'''
         return reverse('admin:people_person_change', args=[self.id])
     admin_url.verbose_name = 'Admin Link'
+
+    def index_data(self):
+        '''data for indexing in Solr'''
+
+        index_data = super().index_data()
+        # only library members are indexed; if person has no
+        # account, return id only.
+        # This will blank out any previously indexed values, and item
+        # will not be findable by any public searchable fields.
+        if not self.has_account():
+            del index_data['item_type']
+            return index_data
+
+        # get account membership dates
+        account = self.account_set.first()
+        account_start = account.earliest_date()
+        account_end = account.last_date()
+
+        index_data.update({
+            'name_t': self.name,
+            # include pk for now for member detail url
+            'pk_i': self.pk,
+            'sort_name_t': self.sort_name,
+            'sort_name_sort_s': self.sort_name,
+            'birth_year_i': self.birth_year,
+            'death_year_i': self.death_year,
+            'account_start_i': account_start.year if account_start else None,
+            'account_end_i': account_end.year if account_end else None,
+            'has_card_b': self.has_card()
+        })
+
+        return index_data
 
 
 class InfoURL(Notable):

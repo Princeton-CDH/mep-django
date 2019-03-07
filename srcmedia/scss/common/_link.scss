@@ -5,6 +5,6 @@ main a {
     transition: all 0.2s;
 
     &:hover {
-        border-bottom: 2px solid darkgreen;
+        border-bottom: 2px solid $dark-green;
     }
 }

@@ -7,3 +7,12 @@ main {
         background: white;
     }
 }
+
+// on search pages on mobile the header can be fixed so we need offset main content
+#page-header.search ~ main {
+    margin-top: 2.5rem;
+
+    @media (min-width: $breakpoint-s) {
+        margin-top: 0;
+    }
+}

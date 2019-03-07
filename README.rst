@@ -41,36 +41,41 @@ Initial setup and installation:
 
 - recommended: create and activate a python 3.5 virtualenv::
 
-
     virtualenv mep -p python3.5
     source mep/bin/activate
 
-- pip install required python dependencies::
-
+- Install required python dependencies::
 
     pip install -r requirements.txt
     pip install -r dev-requirements.txt
 
-- npm install javascript dependencies::
-
+- Install javascript dependencies::
 
     npm install
 
-- compile static assets (css and javascript) with sourcemaps for development::
-
+- Compile static assets (css and javascript) with sourcemaps for development::
 
     npm run build:qa
 
-- copy sample local settings and configure for your environment::
-
+- Copy sample local settings and configure for your environment::
 
     cp mep/local_settings.py.sample mep/local_settings.py
 
 Remember to add a ``SECRET_KEY`` setting!
 
+- Run the manage command to create your Solr core and configure the schema::
+
+    python manage.py solr_schema
+
+  The manage command will automatically reload the core to ensure schema
+  changes take effect.
+
+- Index all indexable content into Solr::
+
+    python manage.py index
+
 - optionally, you can populate the Wagtail CMS with stub pages for the main
   navigation::
-
 
     python manage.py setup_site_pages
 
@@ -98,6 +103,34 @@ server with hot reload using::
 
 Switching between the webpack dev server and serving from ``static/`` requires a
 restart of your Django dev server to pick up the changed file paths.
+
+
+You must also configure Solr and install the configSet found under ``solr_conf``.
+If a core does not exist, and the configSet is installed correctly, an appropriate
+core will be made for you.
+
+To install the configSet::
+
+
+    (using root privileges for chown and permission as needed)
+    cp -r solr_conf /path/to/solr/server/solr/configsets/sandco
+    chown solr:solr -R /path/to/solr/server/solr/configsets/sandco
+
+Note that this location will vary if your Solr instance has a separate data 
+folder. See ``DEPLOYNOTES`` for an example of that setup, which is commmon on 
+server installs of Solr.
+
+You will also need to configure Django to use the Solr instance in
+``local_settings.py``::
+
+
+    SOLR_CONNECTIONS = {
+        'default': {
+            'URL': 'http://localhost:8983/solr/',
+            'COLLECTION': 'sandcodev',
+            'CONFIGSET': 'sandco'
+        }
+    }
 
 
 Unit Tests

@@ -1,6 +1,6 @@
 Django>=1.11,<2.0
 mysqlclient<1.4
-django-grappelli
+django-grappelli<2.11
 cached_property
 # required to avoid url route issues
 django-cas-ng<3.6
@@ -16,3 +16,4 @@ django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader
+parasolr

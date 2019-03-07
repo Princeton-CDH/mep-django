@@ -1,7 +1,10 @@
+import datetime
 import re
+from datetime import date
 from unittest.mock import patch
 
 import pytest
+from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import (MultipleObjectsReturned,
                                     ObjectDoesNotExist, ValidationError)
@@ -137,6 +140,22 @@ class TestPerson(TestCase):
         acct.save()
         assert pers.has_account()
 
+    def test_subscription_dates(self):
+        pers = Person.objects.create(name='Foo')
+        acc = Account.objects.create()
+        acc.persons.add(pers)
+        sub1 = Subscription.objects.create(
+            start_date=date(1950, 1, 5),
+            end_date=date(1950, 1, 8),
+            account=acc
+        )
+        sub2 = Subscription.objects.create(
+            start_date=date(1950, 2, 10),
+            account=acc
+        )
+        assert pers.subscription_dates() == '; '.join(s.date_range
+                                                      for s in [sub1, sub2])
+
     def test_is_creator(self):
         # create a person
         pers = Person.objects.create(name='Foobar')
@@ -200,6 +219,51 @@ class TestPerson(TestCase):
         acct.card = card
         acct.save()
         assert pers.has_card()
+
+    def test_get_absolute_url(self):
+        pers = Person.objects.create(name='John Smith')
+        # none for non-member
+        assert pers.get_absolute_url() is None
+
+        # add account
+        acct = Account.objects.create()
+        acct.persons.add(pers)
+        # uses pk for now
+        assert pers.get_absolute_url() == \
+            reverse('people:member-detail', args=[pers.pk])
+
+    def test_index_data(self):
+        pers = Person.objects.create(
+            name='John Smith', sort_name='Smith, John', birth_year=1801,
+            death_year=1847)
+        # no account = minimal index data
+        index_data = pers.index_data()
+        assert index_data['id'] == pers.index_id()
+        assert 'item_type' not in index_data
+        assert len(index_data) == 1
+
+        # add account
+        acct = Account.objects.create()
+        acct.persons.add(pers)
+        index_data = pers.index_data()
+        assert 'item_type' in index_data
+        assert index_data['pk_i'] == pers.pk
+        assert index_data['name_t'] == pers.name
+        assert index_data['sort_name_t'] == pers.sort_name
+        assert index_data['birth_year_i'] == pers.birth_year
+        assert index_data['death_year_i'] == pers.death_year
+        # account start/end should be none
+        assert index_data['account_start_i'] is None
+        assert index_data['account_end_i'] is None
+
+        # add account events for earliest/latest
+        Subscription.objects.create(account=acct,
+                                    start_date=datetime.date(1921, 1, 1))
+        Reimbursement.objects.create(account=acct,
+                                    start_date=datetime.date(1922, 1, 1))
+        index_data = pers.index_data()
+        assert index_data['account_start_i'] == 1921
+        assert index_data['account_end_i'] == 1922
 
 
 class TestPersonQuerySet(TestCase):
