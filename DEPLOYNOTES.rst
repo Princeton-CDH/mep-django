@@ -3,8 +3,40 @@
 Deploy and Upgrade notes
 ========================
 
-0.10 Members frontend
----------------------
+0.11
+----
+
+* Solr connection information should be configured in local settings as a
+  **SOLR_CONNECTION**. See the sample Solr config in
+  ``local_settings.py.sample``.
+
+* The Solr configuration in the ``solr_conf`` directory must be installed
+  on the Solr server the ``configsets``  directory prior to deployment
+  with a name matching the **CONFIGSET** in the **SOLR_CONNECTIONS**
+  default configuration.  See `Solr Config Sets documentation <https://lucene.apache.org/solr/guide/6_6/config-sets.html#config-sets>`_ for more details.
+  Possible sequence of commands, starting from the server where the
+  mep-django codebase is checked out::
+
+     scp -r mep-django/solr_config solr-server:sandco
+
+  Then on the server where Solr is running::
+
+     mkdir -p /var/lib/solr/data/configsets
+     cp -r sandco /var/lib/solr/data/configsets/
+     chown solr:solr -R /var/lib/solr/data/configsets
+
+* After the configset is in place on the server, run ``solr_schema`` to
+  configure the configured Solr core. This command will create the core
+  with the configured **CONFIGSET** if the core does not already exist::
+
+  python manage.py solr_schema
+
+* Index member data into Solr::
+
+  python manage.py index
+
+0.10
+----
 
 * Switching from Mezzanine to Wagtail requires a manual migration *before*
   installing the new version to avoid migration dependency conflicts::
@@ -18,24 +50,7 @@ Deploy and Upgrade notes
 * Run ``python manage.py setup_site_pages`` to create stub pages for all
   site content needed for main site navigation.
 
-* The parasol package will automatically create a core if one does
-  not already exist. It does require custom settings that are contained in
-  ``solr_conf_sco`` be installed on the Solr instance under the ``configsets``
-  directory prior to deployment. It also requires that the ``CONFIGSET`` name is
-  provided in the ``default`` dictionary under ``SOLR_CONNECTIONS``.
-  See the sample Solr config in ``local_settings.py.sample``. The sequence of
-  commands might look like::
 
-
-     (locally)
-     scp -r mep-django/solr_config solr-server:sandco
-     (on the server, as root)
-     # Both QA and production have separate data folders from
-     # the main Solr config where the conf must live. This uses the production
-     # location. (QA is /var/solr)
-     mkdir -p /var/lib/solr/data/configsets
-     cp -r sandco /var/lib/solr/data/configsets/
-     chown solr:solr -R /var/lib/solr/data/configsets/sandco
 
 
 0.6 Borrowing events and Title stubs

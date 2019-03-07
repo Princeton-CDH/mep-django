@@ -33,7 +33,7 @@ SOLR_CONNECTIONS = {
     'default': {
         'SOLR_URL': 'http://localhost:8983/solr',
         'COLLECTION': 'sco_example',
-        'CONFIGSET': 'solr_conf_sco'
+        'CONFIGSET': 'sandco'
     }
 }
 
