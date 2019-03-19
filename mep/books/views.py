@@ -1,13 +1,17 @@
-import csv
-
 from dal import autocomplete
 from django.db.models import Q
-from django.http import StreamingHttpResponse
-from django.urls import reverse
-from django.utils.timezone import now
 from django.views.generic import ListView
 
 from mep.books.models import Item
+
+
+class ItemList(ListView):
+    model = Item
+    paginate_by = 50
+    context_object_name = 'items'
+
+    def get_queryset(self):
+        return Item.objects.order_by('?')[:50]
 
 
 class ItemAutocomplete(autocomplete.Select2QuerySetView):
