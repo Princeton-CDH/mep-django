@@ -10,9 +10,6 @@ class ItemList(ListView):
     paginate_by = 50
     context_object_name = 'items'
 
-    def get_queryset(self):
-        return Item.objects.order_by('?')[:50]
-
 
 class ItemAutocomplete(autocomplete.Select2QuerySetView):
     '''Basic autocomplete lookup, for use with django-autocomplete-light and

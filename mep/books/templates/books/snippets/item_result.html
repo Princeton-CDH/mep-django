@@ -1,0 +1,49 @@
+{% load static %}
+<li class="books result">
+    <a href="#" aria-label="{{ item.title }}">
+        <article>
+            <div class="main">
+                <span class="counter"></span>
+                <div class="metadata">
+                    <h1 class="title">{{ item.title }}</h1>
+                    {% if item.authors.count > 0 %}
+                    <ul class="authors">
+                        {% for author in item.authors %}
+                            {% if forloop.counter <= 3 %}
+                            <li class="author">{{ author }}</li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if item.authors.count > 3 %}
+                            <span>... {{ item.authors.count|add:"-3" }} more authors</span>
+                        {% endif %}
+                    </ul>
+                    {% endif %}
+                    {% if item.year %}
+                    <span class="dates">
+                        <time datetime="{{ item.year }}">{{ item.year }}</time>
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="secondary">
+                {% if item.publishers.count > 0 %}
+                <h2 class="publisher-label">Publishers</h2>
+                <ul class="publishers">
+                    {% for publisher in item.publishers.all %}
+                        {% if forloop.counter <= 3 %}
+                        <li class="publisher">{{ publisher }}</li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if item.publishers.count > 3 %}
+                        <span>... {{ item.publishers.count|add:"-3" }} more publishers</span>
+                    {% endif %}
+                </ul>
+                {% endif %}
+            </div>
+            <span class="see-more">
+                See more details
+                <img class="triangle icon" src="{% static 'img/icons/more_triangle.svg' %}" alt="">
+            </span>
+        </article>
+    </a>
+</li>

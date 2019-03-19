@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+{% load render_bundle from webpack_loader %}
+
+{% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
+
+{% block js %}{% render_bundle 'search' 'js' %}{% endblock %}
+
+{% block page-subtitle %}Library Holdings · {% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title="books" style="search" %}
+{% endblock %}
+
+{% block main-style %}white{% endblock %}
+
+{% block content %}
+<section class="books search-form">
+    <span class="total-results">Displaying {{ items.count|intcomma }} result{{ items.count|pluralize }}</span>
+</section>
+<section class="books sort-pages">
+    <div class="inner">
+        <label>
+            <span>SORTED BY</span>
+            <select class="sort">
+                <option selected>Title A-Z</option>
+                <option disabled>Relevance</option>
+            </select>
+            <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+        </label>
+        <label>
+            <span>DISPLAYING</span>
+            <select class="pagination">
+                <option selected>{{ page_obj.start_index }} - {{ page_obj.end_index }}</option>
+            </select>
+            <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+        </label>
+    </div>
+</section>
+<ol class="books results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
+    {% for item in items %}
+        {% include 'books/snippets/item_result.html' %}
+    {% endfor %}
+</ol>
+{% endblock %}
