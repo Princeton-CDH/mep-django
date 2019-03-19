@@ -6,36 +6,36 @@
                 <span class="counter"></span>
                 <div class="metadata">
                     <h1 class="title">{{ item.title }}</h1>
-                    {% if item.authors.count > 0 %}
+                    {% if item.authors %}
                     <ul class="authors">
                         {% for author in item.authors %}
                             {% if forloop.counter <= 3 %}
                             <li class="author">{{ author }}</li>
                             {% endif %}
                         {% endfor %}
-                        {% if item.authors.count > 3 %}
-                            <span>... {{ item.authors.count|add:"-3" }} more authors</span>
+                        {% if item.authors|length > 3 %}
+                            <span>... {{ item.authors|length|add:"-3" }} more authors</span>
                         {% endif %}
                     </ul>
                     {% endif %}
-                    {% if item.year %}
+                    {% if item.pub_date %}
                     <span class="dates">
-                        <time datetime="{{ item.year }}">{{ item.year }}</time>
+                        <time datetime="{{ item.pub_date }}">{{ item.pub_date }}</time>
                     </span>
                     {% endif %}
                 </div>
             </div>
             <div class="secondary">
-                {% if item.publishers.count > 0 %}
+                {% if item.publishers %}
                 <h2 class="publisher-label">Publishers</h2>
                 <ul class="publishers">
-                    {% for publisher in item.publishers.all %}
+                    {% for publisher in item.publishers %}
                         {% if forloop.counter <= 3 %}
                         <li class="publisher">{{ publisher }}</li>
                         {% endif %}
                     {% endfor %}
-                    {% if item.publishers.count > 3 %}
-                        <span>... {{ item.publishers.count|add:"-3" }} more publishers</span>
+                    {% if item.publishers|length > 3 %}
+                        <span>... {{ item.publishers|length|add:"-3" }} more publishers</span>
                     {% endif %}
                 </ul>
                 {% endif %}

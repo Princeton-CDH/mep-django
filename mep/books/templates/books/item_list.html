@@ -16,7 +16,7 @@
 
 {% block content %}
 <section class="books search-form">
-    <span class="total-results">Displaying {{ items.count|intcomma }} result{{ items.count|pluralize }}</span>
+    <span class="total-results">{{ items.count|intcomma }} total result{{ items.count|pluralize }}</span>
 </section>
 <section class="books sort-pages">
     <div class="inner">
