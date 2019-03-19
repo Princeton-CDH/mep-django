@@ -1,0 +1,15 @@
+.search-form {
+    @include padding-container;
+
+    height: 3rem;
+    background: $white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .total-results {
+        font-family: $serif;
+        font-style: italic;
+        font-size: 0.8rem;
+    }
+}
