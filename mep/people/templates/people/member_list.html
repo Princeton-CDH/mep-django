@@ -15,6 +15,7 @@
 {% block main-style %}white{% endblock %}
 
 {% block content %}
+{% include 'snippets/breadcrumbs.html' %}
 <section class="members search-form">
     <span class="total-results">Displaying {{ members.count|intcomma }} result{{ members.count|pluralize }}</span>
 </section>
