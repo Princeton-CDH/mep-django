@@ -1,11 +1,8 @@
-import csv
-from io import StringIO
-import re
+import time
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.utils.timezone import now
 
 from mep.books.models import Item
 
@@ -58,3 +55,30 @@ class TestBooksViews(TestCase):
         data = res.json()
         assert len(data['results']) == 1
         assert data['results'][0]['text'] == item2.title
+
+class TestItemListView(TestCase):
+    fixtures = ['sample_items.json']
+
+    def test_list(self):
+        Item.index_items(Item.objects.all())
+        # give time for index to take effect
+        time.sleep(10)
+
+        url = reverse('books:books-list')
+        response = self.client.get(url)
+
+        # should display all items in the database
+        items = Item.objects.all()
+        assert response.context['items'].count() == items.count()
+        self.assertContains(response, '%d results' % items.count())
+        for item in items:
+            self.assertContains(response, item.title)
+            self.assertContains(response, item.year)
+            # NOTE should link to item detail page; not yet implemented
+            # self.assertContains(response, item.get_absolute_url())
+
+        # NOTE publishers display is designed but data not yet available
+
+    def test_many_authors(self):
+        pass
+
