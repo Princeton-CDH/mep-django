@@ -4,6 +4,7 @@ from unittest.mock import Mock
 
 from django.contrib.auth.models import User, Group
 from django.contrib.sites.models import Site
+from django.core.paginator import Paginator
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -11,7 +12,7 @@ from django.urls import reverse
 from mep.common.models import AliasIntegerField, Named, Notable, DateRange
 from mep.common.validators import verify_latlon
 from mep.common.admin import LocalUserAdmin
-from mep.common.utils import absolutize_url
+from mep.common.utils import absolutize_url, alpha_pagelabels
 
 
 class TestNamed(TestCase):
@@ -234,3 +235,20 @@ def test_absolutize_url():
         mockrqst = Mock(scheme='http')
         assert absolutize_url(local_path, mockrqst) == \
             'http://example.org/sub/foo/bar/'
+
+
+
+def test_alpha_pagelabels():
+    # create minimal object and list of items to generate labels for
+    class item:
+        def __init__(self, title):
+            self.title = title
+    titles = ['Abigail', 'Abner', 'Adam', 'Allen', 'Amy', 'Andy', 'Annabelle', 'Anne', 'Azad']
+    items = [item(t) for t in titles]
+    paginator = Paginator(items, per_page=2)
+    labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
+    assert labels[1] == 'Abi - Abn'
+    assert labels[2] == 'Ad - Al'
+    assert labels[3] == 'Am - And'
+    assert labels[4] == 'Anna - Anne'
+    assert labels[5] == 'Az'
