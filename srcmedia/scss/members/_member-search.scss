@@ -62,12 +62,14 @@
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
+        pointer-events: none;
 
         @media (min-width: $breakpoint-s) {
             position: absolute;
         }
 
         a {
+            pointer-events: all;
             height: 1rem;
             padding: 1rem 0;
             display: block;
