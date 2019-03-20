@@ -44,7 +44,7 @@
         flex-flow: row wrap;
         justify-content: space-evenly;
         align-items: center;
-        
+
         @media (min-width: $breakpoint-s) {
             z-index: 1;
             width: $result-width;
@@ -75,6 +75,18 @@
             display: block;
             border: none;
             font-size: 0.7rem;
+
+            &.inactive {
+                pointer-events: none;
+                cursor: default;
+                color: #cccccc;
+
+                .icon {
+                    /* use opacity to make black image match #ccccc */
+                    opacity: 0.2;
+                }
+
+            }
         }
 
         .icon {
