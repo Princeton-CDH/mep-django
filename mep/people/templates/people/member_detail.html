@@ -31,7 +31,7 @@
         {% with member.account_set.first as account %}
             {% if account.earliest_date or account.last_date %}
             <div class="account-dates">
-                <dt>Account Dates</dt>
+                <dt>Membership Dates</dt>
                 <dd>{{ account.earliest_date|default:'' }} - {{ account.last_date|default:'' }}</dd>
             </div>
             {% endif %}
