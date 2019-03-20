@@ -2,6 +2,7 @@
     width: 100%;
     position: fixed;
     z-index: 10;
+    pointer-events: none;
 
     a {
         text-decoration: none;
@@ -23,6 +24,7 @@
         transition: background-color 0.2s;
         width: 2.5rem;
         height: 2.5rem;
+        pointer-events: all;
 
         &:hover {
             background-color: white;

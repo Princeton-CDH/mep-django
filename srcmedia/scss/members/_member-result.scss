@@ -9,7 +9,7 @@
         align-items: baseline;
         flex-flow: row wrap;
         width: 100%;
-        max-width: $members-result-width;
+        max-width: $result-width;
         height: 100%;
         padding-top: 1rem;
         padding-bottom: 2rem;
@@ -99,7 +99,7 @@
         font-weight: bold;
 
         @media (min-width: $breakpoint-s) {
-            right: calc((100% - #{$members-result-width}) / 2);
+            right: calc((100% - #{$result-width}) / 2);
         }
 
         @media (pointer: fine) { // hide "see more" on non-touch devices

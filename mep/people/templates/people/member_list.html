@@ -36,6 +36,16 @@
             <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
         </label>
     </div>
+    <div class="outer">
+        <a rel="prev" href="#">
+            <img class="previous icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+            Previous
+        </a>
+        <a rel="next" href="#">
+            Next
+            <img class="next icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+        </a>
+    </div>
 </section>
 <ol class="members results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
     {% for person in members %}
