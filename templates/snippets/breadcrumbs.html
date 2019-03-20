@@ -1,0 +1,14 @@
+{% load static %}
+<section class="breadcrumbs">
+    <ol>
+        <li>
+            <a href="/">
+                <img class="logo" src="{% static 'img/logo/SCo_logo_graphic.png' %}">
+                Home
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'people:members-list' %}">Members</a>
+        </li>
+    </ol>
+</section>
