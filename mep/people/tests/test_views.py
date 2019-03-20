@@ -628,8 +628,8 @@ class TestMemberDetailView(TestCase):
         self.assertContains(response, 'Francisque Gay')
         # check dates
         self.assertContains(response, '1885 - 1963')
-        # check account dates
-        self.assertContains(response, 'Account Dates')
+        # check membership dates
+        self.assertContains(response, 'Membership Dates')
         self.assertContains(response, 'March 4, 1934 - Feb. 3, 1941')
         # check VIAF
         self.assertContains(response, 'Reference')
