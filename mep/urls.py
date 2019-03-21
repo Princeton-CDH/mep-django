@@ -51,11 +51,14 @@ urlpatterns = [
 ]
 
 
+# serve media content for development
 if settings.DEBUG:
     import debug_toolbar
-    urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)), # debug toolbar
-        url(r'^media/(?P<path>.*)$', serve, { # uploaded media
-            'document_root': settings.MEDIA_ROOT
-        })
-    ]
+
+    urlpatterns = [
+        # include debug toolbar urls first to avoid getting caught by other urls
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+        url(r'^media/(?P<path>.*)$', serve, {
+            'document_root': settings.MEDIA_ROOT,
+        }),
+    ] + urlpatterns

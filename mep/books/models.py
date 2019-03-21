@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 
+from parasolr.indexing import Indexable
+
 from mep.common.models import Named, Notable
 from mep.common.validators import verify_latlon
 from mep.people.models import Person
@@ -30,7 +32,7 @@ class Publisher(Named, Notable):
     pass
 
 
-class Item(Notable):
+class Item(Notable, Indexable):
     '''Primary model for :mod:`books` module, also used for journals,
     and other media types.'''
     #: mep id from stub records imported from xml
@@ -111,6 +113,23 @@ class Item(Notable):
         '''URL to edit this record in the admin site'''
         return reverse('admin:books_item_change', args=[self.id])
     admin_url.verbose_name = 'Admin Link'
+
+    def index_data(self):
+        '''data for indexing in Solr'''
+
+        index_data = super().index_data()
+
+        index_data.update({
+            'title_s': self.title,
+            # include pk for now for item detail url
+            'pk_i': self.pk,
+            'authors_t': [str(a) for a in self.authors] if self.authors else None,
+            'editors_t': [str(e) for e in self.editors] if self.editors else None,
+            'translators_t': [str(t) for t in self.translators] if self.translators else None,
+            'pub_date_i': self.year,
+        })
+
+        return index_data
 
 
 class CreatorType(Named, Notable):
