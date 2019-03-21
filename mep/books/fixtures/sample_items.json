@@ -83,7 +83,7 @@
 			"publishers": [],
 			"pub_places": []
 		}
-	},
+    },
 	{
 		"model": "books.creator",
 		"pk": 1,

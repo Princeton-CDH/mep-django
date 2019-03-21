@@ -1,4 +1,4 @@
-.members.result {
+.result {
     counter-increment: results;
     position: relative;
     border-top: 1px solid $white-two;
@@ -15,17 +15,9 @@
         padding-bottom: 2rem;
         border: none;
         margin: 0 auto;
-    }
-
-    .card.icon {
-        width: 1.5rem;
-        position: absolute;
-        bottom: -2.5rem;
-        right: -1.5rem;
 
         @media (min-width: $breakpoint-s) {
-            left: -2.5rem;
-            top: 0;
+            flex-flow: row nowrap;
         }
     }
 
@@ -40,7 +32,7 @@
     }
 
     .main,
-    .account {
+    .secondary {
         flex: none;
 
         @media (min-width: $breakpoint-s) {
@@ -58,7 +50,7 @@
         }
     }
 
-    .account {
+    .secondary {
         text-align: right;
         width: 100%;
         margin-top: 0.5rem;
@@ -69,17 +61,21 @@
         }
     }
 
-    .name {
+    h1 {
         text-transform: none;
         font-family: $serif;
         font-size: 1rem;
+
+        @media (min-width: $breakpoint-s) {
+            padding-right: .5rem;
+        }
     }
 
     .dates {
         font-size: 0.8rem;
     }
 
-    .account-dates-label {
+    h2 {
         font-family: $sans;
         text-align: right;
         font-size: 0.7rem;
@@ -114,9 +110,5 @@
         a:hover & {
             visibility: visible;
         }
-    }
-
-    .has-card {
-        display: none;
     }
 }

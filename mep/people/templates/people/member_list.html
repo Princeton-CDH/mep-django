@@ -16,7 +16,7 @@
 
 {% block content %}
 <section class="members search-form">
-    <span class="total-results">Displaying {{ members.count|intcomma }} result{{ members.count|pluralize }}</span>
+    <span class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</span>
 </section>
 <section class="members sort-pages">
     <form>

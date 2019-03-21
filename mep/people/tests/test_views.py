@@ -586,7 +586,7 @@ class TestMembersListView(TestCase):
         # should display all library members in the database
         members = Person.objects.filter(account__isnull=False)
         assert response.context['members'].count() == members.count()
-        self.assertContains(response, '%d results' % members.count())
+        self.assertContains(response, '%d total results' % members.count())
         for person in members:
             self.assertContains(response, person.sort_name)
             self.assertContains(response, person.birth_year)
