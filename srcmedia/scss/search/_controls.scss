@@ -9,22 +9,75 @@
         top: 0;
     }
 
-    .inner {
+    .inner,
+    .outer {
         height: 2.5rem;
-        margin: 0 $gutter-xs;
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: space-between;
-        align-items: center;
 
         @media (min-width: $breakpoint-s) {
             height: 3rem;
-            width: $result-width;
-            margin: 0 auto;
         }
 
         @media (min-width: $breakpoint-l) {
             height: 4rem;
+        }
+    }
+
+    .inner {
+        @include container;
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .outer {
+        @include flex-container;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        pointer-events: none;
+
+        @media (min-width: $breakpoint-s) {
+            position: absolute;
+        }
+
+        a {
+            pointer-events: all;
+            height: 1rem;
+            padding: 1rem 0;
+            display: block;
+            border: none;
+            font-size: 0.7rem;
+
+            &.inactive {
+                pointer-events: none;
+                cursor: default;
+                color: #cccccc;
+
+                .icon {
+                    /* use opacity to make black image match #ccccc */
+                    opacity: 0.2;
+                }
+
+            }
+        }
+
+        .icon {
+            vertical-align: middle;
+            filter: invert(100%);
+            height: 0.7rem;
+
+            &.previous {
+                transform: rotate(90deg);
+            }
+
+            &.next {
+                transform: rotate(-90deg);
+            }
         }
     }
 
@@ -41,11 +94,15 @@
         }
     }
 
-    .sort {
-        width: 7.5rem;
+    .pagination {
+        margin-left: 1rem;
     }
 
-    .pagination {
-        width: 6rem;
+    input { // temporary
+        margin-left: 1rem;
+    }
+
+    select {
+        width: 7rem;
     }
 }

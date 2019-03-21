@@ -1,14 +1,15 @@
 import json
 from datetime import date
 import time
+from types import LambdaType
 from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import User, Permission
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.template.defaultfilters import date as format_date
 from django.test import TestCase
 from django.urls import reverse, resolve
-from parasolr.django import SolrClient
 
 from mep.accounts.models import Account, Address, Event, Subscription, \
     Reimbursement
@@ -18,10 +19,8 @@ from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person, Relationship, \
     RelationshipType
-from mep.people.views import GeoNamesLookup, PersonMerge
+from mep.people.views import GeoNamesLookup, PersonMerge, MembersList
 from mep.footnotes.models import Bibliography, SourceType
-
-
 
 
 class TestPeopleViews(TestCase):
@@ -579,10 +578,6 @@ class TestMembersListView(TestCase):
         account.save()
 
         Person.index_items(Person.objects.all())
-        # give time for index to take effect
-        # commit changes
-        # solr = SolrClient()
-        # solr.update.index([], commit=True)
         time.sleep(1)
 
         url = reverse('people:members-list')
@@ -605,6 +600,39 @@ class TestMembersListView(TestCase):
 
         # icon for 'has card' should only show up once
         self.assertContains(response, 'card icon', count=1)
+
+        # pagination options set in context
+        assert response.context['pagination_options']
+        # current fixture is not enough to paginate
+        # next/prev links should not display at all
+        self.assertNotContains(response, '<a rel="prev"')
+        self.assertNotContains(response, '<a rel="next"')
+        # pagination labels are used, current page selected
+        self.assertContains(
+            response,
+            '<option value="1" selected="selected">%s</option>' % \
+            list(response.context['pagination_options'])[0][1])
+
+        # TODO: not sure how to test pagination/multiple pages
+
+    def test_get_page_labels(self):
+        view = MembersList()
+        view.queryset = Mock()
+        with patch('mep.people.views.alpha_pagelabels') as mock_alpha_pglabels:
+            items = range(101)
+            paginator = Paginator(items, per_page=50)
+            result = view.get_page_labels(paginator)
+            view.queryset.only.assert_called_with(sort_name='sort_name_t')
+            alpha_pagelabels_args = mock_alpha_pglabels.call_args[0]
+            # first arg is paginator
+            assert alpha_pagelabels_args[0] == paginator
+            # second arg is queryset with revised field list
+            assert alpha_pagelabels_args[1] == view.queryset.only.return_value
+            # third arg is a lambda
+            assert isinstance(alpha_pagelabels_args[2], LambdaType)
+
+            mock_alpha_pglabels.return_value.items.assert_called_with()
+            assert result == mock_alpha_pglabels.return_value.items.return_value
 
 
 class TestMemberDetailView(TestCase):

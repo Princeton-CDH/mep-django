@@ -1,4 +1,5 @@
 import csv
+import re
 
 from dal import autocomplete
 from django.contrib import messages
@@ -15,6 +16,7 @@ from django.views.generic.edit import FormView
 from parasolr.django import SolrClient, SolrQuerySet
 
 from mep.accounts.models import Event
+from mep.common.utils import alpha_pagelabels
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
@@ -24,9 +26,7 @@ class MembersList(ListView):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
-    # pagination not yet designed; using 100000 to make sure we return all
-    # paginate_by = 10000
-    paginate_by = 50
+    paginate_by = 100
     context_object_name = 'members'
 
     def get_queryset(self):
@@ -40,8 +40,35 @@ class MembersList(ListView):
                                   pk='pk_i')
         # NOTE: using only / field limit to alias dynamic field names
         # to something closer to model attribute names
-
+        self.queryset = sqs
         return sqs
+
+    def get_page_labels(self, paginator):
+        '''generate labels for pagination'''
+
+        # TODO: determine page labels based on sort option
+        # once we add keyword search
+        pagination_qs = self.queryset.only(sort_name='sort_name_t')
+        alpha_labels = alpha_pagelabels(paginator, pagination_qs,
+                                        lambda x: x['sort_name'][0])
+        # alpha labels is a dict; use items to return list of tuples
+        return alpha_labels.items()
+
+        # for non alpha sort, generate numeric range labels
+        # page_labels = []
+        # for page in paginator.page_range:
+        #     page_start = (page - 1) * paginator.per_page
+        #     page_labels.append(
+        #         (page,
+        #          '%d - %d' % (page_start + 1, page_start + paginator.per_page))
+        #     )
+
+    def get_context_data(self, *args, **kwargs):
+        '''extend context data to add pagination labels'''
+        context = super().get_context_data(*args, **kwargs)
+        paginator = context['page_obj'].paginator
+        context['pagination_options'] = self.get_page_labels(paginator)
+        return context
 
 
 class MemberDetail(DetailView):
