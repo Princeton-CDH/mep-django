@@ -23,18 +23,11 @@
     }
 
     .inner {
-        margin: 0 $gutter-xs;
+        @include container;
         display: flex;
         flex-flow: row wrap;
-        justify-content: space-evenly;
+        justify-content: center;
         align-items: center;
-
-        @media (min-width: $breakpoint-s) {
-            height: 3rem;
-            width: $result-width;
-            margin: 0 auto;
-            justify-content: space-between;
-        }
     }
 
     .outer {
@@ -101,11 +94,15 @@
         }
     }
 
-    .sort {
-        width: 7.5rem;
+    .pagination {
+        margin-left: 1rem;
     }
 
-    .pagination {
-        width: 6rem;
+    input { // temporary
+        margin-left: 1rem;
+    }
+
+    select {
+        width: 7rem;
     }
 }

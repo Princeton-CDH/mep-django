@@ -16,29 +16,30 @@
 
 {% block content %}
 <section class="members search-form">
-    <span class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</span>
+    <form id="members-form">
+        <span class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</span>
+    </form>
 </section>
 <section class="members sort-pages">
-    <form>
     <div class="inner">
-        <label>
+        <label class="sort">
             <span>SORTED BY</span>
-            <select class="sort">
+            <select name="sort" form="members-form">
                 <option selected>Last Name A-Z</option>
                 <option disabled>Relevance</option>
             </select>
             <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
         </label>
-        <label>
+        <label class="pagination">
             <span>DISPLAYING</span>
-            <select name="page" class="pagination">
+            <select name="page" form="members-form">
                 {% for value, label in pagination_options %}
                 <option value="{{ value }}" {% if page_obj.number == value %}selected="selected"{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
             <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
         </label>
-        <input type="submit" value="Go"/>
+        <input type="submit" form="members-form" value="Go"/>
     </div>
     {% if page_obj.has_other_pages %} {# if only one page of results, don't show next/previous links #}
     <div class="outer">
@@ -52,7 +53,6 @@
         </a>
     </div>
     {% endif %}
-</form>
 </section>
 <ol class="members results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
     {% for person in members %}

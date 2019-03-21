@@ -1,8 +1,7 @@
 #main-nav {
     width: 100%;
     position: fixed;
-    z-index: 10;
-    pointer-events: none;
+    z-index: 99;
 
     a {
         text-decoration: none;
@@ -17,6 +16,7 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+        pointer-events: none;
     }
 
     li.square {
@@ -71,13 +71,12 @@
     }
 
     #main-menu {
-        z-index: 1;
+        z-index: -100;
         position: fixed;
         top: 0;
         width: 100vw;
         height: 100vh;
         opacity: 0;
-        pointer-events: none;
         background: $white;
         transition: opacity 0.5s ease;
         padding-top: 2rem;
@@ -88,7 +87,7 @@
 
         &:target { // when menu button is clicked
             opacity: 1;
-            pointer-events: all;
+            z-index: 100;
         }
 
         li.menu { // close button
