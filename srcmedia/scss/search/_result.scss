@@ -1,4 +1,4 @@
-.members.result {
+.result {
     counter-increment: results;
     position: relative;
     border-top: 1px solid $white-two;
@@ -9,23 +9,15 @@
         align-items: baseline;
         flex-flow: row wrap;
         width: 100%;
-        max-width: $members-result-width;
+        max-width: $result-width;
         height: 100%;
         padding-top: 1rem;
         padding-bottom: 2rem;
         border: none;
         margin: 0 auto;
-    }
-
-    .card.icon {
-        width: 1.5rem;
-        position: absolute;
-        bottom: -2.5rem;
-        right: -1.5rem;
 
         @media (min-width: $breakpoint-s) {
-            left: -2.5rem;
-            top: 0;
+            flex-flow: row nowrap;
         }
     }
 
@@ -40,7 +32,7 @@
     }
 
     .main,
-    .account {
+    .secondary {
         flex: none;
 
         @media (min-width: $breakpoint-s) {
@@ -58,7 +50,7 @@
         }
     }
 
-    .account {
+    .secondary {
         text-align: right;
         width: 100%;
         margin-top: 0.5rem;
@@ -69,17 +61,21 @@
         }
     }
 
-    .name {
+    h1 {
         text-transform: none;
         font-family: $serif;
         font-size: 1rem;
+
+        @media (min-width: $breakpoint-s) {
+            padding-right: .5rem;
+        }
     }
 
     .dates {
         font-size: 0.8rem;
     }
 
-    .account-dates-label {
+    h2 {
         font-family: $sans;
         text-align: right;
         font-size: 0.7rem;
@@ -99,7 +95,7 @@
         font-weight: bold;
 
         @media (min-width: $breakpoint-s) {
-            right: calc((100% - #{$members-result-width}) / 2);
+            right: calc((100% - #{$result-width}) / 2);
         }
 
         @media (pointer: fine) { // hide "see more" on non-touch devices
@@ -114,9 +110,5 @@
         a:hover & {
             visibility: visible;
         }
-    }
-
-    .has-card {
-        display: none;
     }
 }

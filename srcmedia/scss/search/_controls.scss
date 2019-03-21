@@ -1,20 +1,4 @@
-.members.search-form {
-    @include padding-container;
-
-    height: 3rem;
-    background: $white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .total-results {
-        font-family: $serif;
-        font-style: italic;
-        font-size: 0.8rem;
-    }
-}
-
-.members.sort-pages {
+.sort-pages {
     position: sticky;
     top: 2.5rem;
     background: white;
@@ -35,7 +19,7 @@
 
         @media (min-width: $breakpoint-s) {
             height: 3rem;
-            width: $members-result-width;
+            width: $result-width;
             margin: 0 auto;
         }
 
@@ -64,8 +48,4 @@
     .pagination {
         width: 6rem;
     }
-}
-
-.members.results-list {
-    @include flex-container;
 }
