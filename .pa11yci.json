@@ -1,5 +1,16 @@
 {
     "urls": [
-        "http://localhost:8000/members/"
+        {
+            "url": "http://localhost:8000/members/",
+            "ignore": [
+                "WCAG2AA.Principle3.Guideline3_2.3_2_2.H32.2"
+            ]
+        },
+        {
+            "url": "http://localhost:8000/books/",
+            "ignore": [
+                "WCAG2AA.Principle3.Guideline3_2.3_2_2.H32.2"
+            ]
+        }
     ]
 }
