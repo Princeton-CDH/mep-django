@@ -12,4 +12,30 @@
         font-style: italic;
         font-size: 0.8rem;
     }
+
+    #members-form {
+        width: 100%;
+        text-align: center;
+    }
+
+    input[name=query] {
+        width: 100%;
+        font-family: $sans;
+        font-size: 16px;
+        background-color: transparent;
+        border: none;
+        border-bottom: dotted 2px $black;
+        outline: none;
+
+        &::placeholder {
+          color: $nearly-black;
+          opacity: 1; /* Firefox */
+        }
+
+        /* TODO: search icon at right */;
+
+    }
+
+
+
 }
