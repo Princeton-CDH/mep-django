@@ -12,34 +12,89 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from django.views.generic import ListView, DetailView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, FormMixin
 from parasolr.django import SolrClient, SolrQuerySet
 
 from mep.accounts.models import Event
 from mep.common.utils import alpha_pagelabels
-from mep.people.forms import PersonMergeForm
+from mep.people.forms import PersonMergeForm, MemberSearchForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 
 
-class MembersList(ListView):
+class MembersList(ListView, FormMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
     paginate_by = 100
     context_object_name = 'members'
 
+    form_class = MemberSearchForm
+    # cached form instance for current request
+    _form = None
+    #: initial form values
+    initial = {
+        'sort': 'name_asc'
+    }
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # use GET instead of default POST/PUT for form data
+        form_data = self.request.GET.copy()
+
+        # always use relevance sort for keyword search;
+        # otherwise use default (sort by name)
+        if 'query' in form_data:
+            form_data['sort'] = 'relevance'
+        else:
+            form_data['sort'] = self.initial['sort']
+
+        # use initial values as defaults
+        for key, val in self.initial.items():
+            form_data.setdefault(key, val)
+
+        kwargs['data'] = form_data
+        return kwargs
+
+    def get_form(self):
+        if not self._form:
+            self._form = super().get_form()
+        return self._form
+
+    #: name query alias field syntax
+    search_name_query = '{!type=edismax qf=$name_qf pf=$name_pf v=$name_query}'
+
+    # map form sort to solr sort field
+    solr_sort = {
+        'relevance': 'score',
+        'name': 'sort_name_sort_s'
+    }
+
     def get_queryset(self):
         sqs = SolrQuerySet().filter(item_type='person') \
-                            .order_by('sort_name_sort_s') \
                             .only(name='name_t', sort_name='sort_name_t',
                                   birth_year='birth_year_i', death_year='death_year_i',
                                   account_start='account_start_i',
                                   account_end='account_end_i',
                                   has_card='has_card_b',
                                   pk='pk_i')
+
         # NOTE: using only / field limit to alias dynamic field names
         # to something closer to model attribute names
+
+        # when form is valid, check for search term and filter queryset
+        form = self.get_form()
+        if form.is_valid():
+            search_opts = form.cleaned_data
+            if search_opts['query']:
+                print('search on %s' % self.search_name_query)
+                sqs = sqs.search(self.search_name_query) \
+                         .raw_query_parameters(name_query=search_opts['query'])
+
+            # order based on form config
+            sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
+            # TODO: is this ok if form is invalid?
+
         self.queryset = sqs
         return sqs
 
