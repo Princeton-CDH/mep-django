@@ -17,7 +17,7 @@
 {% block content %}
 <section class="members search-form">
     <form id="members-form">
-        {{ form.query }}
+        {% render_field form.query aria-label=form.query.label %}
         <span class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</span>
     </form>
 </section>
