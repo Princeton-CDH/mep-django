@@ -1,12 +1,14 @@
 import datetime
 from unittest.mock import Mock
 
+from django import forms
 from django.test import TestCase
 from django.template.defaultfilters import date as format_date
 
 from mep.accounts.models import Account, Subscription, Borrow
 from mep.books.models import Item
-from mep.people.forms import PersonChoiceField, PersonMergeForm
+from mep.people.forms import PersonChoiceField, PersonMergeForm, \
+    RadioSelectWithDisabled, MemberSearchForm
 from mep.people.models import Person
 
 
@@ -80,4 +82,31 @@ class PersonMergeFormTest(TestCase):
         assert peeps.last() not in mergeform.fields['primary_person'].queryset
 
 
+class TestRadioWithDisabled(TestCase):
+    # test copied from ppa-django
+
+    def setUp(self):
+
+        class TestForm(forms.Form):
+            '''Build a test form use the widget'''
+            CHOICES = (
+                ('no', {'label': 'no select', 'disabled': True}),
+                ('yes', 'yes can select'),
+            )
+
+            yes_no = forms.ChoiceField(choices=CHOICES,
+                                       widget=RadioSelectWithDisabled)
+
+        self.form = TestForm()
+
+    def test_create_option(self):
+
+        rendered = self.form.as_p()
+        # no is disabled
+        self.assertInHTML('<input type="radio" name="yes_no" value="no" '
+                          'required id="id_yes_no_0" disabled="disabled" />',
+                          rendered)
+        # yes is not disabled
+        self.assertInHTML('<input type="radio" name="yes_no" value="yes" '
+                          'required id="id_yes_no_1" />', rendered)
 
