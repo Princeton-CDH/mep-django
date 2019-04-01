@@ -20,7 +20,7 @@
         {% render_bundle 'main' 'css' %}
         {% block css %}{% endblock %}
         <!-- scripts -->
-        {% render_bundle 'main' 'js' %}
+        {% render_bundle 'main' 'js' attrs='defer' %}
         {% block js %}{% endblock %}
     </head>
     <body>
