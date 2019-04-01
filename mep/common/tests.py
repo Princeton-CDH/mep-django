@@ -1,18 +1,21 @@
-import pytest
 import re
 from unittest.mock import Mock
 
-from django.contrib.auth.models import User, Group
+import pytest
+from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
-from django.core.paginator import Paginator
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from django.test import TestCase, override_settings
+from django.test.client import RequestFactory
 from django.urls import reverse
+from django.views.generic.list import ListView
 
-from mep.common.models import AliasIntegerField, Named, Notable, DateRange
-from mep.common.validators import verify_latlon
 from mep.common.admin import LocalUserAdmin
+from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.utils import absolutize_url, alpha_pagelabels
+from mep.common.validators import verify_latlon
+from mep.common.views import LabeledPagesMixin
 
 
 class TestNamed(TestCase):
@@ -252,3 +255,30 @@ def test_alpha_pagelabels():
     assert labels[3] == 'Am - And'
     assert labels[4] == 'Anna - Anne'
     assert labels[5] == 'Az'
+
+
+class TestLabeledPagesMixin(TestCase):
+
+    def test_get_page_labels(self):
+
+        class MyLabeledPagesView(LabeledPagesMixin, ListView):
+            paginate_by = 5
+        
+        view = MyLabeledPagesView()
+        rf = RequestFactory()
+        # populating some properties directly to skip the dispatch flow
+        view.object_list = list(range(0, 33))
+        view.kwargs = {}
+        view.request = rf.get('/', {'page': '1'})
+        context = view.get_context_data()
+        # should have page labels in context
+        assert 'page_labels' in context
+        # should be 7 pages of 5 items each
+        assert len(context['page_labels']) == 7
+        # last page label shows only the remaining items
+        assert context['page_labels'][-1] == (7, '31 - 33')
+        # with no items, should return an empty list
+        view.object_list = []
+        view.request = rf.get('/', {'page': '1'})
+        context = view.get_context_data()
+        assert context['page_labels'] == []

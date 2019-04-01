@@ -5,13 +5,14 @@ from django.views.generic import ListView
 from parasolr.django import SolrQuerySet
 
 from mep.books.models import Item
+from mep.common.views import LabeledPagesMixin
 
 
-class ItemList(ListView):
+class ItemList(LabeledPagesMixin, ListView):
     '''List page for searching and browsing library items.'''
     model = Item
     template_name = 'books/item_list.html'
-    paginate_by = 50
+    paginate_by = 100
     context_object_name = 'items'
 
     def get_queryset(self):
