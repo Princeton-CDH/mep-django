@@ -13,11 +13,11 @@ class LabeledPagesMixin(ContextMixin):
         if paginator.count == 0:
             return page_labels
         for page in paginator.page_range:
+            # item count starts at zero, goes up by page size
             page_start = (page - 1) * paginator.per_page
-            page_end = page_start + paginator.per_page
             # final page should end at number of the final item
-            if page_end > paginator.count:
-                page_end = paginator.count
+            page_end = min(page_start + paginator.per_page, paginator.count)
+            # first item on page is 1-based index, e.g. 51-100
             page_labels.append((page, '%d - %d' % (page_start + 1, page_end)))
         return page_labels
 
