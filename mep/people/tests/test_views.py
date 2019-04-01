@@ -602,7 +602,7 @@ class TestMembersListView(TestCase):
         self.assertContains(response, 'card icon', count=1)
 
         # pagination options set in context
-        assert response.context['pagination_options']
+        assert response.context['page_labels']
         # current fixture is not enough to paginate
         # next/prev links should not display at all
         self.assertNotContains(response, '<a rel="prev"')
@@ -611,7 +611,7 @@ class TestMembersListView(TestCase):
         self.assertContains(
             response,
             '<option value="1" selected="selected">%s</option>' % \
-            list(response.context['pagination_options'])[0][1])
+            list(response.context['page_labels'])[0][1])
 
         # TODO: not sure how to test pagination/multiple pages
 
