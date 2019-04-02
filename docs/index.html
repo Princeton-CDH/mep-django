@@ -1,0 +1,324 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Mapping Expatriate Paris - Django documentation &#8212; Mapping Expatriate Paris - Django 0.12.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Architecture" href="architecture.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="mapping-expatriate-paris-django-documentation">
+<h1>Mapping Expatriate Paris - Django documentation<a class="headerlink" href="#mapping-expatriate-paris-django-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Change Log</a></li>
+</ul>
+</div>
+<p>Python/Django web application for the <a class="reference external" href="https://cdh.princeton.edu/projects/shakespeare-and-company-lending-library-project/">Shakespeare and Company Lending Library Project</a>,
+which examines the archives of Sylvia Beach’s Shakespeare and Company lending library.
+See also XML transcriptions for the materials on GitHub <a class="reference external" href="https://github.com/Princeton-CDH/mapping-expatriate-paris">mapping-expatriate-paris</a>.  (This project
+was previously called “Mapping Expatriate Paris” or MEP).</p>
+<p>See the preliminary <a class="reference external" href="http://mep.princeton.edu/">project website</a> for more details.</p>
+<p>Python 3.5 / Django 1.11 / Node 10.5.0</p>
+<a class="reference external image-reference" href="https://travis-ci.org/Princeton-CDH/mep-django"><img alt="Build status" src="https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=master" /></a>
+<a class="reference external image-reference" href="https://codecov.io/gh/Princeton-CDH/mep-django/branch/master"><img alt="Code coverage" src="https://codecov.io/gh/Princeton-CDH/mep-django/branch/master/graph/badge.svg" /></a>
+<a class="reference external image-reference" href="https://codeclimate.com/github/Princeton-CDH/mep-django/maintainability"><img alt="Maintainability" src="https://api.codeclimate.com/v1/badges/871a9e9a9d832c01b0c6/maintainability" /></a>
+<a class="reference external image-reference" href="https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=master"><img alt="Requirements Status" src="https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=master" /></a>
+<p><a class="reference external" href="https://princeton-cdh.github.io/mep-django/">Current release documentation</a>.</p>
+<div class="section" id="development-instructions">
+<h2>Development instructions<a class="headerlink" href="#development-instructions" title="Permalink to this headline">¶</a></h2>
+<p>Initial setup and installation:</p>
+<ul>
+<li><p class="first">recommended: create and activate a python 3.5 virtualenv:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="n">mep</span> <span class="o">-</span><span class="n">p</span> <span class="n">python3</span><span class="o">.</span><span class="mi">5</span>
+<span class="n">source</span> <span class="n">mep</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install required python dependencies:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">dev</span><span class="o">-</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install javascript dependencies:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">install</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Compile static assets (css and javascript) with sourcemaps for development:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">run</span> <span class="n">build</span><span class="p">:</span><span class="n">qa</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Copy sample local settings and configure for your environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">mep</span><span class="o">/</span><span class="n">local_settings</span><span class="o">.</span><span class="n">py</span><span class="o">.</span><span class="n">sample</span> <span class="n">mep</span><span class="o">/</span><span class="n">local_settings</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Remember to add a <code class="docutils literal notranslate"><span class="pre">SECRET_KEY</span></code> setting!</p>
+<ul>
+<li><p class="first">Run the manage command to create your Solr core and configure the schema:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">solr_schema</span>
+</pre></div>
+</div>
+<p>The manage command will automatically reload the core to ensure schema
+changes take effect.</p>
+</li>
+<li><p class="first">Index all indexable content into Solr:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">index</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">optionally, you can populate the Wagtail CMS with stub pages for the main
+navigation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">setup_site_pages</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Note that the admin index page will not reflect some changes without a manual
+update - you will need to edit <code class="docutils literal notranslate"><span class="pre">mep/dashboard.py</span></code> to control the display and
+ordering of admin items. More information is available in the <a class="reference external" href="http://django-admin-tools.readthedocs.io/en/latest/dashboard.html#">django-admin-tools
+docs</a>.</p>
+<p>If you make changes to js or scss files and need to rebuild static assets:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">run</span> <span class="n">build</span><span class="p">:</span><span class="n">qa</span>
+</pre></div>
+</div>
+<p>This will compile and minify all assets to <code class="docutils literal notranslate"><span class="pre">static/</span></code> with sourcemaps.
+Alternatively, to run a production build without sourcemaps, you can use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">run</span> <span class="n">build</span><span class="p">:</span><span class="n">prod</span>
+</pre></div>
+</div>
+<p>Finally, for iterative frontend development, you can activate a webpack dev
+server with hot reload using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">start</span>
+</pre></div>
+</div>
+<p>Switching between the webpack dev server and serving from <code class="docutils literal notranslate"><span class="pre">static/</span></code> requires a
+restart of your Django dev server to pick up the changed file paths.</p>
+<p>You must also configure Solr and install the configSet found under <code class="docutils literal notranslate"><span class="pre">solr_conf</span></code>.
+If a core does not exist, and the configSet is installed correctly, an appropriate
+core will be made for you.</p>
+<p>To install the configSet:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">using</span> <span class="n">root</span> <span class="n">privileges</span> <span class="k">for</span> <span class="n">chown</span> <span class="ow">and</span> <span class="n">permission</span> <span class="k">as</span> <span class="n">needed</span><span class="p">)</span>
+<span class="n">cp</span> <span class="o">-</span><span class="n">r</span> <span class="n">solr_conf</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">solr</span><span class="o">/</span><span class="n">server</span><span class="o">/</span><span class="n">solr</span><span class="o">/</span><span class="n">configsets</span><span class="o">/</span><span class="n">sandco</span>
+<span class="n">chown</span> <span class="n">solr</span><span class="p">:</span><span class="n">solr</span> <span class="o">-</span><span class="n">R</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">solr</span><span class="o">/</span><span class="n">server</span><span class="o">/</span><span class="n">solr</span><span class="o">/</span><span class="n">configsets</span><span class="o">/</span><span class="n">sandco</span>
+</pre></div>
+</div>
+<p>Note that this location will vary if your Solr instance has a separate data
+folder. See <code class="docutils literal notranslate"><span class="pre">DEPLOYNOTES</span></code> for an example of that setup, which is commmon on
+server installs of Solr.</p>
+<p>You will also need to configure Django to use the Solr instance in
+<code class="docutils literal notranslate"><span class="pre">local_settings.py</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SOLR_CONNECTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;URL&#39;</span><span class="p">:</span> <span class="s1">&#39;http://localhost:8983/solr/&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;COLLECTION&#39;</span><span class="p">:</span> <span class="s1">&#39;sandcodev&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CONFIGSET&#39;</span><span class="p">:</span> <span class="s1">&#39;sandco&#39;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="unit-tests">
+<h2>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h2>
+<p>Python unit tests are written with <a class="reference external" href="http://doc.pytest.org/">py.test</a> but use
+Django fixture loading and convenience testing methods when that makes
+things easier. To run them, first install development requirements:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">dev</span><span class="o">-</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Run tests using py.test:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">py</span><span class="o">.</span><span class="n">test</span>
+</pre></div>
+</div>
+<p>Javascript unit tests are written with <a class="reference external" href="https://jestjs.io/">jest</a>. To run
+them:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">run</span> <span class="n">test</span><span class="p">:</span><span class="n">unit</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="accessibility-tests">
+<h2>Accessibility Tests<a class="headerlink" href="#accessibility-tests" title="Permalink to this headline">¶</a></h2>
+<p>Automated accessibility tests run in travis using <a class="reference external" href="https://github.com/pa11y/pa11y-ci">pa11y-ci</a>.
+To run them locally, ensure that you have compiled frontend assets and a running
+server:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">run</span> <span class="n">build</span><span class="p">:</span><span class="n">prod</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">runserver</span> <span class="o">--</span><span class="n">insecure</span>
+</pre></div>
+</div>
+<p>Then, run pa11y-ci to craw the sitemap and test for accessibility issues:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">run</span> <span class="n">test</span><span class="p">:</span><span class="n">a11y</span>
+</pre></div>
+</div>
+<p>Running with <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> enabled will include the (inaccessible) Django
+debug toolbar, so you’ll probably want to turn it off.</p>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>Documentation is generated using <a class="reference external" href="http://www.sphinx-doc.org/">sphinx</a>
+To generate documentation, first install development requirements:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">dev</span><span class="o">-</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Then build documentation using the customized make file in the <cite>docs</cite>
+directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">sphinx</span><span class="o">-</span><span class="n">docs</span>
+<span class="n">make</span> <span class="n">html</span>
+</pre></div>
+</div>
+<p>When building for a release <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">docs</span></code> will create a folder called <code class="docutils literal notranslate"><span class="pre">docs</span></code>,
+build the HTML documents and static assets, and force add it to the commit for
+use with Github Pages.</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>This project is licensed under the <a class="reference external" href="https://github.com/Princeton-CDH/mep-django/blob/master/LICENSE">Apache 2.0 License</a>.</p>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Mapping Expatriate Paris - Django</a></h1>
+
+
+
+<p class="blurb">Django web application for "Mapping Expatriate Paris" CDH project</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Change Log</a></li>
+</ul>
+
+
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Mapping Expatriate Paris - Django documentation</a><ul>
+<li><a class="reference internal" href="#development-instructions">Development instructions</a></li>
+<li><a class="reference internal" href="#unit-tests">Unit Tests</a></li>
+<li><a class="reference internal" href="#accessibility-tests">Accessibility Tests</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

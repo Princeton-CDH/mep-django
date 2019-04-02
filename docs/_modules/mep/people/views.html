@@ -1,0 +1,435 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.12.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mep.people.views</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dal</span> <span class="k">import</span> <span class="n">autocomplete</span>
+<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="k">import</span> <span class="n">messages</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.mixins</span> <span class="k">import</span> <span class="n">PermissionRequiredMixin</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Q</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">JsonResponse</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">format_html</span>
+<span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="k">import</span> <span class="n">mark_safe</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">ListView</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.edit</span> <span class="k">import</span> <span class="n">FormView</span>
+<span class="kn">from</span> <span class="nn">parasolr.django</span> <span class="k">import</span> <span class="n">SolrQuerySet</span>
+
+<span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">mep.common.utils</span> <span class="k">import</span> <span class="n">alpha_pagelabels</span>
+<span class="kn">from</span> <span class="nn">mep.common.views</span> <span class="k">import</span> <span class="n">LabeledPagesMixin</span>
+<span class="kn">from</span> <span class="nn">mep.people.forms</span> <span class="k">import</span> <span class="n">PersonMergeForm</span>
+<span class="kn">from</span> <span class="nn">mep.people.geonames</span> <span class="k">import</span> <span class="n">GeoNamesAPI</span>
+<span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Country</span><span class="p">,</span> <span class="n">Location</span><span class="p">,</span> <span class="n">Person</span>
+
+
+<div class="viewcode-block" id="MembersList"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList">[docs]</a><span class="k">class</span> <span class="nc">MembersList</span><span class="p">(</span><span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;List page for searching and browsing library members.&#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_list.html&#39;</span>
+    <span class="n">paginate_by</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">context_object_name</span> <span class="o">=</span> <span class="s1">&#39;members&#39;</span>
+
+<div class="viewcode-block" id="MembersList.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sqs</span> <span class="o">=</span> <span class="n">SolrQuerySet</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">item_type</span><span class="o">=</span><span class="s1">&#39;person&#39;</span><span class="p">)</span> \
+                            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;sort_name_sort_s&#39;</span><span class="p">)</span> \
+                            <span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;name_t&#39;</span><span class="p">,</span> <span class="n">sort_name</span><span class="o">=</span><span class="s1">&#39;sort_name_t&#39;</span><span class="p">,</span>
+                                  <span class="n">birth_year</span><span class="o">=</span><span class="s1">&#39;birth_year_i&#39;</span><span class="p">,</span> <span class="n">death_year</span><span class="o">=</span><span class="s1">&#39;death_year_i&#39;</span><span class="p">,</span>
+                                  <span class="n">account_start</span><span class="o">=</span><span class="s1">&#39;account_start_i&#39;</span><span class="p">,</span>
+                                  <span class="n">account_end</span><span class="o">=</span><span class="s1">&#39;account_end_i&#39;</span><span class="p">,</span>
+                                  <span class="n">has_card</span><span class="o">=</span><span class="s1">&#39;has_card_b&#39;</span><span class="p">,</span>
+                                  <span class="n">pk</span><span class="o">=</span><span class="s1">&#39;pk_i&#39;</span><span class="p">)</span>
+        <span class="c1"># NOTE: using only / field limit to alias dynamic field names</span>
+        <span class="c1"># to something closer to model attribute names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">sqs</span>
+        <span class="k">return</span> <span class="n">sqs</span></div>
+
+<div class="viewcode-block" id="MembersList.get_page_labels"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_page_labels">[docs]</a>    <span class="k">def</span> <span class="nf">get_page_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paginator</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;generate labels for pagination&#39;&#39;&#39;</span>
+
+        <span class="c1"># TODO: determine page labels based on sort option</span>
+        <span class="c1"># once we add keyword search</span>
+        <span class="n">pagination_qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queryset</span><span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="n">sort_name</span><span class="o">=</span><span class="s1">&#39;sort_name_t&#39;</span><span class="p">)</span>
+        <span class="n">alpha_labels</span> <span class="o">=</span> <span class="n">alpha_pagelabels</span><span class="p">(</span><span class="n">paginator</span><span class="p">,</span> <span class="n">pagination_qs</span><span class="p">,</span>
+                                        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;sort_name&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># alpha labels is a dict; use items to return list of tuples</span>
+        <span class="k">return</span> <span class="n">alpha_labels</span><span class="o">.</span><span class="n">items</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="MemberDetail"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail">[docs]</a><span class="k">class</span> <span class="nc">MemberDetail</span><span class="p">(</span><span class="n">DetailView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Detail page for a single library member.&#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_detail.html&#39;</span>
+    <span class="n">context_object_name</span> <span class="o">=</span> <span class="s1">&#39;member&#39;</span>
+
+<div class="viewcode-block" id="MemberDetail.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># throw a 404 if a non-member is accessed via this route</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="GeoNamesLookup"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.GeoNamesLookup">[docs]</a><span class="k">class</span> <span class="nc">GeoNamesLookup</span><span class="p">(</span><span class="n">autocomplete</span><span class="o">.</span><span class="n">Select2ListView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;GeoNames ajax lookup for use as autocomplete.</span>
+<span class="sd">    Optional mode parameter to restrict to countries only.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">mode</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="GeoNamesLookup.get"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.GeoNamesLookup.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;Return option list json response.&quot;&quot;&quot;</span>
+        <span class="n">geo_api</span> <span class="o">=</span> <span class="n">GeoNamesAPI</span><span class="p">()</span>
+        <span class="n">extra_args</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+
+        <span class="c1"># restrict to countries when requested</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;country&#39;</span><span class="p">:</span>
+            <span class="n">extra_args</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s1">&#39;feature_class&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;feature_code&#39;</span><span class="p">:</span> <span class="s1">&#39;PCLI&#39;</span><span class="p">,</span>
+            <span class="p">})</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">geo_api</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">max_rows</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">name_start</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">extra_args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span>
+            <span class="s1">&#39;results&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="nb">id</span><span class="o">=</span><span class="n">geo_api</span><span class="o">.</span><span class="n">uri_from_id</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;geonameId&#39;</span><span class="p">]),</span>
+                <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">(</span><span class="n">item</span><span class="p">),</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+                <span class="n">country_code</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;countryCode&#39;</span><span class="p">],</span>
+                <span class="c1"># lat &amp; long included in data to make them available for</span>
+                <span class="c1"># javascript to populateform fields</span>
+                <span class="n">lat</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">],</span>
+                <span class="n">lng</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;lng&#39;</span><span class="p">]</span>
+            <span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">results</span><span class="p">],</span>
+        <span class="p">})</span></div>
+
+<div class="viewcode-block" id="GeoNamesLookup.get_label"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.GeoNamesLookup.get_label">[docs]</a>    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;display country for context, if available&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;country&#39;</span> <span class="ow">and</span> <span class="s1">&#39;countryName&#39;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+            <span class="c1"># FIXME: shouldn&#39;t ever display countryname if item is a country</span>
+            <span class="k">return</span> <span class="s1">&#39;&#39;&#39;</span><span class="si">%(name)s</span><span class="s1">, </span><span class="si">%(countryName)s</span><span class="s1">&#39;&#39;&#39;</span> <span class="o">%</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="PersonAutocomplete"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonAutocomplete">[docs]</a><span class="k">class</span> <span class="nc">PersonAutocomplete</span><span class="p">(</span><span class="n">autocomplete</span><span class="o">.</span><span class="n">Select2QuerySetView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Basic person autocomplete lookup, for use with django-autocomplete-light.</span>
+<span class="sd">    Use Q objects to help distinguish people using mepid.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="PersonAutocomplete.get_result_label"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonAutocomplete.get_result_label">[docs]</a>    <span class="k">def</span> <span class="nf">get_result_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">person</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provide a more detailed result label for the people autocomplete that</span>
+<span class="sd">        can help disambiguate people.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Fields that will be formatted before interpolation</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;main_string&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;bio_dates&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;note_string&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="c1"># title and name, stripped in case title is absent so no stray space</span>
+        <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;main_string&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1"># format birth-death in a familiar pattern ( - )</span>
+        <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">birth_year</span> <span class="ow">or</span> <span class="n">person</span><span class="o">.</span><span class="n">death_year</span><span class="p">:</span>
+            <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;bio_dates&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="s1">&#39; (</span><span class="si">%s</span><span class="s1"> - </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">birth_year</span><span class="p">,</span> <span class="n">person</span><span class="o">.</span><span class="n">death_year</span><span class="p">)</span>
+        <span class="c1"># get the first few words of any notes</span>
+        <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="n">list_notes</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;note_string&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">list_notes</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+        <span class="c1"># padding id with a space so that it looks nice in the formatted</span>
+        <span class="c1"># html and we don&#39;t have to worry about stripping it in the</span>
+        <span class="c1"># interpolated text.</span>
+        <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;mep_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">person</span><span class="o">.</span><span class="n">mep_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">mep_id</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;bio_dates&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;note_string&#39;</span><span class="p">]:</span>
+            <span class="c1"># in situations where there are none of the above,</span>
+            <span class="c1"># pull the first event</span>
+            <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">():</span>
+                <span class="n">event</span> <span class="o">=</span> <span class="n">Event</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                        <span class="n">account</span><span class="o">=</span><span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+                <span class="c1"># if it has a first event (not all do), return that event</span>
+                <span class="k">if</span> <span class="n">event</span><span class="p">:</span>
+                    <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span>
+                    <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;end_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">end_date</span>
+                                          <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                    <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">event_type</span>
+                    <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span>
+                        <span class="s1">&#39;&lt;strong&gt;</span><span class="si">{main_string}</span><span class="s1">&lt;/strong&gt;&#39;</span>
+                        <span class="s1">&#39;</span><span class="si">{mep_id}</span><span class="s1"> &lt;br /&gt;</span><span class="si">{type}</span><span class="s1"> &#39;</span>
+                        <span class="s1">&#39;(</span><span class="si">{start_date}</span><span class="s1"> - </span><span class="si">{end_date}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                        <span class="o">**</span><span class="n">labels</span>
+                    <span class="p">)</span>
+            <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span><span class="s1">&#39;&lt;strong&gt;</span><span class="si">{main_string}</span><span class="s1">&lt;/strong&gt;</span><span class="si">{mep_id}</span><span class="s1">&#39;</span><span class="p">,</span>
+                               <span class="o">**</span><span class="n">labels</span><span class="p">)</span>
+        <span class="c1"># we have some of the information, return it in an interpolated string</span>
+        <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span>
+                    <span class="s1">&#39;&lt;strong&gt;</span><span class="si">{main_string}{bio_dates}</span><span class="s1">&#39;</span>
+                    <span class="s1">&#39;&lt;/strong&gt;</span><span class="si">{mep_id}</span><span class="s1">&lt;br /&gt; </span><span class="si">{note_string}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                    <span class="o">**</span><span class="n">labels</span>
+                <span class="p">)</span></div>
+
+<div class="viewcode-block" id="PersonAutocomplete.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonAutocomplete.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;:class:`~mep.people.models.Person` queryset, filtered on</span>
+<span class="sd">        text in name or MEP id (case-insensitive, partial match)&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">name__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+                <span class="n">Q</span><span class="p">(</span><span class="n">mep_id__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CountryAutocomplete"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.CountryAutocomplete">[docs]</a><span class="k">class</span> <span class="nc">CountryAutocomplete</span><span class="p">(</span><span class="n">autocomplete</span><span class="o">.</span><span class="n">Select2QuerySetView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Basic autocomplete lookup, for use with django-autocomplete-light and</span>
+<span class="sd">    :class:`mep.people.models.Person` in nationalities many-to-many.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="CountryAutocomplete.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.CountryAutocomplete.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;:class:`~mep.people.models.Country` queryset, filtered on</span>
+<span class="sd">        text in name (case-insensitive, partial match)&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">Country</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LocationAutocomplete"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.LocationAutocomplete">[docs]</a><span class="k">class</span> <span class="nc">LocationAutocomplete</span><span class="p">(</span><span class="n">autocomplete</span><span class="o">.</span><span class="n">Select2QuerySetView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Basic autocomplete lookup, for use with django-autocomplete-light and</span>
+<span class="sd">    :class:`mep.people.models.Person` in address many-to-many&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="LocationAutocomplete.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.LocationAutocomplete.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get queryset of :class:`mep.people.models.Location` objects.</span>
+<span class="sd">        Use Q objects to search all relevant fields in autocomplete.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># not searching lat or lon for now</span>
+        <span class="k">return</span> <span class="n">Location</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">name__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">street_address__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">city__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">postal_code__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">country__name__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">address__person__name__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;city&#39;</span><span class="p">,</span> <span class="s1">&#39;street_address&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PersonMerge"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonMerge">[docs]</a><span class="k">class</span> <span class="nc">PersonMerge</span><span class="p">(</span><span class="n">PermissionRequiredMixin</span><span class="p">,</span> <span class="n">FormView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;View method to merge one or more :class:`~mep.people.models.Person`</span>
+<span class="sd">    records.  Displays :class:`~mep.people.models.PersonMergeForm` on</span>
+<span class="sd">    GET, processes merge with :meth:`mep.people.models.PersonQuerySet.merge_with`</span>
+<span class="sd">    on successful POST.  Should be called with a list of person ids</span>
+<span class="sd">    in the querystring as a comma-separated list. Created for use</span>
+<span class="sd">    with custom admin action</span>
+<span class="sd">    :meth:`mep.people.admin.PersonAdmin.merge_people`.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">permission_required</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;people.change_person&#39;</span><span class="p">,</span> <span class="s1">&#39;people.delete_person&#39;</span><span class="p">)</span>
+    <span class="n">form_class</span> <span class="o">=</span> <span class="n">PersonMergeForm</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/merge_person.html&#39;</span>
+
+<div class="viewcode-block" id="PersonMerge.get_success_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonMerge.get_success_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_success_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Redirect to the :class:`mep.people.models.Person` change_list in the</span>
+<span class="sd">        Django admin with pagination and filters preserved.</span>
+<span class="sd">        Expects :meth:`mep.people.admin.PersonAdmin.merge_people`</span>
+<span class="sd">        to have set &#39;people_merge_filter&#39; in the request&#39;s session.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">change_list</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:people_person_changelist&#39;</span><span class="p">)</span>
+        <span class="c1"># get request.session&#39;s querystring filter, if it exists,</span>
+        <span class="c1"># use rstrip to remove the ? so that we&#39;re left with an empty string</span>
+        <span class="c1"># otherwise</span>
+        <span class="n">querystring</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;?</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span>
+                       <span class="n">get</span><span class="p">(</span><span class="s1">&#39;people_merge_filter&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">change_list</span><span class="p">,</span> <span class="n">querystring</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PersonMerge.get_form_kwargs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonMerge.get_form_kwargs">[docs]</a>    <span class="k">def</span> <span class="nf">get_form_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">form_kwargs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonMerge</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_form_kwargs</span><span class="p">()</span>
+        <span class="n">form_kwargs</span><span class="p">[</span><span class="s1">&#39;person_ids&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span>
+        <span class="k">return</span> <span class="n">form_kwargs</span></div>
+
+<div class="viewcode-block" id="PersonMerge.get_initial"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonMerge.get_initial">[docs]</a>    <span class="k">def</span> <span class="nf">get_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># default to first person selected (?)</span>
+        <span class="c1"># _could_ add logic to select most complete record,</span>
+        <span class="c1"># but probably better for team members to choose</span>
+        <span class="n">person_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ids&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">person_ids</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span> <span class="k">for</span> <span class="n">pid</span> <span class="ow">in</span> <span class="n">person_ids</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+            <span class="c1"># by default, prefer the first record created</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;primary_person&#39;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]}</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="PersonMerge.form_valid"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonMerge.form_valid">[docs]</a>    <span class="k">def</span> <span class="nf">form_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
+        <span class="c1"># process the valid POSTed form</span>
+
+        <span class="c1"># user-selected person record to keep</span>
+        <span class="n">primary_person</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;primary_person&#39;</span><span class="p">]</span>
+        <span class="n">existing_events</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">existing_creators</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span> <span class="c1"># get existing events, if any</span>
+            <span class="n">primary_account</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="n">existing_events</span> <span class="o">=</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">is_creator</span><span class="p">():</span>
+            <span class="n">existing_creators</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># find duplicate person records to be consolidated and merge</span>
+            <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span><span class="p">)</span> \
+                          <span class="o">.</span><span class="n">merge_with</span><span class="p">(</span><span class="n">primary_person</span><span class="p">)</span>
+
+            <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Merge for &lt;a href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt; complete.&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:people_person_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_person</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
+                <span class="n">primary_person</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span> <span class="c1"># calculate events reassociated</span>
+                <span class="n">primary_account</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span> <span class="c1"># if there wasn&#39;t one before</span>
+                <span class="n">added_events</span> <span class="o">=</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">-</span> <span class="n">existing_events</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; Reassociated </span><span class="si">%d</span><span class="s1"> event</span><span class="si">%s</span><span class="s1"> with &lt;a href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt;.&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">added_events</span><span class="p">,</span>
+                    <span class="s1">&#39;s&#39;</span> <span class="k">if</span> <span class="n">added_events</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:accounts_account_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_account</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
+                    <span class="n">primary_account</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># no accounts merged</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; No accounts to reassociate.&#39;</span>
+
+            <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">is_creator</span><span class="p">():</span> <span class="c1"># calculate creator roles reassociated</span>
+                <span class="n">added_creators</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">-</span> <span class="n">existing_creators</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; Reassociated </span><span class="si">%d</span><span class="s1"> creator role</span><span class="si">%s</span><span class="s1"> on items.&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">added_creators</span><span class="p">,</span>
+                    <span class="s1">&#39;s&#39;</span> <span class="k">if</span> <span class="n">added_creators</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># no creators reassociated</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; No creator relationships to reassociate.&#39;</span>
+
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+        <span class="c1"># error if person has more than one account</span>
+        <span class="k">except</span> <span class="n">MultipleObjectsReturned</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonMerge</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">form_valid</span><span class="p">(</span><span class="n">form</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Mapping Expatriate Paris - Django</a></h1>
+
+
+
+<p class="blurb">Django web application for "Mapping Expatriate Paris" CDH project</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,456 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>mep.people.admin &#8212; Mapping Expatriate Paris - Django 0.12.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mep.people.admin</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dal</span> <span class="k">import</span> <span class="n">autocomplete</span>
+<span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="k">import</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="k">import</span> <span class="n">admin</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponseRedirect</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.utils.http</span> <span class="k">import</span> <span class="n">urlencode</span>
+<span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="k">import</span> <span class="n">mark_safe</span>
+<span class="kn">from</span> <span class="nn">django.utils.timezone</span> <span class="k">import</span> <span class="n">now</span>
+<span class="kn">from</span> <span class="nn">tabular_export.admin</span> <span class="k">import</span> <span class="n">export_to_csv_response</span>
+<span class="kn">from</span> <span class="nn">viapy.widgets</span> <span class="k">import</span> <span class="n">ViafWidget</span>
+
+<span class="kn">from</span> <span class="nn">mep.accounts.admin</span> <span class="k">import</span> <span class="n">AddressInline</span>
+<span class="kn">from</span> <span class="nn">mep.common.admin</span> <span class="k">import</span> <span class="p">(</span><span class="n">CollapsedTabularInline</span><span class="p">,</span> <span class="n">CollapsibleTabularInline</span><span class="p">,</span>
+                              <span class="n">NamedNotableAdmin</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mep.footnotes.admin</span> <span class="k">import</span> <span class="n">FootnoteInline</span>
+
+<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="p">(</span><span class="n">Country</span><span class="p">,</span> <span class="n">InfoURL</span><span class="p">,</span> <span class="n">Location</span><span class="p">,</span> <span class="n">Person</span><span class="p">,</span> <span class="n">Profession</span><span class="p">,</span>
+                     <span class="n">Relationship</span><span class="p">,</span> <span class="n">RelationshipType</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="InfoURLInline"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.InfoURLInline">[docs]</a><span class="k">class</span> <span class="nc">InfoURLInline</span><span class="p">(</span><span class="n">CollapsibleTabularInline</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">InfoURL</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeoNamesLookupWidget"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.GeoNamesLookupWidget">[docs]</a><span class="k">class</span> <span class="nc">GeoNamesLookupWidget</span><span class="p">(</span><span class="n">autocomplete</span><span class="o">.</span><span class="n">Select2</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Customize autocomplete select widget to display Geonames URI</span>
+<span class="sd">    as a link.&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="GeoNamesLookupWidget.render"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.GeoNamesLookupWidget.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attrs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;geonames-lookup&#39;</span>
+        <span class="c1"># select2 filters based on existing choices (non-existent here),</span>
+        <span class="c1"># so when a value is set, add it to the list of choices</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">value</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">GeoNamesLookupWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mark_safe</span><span class="p">((</span><span class="sa">u</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&lt;p&gt;&lt;a id=&quot;geonames_uri&quot; target=&quot;_blank&quot; href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt;&lt;/p&gt;&#39;</span><span class="p">)</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">value</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">value</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="MapWidget"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.MapWidget">[docs]</a><span class="k">class</span> <span class="nc">MapWidget</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">NumberInput</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Customize numeric input and add a map div to display a leaflet map</span>
+<span class="sd">    for latitude and longitude values on the form.&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="MapWidget.render"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.MapWidget.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MapWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&lt;div id=&quot;geonames_map&quot;&gt;&lt;/div&gt;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">widget</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CountryAdminForm"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.CountryAdminForm">[docs]</a><span class="k">class</span> <span class="nc">CountryAdminForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Custom model form for Place editing, used to add geonames lookup.&#39;&#39;&#39;</span>
+
+    <span class="c1">#: add a hidden field to pass in a mapbox access token from local settings</span>
+    <span class="c1"># mapbox_token = forms.CharField(initial=getattr(settings, &#39;MAPBOX_ACCESS_TOKEN&#39;, &#39;&#39;),</span>
+        <span class="c1"># widget=forms.HiddenInput)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Country</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">widgets</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;geonames_id&#39;</span><span class="p">:</span> <span class="n">GeoNamesLookupWidget</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s1">&#39;people:country-lookup&#39;</span><span class="p">,</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data-placeholder&#39;</span><span class="p">:</span> <span class="s1">&#39;Type location name to search...&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;data-minimum-input-length&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="CountryAdmin"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.CountryAdmin">[docs]</a><span class="k">class</span> <span class="nc">CountryAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">CountryAdminForm</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;geonames_id&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;geonames_id&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">)</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;geonames_id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">]</span>
+
+    <span class="k">class</span> <span class="nc">Media</span><span class="p">:</span>
+        <span class="n">js</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;admin/geonames-lookup.js&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="RelationshipInlineForm"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.RelationshipInlineForm">[docs]</a><span class="k">class</span> <span class="nc">RelationshipInlineForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Custom model form for Book editing, used to add autocomplete</span>
+<span class="sd">    for place lookup.&#39;&#39;&#39;</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Relationship</span>
+        <span class="c1"># Setting a logical order for the relationship fields</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;relationship_type&#39;</span><span class="p">,</span> <span class="s1">&#39;to_person&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">)</span>
+        <span class="n">widgets</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;to_person&#39;</span><span class="p">:</span> <span class="n">autocomplete</span><span class="o">.</span><span class="n">ModelSelect2</span><span class="p">(</span>
+                <span class="n">url</span><span class="o">=</span><span class="s1">&#39;people:autocomplete&#39;</span><span class="p">,</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data-placeholder&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Start typing name/mep_id to &#39;</span>
+                                            <span class="s1">&#39;search...&#39;</span><span class="p">)}</span>
+            <span class="p">)</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="RelationshipInline"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.RelationshipInline">[docs]</a><span class="k">class</span> <span class="nc">RelationshipInline</span><span class="p">(</span><span class="n">CollapsedTabularInline</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Inline class for Relationships&#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Relationship</span>
+    <span class="n">fk_name</span> <span class="o">=</span> <span class="s1">&#39;from_person&#39;</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">RelationshipInlineForm</span>
+    <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s1">&#39;Relationships&#39;</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="PersonAdminForm"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAdminForm">[docs]</a><span class="k">class</span> <span class="nc">PersonAdminForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Custom model form for Person editing; used to add VIAF lookup&#39;&#39;&#39;</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;__all__&#39;</span><span class="p">)</span>
+        <span class="n">widgets</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;viaf_id&#39;</span><span class="p">:</span> <span class="n">ViafWidget</span><span class="p">(</span>
+                <span class="n">url</span><span class="o">=</span><span class="s1">&#39;viaf:person-search&#39;</span><span class="p">,</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;data-placeholder&#39;</span><span class="p">:</span> <span class="s1">&#39;Type name or id to search VIAF&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;data-minimum-input-length&#39;</span><span class="p">:</span> <span class="mi">3</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="s1">&#39;nationalities&#39;</span><span class="p">:</span> <span class="n">autocomplete</span><span class="o">.</span><span class="n">ModelSelect2Multiple</span><span class="p">(</span>
+                <span class="n">url</span><span class="o">=</span><span class="s1">&#39;people:country-autocomplete&#39;</span><span class="p">,</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;data-placeholder&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Type a country name to search... &#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;data-minimum-input-length&#39;</span><span class="p">:</span> <span class="mi">3</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="c1"># special css class to customize django prepopulate behavior</span>
+            <span class="c1"># opt out of slugify, don&#39;t prepopulate if there are spaces</span>
+            <span class="s1">&#39;sort_name&#39;</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;prepopulate-noslug prepopulate-nospace&#39;</span><span class="p">}),</span>
+        <span class="p">}</span>
+
+    <span class="c1"># NOTE: overriding Django&#39;s prepopulate.js with a local version that honors</span>
+    <span class="c1"># the custom classes for sort_name behavior. Explicitly including</span>
+    <span class="c1"># because when Django is not running in DEBUG mode it loads</span>
+    <span class="c1"># a minified version instead of the local override</span>
+    <span class="k">class</span> <span class="nc">Media</span><span class="p">:</span>
+        <span class="n">js</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;admin/js/prepopulate.js&#39;</span><span class="p">,</span> <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PersonTypeListFilter"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonTypeListFilter">[docs]</a><span class="k">class</span> <span class="nc">PersonTypeListFilter</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">SimpleListFilter</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Filter that for :class:`~mep.people.models.Person` that can distinguish</span>
+<span class="sd">    between people who are creators of books vs. those who are library members.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># human-readable title for filter</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Person Type&#39;</span>
+
+    <span class="c1"># this gets used in the URL as a query param</span>
+    <span class="n">parameter_name</span> <span class="o">=</span> <span class="s1">&#39;person_type&#39;</span>
+
+<div class="viewcode-block" id="PersonTypeListFilter.lookups"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonTypeListFilter.lookups">[docs]</a>    <span class="k">def</span> <span class="nf">lookups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">model_admin</span><span class="p">):</span>
+        <span class="c1"># option tuples: left is query param name and right is human-readable name</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s1">&#39;creator&#39;</span><span class="p">,</span> <span class="s1">&#39;Creator&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;member&#39;</span><span class="p">,</span> <span class="s1">&#39;Library Member&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;uncategorized&#39;</span><span class="p">,</span> <span class="s1">&#39;Uncategorized&#39;</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="PersonTypeListFilter.queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonTypeListFilter.queryset">[docs]</a>    <span class="k">def</span> <span class="nf">queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="c1"># filter the queryset based on the selected option</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;creator&#39;</span><span class="p">:</span> <span class="c1"># is creator</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">creator</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;member&#39;</span><span class="p">:</span> <span class="c1"># has account</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;uncategorized&#39;</span><span class="p">:</span> <span class="c1"># no account or creator</span>
+            <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">creator</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PersonAddressInline"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAddressInline">[docs]</a><span class="k">class</span> <span class="nc">PersonAddressInline</span><span class="p">(</span><span class="n">AddressInline</span><span class="p">):</span>
+    <span class="c1"># extend address inline for person to specify foreign key field</span>
+    <span class="c1"># and remove account from editable fields</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;end_date&#39;</span><span class="p">,</span> <span class="s1">&#39;care_of_person&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">)</span>
+    <span class="n">fk_name</span> <span class="o">=</span> <span class="s1">&#39;person&#39;</span></div>
+
+
+<div class="viewcode-block" id="PersonAdmin"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAdmin">[docs]</a><span class="k">class</span> <span class="nc">PersonAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;ModelAdmin for :class:`~mep.people.models.Person`.</span>
+<span class="sd">    Uses custom template to display account subscription events and</span>
+<span class="sd">    any relationships _to_ this person (only relationships to _other_</span>
+<span class="sd">    people are edited here).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">PersonAdminForm</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;list_nationalities&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span> <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;address_count&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span> <span class="s1">&#39;verified&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_at&#39;</span><span class="p">,</span> <span class="s1">&#39;note_snippet&#39;</span><span class="p">)</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s1">&#39;has_account&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span> <span class="s1">&#39;is_creator&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;title&#39;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;nationalities&#39;</span><span class="p">,</span> <span class="s1">&#39;is_organization&#39;</span><span class="p">,</span> <span class="s1">&#39;verified&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;notes&#39;</span><span class="p">)</span>
+    <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_account&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;is_creator&#39;</span><span class="p">)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">,</span> <span class="s1">&#39;viaf_id&#39;</span><span class="p">)</span>
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="n">PersonTypeListFilter</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;nationalities&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;is_organization&#39;</span><span class="p">)</span>
+    <span class="c1"># Note: moving relationships to last for adjacency to list of relationships</span>
+    <span class="c1"># *to* this person included in the template</span>
+    <span class="n">inlines</span> <span class="o">=</span> <span class="p">[</span><span class="n">InfoURLInline</span><span class="p">,</span> <span class="n">PersonAddressInline</span><span class="p">,</span> <span class="n">FootnoteInline</span><span class="p">,</span> <span class="n">RelationshipInline</span><span class="p">]</span>
+
+    <span class="c1"># by default, set sort name from name for those cases where</span>
+    <span class="c1"># only one name is known and they are the same</span>
+    <span class="n">prepopulated_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;sort_name&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,)}</span>
+    <span class="c1"># NOTE: using a locally customized version of django&#39;s prepopulate.js</span>
+    <span class="c1"># to allow using the prepopulate behavior without slugifying the value</span>
+
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;merge_people&#39;</span><span class="p">,</span> <span class="s1">&#39;export_to_csv&#39;</span><span class="p">]</span>
+
+    <span class="k">class</span> <span class="nc">Media</span><span class="p">:</span>
+        <span class="n">js</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;admin/viaf-lookup.js&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="PersonAdmin.merge_people"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAdmin.merge_people">[docs]</a>    <span class="k">def</span> <span class="nf">merge_people</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Consolidate duplicate person records.&#39;&#39;&#39;</span>
+        <span class="c1"># NOTE: using selected ids from form and ignoring queryset</span>
+        <span class="c1"># because this action is only meant for use with a few</span>
+        <span class="c1"># people at a time</span>
+
+        <span class="c1"># Get any querystrings including filters, pickle them as a urlencoded</span>
+        <span class="c1"># string</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;people_merge_filter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ACTION_CHECKBOX_NAME</span><span class="p">)</span>
+        <span class="n">redirect</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">?ids=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:merge&#39;</span><span class="p">),</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">selected</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">redirect</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">303</span><span class="p">)</span>   <span class="c1"># 303 = See Other</span></div>
+    <span class="n">merge_people</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;Merge selected people&#39;</span>
+
+    <span class="c1">#: fields to be included in CSV export</span>
+    <span class="n">export_fields</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;is_organization&#39;</span><span class="p">,</span> <span class="s1">&#39;is_creator&#39;</span><span class="p">,</span> <span class="s1">&#39;has_account&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span> <span class="s1">&#39;subscription_dates&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;verified&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_at&#39;</span><span class="p">,</span> <span class="s1">&#39;admin_url&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="PersonAdmin.csv_filename"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAdmin.csv_filename">[docs]</a>    <span class="k">def</span> <span class="nf">csv_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Generate filename for CSV download&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;mep-people-</span><span class="si">%s</span><span class="s1">.csv&#39;</span> <span class="o">%</span> <span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">T%H:%M:%S&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PersonAdmin.tabulate_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAdmin.tabulate_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">tabulate_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queryset</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Generator for data in tabular form, including custom fields&#39;&#39;&#39;</span>
+        <span class="n">prefetched</span> <span class="o">=</span> <span class="n">queryset</span><span class="o">.</span>\
+            <span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;account_set&#39;</span><span class="p">,</span> <span class="s1">&#39;creator_set&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;account_set__event_set&#39;</span><span class="p">,</span> <span class="s1">&#39;account_set__event_set__subscription&#39;</span><span class="p">)</span><span class="o">.</span>\
+            <span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;profession&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">prefetched</span><span class="p">:</span>
+            <span class="c1"># retrieve values for configured export fields; if the attribute</span>
+            <span class="c1"># is a callable (i.e., a custom property method), call it</span>
+            <span class="k">yield</span> <span class="p">[</span><span class="n">value</span><span class="p">()</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+                   <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_fields</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="PersonAdmin.export_to_csv"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAdmin.export_to_csv">[docs]</a>    <span class="k">def</span> <span class="nf">export_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Stream tabular data as a CSV file&#39;&#39;&#39;</span>
+        <span class="n">queryset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="k">if</span> <span class="n">queryset</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">queryset</span>
+
+        <span class="c1"># use verbose names to label the columns (adapted from django-tabular-export)</span>
+        <span class="c1"># get verbose names for model fields</span>
+        <span class="n">verbose_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">verbose_name</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">queryset</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span>
+        <span class="c1"># get verbose field name if there is one; look for verbose name</span>
+        <span class="c1"># on a non-field attribute (e.g. a method); otherwise, title case the field name</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="n">verbose_names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span>
+                   <span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">queryset</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">field</span><span class="p">),</span> <span class="s1">&#39;verbose_name&#39;</span><span class="p">,</span>
+                           <span class="n">field</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">())</span>
+                   <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_fields</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">export_to_csv_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">csv_filename</span><span class="p">(),</span> <span class="n">headers</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">tabulate_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="p">))</span></div>
+    <span class="n">export_to_csv</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;Export selected people to CSV&#39;</span>
+
+<div class="viewcode-block" id="PersonAdmin.get_urls"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAdmin.get_urls">[docs]</a>    <span class="k">def</span> <span class="nf">get_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return admin urls; adds a custom URL for exporting all people</span>
+<span class="sd">        as CSV&#39;&#39;&#39;</span>
+        <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">url</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^csv/$&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">admin_site</span><span class="o">.</span><span class="n">admin_view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">export_to_csv</span><span class="p">),</span>
+                <span class="n">name</span><span class="o">=</span><span class="s1">&#39;people_person_csv&#39;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">urls</span> <span class="o">+</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonAdmin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_urls</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="LocationAdminForm"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.LocationAdminForm">[docs]</a><span class="k">class</span> <span class="nc">LocationAdminForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Custom model form for Address editing.&#39;&#39;&#39;</span>
+
+    <span class="c1">#: add a hidden field to pass in a mapbox access token from local settings</span>
+    <span class="n">mapbox_token</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s1">&#39;MAPBOX_ACCESS_TOKEN&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+        <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">HiddenInput</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Location</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">widgets</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="n">MapWidget</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="LocationAdmin"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.LocationAdmin">[docs]</a><span class="k">class</span> <span class="nc">LocationAdmin</span><span class="p">(</span><span class="n">admin</span><span class="o">.</span><span class="n">ModelAdmin</span><span class="p">):</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">LocationAdminForm</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;__str__&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;street_address&#39;</span><span class="p">,</span> <span class="s1">&#39;city&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;country&#39;</span><span class="p">,</span> <span class="s1">&#39;has_notes&#39;</span><span class="p">)</span>
+    <span class="c1"># Use fieldset in order to add more instructions for looking up</span>
+    <span class="c1"># the geographic coordinates</span>
+    <span class="n">fieldsets</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;street_address&#39;</span><span class="p">,</span> <span class="s1">&#39;city&#39;</span><span class="p">,</span> <span class="s1">&#39;postal_code&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;country&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">)</span>
+            <span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;Geographic Coordinates&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;latitude&#39;</span><span class="p">,</span> <span class="s1">&#39;longitude&#39;</span><span class="p">,</span> <span class="s1">&#39;mapbox_token&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span>
+            <span class="n">mark_safe</span><span class="p">(</span><span class="s1">&#39;Use &lt;a href=&quot;http://www.latlong.net/&quot; target=&quot;_blank&quot;&gt;http://www.latlong.net/&lt;/a&gt;&#39;</span> <span class="o">+</span>
+                <span class="s1">&#39; to find coordinates for an address.  Confirm using this map, &#39;</span> <span class="o">+</span>
+                <span class="s1">&#39;which will update whenever the coordinates are modified.&#39;</span><span class="p">),</span>
+            <span class="p">}),</span>
+    <span class="p">)</span>
+
+    <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;country&#39;</span><span class="p">,)</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;street_address&#39;</span><span class="p">,</span> <span class="s1">&#39;city&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">)</span>
+    <span class="n">inlines</span> <span class="o">=</span> <span class="p">[</span><span class="n">AddressInline</span><span class="p">,</span> <span class="n">FootnoteInline</span><span class="p">]</span>
+    <span class="k">class</span> <span class="nc">Media</span><span class="p">:</span>
+        <span class="n">css</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;https://unpkg.com/leaflet@1.0.2/dist/leaflet.css&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;admin/geonames.css&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="n">js</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;admin/geonames-lookup.js&#39;</span><span class="p">,</span>
+             <span class="s1">&#39;https://unpkg.com/leaflet@1.0.2/dist/leaflet.js&#39;</span><span class="p">]</span></div>
+
+
+
+<span class="c1"># enable default admin to see imported data</span>
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">PersonAdmin</span><span class="p">)</span>
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Country</span><span class="p">,</span> <span class="n">CountryAdmin</span><span class="p">)</span>
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Location</span><span class="p">,</span> <span class="n">LocationAdmin</span><span class="p">)</span>
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Profession</span><span class="p">,</span> <span class="n">NamedNotableAdmin</span><span class="p">)</span>
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">RelationshipType</span><span class="p">,</span> <span class="n">NamedNotableAdmin</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Mapping Expatriate Paris - Django</a></h1>
+
+
+
+<p class="blurb">Django web application for "Mapping Expatriate Paris" CDH project</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
