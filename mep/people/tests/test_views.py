@@ -8,7 +8,7 @@ from django.contrib.auth.models import User, Permission
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.template.defaultfilters import date as format_date
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.urls import reverse, resolve
 
 from mep.accounts.models import Account, Address, Event, Subscription, \
@@ -562,7 +562,13 @@ class TestPersonMergeView(TestCase):
 class TestMembersListView(TestCase):
     fixtures = ['sample_people.json']
 
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.members_url = reverse('people:members-list')
+
     def test_list(self):
+        # test listview functionality using testclient & response
+
         # fixture doesn't include any cards or events,
         # so add some before indexing in Solr
         card_member = Person.objects.filter(account__isnull=False).first()
@@ -580,8 +586,7 @@ class TestMembersListView(TestCase):
         Person.index_items(Person.objects.all())
         time.sleep(1)
 
-        url = reverse('people:members-list')
-        response = self.client.get(url)
+        response = self.client.get(self.members_url)
 
         # should display all library members in the database
         members = Person.objects.filter(account__isnull=False)
@@ -613,10 +618,18 @@ class TestMembersListView(TestCase):
             '<option value="1" selected="selected">%s</option>' % \
             list(response.context['page_labels'])[0][1])
 
+        # sanity check keyword search against solr
+        # search for member by name; should only get one member back
+        response = self.client.get(self.members_url, {'query': card_member.name})
+        assert response.context['members'].count() == 1
+
         # TODO: not sure how to test pagination/multiple pages
 
     def test_get_page_labels(self):
         view = MembersList()
+        view.request = self.factory.get(self.members_url)
+        # trigger form valid check to ensure cleaned data is available
+        view.get_form().is_valid()
         view.queryset = Mock()
         with patch('mep.people.views.alpha_pagelabels') as mock_alpha_pglabels:
             items = range(101)
@@ -633,6 +646,67 @@ class TestMembersListView(TestCase):
 
             mock_alpha_pglabels.return_value.items.assert_called_with()
             assert result == mock_alpha_pglabels.return_value.items.return_value
+
+            # when sorting by relevance, use numeric page labels instead
+            mock_alpha_pglabels.reset_mock()
+            view.request = self.factory.get(self.members_url, {'query': 'foo'})
+            del view._form
+            # trigger form valid check to ensure cleaned data is available
+            view.get_form().is_valid()
+            result = view.get_page_labels(paginator)
+            mock_alpha_pglabels.assert_not_called()
+
+    def test_get_form_kwargs(self):
+        view = MembersList()
+        # no query args
+        view.request = self.factory.get(self.members_url)
+        form_kwargs = view.get_form_kwargs()
+        # form initial data copied from view
+        assert form_kwargs['initial'] == view.initial
+        # no query, use default sort
+        assert form_kwargs['data']['sort'] == view.initial['sort']
+
+        # with keyword query, should default to relevance sort
+        view.request = self.factory.get(self.members_url, {'query': 'stein'})
+        form_kwargs = view.get_form_kwargs()
+        assert form_kwargs['data']['sort'] == 'relevance'
+
+    @patch('mep.people.views.SolrQuerySet')
+    def test_get_queryset(self, mock_solrqueryset):
+        mock_qs = mock_solrqueryset.return_value
+        # simulate fluent interface
+        for meth in ['filter', 'only', 'search', 'raw_query_parameters', 'order_by']:
+            getattr(mock_qs, meth).return_value = mock_qs
+
+        view = MembersList()
+        view.request = self.factory.get(self.members_url)
+        sqs = view.get_queryset()
+        # queryset should be set on the view
+        assert view.queryset == sqs
+        mock_solrqueryset.assert_called_with()
+        # inspect solr queryset filters called
+        mock_qs.filter.assert_called_with(item_type='person')
+        mock_qs.only.assert_called_with(
+            name='name_t', sort_name='sort_name_t',
+            birth_year='birth_year_i', death_year='death_year_i',
+            account_start='account_start_i', account_end='account_end_i',
+            has_card='has_card_b', pk='pk_i')
+
+        # search and raw query not called without keyword search term
+        mock_qs.search.assert_not_called()
+        mock_qs.raw_query_parameters.assert_not_called()
+        # should sort by solr field corresponding to default sort
+        mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
+
+        # with keyword search term - should call search and query param
+        query_term = 'sylvia'
+        view.request = self.factory.get(self.members_url, {'query': query_term})
+        # remove cached form
+        del view._form
+        sqs = view.get_queryset()
+        mock_qs.search.assert_called_with(view.search_name_query)
+        mock_qs.raw_query_parameters.assert_called_with(name_query=query_term)
+        mock_qs.order_by.assert_called_with(view.solr_sort['relevance'])
 
 
 class TestMemberDetailView(TestCase):

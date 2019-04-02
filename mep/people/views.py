@@ -32,7 +32,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
     _form = None
     #: initial form values
     initial = {
-        'sort': 'name_asc'
+        'sort': 'name'
     }
 
     def get_form_kwargs(self):
@@ -54,9 +54,10 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
         kwargs['data'] = form_data
         return kwargs
 
-    def get_form(self):
+    def get_form(self, *args, **kwargs):
+        # initialize the form, caching on current instance
         if not self._form:
-            self._form = super().get_form()
+            self._form = super().get_form(*args, **kwargs)
         return self._form
 
     #: name query alias field syntax
@@ -84,14 +85,16 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
         form = self.get_form()
         if form.is_valid():
             search_opts = form.cleaned_data
+            print('form is valid, data is %s' % search_opts)
             if search_opts['query']:
                 print('search on %s' % self.search_name_query)
                 sqs = sqs.search(self.search_name_query) \
                          .raw_query_parameters(name_query=search_opts['query'])
 
-            # order based on form config
+            # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
-            # TODO: is this ok if form is invalid?
+            # TODO: what happens if form is invalid?
+            # (currently should not be possible, but eventually will)
 
         self.queryset = sqs
         return sqs
@@ -99,8 +102,11 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
     def get_page_labels(self, paginator):
         '''generate labels for pagination'''
 
-        # TODO: determine page labels based on sort option
-        # once we add keyword search
+        # when sorting by relevance, use default page label logic
+        if self.get_form().cleaned_data['sort'] == 'relevance':
+            return super().get_page_labels(paginator)
+
+        # otherwise, when sorting by alpha, generate alpha page labels
         pagination_qs = self.queryset.only(sort_name='sort_name_t')
         alpha_labels = alpha_pagelabels(paginator, pagination_qs,
                                         lambda x: x['sort_name'][0])
