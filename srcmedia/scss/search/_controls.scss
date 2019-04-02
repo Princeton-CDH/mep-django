@@ -4,32 +4,49 @@
     background: white;
     width: 100%;
     z-index: 1;
-
+    height: 2.5rem;
+    transition: box-shadow 0.5s;
+    
     @media (min-width: $breakpoint-s) {
+        height: 3rem;
         top: 0;
+    }
+
+    @media (min-width: $breakpoint-l) {
+        height: 4rem;
+    }
+
+    &.stuck {
+        box-shadow: 0 2px 4px 0 rgba(106, 106, 106, 0.5);
     }
 
     .inner,
     .outer {
-        height: 2.5rem;
+        height: 100%;
+        display: flex;
+        align-items: center;
 
         @media (min-width: $breakpoint-s) {
-            height: 3rem;
+            margin: 0 3rem;
         }
-
+        
         @media (min-width: $breakpoint-l) {
-            height: 4rem;
+            margin: 0 4rem;
         }
     }
 
     .inner {
-        @include container;
-        display: flex;
         justify-content: space-around;
-        align-items: center;
+        margin: 0 $gutter-xs;
 
         @media (min-width: $breakpoint-s) {
             justify-content: center;
+            width: $result-width;
+            margin: 0 auto;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            justify-content: space-between;
         }
     }
 
@@ -38,14 +55,20 @@
         top: 0;
         left: 0;
         right: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: row;
+        margin: 0 auto;
+        width: 100%;
         justify-content: space-between;
-        align-items: center;
         pointer-events: none;
 
         @media (min-width: $breakpoint-s) {
+            width: calc(#{$breakpoint-s} - 6rem);
+        }
+
+        @media (min-width: $breakpoint-m) {
+            width: calc(#{$breakpoint-m} - 8rem);
+        }
+
+        @media (min-width: $breakpoint-l) {
             @include flex-container;
         }
 
@@ -134,6 +157,10 @@
     .pagination {
         @media (min-width: $breakpoint-s) {
             margin-left: 1rem;
+
+            .no-js & {
+                margin-left: 0;
+            }
         }
     }
 
@@ -153,6 +180,11 @@
 
         .no-js & {
             width: 6rem;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            width: 7rem;
+            font-size: 0.7rem;
         }
     }
 }
