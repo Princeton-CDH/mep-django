@@ -24,10 +24,6 @@ Python 3.5 / Django 1.11 / Node 10.5.0
     :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/master
     :alt: Code coverage
 
-.. image:: https://landscape.io/github/Princeton-CDH/mep-django/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/Princeton-CDH/mep-django/master
-   :alt: Code Health
-
 .. image:: https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=master
      :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=master
      :alt: Requirements Status
@@ -116,8 +112,8 @@ To install the configSet::
     cp -r solr_conf /path/to/solr/server/solr/configsets/sandco
     chown solr:solr -R /path/to/solr/server/solr/configsets/sandco
 
-Note that this location will vary if your Solr instance has a separate data 
-folder. See ``DEPLOYNOTES`` for an example of that setup, which is commmon on 
+Note that this location will vary if your Solr instance has a separate data
+folder. See ``DEPLOYNOTES`` for an example of that setup, which is commmon on
 server installs of Solr.
 
 You will also need to configure Django to use the Solr instance in
