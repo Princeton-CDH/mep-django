@@ -256,6 +256,24 @@ def test_alpha_pagelabels():
     assert labels[4] == 'Anna - Anne'
     assert labels[5] == 'Az'
 
+    # exact match on labels for page boundary
+    titles.insert(1, 'Abner')
+    items = [item(t) for t in titles]
+    labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
+    assert labels[1].endswith('- Abner')
+    assert labels[2].startswith('Abner - ')
+
+    # single page of results - use first and last for labels
+    paginator = Paginator(items, per_page=20)
+    labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
+    assert len(labels) == 1
+    # first two letters of first and last titles is enough
+    assert labels[1] == '%s - %s' % (titles[0][:2], titles[-1][:2])
+
+    # returns empty response if no items
+    paginator = Paginator([], per_page=20)
+    assert not alpha_pagelabels(paginator, [], lambda x: getattr(x, 'title'))
+
 
 class TestLabeledPagesMixin(TestCase):
 
@@ -263,7 +281,7 @@ class TestLabeledPagesMixin(TestCase):
 
         class MyLabeledPagesView(LabeledPagesMixin, ListView):
             paginate_by = 5
-        
+
         view = MyLabeledPagesView()
         rf = RequestFactory()
         # populating some properties directly to skip the dispatch flow
