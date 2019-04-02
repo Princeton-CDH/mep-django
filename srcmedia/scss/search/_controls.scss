@@ -4,16 +4,10 @@
     background: white;
     width: 100%;
     z-index: 1;
-    height: 2.5rem;
     transition: box-shadow 0.5s;
     
     @media (min-width: $breakpoint-s) {
-        height: 3rem;
         top: 0;
-    }
-
-    @media (min-width: $breakpoint-l) {
-        height: 4rem;
     }
 
     &.stuck {
@@ -25,12 +19,15 @@
         height: 100%;
         display: flex;
         align-items: center;
+        height: 2.5rem;
 
         @media (min-width: $breakpoint-s) {
+            height: 3rem;
             margin: 0 3rem;
         }
         
         @media (min-width: $breakpoint-l) {
+            height: 4rem;
             margin: 0 4rem;
         }
     }
