@@ -12,10 +12,10 @@ module.exports = env => ({
     mode: devMode ?  'development' : 'production',
     entry: {
         main: [
-            './js/main.ts', // main site script
+            './ts/main.ts', // main site script
             './scss/main.scss' // site styles
         ],
-        search: './js/search.ts', // script for search pages
+        search: './ts/search.ts', // script for search pages
     },
     output: {
         path: path.resolve(__dirname, 'bundles'), // where to output bundles
