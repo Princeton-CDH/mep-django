@@ -4,7 +4,7 @@
 
 {% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
 
-{% block js %}{% render_bundle 'search' 'js' %}{% endblock %}
+{% block js %}{% render_bundle 'search' 'js' attrs='defer' %}{% endblock %}
 
 {% block page-subtitle %}Library Members · {% endblock %}
 
