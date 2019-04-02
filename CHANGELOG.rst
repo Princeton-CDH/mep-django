@@ -3,6 +3,16 @@
 CHANGELOG
 =========
 
+0.12
+----
+
+* As a user, I want the library member list paginated so that I don't have to browse through all the names at once.
+* As a user, I want to browse a list of books so that I can see all the books known to have circulated through the library.
+* As a user, I want the books list paginated so that I don't have to browse through all the titles at once.
+
+* Updated JavaScript pipeline for TypeScript
+
+
 0.11 Admin enhancements and initial Solr functionality
 ------------------------------------------------------
 * As a data editor I want to document generic events related to books so that I can reflect the idiosyncrasies of non-standard borrowing events.
@@ -12,6 +22,7 @@ CHANGELOG
 
 * Adds Solr functionality and configset installation instructions.
 * Adds styles for member list search results.
+
 
 0.10 Initial member list and Wagtail CMS functionality
 ------------------------------------------------------
