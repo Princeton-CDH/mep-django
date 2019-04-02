@@ -3,6 +3,14 @@
 Deploy and Upgrade notes
 ========================
 
+0.13
+----
+
+* Member search requires an updated solrconfig.xml. Copy
+  `solr_conf/conf/solrconfig.xml` to your configured Solr configset
+  directory.
+
+
 0.12
 ----
 
