@@ -4,19 +4,18 @@
  */
 export default class MainMenu {
     element: HTMLElement
-    bodyElement: HTMLBodyElement
     transitionDuration: number
 
-    constructor(element: HTMLElement, bodyElement: HTMLBodyElement) {
+    constructor(element: HTMLElement) {
         this.element = element
-        this.bodyElement = bodyElement
         // Get the transition-duration property
         let td = window
             .getComputedStyle(this.element)
             .getPropertyValue('transition-duration')
-        console.log(td)
         // Convert a css value like '0.5s' or '200ms' to integer milliseconds
-        this.transitionDuration = parseFloat(td) * (/\ds$/.test(td) ? 1000 : 1)
+        // If none was specified (NaN), use zero
+        this.transitionDuration = 
+            td ? parseFloat(td) * (/\ds$/.test(td) ? 1000 : 1) : 0
     }
 
     /**
@@ -30,7 +29,7 @@ export default class MainMenu {
         this.element.style.zIndex = '100'
         this.element.style.opacity = '1'
         this.element.style.pointerEvents = 'all'
-        this.bodyElement.style.overflowY = 'hidden'
+        document.body.style.overflowY = 'hidden'
         return new Promise(resolve => setTimeout(resolve, this.transitionDuration))
     }
 
@@ -45,7 +44,7 @@ export default class MainMenu {
         this.element.style.zIndex = '-100'
         this.element.style.opacity = '0'
         this.element.style.pointerEvents = 'none'
-        this.bodyElement.style.overflowY = null
+        document.body.style.overflowY = null
         return new Promise(resolve => setTimeout(resolve, this.transitionDuration))
     }
 }
