@@ -24,6 +24,10 @@ Python 3.5 / Django 1.11 / Node 10.5.0
     :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/master
     :alt: Code coverage
 
+.. image:: https://api.codeclimate.com/v1/badges/871a9e9a9d832c01b0c6/maintainability
+   :target: https://codeclimate.com/github/Princeton-CDH/mep-django/maintainability
+   :alt: Maintainability
+
 .. image:: https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=master
      :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=master
      :alt: Requirements Status
