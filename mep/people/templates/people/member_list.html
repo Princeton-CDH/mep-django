@@ -4,7 +4,7 @@
 
 {% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
 
-{% block js %}{% render_bundle 'search' 'js' %}{% endblock %}
+{% block js %}{% render_bundle 'search' 'js' attrs='defer' %}{% endblock %}
 
 {% block page-subtitle %}Library Members · {% endblock %}
 
@@ -31,7 +31,7 @@
         <label class="pagination">
             <span>DISPLAYING</span>
             <select name="page" form="members-form">
-                {% for value, label in pagination_options %}
+                {% for value, label in page_labels %}
                 <option value="{{ value }}" {% if page_obj.number == value %}selected="selected"{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>

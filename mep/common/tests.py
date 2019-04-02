@@ -1,18 +1,21 @@
-import pytest
 import re
 from unittest.mock import Mock
 
-from django.contrib.auth.models import User, Group
+import pytest
+from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
-from django.core.paginator import Paginator
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from django.test import TestCase, override_settings
+from django.test.client import RequestFactory
 from django.urls import reverse
+from django.views.generic.list import ListView
 
-from mep.common.models import AliasIntegerField, Named, Notable, DateRange
-from mep.common.validators import verify_latlon
 from mep.common.admin import LocalUserAdmin
+from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.utils import absolutize_url, alpha_pagelabels
+from mep.common.validators import verify_latlon
+from mep.common.views import LabeledPagesMixin
 
 
 class TestNamed(TestCase):
@@ -252,3 +255,48 @@ def test_alpha_pagelabels():
     assert labels[3] == 'Am - And'
     assert labels[4] == 'Anna - Anne'
     assert labels[5] == 'Az'
+
+    # exact match on labels for page boundary
+    titles.insert(1, 'Abner')
+    items = [item(t) for t in titles]
+    labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
+    assert labels[1].endswith('- Abner')
+    assert labels[2].startswith('Abner - ')
+
+    # single page of results - use first and last for labels
+    paginator = Paginator(items, per_page=20)
+    labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
+    assert len(labels) == 1
+    # first two letters of first and last titles is enough
+    assert labels[1] == '%s - %s' % (titles[0][:2], titles[-1][:2])
+
+    # returns empty response if no items
+    paginator = Paginator([], per_page=20)
+    assert not alpha_pagelabels(paginator, [], lambda x: getattr(x, 'title'))
+
+
+class TestLabeledPagesMixin(TestCase):
+
+    def test_get_page_labels(self):
+
+        class MyLabeledPagesView(LabeledPagesMixin, ListView):
+            paginate_by = 5
+
+        view = MyLabeledPagesView()
+        rf = RequestFactory()
+        # populating some properties directly to skip the dispatch flow
+        view.object_list = list(range(0, 33))
+        view.kwargs = {}
+        view.request = rf.get('/', {'page': '1'})
+        context = view.get_context_data()
+        # should have page labels in context
+        assert 'page_labels' in context
+        # should be 7 pages of 5 items each
+        assert len(context['page_labels']) == 7
+        # last page label shows only the remaining items
+        assert context['page_labels'][-1] == (7, '31 - 33')
+        # with no items, should return an empty list
+        view.object_list = []
+        view.request = rf.get('/', {'page': '1'})
+        context = view.get_context_data()
+        assert context['page_labels'] == []
