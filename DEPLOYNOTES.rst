@@ -3,6 +3,14 @@
 Deploy and Upgrade notes
 ========================
 
+0.12
+----
+
+* Index book data in Solr to populate the book browse::
+
+  python manage.py index -i item
+
+
 0.11
 ----
 
