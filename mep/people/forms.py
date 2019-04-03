@@ -86,9 +86,9 @@ class MemberSearchForm(forms.Form):
                             widget=forms.TextInput(attrs={
                                 'placeholder': 'Search member',
                             }))
-
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False,
                              widget=SelectWithDisabled)
+    has_card = forms.BooleanField(label='Card', required=False)
 
     def __init__(self, data=None, *args, **kwargs):
         '''

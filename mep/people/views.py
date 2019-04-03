@@ -88,6 +88,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
             if search_opts['query']:
                 sqs = sqs.search(self.search_name_query) \
                          .raw_query_parameters(name_query=search_opts['query'])
+            if search_opts['has_card']:
+                sqs = sqs.filter(has_card_b=search_opts['has_card'])
 
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
