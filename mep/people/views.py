@@ -85,9 +85,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
         form = self.get_form()
         if form.is_valid():
             search_opts = form.cleaned_data
-            print('form is valid, data is %s' % search_opts)
             if search_opts['query']:
-                print('search on %s' % self.search_name_query)
                 sqs = sqs.search(self.search_name_query) \
                          .raw_query_parameters(name_query=search_opts['query'])
 
