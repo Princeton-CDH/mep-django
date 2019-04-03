@@ -1,7 +1,7 @@
 {% load static %}
 <label class="pagination">
     <span>DISPLAYING</span>
-    <select name="page" form="books-form">
+    <select name="page" form="{{ form }}" onchange="this.form.submit()">
         {% for value, label in page_labels %}
         <option value="{{ value }}" {% if page_obj.number == value %}selected="selected"{% endif %}>{{ label }}</option>
         {% endfor %}

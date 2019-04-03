@@ -29,8 +29,8 @@
             </select>
             <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
         </label>
-        <button type="submit" form="members-form">Go</button>
-        {% include 'snippets/pagination.html' %}
+        <button type="submit" form="books-form">Go</button>
+        {% include 'snippets/pagination.html' with form="books-form" %}
     </div>
     {% if page_obj.has_other_pages %} {# if only one page of results, don't show next/previous links #}
     <div class="outer">
