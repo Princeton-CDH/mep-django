@@ -60,8 +60,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
             self._form = super().get_form(*args, **kwargs)
         return self._form
 
-    #: name query alias field syntax
-    search_name_query = '{!type=edismax qf=$name_qf pf=$name_pf v=$name_query}'
+    #: name query alias field syntax (type defaults to edismax in solr config)
+    search_name_query = '{!qf=$name_qf pf=$name_pf v=$name_query}'
 
     # map form sort to solr sort field
     solr_sort = {
