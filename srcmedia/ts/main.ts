@@ -1,5 +1,6 @@
 import MainMenu from './components/MainMenu'
-import PageControls from './components/PageControls'
+// import PageControls from './components/PageControls'
+import { sticky } from './utilities'
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -12,9 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // components
     const mainMenu = new MainMenu($mainMenu)
-    const pageControls = new PageControls($pageControls)
-
-    console.log(pageControls)
+    // const pageControls = new PageControls($pageControls)
+    sticky($pageControls)
 
     // bindings
     $openMainMenu.onclick = mainMenu.show.bind(mainMenu)
