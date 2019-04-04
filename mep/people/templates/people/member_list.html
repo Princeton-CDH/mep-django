@@ -17,10 +17,10 @@
 {% block content %}
 <section class="members search-form">
     <form id="members-form">
-        <fieldset>
+        <div>
             {% render_field form.query aria-label=form.query.label %}
             <span class="search-icon"></span>
-        </fieldset>
+        </div>
         <span class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</span>
     </form>
 </section>
