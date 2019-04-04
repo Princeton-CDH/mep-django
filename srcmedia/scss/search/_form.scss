@@ -18,10 +18,16 @@
         text-align: center;
     }
 
+    fieldset {
+        position: relative;
+    }
+
     input[name=query] {
-        width: 100%;
+        width: calc(100% - 1rem);
+        height: 1rem;
+        margin-right: 1rem;
         font-family: $sans;
-        font-size: 16px;
+        font-size: 0.8rem;
         background-color: transparent;
         border: none;
         border-bottom: dotted 2px $black;
@@ -31,11 +37,16 @@
           color: $nearly-black;
           opacity: 1; /* Firefox */
         }
-
-        /* TODO: search icon at right */;
-
     }
 
-
+    .search-icon {
+        position: absolute;
+        width: 1rem;
+        height: 1rem;
+        right: 0;
+        bottom: 0;
+        background-image: url('/static/img/icons/search.svg');
+        background-position: center center;
+    }
 
 }
