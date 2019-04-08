@@ -76,7 +76,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
                                   account_start='account_start_i',
                                   account_end='account_end_i',
                                   has_card='has_card_b',
-                                  pk='pk_i')
+                                  pk='pk_i') \
+                            .facet('has_card_b')
 
         # NOTE: using only / field limit to alias dynamic field names
         # to something closer to model attribute names
