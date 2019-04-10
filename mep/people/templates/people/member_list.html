@@ -23,7 +23,7 @@
                 <div class='toggle-filters'>
                     {% render_field form.has_card aria-label=form.has_card.label class+="sr-only" %}
                     <label for='id_has_card'>
-                        <span>Card {{ members.facet_fields.has_card_b.true }}</span>
+                        <span>Card {{ members.get_facets.has_card_b.true }}</span>
                         <img class="filter icon" src="{% static 'img/icons/member_card.svg' %}" alt="card icon">
                         <div role="img" aria-label="" tabindex=0></div>
                     </label>
