@@ -16,7 +16,5 @@ django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader
-# requires functionality in develop; next version should be 0.2
-# parasolr>=0.2
-git+https://github.com/Princeton-CDH/parasolr@develop#egg=parasolr
+parasolr>=0.2
 django-widget-tweaks
