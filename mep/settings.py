@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'wagtail.core',
     'wagtail.contrib.redirects',
     'taggit',
+    'widget_tweaks',
     # local apps
     'mep.common',
     'mep.people',

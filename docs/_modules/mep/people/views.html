@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.12.0 documentation</title>
+    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.13.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -27,6 +28,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for mep.people.views</h1><div class="highlight"><pre>
@@ -39,44 +42,104 @@
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">format_html</span>
 <span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="k">import</span> <span class="n">mark_safe</span>
-<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">ListView</span>
-<span class="kn">from</span> <span class="nn">django.views.generic.edit</span> <span class="k">import</span> <span class="n">FormView</span>
+<span class="kn">from</span> <span class="nn">django.utils.timezone</span> <span class="k">import</span> <span class="n">now</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">DetailView</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.edit</span> <span class="k">import</span> <span class="n">FormView</span><span class="p">,</span> <span class="n">FormMixin</span>
 <span class="kn">from</span> <span class="nn">parasolr.django</span> <span class="k">import</span> <span class="n">SolrQuerySet</span>
 
 <span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Event</span>
 <span class="kn">from</span> <span class="nn">mep.common.utils</span> <span class="k">import</span> <span class="n">alpha_pagelabels</span>
 <span class="kn">from</span> <span class="nn">mep.common.views</span> <span class="k">import</span> <span class="n">LabeledPagesMixin</span>
-<span class="kn">from</span> <span class="nn">mep.people.forms</span> <span class="k">import</span> <span class="n">PersonMergeForm</span>
+<span class="kn">from</span> <span class="nn">mep.people.forms</span> <span class="k">import</span> <span class="n">PersonMergeForm</span><span class="p">,</span> <span class="n">MemberSearchForm</span>
 <span class="kn">from</span> <span class="nn">mep.people.geonames</span> <span class="k">import</span> <span class="n">GeoNamesAPI</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Country</span><span class="p">,</span> <span class="n">Location</span><span class="p">,</span> <span class="n">Person</span>
 
 
-<div class="viewcode-block" id="MembersList"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList">[docs]</a><span class="k">class</span> <span class="nc">MembersList</span><span class="p">(</span><span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">):</span>
+<div class="viewcode-block" id="MembersList"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList">[docs]</a><span class="k">class</span> <span class="nc">MembersList</span><span class="p">(</span><span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">FormMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;List page for searching and browsing library members.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_list.html&#39;</span>
     <span class="n">paginate_by</span> <span class="o">=</span> <span class="mi">100</span>
     <span class="n">context_object_name</span> <span class="o">=</span> <span class="s1">&#39;members&#39;</span>
 
+    <span class="n">form_class</span> <span class="o">=</span> <span class="n">MemberSearchForm</span>
+    <span class="c1"># cached form instance for current request</span>
+    <span class="n">_form</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: initial form values</span>
+    <span class="n">initial</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;sort&#39;</span><span class="p">:</span> <span class="s1">&#39;name&#39;</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="MembersList.get_form_kwargs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_form_kwargs">[docs]</a>    <span class="k">def</span> <span class="nf">get_form_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_form_kwargs</span><span class="p">()</span>
+        <span class="c1"># use GET instead of default POST/PUT for form data</span>
+        <span class="n">form_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># always use relevance sort for keyword search;</span>
+        <span class="c1"># otherwise use default (sort by name)</span>
+        <span class="k">if</span> <span class="s1">&#39;query&#39;</span> <span class="ow">in</span> <span class="n">form_data</span><span class="p">:</span>
+            <span class="n">form_data</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;relevance&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">form_data</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]</span>
+
+        <span class="c1"># use initial values as defaults</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">form_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">form_data</span>
+        <span class="k">return</span> <span class="n">kwargs</span></div>
+
+<div class="viewcode-block" id="MembersList.get_form"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_form">[docs]</a>    <span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># initialize the form, caching on current instance</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_form</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_form</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_form</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_form</span></div>
+
+    <span class="c1">#: name query alias field syntax (type defaults to edismax in solr config)</span>
+    <span class="n">search_name_query</span> <span class="o">=</span> <span class="s1">&#39;{!qf=$name_qf pf=$name_pf v=$name_query}&#39;</span>
+
+    <span class="c1"># map form sort to solr sort field</span>
+    <span class="n">solr_sort</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;relevance&#39;</span><span class="p">:</span> <span class="s1">&#39;score&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;sort_name_sort_s&#39;</span>
+    <span class="p">}</span>
+
 <div class="viewcode-block" id="MembersList.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sqs</span> <span class="o">=</span> <span class="n">SolrQuerySet</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">item_type</span><span class="o">=</span><span class="s1">&#39;person&#39;</span><span class="p">)</span> \
-                            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;sort_name_sort_s&#39;</span><span class="p">)</span> \
                             <span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;name_t&#39;</span><span class="p">,</span> <span class="n">sort_name</span><span class="o">=</span><span class="s1">&#39;sort_name_t&#39;</span><span class="p">,</span>
                                   <span class="n">birth_year</span><span class="o">=</span><span class="s1">&#39;birth_year_i&#39;</span><span class="p">,</span> <span class="n">death_year</span><span class="o">=</span><span class="s1">&#39;death_year_i&#39;</span><span class="p">,</span>
                                   <span class="n">account_start</span><span class="o">=</span><span class="s1">&#39;account_start_i&#39;</span><span class="p">,</span>
                                   <span class="n">account_end</span><span class="o">=</span><span class="s1">&#39;account_end_i&#39;</span><span class="p">,</span>
                                   <span class="n">has_card</span><span class="o">=</span><span class="s1">&#39;has_card_b&#39;</span><span class="p">,</span>
                                   <span class="n">pk</span><span class="o">=</span><span class="s1">&#39;pk_i&#39;</span><span class="p">)</span>
+
         <span class="c1"># NOTE: using only / field limit to alias dynamic field names</span>
         <span class="c1"># to something closer to model attribute names</span>
+
+        <span class="c1"># when form is valid, check for search term and filter queryset</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">search_opts</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span>
+            <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]:</span>
+                <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search_name_query</span><span class="p">)</span> \
+                         <span class="o">.</span><span class="n">raw_query_parameters</span><span class="p">(</span><span class="n">name_query</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">])</span>
+
+            <span class="c1"># order based on solr name for search option</span>
+            <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solr_sort</span><span class="p">[</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]])</span>
+            <span class="c1"># TODO: what happens if form is invalid?</span>
+            <span class="c1"># (currently should not be possible, but eventually will)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">sqs</span>
         <span class="k">return</span> <span class="n">sqs</span></div>
 
 <div class="viewcode-block" id="MembersList.get_page_labels"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_page_labels">[docs]</a>    <span class="k">def</span> <span class="nf">get_page_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paginator</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;generate labels for pagination&#39;&#39;&#39;</span>
 
-        <span class="c1"># TODO: determine page labels based on sort option</span>
-        <span class="c1"># once we add keyword search</span>
+        <span class="c1"># when sorting by relevance, use default page label logic</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">()</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;relevance&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_page_labels</span><span class="p">(</span><span class="n">paginator</span><span class="p">)</span>
+
+        <span class="c1"># otherwise, when sorting by alpha, generate alpha page labels</span>
         <span class="n">pagination_qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queryset</span><span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="n">sort_name</span><span class="o">=</span><span class="s1">&#39;sort_name_t&#39;</span><span class="p">)</span>
         <span class="n">alpha_labels</span> <span class="o">=</span> <span class="n">alpha_pagelabels</span><span class="p">(</span><span class="n">paginator</span><span class="p">,</span> <span class="n">pagination_qs</span><span class="p">,</span>
                                         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;sort_name&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
@@ -342,6 +405,7 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -367,7 +431,7 @@
     
 
 <p>
-<a href="https://travis-ci.org/Princeton-CDH/mep-django">
+<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
     <img
         alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
         src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
@@ -381,7 +445,7 @@
     
 
 <p>
-<a href="https://codecov.io/github/Princeton-CDH/mep-django">
+<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
     <img
     alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
     src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
@@ -423,8 +487,8 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 

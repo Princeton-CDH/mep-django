@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize %}
+{% load static humanize widget_tweaks %}
 {% load render_bundle from webpack_loader %}
 
 {% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
@@ -17,16 +17,17 @@
 {% block content %}
 <section class="members search-form">
     <form id="members-form">
-        <span class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</span>
+        <label class="query">
+            {% render_field form.query aria-label=form.query.label %}
+        </label>
+        <output class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
     </form>
 </section>
 <section class="members sort-pages">
     <div class="inner">
         <label class="sort">
             <span>SORTED BY</span>
-            <select name="sort" form="members-form">
-                <option selected>Last Name A-Z</option>
-            </select>
+            {% render_field form.sort form="members-form" %}
             <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
         </label>
         <label class="pagination">

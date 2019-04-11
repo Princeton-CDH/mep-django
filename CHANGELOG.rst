@@ -3,6 +3,12 @@
 CHANGELOG
 =========
 
+0.13
+----
+
+* As a user, I want to search for library members by name or partial name so that I can find specific people I’m interested in.
+* Updated results template & styles for book browse page
+
 0.12
 ----
 

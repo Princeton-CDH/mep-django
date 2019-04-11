@@ -40,6 +40,7 @@ SOLR_CONNECTIONS = {
     'default': {
         'URL': 'http://localhost:8983/solr/',
         'COLLECTION': 's-and-co',
+        'CONFIGSET': 'sandco',
         'TEST': {
             # aggressive commitWithin for test only
             'COMMITWITHIN': 750,

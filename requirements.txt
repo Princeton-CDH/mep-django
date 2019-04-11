@@ -16,4 +16,5 @@ django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader
-parasolr
+parasolr>=0.2
+django-widget-tweaks

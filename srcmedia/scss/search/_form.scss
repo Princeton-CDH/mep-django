@@ -1,15 +1,61 @@
 .search-form {
     @include padding-container;
-
-    height: 3rem;
     background: $white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 
     .total-results {
         font-family: $serif;
         font-style: italic;
         font-size: 0.8rem;
+        margin: 3rem 0 1rem;
+    }
+
+    #members-form {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    label.query {
+        width: 100%;
+        height: 1.4rem;
+        position: relative;
+
+        input[name=query] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            padding: .2rem 0;
+            width: calc(100% - 1rem);
+            font-size: 0.8rem;
+            background-color: transparent;
+            border-width: 0 0 2px 0;
+            border-color: $black;
+            border-bottom-style: dotted;
+            outline: none;
+            transition: border 0.5s;
+        
+            &::placeholder {
+              color: $nearly-black;
+              opacity: 1; /* Firefox */
+            }
+    
+            &:focus {
+                border-bottom-style: solid;
+            }
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            width: 1rem;
+            height: 100%;
+            right: 0;
+            bottom: 0;
+            background-image: url('/static/img/icons/search.svg');
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
     }
 }

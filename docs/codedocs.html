@@ -6,13 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.12.0 documentation</title>
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.13.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="CHANGELOG" href="changelog.html" />
@@ -29,6 +30,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="code-documentation">
@@ -415,7 +418,7 @@ borrows, and purchases).</p>
 <a class="reference internal" href="#mep.accounts.models.DatePrecision" title="mep.accounts.models.DatePrecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatePrecision</span></code></a> from partial date strings, e.g. –05-02.</p>
 <dl class="staticmethod">
 <dt id="mep.accounts.models.PartialDate.date_format">
-<em class="property">static </em><code class="descname">date_format</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.date_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.date_format" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">date_format</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.date_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.date_format" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a format string for use with <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date.strftime" title="(in Python v3.7)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">datetime.date.strftime()</span></code></a>
 to output a date with the appropriate precision</p>
 </dd></dl>
@@ -1375,6 +1378,24 @@ Use Q objects to search all relevant fields in autocomplete.</p>
 <dt id="mep.people.views.MembersList">
 <em class="property">class </em><code class="descclassname">mep.people.views.</code><code class="descname">MembersList</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MembersList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MembersList" title="Permalink to this definition">¶</a></dt>
 <dd><p>List page for searching and browsing library members.</p>
+<dl class="attribute">
+<dt id="mep.people.views.MembersList.form_class">
+<code class="descname">form_class</code><a class="headerlink" href="#mep.people.views.MembersList.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.forms.MemberSearchForm</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.MembersList.get_form">
+<code class="descname">get_form</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MembersList.get_form"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MembersList.get_form" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an instance of the form to be used in this view.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.MembersList.get_form_kwargs">
+<code class="descname">get_form_kwargs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MembersList.get_form_kwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MembersList.get_form_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the keyword arguments for instantiating the form.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="mep.people.views.MembersList.get_page_labels">
 <code class="descname">get_page_labels</code><span class="sig-paren">(</span><em>paginator</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MembersList.get_page_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MembersList.get_page_labels" title="Permalink to this definition">¶</a></dt>
@@ -1390,9 +1411,21 @@ Use Q objects to search all relevant fields in autocomplete.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="mep.people.views.MembersList.initial">
+<code class="descname">initial</code><em class="property"> = {'sort': 'name'}</em><a class="headerlink" href="#mep.people.views.MembersList.initial" title="Permalink to this definition">¶</a></dt>
+<dd><p>initial form values</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="mep.people.views.MembersList.model">
 <code class="descname">model</code><a class="headerlink" href="#mep.people.views.MembersList.model" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Person</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.views.MembersList.search_name_query">
+<code class="descname">search_name_query</code><em class="property"> = '{!qf=$name_qf pf=$name_pf v=$name_query}'</em><a class="headerlink" href="#mep.people.views.MembersList.search_name_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>name query alias field syntax (type defaults to edismax in solr config)</p>
 </dd></dl>
 
 </dd></dl>
@@ -1794,6 +1827,7 @@ for or against information in the system.</p>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -1819,7 +1853,7 @@ for or against information in the system.</p>
     
 
 <p>
-<a href="https://travis-ci.org/Princeton-CDH/mep-django">
+<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
     <img
         alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
         src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
@@ -1833,7 +1867,7 @@ for or against information in the system.</p>
     
 
 <p>
-<a href="https://codecov.io/github/Princeton-CDH/mep-django">
+<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
     <img
     alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
     src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
@@ -1849,7 +1883,7 @@ for or against information in the system.</p>
 </ul>
 
 
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Code Documentation</a><ul>
 <li><a class="reference internal" href="#module-mep.common">Common</a><ul>
@@ -1916,8 +1950,8 @@ for or against information in the system.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/codedocs.rst.txt"

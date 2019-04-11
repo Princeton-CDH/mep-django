@@ -7,44 +7,104 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.views.generic import DetailView, ListView
-from django.views.generic.edit import FormView
+from django.utils.timezone import now
+from django.views.generic import ListView, DetailView
+from django.views.generic.edit import FormView, FormMixin
 from parasolr.django import SolrQuerySet
 
 from mep.accounts.models import Event
 from mep.common.utils import alpha_pagelabels
 from mep.common.views import LabeledPagesMixin
-from mep.people.forms import PersonMergeForm
+from mep.people.forms import PersonMergeForm, MemberSearchForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 
 
-class MembersList(LabeledPagesMixin, ListView):
+class MembersList(LabeledPagesMixin, ListView, FormMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
     paginate_by = 100
     context_object_name = 'members'
 
+    form_class = MemberSearchForm
+    # cached form instance for current request
+    _form = None
+    #: initial form values
+    initial = {
+        'sort': 'name'
+    }
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # use GET instead of default POST/PUT for form data
+        form_data = self.request.GET.copy()
+
+        # always use relevance sort for keyword search;
+        # otherwise use default (sort by name)
+        if 'query' in form_data:
+            form_data['sort'] = 'relevance'
+        else:
+            form_data['sort'] = self.initial['sort']
+
+        # use initial values as defaults
+        for key, val in self.initial.items():
+            form_data.setdefault(key, val)
+
+        kwargs['data'] = form_data
+        return kwargs
+
+    def get_form(self, *args, **kwargs):
+        # initialize the form, caching on current instance
+        if not self._form:
+            self._form = super().get_form(*args, **kwargs)
+        return self._form
+
+    #: name query alias field syntax (type defaults to edismax in solr config)
+    search_name_query = '{!qf=$name_qf pf=$name_pf v=$name_query}'
+
+    # map form sort to solr sort field
+    solr_sort = {
+        'relevance': 'score',
+        'name': 'sort_name_sort_s'
+    }
+
     def get_queryset(self):
         sqs = SolrQuerySet().filter(item_type='person') \
-                            .order_by('sort_name_sort_s') \
                             .only(name='name_t', sort_name='sort_name_t',
                                   birth_year='birth_year_i', death_year='death_year_i',
                                   account_start='account_start_i',
                                   account_end='account_end_i',
                                   has_card='has_card_b',
                                   pk='pk_i')
+
         # NOTE: using only / field limit to alias dynamic field names
         # to something closer to model attribute names
+
+        # when form is valid, check for search term and filter queryset
+        form = self.get_form()
+        if form.is_valid():
+            search_opts = form.cleaned_data
+            if search_opts['query']:
+                sqs = sqs.search(self.search_name_query) \
+                         .raw_query_parameters(name_query=search_opts['query'])
+
+            # order based on solr name for search option
+            sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
+            # TODO: what happens if form is invalid?
+            # (currently should not be possible, but eventually will)
+
         self.queryset = sqs
         return sqs
 
     def get_page_labels(self, paginator):
         '''generate labels for pagination'''
 
-        # TODO: determine page labels based on sort option
-        # once we add keyword search
+        # when sorting by relevance, use default page label logic
+        if self.get_form().cleaned_data['sort'] == 'relevance':
+            return super().get_page_labels(paginator)
+
+        # otherwise, when sorting by alpha, generate alpha page labels
         pagination_qs = self.queryset.only(sort_name='sort_name_t')
         alpha_labels = alpha_pagelabels(paginator, pagination_qs,
                                         lambda x: x['sort_name'][0])
