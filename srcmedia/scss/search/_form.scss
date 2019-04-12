@@ -11,6 +11,62 @@
         margin: 3rem 0 1rem;
     }
 
+
+    .tooltip {
+
+        &__text {
+            opacity: 0;
+            position: absolute;
+            top: -80%;
+            left: 1%;
+            background-color: white;
+            color: $brownish-grey;
+            width: 12rem;
+            font-size: 0.7rem;
+            line-height: 1.14;
+            padding: 0.4rem 0.8rem 0.4rem 0.8rem;
+            text-align: left;
+            box-shadow: 0 0 4px 0 rgba(7, 136, 252, 0.6);
+            transition: all 0.2s ease;
+
+            .arrow {
+                opacity: 0;
+                width: 50px;
+                height: 25px;
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                transition: all 0.2s ease;
+                overflow: hidden;
+
+                &::after {
+                    content: "";
+                    position: absolute;
+                    width: 0.4rem;
+                    height: 0.4rem;
+                    background: white;
+                    transform: translateX(-50%) translateY(-50%) rotate(45deg);
+                    top: 0;
+                    left: 50%;
+                    box-shadow: 0 0 4px 0 rgba(7, 136, 252, 0.6);
+                }
+            }
+
+        }
+
+        &:hover, &:focus {
+            .tooltip__text {
+                opacity: 1;
+                .arrow {
+                    opacity: 1;
+                }
+            }
+
+
+        }
+    }
+
     #members-form {
         display: flex;
         flex-flow: row wrap;
@@ -62,15 +118,17 @@
     }
 
     fieldset {
-
-        text-align: left;
+        display: flex;
+        justify-content: left;
+        align-items: left;
         font-size: 0.8rem;
-
+        text-align: left;
+        width: 100%;
 
         legend {
             font-weight: bold;
             width: 100%;
-            padding: 1.75rem 0rem 1.3rem;
+            padding: 1.75rem 0rem 0.6rem;
         }
 
         .toggle-filters {
@@ -84,7 +142,7 @@
                 display: flex;
                 align-items: flex-start;
                 box-sizing: border-box;
-                padding: 0.35rem;
+                padding: 0.55rem;
                 background-color: white;
                 margin: 0 1px 0 1px;
 
@@ -97,10 +155,29 @@
                     &.filter {
                         &.icon {
                             padding-left: 0.2rem;
-                            width: 1rem;
+                            width: 1.35rem;
                         }
                     }
                 }
+
+                span {
+                    padding: 0.3rem;
+
+                    .count {
+                        font-size: 0.6rem;
+                    }
+                }
+
+                .info-img {
+                    margin-top: 0.6rem;
+                    margin-left: 0.2rem;
+                    background-image: url("/static/img/icons/Information.svg");
+                    width: 0.75rem;
+                    height: 0.75rem;
+                    align-items: center;
+                }
+
+
             }
 
             // fade opacity when input is clicked on the entire label
@@ -110,8 +187,18 @@
                     * {
                         opacity: 0.3;
                     }
-                }
 
+                    .info-img {
+                        opacity: 1;
+                        background-image: url("/static/img/icons/filter_clicked_state.svg")
+                    }
+
+                    .tooltip {
+                        &__text {
+                            opacity: 0;
+                        }
+                    }
+                }
             }
         }
     }
