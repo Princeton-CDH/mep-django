@@ -676,6 +676,12 @@ class TestMembersListView(TestCase):
         # no query, use default sort
         assert form_kwargs['data']['sort'] == view.initial['sort']
 
+        # blank query, use default sort
+        view.request = self.factory.get(self.members_url, {'query': ''})
+        form_kwargs = view.get_form_kwargs()
+        # no query, use default sort
+        assert form_kwargs['data']['sort'] == view.initial['sort']
+
         # with keyword query, should default to relevance sort
         view.request = self.factory.get(self.members_url, {'query': 'stein'})
         form_kwargs = view.get_form_kwargs()
@@ -711,12 +717,15 @@ class TestMembersListView(TestCase):
         # should sort by solr field corresponding to default sort
         mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
 
-        # enable card filter
-        view.request = self.factory.get(self.members_url, {'has_card': True})
+        # enable card filter, also test that a blank query doesn't force relevance
+        view.request = self.factory.get(self.members_url, {'has_card': True,
+                                                           'query': ''})
         # remove cached form
         del view._form
         sqs = view.get_queryset()
         assert view.queryset == sqs
+        # blank query left default sort in place too
+        mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
         # faceting should be on *and* filtering by that facet
         # as its most recent call
         mock_qs.facet.assert_called_with('has_card_b')
