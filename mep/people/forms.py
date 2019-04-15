@@ -85,10 +85,17 @@ class MemberSearchForm(forms.Form):
     query = forms.CharField(label='Keyword or Phrase', required=False,
                             widget=forms.TextInput(attrs={
                                 'placeholder': 'Search member',
+                                'aria-label': 'Keyword or Phrase'
                             }))
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False,
                              widget=SelectWithDisabled)
-    has_card = forms.BooleanField(label='Card', required=False)
+    has_card = forms.BooleanField(label='Card', required=False,
+        widget=forms.CheckboxInput(attrs={
+            'aria-label': 'Card',
+            'aria-describedby': 'has_card_tip'
+        }),
+        help_text='This filter will narrow results to show only members whose \
+        library records are available.')
 
     def __init__(self, data=None, *args, **kwargs):
         '''
