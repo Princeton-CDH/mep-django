@@ -50,9 +50,8 @@ class WorldCatClientBase:
                             self.API_ENDPOINT)).strip('/'),
                 params=kwargs)
             if response.status_code == requests.codes.OK:
-                print('foo')
                 return response
-        except requests.RequestException as err:
+        except requests.exceptions.ConnectionError as err:
             logger.exception(err)
 
 

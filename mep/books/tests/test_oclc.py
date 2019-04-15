@@ -36,7 +36,10 @@ class TestWorldCatClientBase(SimpleTestCase):
     @patch('mep.books.oclc.requests')
     @override_settings(OCLC_WSKEY='fakekey')
     def test_search(self, mock_requests):
-        mock_requests.codes.OK = request.codes.OK
+        # stub back in codes and exceptions for requests
+        mock_requests.codes.OK = requests.codes.OK
+        mock_requests.exceptions.ConnectionError = requests.exceptions.ConnectionError
+        # mock out an object that can have a return_code to check
         mock_session = mock_requests.Session.return_value
         mock_session.get.return_value = Mock()
         mock_session.get.return_value.status_code = 200
@@ -63,6 +66,6 @@ class TestWorldCatClientBase(SimpleTestCase):
         # should be handled by returning None
         # make sure that the status_code doesn't affect this
         mock_session.get.return_value.status_code = 200
-        mock_session.get.side_effect = requests.ConnectionError
+        mock_session.get.side_effect = requests.exceptions.ConnectionError
         response = wc.search()
         assert response is None
