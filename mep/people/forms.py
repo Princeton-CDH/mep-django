@@ -96,8 +96,15 @@ class MemberSearchForm(forms.Form):
         '''
         super().__init__(data=data, *args, **kwargs)
 
-
-        # relevance is disabled unless we have a keyword query present
-        if not data or not 'query' in data or not data['query']:
+        # if a keyword search term is present, only relevance sort is allowed
+        if data and data.get('query', None):
+            self.fields['sort'].widget.choices[1] = \
+                (self.SORT_CHOICES[1][0], {
+                    'label': self.SORT_CHOICES[1][1],
+                    'disabled': True})
+        # otherwise, relevance is disabled
+        else:
             self.fields['sort'].widget.choices[0] = \
-                ('relevance', {'label': 'Relevance', 'disabled': True})
+                (self.SORT_CHOICES[0][0], {
+                    'label': self.SORT_CHOICES[0][1],
+                    'disabled': True})
