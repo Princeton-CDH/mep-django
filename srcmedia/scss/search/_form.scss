@@ -11,35 +11,39 @@
         margin: 3rem 0 1rem;
     }
 
-
+    /* Tooltip for card filter, SCSS for now always points up*/
     .tooltip {
 
+        /* Container for tooltip text proper */
         &__text {
-            opacity: 0;
+
             position: absolute;
             top: -80%;
             left: 1%;
+            opacity: 0;
             background-color: white;
             color: $brownish-grey;
-            width: 12rem;
+            width: 12rem; /* Force to be longer rather than wrap per spec */
             font-size: 0.7rem;
+            text-align: left;
             line-height: 1.14;
             padding: 0.4rem 0.8rem 0.4rem 0.8rem;
-            text-align: left;
             box-shadow: 0 0 4px 0 rgba(7, 136, 252, 0.6);
             transition: all 0.2s ease;
 
+            /* arrow div for positioning */
             .arrow {
-                opacity: 0;
                 width: 50px;
                 height: 25px;
                 position: absolute;
                 top: 100%;
                 left: 50%;
                 transform: translateX(-50%);
-                transition: all 0.2s ease;
+                opacity: 0;
                 overflow: hidden;
+                transition: all 0.2s ease;
 
+                /* actually draw the arrow using after */
                 &::after {
                     content: "";
                     position: absolute;
@@ -55,6 +59,7 @@
 
         }
 
+        /* Display tooltip on hover or focus */
         &:hover, &:focus {
             .tooltip__text {
                 opacity: 1;
@@ -62,7 +67,6 @@
                     opacity: 1;
                 }
             }
-
 
         }
     }
@@ -117,12 +121,13 @@
         }
     }
 
+    /* Fieldset used for filters */
     fieldset {
         display: flex;
         justify-content: left;
+        text-align: left;
         align-items: left;
         font-size: 0.8rem;
-        text-align: left;
         width: 100%;
 
         legend {
@@ -131,12 +136,13 @@
             padding: 1.75rem 0rem 0.6rem;
         }
 
+        /* Container for aligning filters */
         .toggle-filters {
 
             display: flex;
             justify-items: auto;
-            box-sizing: border-box;
             text-align: left;
+            box-sizing: border-box;
 
             label {
                 display: flex;
@@ -150,7 +156,7 @@
                     border: 2px solid $green;
                     margin: -2px -1px -2px -1px;
                 }
-                // image icons in toggle filters
+                /* image icons in toggle filters */
                 img {
                     &.filter {
                         &.icon {
@@ -160,6 +166,8 @@
                     }
                 }
 
+                /* Targeting div for count, which needs to handle opacity
+                   and which needs to have alternate sizing for count text */
                 span {
                     padding: 0.3rem;
 
@@ -180,19 +188,19 @@
 
             }
 
-            // fade opacity when input is clicked on the entire label
-            // but only for child elements -- we don't want the background
+            /* fade opacity when input is clicked on the entire label
+               but only for child elements -- we don't want the background */
             input {
                 &:checked + label {
                     * {
                         opacity: 0.3;
                     }
-
+                    /* Display clicked icon at full opacity and check mark*/
                     .info-img {
                         opacity: 1;
-                        background-image: url("/static/img/icons/filter_clicked_state.svg")
+                        background-image: url("/static/img/icons/filter_clicked_state.svg");
                     }
-
+                    /* Cause tooltip to vanish when card input clicked */
                     .tooltip {
                         &__text {
                             opacity: 0;
