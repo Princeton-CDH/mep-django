@@ -17,25 +17,18 @@
 {% block content %}
 <section class="members search-form">
     <form id="members-form">
-        <label class="query">
-            {% render_field form.query aria-label=form.query.label %}
-        </label>
+        {% render_field form.query %}
+        <label for="{{ form.query.id_for_label }}"></label>
         <fieldset>
-                <legend>Filter by:</legend>
-                <div class="toggle-filters">
-                    {% render_field form.has_card aria-label=form.has_card.label class+="sr-only" tabindex=0 %}
-                    <label for="id_has_card">
-                        {# Wrapping attribute in <span> for CSS targeting #}
-                        <span>Card <span class="count">{{ members.get_facets.has_card_b.true }}</span></span>
-                        <img class="filter icon" src="{% static 'img/icons/member_card.svg' %}" alt="card icon">
-                        <div class="info-img tooltip" role="img" aria-label="This filter will narrow results to show only members whose library records are available." tabindex=0>
-                            <div class="tooltip__text">
-                               <div class="arrow"></div>
-                                This filter will narrow results to show only members whose library records are available.
-                            </div>
-                        </div>
-                    </label>
-                </div>
+            <legend>Filter by:</legend>
+            <div class="inner">
+                {% render_field form.has_card class+="sr-only" tabindex=0 %}
+                <label for="{{ form.has_card.id_for_label }}">
+                    <span>Card <span class="count">{{ members.get_facets.has_card_b.true }}</span></span>
+                    <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="">
+                    <span id="has-card-tip" role="tooltip" aria-label="{{ form.has_card.help_text }}" tabindex=0 />
+                </label>
+            </div>
         </fieldset>
         <output class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
     </form>
