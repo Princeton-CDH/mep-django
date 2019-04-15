@@ -1,5 +1,7 @@
 .search-form {
     @include padding-container;
+
+    height: 100%;
     background: $white;
 
     .total-results {
@@ -7,6 +9,66 @@
         font-style: italic;
         font-size: 0.8rem;
         margin: 3rem 0 1rem;
+    }
+
+    /* Tooltip for card filter, SCSS for now always points up*/
+    .tooltip {
+
+        /* Container for tooltip text proper */
+        &__text {
+
+            position: absolute;
+            top: -80%;
+            left: 1%;
+            opacity: 0;
+            background-color: white;
+            color: $brownish-grey;
+            width: 12rem; /* Force to be longer rather than wrap per spec */
+            font-size: 0.7rem;
+            text-align: left;
+            line-height: 1.14;
+            padding: 0.4rem 0.8rem 0.4rem 0.8rem;
+            box-shadow: 0 0 4px 0 rgba(7, 136, 252, 0.6);
+            transition: all 0.2s ease;
+
+            /* arrow div for positioning */
+            .arrow {
+                width: 50px;
+                height: 25px;
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                opacity: 0;
+                overflow: hidden;
+                transition: all 0.2s ease;
+
+                /* actually draw the arrow using after */
+                &::after {
+                    content: "";
+                    position: absolute;
+                    width: 0.4rem;
+                    height: 0.4rem;
+                    background: white;
+                    transform: translateX(-50%) translateY(-50%) rotate(45deg);
+                    top: 0;
+                    left: 50%;
+                    box-shadow: 0 0 4px 0 rgba(7, 136, 252, 0.6);
+                }
+            }
+
+        }
+
+        /* Display tooltip on hover or focus */
+        &:hover, &:focus {
+            .tooltip__text {
+                opacity: 1;
+                .arrow {
+                    opacity: 1;
+                }
+            }
+
+        }
     }
 
     #members-form {
@@ -35,12 +97,12 @@
             border-bottom-style: dotted;
             outline: none;
             transition: border 0.5s;
-        
+
             &::placeholder {
               color: $nearly-black;
               opacity: 1; /* Firefox */
             }
-    
+
             &:focus {
                 border-bottom-style: solid;
             }
@@ -56,6 +118,102 @@
             background-image: url('/static/img/icons/search.svg');
             background-position: center center;
             background-repeat: no-repeat;
+        }
+    }
+
+    /* Fieldset used for filters */
+    fieldset {
+        display: flex;
+        justify-content: left;
+        text-align: left;
+        align-items: left;
+        font-size: 0.8rem;
+        width: 100%;
+
+        legend {
+            font-weight: bold;
+            width: 100%;
+            padding: 1.75rem 0rem 0.6rem;
+        }
+
+        /* Container for aligning filters */
+        .toggle-filters {
+
+            display: flex;
+            justify-items: auto;
+            text-align: left;
+            box-sizing: border-box;
+
+            label {
+                display: flex;
+                align-items: flex-start;
+                box-sizing: border-box;
+                padding: 0.55rem;
+                background-color: white;
+                margin: 0 1px 0 1px;
+
+                &:hover {
+                    border: 2px solid $green;
+                    margin: -2px -1px -2px -1px;
+                }
+                /* image icons in toggle filters */
+                img {
+                    &.filter {
+                        &.icon {
+                            padding-left: 0.2rem;
+                            width: 1.35rem;
+                        }
+                    }
+                }
+
+                /* Targeting div for count, which needs to handle opacity
+                   and which needs to have alternate sizing for count text */
+                span {
+                    padding: 0.3rem;
+
+                    .count {
+                        font-size: 0.6rem;
+                    }
+                }
+
+                .info-img {
+                    margin-top: 0.6rem;
+                    margin-left: 0.2rem;
+                    background-image: url("/static/img/icons/Information.svg");
+                    width: 0.75rem;
+                    height: 0.75rem;
+                    align-items: center;
+                }
+
+
+            }
+
+            /* fade opacity when input is clicked on the entire label
+               but only for child elements -- we don't want the background */
+            input {
+
+                &:focus + label {
+                    border: 2px solid $green;
+                    margin: -2px -1px -2px -1px;
+                }
+
+                &:checked + label {
+                    * {
+                        opacity: 0.3;
+                    }
+                    /* Display clicked icon at full opacity and check mark*/
+                    .info-img {
+                        opacity: 1;
+                        background-image: url("/static/img/icons/filter_clicked_state.svg");
+                    }
+                    /* Cause tooltip to vanish when card input clicked */
+                    .tooltip {
+                        &__text {
+                            opacity: 0;
+                        }
+                    }
+                }
+            }
         }
     }
 }

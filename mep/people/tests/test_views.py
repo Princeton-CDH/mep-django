@@ -588,6 +588,15 @@ class TestMembersListView(TestCase):
 
         response = self.client.get(self.members_url)
 
+        # filter form should be displayed with filled-in query field one time
+        self.assertContains(response, 'Search member', count=1)
+        # it should also have a card filter with a card count (check via card count)
+        self.assertContains(response, '<span class="count">1</span>', count=1)
+        # the filter should have a card image (counted later with other result
+        # card icon) and it should have a toggle div with role img
+        self.assertContains(response, 'class="info-img tooltip"', count=1)
+        self.assertContains(response, 'aria-label="This filter will narrow', count=1)
+
         # should display all library members in the database
         members = Person.objects.filter(account__isnull=False)
         assert response.context['members'].count() == members.count()
@@ -603,8 +612,9 @@ class TestMembersListView(TestCase):
         self.assertContains(response, account.earliest_date().year)
         self.assertContains(response, account.last_date().year)
 
-        # icon for 'has card' should only show up once
-        self.assertContains(response, 'card icon', count=1)
+        # icon for 'has card' should show up twice, once in the list
+        # and once in the filter icon
+        self.assertContains(response, 'card icon', count=2)
 
         # pagination options set in context
         assert response.context['page_labels']
@@ -675,7 +685,8 @@ class TestMembersListView(TestCase):
     def test_get_queryset(self, mock_solrqueryset):
         mock_qs = mock_solrqueryset.return_value
         # simulate fluent interface
-        for meth in ['filter', 'only', 'search', 'raw_query_parameters', 'order_by']:
+        for meth in ['facet', 'filter', 'only', 'search',
+                     'raw_query_parameters', 'order_by']:
             getattr(mock_qs, meth).return_value = mock_qs
 
         view = MembersList()
@@ -684,19 +695,32 @@ class TestMembersListView(TestCase):
         # queryset should be set on the view
         assert view.queryset == sqs
         mock_solrqueryset.assert_called_with()
-        # inspect solr queryset filters called
-        mock_qs.filter.assert_called_with(item_type='person')
+        # inspect solr queryset filters called; should be only called once
+        # because card filtering is not on
+        mock_qs.filter.assert_called_once_with(item_type='person')
         mock_qs.only.assert_called_with(
             name='name_t', sort_name='sort_name_t',
             birth_year='birth_year_i', death_year='death_year_i',
             account_start='account_start_i', account_end='account_end_i',
             has_card='has_card_b', pk='pk_i')
-
+        # faceting should be turned on via call to facet
+        mock_qs.facet.assert_called_with('has_card_b')
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()
         # should sort by solr field corresponding to default sort
         mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
+
+        # enable card filter
+        view.request = self.factory.get(self.members_url, {'has_card': True})
+        # remove cached form
+        del view._form
+        sqs = view.get_queryset()
+        assert view.queryset == sqs
+        # faceting should be on *and* filtering by that facet
+        # as its most recent call
+        mock_qs.facet.assert_called_with('has_card_b')
+        mock_qs.filter.assert_called_with(has_card_b=True)
 
         # with keyword search term - should call search and query param
         query_term = 'sylvia'
