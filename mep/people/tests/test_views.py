@@ -695,8 +695,9 @@ class TestMembersListView(TestCase):
         # queryset should be set on the view
         assert view.queryset == sqs
         mock_solrqueryset.assert_called_with()
-        # inspect solr queryset filters called
-        mock_qs.filter.assert_called_with(item_type='person')
+        # inspect solr queryset filters called; should be only called once
+        # because card filtering is not on
+        mock_qs.filter.assert_called_once_with(item_type='person')
         mock_qs.only.assert_called_with(
             name='name_t', sort_name='sort_name_t',
             birth_year='birth_year_i', death_year='death_year_i',
@@ -704,9 +705,6 @@ class TestMembersListView(TestCase):
             has_card='has_card_b', pk='pk_i')
         # faceting should be turned on via call to facet
         mock_qs.facet.assert_called_with('has_card_b')
-        # but there should be no filter call since card filter not
-        # activated
-        mock_qs.filter.assert_called_once()
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()
