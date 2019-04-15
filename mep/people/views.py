@@ -42,7 +42,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
 
         # always use relevance sort for keyword search;
         # otherwise use default (sort by name)
-        if 'query' in form_data and form_data['query']:
+        if form_data.get('query', None):
             form_data['sort'] = 'relevance'
         else:
             form_data['sort'] = self.initial['sort']

@@ -687,6 +687,11 @@ class TestMembersListView(TestCase):
         form_kwargs = view.get_form_kwargs()
         assert form_kwargs['data']['sort'] == 'relevance'
 
+        # with query param present but empty, use default sort
+        view.request = self.factory.get(self.members_url, {'query': ''})
+        form_kwargs = view.get_form_kwargs()
+        assert form_kwargs['data']['sort'] == view.initial['sort']
+
     @patch('mep.people.views.SolrQuerySet')
     def test_get_queryset(self, mock_solrqueryset):
         mock_qs = mock_solrqueryset.return_value
