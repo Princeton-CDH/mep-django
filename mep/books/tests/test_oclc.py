@@ -66,14 +66,3 @@ class TestWorldCatClientBase(SimpleTestCase):
         mock_session.get.side_effect = requests.ConnectionError
         response = wc.search()
         assert response is None
-
-@patch('mep.books.oclc.WorldCatClientBase.search')
-class SrwResponse(TestCase):
-    with open(os.path.join(FIXTURES_DIR, 'sample-sru.response.xml'), 'rb') as fp:
-        xml_bytes = fp.read()
-
-    xml_string = xml_bytes.decode('utf-8')
-
-
-
-
