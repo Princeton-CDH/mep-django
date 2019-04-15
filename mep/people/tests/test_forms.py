@@ -110,3 +110,31 @@ class TestRadioWithDisabled(TestCase):
         self.assertInHTML('<input type="radio" name="yes_no" value="yes" '
                           'required id="id_yes_no_1" />', rendered)
 
+
+class TestMemberForm(TestCase):
+
+    def test_init(self):
+        data = {
+            'has_card': True,
+            'query': 'Hemingway'
+        }
+        # has query, relevance enabled
+        form = MemberSearchForm(data)
+        assert form.fields['sort'].widget.choices[0] == form.SORT_CHOICES[0]
+
+        # empty query, relevance disabled
+        data['query'] = ''
+        form = MemberSearchForm(data)
+        assert form.fields['sort'].widget.choices[0] == \
+            ('relevance', {'label': 'Relevance', 'disabled': True})
+
+        # no query, also relevance disabled
+        del data['query']
+        form = MemberSearchForm(data)
+        assert form.fields['sort'].widget.choices[0] == \
+            ('relevance', {'label': 'Relevance', 'disabled': True})
+
+
+
+
+

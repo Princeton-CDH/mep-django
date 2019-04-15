@@ -98,6 +98,6 @@ class MemberSearchForm(forms.Form):
 
 
         # relevance is disabled unless we have a keyword query present
-        if not data or not 'query' in data:
+        if not data or not 'query' in data or not data['query']:
             self.fields['sort'].widget.choices[0] = \
                 ('relevance', {'label': 'Relevance', 'disabled': True})
