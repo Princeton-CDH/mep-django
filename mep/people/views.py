@@ -76,7 +76,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
                                   account_start='account_start_i',
                                   account_end='account_end_i',
                                   has_card='has_card_b',
-                                  pk='pk_i')
+                                  pk='pk_i') \
+                            .facet('has_card_b')
 
         # NOTE: using only / field limit to alias dynamic field names
         # to something closer to model attribute names
@@ -88,6 +89,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
             if search_opts['query']:
                 sqs = sqs.search(self.search_name_query) \
                          .raw_query_parameters(name_query=search_opts['query'])
+            if search_opts['has_card']:
+                sqs = sqs.filter(has_card_b=search_opts['has_card'])
 
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
