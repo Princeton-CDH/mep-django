@@ -1,7 +1,10 @@
 #members-form {
 
     label[for=id_has_card] {
-        max-width: 7rem;
+        
+        @media (min-width: $breakpoint-s) {
+            max-width: 7rem;
+        }
 
         span[role=tooltip]::after {
             width: 12rem;
