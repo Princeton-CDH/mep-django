@@ -22,10 +22,11 @@ label > select + .dropdown.icon {
     width: .75rem;
     height: .5rem;
     position: absolute;
-    right: .5rem;
+    right: .3rem;
     top: calc(50% - .25rem);
     filter: invert(100%);
     transition: all 0.2s;
+    z-index: 1;
 }
 
 label:target > select + .dropdown.icon {

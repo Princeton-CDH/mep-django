@@ -4,7 +4,7 @@
  */
 export default class MainMenu {
     element: HTMLElement
-    transitionDuration: number
+    transitionDuration: number = 0
 
     constructor(element: HTMLElement) {
         this.element = element
@@ -13,9 +13,8 @@ export default class MainMenu {
             .getComputedStyle(this.element)
             .getPropertyValue('transition-duration')
         // Convert a css value like '0.5s' or '200ms' to integer milliseconds
-        // If none was specified (NaN), use zero
-        this.transitionDuration = 
-            td ? parseFloat(td) * (/\ds$/.test(td) ? 1000 : 1) : 0
+        if (td) this.transitionDuration = 
+            parseFloat(td) * (/\ds$/.test(td) ? 1000 : 1)
     }
 
     /**
