@@ -108,6 +108,10 @@
             border-color: $green;
         }
 
+        input[type=checkbox] + label {
+            cursor: pointer;
+        }
+
         // uses after so it can stack with tooltip info icon
         input[type=checkbox] + label::after {
             content: '';
