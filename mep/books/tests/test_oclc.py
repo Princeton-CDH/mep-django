@@ -138,5 +138,5 @@ class TestSRWResponse:
         assert isinstance(marc_records[0], pymarc.record.Record)
 
         # sanity check value from first and last record
-        marc_records[0]['001'] == 498910170
-        marc_records[-1]['001'] == 911727061
+        assert marc_records[0]['001'].value() == '498910170'
+        assert marc_records[-1]['001'].value() == '911727061'
