@@ -16,7 +16,7 @@ from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
 from mep.common.views import LabeledPagesMixin
-
+from mep.common.templatetags.mep_tags import dict_item
 
 class TestNamed(TestCase):
 
@@ -300,3 +300,16 @@ class TestLabeledPagesMixin(TestCase):
         view.request = rf.get('/', {'page': '1'})
         context = view.get_context_data()
         assert context['page_labels'] == []
+
+
+class TestTemplateTags(TestCase):
+
+    def test_dict_item(self):
+        # no error on not found
+        assert dict_item({}, 'foo') is None
+        # string key
+        assert dict_item({'foo': 'bar'}, 'foo') is 'bar'
+        # integer key
+        assert dict_item({13: 'lucky'}, 13) is 'lucky'
+        # integer value
+        assert dict_item({13: 7}, 13) is 7

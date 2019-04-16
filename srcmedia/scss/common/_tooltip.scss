@@ -1,0 +1,47 @@
+span[role=tooltip] {
+    width: 0.75rem;
+    height: 0.75rem;
+    background: url('/static/img/icons/Information.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+
+    &::before { // the pointing triangle
+        content: url('/static/img/icons/informationTriangle.svg');
+        width: 1rem;
+        height: 1rem;
+        right: -.125rem;
+        bottom: .35rem;
+        filter: drop-shadow(0 4px 4px $transparent-blue);
+        z-index: 3; // above textbox
+    }
+
+    &::after { // where the text is located
+        content: attr(aria-label); // automatically set based on parent aria-label
+        right: -0.5rem;
+        bottom: 1.1rem;
+        font-size: 0.7rem;
+        color: $brownish-grey;
+        text-align: left;
+        line-height: 1.14;
+        padding: 0.4rem 0.8rem;
+        background-color: white;
+        z-index: 2;
+        box-shadow: 0 0 4px 0 $transparent-blue;
+    }
+    
+    &::before,
+    &::after {
+        position: absolute;
+        opacity: 0;
+        transition: opacity 0.5s;
+    }
+
+    &:hover,
+    &:focus,
+    &.active { // show when hovered, focused or clicked/tapped
+        &::before,
+        &::after {
+            opacity: 1;
+        }
+    }
+}

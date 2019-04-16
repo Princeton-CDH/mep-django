@@ -593,9 +593,12 @@ class TestMembersListView(TestCase):
         # it should also have a card filter with a card count (check via card count)
         self.assertContains(response, '<span class="count">1</span>', count=1)
         # the filter should have a card image (counted later with other result
-        # card icon) and it should have a toggle div with role img
-        self.assertContains(response, 'class="info-img tooltip"', count=1)
+        # card icon) and it should have a tooltip
+        self.assertContains(response, 'role="tooltip"', count=1)
+        # the tooltip should have an aria-label set
         self.assertContains(response, 'aria-label="This filter will narrow', count=1)
+        # the input should be aria-describedby the tooltip
+        self.assertContains(response, 'aria-describedby="has_card_tip"')
 
         # should display all library members in the database
         members = Person.objects.filter(account__isnull=False)
