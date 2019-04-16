@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize widget_tweaks %}
+{% load static humanize widget_tweaks mep_tags %}
 {% load render_bundle from webpack_loader %}
 
 {% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
@@ -26,7 +26,8 @@
                 <label for="{{ form.has_card.id_for_label }}">
                     <span>Card <span class="count">{{ members.get_facets.has_card_b.true }}</span></span>
                     <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="">
-                    <span id="has-card-tip" role="tooltip" aria-label="{{ form.has_card.help_text }}" tabindex=0 />
+                    <span id="{{ form.has_card.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip"
+                        aria-label="{{ form.has_card.help_text }}" tabindex=0 />
                 </label>
             </div>
         </fieldset>
