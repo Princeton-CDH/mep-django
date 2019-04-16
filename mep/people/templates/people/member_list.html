@@ -34,6 +34,10 @@
         <output class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
     </form>
 </section>
+<div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
+    <label>SORTED BY</label>
+    <label>DISPLAYING</label> 
+</div>
 <section class="members sort-pages">
     <div class="inner">
         <label class="sort">

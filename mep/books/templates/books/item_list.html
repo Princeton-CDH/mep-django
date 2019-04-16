@@ -20,6 +20,10 @@
         <span class="total-results">{{ items.count|intcomma }} total result{{ items.count|pluralize }}</span>
     </form>
 </section>
+<div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
+    <label>SORTED BY</label>
+    <label>DISPLAYING</label> 
+</div>
 <section class="books sort-pages">
     <div class="inner">
         <label class="sort">
