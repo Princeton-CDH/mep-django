@@ -2,6 +2,7 @@ import os
 from unittest.mock import Mock, patch
 
 from django.core.exceptions import ImproperlyConfigured
+from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from eulxml import xmlmap
 import pymarc
@@ -75,7 +76,8 @@ class TestWorldCatClientBase:
         assert not response
 
 
-class TestSRUSearch:
+@override_settings(OCLC_WSKEY='my-secret-key')
+class TestSRUSearch(SimpleTestCase):
     response_fixture = os.path.join(FIXTURES_DIR, 'oclc_srw_response.xml')
 
     def test_clone(self):
