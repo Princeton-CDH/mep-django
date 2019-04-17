@@ -11,7 +11,7 @@ import rdflib
 import requests
 
 from mep.books.oclc import WorldCatClientBase, SRUSearch, SRWResponse, \
-    get_work_uri
+    get_work_uri, oclc_uri
 
 
 FIXTURE_DIR = os.path.join('mep', 'books', 'fixtures')
@@ -146,6 +146,19 @@ class TestSRWResponse:
         assert marc_records[0]['001'].value() == '498910170'
         assert marc_records[-1]['001'].value() == '911727061'
 
+
+def get_test_marc_record():
+    # load sw fixture and use first marc record
+    return xmlmap.load_xmlobject_from_file(
+        SRW_RESPONSE_FIXTURE, SRWResponse).marc_records[0]
+
+
+def test_oclc_uri():
+    marc_record = get_test_marc_record()
+    assert oclc_uri(marc_record) == \
+        'http://www.worldcat.org/oclc/%s' % marc_record['001'].value()
+
+
 @patch('mep.books.oclc.rdflib', spec=True)
 def test_get_work_uri(mockrdflib):
     # load fixture as graph and set mock to return it.
@@ -158,9 +171,7 @@ def test_get_work_uri(mockrdflib):
     # use the real URIRef
     mockrdflib.URIRef = rdflib.URIRef
 
-    # load sw fixture and use first marc record
-    marc_record = xmlmap.load_xmlobject_from_file(
-        SRW_RESPONSE_FIXTURE, SRWResponse).marc_records[0]
+    marc_record = get_test_marc_record()
 
     with patch.object(test_graph, 'parse') as mockparse:
         work_uri = get_work_uri(marc_record)

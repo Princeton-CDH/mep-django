@@ -2,9 +2,10 @@
 Module for collecting OCLC search functionality, particularly SRU style
 searches.
 '''
-from io import BytesIO, StringIO
+from io import BytesIO
 from logging import getLogger
 import time
+from typing import List
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -75,8 +76,8 @@ class SRWResponse(xmlmap.XmlObject):
     records = xmlmap.NodeField('srw:records', xmlmap.XmlObject)
 
     @property
-    def marc_records(self):
-        '''array of :class:`pymarc.record.Record` from the response'''
+    def marc_records(self) -> List[pymarc.record.Record]:
+        '''List of MARC records included in the response'''
         # serialize xml to a bytebytestream for loading by pymarc
         bytestream = BytesIO()
         self.serializeDocument(bytestream)
@@ -86,19 +87,23 @@ class SRWResponse(xmlmap.XmlObject):
         return list(filter(None, pymarc.parse_xml_to_array(bytestream)))
 
 
+def oclc_uri(marc_record: pymarc.record.Record) -> str:
+    """Generate the worldcat URI for an OCLC MARC record"""
+    return 'http://www.worldcat.org/oclc/%s' % marc_record['001'].value()
+
 #: schema.org RDF namespace
 SCHEMA_ORG = rdflib.Namespace('http://schema.org/')
 
 
-def get_work_uri(marc_record):
+def get_work_uri(marc_record: pymarc.record.Record) -> str:
     """Given a MARC record from OCLC, find and return the work URI"""
     graph = rdflib.Graph()
     # control field in 001 is OCLC identifier, used for URIs
-    oclc_uri = 'http://www.worldcat.org/oclc/%s' % marc_record['001'].value()
+    item_uri = oclc_uri(marc_record)
     # let rdflib handle content-type negotiation and parsing
-    graph.parse(oclc_uri)
+    graph.parse(item_uri)
     # get the URI for schema:exampleOfWork and return as a string
-    return str(graph.value(subject=rdflib.URIRef(oclc_uri),
+    return str(graph.value(subject=rdflib.URIRef(item_uri),
                            predicate=SCHEMA_ORG.exampleOfWork))
 
 
