@@ -7,11 +7,14 @@ from django.test.utils import override_settings
 from eulxml import xmlmap
 import pymarc
 import pytest
+import rdflib
 import requests
 
-from mep.books.oclc import WorldCatClientBase, SRUSearch, SRWResponse
+from mep.books.oclc import WorldCatClientBase, SRUSearch, SRWResponse, \
+    get_work_uri
 
-FIXTURES_DIR = os.path.join('mep', 'books', 'fixtures')
+
+FIXTURE_DIR = os.path.join('mep', 'books', 'fixtures')
 
 
 class TestWorldCatClientBase:
@@ -76,9 +79,11 @@ class TestWorldCatClientBase:
         assert not response
 
 
+SRW_RESPONSE_FIXTURE = os.path.join(FIXTURE_DIR, 'oclc_srw_response.xml')
+
+
 @override_settings(OCLC_WSKEY='my-secret-key')
 class TestSRUSearch(SimpleTestCase):
-    response_fixture = os.path.join(FIXTURES_DIR, 'oclc_srw_response.xml')
 
     def test_clone(self):
         srus = SRUSearch()
@@ -108,7 +113,7 @@ class TestSRUSearch(SimpleTestCase):
 
     @patch('mep.books.oclc.WorldCatClientBase.search')
     def test_search(self, mock_base_search):
-        with open(self.response_fixture) as response:
+        with open(SRW_RESPONSE_FIXTURE) as response:
             # return fixture as response
             mock_base_search.return_value.content = response.read()
             resp = SRUSearch().search()
@@ -122,12 +127,10 @@ class TestSRUSearch(SimpleTestCase):
 
 class TestSRWResponse:
 
-    fixture = os.path.join(FIXTURES_DIR, 'oclc_srw_response.xml')
-
     def get_fixture_obj(self):
         # initialize and return SRWResponse from fixture
         return xmlmap.load_xmlobject_from_file(
-            self.fixture, SRWResponse)
+            SRW_RESPONSE_FIXTURE, SRWResponse)
 
     def test_fields(self):
         srw_response = self.get_fixture_obj()
@@ -142,3 +145,27 @@ class TestSRWResponse:
         # sanity check value from first and last record
         assert marc_records[0]['001'].value() == '498910170'
         assert marc_records[-1]['001'].value() == '911727061'
+
+@patch('mep.books.oclc.rdflib', spec=True)
+def test_get_work_uri(mockrdflib):
+    # load fixture as graph and set mock to return it.
+    # fixture *must* match id in the marc record
+    test_graph = rdflib.Graph()
+    test_graph.parse(os.path.join(FIXTURE_DIR, 'oclc.rdf'))
+
+    # have to patch at rdflib level because of the way it is imported
+    mockrdflib.Graph.return_value = test_graph
+    # use the real URIRef
+    mockrdflib.URIRef = rdflib.URIRef
+
+    # load sw fixture and use first marc record
+    marc_record = xmlmap.load_xmlobject_from_file(
+        SRW_RESPONSE_FIXTURE, SRWResponse).marc_records[0]
+
+    with patch.object(test_graph, 'parse') as mockparse:
+        work_uri = get_work_uri(marc_record)
+        mockrdflib.Graph.assert_called_with()
+
+        mockparse.assert_called_with('http://www.worldcat.org/oclc/%s' % marc_record['001'].value())
+
+    assert work_uri == 'http://worldcat.org/entity/work/id/5090374654'

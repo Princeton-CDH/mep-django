@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from eulxml import xmlmap
 import pymarc
+import rdflib
 import requests
 
 
@@ -75,6 +76,7 @@ class SRWResponse(xmlmap.XmlObject):
 
     @property
     def marc_records(self):
+        '''array of :class:`pymarc.record.Record` from the response'''
         # serialize xml to a bytebytestream for loading by pymarc
         bytestream = BytesIO()
         self.serializeDocument(bytestream)
@@ -82,6 +84,22 @@ class SRWResponse(xmlmap.XmlObject):
         # pymarc is returning 'None' in the array alternating with
         # pymarc records; not sure why, but filter them out
         return list(filter(None, pymarc.parse_xml_to_array(bytestream)))
+
+
+#: schema.org RDF namespace
+SCHEMA_ORG = rdflib.Namespace('http://schema.org/')
+
+
+def get_work_uri(marc_record):
+    """Given a MARC record from OCLC, find and return the work URI"""
+    graph = rdflib.Graph()
+    # control field in 001 is OCLC identifier, used for URIs
+    oclc_uri = 'http://www.worldcat.org/oclc/%s' % marc_record['001'].value()
+    # let rdflib handle content-type negotiation and parsing
+    graph.parse(oclc_uri)
+    # get the URI for schema:exampleOfWork and return as a string
+    return str(graph.value(subject=rdflib.URIRef(oclc_uri),
+                           predicate=SCHEMA_ORG.exampleOfWork))
 
 
 class SRUSearch(WorldCatClientBase):
@@ -92,7 +110,7 @@ class SRUSearch(WorldCatClientBase):
     def __init__(self):
         super().__init__()
 
-    # mapping of field lookup to srw field abbreviation
+    #: mapping of field lookup to srw field abbreviation
     search_fields = {
         'title': 'ti',
         'author': 'au',
