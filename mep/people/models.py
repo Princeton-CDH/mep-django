@@ -413,10 +413,17 @@ class Person(Notable, DateRange, Indexable):
             'sort_name_sort_s': self.sort_name,
             'birth_year_i': self.birth_year,
             'death_year_i': self.death_year,
-            'account_start_i': account_start.year if account_start else None,
-            'account_end_i': account_end.year if account_end else None,
             'has_card_b': self.has_card()
         })
+
+        # handle conditionally set fields, default to not setting them
+        # if they are None
+        if account_start:
+            index_data['account_start_i'] = account_start.year
+        if account_end:
+            index_data['account_end_i'] = account_end.year
+        if self.sex:
+            index_data['sex_s'] = self.sex
 
         return index_data
 
