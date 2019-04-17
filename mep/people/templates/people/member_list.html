@@ -29,6 +29,8 @@
                     <span id="{{ form.has_card.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip"
                         aria-label="{{ form.has_card.help_text }}" tabindex=0 />
                 </label>
+                {% render_field form.sex %}
+                <label for="{{ form.sex.id_for_label }}">{{ form.sex.label }}</label>
             </div>
         </fieldset>
         <output class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
@@ -36,7 +38,7 @@
 </section>
 <div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
     <label>SORTED BY</label>
-    <label>DISPLAYING</label> 
+    <label>DISPLAYING</label>
 </div>
 <section class="members sort-pages">
     <div class="inner">

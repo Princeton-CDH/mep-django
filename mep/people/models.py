@@ -423,7 +423,7 @@ class Person(Notable, DateRange, Indexable):
         if account_end:
             index_data['account_end_i'] = account_end.year
         if self.sex:
-            index_data['sex_s'] = self.sex
+            index_data['sex_s'] = self.get_sex_display()
 
         return index_data
 

@@ -718,7 +718,7 @@ class TestMembersListView(TestCase):
             account_start='account_start_i', account_end='account_end_i',
             has_card='has_card_b', pk='pk_i')
         # faceting should be turned on via call to facet
-        mock_qs.facet.assert_called_with('has_card_b')
+        mock_qs.facet.assert_called_with('has_card_b', 'sex_s', missing=True)
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()

@@ -1,6 +1,7 @@
 from django import forms
 from django.template.loader import get_template
 
+from mep.common.forms import FacetChoiceField, FacetForm
 from mep.people.models import Person
 
 
@@ -74,13 +75,17 @@ class SelectWithDisabled(SelectDisabledMixin, forms.Select):
     '''
 
 
-class MemberSearchForm(forms.Form):
+class MemberSearchForm(FacetForm):
     '''Member search form'''
 
     SORT_CHOICES = [
         ('relevance', 'Relevance'),
         ('name', 'Name A-Z'),
     ]
+
+    solr_facet_fields = {
+        'sex_s': 'sex'
+    }
 
     query = forms.CharField(label='Keyword or Phrase', required=False,
                             widget=forms.TextInput(attrs={
@@ -96,6 +101,7 @@ class MemberSearchForm(forms.Form):
         }),
         help_text='This filter will narrow results to show only members whose \
         library records are available.')
+    sex = FacetChoiceField(label='Sex')
 
     def __init__(self, data=None, *args, **kwargs):
         '''

@@ -39,6 +39,8 @@ class FacetForm(forms.Form):
             formfield = self.solr_facet_fields.get(facet, facet)
             if formfield in self.fields:
                 self.fields[formfield].choices = [
-                    (val, mark_safe('%s <span>%d</span>' % (val, count)))
-                    for val, count in counts.items()]
+                    (val, mark_safe('%s <span>%d</span>' %
+                     (val if val else 'Unknown', count)))
+                     for val, count in counts.items()
+                ]
 

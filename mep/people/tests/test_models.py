@@ -269,7 +269,7 @@ class TestPerson(TestCase):
         index_data = pers.index_data()
         assert index_data['account_start_i'] == 1921
         assert index_data['account_end_i'] == 1922
-        assert index_data['sex_s'] == Person.MALE
+        assert index_data['sex_s'] == 'Male'
 
 
 class TestPersonQuerySet(TestCase):
