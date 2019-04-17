@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import re
 from unittest.mock import Mock
 
@@ -12,6 +13,7 @@ from django.urls import reverse
 from django.views.generic.list import ListView
 
 from mep.common.admin import LocalUserAdmin
+from mep.common.forms import FacetChoiceField, FacetForm
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
@@ -313,3 +315,77 @@ class TestTemplateTags(TestCase):
         assert dict_item({13: 'lucky'}, 13) is 'lucky'
         # integer value
         assert dict_item({13: 7}, 13) is 7
+
+
+class TestFacetField(TestCase):
+
+    def test_init(self):
+
+        # value of required is passed through on init
+        facet_field = FacetChoiceField(required=True)
+        assert facet_field.required
+        # if not set, defaults to false
+        facet_field = FacetChoiceField()
+        assert not facet_field.required
+
+    def test_valid_value(self):
+        # any value passed in returns true
+        facet_field = FacetChoiceField()
+        assert facet_field.valid_value('A') is True
+        assert facet_field.valid_value(10) is True
+
+
+class TestFacetForm(TestCase):
+
+    def test_set_choices_from_facets(self):
+
+        # Create a test form with mappings
+        class TestForm(FacetForm):
+
+            solr_facet_fields = {
+                'name_s': 'name'
+            }
+
+            name = FacetChoiceField()
+            member_type = FacetChoiceField()
+
+
+        test_form = TestForm()
+
+        # create facets in the format provided by parasolr
+        facets = OrderedDict({
+            'name_s': {
+                'Jane': 2,
+                'John': 1
+            },
+            'member_type': {
+                'weekly': 2,
+                'monthly': 1,
+            },
+            # handling should not choke on an unhandled
+            # field
+            'unhandled_field': {
+                'foo': 1,
+                'bar': 2,
+            }
+        })
+
+        test_form.set_choices_from_facets(facets)
+
+        # no mapping but matching field should be rendered
+        assert test_form.fields['member_type'].choices == [
+            ('weekly', 'weekly <span>2</span>'),
+            ('monthly', 'monthly <span>1</span>'),
+        ]
+        # mapping should convert solr field name to form field name
+        assert test_form.fields['name'].choices == [
+            ('Jane', 'Jane <span>2</span>'),
+            ('John', 'John <span>1</span>')
+        ]
+        # unhandled field should not be passed in
+        assert 'unhanded_field' not in test_form.fields
+
+
+
+
+
