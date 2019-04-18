@@ -3,10 +3,11 @@ import csv
 from typing import Dict
 
 from django.core.management.base import BaseCommand
+import progressbar
 import pymarc
 
 from mep.books.models import Item
-from mep.books.oclc import SRUSearch, oclc_uri, get_work_uri
+from mep.books.oclc import SRUSearch, oclc_uri
 
 
 class Command(BaseCommand):
@@ -25,6 +26,13 @@ class Command(BaseCommand):
         # db notes last
         'Notes']
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--no-progress', action='store_true',
+            help='Do not display progress bar')
+        parser.add_argument(
+            '-o', '--output', help='Filename for the report to be generated')
+
     def handle(self, *args, **kwargs):
         """Loop through Items in the database and look for matches in OCLC"""
         self.sru_search = SRUSearch()
@@ -36,7 +44,24 @@ class Command(BaseCommand):
                             .exclude(notes__contains='OBSCURE') \
                             .exclude(title__endswith='*')
 
-        with open('items-oclc.csv', 'w') as csvfile:
+        # report on total to process
+        total = items.count()
+        self.stdout.write('%d items to reconcile' % total)
+
+        # bail out if there is nothing to do
+        if not total:
+            return
+
+        progbar = None
+        if not kwargs['no_progress'] and total > 5:
+            progbar = progressbar.ProgressBar(redirect_stdout=True,
+                                              max_value=total)
+        count = 0
+
+        # use output name specified in args, with a default fallback
+        outfilename = kwargs.get('output', None) or 'items-oclc.csv'
+
+        with open(outfilename, 'w') as csvfile:
             # write utf-8 byte order mark at the beginning of the file
             csvfile.write(codecs.BOM_UTF8.decode())
 
@@ -52,29 +77,41 @@ class Command(BaseCommand):
                 }
                 info.update(self.oclc_search(item))
                 writer.writerow(info)
+                count += 1
+                if progbar:
+                    progbar.update(count)
+
+        if progbar:
+            progbar.finish()
+
+        # report on what was done ? Not sure what to say here
 
     def oclc_search(self, item: Item) -> Dict:
         """Search for an item in OCLC by title, author, date.
         Returns dictionary with details found for inclusion in CSV.
         """
-        # get local instance of sru_search to add filters to
-        sru_search = self.sru_search.filter()
+        search_opts = {}
 
+        # search by title if known
         if item.title:
-            sru_search = sru_search.filter(title__exact='"%s"' % item.title)
+            search_opts['title__exact'] = item.title
 
+        # search by first author if there is one
         if item.authors.exists():
-            sru_search = sru_search.filter(author__all='"%s"' % item.authors.first())
+            search_opts['author__all'] = str(item.authors.first())
 
+        # search by year if known
         if item.year:
-            sru_search = sru_search.filter(year=item.year)
+            search_opts['year'] = item.year
+
+        # search year by range based on first documented event for this book
         else:
             first_date = item.first_known_interaction
             if first_date:
                 # range search ending with first known event date
-                sru_search = sru_search.filter(year="-%s" % first_date.year)
+                search_opts['year'] = "-%s" % first_date.year
 
-        result = sru_search.search()
+        result = self.sru_search.search(**search_opts)
         # report number of matches so 0 is explicit/obvious
         oclc_info = {'# matches': result.num_records}
         if result.num_records:
@@ -85,6 +122,6 @@ class Command(BaseCommand):
                 'OCLC Author': marc_record.author(),
                 'OCLC Date': marc_record.pubyear(),
                 'OCLC URI': oclc_uri(marc_record),
-                'Work URI': get_work_uri(marc_record)
+                'Work URI': self.sru_search.get_work_uri(marc_record)
             })
         return oclc_info

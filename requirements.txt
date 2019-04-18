@@ -19,3 +19,4 @@ django-webpack-loader
 parasolr>=0.2
 django-widget-tweaks
 pymarc
+progressbar2
