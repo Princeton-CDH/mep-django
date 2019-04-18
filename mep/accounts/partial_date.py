@@ -201,6 +201,8 @@ class KnownYear(models.Lookup):
 
         bit_compare = "%s & %d" % (lhs, int(DatePrecision.year))
         # if true (year is known), precision should be null or year bit set
+        # (has to include null check since field is currently configured
+        # to allow null rather than defaulting to full precision)
         if self.rhs:
             return "%s IS NULL OR %s != 0" % (lhs, bit_compare), params
 

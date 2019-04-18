@@ -135,11 +135,15 @@ class Item(Notable, Indexable):
     @property
     def first_known_interaction(self) -> datetime.date:
         '''date of the earliest known interaction for this item'''
+
+        # search for the earliest start date, excluding any borrow
+        # or purchase events with unknown years
         first_event = self.event_set \
             .filter(start_date__isnull=False) \
+            .exclude(borrow__start_date_precision__knownyear=False) \
+            .exclude(purchase__start_date_precision__knownyear=False) \
             .order_by('start_date').first()
 
-        # TODO: does not currently filter out dates with unknown years
         if first_event:
             return first_event.start_date
 

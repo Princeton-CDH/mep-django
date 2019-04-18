@@ -97,12 +97,11 @@ class TestItem(TestCase):
         assert item.first_known_interaction == borrow_date
 
         # create a borrow with an unknown date
-        # TODO, not yet implemented
-        # unknown_borrow = Borrow.objects.create(item=item, account=acct)
-        # unknown_borrow.partial_start_date = '--01-01'
-        # unknown_borrow.save()
-        # # should use previous borrow date, not the unknown (1900)
-        # assert item.first_known_interaction == borrow_date
+        unknown_borrow = Borrow.objects.create(item=item, account=acct)
+        unknown_borrow.partial_start_date = '--01-01'
+        unknown_borrow.save()
+        # should use previous borrow date, not the unknown (1900)
+        assert item.first_known_interaction == borrow_date
 
 
 class TestPublisher(TestCase):
