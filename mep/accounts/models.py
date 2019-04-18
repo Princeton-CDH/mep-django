@@ -172,7 +172,7 @@ class Account(models.Model):
         return str_to_model[etype].objects.filter(account=self, **kwargs)
 
 
-class Address(Notable):
+class Address(Notable, PartialDateMixin):
     '''Address associated with an :class:`Account` or
     a :class:`~mep.people.models.Person`.  Used to associate locations with
     people and accounts, with optional start and end dates and a care/of person.'''

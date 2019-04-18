@@ -1,8 +1,9 @@
 import re
 import datetime
 
+from django import forms
 from django.db import models
-from django.core.validators import ValidationError
+from django.core.validators import RegexValidator, ValidationError
 from flags import Flags
 
 
@@ -188,6 +189,42 @@ class PartialDateMixin(models.Model):
         return '/'.join([dt if dt else '??'
                          for dt in [self.partial_start_date,
                                     self.partial_end_date]])
+
+
+
+class PartialDateFormMixin(forms.ModelForm):
+    '''Provides form validation and setting for models that inherit from
+    :class:`mep.accounts.models.PartialDateMixin`.'''
+    partial_date_validator = RegexValidator(
+        regex=PartialDate.partial_date_re,
+        message="Value is not a recognized date."
+    )
+    partial_date_help_text = "Enter as much of the date as known, in any of the \
+        following formats: yyyy, yyyy-mm, yyyy-mm-dd, --mm-dd"
+    partial_start_date = forms.CharField(
+        validators=[partial_date_validator],
+        required=False, help_text=partial_date_help_text, label="Start date")
+    partial_end_date = forms.CharField(
+        validators=[partial_date_validator],
+        required=False, help_text=partial_date_help_text, label="End date")
+
+    def get_initial_for_field(self, field, name):
+        if name == 'partial_start_date':
+            return self.instance.partial_start_date
+        if name == 'partial_end_date':
+            return self.instance.partial_end_date
+        return super().get_initial_for_field(field, name)
+
+    def clean(self):
+        '''Parse partial dates and save them on form submission.'''
+        cleaned_data = super().clean()
+        if not self.errors:
+            try:
+                self.instance.partial_start_date = cleaned_data['partial_start_date']
+                self.instance.partial_end_date = cleaned_data['partial_end_date']
+            except ValueError as verr:
+                raise ValidationError('Date validation error: %s' % verr)
+            return cleaned_data
 
 
 @models.Field.register_lookup

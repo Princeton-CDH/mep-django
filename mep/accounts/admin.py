@@ -6,7 +6,8 @@ from django import forms
 from django.contrib import admin
 from django.core.validators import RegexValidator, ValidationError
 
-from mep.accounts.partial_date import DatePrecision, PartialDate
+from mep.accounts.partial_date import DatePrecision, PartialDate, \
+    PartialDateFormMixin
 from mep.accounts.models import Account, Address, Subscription,\
     Reimbursement, Event, SubscriptionType, Borrow, Purchase
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
@@ -242,38 +243,6 @@ class ReimbursementAdmin(admin.ModelAdmin):
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
 
 
-class PartialDateFormMixin(forms.ModelForm):
-    '''Provides form validation and setting for models that inherit from
-    :class:`mep.accounts.models.PartialDateMixin`.'''
-    partial_date_validator = RegexValidator(
-        regex=PartialDate.partial_date_re,
-        message="Value is not a recognized date."
-    )
-    partial_date_help_text = "Enter as much of the date as known, in any of the \
-        following formats: yyyy, yyyy-mm, yyyy-mm-dd, --mm-dd"
-    partial_start_date = forms.CharField(validators=[partial_date_validator],
-        required=False, help_text=partial_date_help_text, label="Start date")
-    partial_end_date = forms.CharField(validators=[partial_date_validator],
-        required=False, help_text=partial_date_help_text, label="End date")
-
-    def get_initial_for_field(self, field, name):
-        if name == 'partial_start_date':
-            return self.instance.partial_start_date
-        if name == 'partial_end_date':
-            return self.instance.partial_end_date
-        return super().get_initial_for_field(field, name)
-
-    def clean(self):
-        '''Parse partial dates and save them on form submission.'''
-        cleaned_data = super().clean()
-        if not self.errors:
-            try:
-                self.instance.partial_start_date = cleaned_data['partial_start_date']
-                self.instance.partial_end_date = cleaned_data['partial_end_date']
-            except ValueError as verr:
-                raise ValidationError('Date validation error: %s' % verr)
-            return cleaned_data
-
 
 class PurchaseAdminForm(PartialDateFormMixin):
     class Meta:
@@ -320,7 +289,7 @@ class ReimbursementInline(CollapsibleTabularInline):
     fields = ('start_date', 'refund', 'currency', 'notes')
 
 
-class AddressInlineForm(forms.ModelForm):
+class AddressInlineForm(PartialDateFormMixin):
     class Meta:
         model = Address
         fields = ('__all__')
@@ -344,14 +313,15 @@ class AddressInline(CollapsibleTabularInline):
     model = Address
     form = AddressInlineForm
     extra = 1
-    fields = ('account', 'person', 'location', 'start_date', 'end_date',
-              'care_of_person', 'notes')
+    fields = ('account', 'person', 'location', 'partial_start_date',
+              'partial_end_date', 'care_of_person', 'notes')
 
 
 class AccountAddressInline(AddressInline):
     # when associating a location with an account, don't allow editing
     # person
-    fields = ('location', 'start_date', 'end_date', 'care_of_person', 'notes')
+    fields = ('location', 'partial_start_date', 'partial_end_date',
+              'care_of_person', 'notes')
 
 
 class AccountAdminForm(forms.ModelForm):
