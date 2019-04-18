@@ -5,7 +5,6 @@ import { Component, Reactive } from './common'
 
 interface RxInputState { // basic state common to all <input> types
     value: string
-    name: string
 }
 
 
@@ -47,11 +46,7 @@ abstract class RxInput extends Component implements Reactive<RxInputState> {
      */
     async update(newState: Partial<RxInputState>): Promise<void> {
         if (newState.value) this.element.value = newState.value
-        if (newState.name) this.element.name = newState.name
-        this.state.next({
-            value: this.element.value,
-            name: this.element.name
-        })
+        this.state.next({ value: this.element.value })
     }
 }
 
@@ -103,11 +98,9 @@ class RxCheckboxInput extends RxInput implements Reactive<RxCheckboxInputState>{
      */
     async update(newState: Partial<RxCheckboxInputState>): Promise<void> {
         if (newState.value) this.element.value = newState.value
-        if (newState.name) this.element.name = newState.name
         if (newState.checked) this.element.checked = newState.checked
         this.state.next({
             value: this.element.value,
-            name: this.element.name,
             checked: this.element.checked
         })
     }

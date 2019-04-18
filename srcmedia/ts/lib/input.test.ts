@@ -24,15 +24,6 @@ describe('RxInput', () => {
         })
     })
 
-    test('can update its name', () => {
-        class RxFooInput extends RxInput { }
-        const element = document.querySelector('input[type=text]') as HTMLInputElement
-        const rfi = new RxFooInput(element)
-        rfi.update({ name: 'cracker' }).then(() => {
-            expect(element.name).toBe('cracker')
-        })
-    })
-
 })
 
 describe('RxTextInput', () => {
@@ -45,7 +36,7 @@ describe('RxTextInput', () => {
         const element = document.querySelector('input[type=text]') as HTMLInputElement
         const rti = new RxTextInput(element)
         rti.state.subscribe(state => { // set up so that test completes once state is updated
-            expect(state).toEqual({ name: '', value: 'mysearch' })
+            expect(state).toEqual({ value: 'mysearch' })
             expect(element.value).toBe('mysearch')
             done() // done() is needed for async tests so we know when to expect the result
         })
@@ -60,7 +51,7 @@ describe('RxTextInput', () => {
         rti.state.subscribe(watcher)
         rti.state.subscribe(() => {
             expect(watcher).toHaveBeenCalledTimes(1) // only called once
-            expect(watcher).toHaveBeenCalledWith({ name: '', value: 'mys' }) // only used the final value
+            expect(watcher).toHaveBeenCalledWith({ value: 'mys' }) // only used the final value
             done()
         })
         element.value = 'm'
@@ -83,7 +74,7 @@ describe('RxCheckboxInput', () => {
         const element = document.querySelector('input[type=checkbox]') as HTMLInputElement
         const rci = new RxCheckboxInput(element)
         rci.state.subscribe(state => {
-            expect(state).toEqual({ name: '', checked: true, value: 'on' }) // 'on' is the default value
+            expect(state).toEqual({ checked: true, value: 'on' }) // 'on' is the default value
             expect(element.checked).toBe(true)
             done()
         })
