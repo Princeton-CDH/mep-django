@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs'
 
-import { Reactive, Component } from './common'
+import { Reactive, Component, ajax } from './common'
 
 interface RxFormState {
     // eventually this could include generic things like validity
@@ -59,7 +59,37 @@ class RxForm extends Component implements Reactive<RxFormState> {
     }
 }
 
+interface RxSearchFormState extends RxFormState {
+    results: string
+}
+
+class RxSearchForm extends RxForm implements Reactive<RxSearchFormState> {
+    state: Subject<RxSearchFormState>
+    
+    constructor(element: HTMLFormElement) {
+        super(element)
+        this.submit = this.submit.bind(this)
+    }
+    /**
+     * Serialize the form and submit it as a GET request to the form's endpoint,
+     * passing the response to update().
+     * 
+     * Also updates the browser history, saving the search.
+     *
+     * @returns {Promise<void>}
+     * @memberof PageSearchForm
+     */
+    async submit(): Promise<void> {
+        return fetch(`${this.target}?${this.serialize()}`, ajax)
+            .then(res => res.text())
+            .then(html => this.update({ results: html }))
+            .then(() => window.history.pushState(null, document.title, `?${this.serialize()}`))
+    }
+}
+
 export {
     RxForm,
     RxFormState,
+    RxSearchForm,
+    RxSearchFormState,
 }
