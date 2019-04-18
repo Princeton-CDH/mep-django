@@ -4,6 +4,7 @@ output[form=members-form].results li {
         position: absolute;
         bottom: -2.5rem;
         right: -1.5rem;
+        transition: opacity 0.5s;
 
         @media (min-width: $breakpoint-s) {
             left: -2.5rem;
