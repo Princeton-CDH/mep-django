@@ -120,3 +120,6 @@ ENV/
 
 # vim swap files
 *.swp
+
+# ts lib files
+!srcmedia/ts/lib/
