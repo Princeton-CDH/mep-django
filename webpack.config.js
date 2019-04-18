@@ -15,7 +15,8 @@ module.exports = env => ({
             './ts/main.ts', // main site script
             './scss/main.scss' // site styles
         ],
-        search: './ts/search.ts', // script for search pages
+        memberSearch: './ts/members-search.ts',
+        booksSearch: './ts/books-search.ts',
     },
     output: {
         path: path.resolve(__dirname, 'bundles'), // where to output bundles
