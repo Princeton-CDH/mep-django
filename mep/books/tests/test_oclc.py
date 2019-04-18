@@ -1,6 +1,7 @@
 import os
 from unittest.mock import Mock, patch
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
@@ -28,7 +29,7 @@ class TestWorldCatClientBase:
         with override_settings(OCLC_WSKEY='secretkey', TECHNICAL_CONTACT=None):
             wcb = WorldCatClientBase()
             assert isinstance(wcb.session, requests.Session)
-            assert wcb.session.params['wskey'] == 'secretkey'
+            assert wcb.wskey == 'secretkey'
 
             # sets user agent with versions
             assert 'User-Agent' in wcb.session.headers
@@ -65,7 +66,8 @@ class TestWorldCatClientBase:
             params={
                 'query': 'foo AND bar',
                 'baz': 'Y',
-                'bar': 'foo'
+                'bar': 'foo',
+                'wskey': settings.OCLC_WSKEY
             }
         )
         # returns the output of session.get
@@ -153,15 +155,27 @@ class TestSRUSearch(SimpleTestCase):
             mock_response = mock_session.get.return_value
             mock_response.status_code = requests.codes.ok
 
-            sru_search = SRUSearch()
-            work_uri = sru_search.get_work_uri(marc_record)
+            work_uri = SRUSearch().get_work_uri(marc_record)
             mockrdflib.Graph.assert_called_with()
 
             mock_session.get.assert_called_with('http://www.worldcat.org/oclc/%s.rdf' \
                 % marc_record['001'].value())
             mockparse.assert_called_with(data=mock_response.content.decode())
 
-        assert work_uri == 'http://worldcat.org/entity/work/id/5090374654'
+            assert work_uri == 'http://worldcat.org/entity/work/id/5090374654'
+
+            # simulate failure on request
+
+            # can't figure out how to use pytest caplog fixture,
+            # so using patch instead
+            with patch('mep.books.oclc.logger') as mock_logger:
+                mock_response.status_code = requests.codes.not_found
+                # should not error, return none, and log the error
+                assert not SRUSearch().get_work_uri(marc_record)
+
+                mock_logger.error.assert_called_with(
+                    'Error loading OCLC record as RDF %s => %d',
+                    oclc_uri(marc_record), mock_response.status_code)
 
 
 class TestSRWResponse:

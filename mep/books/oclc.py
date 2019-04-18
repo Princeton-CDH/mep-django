@@ -10,6 +10,7 @@ from typing import List, Dict
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from eulxml import xmlmap
+from lxml.etree import XMLSyntaxError
 import pymarc
 import rdflib
 import requests
@@ -29,8 +30,8 @@ class WorldCatClientBase:
     def __init__(self):
 
         # Get WSKey or error if not specified
-        wskey = getattr(settings, 'OCLC_WSKEY', None)
-        if not wskey:
+        self.wskey = getattr(settings, 'OCLC_WSKEY', None)
+        if not self.wskey:
             raise ImproperlyConfigured('OCLC search functionality '
                                        'requires a WSKEY.')
         # Configure a session to use WS_KEY
@@ -45,19 +46,18 @@ class WorldCatClientBase:
             headers['From'] = tech_contact
         self.session.headers.update(headers)
 
-        # should we set a contact header?
-        self.session.params.update({
-            'wskey': wskey
-        })
-
     def search(self, *args, **kwargs):
         '''Extendable method to process the results of a search query'''
+        params = kwargs.copy()
+        # wskey required for search
+        params['wskey'] = self.wskey
+
         start = time.time()
         try:
             response = self.session.get(
                 ('%s/%s' % (self.WORLDCAT_API_BASE,
                             self.API_ENDPOINT)).strip('/'),
-                params=kwargs)
+                params=params)
             # log the url call and response time
             # assuming there is always a query arg for now...
             logger.debug('search %s => %d: %f sec',
@@ -158,9 +158,15 @@ class SRUSearch(WorldCatClientBase):
         response = super().search(query=search_query)
         if response:
             # parse and return as SRW Response
-            return xmlmap.load_xmlobject_from_string(
-                response.content, SRWResponse)
-            # FIXME: occasionally getting parsing error exception here...
+            try:
+                return xmlmap.load_xmlobject_from_string(
+                    response.content, SRWResponse)
+            except XMLSyntaxError as err:
+                # occasionally getting parsing error exceptions; log it
+                # include first part of response content in case it helps
+                logger.error('Error parsing response %s\n%s',
+                             err, response.content[:100])
+                # ... not sure what details are useful here
 
     def get_work_uri(self, marc_record: pymarc.record.Record) -> str:
         """Given a MARC record from OCLC, find and return the work URI"""
