@@ -30,6 +30,7 @@
             </div>
         </fieldset>
         <output class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
+        <span class="loader">Results are loading</span>
     </form>
 </section>
 <div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
@@ -53,10 +54,6 @@
     {% endif %}
 </section>
 <output form="members-form" class="results">
-    <ol style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
-        {% for person in members %}
-            {% include 'people/snippets/member_result.html' with member=person %}
-        {% endfor %}
-    </ol>
+    {% include 'people/snippets/member_results.html' %}
 </output>
 {% endblock %}
