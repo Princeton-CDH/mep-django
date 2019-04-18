@@ -7,7 +7,6 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.timezone import now
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView, FormMixin
 from parasolr.django import SolrQuerySet
@@ -18,6 +17,7 @@ from mep.common.views import LabeledPagesMixin
 from mep.people.forms import PersonMergeForm, MemberSearchForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
+from mep.people.queryset import PersonSolrQuerySet
 
 
 class MembersList(LabeledPagesMixin, ListView, FormMixin):
@@ -70,14 +70,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
     }
 
     def get_queryset(self):
-        sqs = SolrQuerySet().filter(item_type='person') \
-                            .only(name='name_t', sort_name='sort_name_t',
-                                  birth_year='birth_year_i', death_year='death_year_i',
-                                  account_start='account_start_i',
-                                  account_end='account_end_i',
-                                  has_card='has_card_b',
-                                  pk='pk_i') \
-                            .facet('has_card_b')
+        sqs = PersonSolrQuerySet().facet('has_card')
 
         # NOTE: using only / field limit to alias dynamic field names
         # to something closer to model attribute names
@@ -90,7 +83,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
                 sqs = sqs.search(self.search_name_query) \
                          .raw_query_parameters(name_query=search_opts['query'])
             if search_opts['has_card']:
-                sqs = sqs.filter(has_card_b=search_opts['has_card'])
+                sqs = sqs.filter(has_card=search_opts['has_card'])
 
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
@@ -108,7 +101,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
             return super().get_page_labels(paginator)
 
         # otherwise, when sorting by alpha, generate alpha page labels
-        pagination_qs = self.queryset.only(sort_name='sort_name_t')
+        pagination_qs = self.queryset.only('sort_name')
         alpha_labels = alpha_pagelabels(paginator, pagination_qs,
                                         lambda x: x['sort_name'][0])
         # alpha labels is a dict; use items to return list of tuples
