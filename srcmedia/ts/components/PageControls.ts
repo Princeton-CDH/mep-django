@@ -1,16 +1,17 @@
+import { Component } from '../lib/common'
+
 /**
  * A sort/pagination control component that applies a css class when it's stuck
  * to the top of the page.
  */
-export default class PageControls {
+export default class PageControls extends Component {
     element: HTMLElement
-    position: number = 0
     ticking: boolean = false
     stuck: boolean = false
     top: number = 0
 
     constructor(element: HTMLElement) {
-        this.element = element
+        super(element)
         // Get the top property
         let top = window
             .getComputedStyle(this.element)
@@ -27,7 +28,6 @@ export default class PageControls {
      * needless calls and improve performance.
      */
     scroll(): void {
-        this.position = window.scrollY
         if (!this.ticking) {
             window.requestAnimationFrame(() => {
                 if (this.element.getBoundingClientRect().top == this.top && !this.stuck) {
