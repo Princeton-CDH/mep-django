@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 from unittest.mock import patch, Mock
 
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.core.management import call_command
 import pymarc
 
@@ -16,12 +17,14 @@ from mep.people.models import Person
 from mep.books.tests.test_oclc import get_srwresponse_xml_fixture
 
 
+
 class TestReconcileOCLC(TestCase):
 
     def setUp(self):
         self.cmd = reconcile_oclc.Command()
         self.cmd.stdout = StringIO()
 
+    @override_settings(OCLC_WSKEY='secretkey')
     @patch('mep.books.management.commands.reconcile_oclc.progressbar')
     @patch.object(reconcile_oclc.Command, 'oclc_search')
     def test_command_line(self, mock_oclc_search, mockprogressbar):
