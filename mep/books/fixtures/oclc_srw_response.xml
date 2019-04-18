@@ -1,0 +1,583 @@
+<searchRetrieveResponse xmlns="http://www.loc.gov/zing/srw/" xmlns:oclcterms="http://purl.org/oclc/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:diag="http://www.loc.gov/zing/srw/diagnostic/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<!-- demo response created from https://platform.worldcat.org/api-explorer/apis/wcapi/Bib/SRU -->
+<version>1.1</version>
+<numberOfRecords>34154</numberOfRecords>
+<records>
+<record>
+<recordSchema>marcxml</recordSchema>
+<recordPacking>xml</recordPacking>
+<recordData>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00000cam a2200000Mi 4500</leader>
+    <controlfield tag="001">498910170</controlfield>
+    <controlfield tag="008">781214s1977    ne abf   b    001 0 eng d</controlfield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9004047794</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9789004047792</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9004042903</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9789004042902</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="100">
+      <subfield code="a">Kater-Sibbes, G. J. F.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="0" tag="245">
+      <subfield code="a">Apis /</subfield>
+      <subfield code="c">G.J.F. Kater-Sibbes and M.J. Vermaseren. 3, Inscriptions, coins and addenda.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="260">
+      <subfield code="a">Leiden :</subfield>
+      <subfield code="b">Brill,</subfield>
+      <subfield code="c">1977.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="300">
+      <subfield code="a">xii, 53, [3] leaves of plates (2 folded), xxviii pages of plates :</subfield>
+      <subfield code="b">illustrations (including 1 color), 2 maps ;</subfield>
+      <subfield code="c">25 cm.</subfield>
+    </datafield>
+    <datafield ind1="0" ind2=" " tag="490">
+      <subfield code="a">Études préliminaires aux religions orientales dans L'Empire Romain ;</subfield>
+      <subfield code="v">t. 48</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Vermaseren, Maarten Jozef.</subfield>
+    </datafield>
+  </record>
+</recordData>
+</record>
+<record>
+<recordSchema>marcxml</recordSchema>
+<recordPacking>xml</recordPacking>
+<recordData>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00000cam a2200000Mi 4500</leader>
+    <controlfield tag="001">797553597</controlfield>
+    <controlfield tag="008">911015m19751977ne a   e      000 0 eng d</controlfield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9004042903</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9789004042902</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="100">
+      <subfield code="a">Kater-Sibbes, G. J. F.</subfield>
+      <subfield code="4">aut</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="0" tag="245">
+      <subfield code="a">Apis /</subfield>
+      <subfield code="c">G.J.F. Kater-Sibbes and M.J. Vermaseren.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="260">
+      <subfield code="a">Leiden :</subfield>
+      <subfield code="b">Brill,</subfield>
+      <subfield code="c">1975-1977.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="300">
+      <subfield code="a">3 v. :</subfield>
+      <subfield code="b">ill. ;</subfield>
+      <subfield code="c">25 cm.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="490">
+      <subfield code="a">Études préliminaires aux religions orientales dans l'empire romain ;</subfield>
+      <subfield code="v">48</subfield>
+    </datafield>
+    <datafield ind1="0" ind2=" " tag="505">
+      <subfield code="a">3 : Inscriptions, coins and addenda / with a frontespiece, 28 plates and 2 maps. -- 1977. -- XII, 53 p. -- ISBN 90-04-04779-4.</subfield>
+    </datafield>
+    <datafield ind1="0" ind2=" " tag="505">
+      <subfield code="a">1 : The monuments of the hellenistic-roman period from Egypt / with a frontespiece, 4 figures, 134 plates and 2 maps. -- 1975. -- L, 65 p. -- Bibliogr.: p. [XIII]-L. -- ISBN 90-04-04291-1.</subfield>
+    </datafield>
+    <datafield ind1="0" ind2=" " tag="505">
+      <subfield code="a">2 : Monuments from outside Egypt / with a frontespiece, 11 figures, 211 plates and 1 map. -- 1975. -- [IX], 107 p. -- ISBN 90-04-04293-8.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="4" tag="650">
+      <subfield code="a">Api (Divinità) nell'arte antica.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="0" tag="650">
+      <subfield code="a">Apis (Egyptian deity)</subfield>
+      <subfield code="x">Art.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="0" tag="650">
+      <subfield code="a">Idols and images</subfield>
+      <subfield code="z">Rome.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="0" tag="650">
+      <subfield code="a">Gods, Egyptian, in art.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="0" tag="651">
+      <subfield code="a">Rome</subfield>
+      <subfield code="x">Civilization</subfield>
+      <subfield code="x">Egyptian influences.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="0" tag="651">
+      <subfield code="a">Rome</subfield>
+      <subfield code="x">Religious life and customs.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Vermaseren, Maarten Jozef.</subfield>
+      <subfield code="4">aut</subfield>
+    </datafield>
+  </record>
+</recordData>
+</record>
+<record>
+<recordSchema>marcxml</recordSchema>
+<recordPacking>xml</recordPacking>
+<recordData>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00000cam a2200000Mc 4500</leader>
+    <controlfield tag="001">1072447524</controlfield>
+    <controlfield tag="008">060512s1977    ne ab         000 0 eng d</controlfield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9004047794</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9789004047792</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="100">
+      <subfield code="a">Kater-Sibbes, G. J. F.</subfield>
+      <subfield code="e">Verfasser</subfield>
+      <subfield code="0">(DE-588)158745027</subfield>
+      <subfield code="4">aut</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="0" tag="245">
+      <subfield code="a">Apis</subfield>
+      <subfield code="n">3</subfield>
+      <subfield code="p">Inscriptions, coins and addenda</subfield>
+      <subfield code="c">G. J. F. Kater-Sibbes and M. J. Vermaseren.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="260">
+      <subfield code="a">Leiden</subfield>
+      <subfield code="b">Brill</subfield>
+      <subfield code="c">1977</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="300">
+      <subfield code="a">getr. Zählung</subfield>
+      <subfield code="b">Ill. (z.T. farb.), Kt.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="490">
+      <subfield code="a">Études préliminaires aux religions orientales dans l'empire romain</subfield>
+      <subfield code="v">48</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Vermaseren, Maarten J.</subfield>
+      <subfield code="e">Verfasser</subfield>
+      <subfield code="0">(DE-588)177839643</subfield>
+      <subfield code="4">aut</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="8" tag="773">
+      <subfield code="w">(DE-605)HT001420186</subfield>
+      <subfield code="g">3</subfield>
+    </datafield>
+  </record>
+</recordData>
+</record>
+<record>
+<recordSchema>marcxml</recordSchema>
+<recordPacking>xml</recordPacking>
+<recordData>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00000cam a2200000Mi 4500</leader>
+    <controlfield tag="001">924935958</controlfield>
+    <controlfield tag="008">151002s1975    ne a          001 0 eng d</controlfield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9004042903</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9789004042902</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9004042938</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9789004042933</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="100">
+      <subfield code="a">Kater-Sibbes, G. J. F.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="0" tag="245">
+      <subfield code="a">Apis.</subfield>
+      <subfield code="n">2,</subfield>
+      <subfield code="p">Monuments from outside Egypt /</subfield>
+      <subfield code="c">G. J. F. Kater-Sibbes and M. J. Vermaseren.</subfield>
+    </datafield>
+    <datafield ind1="3" ind2="0" tag="246">
+      <subfield code="a">Monuments from outside Egypt</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="260">
+      <subfield code="a">Leiden :</subfield>
+      <subfield code="b">E. J. Brill,</subfield>
+      <subfield code="c">1975.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="300">
+      <subfield code="a">IX, 107 s., [1] k. tabl., 211 s. tabl., [1] k. tabl. złoż. :</subfield>
+      <subfield code="b">il. ;</subfield>
+      <subfield code="c">25 cm.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="490">
+      <subfield code="a">Etudes Préliminaires aux Religions Orientales dans l'Empire Romain ;</subfield>
+      <subfield code="v">t. 48</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="500">
+      <subfield code="a">Na s. tyt.: With a frontspiece, 11 figures, 211 plates and 1 map.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Vermaseren, Maarten Jozef</subfield>
+      <subfield code="d">(1918-1985).</subfield>
+    </datafield>
+    <datafield ind1="2" ind2=" " tag="710">
+      <subfield code="a">E. J. Brill (Lejda).</subfield>
+      <subfield code="4">pbl</subfield>
+    </datafield>
+  </record>
+</recordData>
+</record>
+<record>
+<recordSchema>marcxml</recordSchema>
+<recordPacking>xml</recordPacking>
+<recordData>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00000cam a2200000Ma 4500</leader>
+    <controlfield tag="001">804336333</controlfield>
+    <controlfield tag="008">090305s2009    mau      b    001 0 eng d</controlfield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9780123743428</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">0123743427</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="100">
+      <subfield code="a">Thompson, Timothy J.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="0" tag="245">
+      <subfield code="a">Bluetooth application programming with the Java APIs :</subfield>
+      <subfield code="b">essentials edition /</subfield>
+      <subfield code="c">Timothy J. Thompson, Paul J. Kline, C. Bala Kumar.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="260">
+      <subfield code="a">Burlington, MA :</subfield>
+      <subfield code="b">Morgan Kaufmann Pub.,</subfield>
+      <subfield code="c">©2008.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="300">
+      <subfield code="a">XVIII, 286 p. ;</subfield>
+      <subfield code="c">23 cm</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="4" tag="650">
+      <subfield code="a">Tecnologia Bluetooth.</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="4" tag="650">
+      <subfield code="a">Interfícies de programació d'aplicacions (Programes d'ordinador)</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="4" tag="650">
+      <subfield code="a">Comunicacions sense fils, Sistemes de.</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="7" tag="650">
+      <subfield code="a">Java (Llenguatge de programació)</subfield>
+      <subfield code="2">lemac</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Kline, Paul J.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Kumar, C. Bala.</subfield>
+    </datafield>
+    <datafield ind1="2" ind2=" " tag="710">
+      <subfield code="a">Motorola Semiconductor Products Sector.</subfield>
+    </datafield>
+  </record>
+</recordData>
+</record>
+<record>
+<recordSchema>marcxml</recordSchema>
+<recordPacking>xml</recordPacking>
+<recordData>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00000cam a2200000Mc 4500</leader>
+    <controlfield tag="001">796090842</controlfield>
+    <controlfield tag="008">140322s2012    xx            000 0 eng d</controlfield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9781449308926</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">1449308929</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="100">
+      <subfield code="a">Jacobson, Daniel</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="0" tag="245">
+      <subfield code="a">APIs :</subfield>
+      <subfield code="b">a strategy guide</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="260">
+      <subfield code="a">Sebastopol :</subfield>
+      <subfield code="b">O'Reilly,</subfield>
+      <subfield code="c">2012</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="300">
+      <subfield code="a">134 s</subfield>
+    </datafield>
+    <datafield ind1="8" ind2=" " tag="520">
+      <subfield code="a">Many of the highest traffic sites get more than half of their traffic not through the browser but through the APIs they have created. Salesforce.com (more than 50%) and Twitter (more than 75% fall into this category. Ebay gets more than 8 billion API calls a month. Facebook and Google, have dozens of APIs that enable both free services and e-commerce, get more than 5 billion API calls each day. Other companies like NetFlix have expanded their service of streaming movies over the the web to dozens of devices using API. At peak times, more than 20 percent of all traffic is accounted for by Netflix through its APIs. Companies like Sears and E-Trade are opening up their catalogs and other services to allow developers and entrepreneurs to create new marketing experiences. Making an API work to create a new channel is not just a matter of technology. An API must be considered in terms of business strategy, marketing, and operations as well as the technical aspects of programming. This book, written by Greg Brail, CTO of Apigee, and Brian Mulloy, VP of Products, captures the knowledge of all these areas gained by Apigee, the leading company in supporting the rollout of high traffic APIs</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="0" tag="650">
+      <subfield code="a">Application program interfaces (Computer software)</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="4" tag="650">
+      <subfield code="a">Softwareudvikling</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="7" tag="650">
+      <subfield code="a">Application program interfaces (Computer software)</subfield>
+      <subfield code="2">fast</subfield>
+      <subfield code="0">(OCoLC)fst00811704</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Brail, Greg</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Woods, Dan</subfield>
+    </datafield>
+  </record>
+</recordData>
+</record>
+<record>
+<recordSchema>marcxml</recordSchema>
+<recordPacking>xml</recordPacking>
+<recordData>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00000cam a2200000Ia 4500</leader>
+    <controlfield tag="001">144220970</controlfield>
+    <controlfield tag="008">070117s2007    txua          001 0 eng d</controlfield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">1583470697</subfield>
+      <subfield code="q">(pbk.)</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9781583470695</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="100">
+      <subfield code="a">Vining, Bruce.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="0" tag="245">
+      <subfield code="a">APIs at work /</subfield>
+      <subfield code="c">Bruce Vining, Doug Pence, and Ron Hawkins.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="4" tag="246">
+      <subfield code="a">IBM system i APIs at work</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="260">
+      <subfield code="a">Lewisville, TX :</subfield>
+      <subfield code="b">Mc Press,</subfield>
+      <subfield code="c">2007.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="300">
+      <subfield code="a">xv, 741 pages :</subfield>
+      <subfield code="b">illustrations ;</subfield>
+      <subfield code="c">23 cm</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="500">
+      <subfield code="a">Includes index.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="0" tag="650">
+      <subfield code="a">Application program interfaces (Computer software)</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="0" tag="650">
+      <subfield code="a">IBM computers</subfield>
+      <subfield code="x">Programming.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="0" tag="650">
+      <subfield code="a">Computer systems.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="7" tag="650">
+      <subfield code="a">Application program interfaces (Computer software)</subfield>
+      <subfield code="2">fast</subfield>
+      <subfield code="0">(OCoLC)fst00811704</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="7" tag="650">
+      <subfield code="a">Computer systems.</subfield>
+      <subfield code="2">fast</subfield>
+      <subfield code="0">(OCoLC)fst00872651</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="7" tag="650">
+      <subfield code="a">IBM computers</subfield>
+      <subfield code="x">Programming.</subfield>
+      <subfield code="2">fast</subfield>
+      <subfield code="0">(OCoLC)fst00966305</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Pence, Doug.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Hawkins, Ron.</subfield>
+    </datafield>
+  </record>
+</recordData>
+</record>
+<record>
+<recordSchema>marcxml</recordSchema>
+<recordPacking>xml</recordPacking>
+<recordData>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00000cas a22000007a 4500</leader>
+    <controlfield tag="001">165151816</controlfield>
+    <controlfield tag="008">070817c20079999azuer pso     0   a0eng c</controlfield>
+    <datafield ind1=" " ind2=" " tag="010">
+      <subfield code="a">  2007212630</subfield>
+    </datafield>
+    <datafield ind1="0" ind2=" " tag="022">
+      <subfield code="a">1937-5506</subfield>
+      <subfield code="l">1937-5506</subfield>
+      <subfield code="2">1</subfield>
+    </datafield>
+    <datafield ind1="0" ind2=" " tag="130">
+      <subfield code="a">Apis (Phoenix, Az.)</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="0" tag="222">
+      <subfield code="a">Apis</subfield>
+      <subfield code="b">(Phoenix, Az.)</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="0" tag="245">
+      <subfield code="a">Apis.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="260">
+      <subfield code="a">Phoenix, AZ :</subfield>
+      <subfield code="b">CITA International Inc.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="538">
+      <subfield code="a">Mode of access: World Wide Web.</subfield>
+    </datafield>
+    <datafield ind1="4" ind2="0" tag="856">
+      <subfield code="u">http://www.knowledge21.org/apis.html</subfield>
+    </datafield>
+  </record>
+</recordData>
+</record>
+<record>
+<recordSchema>marcxml</recordSchema>
+<recordPacking>xml</recordPacking>
+<recordData>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00000cam a2200000Mi 4500</leader>
+    <controlfield tag="001">462767731</controlfield>
+    <controlfield tag="008">790101s1975    ne a          000 0 eng d</controlfield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9004042938</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="020">
+      <subfield code="a">9789004042933</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="100">
+      <subfield code="a">Kater-Sibbes, G. J. F.</subfield>
+      <subfield code="4">aut</subfield>
+      <subfield code="0">(FrPBN)12750262</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="0" tag="245">
+      <subfield code="a">Apis ...</subfield>
+      <subfield code="n">2,</subfield>
+      <subfield code="p">Monuments from outside Egypt ... _ 107 p /</subfield>
+      <subfield code="c">G.J.F. Kater-Sibbes and M.J. Vermaseren.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="260">
+      <subfield code="a">Leiden :</subfield>
+      <subfield code="b">E.J. Brill ;</subfield>
+      <subfield code="a">CCXI p. de pl,</subfield>
+      <subfield code="c">1975-</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="300">
+      <subfield code="a">1 dépl. :</subfield>
+      <subfield code="b">ill. en noir et en coul ;</subfield>
+      <subfield code="c">24 cm.</subfield>
+    </datafield>
+    <datafield ind1="0" ind2=" " tag="490">
+      <subfield code="a">Etudes préliminaires aux religions orientales dans l'empire romain ;</subfield>
+      <subfield code="v">48</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Vermaseren, Maarten Jozef.</subfield>
+      <subfield code="4">aut</subfield>
+      <subfield code="0">(FrPBN)12019293</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="8" tag="773">
+      <subfield code="t">Apis ...</subfield>
+      <subfield code="g">2</subfield>
+      <subfield code="w">(FrPBN)34329734</subfield>
+    </datafield>
+    <datafield ind1="4" ind2="2" tag="856">
+      <subfield code="3">Notice et cote du catalogue de la Bibliothèque nationale de France</subfield>
+      <subfield code="u">http://catalogue.bnf.fr/ark:/12148/cb35371092r</subfield>
+    </datafield>
+  </record>
+</recordData>
+</record>
+<record>
+<recordSchema>marcxml</recordSchema>
+<recordPacking>xml</recordPacking>
+<recordData>
+<record xmlns="http://www.loc.gov/MARC21/slim">
+    <leader>00000cam a2200000Ma 4500</leader>
+    <controlfield tag="001">911727061</controlfield>
+    <controlfield tag="008">930205s1975    xx            000 0 eng d</controlfield>
+    <datafield ind1="1" ind2=" " tag="100">
+      <subfield code="a">Kater-Sibbes, G. J. F.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2="0" tag="245">
+      <subfield code="a">Apis .</subfield>
+      <subfield code="n">Vol. 1,</subfield>
+      <subfield code="p">The monuments of the Hellenistic-Roman period from Egypt.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="260">
+      <subfield code="c">Leiden :</subfield>
+      <subfield code="b">E.J. Brill,</subfield>
+      <subfield code="c">1975.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2=" " tag="300">
+      <subfield code="a">65 p., CXXXIV p. de lám. ;</subfield>
+      <subfield code="c">25 cm.</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="490">
+      <subfield code="a">Etudes préliminaires aux religions orientales dans l'empire romain ;</subfield>
+      <subfield code="v">48</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="4" tag="650">
+      <subfield code="a">Apis (Personaje mitológico) en el arte.</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="4" tag="650">
+      <subfield code="a">Mitología romana</subfield>
+      <subfield code="x">Influencia oriental.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="4" tag="651">
+      <subfield code="a">Religión egipcia.</subfield>
+    </datafield>
+    <datafield ind1=" " ind2="4" tag="651">
+      <subfield code="a">Religión romana.</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="7" tag="650">
+      <subfield code="a">Apis (Personaje mitológico)</subfield>
+      <subfield code="x">Iconografía.</subfield>
+      <subfield code="2">embucm</subfield>
+    </datafield>
+    <datafield ind1="1" ind2=" " tag="700">
+      <subfield code="a">Vermaseren, M. J.</subfield>
+      <subfield code="q">(Maarten Jozef)</subfield>
+    </datafield>
+  </record>
+</recordData>
+</record>
+</records>
+<nextRecordPosition>11</nextRecordPosition>
+<resultSetIdleTime/>
+<echoedSearchRetrieveRequest xmlns:srw="http://www.loc.gov/zing/srw/">
+<version>1.1</version>
+<query>srw.kw all "APIs"</query>
+<maximumRecords>10</maximumRecords>
+<recordPacking>xml</recordPacking>
+<startRecord>1</startRecord>
+<sortKeys>relevance</sortKeys>
+<wskey>{built-in-api-key}</wskey>
+</echoedSearchRetrieveRequest>
+</searchRetrieveResponse>

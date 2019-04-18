@@ -1,3 +1,4 @@
+import datetime
 import re
 
 from django.test import TestCase
@@ -28,7 +29,6 @@ class TestItem(TestCase):
         assert str(item) == '(No title, year)'
 
     def test_borrow_count(self):
-
         # create a test item
         # should have zero borrows
         item = Item(title='Le foo et le bar', year=1916)
@@ -80,6 +80,28 @@ class TestItem(TestCase):
 
         assert len(item.translators) == 1
         assert item.translators.first() == translator
+
+    def test_first_known_interaction(self):
+        # create a test item with no events
+        item = Item.objects.create(title='Searching')
+        assert not item.first_known_interaction
+
+        # create a borrow with date
+        acct = Account()
+        acct.save()
+        borrow_date = datetime.date(1940, 3, 2)
+        borrow = Borrow(item=item, account=acct)
+        borrow.partial_start_date = borrow_date.isoformat()
+        borrow.save()
+        # first date should be borrow start date
+        assert item.first_known_interaction == borrow_date
+
+        # create a borrow with an unknown date
+        unknown_borrow = Borrow.objects.create(item=item, account=acct)
+        unknown_borrow.partial_start_date = '--01-01'
+        unknown_borrow.save()
+        # should use previous borrow date, not the unknown (1900)
+        assert item.first_known_interaction == borrow_date
 
 
 class TestPublisher(TestCase):
