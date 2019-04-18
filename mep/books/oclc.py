@@ -3,9 +3,9 @@ Module for collecting OCLC search functionality, particularly SRU style
 searches.
 '''
 from io import BytesIO
-from logging import getLogger
+import logging
 import time
-from typing import List
+from typing import List, Dict
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -14,8 +14,10 @@ import pymarc
 import rdflib
 import requests
 
+from mep import __version__ as mep_version
 
-logger = getLogger(__name__)
+
+logger = logging.getLogger(__name__)
 
 
 class WorldCatClientBase:
@@ -33,21 +35,23 @@ class WorldCatClientBase:
                                        'requires a WSKEY.')
         # Configure a session to use WS_KEY
         self.session = requests.Session()
+        headers = {
+            'User-Agent': 'mep-django/%s (python-requests/%s)' % \
+                (mep_version, requests.__version__)
+        }
+        # include technical contact as From header, if set
+        tech_contact = getattr(settings, 'TECHNICAL_CONTACT', None)
+        if tech_contact:
+            headers['From'] = tech_contact
+        self.session.headers.update(headers)
+
         # should we set a contact header?
         self.session.params.update({
             'wskey': wskey
         })
-        # initialize an empty query
-        self.query = []
 
-    @property
-    def query_string(self):
-        """Return an AND formatting query string."""
-        return ' AND '.join(self.query)
-
-    def search(self, **kwargs):
+    def search(self, *args, **kwargs):
         '''Extendable method to process the results of a search query'''
-        kwargs.update({'query': self.query_string})
         start = time.time()
         try:
             response = self.session.get(
@@ -55,8 +59,9 @@ class WorldCatClientBase:
                             self.API_ENDPOINT)).strip('/'),
                 params=kwargs)
             # log the url call and response time
+            # assuming there is always a query arg for now...
             logger.debug('search %s => %d: %f sec',
-                         self.query_string, response.status_code,
+                         kwargs['query'], response.status_code,
                          time.time() - start)
             if response.status_code == requests.codes.ok:
                 return response
@@ -91,29 +96,15 @@ def oclc_uri(marc_record: pymarc.record.Record) -> str:
     """Generate the worldcat URI for an OCLC MARC record"""
     return 'http://www.worldcat.org/oclc/%s' % marc_record['001'].value()
 
+
 #: schema.org RDF namespace
 SCHEMA_ORG = rdflib.Namespace('http://schema.org/')
-
-
-def get_work_uri(marc_record: pymarc.record.Record) -> str:
-    """Given a MARC record from OCLC, find and return the work URI"""
-    graph = rdflib.Graph()
-    # control field in 001 is OCLC identifier, used for URIs
-    item_uri = oclc_uri(marc_record)
-    # let rdflib handle content-type negotiation and parsing
-    graph.parse(item_uri)
-    # get the URI for schema:exampleOfWork and return as a string
-    return str(graph.value(subject=rdflib.URIRef(item_uri),
-                           predicate=SCHEMA_ORG.exampleOfWork))
 
 
 class SRUSearch(WorldCatClientBase):
     '''Client for peforming an SRU (specific edition) based search'''
 
     API_ENDPOINT = 'search/worldcat/sru'
-
-    def __init__(self):
-        super().__init__()
 
     #: mapping of field lookup to srw field abbreviation
     search_fields = {
@@ -123,43 +114,73 @@ class SRUSearch(WorldCatClientBase):
         'keyword': 'kw'
     }
 
-    def filter(self, *args, **kwargs):
-        '''Add another filter to the :class:`SRUSearch` object and return
-        self to allow chaining.'''
-        search_copy = self._clone()
-        search_copy.query.extend(args)
-        for key, val in kwargs.items():
+    @staticmethod
+    def _lookup_to_search(*args: List[str], **kwargs: Dict) -> str:
+        '''Take a list of search terms and dictionary of field lookups
+        and return as as a CQL search string. List arguments are included
+        in the query as-is. Dictionary lookup supports field names in
+        :attr:`SRUSearch.search_fields` and supports `__` for operators
+        such as any, or all (e.g. title__all or author__any). If no
+        operator is specified, will use equals.
+        '''
+        search_query = []
+
+        # any args are added to the search query as-is
+        search_query.extend(args)
+
+        for key, value in kwargs.items():
             # split field on __ to allow for specifying operator
             field_parts = key.split('__', 1)
             field = field_parts[0]
 
             # convert readable field names to srw field via lookup
-            if field in self.search_fields:
-                field = 'srw.%s' % self.search_fields[field]
+            if field in SRUSearch.search_fields:
+                field = 'srw.%s' % SRUSearch.search_fields[field]
 
-            if len(field_parts) > 1:
+            # determine operator to use
+            if len(field_parts) > 1:  # operator specified via __
                 # spaces needed for everything besides = (?)
                 operator = ' %s ' % field_parts[1]
             else:
                 # assume equal if not specified
                 operator = '='
 
-            # *maybe* could infer when to wrap quotes around val
-            # based on type (e.g. str vs numeric)
+            # if value is a string, wrap in quotes
+            if isinstance(value, str):
+                value = '"%s"' % value
+            search_query.append('%s%s%s' % (field, operator, value))
 
-            search_copy.query.append('%s%s%s' % (field, operator, val))
+        return ' AND '.join(search_query)
 
-        return search_copy
-
-    def _clone(self):
-        search_copy = self.__class__()
-        search_copy.query = list(self.query)
-        return search_copy
-
-    def search(self, **kwargs):
+    def search(self, *args, **kwargs):
         '''Perform a CQL based search based on chained filters.'''
-        response = super().search(**kwargs)
+        search_query = SRUSearch._lookup_to_search(*args, **kwargs)
+        response = super().search(query=search_query)
         if response:
             # parse and return as SRW Response
             return xmlmap.load_xmlobject_from_string(
                 response.content, SRWResponse)
+            # FIXME: occasionally getting parsing error exception here...
+
+    def get_work_uri(self, marc_record: pymarc.record.Record) -> str:
+        """Given a MARC record from OCLC, find and return the work URI"""
+
+        # NOTE: doesn't technically be part of SRUSearch;
+        # primarily here to allow sharing the requests session
+
+        graph = rdflib.Graph()
+        # control field in 001 is OCLC identifier, used for URIs
+        item_uri = oclc_uri(marc_record)
+        # let rdflib handle content-type negotiation and parsing
+        # - URI + extension should return requested type
+        response = self.session.get("%s.rdf" % item_uri)
+        if response.status_code == requests.codes.ok:
+            graph.parse(data=response.content.decode())
+
+            # get the URI for schema:exampleOfWork and return as a string
+            return str(graph.value(subject=rdflib.URIRef(item_uri),
+                                   predicate=SCHEMA_ORG.exampleOfWork))
+
+        # log an error for any other status
+        logger.error('Error loading OCLC record as RDF %s => %d',
+                     item_uri, response.status_code)
