@@ -2,9 +2,7 @@
 {% load static humanize widget_tweaks mep_tags %}
 {% load render_bundle from webpack_loader %}
 
-{% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
-
-{% block js %}{% render_bundle 'search' 'js' attrs='defer' %}{% endblock %}
+{% block js %}{% render_bundle 'memberSearch' 'js' attrs='defer' %}{% endblock %}
 
 {% block page-subtitle %}Library Members · {% endblock %}
 
@@ -54,9 +52,11 @@
     </div>
     {% endif %}
 </section>
-<ol class="members results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
-    {% for person in members %}
-        {% include 'people/snippets/member_result.html' with member=person %}
-    {% endfor %}
-</ol>
+<output form="members-form" class="results">
+    <ol style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
+        {% for person in members %}
+            {% include 'people/snippets/member_result.html' with member=person %}
+        {% endfor %}
+    </ol>
+</output>
 {% endblock %}
