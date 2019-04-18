@@ -28,7 +28,7 @@ class PartialDate:
     description = 'Partial date generated from date and date precision flags'
 
     partial_date_re = re.compile(
-       r'^(?P<year>\d{4}|-)?(?:-(?P<month>[01]\d))?(?:-(?P<day>[0-3]\d))?$'
+        r'^(?P<year>\d{4}|-)?(?:-(?P<month>[01]\d))?(?:-(?P<day>[0-3]\d))?$'
     )
 
     def __init__(self, date_field, date_precision_field, unknown_year:int=1,
@@ -188,3 +188,21 @@ class PartialDateMixin(models.Model):
         return '/'.join([dt if dt else '??'
                          for dt in [self.partial_start_date,
                                     self.partial_end_date]])
+
+
+@models.Field.register_lookup
+class KnownYear(models.Lookup):
+    '''Custom lookup to filter on known year in `:class:`DatePrecisionField`'''
+    lookup_name = 'knownyear'
+    prepare_rhs = False
+
+    def as_sql(self, compiler, connection):
+        lhs, params = compiler.compile(self.lhs)
+
+        bit_compare = "%s & %d" % (lhs, int(DatePrecision.year))
+        # if true (year is known), precision should be null or year bit set
+        if self.rhs:
+            return "%s IS NULL OR %s != 0" % (lhs, bit_compare), params
+
+        # for false (year is unknown), bit should not be set
+        return "%s = 0" % bit_compare, params
