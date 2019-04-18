@@ -6,8 +6,9 @@ from django import forms
 from django.contrib import admin
 from django.core.validators import RegexValidator, ValidationError
 
+from mep.accounts.partial_date import DatePrecision, PartialDate
 from mep.accounts.models import Account, Address, Subscription,\
-    Reimbursement, Event, SubscriptionType, Borrow, PartialDate, Purchase
+    Reimbursement, Event, SubscriptionType, Borrow, Purchase
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 from mep.footnotes.admin import FootnoteInline
 
