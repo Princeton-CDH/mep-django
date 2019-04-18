@@ -81,10 +81,21 @@ class TestReconcileOCLC(TestCase):
         assert item2.title in csv_content
         assert item2.notes in csv_content
 
+        # create enough items to trigger progressbar
+        for title in range(5):
+            Item.objects.create(title=title)
+        call_command('reconcile_oclc', '-o', csvtempfile.name, stdout=stdout)
+        # progbar initialized
+        mockprogressbar.ProgressBar.assert_called_with(
+            redirect_stdout=True, max_value=7) # 5 + 2
+        # progbar updated
+        assert mockprogressbar.ProgressBar.return_value.update.call_count == 7
+        mockprogressbar.ProgressBar.return_value.finish.assert_called_with()
+
         # no progress option respected
         mockprogressbar.reset_mock()
         call_command('reconcile_oclc', '-o', csvtempfile.name,
-                    '--no-progress', stdout=stdout)
+                     '--no-progress', stdout=stdout)
         mockprogressbar.ProgressBar.assert_not_called()
 
     def test_oclc_search(self):

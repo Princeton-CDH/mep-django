@@ -125,6 +125,15 @@ class TestSRUSearch(SimpleTestCase):
             # returns response object
             assert isinstance(resp, SRWResponse)
 
+            # 200 response but not valid xml
+            mock_base_search.return_value.content = 'foo'
+            # use patch since can't get pytest caplog to work
+            with patch('mep.books.oclc.logger') as mock_logger:
+                assert not SRUSearch().search()
+                assert mock_logger.error.call_count == 1
+                args = mock_logger.error.call_args[0]
+                assert 'Error parsing response' in args[0]
+
             # no response - no error, no response
             mock_base_search.return_value = None
             assert not SRUSearch().search()
