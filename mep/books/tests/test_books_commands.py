@@ -17,7 +17,6 @@ from mep.people.models import Person
 from mep.books.tests.test_oclc import get_srwresponse_xml_fixture
 
 
-
 class TestReconcileOCLC(TestCase):
 
     def setUp(self):
@@ -61,11 +60,15 @@ class TestReconcileOCLC(TestCase):
         Creator.objects.create(creator_type=ctype, person=person, item=item1)
         item2 = Item.objects.create(title="Crowded House", notes="Variant title")
         stdout = StringIO()
+        # return no matches for one, some for the second
+        mock_oclc_search.side_effect = {'# matches': 0}, {"# matches": 5}
         call_command('reconcile_oclc', '-o', csvtempfile.name, stdout=stdout)
         output = stdout.getvalue()
         assert '2 items to reconcile' in output
         # search should be called once for each non-skipped item
         assert mock_oclc_search.call_count == 2
+        # summary output
+        assert 'Processed 2 items, found matches for 1' in output
 
         # check csvfile contents
         csvtempfile.seek(0)
@@ -84,6 +87,7 @@ class TestReconcileOCLC(TestCase):
         # create enough items to trigger progressbar
         for title in range(5):
             Item.objects.create(title=title)
+        mock_oclc_search.side_effect = None
         call_command('reconcile_oclc', '-o', csvtempfile.name, stdout=stdout)
         # progbar initialized
         mockprogressbar.ProgressBar.assert_called_with(
@@ -91,6 +95,7 @@ class TestReconcileOCLC(TestCase):
         # progbar updated
         assert mockprogressbar.ProgressBar.return_value.update.call_count == 7
         mockprogressbar.ProgressBar.return_value.finish.assert_called_with()
+
 
         # no progress option respected
         mockprogressbar.reset_mock()

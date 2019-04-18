@@ -42,7 +42,7 @@ class Command(BaseCommand):
         items = Item.objects.exclude(notes__contains='GENERIC') \
                             .exclude(notes__contains='PROBLEM') \
                             .exclude(notes__contains='OBSCURE') \
-                            .exclude(title__endswith='*')
+                            .exclude(title__endswith='*')[:10]
 
         # report on total to process
         total = items.count()
@@ -56,7 +56,7 @@ class Command(BaseCommand):
         if not kwargs['no_progress'] and total > 5:
             progbar = progressbar.ProgressBar(redirect_stdout=True,
                                               max_value=total)
-        count = 0
+        count = found = 0
 
         # use output name specified in args, with a default fallback
         outfilename = kwargs.get('output', None) or 'items-oclc.csv'
@@ -77,6 +77,10 @@ class Command(BaseCommand):
                 }
                 info.update(self.oclc_search(item))
                 writer.writerow(info)
+                # keep track of how many records found any matches
+                if info.get('# matches', None):
+                    found += 1
+
                 count += 1
                 if progbar:
                     progbar.update(count)
@@ -84,7 +88,9 @@ class Command(BaseCommand):
         if progbar:
             progbar.finish()
 
-        # report on what was done ? Not sure what to say here
+        # summarize what was done
+        self.stdout.write('Processed %d items, found matches for %d' %
+                          (count, found))
 
     def oclc_search(self, item: Item) -> Dict:
         """Search for an item in OCLC by title, author, date.
