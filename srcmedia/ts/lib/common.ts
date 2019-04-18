@@ -28,7 +28,17 @@ class Component {
     }
 }
 
+/**
+ * Request header used to signal an ajax request to Django.
+ */
+const ajax = {
+    headers: { 
+        'X-Requested-With': 'XMLHttpRequest',
+    }
+}
+
 export {
     Reactive,
-    Component
+    Component,
+    ajax
 }
