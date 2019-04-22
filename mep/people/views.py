@@ -79,7 +79,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
                                   account_end='account_end_i',
                                   has_card='has_card_b',
                                   pk='pk_i') \
-                            .facet('has_card_b', 'sex_s', missing=True)
+                            .facet_field('has_card_b') \
+                            .facet_field('sex_s', missing=True, exclude='sex')
 
         # NOTE: using only / field limit to alias dynamic field names
         # to something closer to model attribute names
@@ -94,23 +95,12 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
             if search_opts['has_card']:
                 sqs = sqs.filter(has_card_b=search_opts['has_card'])
             if search_opts['sex']:
-                sqs = sqs.filter(sex_s__in=search_opts['sex'])
+                sqs = sqs.filter(sex_s__in=search_opts['sex'], tag='sex')
 
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
             # TODO: what happens if form is invalid?
             # (currently should not be possible, but eventually will)
-
-            # NOTE: Manually tagging and excluding fq fields where
-            # logically they should always show full counts if one option is
-            # picked; this ignores has_card_b as it's a simple toggle.
-            # This should almost certainly be added to parasolr eventually
-            for i, _filter in enumerate(sqs.filter_qs):
-                for exclude in sqs.facet_field:
-                    if exclude in _filter:
-                        sqs.filter_qs[i] = '{!tag=%s}%s' % (exclude, _filter)
-            for i, facet in enumerate(sqs.facet_field):
-                sqs.facet_field[i] = '{!ex=%s}%s' % (facet, facet)
         self.queryset = sqs
         return sqs
 

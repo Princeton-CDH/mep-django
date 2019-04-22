@@ -16,7 +16,7 @@ django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader
-git+git://github.com/Princeton-CDH/parasolr@feature/in-filter#egg=parasolr
+git+git://github.com/Princeton-CDH/parasolr@develop#egg=parasolr
 django-widget-tweaks
 pymarc
 progressbar2

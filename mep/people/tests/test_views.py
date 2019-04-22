@@ -718,7 +718,10 @@ class TestMembersListView(TestCase):
             account_start='account_start_i', account_end='account_end_i',
             has_card='has_card_b', pk='pk_i')
         # faceting should be turned on via call to facet
-        mock_qs.facet.assert_called_with('has_card_b', 'sex_s', missing=True)
+        mock_qs.facet.assert_has_calls([
+            call('has_card_b'),
+            call('sex_s', missing=True)
+        ])
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()
@@ -738,7 +741,6 @@ class TestMembersListView(TestCase):
         # blank query left default sort in place too
         mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
         # faceting should be on and filter calls for card and sex
-        mock_qs.facet.assert_called_with('has_card_b', 'sex_s', missing=True)
         mock_qs.filter.assert_has_calls(
             [
                 call(has_card_b=True),
