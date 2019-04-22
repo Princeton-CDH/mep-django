@@ -353,22 +353,11 @@ class TestFacetForm(TestCase):
         test_form = TestForm()
 
         # create facets in the format provided by parasolr
-        facets = OrderedDict({
-            'name_s': OrderedDict({
-                'Jane': 2,
-                'John': 1
-            }),
-            'member_type': OrderedDict({
-                'weekly': 2,
-                'monthly': 1,
-            }),
-            # handling should not choke on an unhandled
-            # field
-            'unhandled_field': OrderedDict({
-                'foo': 1,
-                'bar': 2,
-            })
-        })
+        facets = OrderedDict()
+        facets['name_s'] = OrderedDict([('Jane', 2), ('John', 1)])
+        facets['member_type'] = OrderedDict([('weekly', 2), ('monthly', 1)])
+        # handling should not choke on an unhandled field
+        facets['unhandled_fields'] = OrderedDict(foo=1, bar=1)
 
         test_form.set_choices_from_facets(facets)
 
