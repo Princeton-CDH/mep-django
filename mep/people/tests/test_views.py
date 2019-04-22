@@ -2,7 +2,7 @@ import json
 from datetime import date
 import time
 from types import LambdaType
-from unittest.mock import patch, Mock
+from unittest.mock import call, patch, Mock
 
 from django.contrib.auth.models import User, Permission
 from django.core.paginator import Paginator
@@ -725,20 +725,26 @@ class TestMembersListView(TestCase):
         # should sort by solr field corresponding to default sort
         mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
 
-        # enable card filter, also test that a blank query doesn't force relevance
-        view.request = self.factory.get(self.members_url, {'has_card': True,
-                                                           'query': ''})
+        # enable card and sex filter, also test that a blank query doesn't force relevance
+        view.request = self.factory.get(self.members_url, {
+            'has_card': True,
+            'query': '',
+            'sex': ['Female', 'Unknown']
+        })
         # remove cached form
         del view._form
         sqs = view.get_queryset()
         assert view.queryset == sqs
         # blank query left default sort in place too
         mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
-        # faceting should be on *and* filtering by that facet
-        # as its most recent call
-        mock_qs.facet.assert_called_with('has_card_b')
-        mock_qs.filter.assert_called_with(has_card_b=True)
-
+        # faceting should be on and filter calls for card and sex
+        mock_qs.facet.assert_called_with('has_card_b', 'sex_s', missing=True)
+        mock_qs.filter.assert_has_calls(
+            [
+                call(has_card_b=True),
+                call(sex_s__in=['Female', 'Unknown'])
+            ]
+        )
         # with keyword search term - should call search and query param
         query_term = 'sylvia'
         view.request = self.factory.get(self.members_url, {'query': query_term})

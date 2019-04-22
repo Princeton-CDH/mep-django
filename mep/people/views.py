@@ -111,7 +111,6 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
                         sqs.filter_qs[i] = '{!tag=%s}%s' % (exclude, _filter)
             for i, facet in enumerate(sqs.facet_field):
                 sqs.facet_field[i] = '{!ex=%s}%s' % (facet, facet)
-            print(sqs.filter_qs)
         self.queryset = sqs
         return sqs
 
