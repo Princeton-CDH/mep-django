@@ -693,13 +693,13 @@ class TestMembersListView(TestCase):
         # with query param present but empty, use default sort
         view.request = self.factory.get(self.members_url, {'query': ''})
         form_kwargs = view.get_form_kwargs()
-        assert form_kwargs['data']['sort'] == view.initial['sort']
+        assert form_kwargs['data']['sort'] ==  view.initial['sort']
 
     @patch('mep.people.views.SolrQuerySet')
     def test_get_queryset(self, mock_solrqueryset):
         mock_qs = mock_solrqueryset.return_value
         # simulate fluent interface
-        for meth in ['facet', 'filter', 'only', 'search',
+        for meth in ['facet_field', 'filter', 'only', 'search',
                      'raw_query_parameters', 'order_by']:
             getattr(mock_qs, meth).return_value = mock_qs
 
@@ -718,9 +718,9 @@ class TestMembersListView(TestCase):
             account_start='account_start_i', account_end='account_end_i',
             has_card='has_card_b', pk='pk_i')
         # faceting should be turned on via call to facet
-        mock_qs.facet.assert_has_calls([
+        mock_qs.facet_field.assert_has_calls([
             call('has_card_b'),
-            call('sex_s', missing=True)
+            call('sex_s', missing=True, exclude='sex')
         ])
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
@@ -744,7 +744,7 @@ class TestMembersListView(TestCase):
         mock_qs.filter.assert_has_calls(
             [
                 call(has_card_b=True),
-                call(sex_s__in=['Female', 'Unknown'])
+                call(sex_s__in=['Female', 'Unknown'], tag='sex')
             ]
         )
         # with keyword search term - should call search and query param
