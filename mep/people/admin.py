@@ -168,7 +168,8 @@ class PersonTypeListFilter(admin.SimpleListFilter):
 class PersonAddressInline(AddressInline):
     # extend address inline for person to specify foreign key field
     # and remove account from editable fields
-    fields = ('location', 'start_date', 'end_date', 'care_of_person', 'notes')
+    fields = ('location', 'partial_start_date', 'partial_end_date',
+              'care_of_person', 'notes')
     fk_name = 'person'
 
 
