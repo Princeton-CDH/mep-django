@@ -354,20 +354,20 @@ class TestFacetForm(TestCase):
 
         # create facets in the format provided by parasolr
         facets = OrderedDict({
-            'name_s': {
+            'name_s': OrderedDict({
                 'Jane': 2,
                 'John': 1
-            },
-            'member_type': {
+            }),
+            'member_type': OrderedDict({
                 'weekly': 2,
                 'monthly': 1,
-            },
+            }),
             # handling should not choke on an unhandled
             # field
-            'unhandled_field': {
+            'unhandled_field': OrderedDict({
                 'foo': 1,
                 'bar': 2,
-            }
+            })
         })
 
         test_form.set_choices_from_facets(facets)

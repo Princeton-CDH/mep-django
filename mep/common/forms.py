@@ -28,7 +28,7 @@ class FacetForm(forms.Form):
     :class`FacetChoiceField` fields.'''
 
     #: A mapping of facets fields to form fields.
-    solr_facet_fields: Mapping[str, str] = {}
+    solr_facet_fields = {}
 
     def set_choices_from_facets(self, facets: Mapping[str, int]) -> None:
         '''Render a set of choices based on a mapping of facets to counts.'''
