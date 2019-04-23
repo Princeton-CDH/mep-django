@@ -29,7 +29,7 @@
                 </label>
             </div>
         </fieldset>
-        <output class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
+        <output class="total-results" id="total">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
         <span class="loader">Results are loading</span>
     </form>
 </section>
@@ -53,7 +53,7 @@
     </div>
     {% endif %}
 </section>
-<output form="members-form" class="results">
+<output form="members-form" class="results" aria-live="assertive" aria-labelledby="total">
     {% include 'people/snippets/member_results.html' %}
 </output>
 {% endblock %}
