@@ -37,8 +37,17 @@ const ajax = {
     }
 }
 
+abstract class Rx<Element> {
+    element: Element
+    
+    constructor(element: Element) {
+        this.element = element
+    }
+}
+
 export {
     Reactive,
     Component,
+    Rx,
     ajax
 }

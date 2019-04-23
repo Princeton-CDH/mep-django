@@ -41,15 +41,6 @@ describe('RxForm', () => {
         expect(rxf.serialize()).toEqual('query=my+search')
     })
 
-    it('can update its state', () => {
-        const $form = document.querySelector('form') as HTMLFormElement
-        const rxf = new RxForm($form)
-        const watcher = jest.fn()
-        rxf.state.subscribe(watcher)
-        rxf.update({ foo: 'bar' })
-        expect(watcher).toHaveBeenCalledWith({ foo: 'bar' })
-    })
-
     it('ignores the enter key when pressed', () => {
         const $form = document.querySelector('form') as HTMLFormElement
         const rxf = new RxForm($form)
@@ -71,10 +62,16 @@ describe('RxSearchForm', () => {
     })
     
     
-    it('stores state as an observable sequence', () => {
+    it('stores results as an observable sequence', () => {
         const $element = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($element)
-        expect(rsf.state).toBeInstanceOf(Subject)
+        expect(rsf.results).toBeInstanceOf(Subject)
+    })
+
+    it('stores total results as an observable sequence', () => {
+        const $element = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($element)
+        expect(rsf.totalResults).toBeInstanceOf(Subject)
     })
     
     it('makes an async GET request to its endpoint on submission', done => {
@@ -94,10 +91,10 @@ describe('RxSearchForm', () => {
         const rsf = new RxSearchForm($form)
         const response = new Response(new Blob(['results!'], { type: 'text/plain' }))
         const watcher = jest.fn()
-        rsf.state.subscribe(watcher)
+        rsf.results.subscribe(watcher)
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
         rsf.submit().then(() => { // check that we pushed the new results onto state
-            expect(watcher).toHaveBeenCalledWith({ results: 'results!' })
+            expect(watcher).toHaveBeenCalledWith('results!')
             done()
         })
     })

@@ -1,19 +1,13 @@
 import { Subject } from 'rxjs'
 
-import { Reactive, Component, ajax } from './common'
+import { Component, ajax } from './common'
 
-interface RxFormState {
-    // eventually this could include generic things like validity
-}
-
-class RxForm extends Component implements Reactive<RxFormState> {
+class RxForm extends Component {
     element: HTMLFormElement
-    state: Subject<RxFormState>
     target: string
 
     constructor(element: HTMLFormElement) {
         super(element)
-        this.state = new Subject()
         if (this.element.target) { // check for a `target` attribute
             this.target = this.element.target
         }
@@ -22,17 +16,6 @@ class RxForm extends Component implements Reactive<RxFormState> {
         }
         // prevent the enter key from submitting the form
         this.element.onkeydown = e => { if (e.key === 'Enter') e.preventDefault() }
-    }
-    /**
-     * Update the form's state. We don't need to change the DOM, so all we do
-     * is call next().
-     *
-     * @param {RxFormState} state
-     * @returns {Promise<void>}
-     * @memberof RxForm
-     */
-    update = async (state: RxFormState): Promise<void> => {
-        this.state.next(state)
     }
     /**
      * Serializes the form's state for appending to a URL querystring.
@@ -59,15 +42,14 @@ class RxForm extends Component implements Reactive<RxFormState> {
     }
 }
 
-interface RxSearchFormState extends RxFormState {
-    results: string
-}
+class RxSearchForm extends RxForm {
+    results: Subject<string>
+    totalResults: Subject<string>
 
-class RxSearchForm extends RxForm implements Reactive<RxSearchFormState> {
-    state: Subject<RxSearchFormState>
-    
     constructor(element: HTMLFormElement) {
         super(element)
+        this.results = new Subject()
+        this.totalResults = new Subject()
     }
     /**
      * Serialize the form and submit it as a GET request to the form's endpoint,
@@ -75,20 +57,35 @@ class RxSearchForm extends RxForm implements Reactive<RxSearchFormState> {
      * 
      * Also updates the browser history, saving the search.
      *
-     * @returns {Promise<void>}
+     * @returns {AsyncSubject<any>}
      * @memberof PageSearchForm
      */
-    submit = async (): Promise<void> => {
-        return fetch(`${this.target}?${this.serialize()}`, ajax)
-            .then(res => res.text())
-            .then(html => this.update({ results: html }))
-            .then(() => window.history.pushState(null, document.title, `?${this.serialize()}`))
+    submit = async (): Promise<any> => {
+        this.element.toggleAttribute('aria-busy') // set the busy state
+        const serialized = this.serialize() // serialize the form for later
+        return fetch(`${this.target}?${serialized}`, ajax)
+            .then(res => {
+                const totalResults = res.headers.get('X-Total-Results')
+                if (totalResults) this.totalResults.next(totalResults)
+                return res.text()
+            })
+            .then(results => {
+                this.results.next(results)
+                this.element.toggleAttribute('aria-busy')
+                window.history.pushState(null, document.title, `?${serialized}`)
+        })
+        // fromFetch(`${this.target}?${serialized}`, ajax).subscribe(this.response)
+        // fromFetch(`${this.target}?${serialized}`, ajax).subscribe(response => {
+        //     this.response.next(response)
+        //     window.history.pushState(null, document.title, `?${serialized}`)
+        //     this.element.toggleAttribute('aria-busy')
+        //     handle.next(response)
+        // })
+        // return handle
     }
 }
 
 export {
     RxForm,
-    RxFormState,
     RxSearchForm,
-    RxSearchFormState,
 }

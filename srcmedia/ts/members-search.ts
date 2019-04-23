@@ -1,4 +1,4 @@
-import { merge, combineLatest } from 'rxjs'
+import { merge, partition } from 'rxjs'
 import { pluck, map, withLatestFrom, startWith } from 'rxjs/operators'
 
 import { RxTextInput, RxCheckboxInput } from './lib/input'
@@ -32,21 +32,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageControls = new PageControls($pageControls)
 
     /* BINDINGS */
-    // Form submission bindings
+
+    // Sort bindings
+    const [keywordOn, keywordOff] = partition(
+        keywordInput.state.pipe(pluck('value')), value => value === '')
+    keywordOn.subscribe(() => sortSelect.update({ value: 'name' }))
+    keywordOff.subscribe(() => sortSelect.update({ value: 'relevance' }))
+
+    // When a user changes the search, go back to page 1
     merge(
         keywordInput.state,
         hasCardInput.state,
-        pageSelect.state,
         sortSelect.state,
     ).subscribe(() => {
-        membersSearchForm.submit()
-        membersSearchForm.element.classList.add('loading') // add 'loading' classes
-        resultsOutput.element.classList.add('loading')
-        totalResultsOutput.element.innerHTML = 'Results are loading'
-        resultsOutput.element.setAttribute('aria-busy', 'true') // indicate that results are loading via ARIA
+        pageSelect.update({ value: '1' })
     })
 
-    // Next/Previous page control bindings
+    // When the page is changed, submit the form and apply loading styles
+    pageSelect.state.subscribe(() => {
+        membersSearchForm.submit()
+        resultsOutput.element.toggleAttribute('aria-busy')
+        totalResultsOutput.update('Results are loading')
+    })
+
+    // When next/previous page links are clicked, go to that page
     pageControls.pageChanges.pipe( // for every next/prev click
         withLatestFrom(pageSelect.state.pipe( // get the current page
             pluck('value'), // which is the value of the <select>
@@ -60,12 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
         map(nextPageNumber => ({ value: nextPageNumber.toString() }))
     ).subscribe(pageSelect.update) // update the <select> as though we chose that page
 
-    // Form update bindings
-    membersSearchForm.state.pipe(pluck('results')).subscribe(results => {
-        membersSearchForm.element.classList.remove('loading') // remove 'loading' classes
-        resultsOutput.element.classList.remove('loading')
-        totalResultsOutput.element.innerHTML = 'Results have loaded'
+    // When the number of total results changes, display it
+    membersSearchForm.totalResults.pipe(
+        map(total => `${total} total results`)
+    ).subscribe(totalResultsOutput.update)
+
+    // When results are loaded, remove loading styles and display the results
+    membersSearchForm.results.subscribe(results => {
         resultsOutput.element.removeAttribute('aria-busy')
-        resultsOutput.update(results) // pass updated results to the output
+        resultsOutput.update(results)
     })
 })

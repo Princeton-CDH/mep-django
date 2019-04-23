@@ -1,7 +1,11 @@
 import PageControls from './PageControls'
 
 beforeEach(() => {
-    document.body.innerHTML = `<div id="page-controls"/>`
+    document.body.innerHTML = `
+    <div id="page-controls"/>
+        <a rel="prev"/>
+        <a rel="next"/>
+    </div>`
 })
 
 it('uses a `top` value of 0 by default', () => {
