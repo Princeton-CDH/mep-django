@@ -90,7 +90,8 @@
                 }
             }
 
-            &.inactive {
+            &:not([href]):not([role=button]),
+            &[role=button].inactive {
                 pointer-events: none;
                 cursor: default;
                 color: #cccccc;

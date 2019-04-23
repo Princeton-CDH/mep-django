@@ -1,11 +1,23 @@
-import { Component } from '../lib/common'
+import { Subject, merge, fromEvent } from 'rxjs'
+import { mapTo } from 'rxjs/operators'
+
+import { Component, Reactive } from '../lib/common'
+
+interface Props {
+    currentPage: number,
+    totalPages: number
+}
 
 /**
  * A sort/pagination control component that applies a css class when it's stuck
  * to the top of the page.
  */
-export default class PageControls extends Component {
+export default class PageControls extends Component implements Reactive<Props> {
     element: HTMLElement
+    nextButton: HTMLAnchorElement
+    prevButton: HTMLAnchorElement
+    state: Subject<Props>
+    pageChanges: Subject<string>
     ticking: boolean = false
     stuck: boolean = false
     top: number = 0
@@ -20,6 +32,24 @@ export default class PageControls extends Component {
         if (top) this.top = parseFloat(top)
         // Bind a scroll event listener to check if sticking
         window.addEventListener('scroll', this.scroll.bind(this))
+        // Set up state and page change tracking
+        this.state = new Subject()
+        this.pageChanges = new Subject()
+        // Find the next and previous links
+        this.nextButton = this.element.querySelector('a[rel=next]') as HTMLAnchorElement
+        this.prevButton = this.element.querySelector('a[rel=prev]') as HTMLAnchorElement
+        // Convert them into buttons
+        this.nextButton.removeAttribute('href')
+        this.prevButton.removeAttribute('href')
+        this.nextButton.setAttribute('role', 'button')
+        this.prevButton.setAttribute('role', 'button')
+        // Listen to click events on the buttons
+        // Note the use of mapTo here: we don't care about the actual event,
+        // just want to emit a constant value
+        merge(
+            fromEvent(this.nextButton, 'click').pipe(mapTo('next')),
+            fromEvent(this.prevButton, 'click').pipe(mapTo('prev'))
+        ).subscribe(this.pageChanges)
     }
 
     /**
@@ -56,5 +86,14 @@ export default class PageControls extends Component {
     unstick(): void {
         this.stuck = false
         this.element.classList.remove('stuck')
+    }
+
+    async update(props: Props): Promise<void> {
+        // if (props.currentPage == 0) {
+            
+        // }
+        // if (props.currentPage == props.totalPages) {
+
+        // }
     }
 }
