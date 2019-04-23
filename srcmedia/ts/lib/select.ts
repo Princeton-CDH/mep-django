@@ -7,6 +7,13 @@ interface RxSelectState {
     value: string
 }
 
+/**
+ * A reactive <select> element that emits its current value when changed.
+ * 
+ * @class RxSelect
+ * @extends {Component}
+ * @implements {Reactive<RxSelectState>}
+ */
 class RxSelect extends Component implements Reactive<RxSelectState> {
     element: HTMLSelectElement
     state: Subject<RxSelectState>
@@ -14,10 +21,9 @@ class RxSelect extends Component implements Reactive<RxSelectState> {
     constructor(element: HTMLSelectElement) {
         super(element)
         this.state = new Subject()
-        this.update = this.update.bind(this)
         // Update state when the user selects a new value
         fromEvent(this.element, 'input').pipe(
-            map(() => ({ value: this.element.value }))
+            map(() => ({ value: this.element.value })),
         ).subscribe(this.update)
     }
 
@@ -28,9 +34,9 @@ class RxSelect extends Component implements Reactive<RxSelectState> {
      * @returns {Promise<void>}
      * @memberof RxSelect
      */
-    async update(newState: Partial<RxSelectState>): Promise<void> {
+    update = async (newState: RxSelectState): Promise<void> => {
         if (newState.value) this.element.value = newState.value
-        this.state.next({ value: this.element.value })
+        this.state.next({ value: newState.value })
     }
 }
 

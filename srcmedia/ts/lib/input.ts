@@ -44,7 +44,7 @@ abstract class RxInput extends Component implements Reactive<RxInputState> {
      * @returns {Promise<void>}
      * @memberof RxInput
      */
-    async update(newState: Partial<RxInputState>): Promise<void> {
+    update = async (newState: Partial<RxInputState>): Promise<void> => {
         if (newState.value) this.element.value = newState.value
         this.state.next({ value: this.element.value })
     }
@@ -96,7 +96,7 @@ class RxCheckboxInput extends RxInput implements Reactive<RxCheckboxInputState>{
      * @returns {Promise<void>}
      * @memberof RxCheckboxInput
      */
-    async update(newState: Partial<RxCheckboxInputState>): Promise<void> {
+    update = async (newState: Partial<RxCheckboxInputState>): Promise<void> => {
         if (newState.value) this.element.value = newState.value
         if (newState.checked) this.element.checked = newState.checked
         this.state.next({

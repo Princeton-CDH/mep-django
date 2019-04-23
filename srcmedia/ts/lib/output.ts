@@ -14,7 +14,7 @@ class RxOutput extends Component implements Reactive<RxOutputState> {
         this.update = this.update.bind(this)
     }
 
-    async update(newState: RxOutputState): Promise<void> {
+    update = async (newState: RxOutputState): Promise<void> => {
         this.element.innerHTML = newState // directly apply state as html
         this.state.next(newState)
     }

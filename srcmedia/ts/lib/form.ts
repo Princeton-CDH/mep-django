@@ -31,7 +31,7 @@ class RxForm extends Component implements Reactive<RxFormState> {
      * @returns {Promise<void>}
      * @memberof RxForm
      */
-    async update(state: RxFormState): Promise<void> {
+    update = async (state: RxFormState): Promise<void> => {
         this.state.next(state)
     }
     /**
@@ -40,7 +40,7 @@ class RxForm extends Component implements Reactive<RxFormState> {
      * @returns {string}
      * @memberof ReactiveForm
      */
-    serialize(): string {
+    serialize = (): string => {
         let data = new FormData(this.element)
         let output: { [key: string]: any } = {}
         for (let pair of data.entries()) {
@@ -54,7 +54,7 @@ class RxForm extends Component implements Reactive<RxFormState> {
      * @returns {void}
      * @memberof ReactiveForm
      */
-    reset(): void {
+    reset = (): void => {
         return this.element.reset()
     }
 }
@@ -68,7 +68,6 @@ class RxSearchForm extends RxForm implements Reactive<RxSearchFormState> {
     
     constructor(element: HTMLFormElement) {
         super(element)
-        this.submit = this.submit.bind(this)
     }
     /**
      * Serialize the form and submit it as a GET request to the form's endpoint,
@@ -79,7 +78,7 @@ class RxSearchForm extends RxForm implements Reactive<RxSearchFormState> {
      * @returns {Promise<void>}
      * @memberof PageSearchForm
      */
-    async submit(): Promise<void> {
+    submit = async (): Promise<void> => {
         return fetch(`${this.target}?${this.serialize()}`, ajax)
             .then(res => res.text())
             .then(html => this.update({ results: html }))
