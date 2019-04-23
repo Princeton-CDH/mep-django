@@ -5,7 +5,7 @@
         @include flex-container;
     }
 
-    &.loading {
+    &[aria-busy] {
         opacity: 0.25;
     }
 }
