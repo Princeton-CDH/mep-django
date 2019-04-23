@@ -6,6 +6,7 @@ module.exports = {
     testRegex: '^.+\\.(test|spec)\\.tsx?$',
     moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
     coverageDirectory: '<rootDir>/coverage',
+    testEnvironment: 'jest-environment-jsdom-fourteen', // enables newer browser APIs in jsdom
     collectCoverageFrom: [
         "ts/lib/*.{ts,tsx}", // test base classes
         "ts/components/*.{ts,tsx}", // test custom components
