@@ -1,3 +1,5 @@
+import json
+
 from django.core.paginator import Paginator
 from django.utils.cache import patch_vary_headers
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
@@ -21,6 +23,7 @@ class LabeledPagesMixin(ContextMixin):
             page_end = min(page_start + paginator.per_page, paginator.count)
             # first item on page is 1-based index, e.g. 51-100
             page_labels.append((page, '%d - %d' % (page_start + 1, page_end)))
+
         return page_labels
 
     def get_context_data(self: View, **kwargs):
@@ -28,7 +31,17 @@ class LabeledPagesMixin(ContextMixin):
         context = super().get_context_data(**kwargs)
         paginator = context['page_obj'].paginator
         context['page_labels'] = self.get_page_labels(paginator)
+        # store paginator and generated labels for use in custom headers 
+        # on ajax response
+        self._paginator = paginator
+        self._page_labels = context['page_labels']
         return context
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super(LabeledPagesMixin, self).dispatch(request, *args, **kwargs)
+        if self.request.is_ajax():
+            response['X-Page-Labels'] = '|'.join([label for index, label in self._page_labels])
+        return response
 
 
 class VaryOnHeadersMixin(View):
@@ -64,3 +77,8 @@ class AjaxTemplateMixin(TemplateResponseMixin, VaryOnHeadersMixin):
         if self.request.is_ajax():
             return self.ajax_template_name
         return super().get_template_names()
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super(AjaxTemplateMixin, self).dispatch(request, *args, **kwargs)
+        response['X-Total-Results'] = self.get_queryset().count()
+        return response
