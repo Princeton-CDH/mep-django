@@ -65,13 +65,13 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
 
     # map form sort to solr sort field
     solr_sort = {
-        'relevance': 'score',
+        'relevance': '-score',
         'name': 'sort_name_sort_s'
     }
 
     def get_queryset(self):
         sqs = SolrQuerySet().filter(item_type='person') \
-                            .only(name='name_t', sort_name='sort_name_t',
+                            .only('score', name='name_t', sort_name='sort_name_t',
                                   birth_year='birth_year_i', death_year='death_year_i',
                                   account_start='account_start_i',
                                   account_end='account_end_i',
