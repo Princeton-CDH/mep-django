@@ -31,13 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* BINDINGS */
 
-    // Sort bindings
+    // When a keyword search is active, switch to relevance
+    // Otherwise switch to name
+    // partition() is like filter() but creates two observables: those that
+    // fulfill the condition and those that don't
     const [keywordOn, keywordOff] = partition(
         keywordInput.state.pipe(pluck('value')), value => value === '')
     keywordOn.subscribe(() => sortSelect.update({ value: 'name' }))
     keywordOff.subscribe(() => sortSelect.update({ value: 'relevance' }))
 
-    // When a user changes the search, go back to page 1
+    // When a user changes the search or sort, go back to page 1
     merge(
         keywordInput.state,
         hasCardInput.state,
@@ -67,10 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
         map(nextPageNumber => ({ value: nextPageNumber.toString() }))
     ).subscribe(pageSelect.update) // update the <select> as though we chose that page
     
+    // When the page changes, update the page controls in case next/prev become disabled
     pageSelect.state.pipe(
-        pluck('value'), // which is the value of the <select>
-        startWith($pageSelect.value), // start with the one it's currently on
-        map(pageNumber => parseInt(pageNumber)), // parse into an integer
+        pluck('value'),
+        startWith($pageSelect.value),
+        map(pageNumber => parseInt(pageNumber)), // get the current page number, as above
         map(pageNumber => [pageNumber, $pageSelect.length]) // append the total number of pages
     ).subscribe(pageControls.update)
 
