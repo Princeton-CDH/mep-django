@@ -43,6 +43,8 @@ export default class PageControls extends Component implements Reactive<Props> {
         this.prevButton.removeAttribute('href')
         this.nextButton.setAttribute('role', 'button')
         this.prevButton.setAttribute('role', 'button')
+        this.nextButton.setAttribute('tabindex', '0')
+        this.prevButton.setAttribute('tabindex', '0')
         // Listen to click events on the buttons
         // Note the use of mapTo here: we don't care about the actual event,
         // just want to emit a constant value
