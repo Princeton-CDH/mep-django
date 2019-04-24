@@ -18,8 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
-    const $nextPageLink = document.querySelector('.sort-pages a[rel=next]') as HTMLAnchorElement
-    const $prevPageLink = document.querySelector('.sort-pages a[rel=prev]') as HTMLAnchorElement
 
     /* COMPONENTS */
     const membersSearchForm = new RxSearchForm($membersSearchForm)
