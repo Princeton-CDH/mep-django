@@ -65,23 +65,23 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
 
     # map form sort to solr sort field
     solr_sort = {
-        'relevance': 'score',
+        'relevance': '-score',
         'name': 'sort_name_sort_s'
     }
 
     def get_queryset(self):
         sqs = PersonSolrQuerySet().facet('has_card')
 
-        # NOTE: using only / field limit to alias dynamic field names
-        # to something closer to model attribute names
-
         # when form is valid, check for search term and filter queryset
         form = self.get_form()
         if form.is_valid():
             search_opts = form.cleaned_data
             if search_opts['query']:
+                # include relevance score in results when there is a keyword
+                # search term present
                 sqs = sqs.search(self.search_name_query) \
-                         .raw_query_parameters(name_query=search_opts['query'])
+                         .raw_query_parameters(name_query=search_opts['query']) \
+                         .also('score')
             if search_opts['has_card']:
                 sqs = sqs.filter(has_card=search_opts['has_card'])
 

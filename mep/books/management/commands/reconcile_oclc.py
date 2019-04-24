@@ -42,7 +42,7 @@ class Command(BaseCommand):
         items = Item.objects.exclude(notes__contains='GENERIC') \
                             .exclude(notes__contains='PROBLEM') \
                             .exclude(notes__contains='OBSCURE') \
-                            .exclude(title__endswith='*')[:10]
+                            .exclude(title__endswith='*')
 
         # report on total to process
         total = items.count()
