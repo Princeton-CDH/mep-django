@@ -30,7 +30,6 @@
             </div>
         </fieldset>
         <output class="total-results" id="total">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
-        <span class="loader">Results are loading</span>
     </form>
 </section>
 <div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
@@ -51,7 +50,7 @@
         {% include 'snippets/page-controls.html' %}
     </div>
 </section>
-<output form="members-form" class="results" aria-live="assertive" aria-labelledby="total">
+<output form="members-form" class="results" aria-live="polite" aria-labelledby="total">
     {% include 'people/snippets/member_results.html' %}
 </output>
 {% endblock %}
