@@ -9,7 +9,6 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView, FormMixin
-from parasolr.django import SolrQuerySet
 
 from mep.accounts.models import Event
 from mep.common.utils import alpha_pagelabels
@@ -76,12 +75,12 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
         form = self.get_form()
         if form.is_valid():
             search_opts = form.cleaned_data
+
             if search_opts['query']:
-                # include relevance score in results when there is a keyword
-                # search term present
                 sqs = sqs.search(self.search_name_query) \
                          .raw_query_parameters(name_query=search_opts['query']) \
-                         .also('score')
+                         .also('score') # include relevance score in results
+
             if search_opts['has_card']:
                 sqs = sqs.filter(has_card=search_opts['has_card'])
 

@@ -24,7 +24,7 @@
             <div class="inner">
                 {% render_field form.has_card class+="sr-only" tabindex=0 onchange="this.form.submit()" %}
                 <label for="{{ form.has_card.id_for_label }}">
-                    <span>Card <span class="count">{{ members.get_facets.has_card_b.true }}</span></span>
+                    <span>Card <span class="count">{{ members.get_facets.facet_fields.has_card.true }}</span></span>
                     <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="">
                     <span id="{{ form.has_card.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip"
                         aria-label="{{ form.has_card.help_text }}" tabindex=0 />
