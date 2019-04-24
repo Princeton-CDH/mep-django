@@ -47,11 +47,9 @@
         <button type="submit" form="members-form">Go</button>
         {% include 'snippets/pagination.html' with form="members-form" %}
     </div>
-    {% if page_obj.has_other_pages %} {# if only one page of results, don't show next/previous links #}
     <div class="outer">
         {% include 'snippets/page-controls.html' %}
     </div>
-    {% endif %}
 </section>
 <output form="members-form" class="results" aria-live="assertive" aria-labelledby="total">
     {% include 'people/snippets/member_results.html' %}

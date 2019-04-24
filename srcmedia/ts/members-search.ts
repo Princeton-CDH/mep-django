@@ -1,4 +1,4 @@
-import { merge, partition } from 'rxjs'
+import { merge, partition, Observable } from 'rxjs'
 import { pluck, map, withLatestFrom, startWith } from 'rxjs/operators'
 
 import { RxTextInput, RxCheckboxInput } from './lib/input'
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // When the page is changed, submit the form and apply loading styles
     pageSelect.state.subscribe(() => {
         membersSearchForm.submit()
-        resultsOutput.element.toggleAttribute('aria-busy')
+        resultsOutput.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
         totalResultsOutput.update('Results are loading')
     })
 
@@ -66,6 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }), // create a { value: nextPage } object to pass back to the <select>
         map(nextPageNumber => ({ value: nextPageNumber.toString() }))
     ).subscribe(pageSelect.update) // update the <select> as though we chose that page
+    
+    pageSelect.state.pipe(
+        pluck('value'), // which is the value of the <select>
+        startWith($pageSelect.value), // start with the one it's currently on
+        map(pageNumber => parseInt(pageNumber)), // parse into an integer
+        map(pageNumber => [pageNumber, $pageSelect.length]) // append the total number of pages
+    ).subscribe(pageControls.update)
 
     // When the number of total results changes, display it
     membersSearchForm.totalResults.pipe(

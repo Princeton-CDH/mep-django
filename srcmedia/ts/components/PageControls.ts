@@ -1,22 +1,16 @@
 import { Subject, merge, fromEvent } from 'rxjs'
 import { mapTo } from 'rxjs/operators'
 
-import { Component, Reactive } from '../lib/common'
-
-interface Props {
-    currentPage: number,
-    totalPages: number
-}
+import { Component } from '../lib/common'
 
 /**
  * A sort/pagination control component that applies a css class when it's stuck
  * to the top of the page.
  */
-export default class PageControls extends Component implements Reactive<Props> {
+export default class PageControls extends Component {
     element: HTMLElement
     nextButton: HTMLAnchorElement
     prevButton: HTMLAnchorElement
-    state: Subject<Props>
     pageChanges: Subject<string>
     ticking: boolean = false
     stuck: boolean = false
@@ -32,8 +26,7 @@ export default class PageControls extends Component implements Reactive<Props> {
         if (top) this.top = parseFloat(top)
         // Bind a scroll event listener to check if sticking
         window.addEventListener('scroll', this.scroll.bind(this))
-        // Set up state and page change tracking
-        this.state = new Subject()
+        // Set up page change event tracking
         this.pageChanges = new Subject()
         // Find the next and previous links
         this.nextButton = this.element.querySelector('a[rel=next]') as HTMLAnchorElement
@@ -90,12 +83,24 @@ export default class PageControls extends Component implements Reactive<Props> {
         this.element.classList.remove('stuck')
     }
 
-    async update(props: Props): Promise<void> {
-        // if (props.currentPage == 0) {
-            
-        // }
-        // if (props.currentPage == props.totalPages) {
-
-        // }
+    /**
+     * Sets the aria-hidden states on the next/prev page controls based on
+     * whether the user has a next or previous page available to select.
+     *
+     * @memberof PageControls
+     */
+    update = async ([currentPage, totalPages]: [number, number]): Promise<void> => {
+        if (currentPage == totalPages) {
+            this.prevButton.removeAttribute('aria-hidden')
+            this.nextButton.setAttribute('aria-hidden', '')
+        }
+        else if (currentPage == 1) {
+            this.nextButton.removeAttribute('aria-hidden')
+            this.prevButton.setAttribute('aria-hidden', '')
+        }
+        else {
+            this.nextButton.removeAttribute('aria-hidden')
+            this.prevButton.removeAttribute('aria-hidden')
+        }
     }
 }
