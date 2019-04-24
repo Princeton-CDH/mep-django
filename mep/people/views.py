@@ -106,7 +106,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self._form.set_choices_from_facets(self.object_list.get_facets())
+        self._form.set_choices_from_facets(self.object_list.get_facets()['facet_fields'])
         return context
 
     def get_page_labels(self, paginator):
