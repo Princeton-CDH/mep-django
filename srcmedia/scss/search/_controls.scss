@@ -90,6 +90,10 @@
                 }
             }
 
+            &[role=button] {
+                cursor: pointer;
+            }
+
             &:not([href]):not([role=button]),
             &[role=button].inactive {
                 pointer-events: none;
