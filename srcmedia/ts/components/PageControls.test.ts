@@ -1,3 +1,5 @@
+import { ReplaySubject } from 'rxjs'
+
 import PageControls from './PageControls'
 
 beforeEach(() => {
@@ -53,4 +55,41 @@ it('removes the `stuck` class when not at its top value', () => {
     pc.scroll()
     handle(0)
     expect(pc.element.classList.contains('stuck')).toBe(false)
+})
+
+it('finds the next/prev page links and stores a reference to their elements', () => {
+    const $el = document.getElementById('page-controls') as HTMLDivElement
+    const $nextButton = document.querySelector('a[rel=next]') as HTMLAnchorElement
+    const $prevButton = document.querySelector('a[rel=prev]') as HTMLAnchorElement
+    const pc = new PageControls($el)
+    expect(pc.nextButton).toBe($nextButton)
+    expect(pc.prevButton).toBe($prevButton)
+})
+
+it('converts the next/prev page links into buttons', () => {
+    const $el = document.getElementById('page-controls') as HTMLDivElement
+    const $nextButton = document.querySelector('a[rel=next]') as HTMLAnchorElement
+    const $prevButton = document.querySelector('a[rel=prev]') as HTMLAnchorElement
+    const pc = new PageControls($el)
+    // no longer have href attributes
+    expect($nextButton.hasAttribute('href')).toBe(false)
+    expect($prevButton.hasAttribute('href')).toBe(false)
+    // have the button role
+    expect($nextButton.getAttribute('role')).toBe('button')
+    expect($prevButton.getAttribute('role')).toBe('button')
+})
+
+it('listens to click events on the next/prev page buttons', () => {
+    const $el = document.getElementById('page-controls') as HTMLDivElement
+    const $nextButton = document.querySelector('a[rel=next]') as HTMLAnchorElement
+    const $prevButton = document.querySelector('a[rel=prev]') as HTMLAnchorElement
+    const pc = new PageControls($el)
+    // listen to click events collected in pageChanges
+    const watcher = jest.fn()
+    pc.pageChanges.subscribe(watcher)
+    // create some fake clicks on next/prev buttons and check they're reported
+    $nextButton.dispatchEvent(new Event('click'))
+    expect(watcher).toHaveBeenCalledWith('next')
+    $prevButton.dispatchEvent(new Event('click'))
+    expect(watcher).toHaveBeenCalledWith('prev')
 })
