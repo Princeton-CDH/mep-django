@@ -6,14 +6,13 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.13.0 documentation</title>
+    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.14.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -28,8 +27,6 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <h1>Source code for mep.people.views</h1><div class="highlight"><pre>
@@ -77,7 +74,7 @@
 
         <span class="c1"># always use relevance sort for keyword search;</span>
         <span class="c1"># otherwise use default (sort by name)</span>
-        <span class="k">if</span> <span class="s1">&#39;query&#39;</span> <span class="ow">in</span> <span class="n">form_data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">form_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="n">form_data</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;relevance&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">form_data</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]</span>
@@ -100,18 +97,19 @@
 
     <span class="c1"># map form sort to solr sort field</span>
     <span class="n">solr_sort</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;relevance&#39;</span><span class="p">:</span> <span class="s1">&#39;score&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;relevance&#39;</span><span class="p">:</span> <span class="s1">&#39;-score&#39;</span><span class="p">,</span>
         <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;sort_name_sort_s&#39;</span>
     <span class="p">}</span>
 
 <div class="viewcode-block" id="MembersList.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sqs</span> <span class="o">=</span> <span class="n">SolrQuerySet</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">item_type</span><span class="o">=</span><span class="s1">&#39;person&#39;</span><span class="p">)</span> \
-                            <span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;name_t&#39;</span><span class="p">,</span> <span class="n">sort_name</span><span class="o">=</span><span class="s1">&#39;sort_name_t&#39;</span><span class="p">,</span>
+                            <span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="s1">&#39;score&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;name_t&#39;</span><span class="p">,</span> <span class="n">sort_name</span><span class="o">=</span><span class="s1">&#39;sort_name_t&#39;</span><span class="p">,</span>
                                   <span class="n">birth_year</span><span class="o">=</span><span class="s1">&#39;birth_year_i&#39;</span><span class="p">,</span> <span class="n">death_year</span><span class="o">=</span><span class="s1">&#39;death_year_i&#39;</span><span class="p">,</span>
                                   <span class="n">account_start</span><span class="o">=</span><span class="s1">&#39;account_start_i&#39;</span><span class="p">,</span>
                                   <span class="n">account_end</span><span class="o">=</span><span class="s1">&#39;account_end_i&#39;</span><span class="p">,</span>
                                   <span class="n">has_card</span><span class="o">=</span><span class="s1">&#39;has_card_b&#39;</span><span class="p">,</span>
-                                  <span class="n">pk</span><span class="o">=</span><span class="s1">&#39;pk_i&#39;</span><span class="p">)</span>
+                                  <span class="n">pk</span><span class="o">=</span><span class="s1">&#39;pk_i&#39;</span><span class="p">)</span> \
+                            <span class="o">.</span><span class="n">facet</span><span class="p">(</span><span class="s1">&#39;has_card_b&#39;</span><span class="p">)</span>
 
         <span class="c1"># NOTE: using only / field limit to alias dynamic field names</span>
         <span class="c1"># to something closer to model attribute names</span>
@@ -123,6 +121,8 @@
             <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]:</span>
                 <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search_name_query</span><span class="p">)</span> \
                          <span class="o">.</span><span class="n">raw_query_parameters</span><span class="p">(</span><span class="n">name_query</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;has_card&#39;</span><span class="p">]:</span>
+                <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">has_card_b</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;has_card&#39;</span><span class="p">])</span>
 
             <span class="c1"># order based on solr name for search option</span>
             <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solr_sort</span><span class="p">[</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]])</span>
@@ -405,7 +405,6 @@
 </pre></div>
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -431,7 +430,7 @@
     
 
 <p>
-<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
+<a href="https://travis-ci.org/Princeton-CDH/mep-django">
     <img
         alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
         src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
@@ -445,7 +444,7 @@
     
 
 <p>
-<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
+<a href="https://codecov.io/github/Princeton-CDH/mep-django">
     <img
     alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
     src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
@@ -487,8 +486,8 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
 

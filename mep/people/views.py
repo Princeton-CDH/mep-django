@@ -42,7 +42,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
 
         # always use relevance sort for keyword search;
         # otherwise use default (sort by name)
-        if 'query' in form_data:
+        if form_data.get('query', None):
             form_data['sort'] = 'relevance'
         else:
             form_data['sort'] = self.initial['sort']
@@ -65,18 +65,19 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
 
     # map form sort to solr sort field
     solr_sort = {
-        'relevance': 'score',
+        'relevance': '-score',
         'name': 'sort_name_sort_s'
     }
 
     def get_queryset(self):
         sqs = SolrQuerySet().filter(item_type='person') \
-                            .only(name='name_t', sort_name='sort_name_t',
+                            .only('score', name='name_t', sort_name='sort_name_t',
                                   birth_year='birth_year_i', death_year='death_year_i',
                                   account_start='account_start_i',
                                   account_end='account_end_i',
                                   has_card='has_card_b',
-                                  pk='pk_i')
+                                  pk='pk_i') \
+                            .facet('has_card_b')
 
         # NOTE: using only / field limit to alias dynamic field names
         # to something closer to model attribute names
@@ -88,6 +89,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
             if search_opts['query']:
                 sqs = sqs.search(self.search_name_query) \
                          .raw_query_parameters(name_query=search_opts['query'])
+            if search_opts['has_card']:
+                sqs = sqs.filter(has_card_b=search_opts['has_card'])
 
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])

@@ -3,6 +3,13 @@
 Deploy and Upgrade notes
 ========================
 
+0.14
+----
+
+* You must configure **OCLC_WSKEY** in ``localsettings.py`` before
+  you can use the new ``reconcile_oclc`` manage command. You should
+  also configure a TECHNICAL_CONTACT email address.
+
 0.13
 ----
 

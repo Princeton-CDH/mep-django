@@ -6,14 +6,13 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.13.0 documentation</title>
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.14.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="CHANGELOG" href="changelog.html" />
@@ -30,8 +29,6 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="code-documentation">
@@ -324,26 +321,6 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="mep.accounts.models.DatePrecision">
-<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">DatePrecision</code><a class="reference internal" href="_modules/mep/accounts/models.html#DatePrecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.DatePrecision" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flag class to indicate which parts of a date are known.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="mep.accounts.models.DatePrecisionField">
-<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">DatePrecisionField</code><span class="sig-paren">(</span><em>verbose_name=None</em>, <em>name=None</em>, <em>primary_key=False</em>, <em>max_length=None</em>, <em>unique=False</em>, <em>blank=False</em>, <em>null=False</em>, <em>db_index=False</em>, <em>rel=None</em>, <em>default=&lt;class 'django.db.models.fields.NOT_PROVIDED'&gt;</em>, <em>editable=True</em>, <em>serialize=True</em>, <em>unique_for_date=None</em>, <em>unique_for_month=None</em>, <em>unique_for_year=None</em>, <em>choices=None</em>, <em>help_text=''</em>, <em>db_column=None</em>, <em>db_tablespace=None</em>, <em>auto_created=False</em>, <em>validators=()</em>, <em>error_messages=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#DatePrecisionField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.DatePrecisionField" title="Permalink to this definition">¶</a></dt>
-<dd><p>Integer representation of a <a class="reference internal" href="#mep.accounts.models.DatePrecision" title="mep.accounts.models.DatePrecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatePrecision</span></code></a>.</p>
-<dl class="method">
-<dt id="mep.accounts.models.DatePrecisionField.to_python">
-<code class="descname">to_python</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#DatePrecisionField.to_python"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.DatePrecisionField.to_python" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts the input value into the expected Python data type, raising
-django.core.exceptions.ValidationError if the data can’t be converted.
-Returns the converted value. Subclasses should override this.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="mep.accounts.models.Event">
 <em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">Event</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base table for events in the Shakespeare and Co. Lending Library</p>
@@ -407,50 +384,6 @@ borrows, and purchases).</p>
 <dt id="mep.accounts.models.EventQuerySet.subscriptions">
 <code class="descname">subscriptions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#EventQuerySet.subscriptions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.EventQuerySet.subscriptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Events with associated subscription event only</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="mep.accounts.models.PartialDate">
-<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">PartialDate</code><span class="sig-paren">(</span><em>date_field</em>, <em>date_precision_field</em>, <em>unknown_year: int = 1</em>, <em>label=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor that gets and sets a related <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a> and
-<a class="reference internal" href="#mep.accounts.models.DatePrecision" title="mep.accounts.models.DatePrecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatePrecision</span></code></a> from partial date strings, e.g. –05-02.</p>
-<dl class="staticmethod">
-<dt id="mep.accounts.models.PartialDate.date_format">
-<em class="property">static </em><code class="descname">date_format</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.date_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.date_format" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a format string for use with <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date.strftime" title="(in Python v3.7)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">datetime.date.strftime()</span></code></a>
-to output a date with the appropriate precision</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mep.accounts.models.PartialDate.parse_date">
-<code class="descname">parse_date</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDate.parse_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDate.parse_date" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse a partial date string and return a <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a>
-and precision value.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="mep.accounts.models.PartialDateMixin">
-<em class="property">class </em><code class="descclassname">mep.accounts.models.</code><code class="descname">PartialDateMixin</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDateMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDateMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mixin to add fields for partial start and end dates to a model using
-<a class="reference internal" href="#mep.accounts.models.DatePrecisionField" title="mep.accounts.models.DatePrecisionField"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatePrecisionField</span></code></a> and <a class="reference internal" href="#mep.accounts.models.PartialDate" title="mep.accounts.models.PartialDate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PartialDate</span></code></a>.</p>
-<dl class="method">
-<dt id="mep.accounts.models.PartialDateMixin.calculate_date">
-<code class="descname">calculate_date</code><span class="sig-paren">(</span><em>kind</em>, <em>dateval=None</em>, <em>earliest=None</em>, <em>latest=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#PartialDateMixin.calculate_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.PartialDateMixin.calculate_date" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate end or start date based on a single value in a
-supported partial date form or based on earliest/latest datetime.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="mep.accounts.models.PartialDateMixin.date_range">
-<code class="descname">date_range</code><a class="headerlink" href="#mep.accounts.models.PartialDateMixin.date_range" title="Permalink to this definition">¶</a></dt>
-<dd><p>Borrowing event date range as string, using partial dates.
-Returns a single date in partial date format if both dates are
-set to the same date. Uses “??” for unset dates,
-and returns in format start/end.</p>
 </dd></dl>
 
 </dd></dl>
@@ -736,6 +669,12 @@ and other media types.</p>
 <dt id="mep.books.models.Item.editors">
 <code class="descname">editors</code><a class="headerlink" href="#mep.books.models.Item.editors" title="Permalink to this definition">¶</a></dt>
 <dd><p>item creators with type editor</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.first_known_interaction">
+<code class="descname">first_known_interaction</code><a class="headerlink" href="#mep.books.models.Item.first_known_interaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>date of the earliest known interaction for this item</p>
 </dd></dl>
 
 <dl class="method">
@@ -1122,7 +1061,7 @@ with another person.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>person</strong> – <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> person</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://django.readthedocs.io/en/latest/ref/exceptions.html#django.core.exceptions.MultipleObjectsReturned" title="(in Django v2.2)"><strong>django.core.exceptions.MultipleObjectsReturned</strong></a> – if selected <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> has multiple accounts _or_ any person
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://django.readthedocs.io/en/latest/ref/exceptions.html#django.core.exceptions.MultipleObjectsReturned" title="(in Django v3.0)"><strong>django.core.exceptions.MultipleObjectsReturned</strong></a> – if selected <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> has multiple accounts _or_ any person
 in the queryset has an account shared with another person</td>
 </tr>
 </tbody>
@@ -1827,7 +1766,6 @@ for or against information in the system.</p>
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -1853,7 +1791,7 @@ for or against information in the system.</p>
     
 
 <p>
-<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
+<a href="https://travis-ci.org/Princeton-CDH/mep-django">
     <img
         alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
         src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
@@ -1867,7 +1805,7 @@ for or against information in the system.</p>
     
 
 <p>
-<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
+<a href="https://codecov.io/github/Princeton-CDH/mep-django">
     <img
     alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
     src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
@@ -1883,7 +1821,7 @@ for or against information in the system.</p>
 </ul>
 
 
-  <h3><a href="index.html">Table of Contents</a></h3>
+  <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Code Documentation</a><ul>
 <li><a class="reference internal" href="#module-mep.common">Common</a><ul>
@@ -1950,8 +1888,8 @@ for or against information in the system.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/codedocs.rst.txt"

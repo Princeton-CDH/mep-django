@@ -4,54 +4,91 @@
     background: white;
     width: 100%;
     z-index: 1;
-
+    transition: box-shadow 0.5s;
+    
     @media (min-width: $breakpoint-s) {
         top: 0;
     }
 
+    &.stuck {
+        box-shadow: 0 2px 4px 0 $transparent-black;
+    }
+
     .inner,
     .outer {
+        height: 100%;
+        display: flex;
+        align-items: center;
         height: 2.5rem;
 
         @media (min-width: $breakpoint-s) {
             height: 3rem;
+            margin: 0 3rem;
         }
-
+        
         @media (min-width: $breakpoint-l) {
             height: 4rem;
+            margin: 0 4rem;
         }
     }
 
     .inner {
-        @include container;
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: center;
-        align-items: center;
+        justify-content: space-around;
+        margin: 0 $gutter-xs;
+
+        @media (min-width: $breakpoint-s) {
+            width: $result-width;
+            margin: 0 auto;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            justify-content: space-between;
+        }
     }
 
     .outer {
-        @include flex-container;
+        position: absolute;
         top: 0;
         left: 0;
         right: 0;
-        display: flex;
-        flex-direction: row;
+        margin: 0 auto;
+        width: 100%;
         justify-content: space-between;
-        align-items: center;
         pointer-events: none;
 
         @media (min-width: $breakpoint-s) {
-            position: absolute;
+            width: calc(#{$breakpoint-s} - 6rem);
+        }
+
+        @media (min-width: $breakpoint-m) {
+            width: calc(#{$breakpoint-m} - 8rem);
+        }
+
+        @media (min-width: $breakpoint-l) {
+            @include flex-container;
         }
 
         a {
             pointer-events: all;
-            height: 1rem;
-            padding: 1rem 0;
-            display: block;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
             border: none;
             font-size: 0.7rem;
+            width: $gutter-xs;
+
+            @media(min-width: $breakpoint-s) {
+                width: fit-content;
+            }
+            
+            span {
+                display: none;
+                
+                @media (min-width: $breakpoint-s) {
+                    display: block;
+                }
+            }
 
             &.inactive {
                 pointer-events: none;
@@ -83,26 +120,87 @@
 
     label {
         font-size: 0.7rem;
+        position: relative;
 
         span {
-            margin-right: 0.5rem;
             display: none;
-
-            @media (min-width: $breakpoint-s) {
+            
+            @media (min-width: $breakpoint-m) {
+                margin-right: 0.5rem;
                 display: inline;
             }
         }
+
+        &::before {
+            position: absolute;
+            display: block;
+            content: '';
+            top: 2px; // will overlap chrome's outline without top/right/height
+            right: 2px;
+            height: 85%;
+            width: 6rem;
+            z-index: 1;
+            background: linear-gradient(to right, $transparent 60%, white 75%);
+            pointer-events: none;
+        }
+
+        .icon {
+            z-index: 2;
+        }
     }
 
-    .pagination {
-        margin-left: 1rem;
-    }
+    button[type=submit] {
+        display: none;
+        margin: 0 .25rem;
+        appearance: none;
 
-    input { // temporary
-        margin-left: 1rem;
+        .no-js & {
+            display: block;
+        }
     }
 
     select {
-        width: 7rem;
+        width: 6.5rem;
+        font-size: 0.6rem;
+
+        .no-js & {
+            width: 6rem;
+        }
+
+        @media (min-width: $breakpoint-s) {
+            font-size: 0.7rem;
+            width: 7rem;
+        }
+    }
+}
+
+/* SORT BY and DISPLAYING labels that disappear when
+scrolled on mobile and tablet */
+.upper-labels {
+    flex: none;
+    height: 2rem;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    margin: 0 $gutter-xs;
+
+    @media (min-width: $breakpoint-s) {
+        width: $result-width;
+        margin: 0 auto;
+    }
+
+    @media (min-width: $breakpoint-m) {
+        display: none;
+    }
+
+    label {
+        display: inline-block;
+        font-size: 0.7rem;
+        width: 6.5rem;
+
+        @media (min-width: $breakpoint-s) {
+            width: 7rem;
+        }
     }
 }

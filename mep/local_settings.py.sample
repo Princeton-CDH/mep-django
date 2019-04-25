@@ -47,14 +47,18 @@ PUCAS_LDAP.update({
     'SEARCH_FILTER': "(uid=%(user)s)",
 })
 
-
-
 # username for accessing GeoNames API
 GEONAMES_USERNAME = ''
 
 # mapbox access token
 MAPBOX_ACCESS_TOKEN = ''
 
+# OCLC API key
+OCLC_WSKEY = ''
+
+# Email address for a technical contact.
+# Will be used in From header for OCLC API requests
+TECHNICAL_CONTACT = 'cdhdevteam@princeton.edu'
 
 # sample logging config for dev
 LOGGING = {

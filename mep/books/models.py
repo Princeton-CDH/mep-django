@@ -1,6 +1,7 @@
+import datetime
+
 from django.db import models
 from django.urls import reverse
-
 from parasolr.indexing import Indexable
 
 from mep.common.models import Named, Notable
@@ -131,12 +132,26 @@ class Item(Notable, Indexable):
 
         return index_data
 
+    @property
+    def first_known_interaction(self) -> datetime.date:
+        '''date of the earliest known interaction for this item'''
+
+        # search for the earliest start date, excluding any borrow
+        # or purchase events with unknown years
+        first_event = self.event_set \
+            .filter(start_date__isnull=False) \
+            .exclude(borrow__start_date_precision__knownyear=False) \
+            .exclude(purchase__start_date_precision__knownyear=False) \
+            .order_by('start_date').first()
+
+        if first_event:
+            return first_event.start_date
+
 
 class CreatorType(Named, Notable):
     '''Type of creator role a person can have to an item; author,
     editor, translator, etc.'''
     pass
-
 
 class Creator(Notable):
     creator_type = models.ForeignKey(CreatorType)

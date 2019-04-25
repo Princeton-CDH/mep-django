@@ -17,12 +17,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='purchase',
             name='end_date_precision',
-            field=mep.accounts.models.DatePrecisionField(blank=True, null=True),
+            field=mep.accounts.partial_date.DatePrecisionField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='purchase',
             name='start_date_precision',
-            field=mep.accounts.models.DatePrecisionField(blank=True, null=True),
+            field=mep.accounts.partial_date.DatePrecisionField(blank=True, null=True),
         ),
         migrations.AlterField(
             model_name='account',

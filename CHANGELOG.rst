@@ -3,6 +3,17 @@
 CHANGELOG
 =========
 
+0.14
+----
+
+* As a user I want members automatically sorted by relevance if I have a keyword search term active and otherwise by member name, so that I see best matches first for keyword searches.
+* As a user, I want to filter library members to those with a lending card available on the site so that I can focus on members with cards and borrowing activity.
+* As an admin, I want to see a report of OCLC work and edition URI matches for all items so that I can review and determine the criteria for acceptable matches.
+
+* Completes template and styles for pagination and sorting controls
+* Fixes a bug where members keyword search was sorting most relevant items last
+
+
 0.13
 ----
 

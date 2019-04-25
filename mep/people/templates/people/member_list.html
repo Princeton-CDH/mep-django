@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize widget_tweaks %}
+{% load static humanize widget_tweaks mep_tags %}
 {% load render_bundle from webpack_loader %}
 
 {% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
@@ -17,12 +17,27 @@
 {% block content %}
 <section class="members search-form">
     <form id="members-form">
-        <label class="query">
-            {% render_field form.query aria-label=form.query.label %}
-        </label>
+        {% render_field form.query %}
+        <label for="{{ form.query.id_for_label }}"></label>
+        <fieldset>
+            <legend>Filter by:</legend>
+            <div class="inner">
+                {% render_field form.has_card class+="sr-only" tabindex=0 onchange="this.form.submit()" %}
+                <label for="{{ form.has_card.id_for_label }}">
+                    <span>Card <span class="count">{{ members.get_facets.facet_fields.has_card_b.true }}</span></span>
+                    <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="">
+                    <span id="{{ form.has_card.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip"
+                        aria-label="{{ form.has_card.help_text }}" tabindex=0 />
+                </label>
+            </div>
+        </fieldset>
         <output class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
     </form>
 </section>
+<div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
+    <label>SORTED BY</label>
+    <label>DISPLAYING</label>
+</div>
 <section class="members sort-pages">
     <div class="inner">
         <label class="sort">
@@ -30,27 +45,12 @@
             {% render_field form.sort form="members-form" %}
             <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
         </label>
-        <label class="pagination">
-            <span>DISPLAYING</span>
-            <select name="page" form="members-form">
-                {% for value, label in page_labels %}
-                <option value="{{ value }}" {% if page_obj.number == value %}selected="selected"{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-            <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
-        </label>
-        <input type="submit" form="members-form" value="Go"/>
+        <button type="submit" form="members-form">Go</button>
+        {% include 'snippets/pagination.html' with form="members-form" %}
     </div>
     {% if page_obj.has_other_pages %} {# if only one page of results, don't show next/previous links #}
     <div class="outer">
-        <a rel="prev" {% if page_obj.has_previous %}href="?page={{ page_obj.previous_page_number }}"{% else %} class="inactive"{% endif %}>
-            <img class="previous icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
-            Previous
-        </a>
-        <a rel="next" {% if page_obj.has_next %}href="?page={{ page_obj.next_page_number }}"{% else %} class="inactive"{% endif %}>
-            Next
-            <img class="next icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
-        </a>
+        {% include 'snippets/page-controls.html' %}
     </div>
     {% endif %}
 </section>
