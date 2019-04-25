@@ -16,8 +16,7 @@ django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader
-# require next version (should be 0.3) for aliased queryset
-git+git://github.com/Princeton-CDH/parasolr@develop#egg=parasolr
+parasolr>=0.3
 django-widget-tweaks
 pymarc
 progressbar2
