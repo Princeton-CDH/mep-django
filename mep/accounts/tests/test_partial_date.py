@@ -10,7 +10,17 @@ from mep.accounts.partial_date import PartialDate, DatePrecision, \
 from mep.accounts.models import Account, Borrow
 
 
-class TestPartialDates(TestCase):
+class TestPartialDateField(TestCase):
+
+    def test_to_python(self):
+        dpf = DatePrecisionField()
+        # cast value to date precision
+        assert isinstance(dpf.to_python(1), DatePrecision)
+        # handle None
+        assert dpf.to_python(None) is None
+
+
+class TestPartialDate(TestCase):
 
     # test object for partial date descriptor behavior
     class PartialDateObject(models.Model):
@@ -49,38 +59,57 @@ class TestPartialDates(TestCase):
         pdo.date_precision = DatePrecision.month | DatePrecision.day
         assert pdo.partial_date == '--03-05'
 
+        # get with no object should return the descriptor for documentation
+        # purposes
+        assert isinstance(self.PartialDateObject.partial_date, PartialDate)
+
     def test_set(self):
         pdo = self.PartialDateObject()
-        # full precision
+        # sets date and date precision
         pdo.partial_date = '1901-03-05'
         assert pdo.date == datetime.date(1901, 3, 5)
         assert pdo.date_precision == DatePrecision.year | DatePrecision.month | DatePrecision.day
         # partial precision
-        pdo.partial_date = '1901-03'
-        assert pdo.date == datetime.date(1901, 3, 1)
-        assert pdo.date_precision == DatePrecision.year | DatePrecision.month
         pdo.partial_date = '--03-05'
         assert pdo.date == datetime.date(1, 3, 5)
         assert pdo.date_precision == DatePrecision.month | DatePrecision.day
-        pdo.partial_date = '1901'
-        assert pdo.date == datetime.date(1901, 1, 1)
-        assert pdo.date_precision == DatePrecision.year
-        # invalid partial precision
+
+        # errors on invalid dates
         with pytest.raises(ValidationError):
             pdo.partial_date = '05'
         with pytest.raises(ValidationError):
-            pdo.partial_date = '1901--05'
-        with pytest.raises(ValidationError):
             pdo.partial_date = 'definitely_not_a_date'
+
         # should clear the values if None is passed
         pdo.partial_date = None
         assert pdo.date is None
         assert pdo.date_precision is None
+
         # change default unknown year value
         pdo = self.PartialDateObject1900()
         pdo.partial_date = '--03-05'
         assert pdo.date == datetime.date(1900, 3, 5)
         assert pdo.date_precision == DatePrecision.month | DatePrecision.day
+
+    def test_parse_date(self):
+        partial_date = self.PartialDateObject.partial_date
+        assert partial_date.parse_date('1901-03-05') == \
+            (datetime.date(1901, 3, 5), DatePrecision.year | DatePrecision.month | DatePrecision.day)
+        assert partial_date.parse_date('1901-03') == \
+            (datetime.date(1901, 3, 1), DatePrecision.year | DatePrecision.month)
+        assert partial_date.parse_date('1901') ==  \
+            (datetime.date(1901, 1, 1), DatePrecision.year)
+
+        # invalid partial precision
+        with pytest.raises(ValidationError):
+            partial_date.parse_date('05')
+        with pytest.raises(ValidationError):
+            partial_date.parse_date('1901--05')
+        with pytest.raises(ValidationError):
+            partial_date.parse_date('no date')
+        with pytest.raises(ValidationError):
+            # month with unknown year
+            partial_date.parse_date('--05')
 
 
 class TestPartialDateMixin(TestCase):
