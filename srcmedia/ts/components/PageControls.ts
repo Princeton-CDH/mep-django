@@ -90,15 +90,19 @@ export default class PageControls extends Component {
      * @memberof PageControls
      */
     update = async ([currentPage, totalPages]: [number, number]): Promise<void> => {
-        if (currentPage == totalPages) {
+        if (totalPages == 1) { // if only one page, both buttons disabled
+            this.nextButton.setAttribute('aria-hidden', '')
+            this.prevButton.setAttribute('aria-hidden', '')
+        }
+        else if (currentPage == totalPages) { // on last page, next is disabled
             this.prevButton.removeAttribute('aria-hidden')
             this.nextButton.setAttribute('aria-hidden', '')
         }
-        else if (currentPage == 1) {
+        else if (currentPage == 1) { // on first page, prev is disabled
             this.nextButton.removeAttribute('aria-hidden')
             this.prevButton.setAttribute('aria-hidden', '')
         }
-        else {
+        else { // all other pages, both are enabled
             this.nextButton.removeAttribute('aria-hidden')
             this.prevButton.removeAttribute('aria-hidden')
         }
