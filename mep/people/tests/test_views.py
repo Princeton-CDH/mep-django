@@ -664,7 +664,7 @@ class TestMembersListView(TestCase):
             items = range(101)
             paginator = Paginator(items, per_page=50)
             result = view.get_page_labels(paginator)
-            view.queryset.only.assert_called_with(sort_name='sort_name_t')
+            view.queryset.only.assert_called_with('sort_name')
             alpha_pagelabels_args = mock_alpha_pglabels.call_args[0]
             # first arg is paginator
             assert alpha_pagelabels_args[0] == paginator
@@ -711,11 +711,11 @@ class TestMembersListView(TestCase):
         form_kwargs = view.get_form_kwargs()
         assert form_kwargs['data']['sort'] == view.initial['sort']
 
-    @patch('mep.people.views.SolrQuerySet')
+    @patch('mep.people.views.PersonSolrQuerySet')
     def test_get_queryset(self, mock_solrqueryset):
         mock_qs = mock_solrqueryset.return_value
         # simulate fluent interface
-        for meth in ['facet', 'filter', 'only', 'search',
+        for meth in ['facet', 'filter', 'only', 'search', 'also',
                      'raw_query_parameters', 'order_by']:
             getattr(mock_qs, meth).return_value = mock_qs
 
@@ -727,14 +727,8 @@ class TestMembersListView(TestCase):
         mock_solrqueryset.assert_called_with()
         # inspect solr queryset filters called; should be only called once
         # because card filtering is not on
-        mock_qs.filter.assert_called_once_with(item_type='person')
-        mock_qs.only.assert_called_with(
-            'score', name='name_t', sort_name='sort_name_t',
-            birth_year='birth_year_i', death_year='death_year_i',
-            account_start='account_start_i', account_end='account_end_i',
-            has_card='has_card_b', pk='pk_i')
         # faceting should be turned on via call to facet
-        mock_qs.facet.assert_called_with('has_card_b')
+        mock_qs.facet.assert_called_with('has_card')
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()
@@ -752,8 +746,8 @@ class TestMembersListView(TestCase):
         mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
         # faceting should be on *and* filtering by that facet
         # as its most recent call
-        mock_qs.facet.assert_called_with('has_card_b')
-        mock_qs.filter.assert_called_with(has_card_b=True)
+        mock_qs.facet.assert_called_with('has_card')
+        mock_qs.filter.assert_called_with(has_card=True)
 
         # with keyword search term - should call search and query param
         query_term = 'sylvia'
@@ -764,6 +758,8 @@ class TestMembersListView(TestCase):
         mock_qs.search.assert_called_with(view.search_name_query)
         mock_qs.raw_query_parameters.assert_called_with(name_query=query_term)
         mock_qs.order_by.assert_called_with(view.solr_sort['relevance'])
+        # include relevance score in return
+        mock_qs.also.assert_called_with('score')
 
 
 class TestMemberDetailView(TestCase):
