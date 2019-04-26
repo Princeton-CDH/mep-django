@@ -6,8 +6,10 @@ from eulxml import xmlmap
 from lxml.etree import cleanup_namespaces
 import pendulum
 
+
 from mep.accounts.models import Account, Subscription, SubscriptionType, \
-    Borrow, DatePrecision
+    Borrow
+from mep.accounts.partial_date import DatePrecision
 from mep.books.models import Item
 from mep.people.models import Person
 

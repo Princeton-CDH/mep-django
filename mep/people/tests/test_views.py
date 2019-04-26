@@ -259,7 +259,7 @@ class TestPeopleViews(TestCase):
             password=staff_password, email='staff@example.com',
             is_staff=True)
 
-        # login as staff user without no special permissios
+        # login as staff user with no special permissions
         self.client.login(username=staffuser.username, password=staff_password)
         # staff user without persion permission should still fail
         response = self.client.get(reverse('people:merge'))
@@ -614,6 +614,8 @@ class TestMembersListView(TestCase):
         # only card member has account dates and card
         self.assertContains(response, account.earliest_date().year)
         self.assertContains(response, account.last_date().year)
+        # should not display relevance score
+        self.assertNotContains(response, '<h2>Relevance</h2>')
 
         # icon for 'has card' should show up twice, once in the list
         # and once in the filter icon
@@ -635,6 +637,20 @@ class TestMembersListView(TestCase):
         # search for member by name; should only get one member back
         response = self.client.get(self.members_url, {'query': card_member.name})
         assert response.context['members'].count() == 1
+        # should not display relevance score
+        self.assertNotContains(response, '<h2>Relevance</h2>',
+            msg_prefix='relevance score not displayed to anonymous user')
+
+        # login as staff user with no special permissions
+        staff_password = 'sosecret'
+        staffuser = User.objects.create_user(
+            username='staff', is_staff=True,
+            password=staff_password, email='staff@example.com')
+        self.client.login(username=staffuser.username, password=staff_password)
+        response = self.client.get(self.members_url, {'query': card_member.name})
+        self.assertContains(
+            response, '<h2>Relevance</h2>',
+            msg_prefix='relevance score displayed for logged in users')
 
         # TODO: not sure how to test pagination/multiple pages
 
@@ -713,7 +729,7 @@ class TestMembersListView(TestCase):
         # because card filtering is not on
         mock_qs.filter.assert_called_once_with(item_type='person')
         mock_qs.only.assert_called_with(
-            name='name_t', sort_name='sort_name_t',
+            'score', name='name_t', sort_name='sort_name_t',
             birth_year='birth_year_i', death_year='death_year_i',
             account_start='account_start_i', account_end='account_end_i',
             has_card='has_card_b', pk='pk_i')

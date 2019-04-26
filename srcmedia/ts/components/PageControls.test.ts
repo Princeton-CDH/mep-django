@@ -1,5 +1,3 @@
-import { ReplaySubject } from 'rxjs'
-
 import PageControls from './PageControls'
 
 beforeEach(() => {
