@@ -74,14 +74,6 @@ class RxSearchForm extends RxForm {
                 this.element.toggleAttribute('aria-busy')
                 window.history.pushState(null, document.title, `?${serialized}`)
         })
-        // fromFetch(`${this.target}?${serialized}`, ajax).subscribe(this.response)
-        // fromFetch(`${this.target}?${serialized}`, ajax).subscribe(response => {
-        //     this.response.next(response)
-        //     window.history.pushState(null, document.title, `?${serialized}`)
-        //     this.element.toggleAttribute('aria-busy')
-        //     handle.next(response)
-        // })
-        // return handle
     }
 }
 
