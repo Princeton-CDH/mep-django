@@ -73,6 +73,12 @@ describe('RxSearchForm', () => {
         const rsf = new RxSearchForm($element)
         expect(rsf.totalResults).toBeInstanceOf(Subject)
     })
+
+    it('stores page labels as an observable sequence', () => {
+        const $element = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($element)
+        expect(rsf.pageLabels).toBeInstanceOf(Subject)
+    })
     
     it('makes an async GET request to its endpoint on submission', done => {
         window.history.pushState({}, 'form', '/form') // to form a full request path
@@ -86,7 +92,7 @@ describe('RxSearchForm', () => {
         })
     })
     
-    it('updates its state when it receives results', done => {
+    it('updates the results when it receives results', done => {
         const $form = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($form)
         const response = new Response(new Blob(['results!'], { type: 'text/plain' }))
@@ -97,6 +103,38 @@ describe('RxSearchForm', () => {
             expect(watcher).toHaveBeenCalledWith('results!')
             done()
         })
+    })
+
+    it('updates the total results when it receives the correct header', done => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($form)
+        const response = new Response(
+            new Blob(['results!'], { type: 'text/plain' }),
+            { headers: { 'X-Total-Results': '50' } }
+        )
+        const watcher = jest.fn()
+        rsf.totalResults.subscribe(watcher)
+        jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
+        rsf.submit().then(() => {
+            expect(watcher).toHaveBeenCalledWith('50')
+            done()
+        }) 
+    })
+
+    it('parses and updates the page labels when it receives the correct header', done => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($form)
+        const response = new Response(
+            new Blob(['results!'], { type: 'text/plain' }),
+            { headers: { 'X-Page-Labels': 'page one|page two|page three' } } // will be split on '|'
+        )
+        const watcher = jest.fn()
+        rsf.pageLabels.subscribe(watcher)
+        jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
+        rsf.submit().then(() => {
+            expect(watcher).toHaveBeenCalledWith(['page one', 'page two', 'page three'])
+            done()
+        }) 
     })
     
     it('updates the URL/browser history on submission', done => {
