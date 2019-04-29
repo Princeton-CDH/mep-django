@@ -6,7 +6,6 @@ import { Component } from './common'
 interface RxOption {
     value: string,
     text: string,
-    selected: boolean,
 }
 
 /**
@@ -46,7 +45,6 @@ class RxSelect extends Component {
         let $el = document.createElement('option')
         $el.value = option.value
         $el.innerHTML = option.text
-        $el.selected = option.selected
         return $el
     }
 }
