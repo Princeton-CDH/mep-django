@@ -45,11 +45,13 @@ class RxForm extends Component {
 class RxSearchForm extends RxForm {
     results: Subject<string>
     totalResults: Subject<string>
+    pageLabels: Subject<Array<string>>
 
     constructor(element: HTMLFormElement) {
         super(element)
         this.results = new Subject()
         this.totalResults = new Subject()
+        this.pageLabels = new Subject()
     }
     /**
      * Serialize the form and submit it as a GET request to the form's endpoint,
@@ -66,7 +68,9 @@ class RxSearchForm extends RxForm {
         return fetch(`${this.target}?${serialized}`, ajax)
             .then(res => {
                 const totalResults = res.headers.get('X-Total-Results')
+                const pageLabels = res.headers.get('X-Page-Labels')
                 if (totalResults) this.totalResults.next(totalResults)
+                if (pageLabels) this.pageLabels.next(pageLabels.split('|'))
                 return res.text()
             })
             .then(results => {
