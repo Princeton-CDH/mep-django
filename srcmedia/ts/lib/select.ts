@@ -34,14 +34,29 @@ class RxSelect extends Component {
         this.options.subscribe(this.render)
     }
 
+    /**
+     * Render a new set of <options> for this <select>.
+     * 
+     * @param {Array<RxOption>} options
+     * @returns {Promise<void>}
+     * @memberof RxSelect
+     */
     render = async (options: Array<RxOption>): Promise<void> => {
         // clear out the options
         this.element.innerHTML = ''
         // render new options and add them to the element
-        options.map(RxSelect.createOption).forEach(e => this.element.add(e))
+        options.map(this.createOption).forEach(e => this.element.add(e))
     }
 
-    static createOption (option: RxOption): HTMLOptionElement {
+    /**
+     * Generate and return an <option> element with a given value and text.
+     *
+     * @protected
+     * @param {RxOption} option
+     * @returns {HTMLOptionElement}
+     * @memberof RxSelect
+     */
+    protected createOption (option: RxOption): HTMLOptionElement {
         let $el = document.createElement('option')
         $el.value = option.value
         $el.innerHTML = option.text

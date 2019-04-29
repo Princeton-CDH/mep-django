@@ -11,32 +11,42 @@ beforeEach(() => {
     `
 })
 
-it('stores state as an observable sequence', () => {
+it('stores value as an observable sequence', () => {
     const element = document.querySelector('select') as HTMLSelectElement
     const rs = new RxSelect(element)
-    expect(rs.state).toBeInstanceOf(Subject)
+    expect(rs.value).toBeInstanceOf(Subject)
 })
 
-it('updates its state and element when the user chooses an option', () => {
+it('stores options as an observable sequence', () => {
+    const element = document.querySelector('select') as HTMLSelectElement
+    const rs = new RxSelect(element)
+    expect(rs.options).toBeInstanceOf(Subject)
+})
+
+it('updates its value when the user chooses an option', () => {
     const element = document.querySelector('select') as HTMLSelectElement
     const option = document.querySelector('option[value=apple]') as HTMLOptionElement
     const rs = new RxSelect(element)
-    rs.state.subscribe(state => {
-        expect(state).toEqual({ value: 'apple' }) // state was updated
-        expect(element.value).toBe('apple') // element's value was changed
+    rs.value.subscribe(value => {
+        expect(value).toEqual('apple') // state was updated
     })
     option.selected = true // manually select a new <option>
     element.dispatchEvent(new Event('input')) // fake an input event
 })
 
-it('updates its state and element when update() is called', () => {
+it('updates its element when new value is passed in', () => {
     const element = document.querySelector('select') as HTMLSelectElement
     const option = document.querySelector('option[value=orange]') as HTMLOptionElement
     const rs = new RxSelect(element)
-    rs.state.subscribe(state => {
-        expect(state).toEqual({ value: 'orange' }) // state was updated
-        expect(element.value).toBe('orange') // element's value changed
-        expect(option.selected).toBe(true) // selected <option> changed
-    })
-    rs.update({ value: 'orange' })
+    rs.value.next('orange')
+    expect(element.value).toBe('orange') // element's value changed
+    expect(option.selected).toBe(true) // selected <option> changed
+})
+
+it('re-renders itself when new options are passed in', () => {
+    const element = document.querySelector('select') as HTMLSelectElement
+    const rs = new RxSelect(element)
+    const newOptions = [{ value: "banana", text: "banana" }]
+    rs.options.next(newOptions)
+    expect(element.innerHTML).toBe(`<option value="banana">banana</option>`)
 })
