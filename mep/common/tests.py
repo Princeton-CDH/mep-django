@@ -301,6 +301,21 @@ class TestLabeledPagesMixin(TestCase):
         context = view.get_context_data()
         assert context['page_labels'] == []
 
+    def test_dispatch(self):
+
+        class MyLabeledPagesView(LabeledPagesMixin, ListView):
+            paginate_by = 5
+
+        view = MyLabeledPagesView()
+        # create some page labels
+        view._page_labels = [(1, '1-5'), (2, '6-10')]
+        # make an ajax request
+        view.request = Mock()
+        view.request.is_ajax.return_value = True
+        response = view.dispatch(view.request)
+        # should return serialized labels using '|' separator
+        assert response['X-Page-Labels'] == '1-5|6-10'
+
 
 class TestTemplateTags(TestCase):
 
