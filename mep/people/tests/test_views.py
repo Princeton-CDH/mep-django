@@ -259,7 +259,7 @@ class TestPeopleViews(TestCase):
             password=staff_password, email='staff@example.com',
             is_staff=True)
 
-        # login as staff user without no special permissios
+        # login as staff user with no special permissions
         self.client.login(username=staffuser.username, password=staff_password)
         # staff user without persion permission should still fail
         response = self.client.get(reverse('people:merge'))
@@ -614,6 +614,8 @@ class TestMembersListView(TestCase):
         # only card member has account dates and card
         self.assertContains(response, account.earliest_date().year)
         self.assertContains(response, account.last_date().year)
+        # should not display relevance score
+        self.assertNotContains(response, '<h2>Relevance</h2>')
 
         # icon for 'has card' should show up twice, once in the list
         # and once in the filter icon
@@ -635,6 +637,20 @@ class TestMembersListView(TestCase):
         # search for member by name; should only get one member back
         response = self.client.get(self.members_url, {'query': card_member.name})
         assert response.context['members'].count() == 1
+        # should not display relevance score
+        self.assertNotContains(response, '<h2>Relevance</h2>',
+            msg_prefix='relevance score not displayed to anonymous user')
+
+        # login as staff user with no special permissions
+        staff_password = 'sosecret'
+        staffuser = User.objects.create_user(
+            username='staff', is_staff=True,
+            password=staff_password, email='staff@example.com')
+        self.client.login(username=staffuser.username, password=staff_password)
+        response = self.client.get(self.members_url, {'query': card_member.name})
+        self.assertContains(
+            response, '<h2>Relevance</h2>',
+            msg_prefix='relevance score displayed for logged in users')
 
         # TODO: not sure how to test pagination/multiple pages
 
@@ -648,7 +664,7 @@ class TestMembersListView(TestCase):
             items = range(101)
             paginator = Paginator(items, per_page=50)
             result = view.get_page_labels(paginator)
-            view.queryset.only.assert_called_with(sort_name='sort_name_t')
+            view.queryset.only.assert_called_with('sort_name')
             alpha_pagelabels_args = mock_alpha_pglabels.call_args[0]
             # first arg is paginator
             assert alpha_pagelabels_args[0] == paginator
@@ -695,11 +711,15 @@ class TestMembersListView(TestCase):
         form_kwargs = view.get_form_kwargs()
         assert form_kwargs['data']['sort'] ==  view.initial['sort']
 
-    @patch('mep.people.views.SolrQuerySet')
+    @patch('mep.people.views.PersonSolrQuerySet')
     def test_get_queryset(self, mock_solrqueryset):
         mock_qs = mock_solrqueryset.return_value
         # simulate fluent interface
+<<<<<<< HEAD
         for meth in ['facet_field', 'filter', 'only', 'search',
+=======
+        for meth in ['facet', 'filter', 'only', 'search', 'also',
+>>>>>>> develop
                      'raw_query_parameters', 'order_by']:
             getattr(mock_qs, meth).return_value = mock_qs
 
@@ -711,17 +731,15 @@ class TestMembersListView(TestCase):
         mock_solrqueryset.assert_called_with()
         # inspect solr queryset filters called; should be only called once
         # because card filtering is not on
-        mock_qs.filter.assert_called_once_with(item_type='person')
-        mock_qs.only.assert_called_with(
-            name='name_t', sort_name='sort_name_t',
-            birth_year='birth_year_i', death_year='death_year_i',
-            account_start='account_start_i', account_end='account_end_i',
-            has_card='has_card_b', pk='pk_i')
         # faceting should be turned on via call to facet
+<<<<<<< HEAD
         mock_qs.facet_field.assert_has_calls([
             call('has_card_b'),
             call('sex_s', missing=True, exclude='sex')
         ])
+=======
+        mock_qs.facet.assert_called_with('has_card')
+>>>>>>> develop
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()
@@ -740,13 +758,11 @@ class TestMembersListView(TestCase):
         assert view.queryset == sqs
         # blank query left default sort in place too
         mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
-        # faceting should be on and filter calls for card and sex
-        mock_qs.filter.assert_has_calls(
-            [
-                call(has_card_b=True),
-                call(sex_s__in=['Female', 'Unknown'], tag='sex')
-            ]
-        )
+        # faceting should be on *and* filtering by that facet
+        # as its most recent call
+        mock_qs.facet.assert_called_with('has_card')
+        mock_qs.filter.assert_called_with(has_card=True)
+
         # with keyword search term - should call search and query param
         query_term = 'sylvia'
         view.request = self.factory.get(self.members_url, {'query': query_term})
@@ -756,6 +772,8 @@ class TestMembersListView(TestCase):
         mock_qs.search.assert_called_with(view.search_name_query)
         mock_qs.raw_query_parameters.assert_called_with(name_query=query_term)
         mock_qs.order_by.assert_called_with(view.solr_sort['relevance'])
+        # include relevance score in return
+        mock_qs.also.assert_called_with('score')
 
 
 class TestMemberDetailView(TestCase):

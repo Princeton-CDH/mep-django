@@ -100,14 +100,15 @@ class PartialDate:
             # turn matched values into numbers for initializing date object
             date_values = {}
             date_parts = []
-            for k, v in match_info.items():
+            for key, val in match_info.items():
                 try:
-                    date_values[k] = int(v)
-                    date_parts.append(k)
+                    date_values[key] = int(val)
+                    date_parts.append(key)
                 except (TypeError, ValueError): # value was None or '-'
-                    date_values[k] = self.unknown_year if k == 'year' else 1
+                    date_values[key] = self.unknown_year if key == 'year' else 1
 
-            if date_parts == ['day'] or date_parts == ['month'] or date_parts == ['year', 'day']:
+            # error if the regex matched but got an unusable set of date parts
+            if date_parts in (['day'], ['month'], ['year', 'day']):
                 raise ValidationError('"%s" is not a recognized date.''' % value)
 
             # determine known date parts based on regex match values
@@ -115,8 +116,7 @@ class PartialDate:
             precision = DatePrecision.from_simple_str('|'.join(date_parts))
             return (datetime.date(**date_values), precision)
 
-        else:
-            raise ValidationError('"%s" is not a recognized date.''' % value)
+        raise ValidationError('"%s" is not a recognized date.''' % value)
 
 
 class PartialDateMixin(models.Model):
