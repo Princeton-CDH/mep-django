@@ -37,6 +37,17 @@ const ajax = {
     }
 }
 
+/**
+ * Validate that every element in array a is present in array b.
+ *
+ * @param {Array<any>} a
+ * @param {Array<any>} b
+ * @returns {boolean}
+ */
+function arraysAreEqual (a: Array<any>, b: Array<any>): boolean {
+    return a.every(e => b.includes(e))
+}
+
 abstract class Rx<Element> {
     element: Element
     
@@ -49,5 +60,6 @@ export {
     Reactive,
     Component,
     Rx,
-    ajax
+    ajax,
+    arraysAreEqual
 }

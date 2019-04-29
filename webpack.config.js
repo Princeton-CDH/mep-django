@@ -83,7 +83,7 @@ module.exports = env => ({
             modules: false,
         }
     },
-    devtool: devMode ? 'eval-source-map' : 'source-map', // allow sourcemaps in dev & qa
+    devtool: 'source-map', // allow sourcemaps in dev & qa
     optimization: {
         minimizer: [
             new TerserPlugin({ // minify JS in prod
