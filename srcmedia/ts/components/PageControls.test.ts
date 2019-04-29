@@ -91,3 +91,39 @@ it('listens to click events on the next/prev page buttons', () => {
     $prevButton.dispatchEvent(new Event('click'))
     expect(watcher).toHaveBeenCalledWith('prev')
 })
+
+it('disables next and previous buttons if only one page', () => {
+    const $el = document.getElementById('page-controls') as HTMLDivElement
+    const pc = new PageControls($el)
+    pc.update([1, 1]).then(() => { // on page 1, 1 total pages
+        expect(pc.nextButton.hasAttribute('aria-hidden')).toBe(true)
+        expect(pc.prevButton.hasAttribute('aria-hidden')).toBe(true)
+    })
+})
+
+it('disables next button if on the last page', () => {
+    const $el = document.getElementById('page-controls') as HTMLDivElement
+    const pc = new PageControls($el)
+    pc.update([10, 10]).then(() => { // on page 10, 10 total pages
+        expect(pc.nextButton.hasAttribute('aria-hidden')).toBe(true)
+        expect(pc.prevButton.hasAttribute('aria-hidden')).toBe(false)
+    })
+})
+
+it('disables prev button if on the first page', () => {
+    const $el = document.getElementById('page-controls') as HTMLDivElement
+    const pc = new PageControls($el)
+    pc.update([1, 10]).then(() => { // on page 1, 10 total pages
+        expect(pc.nextButton.hasAttribute('aria-hidden')).toBe(false)
+        expect(pc.prevButton.hasAttribute('aria-hidden')).toBe(true)
+    })
+})
+
+it('allows next/prev to be used if on any other page', () => {
+    const $el = document.getElementById('page-controls') as HTMLDivElement
+    const pc = new PageControls($el)
+    pc.update([5, 10]).then(() => { // on page 5, 10 total pages
+        expect(pc.nextButton.hasAttribute('aria-hidden')).toBe(false)
+        expect(pc.prevButton.hasAttribute('aria-hidden')).toBe(false)
+    })
+})
