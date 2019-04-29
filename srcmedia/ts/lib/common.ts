@@ -38,14 +38,17 @@ const ajax = {
 }
 
 /**
- * Validate that every element in array a is present in array b.
+ * Validate that every element in array a is present in array b and that
+ * their lengths are the same.
+ * 
+ * Will return false if elements are arrays, and ignores order.
  *
  * @param {Array<any>} a
  * @param {Array<any>} b
  * @returns {boolean}
  */
 function arraysAreEqual (a: Array<any>, b: Array<any>): boolean {
-    return a.every(e => b.includes(e))
+    return a.every(e => b.includes(e)) && a.length == b.length
 }
 
 abstract class Rx<Element> {
