@@ -715,11 +715,7 @@ class TestMembersListView(TestCase):
     def test_get_queryset(self, mock_solrqueryset):
         mock_qs = mock_solrqueryset.return_value
         # simulate fluent interface
-<<<<<<< HEAD
-        for meth in ['facet_field', 'filter', 'only', 'search',
-=======
         for meth in ['facet', 'filter', 'only', 'search', 'also',
->>>>>>> develop
                      'raw_query_parameters', 'order_by']:
             getattr(mock_qs, meth).return_value = mock_qs
 
@@ -732,14 +728,7 @@ class TestMembersListView(TestCase):
         # inspect solr queryset filters called; should be only called once
         # because card filtering is not on
         # faceting should be turned on via call to facet
-<<<<<<< HEAD
-        mock_qs.facet_field.assert_has_calls([
-            call('has_card_b'),
-            call('sex_s', missing=True, exclude='sex')
-        ])
-=======
         mock_qs.facet.assert_called_with('has_card')
->>>>>>> develop
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()
