@@ -79,15 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // When the page labels change, pass them to the page select to re-render options
     membersSearchForm.pageLabels.pipe(
+        startWith([...Array(pageSelect.element.options.length)].map((_, i) => {
+            return pageSelect.element.options[i].innerHTML // compare with the initial page labels
+        })),
         distinctUntilChanged(arraysAreEqual), // don't do anything if the page labels didn't change
-        withLatestFrom(pageSelect.value.pipe( // get the current page number
-            map(pageNumber => parseInt(pageNumber))
-        )),
-        map(([labels, currentPage]) => {
+        map(labels => {
             return labels.map((label, pageNumber) => ({
                 value: (pageNumber + 1).toString(), // <option> value is its index (page number)
                 text: label, // text is the page label
-                selected: (pageNumber + 1 === currentPage) // selected if it's the page we're on
             }))
         })
     ).subscribe(pageSelect.options)
