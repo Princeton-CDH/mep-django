@@ -90,21 +90,28 @@ export default class PageControls extends Component {
      * @memberof PageControls
      */
     update = async ([currentPage, totalPages]: [number, number]): Promise<void> => {
-        if (totalPages == 1) { // if only one page, both buttons disabled
+        // assume next and previous buttons are enabled by default
+        var nextEnabled = true,
+            previousEnabled = true;
+
+        if (currentPage == 1) { // if on first page, no previous
+            previousEnabled = false;
+        } else if (currentPage == totalPages) {  // if on last page, no next
+            nextEnabled = false;
+        }
+        // also handles single page of results, which is both 1 and last page
+
+        // hide or enable next and previous based on the determined status
+        if (nextEnabled) {
+            this.nextButton.removeAttribute('aria-hidden')
+        } else {
             this.nextButton.setAttribute('aria-hidden', '')
+        }
+        if (previousEnabled) {
+            this.prevButton.removeAttribute('aria-hidden')
+        } else {
             this.prevButton.setAttribute('aria-hidden', '')
         }
-        else if (currentPage == totalPages) { // on last page, next is disabled
-            this.prevButton.removeAttribute('aria-hidden')
-            this.nextButton.setAttribute('aria-hidden', '')
-        }
-        else if (currentPage == 1) { // on first page, prev is disabled
-            this.nextButton.removeAttribute('aria-hidden')
-            this.prevButton.setAttribute('aria-hidden', '')
-        }
-        else { // all other pages, both are enabled
-            this.nextButton.removeAttribute('aria-hidden')
-            this.prevButton.removeAttribute('aria-hidden')
-        }
+
     }
 }
