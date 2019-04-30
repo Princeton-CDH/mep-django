@@ -30,7 +30,8 @@ class TestReconcileOCLC(TestCase):
         # test calling via command line with args
         csvtempfile = NamedTemporaryFile(suffix='csv')
         stdout = StringIO()
-        call_command('reconcile_oclc', '-o', csvtempfile.name, stdout=stdout)
+        call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
+                     stdout=stdout)
         output = stdout.getvalue()
         assert '0 items to reconcile' in output
         # no file output
@@ -49,7 +50,8 @@ class TestReconcileOCLC(TestCase):
             title='Mark Twain\'s notebook',
             uri='http://experiment.worldcat.org/entity/work/data/477260')
         stdout = StringIO()
-        call_command('reconcile_oclc', '-o', csvtempfile.name, stdout=stdout)
+        call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
+                     stdout=stdout)
         output = stdout.getvalue()
         assert '0 items to reconcile' in output
         # no file output
@@ -67,7 +69,8 @@ class TestReconcileOCLC(TestCase):
         stdout = StringIO()
         # return no matches for one, some for the second
         mock_oclc_search.side_effect = {'# matches': 0}, {"# matches": 5}
-        call_command('reconcile_oclc', '-o', csvtempfile.name, stdout=stdout)
+        call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
+                     stdout=stdout)
         output = stdout.getvalue()
         assert '2 items to reconcile' in output
         # search should be called once for each non-skipped item
@@ -93,7 +96,8 @@ class TestReconcileOCLC(TestCase):
         for title in range(5):
             Item.objects.create(title=title)
         mock_oclc_search.side_effect = None
-        call_command('reconcile_oclc', '-o', csvtempfile.name, stdout=stdout)
+        call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
+                     stdout=stdout)
         # progbar initialized
         mockprogressbar.ProgressBar.assert_called_with(
             redirect_stdout=True, max_value=7) # 5 + 2
@@ -101,10 +105,9 @@ class TestReconcileOCLC(TestCase):
         assert mockprogressbar.ProgressBar.return_value.update.call_count == 7
         mockprogressbar.ProgressBar.return_value.finish.assert_called_with()
 
-
         # no progress option respected
         mockprogressbar.reset_mock()
-        call_command('reconcile_oclc', '-o', csvtempfile.name,
+        call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
                      '--no-progress', stdout=stdout)
         mockprogressbar.ProgressBar.assert_not_called()
 
@@ -168,7 +171,6 @@ class TestReconcileOCLC(TestCase):
         # simulate no results found
         srwresponse.num_records = 0
         oclc_info = self.cmd.oclc_search(item)
-        print(oclc_info)
         # should report 0 matches and nothing else
         assert oclc_info['# matches'] == 0
         assert len(oclc_info) == 1

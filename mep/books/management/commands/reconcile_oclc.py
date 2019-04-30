@@ -14,6 +14,7 @@ class Command(BaseCommand):
     """Associate library items with OCLC entries via WordCat Search API"""
     help = __doc__
 
+    mode = None
     sru_search = None
 
     #: fields to be included in CSV export
@@ -27,6 +28,7 @@ class Command(BaseCommand):
         'Notes']
 
     def add_arguments(self, parser):
+        parser.add_argument('mode', choices=['report', 'update'])
         parser.add_argument(
             '--no-progress', action='store_true',
             help='Do not display progress bar')
@@ -35,6 +37,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         """Loop through Items in the database and look for matches in OCLC"""
+
+        # store operating mode
+        self.mode = kwargs['mode']
+        # initialize OCLC search client
         self.sru_search = SRUSearch()
 
         # filter out items with problems that we don't expect to be
@@ -64,34 +70,44 @@ class Command(BaseCommand):
         # use output name specified in args, with a default fallback
         outfilename = kwargs.get('output', None) or 'items-oclc.csv'
 
-        with open(outfilename, 'w') as csvfile:
-            # write utf-8 byte order mark at the beginning of the file
-            csvfile.write(codecs.BOM_UTF8.decode())
+        if self.mode == 'report':  # move into a function?
+            with open(outfilename, 'w') as csvfile:
+                # write utf-8 byte order mark at the beginning of the file
+                csvfile.write(codecs.BOM_UTF8.decode())
 
-            writer = csv.DictWriter(csvfile, fieldnames=self.csv_fieldnames)
-            writer.writeheader()
+                writer = csv.DictWriter(csvfile, fieldnames=self.csv_fieldnames)
+                writer.writeheader()
 
+                for item in items:
+                    info = {
+                        'Title': item.title,
+                        'Date': item.year,
+                        'Creators': ';'.join([str(person) for person in item.creators.all()]),
+                        'Notes': item.notes
+                    }
+                    info.update(self.oclc_search(item))
+                    writer.writerow(info)
+                    # keep track of how many records found any matches
+                    if info.get('# matches', None):
+                        found += 1
+
+                    count += 1
+                    if progbar:
+                        progbar.update(count)
+
+        elif self.mode == 'update':
             for item in items:
-                info = {
-                    'Title': item.title,
-                    'Date': item.year,
-                    'Creators': ';'.join([str(person) for person in item.creators.all()]),
-                    'Notes': item.notes
-                }
-                info.update(self.oclc_search(item))
-                writer.writerow(info)
-                # keep track of how many records found any matches
-                if info.get('# matches', None):
-                    found += 1
+                info = self.oclc_search(item)
+                # if a work uri was found, update the record
+                if info['Work URI']:
+                    item.uri = info['Work URI']
 
-                count += 1
-                if progbar:
-                    progbar.update(count)
 
         if progbar:
             progbar.finish()
 
         # summarize what was done
+        # possibly mode-specific?
         self.stdout.write('Processed %d items, found matches for %d' %
                           (count, found))
 
