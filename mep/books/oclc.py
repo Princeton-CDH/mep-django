@@ -111,7 +111,8 @@ class SRUSearch(WorldCatClientBase):
         'title': 'ti',
         'author': 'au',
         'year': 'yr',
-        'keyword': 'kw'
+        'keyword': 'kw',
+        'material_type': 'mt'
     }
 
     @staticmethod

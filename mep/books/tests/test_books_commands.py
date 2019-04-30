@@ -151,6 +151,13 @@ class TestReconcileOCLC(TestCase):
         # should search on title only
         mock_sru_search.search.assert_called_with(title__exact=item.title)
 
+        # test filtering by material type  periodical
+        item.notes = 'PERIODICAL'
+        oclc_info = self.cmd.oclc_search(item)
+        mock_sru_search.search.assert_called_with(
+            title__exact=item.title, material_type__exact='periodical')
+
+        item.notes = ''
         # simulate no year but first known year from events
         with patch.object(Item, 'first_known_interaction', new=datetime.date(1940, 1, 1)):
             oclc_info = self.cmd.oclc_search(item)

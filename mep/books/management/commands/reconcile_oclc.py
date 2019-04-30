@@ -112,13 +112,16 @@ class Command(BaseCommand):
         # search by year if known
         if item.year:
             search_opts['year'] = item.year
-
         # search year by range based on first documented event for this book
         else:
             first_date = item.first_known_interaction
             if first_date:
                 # range search ending with first known event date
                 search_opts['year'] = "-%s" % first_date.year
+
+        # filter to just periodicals if notes indicate
+        if 'PERIODICAL' in item.notes:
+            search_opts['material_type__exact'] = 'periodical'
 
         result = self.sru_search.search(**search_opts)
         # report number of matches so 0 is explicit/obvious
