@@ -92,13 +92,82 @@ class SRWResponse(xmlmap.XmlObject):
         return list(filter(None, pymarc.parse_xml_to_array(bytestream)))
 
 
-def oclc_uri(marc_record: pymarc.record.Record) -> str:
-    """Generate the worldcat URI for an OCLC MARC record"""
-    return 'http://www.worldcat.org/oclc/%s' % marc_record['001'].value()
-
 
 #: schema.org RDF namespace
 SCHEMA_ORG = rdflib.Namespace('http://schema.org/')
+
+
+class RdfResource(rdflib.resource.Resource):
+    # Extend rdflib resource to fix string method. This is based
+    # on their code, but actually works in python 3
+
+    def __str__(self):
+        return str(self._identifier)
+
+class WorldCatEntity:
+    '''Entity for a single WorldCat record, with support for
+    loading linked data and accessing values.'''
+
+    rdf_resource = None
+
+    @staticmethod
+    def oclc_uri(marc_record: pymarc.record.Record) -> str:
+        """Generate the worldcat URI for an OCLC MARC record"""
+        return 'http://www.worldcat.org/oclc/%s' % marc_record['001'].value()
+
+    def __init__(self, marc_record: pymarc.record.Record, session: requests.Session):
+        self.marc_record = marc_record
+        self.session = session
+        self.item_uri = WorldCatEntity.oclc_uri(self.marc_record)
+        graph = self.get_oclc_rdf()
+        if graph:
+            # initialize an rdflib.resource
+            self.rdf_resource = RdfResource(graph, rdflib.URIRef(self.item_uri))
+
+    def get_oclc_rdf(self) -> rdflib.Graph:
+        '''Load the RDF for the OCLC URI for the MARC record for this
+        entity.'''
+
+        graph = rdflib.Graph()
+        # control field in 001 is OCLC identifier, used for URIs
+        response = self.session.get("%s.rdf" % self.item_uri)
+        if response.status_code == requests.codes.ok:
+            graph.parse(data=response.content.decode())
+            return graph
+
+        # log an error for any other status
+        logger.error('Error loading OCLC record as RDF %s => %d',
+                     self.item_uri, response.status_code)
+
+    @property
+    def work_uri(self) -> str:
+        '''OCLC Work URI for this item'''
+        return str(self.rdf_resource.value(SCHEMA_ORG.exampleOfWork))
+
+    @property
+    def item_type(self) -> str:
+        '''item type URI (e.g. book or periodical), from rdf:type.
+        Skips schema.org/CreativeWork if present in preference of
+        a more specific type'''
+        for item_type in self.rdf_resource.objects(rdflib.RDF.type):
+            # URIRef comparison doesn't seem to be reliable, using strings instead
+            if str(item_type) != str(SCHEMA_ORG.CreativeWork):
+                return str(item_type)
+
+    @property
+    def genre(self):
+        '''Item genre from schema.org/genre, if set'''
+        genre = self.rdf_resource.value(SCHEMA_ORG.genre)
+        # return string if set, but not if None
+        if genre:
+            return str(genre)
+
+    @property
+    def subjects(self):
+        '''URIs that this item is about, from schema.org/about; omits
+        experimental worldcat URIs.'''
+        return [str(subject) for subject in self.rdf_resource.objects(SCHEMA_ORG.about)
+                if 'experiment.worldcat.org' not in str(subject)]
 
 
 class SRUSearch(WorldCatClientBase):
@@ -153,7 +222,7 @@ class SRUSearch(WorldCatClientBase):
 
         return ' AND '.join(search_query)
 
-    def search(self, *args, **kwargs):
+    def search(self, *args, **kwargs) -> SRWResponse:
         '''Perform a CQL based search based on chained filters.'''
         search_query = SRUSearch._lookup_to_search(*args, **kwargs)
         response = super().search(query=search_query)
@@ -169,25 +238,10 @@ class SRUSearch(WorldCatClientBase):
                              err, response.content[:100])
                 # ... not sure what details are useful here
 
-    def get_work_uri(self, marc_record: pymarc.record.Record) -> str:
-        """Given a MARC record from OCLC, find and return the work URI"""
+    def get_worldcat_rdf(self, marc_record: pymarc.record.Record) -> WorldCatEntity:
+        '''Given a MARC record from OCLC, load the RDF for the corresponding
+        OCLC URI'''
 
-        # NOTE: doesn't technically be part of SRUSearch;
-        # primarily here to allow sharing the requests session
-
-        graph = rdflib.Graph()
-        # control field in 001 is OCLC identifier, used for URIs
-        item_uri = oclc_uri(marc_record)
-        # let rdflib handle content-type negotiation and parsing
-        # - URI + extension should return requested type
-        response = self.session.get("%s.rdf" % item_uri)
-        if response.status_code == requests.codes.ok:
-            graph.parse(data=response.content.decode())
-
-            # get the URI for schema:exampleOfWork and return as a string
-            return str(graph.value(subject=rdflib.URIRef(item_uri),
-                                   predicate=SCHEMA_ORG.exampleOfWork))
-
-        # log an error for any other status
-        logger.error('Error loading OCLC record as RDF %s => %d',
-                     item_uri, response.status_code)
+        # NOTE: doesn't technically need to be part of SRUSearch;
+        # initialize here to allow sharing the requests session
+        return WorldCatEntity(marc_record, self.session)
