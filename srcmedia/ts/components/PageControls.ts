@@ -91,7 +91,7 @@ export default class PageControls extends Component {
      */
     update = async ([currentPage, totalPages]: [number, number]): Promise<void> => {
         // assume next and previous buttons are enabled by default
-        var nextEnabled = true,
+        let nextEnabled = true,
             previousEnabled = true;
 
         if (currentPage == 1) { // if on first page, no previous
