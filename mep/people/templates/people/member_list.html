@@ -2,9 +2,7 @@
 {% load static humanize widget_tweaks mep_tags %}
 {% load render_bundle from webpack_loader %}
 
-{% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
-
-{% block js %}{% render_bundle 'search' 'js' %}{% endblock %}
+{% block js %}{% render_bundle 'memberSearch' 'js' %}{% endblock %}
 
 {% block page-subtitle %}Library Members · {% endblock %}
 
@@ -22,7 +20,7 @@
         <fieldset>
             <legend>Filter by:</legend>
             <div class="inner">
-                {% render_field form.has_card class+="sr-only" tabindex=0 onchange="this.form.submit()" %}
+                {% render_field form.has_card class+="sr-only" tabindex=0 %}
                 <label for="{{ form.has_card.id_for_label }}">
                     <span>Card <span class="count">{{ members.get_facets.facet_fields.has_card.true }}</span></span>
                     <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="">
@@ -31,7 +29,7 @@
                 </label>
             </div>
         </fieldset>
-        <output class="total-results">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
+        <output class="total-results" id="total">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
     </form>
 </section>
 <div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
@@ -48,15 +46,11 @@
         <button type="submit" form="members-form">Go</button>
         {% include 'snippets/pagination.html' with form="members-form" %}
     </div>
-    {% if page_obj.has_other_pages %} {# if only one page of results, don't show next/previous links #}
     <div class="outer">
         {% include 'snippets/page-controls.html' %}
     </div>
-    {% endif %}
 </section>
-<ol class="members results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
-    {% for person in members %}
-        {% include 'people/snippets/member_result.html' with member=person %}
-    {% endfor %}
-</ol>
+<output form="members-form" class="results" aria-live="polite" aria-labelledby="total">
+    {% include 'people/snippets/member_results.html' %}
+</output>
 {% endblock %}

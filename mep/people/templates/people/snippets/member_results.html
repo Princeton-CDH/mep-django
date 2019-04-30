@@ -1,0 +1,5 @@
+<ol style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
+    {% for person in members %}
+        {% include 'people/snippets/member_result.html' with member=person %}
+    {% endfor %}
+</ol>

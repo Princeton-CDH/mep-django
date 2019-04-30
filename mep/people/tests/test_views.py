@@ -624,9 +624,9 @@ class TestMembersListView(TestCase):
         # pagination options set in context
         assert response.context['page_labels']
         # current fixture is not enough to paginate
-        # next/prev links should not display at all
-        self.assertNotContains(response, '<a rel="prev"')
-        self.assertNotContains(response, '<a rel="next"')
+        # next/prev links should have aria-hidden to indicate not usable
+        self.assertContains(response, '<a rel="prev" aria-hidden')
+        self.assertContains(response, '<a rel="next" aria-hidden')
         # pagination labels are used, current page selected
         self.assertContains(
             response,

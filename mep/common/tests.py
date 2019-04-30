@@ -15,7 +15,7 @@ from mep.common.admin import LocalUserAdmin
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
-from mep.common.views import LabeledPagesMixin
+from mep.common.views import LabeledPagesMixin, VaryOnHeadersMixin, AjaxTemplateMixin
 from mep.common.templatetags.mep_tags import dict_item
 
 class TestNamed(TestCase):
@@ -301,6 +301,21 @@ class TestLabeledPagesMixin(TestCase):
         context = view.get_context_data()
         assert context['page_labels'] == []
 
+    def test_dispatch(self):
+
+        class MyLabeledPagesView(LabeledPagesMixin, ListView):
+            paginate_by = 5
+
+        view = MyLabeledPagesView()
+        # create some page labels
+        view._page_labels = [(1, '1-5'), (2, '6-10')]
+        # make an ajax request
+        view.request = Mock()
+        view.request.is_ajax.return_value = True
+        response = view.dispatch(view.request)
+        # should return serialized labels using '|' separator
+        assert response['X-Page-Labels'] == '1-5|6-10'
+
 
 class TestTemplateTags(TestCase):
 
@@ -313,3 +328,33 @@ class TestTemplateTags(TestCase):
         assert dict_item({13: 'lucky'}, 13) is 'lucky'
         # integer value
         assert dict_item({13: 7}, 13) is 7
+
+
+class TestVaryOnHeadersMixin(TestCase):
+
+    def test_vary_on_headers_mixing(self):
+
+        # stub a View that will always return 405 since no methods are defined
+        vary_on_view = \
+            VaryOnHeadersMixin(vary_headers=['X-Foobar', 'X-Bazbar'])
+        # mock a request because we don't need its functionality
+        request = Mock()
+        response = vary_on_view.dispatch(request)
+        # check for the set header with the values supplied
+        assert response['Vary'] == 'X-Foobar, X-Bazbar'
+
+
+class TestAjaxTemplateMixin(TestCase):
+
+    def test_get_templates(self):
+        class MyAjaxyView(AjaxTemplateMixin):
+            ajax_template_name = 'my_ajax_template.json'
+            template_name = 'my_normal_template.html'
+
+        myview = MyAjaxyView()
+        myview.request = Mock()
+        myview.request.is_ajax.return_value = False
+        assert myview.get_template_names() == [MyAjaxyView.template_name]
+
+        myview.request.is_ajax.return_value = True
+        assert myview.get_template_names() == MyAjaxyView.ajax_template_name

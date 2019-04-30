@@ -12,17 +12,18 @@ from django.views.generic.edit import FormView, FormMixin
 
 from mep.accounts.models import Event
 from mep.common.utils import alpha_pagelabels
-from mep.common.views import LabeledPagesMixin
+from mep.common.views import LabeledPagesMixin, AjaxTemplateMixin
 from mep.people.forms import PersonMergeForm, MemberSearchForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-class MembersList(LabeledPagesMixin, ListView, FormMixin):
+class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
+    ajax_template_name = 'people/snippets/member_results.html'
     paginate_by = 100
     context_object_name = 'members'
 

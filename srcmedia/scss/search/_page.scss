@@ -1,3 +1,11 @@
-.results-list {
-    @include flex-container;
+.results {
+    transition: opacity 0.5s;
+
+    ol {
+        @include flex-container;
+    }
+
+    &[aria-busy] {
+        opacity: 0.25;
+    }
 }
