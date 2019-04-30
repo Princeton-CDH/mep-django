@@ -38,11 +38,16 @@ class TestReconcileOCLC(TestCase):
         # no progbar
         mockprogressbar.ProgressBar.assert_not_called()
 
-        # create items that should be ignored (generic, problem, title*)
+        # create items that should be ignored
+        # generic, problem, title*, zero, existing uri
         Item.objects.create(notes="GENERIC can't identify")
         Item.objects.create(notes="PROBLEM some problematic issue here")
         Item.objects.create(notes="OBSCURE")
         Item.objects.create(title="Plays*")
+        Item.objects.create(notes="ZERO no borrows")
+        Item.objects.create(
+            title='Mark Twain\'s notebook',
+            uri='http://experiment.worldcat.org/entity/work/data/477260')
         stdout = StringIO()
         call_command('reconcile_oclc', '-o', csvtempfile.name, stdout=stdout)
         output = stdout.getvalue()

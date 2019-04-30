@@ -39,9 +39,12 @@ class Command(BaseCommand):
 
         # filter out items with problems that we don't expect to be
         # able to match reliably
+        # only include items that do not already have a work URI
         items = Item.objects.exclude(notes__contains='GENERIC') \
                             .exclude(notes__contains='PROBLEM') \
                             .exclude(notes__contains='OBSCURE') \
+                            .exclude(notes__contains='ZERO') \
+                            .filter(uri__exact='') \
                             .exclude(title__endswith='*')
 
         # report on total to process
