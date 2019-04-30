@@ -3,8 +3,6 @@ from django.utils.cache import patch_vary_headers
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
 from django.http import JsonResponse
 
-from parasolr.django import SolrQuerySet
-
 
 class LabeledPagesMixin(ContextMixin):
     '''View mixin to add labels for pages to a paginated view's context,
@@ -96,7 +94,7 @@ class FacetJSONMixin(TemplateResponseMixin, VaryOnHeadersMixin):
         '''Return a JsonResponse if the client asked for JSON, otherwise just
         call dispatch(). NOTE that this isn't currently smart enough to detect
         if the view's queryset is a SolrQuerySet; it will just break.'''
-        if self.request.META['HTTP_ACCEPT'] == 'application/json':
+        if self.request.META.get('HTTP_ACCEPT') == 'application/json':
             return self.render_facets(request, *args, **kwargs)
         return super(FacetJSONMixin, self).render_to_response(request, *args, **kwargs)
 
