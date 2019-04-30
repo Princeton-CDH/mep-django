@@ -6,6 +6,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
+from django.http import JsonResponse, HttpRequest
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
@@ -13,10 +14,12 @@ from django.views.generic.list import ListView
 
 from mep.common.admin import LocalUserAdmin
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
+from mep.common.templatetags.mep_tags import dict_item
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
-from mep.common.views import LabeledPagesMixin, VaryOnHeadersMixin, AjaxTemplateMixin
-from mep.common.templatetags.mep_tags import dict_item
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, VaryOnHeadersMixin)
+
 
 class TestNamed(TestCase):
 
@@ -358,3 +361,31 @@ class TestAjaxTemplateMixin(TestCase):
 
         myview.request.is_ajax.return_value = True
         assert myview.get_template_names() == MyAjaxyView.ajax_template_name
+
+
+class TestFacetJSONMixin(TestCase):
+
+    def test_render_response(self):
+        class MyViewWithFacets(FacetJSONMixin):
+            template_name = 'my_normal_template.html'
+
+        # create a mock request and queryset
+        view = MyViewWithFacets()
+        view.object_list = Mock()
+        view.object_list.get_facets.return_value = {
+            'facets': 'foo'
+        }
+        view.request = HttpRequest()
+        request = Mock()
+
+        # if no Accept: header, should just return a regular response
+        view.request.META['HTTP_ACCEPT'] = ''
+        response = view.render_to_response(request)
+        assert not isinstance(response, JsonResponse)
+
+        # if header is set to 'application/json', should be json response
+        view.request.META['HTTP_ACCEPT'] = 'application/json'
+        response = view.render_to_response(request)
+        assert isinstance(response, JsonResponse)
+        assert response.content == b'{"facets": "foo"}'
+
