@@ -1,0 +1,94 @@
+.search-form fieldset.facet {
+    margin-top: .2rem;
+    background: white;
+    display: block;
+    width: 100%;
+    height: 12rem;
+    padding: 0.7rem;
+    position: relative;
+
+    > legend {
+        position: absolute;
+        top: 0.7rem;
+        left: 0.7rem;
+        padding: 0;
+        display: block;
+    }
+    
+    legend,
+    label {
+        font-weight: normal;
+        font-size: 0.8rem;
+        display: block;
+        text-align: left;
+        height: fit-content;
+        margin: 0;
+        border: 0;
+    }
+
+    label {
+        padding: 0 .5rem;
+        color: $brownish-grey;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: padding 0.25s ease;
+
+        &:hover {
+            background: #f1f1f1;
+        }
+
+        &:first-of-type {
+            margin-top: 1.4rem;
+            padding-top: 0;
+        }
+
+        &::before {
+            content: '';
+            opacity: 0;
+            position: absolute;
+            width: .75rem;
+            height: .75rem;
+            left: .5rem;
+            top: calc(50% - (.75rem / 2));
+            background-image: url("/static/img/icons/filter_clicked_state.svg");
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .label,
+        .count {
+            display: inline-flex;
+            height: 1.2rem;
+            line-height: 1.2rem;
+            padding-top: .2rem; // to make the text to vertically center correctly :(
+        }
+
+        .count {
+            font-size: 0.6rem;
+        }
+    }
+
+    input {
+        // borrow .sr-only styles to hide it
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+
+        &:checked + label {
+            padding-left: 1.5rem;
+
+            &::before {
+                opacity: 1;
+            }
+        }
+    }
+}

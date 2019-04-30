@@ -19,7 +19,7 @@
     <form id="members-form">
         {% render_field form.query %}
         <label for="{{ form.query.id_for_label }}"></label>
-        <fieldset>
+        <fieldset class="group">
             <legend>Filter by:</legend>
             <div class="inner">
                 {% render_field form.has_card class+="sr-only" tabindex=0 onchange="this.form.submit()" %}
