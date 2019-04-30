@@ -54,7 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // When the page is changed, submit the form and apply loading styles
     pageSelect.value.subscribe(() => {
         membersSearchForm.submit()
-        resultsOutput.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
+        pageControls.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
+        resultsOutput.element.setAttribute('aria-busy', '') 
     })
 
     // When next/previous page links are clicked, go to that page
@@ -99,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // When results are loaded, remove loading styles and display the results
     membersSearchForm.results.subscribe(results => {
+        pageControls.element.removeAttribute('aria-busy')
         resultsOutput.element.removeAttribute('aria-busy')
         resultsOutput.update(results)
     })

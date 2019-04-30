@@ -84,3 +84,50 @@
         }
     }
 }
+
+// adds a transparent blue loading bar at top when element is aria-hidden
+@mixin loader-bottom { 
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        height: .2rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+        overflow: hidden;
+        background-color: $transparent-blue;
+        width: 10%;
+        left: -10%;
+        animation: loading 2s linear infinite;
+        border-radius: 1rem;
+    }
+
+    &[aria-busy]::before {
+        opacity: 1;
+    }
+
+    @keyframes loading {
+        from {
+            left: -50%;
+            width: 10%;
+        }
+        50% {
+            width: 30%;
+        }
+        70% {
+            width: 60%;
+        }
+        80% {
+            left: 50%;
+            width: 100%;
+        }
+        95% {
+            left: 125%;
+        }
+        to {
+            left: 150%;
+        }  
+    }
+}

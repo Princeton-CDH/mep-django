@@ -5,7 +5,9 @@
     width: 100%;
     z-index: 1;
     transition: box-shadow 0.5s;
-    
+
+    @include loader-bottom;
+
     @media (min-width: $breakpoint-s) {
         top: 0;
     }
