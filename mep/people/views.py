@@ -71,7 +71,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
     }
 
     def get_queryset(self):
-        sqs = PersonSolrQuerySet().facet('has_card')
+        sqs = PersonSolrQuerySet().facet_field('has_card')\
+                                  .facet_field('sex', missing=True, exclude='sex')
 
         # when form is valid, check for search term and filter queryset
         form = self.get_form()
@@ -85,7 +86,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin):
 
             if search_opts['has_card']:
                 sqs = sqs.filter(has_card=search_opts['has_card'])
-
+            if search_opts['sex']:
+                sqs = sqs.filter(sex__in=search_opts['sex'], tag='sex')
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
             # TODO: what happens if form is invalid?

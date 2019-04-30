@@ -3,6 +3,10 @@ from typing import Any, Mapping
 from django import forms
 from django.utils.text import mark_safe
 
+class CheckboxFieldset(forms.CheckboxSelectMultiple):
+
+    template_name = 'common/widgets/checkbox_fieldset.html'
+
 class FacetChoiceField(forms.MultipleChoiceField):
     '''Add CheckboxSelectMultiple field with facets taken from solr query'''
     # Borrowed from https://github.com/Princeton-CDH/derrida-django/blob/develop/derrida/books/forms.py
@@ -12,12 +16,16 @@ class FacetChoiceField(forms.MultipleChoiceField):
     # - default to not required
     # - use checkbox select multiple as default widget
 
-    widget = forms.CheckboxSelectMultiple
+    widget = CheckboxFieldset
+
 
     def __init__(self, *args, **kwargs):
         if 'required' not in kwargs:
             kwargs['required'] = False
         super().__init__(*args, **kwargs)
+
+        if self.label:
+            self.widget.attrs['name'] = self.label
 
     def valid_value(self, value: Any) -> True:
         return True

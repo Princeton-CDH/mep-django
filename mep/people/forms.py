@@ -83,10 +83,6 @@ class MemberSearchForm(FacetForm):
         ('name', 'Name A-Z'),
     ]
 
-    solr_facet_fields = {
-        'sex_s': 'sex'
-    }
-
     query = forms.CharField(label='Keyword or Phrase', required=False,
                             widget=forms.TextInput(attrs={
                                 'placeholder': 'Search member',
