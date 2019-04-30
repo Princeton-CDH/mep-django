@@ -7,7 +7,7 @@ import progressbar
 import pymarc
 
 from mep.books.models import Item
-from mep.books.oclc import SRUSearch, oclc_uri
+from mep.books.oclc import SRUSearch, SRWResponse, WorldCatEntity
 
 
 class Command(BaseCommand):
@@ -85,7 +85,7 @@ class Command(BaseCommand):
                         'Creators': ';'.join([str(person) for person in item.creators.all()]),
                         'Notes': item.notes
                     }
-                    info.update(self.oclc_search(item))
+                    info.update(self.oclc_info(item))
                     writer.writerow(info)
                     # keep track of how many records found any matches
                     if info.get('# matches', None):
@@ -97,11 +97,10 @@ class Command(BaseCommand):
 
         elif self.mode == 'update':
             for item in items:
-                info = self.oclc_search(item)
-                # if a work uri was found, update the record
-                if info['Work URI']:
-                    item.uri = info['Work URI']
-
+                worldcat_entity = self.oclc_search_record(item)
+                if worldcat_entity:
+                    item.uri = worldcat_entity.work_uri
+                    item.edition_uri = worldcat_entity.item_uri
 
         if progbar:
             progbar.finish()
@@ -111,9 +110,10 @@ class Command(BaseCommand):
         self.stdout.write('Processed %d items, found matches for %d' %
                           (count, found))
 
-    def oclc_search(self, item: Item) -> Dict:
-        """Search for an item in OCLC by title, author, date.
-        Returns dictionary with details found for inclusion in CSV.
+    def oclc_search(self, item: Item) -> SRWResponse:
+        """Search for an item in OCLC by title, author, date, and
+        material type if noted as a Periodical. Returns
+        :class:`~mep.books.oclc.SRWResponse`.
         """
         search_opts = {}
 
@@ -139,17 +139,33 @@ class Command(BaseCommand):
         if 'PERIODICAL' in item.notes:
             search_opts['material_type__exact'] = 'periodical'
 
-        result = self.sru_search.search(**search_opts)
+        return self.sru_search.search(**search_opts)
+
+    def oclc_info(self, item: Item) -> Dict:
+        """Search for an item in OCLC by title, author, date.
+        Returns dictionary with details found for inclusion in CSV.
+        """
+        result = self.oclc_search(item)
         # report number of matches so 0 is explicit/obvious
         oclc_info = {'# matches': result.num_records}
         if result.num_records:
             # assume first record is best match (seems to be true)
             marc_record = result.marc_records[0]
+            worldcat_rdf = self.sru_search.get_worldcat_rdf(marc_record)
             oclc_info.update({
                 'OCLC Title': marc_record.title(),
                 'OCLC Author': marc_record.author(),
                 'OCLC Date': marc_record.pubyear(),
-                'OCLC URI': oclc_uri(marc_record),
-                'Work URI': self.sru_search.get_work_uri(marc_record)
+                'OCLC URI': worldcat_rdf.item_uri,
+                'Work URI': worldcat_rdf.work_uri
             })
         return oclc_info
+
+    def oclc_search_record(self, item: Item) -> WorldCatEntity:
+        """Search for an item in OCLC by title, author, date.
+        Returns :class:`~mep.books.oclc.WorldCatResource` for the first
+        match.'''
+        """
+        result = self.oclc_search(item)
+        if result.num_records:
+            return self.sru_search.get_worldcat_rdf(result.marc_records[0])

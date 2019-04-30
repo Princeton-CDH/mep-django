@@ -12,7 +12,6 @@ import pymarc
 
 from mep.books.management.commands import reconcile_oclc
 from mep.books.models import Item, CreatorType, Creator
-from mep.books.oclc import oclc_uri
 from mep.people.models import Person
 from mep.books.tests.test_oclc import get_srwresponse_xml_fixture
 
@@ -25,8 +24,8 @@ class TestReconcileOCLC(TestCase):
 
     @override_settings(OCLC_WSKEY='secretkey')
     @patch('mep.books.management.commands.reconcile_oclc.progressbar')
-    @patch.object(reconcile_oclc.Command, 'oclc_search')
-    def test_command_line(self, mock_oclc_search, mockprogressbar):
+    @patch.object(reconcile_oclc.Command, 'oclc_info')
+    def test_command_line(self, mock_oclc_info, mockprogressbar):
         # test calling via command line with args
         csvtempfile = NamedTemporaryFile(suffix='csv')
         stdout = StringIO()
@@ -68,13 +67,13 @@ class TestReconcileOCLC(TestCase):
         item2 = Item.objects.create(title="Crowded House", notes="Variant title")
         stdout = StringIO()
         # return no matches for one, some for the second
-        mock_oclc_search.side_effect = {'# matches': 0}, {"# matches": 5}
+        mock_oclc_info.side_effect = {'# matches': 0}, {"# matches": 5}
         call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
                      stdout=stdout)
         output = stdout.getvalue()
         assert '2 items to reconcile' in output
         # search should be called once for each non-skipped item
-        assert mock_oclc_search.call_count == 2
+        assert mock_oclc_info.call_count == 2
         # summary output
         assert 'Processed 2 items, found matches for 1' in output
 
@@ -95,7 +94,7 @@ class TestReconcileOCLC(TestCase):
         # create enough items to trigger progressbar
         for title in range(5):
             Item.objects.create(title=title)
-        mock_oclc_search.side_effect = None
+        mock_oclc_info.side_effect = None
         call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
                      stdout=stdout)
         # progbar initialized
@@ -125,28 +124,14 @@ class TestReconcileOCLC(TestCase):
         person = Person.objects.create(sort_name='Ireland, Denis')
         creator = Creator.objects.create(creator_type=ctype, person=person, item=item)
 
-        oclc_info = self.cmd.oclc_search(item)
+        result = self.cmd.oclc_search(item)
+        assert result == srwresponse
         # should search on title, author, year
         mock_sru_search.search.assert_called_with(
             title__exact=item.title, author__all=str(person),
             year=item.year)
-        # uses first marc record in the response
-        marc_record = srwresponse.marc_records[0]
-        # can't use assert called with because marc record objects
-        # are different, since they are generated dynamically by pymarc
-        assert mock_sru_search.get_work_uri.call_count == 1
-        args = mock_sru_search.get_work_uri.call_args[0]
-        assert isinstance(args[0], pymarc.record.Record)
 
-        # inspect returned details
-        assert oclc_info['# matches'] == srwresponse.num_records
-        assert oclc_info['OCLC Title'] == marc_record.title()
-        assert oclc_info['OCLC Author'] == marc_record.author()
-        assert oclc_info['OCLC Date'] == marc_record.pubyear()
-        assert oclc_info['OCLC URI'] == oclc_uri(marc_record)
-        assert oclc_info['Work URI'] == mock_sru_search.get_work_uri.return_value
-
-        # search does not include missing fields
+# search does not include missing fields
         # - delete all but title, no events for first known interaction
         creator.delete()
         item.year = None
@@ -168,9 +153,41 @@ class TestReconcileOCLC(TestCase):
             mock_sru_search.search.assert_called_with(
                 title__exact=item.title, year="-1940")
 
+    def test_oclc_info(self):
+        srwresponse = get_srwresponse_xml_fixture()
+        # search item with title, author, year
+        mock_item = Mock()
+        mock_sru_search = Mock()
+        self.cmd.sru_search = mock_sru_search
+
+        with patch.object(self.cmd, 'oclc_search') as mock_oclc_search:
+            mock_oclc_search.return_value = srwresponse
+            oclc_info = self.cmd.oclc_info(mock_item)
+            mock_oclc_search.assert_called_with(mock_item)
+
+        # uses first marc record in the response
+        marc_record = srwresponse.marc_records[0]
+        # can't use assert called with because marc record objects
+        # are different, since they are generated dynamically by pymarc
+        assert mock_sru_search.get_worldcat_rdf.call_count == 1
+        args = mock_sru_search.get_worldcat_rdf.call_args[0]
+        assert isinstance(args[0], pymarc.record.Record)
+
+        mock_wc_rdf = mock_sru_search.get_worldcat_rdf.return_value
+
+        # inspect returned details
+        assert oclc_info['# matches'] == srwresponse.num_records
+        assert oclc_info['OCLC Title'] == marc_record.title()
+        assert oclc_info['OCLC Author'] == marc_record.author()
+        assert oclc_info['OCLC Date'] == marc_record.pubyear()
+        assert oclc_info['OCLC URI'] == mock_wc_rdf.item_uri
+        assert oclc_info['Work URI'] == mock_wc_rdf.work_uri
+
         # simulate no results found
-        srwresponse.num_records = 0
-        oclc_info = self.cmd.oclc_search(item)
+        with patch.object(self.cmd, 'oclc_search') as mock_oclc_search:
+            mock_oclc_search.return_value = srwresponse
+            srwresponse.num_records = 0
+            oclc_info = self.cmd.oclc_info(mock_item)
         # should report 0 matches and nothing else
         assert oclc_info['# matches'] == 0
         assert len(oclc_info) == 1
