@@ -1,8 +1,9 @@
-import json
-
 from django.core.paginator import Paginator
 from django.utils.cache import patch_vary_headers
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
+from django.http import JsonResponse
+
+from parasolr.django import SolrQuerySet
 
 
 class LabeledPagesMixin(ContextMixin):
@@ -82,3 +83,24 @@ class AjaxTemplateMixin(TemplateResponseMixin, VaryOnHeadersMixin):
         response = super(AjaxTemplateMixin, self).dispatch(request, *args, **kwargs)
         response['X-Total-Results'] = self.get_queryset().count()
         return response
+
+
+class FacetJSONMixin(TemplateResponseMixin, VaryOnHeadersMixin):
+    '''View mixin to respond with JSON representation of Solr facets when the
+    HTTP Accept: header specifies application/json.'''
+
+    #: vary on Accept: so that facets and results are cached separately
+    vary_headers = ['Accept']
+
+    def render_to_response(self, request, *args, **kwargs):
+        '''Return a JsonResponse if the client asked for JSON, otherwise just
+        call dispatch(). NOTE that this isn't currently smart enough to detect
+        if the view's queryset is a SolrQuerySet; it will just break.'''
+        if self.request.META['HTTP_ACCEPT'] == 'application/json':
+            return self.render_facets(request, *args, **kwargs)
+        return super(FacetJSONMixin, self).render_to_response(request, *args, **kwargs)
+
+    def render_facets(self, request, *args, **kwargs):
+        '''Construct a JsonResponse based on the already-populated queryset
+        data for the view.'''
+        return JsonResponse(self.object_list.get_facets())
