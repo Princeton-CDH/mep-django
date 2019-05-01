@@ -5,6 +5,7 @@
         {% for option in options %}
            <input type="checkbox"
             name="{{ name|lower }}"
+            value="{{ option.value }}"
             id="{{ option.attrs.id }}"
             {% if widget.required %} required {% endif %}
             {% include "django/forms/widgets/attrs.html" %}/>
