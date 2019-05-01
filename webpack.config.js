@@ -15,7 +15,8 @@ module.exports = env => ({
             './ts/main.ts', // main site script
             './scss/main.scss' // site styles
         ],
-        search: './ts/search.ts', // script for search pages
+        memberSearch: './ts/members-search.ts',
+        booksSearch: './ts/books-search.ts',
     },
     output: {
         path: path.resolve(__dirname, 'bundles'), // where to output bundles
@@ -82,7 +83,7 @@ module.exports = env => ({
             modules: false,
         }
     },
-    devtool: devMode ? 'eval-source-map' : 'source-map', // allow sourcemaps in dev & qa
+    devtool: 'source-map', // allow sourcemaps in dev & qa
     optimization: {
         minimizer: [
             new TerserPlugin({ // minify JS in prod

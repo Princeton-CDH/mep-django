@@ -2,9 +2,7 @@
 {% load static humanize %}
 {% load render_bundle from webpack_loader %}
 
-{% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
-
-{% block js %}{% render_bundle 'search' 'js' attrs='defer' %}{% endblock %}
+{% block js %}{% render_bundle 'booksSearch' 'js' %}{% endblock %}
 
 {% block page-subtitle %}Library Holdings · {% endblock %}
 

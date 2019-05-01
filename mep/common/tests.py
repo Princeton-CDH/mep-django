@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
+from django.http import JsonResponse, HttpRequest
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
@@ -15,10 +16,12 @@ from django.views.generic.list import ListView
 from mep.common.admin import LocalUserAdmin
 from mep.common.forms import FacetChoiceField, FacetForm
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
+from mep.common.templatetags.mep_tags import dict_item
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
-from mep.common.views import LabeledPagesMixin
-from mep.common.templatetags.mep_tags import dict_item
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, VaryOnHeadersMixin)
+
 
 class TestNamed(TestCase):
 
@@ -303,6 +306,21 @@ class TestLabeledPagesMixin(TestCase):
         context = view.get_context_data()
         assert context['page_labels'] == []
 
+    def test_dispatch(self):
+
+        class MyLabeledPagesView(LabeledPagesMixin, ListView):
+            paginate_by = 5
+
+        view = MyLabeledPagesView()
+        # create some page labels
+        view._page_labels = [(1, '1-5'), (2, '6-10')]
+        # make an ajax request
+        view.request = Mock()
+        view.request.is_ajax.return_value = True
+        response = view.dispatch(view.request)
+        # should return serialized labels using '|' separator
+        assert response['X-Page-Labels'] == '1-5|6-10'
+
 
 class TestTemplateTags(TestCase):
 
@@ -377,4 +395,59 @@ class TestFacetForm(TestCase):
 
 
 
+class TestVaryOnHeadersMixin(TestCase):
+
+    def test_vary_on_headers_mixing(self):
+
+        # stub a View that will always return 405 since no methods are defined
+        vary_on_view = \
+            VaryOnHeadersMixin(vary_headers=['X-Foobar', 'X-Bazbar'])
+        # mock a request because we don't need its functionality
+        request = Mock()
+        response = vary_on_view.dispatch(request)
+        # check for the set header with the values supplied
+        assert response['Vary'] == 'X-Foobar, X-Bazbar'
+
+
+class TestAjaxTemplateMixin(TestCase):
+
+    def test_get_templates(self):
+        class MyAjaxyView(AjaxTemplateMixin):
+            ajax_template_name = 'my_ajax_template.json'
+            template_name = 'my_normal_template.html'
+
+        myview = MyAjaxyView()
+        myview.request = Mock()
+        myview.request.is_ajax.return_value = False
+        assert myview.get_template_names() == [MyAjaxyView.template_name]
+
+        myview.request.is_ajax.return_value = True
+        assert myview.get_template_names() == MyAjaxyView.ajax_template_name
+
+
+class TestFacetJSONMixin(TestCase):
+
+    def test_render_response(self):
+        class MyViewWithFacets(FacetJSONMixin):
+            template_name = 'my_normal_template.html'
+
+        # create a mock request and queryset
+        view = MyViewWithFacets()
+        view.object_list = Mock()
+        view.object_list.get_facets.return_value = {
+            'facets': 'foo'
+        }
+        view.request = HttpRequest()
+        request = Mock()
+
+        # if no Accept: header, should just return a regular response
+        view.request.META['HTTP_ACCEPT'] = ''
+        response = view.render_to_response(request)
+        assert not isinstance(response, JsonResponse)
+
+        # if header is set to 'application/json', should be json response
+        view.request.META['HTTP_ACCEPT'] = 'application/json'
+        response = view.render_to_response(request)
+        assert isinstance(response, JsonResponse)
+        assert response.content == b'{"facets": "foo"}'
 

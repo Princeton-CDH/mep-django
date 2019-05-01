@@ -1,16 +1,23 @@
+import { Subject, merge, fromEvent } from 'rxjs'
+import { mapTo } from 'rxjs/operators'
+
+import { Component } from '../lib/common'
+
 /**
  * A sort/pagination control component that applies a css class when it's stuck
  * to the top of the page.
  */
-export default class PageControls {
+export default class PageControls extends Component {
     element: HTMLElement
-    position: number = 0
+    nextButton: HTMLAnchorElement
+    prevButton: HTMLAnchorElement
+    pageChanges: Subject<string>
     ticking: boolean = false
     stuck: boolean = false
     top: number = 0
 
     constructor(element: HTMLElement) {
-        this.element = element
+        super(element)
         // Get the top property
         let top = window
             .getComputedStyle(this.element)
@@ -19,6 +26,25 @@ export default class PageControls {
         if (top) this.top = parseFloat(top)
         // Bind a scroll event listener to check if sticking
         window.addEventListener('scroll', this.scroll.bind(this))
+        // Set up page change event tracking
+        this.pageChanges = new Subject()
+        // Find the next and previous links
+        this.nextButton = this.element.querySelector('a[rel=next]') as HTMLAnchorElement
+        this.prevButton = this.element.querySelector('a[rel=prev]') as HTMLAnchorElement
+        // Convert them into buttons
+        this.nextButton.removeAttribute('href')
+        this.prevButton.removeAttribute('href')
+        this.nextButton.setAttribute('role', 'button')
+        this.prevButton.setAttribute('role', 'button')
+        this.nextButton.setAttribute('tabindex', '0')
+        this.prevButton.setAttribute('tabindex', '0')
+        // Listen to click events on the buttons
+        // Note the use of mapTo here: we don't care about the actual event,
+        // just want to emit a constant value
+        merge(
+            fromEvent(this.nextButton, 'click').pipe(mapTo('next')),
+            fromEvent(this.prevButton, 'click').pipe(mapTo('prev'))
+        ).subscribe(this.pageChanges)
     }
 
     /**
@@ -27,7 +53,6 @@ export default class PageControls {
      * needless calls and improve performance.
      */
     scroll(): void {
-        this.position = window.scrollY
         if (!this.ticking) {
             window.requestAnimationFrame(() => {
                 if (this.element.getBoundingClientRect().top == this.top && !this.stuck) {
@@ -56,5 +81,37 @@ export default class PageControls {
     unstick(): void {
         this.stuck = false
         this.element.classList.remove('stuck')
+    }
+
+    /**
+     * Sets the aria-hidden states on the next/prev page controls based on
+     * whether the user has a next or previous page available to select.
+     *
+     * @memberof PageControls
+     */
+    update = async ([currentPage, totalPages]: [number, number]): Promise<void> => {
+        // assume next and previous buttons are enabled by default
+        let nextEnabled = true,
+            previousEnabled = true;
+
+        if (currentPage == 1) { // if on first page, no previous
+            previousEnabled = false;
+        } else if (currentPage == totalPages) {  // if on last page, no next
+            nextEnabled = false;
+        }
+        // also handles single page of results, which is both 1 and last page
+
+        // hide or enable next and previous based on the determined status
+        if (nextEnabled) {
+            this.nextButton.removeAttribute('aria-hidden')
+        } else {
+            this.nextButton.setAttribute('aria-hidden', '')
+        }
+        if (previousEnabled) {
+            this.prevButton.removeAttribute('aria-hidden')
+        } else {
+            this.prevButton.setAttribute('aria-hidden', '')
+        }
+
     }
 }
