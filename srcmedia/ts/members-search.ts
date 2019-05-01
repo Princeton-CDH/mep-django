@@ -1,10 +1,10 @@
 import { merge, partition } from 'rxjs'
-import { pluck, map, withLatestFrom, startWith, distinctUntilChanged } from 'rxjs/operators'
+import { pluck, map, withLatestFrom, startWith, debounceTime, distinctUntilChanged, skip } from 'rxjs/operators'
 
-import { arraysAreEqual } from './lib/common'
+import { arraysAreEqual, animateElementContent } from './lib/common'
 import { RxTextInput, RxCheckboxInput } from './lib/input'
 import { RxOutput } from './lib/output'
-import { RxSearchForm } from './lib/form'
+import { RxFacetedSearchForm } from './lib/form'
 import { RxSelect } from './lib/select'
 import PageControls from './components/PageControls'
 
@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $membersSearchForm = document.getElementById('members-form') as HTMLFormElement
     const $keywordInput = document.querySelector('input[name=query]') as HTMLInputElement
     const $hasCardInput = document.querySelector('input[name=has_card]') as HTMLInputElement
+    const $hasCardCount = document.querySelector('input[name=has_card] + label .count') as HTMLSpanElement
     const $resultsOutput = document.querySelector('output[form=members-form]') as HTMLOutputElement
     const $totalResultsOutput = document.querySelector('output.total-results') as HTMLOutputElement
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
@@ -21,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
 
     /* COMPONENTS */
-    const membersSearchForm = new RxSearchForm($membersSearchForm)
+    const membersSearchForm = new RxFacetedSearchForm($membersSearchForm)
     const keywordInput = new RxTextInput($keywordInput)
     const hasCardInput = new RxCheckboxInput($hasCardInput)
     const resultsOutput = new RxOutput($resultsOutput)
@@ -41,19 +42,37 @@ document.addEventListener('DOMContentLoaded', () => {
     keywordOn.subscribe(() => sortSelect.value.next('name'))
     keywordOff.subscribe(() => sortSelect.value.next('relevance'))
 
+    // Count of members who have card
+    const hasCardCount = membersSearchForm.facets.pipe(
+        pluck('facet_fields'),
+        pluck('has_card'),
+        pluck('true'),
+        map(count => count.toString()),
+        startWith($hasCardCount.innerHTML), // start with current count
+        distinctUntilChanged(), // only update when changed
+        skip(1), // ignore the initial update
+    )
+    hasCardCount.subscribe(count => animateElementContent($hasCardCount, count))
+
     // When a user changes the search or sort, go back to page 1
     merge(
         keywordInput.state,
         hasCardInput.state,
         sortSelect.value,
+    ).pipe(
+        // slight debounce - otherwise we would get repeated events when e.g.
+        // the user types a keyword, which also switches the sort to relevance
+        // debounce ensures these are close enough to read as a single event
+        debounceTime(100),
     ).subscribe(() => {
+        membersSearchForm.getFacets()
         pageSelect.value.next('1')
         totalResultsOutput.update('Results are loading')
     })
 
     // When the page is changed, submit the form and apply loading styles
     pageSelect.value.subscribe(() => {
-        membersSearchForm.submit()
+        membersSearchForm.getResults()
         pageControls.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
         resultsOutput.element.setAttribute('aria-busy', '') 
     })
