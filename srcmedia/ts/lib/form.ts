@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs'
 
-import { Component, ajax } from './common'
+import { Component, ajax, acceptJson } from './common'
 
 class RxForm extends Component {
     element: HTMLFormElement
@@ -46,6 +46,7 @@ class RxSearchForm extends RxForm {
     results: Subject<string>
     totalResults: Subject<string>
     pageLabels: Subject<Array<string>>
+    facets: Subject<object>
 
     constructor(element: HTMLFormElement) {
         super(element)
@@ -59,7 +60,7 @@ class RxSearchForm extends RxForm {
      * 
      * Also updates the browser history, saving the search.
      *
-     * @returns {AsyncSubject<any>}
+     * @returns {Promise<any>}
      * @memberof PageSearchForm
      */
     submit = async (): Promise<any> => {
@@ -78,6 +79,14 @@ class RxSearchForm extends RxForm {
                 this.element.toggleAttribute('aria-busy')
                 window.history.pushState(null, document.title, `?${serialized}`)
         })
+    }
+    getResults = async (formData: string): Promise<void> => {
+        fetch(`${this.target}?${formData}`, ajax).then()
+    }
+    getFacets = async (formData: string): Promise<void> => {
+        return fetch(`${this.target}?${formData}`, acceptJson)
+            .then(res => res.json())
+            .then(facets => this.facets.next(facets))
     }
 }
 

@@ -38,6 +38,15 @@ const ajax = {
 }
 
 /**
+ * Request header used to request facets from Django.
+ */
+const acceptJson = {
+    headers: {
+        'Accept': 'application/json'
+    }
+}
+
+/**
  * Validate that every element in array a is present in array b and that
  * their lengths are the same.
  * 
@@ -64,5 +73,6 @@ export {
     Component,
     Rx,
     ajax,
+    acceptJson,
     arraysAreEqual
 }
