@@ -335,6 +335,7 @@ class TestTemplateTags(TestCase):
         assert dict_item({13: 7}, 13) is 7
 
 
+
 class TestFacetField(TestCase):
 
     def test_init(self):

@@ -26,7 +26,7 @@ class FacetChoiceField(forms.MultipleChoiceField):
         super().__init__(*args, **kwargs)
 
         if self.label:
-            self.widget.attrs['name'] = self.label
+            self.widget.attrs['name'] = self.label.lower()
 
     def valid_value(self, value: Any) -> True:
         return True

@@ -1,13 +1,13 @@
 {% with id=widget.attrs.id name=widget.attrs.name %}
     <fieldset class="facet">
-    <legend>{{ name }}</legend>
+    <legend>{{ name|title }}</legend>
     {% for group, options, index in widget.optgroups %}
         {% for option in options %}
            <input type="checkbox"
-            name="{{ name|lower }}"
             value="{{ option.value }}"
             id="{{ option.attrs.id }}"
             {% if widget.required %} required {% endif %}
+            {% if option.attrs.checked %} checked {% endif %}
             {% include "django/forms/widgets/attrs.html" %}/>
            <label for="{{ option.attrs.id }}">
                 {{ option.label }}

@@ -1,7 +1,7 @@
 from django import forms
 from django.template.loader import get_template
 
-from mep.common.forms import FacetChoiceField, FacetForm
+from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset
 from mep.people.models import Person
 
 
@@ -97,7 +97,9 @@ class MemberSearchForm(FacetForm):
         }),
         help_text='This filter will narrow results to show only members whose \
         library records are available.')
-    sex = FacetChoiceField(label='Sex')
+    sex = FacetChoiceField(label='Sex', widget=CheckboxFieldset(attrs={
+        'onchange': 'this.form.submit()'
+    }))
 
     def __init__(self, data=None, *args, **kwargs):
         '''
