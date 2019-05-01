@@ -1,11 +1,15 @@
 import datetime
+import os
 import re
+from unittest.mock import patch
 
 from django.test import TestCase
+import requests
 
 from mep.accounts.models import Borrow, Account
 from mep.books.models import Item, Publisher, PublisherPlace, Creator, \
-    CreatorType
+    CreatorType, Subject
+from mep.books.tests.test_oclc import FIXTURE_DIR
 from mep.people.models import Person
 
 
@@ -128,7 +132,6 @@ class TestPublisherPlace(TestCase):
         assert str(pub_place) == 'London'
 
 
-
 class TestCreator(TestCase):
 
     def test_str(self):
@@ -137,3 +140,44 @@ class TestCreator(TestCase):
         item = Item.objects.create(title='Ulysses')
         creator = Creator(creator_type=ctype, person=person, item=item)
         assert str(creator) == ' '.join([str(person), ctype.name, str(item)])
+
+
+class TestSubject(TestCase):
+
+    def test_str(self):
+        subject = Subject(
+            name='Mark Twain', uri='https://viaf.org/viaf/50566653',
+            rdf_type='http://schema.org/Person')
+        assert str(subject) == '%s (%s)' % (subject.name, subject.rdf_type)
+
+    @patch('mep.books.models.requests')
+    def test_create_from_uri(self, mock_requests):
+        # patch in status codes
+        mock_requests.codes = requests.codes
+        mock_response = mock_requests.get.return_value
+        # simulate success and return local fixture rdf data
+        mock_response.status_code = requests.codes.ok
+        with open(os.path.join(FIXTURE_DIR, 'viaf_97006051.rdf')) as rdf_file:
+            mock_response.content.decode.return_value = rdf_file.read()
+
+        viaf_uri = 'http://viaf.org/viaf/97006051'
+        new_subject = Subject.create_from_uri(viaf_uri)
+        # should create subject with fields populated
+        assert isinstance(new_subject, Subject)
+        assert new_subject.uri == viaf_uri
+        assert new_subject.rdf_type == 'http://schema.org/Person'
+        assert new_subject.name == 'Ernest Hemingway'
+        # should be saved
+        assert new_subject.pk
+        # viaf URI should be called with accept haeder for content-negotiation
+        mock_requests.get.assert_called_with(
+            viaf_uri, headers={'accept': 'application/rdf+xml'})
+
+        # simulate not found
+        mock_response.status_code = requests.codes.not_found
+        fast_uri = 'http://id.worldcat.org/fast/1259831/'
+        new_subject = Subject.create_from_uri(fast_uri)
+        assert not new_subject
+        # fast URI requires different http request
+        mock_requests.get.assert_called_with(
+            '%s.rdf.xml' % fast_uri.rstrip('/'), headers={})
