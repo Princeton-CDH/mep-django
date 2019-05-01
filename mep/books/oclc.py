@@ -173,6 +173,9 @@ class WorldCatEntity:
 class SRUSearch(WorldCatClientBase):
     '''Client for peforming an SRU (specific edition) based search'''
 
+    # See https://www.oclc.org/developer/develop/web-services/worldcat-search-api/bibliographic-resource.en.html
+    # for specifics on available search fields
+
     API_ENDPOINT = 'search/worldcat/sru'
 
     #: mapping of field lookup to srw field abbreviation
