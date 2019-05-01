@@ -1,3 +1,5 @@
+import { getTransitionDuration } from '../lib/common'
+
 /**
  * A main menu component that can show/hide itself relative to the document
  * body using opacity and z-index.
@@ -8,13 +10,7 @@ export default class MainMenu {
 
     constructor(element: HTMLElement) {
         this.element = element
-        // Get the transition-duration property
-        let td = window
-            .getComputedStyle(this.element)
-            .getPropertyValue('transition-duration')
-        // Convert a css value like '0.5s' or '200ms' to integer milliseconds
-        if (td) this.transitionDuration = 
-            parseFloat(td) * (/\ds$/.test(td) ? 1000 : 1)
+        this.transitionDuration = getTransitionDuration(this.element)
     }
 
     /**
