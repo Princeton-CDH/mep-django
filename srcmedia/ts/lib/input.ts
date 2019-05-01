@@ -30,9 +30,11 @@ interface RxCheckboxInputState extends RxInputState {
 abstract class RxInput extends Component implements Reactive<RxInputState> {
     element: HTMLInputElement
     state: Subject<RxInputState>
+    label: HTMLLabelElement | null
 
     constructor(element: HTMLInputElement) {
         super(element)
+        this.label = this.element.labels ? this.element.labels[0] : null
         this.state = new Subject()
         this.update = this.update.bind(this) // callers need access to `this`
     }
