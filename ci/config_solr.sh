@@ -19,6 +19,8 @@ tar xzf $file
 
 # Start the solr instance with all default settings
 echo "Starting solr..."
+# shim to find out what process is already started
+echo "$(ps aux | grep 5102)"
 bin="solr-${version}/bin/solr"
 $bin start
 if [ $? -eq 0 ];
