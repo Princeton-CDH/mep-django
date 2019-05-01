@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.views.generic.list import ListView
 
 from mep.common.admin import LocalUserAdmin
-from mep.common.forms import FacetChoiceField, FacetForm
+from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.templatetags.mep_tags import dict_item
 from mep.common.utils import absolutize_url, alpha_pagelabels
@@ -334,7 +334,50 @@ class TestTemplateTags(TestCase):
         # integer value
         assert dict_item({13: 7}, 13) is 7
 
+class TestCheckboxFieldset(TestCase):
 
+    def test_render(self):
+
+        checkbox_fieldset = CheckboxFieldset(attrs={'name': 'sex'})
+        checkbox_fieldset.optgroups = Mock()
+        # mock a substitute for the return value of optgroups
+        checkbox_fieldset.optgroups.return_value = [
+            (
+                None,
+                [
+                    {
+                            'label': 'A',
+                            # ensure that checked value is respected
+                            # id is set
+                            # and value and label are not synonymous
+                            'attrs': {'checked': True, 'id': 'id_for_0'},
+                            'value': 'a'
+                    },
+                    {
+                        'label': 'B',
+                        'attrs': {'id': 'id_for_1' },
+                        'value': 'b'
+                    }
+                ],
+                0
+            )
+        ]
+        # placeholder args, just interested in the HTML
+        out = checkbox_fieldset.render('foo', 'bar')
+        # legend should be upper-cased by default
+        expected_output = '''
+        <fieldset class="facet"> <legend>Sex</legend>
+           <input type="checkbox" value="a" id="id_for_0" checked name="sex"/>
+           <label for="id_for_0"> A </label>
+            <input type="checkbox" value="b" id="id_for_1" name="sex"/>
+           <label for="id_for_1"> B </label>
+        </fieldset>
+        '''
+        self.assertHTMLEqual(out, expected_output)
+        # if required is set, each input should have required set
+        checkbox_fieldset.attrs['required'] = True
+        out = checkbox_fieldset.render('foo', 'bar')
+        assert out.count('required') == 2
 
 class TestFacetField(TestCase):
 
