@@ -381,13 +381,13 @@ class TestFacetForm(TestCase):
 
         # no mapping but matching field should be rendered
         assert test_form.fields['member_type'].choices == [
-            ('weekly', 'weekly <span>2</span>'),
-            ('monthly', 'monthly <span>1</span>'),
+            ('weekly', '<span class="label">weekly</span> <span class="count">2</span>'),
+            ('monthly', '<span class="label">monthly</span> <span class="count">1</span>'),
         ]
         # mapping should convert solr field name to form field name
         assert test_form.fields['name'].choices == [
-            ('Jane', 'Jane <span>2</span>'),
-            ('John', 'John <span>1</span>')
+            ('Jane', '<span class="label">Jane</span> <span class="count">2</span>'),
+            ('John', '<span class="label">John</span> <span class="count">1</span>')
         ]
         # unhandled field should not be passed in
         assert 'unhanded_field' not in test_form.fields

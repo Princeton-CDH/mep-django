@@ -7,6 +7,7 @@ class CheckboxFieldset(forms.CheckboxSelectMultiple):
 
     template_name = 'common/widgets/checkbox_fieldset.html'
 
+
 class FacetChoiceField(forms.MultipleChoiceField):
     '''Add CheckboxSelectMultiple field with facets taken from solr query'''
     # Borrowed from https://github.com/Princeton-CDH/derrida-django/blob/develop/derrida/books/forms.py
@@ -47,8 +48,8 @@ class FacetForm(forms.Form):
             formfield = self.solr_facet_fields.get(facet, facet)
             if formfield in self.fields:
                 self.fields[formfield].choices = [
-                    (val, mark_safe('<span class="label">%s</span> \
-                        <span class="count">%d</span>' %
+                    (val, mark_safe('<span class="label">%s</span> '
+                                    '<span class="count">%d</span>' %
                      (val if val else 'Unknown', count)))
                      for val, count in counts.items()
                 ]
