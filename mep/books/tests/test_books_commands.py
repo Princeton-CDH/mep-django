@@ -1,4 +1,5 @@
 import codecs
+from collections import defaultdict
 import datetime
 from io import StringIO
 import os
@@ -77,19 +78,19 @@ class TestReconcileOCLC(TestCase):
         # summary output
         assert 'Processed 2 items, found matches for 1' in output
 
-        # check csvfile contents
-        csvtempfile.seek(0)
-        csv_content = csvtempfile.read().decode()
-        # csv output should have byte-order marck
-        assert csv_content.startswith(codecs.BOM_UTF8.decode())
-        # csv output should have header row
-        assert ','.join(self.cmd.csv_fieldnames) in csv_content
-        # csv output should include summary book details from db
-        assert item1.title in csv_content
-        assert str(item1.year) in csv_content
-        assert str(person) in csv_content
-        assert item2.title in csv_content
-        assert item2.notes in csv_content
+        # test running update from command line
+        with patch('mep.books.management.commands.reconcile_oclc.Command.oclc_search_record') \
+          as mock_oclc_search:
+
+            stdout = StringIO()
+            mock_oclc_search.return_value = None
+            call_command('reconcile_oclc', 'update', stdout=stdout)
+            output = stdout.getvalue()
+            print(output)
+            assert mock_oclc_search.call_count == 2
+            assert '2 items to reconcile' in output
+            # summary output for update mode
+            assert 'Processed 2 items, updated 0' in output
 
         # create enough items to trigger progressbar
         for title in range(5):
@@ -109,6 +110,82 @@ class TestReconcileOCLC(TestCase):
         call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
                      '--no-progress', stdout=stdout)
         mockprogressbar.ProgressBar.assert_not_called()
+
+
+
+    def test_report(self):
+        with patch.object(self.cmd, 'oclc_info') as mock_oclc_info:
+            mock_result_info = {
+                "# matches": 5,
+                'OCLC Title': 'Patriot Adventurer',
+                'OCLC Author': 'Denis Ireland',
+                'OCLC Date': 1936,
+                'OCLC URI': 'http://worldcat.org/entity/work/id/49679151',
+                'Work URI': 'http://www.worldcat.org/oclc/65986486'
+                }
+            mock_oclc_info.side_effect = mock_result_info, {'# matches': 0}
+
+            # create items to be processed
+            item1 = Item.objects.create(title="Patriotic Adventurer", year=1936)
+            # with one author to sanity-check included in output
+            ctype = CreatorType.objects.get(name='Author')
+            person = Person.objects.create(sort_name='Ireland, Denis')
+            Creator.objects.create(creator_type=ctype, person=person, item=item1)
+            item2 = Item.objects.create(title="Crowded House", notes="Variant title")
+
+            csvtempfile = NamedTemporaryFile(suffix='csv')
+            self.cmd.report([item1, item2], csvtempfile.name)
+
+       # check csvfile contents
+        csvtempfile.seek(0)
+        csv_content = csvtempfile.read().decode()
+        # csv output should have byte-order marck
+        assert csv_content.startswith(codecs.BOM_UTF8.decode())
+        # csv output should have header row
+        assert ','.join(self.cmd.csv_fieldnames) in csv_content
+        # csv output should include summary book details from db
+        assert item1.title in csv_content
+        assert str(item1.year) in csv_content
+        assert str(person) in csv_content
+        assert item2.title in csv_content
+        assert item2.notes in csv_content
+        # oclc results should all be present (str to accommodate int match count)
+        for value in mock_result_info.values():
+            assert str(value) in csv_content
+
+        assert self.cmd.stats['count'] == 2
+        assert self.cmd.stats['found'] == 1
+
+    def test_update_items(self):
+        item1 = Item.objects.create(title="Time + Tide")
+        with patch.object(self.cmd, 'oclc_search_record') as mock_oclc_search:
+            # use a mock for the world cat entity
+            worldcat_entity = Mock(
+                work_uri='http://worldcat.org/entity/work/id/3372107206',
+                item_uri='http://www.worldcat.org/oclc/3484871',
+                genre='Periodicals',
+                item_type='http://schema.org/Periodical',
+                subjects=[]
+            )
+            mock_oclc_search.return_value = worldcat_entity
+            self.cmd.update_items([item1])
+
+            # confirm that item was saved with changes
+            item = Item.objects.get(pk=item1.pk)
+            assert item.genre
+            assert item.uri
+
+            assert self.cmd.stats['count'] == 1
+            assert self.cmd.stats['updated'] == 1
+
+            # simulate failure on search
+            mock_oclc_search.return_value = None
+            # reset stats
+            self.cmd.stats = defaultdict(int)
+            self.cmd.update_items([item1])
+            assert self.cmd.stats['count'] == 1
+            assert self.cmd.stats['updated'] == 0
+
 
     def test_oclc_search(self):
         mock_sru_search = Mock()
@@ -131,11 +208,11 @@ class TestReconcileOCLC(TestCase):
             title__exact=item.title, author__all=str(person),
             year=item.year)
 
-# search does not include missing fields
+        # search does not include missing fields
         # - delete all but title, no events for first known interaction
         creator.delete()
         item.year = None
-        oclc_info = self.cmd.oclc_search(item)
+        self.cmd.oclc_search(item)
         # should search on title only
         mock_sru_search.search.assert_called_with(title__exact=item.title)
 
@@ -191,3 +268,16 @@ class TestReconcileOCLC(TestCase):
         # should report 0 matches and nothing else
         assert oclc_info['# matches'] == 0
         assert len(oclc_info) == 1
+
+    def test_tick(self):
+        # tick with no progressbar
+        self.cmd.tick()
+        assert self.cmd.stats['count'] == 1
+        assert not self.cmd.progbar
+
+        # with progress bar
+        self.cmd.progbar = Mock()
+        self.cmd.tick()
+        assert self.cmd.stats['count'] == 2
+        self.cmd.progbar.update.assert_called_with(2)
+

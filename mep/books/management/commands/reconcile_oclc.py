@@ -1,4 +1,5 @@
 import codecs
+from collections import defaultdict
 import csv
 from typing import Dict
 
@@ -26,6 +27,19 @@ class Command(BaseCommand):
         'Work URI', '# matches',
         # db notes last
         'Notes']
+
+    #: summary message string for each mode
+    summary_message = {
+        'report': 'Processed %(count)d items, found matches for %(found)d',
+        'update': 'Processed %(count)d items, updated %(updated)d',
+    }
+
+    stats = None
+    progbar = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.stats = defaultdict(int)
 
     def add_arguments(self, parser):
         parser.add_argument('mode', choices=['report', 'update'])
@@ -61,54 +75,63 @@ class Command(BaseCommand):
         if not total:
             return
 
-        progbar = None
         if not kwargs['no_progress'] and total > 5:
-            progbar = progressbar.ProgressBar(redirect_stdout=True,
-                                              max_value=total)
-        count = found = 0
-
-        # use output name specified in args, with a default fallback
-        outfilename = kwargs.get('output', None) or 'items-oclc.csv'
-
-        if self.mode == 'report':  # move into a function?
-            with open(outfilename, 'w') as csvfile:
-                # write utf-8 byte order mark at the beginning of the file
-                csvfile.write(codecs.BOM_UTF8.decode())
-
-                writer = csv.DictWriter(csvfile, fieldnames=self.csv_fieldnames)
-                writer.writeheader()
-
-                for item in items:
-                    info = {
-                        'Title': item.title,
-                        'Date': item.year,
-                        'Creators': ';'.join([str(person) for person in item.creators.all()]),
-                        'Notes': item.notes
-                    }
-                    info.update(self.oclc_info(item))
-                    writer.writerow(info)
-                    # keep track of how many records found any matches
-                    if info.get('# matches', None):
-                        found += 1
-
-                    count += 1
-                    if progbar:
-                        progbar.update(count)
-
+            self.progbar = progressbar.ProgressBar(redirect_stdout=True,
+                                                   max_value=total)
+        if self.mode == 'report':
+            # use output name specified in args, with a default fallback
+            outfilename = kwargs.get('output', None) or 'items-oclc.csv'
+            self.report(items, outfilename)
         elif self.mode == 'update':
+            self.update_items(items)
+
+        if self.progbar:
+            self.progbar.finish()
+
+        # summarize what was done for the current mode
+        self.stdout.write(self.summary_message[self.mode] % self.stats)
+
+    def tick(self):
+        '''Increase count by one and update progress bar if there is one'''
+        self.stats['count'] += 1
+        if self.progbar:
+            self.progbar.update(self.stats['count'])
+
+    def report(self, items, outfilename):
+        '''Generate an CSV file to report on OCLC matches found'''
+        with open(outfilename, 'w') as csvfile:
+            # write utf-8 byte order mark at the beginning of the file
+            csvfile.write(codecs.BOM_UTF8.decode())
+            # initialize csv writer
+            writer = csv.DictWriter(csvfile, fieldnames=self.csv_fieldnames)
+            writer.writeheader()
+
             for item in items:
-                worldcat_entity = self.oclc_search_record(item)
-                if worldcat_entity:
-                    item.uri = worldcat_entity.work_uri
-                    item.edition_uri = worldcat_entity.item_uri
+                info = {
+                    'Title': item.title,
+                    'Date': item.year,
+                    'Creators': ';'.join([str(person) for person in item.creators.all()]),
+                    'Notes': item.notes
+                }
+                info.update(self.oclc_info(item))
+                writer.writerow(info)
+                # keep track of how many records found any matches
+                if info.get('# matches', None):
+                    self.stats['found'] += 1
 
-        if progbar:
-            progbar.finish()
+                self.tick()
 
-        # summarize what was done
-        # possibly mode-specific?
-        self.stdout.write('Processed %d items, found matches for %d' %
-                          (count, found))
+    def update_items(self, items):
+        '''Search for Items in OCLC and update in the database if
+        a match is found.'''
+        for item in items:
+            worldcat_entity = self.oclc_search_record(item)
+            if worldcat_entity:
+                item.populate_from_worldcat(worldcat_entity)
+                item.save()
+                self.stats['updated'] += 1
+
+            self.tick()
 
     def oclc_search(self, item: Item) -> SRWResponse:
         """Search for an item in OCLC by title, author, date, and
