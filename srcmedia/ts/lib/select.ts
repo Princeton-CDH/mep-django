@@ -19,11 +19,13 @@ class RxSelect extends Component {
     element: HTMLSelectElement
     value: Subject<string>
     options: Subject<Array<RxOption>>
+    disabled: Subject<boolean>
 
     constructor (element: HTMLSelectElement) {
         super(element)
         this.value = new Subject()
         this.options = new Subject()
+        this.disabled = new Subject()
         // Update value when the user selects a new value
         fromEvent(this.element, 'input').pipe(
             map(() => this.element.value),
@@ -32,6 +34,8 @@ class RxSelect extends Component {
         this.value.subscribe(value => this.element.value = value)
         // Re-render options when options are updated
         this.options.subscribe(this.render)
+        // Set the 'disabled' attribute when changed
+        this.disabled.subscribe(disabled => this.element.disabled = disabled)
     }
 
     /**
