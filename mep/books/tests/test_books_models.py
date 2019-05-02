@@ -271,6 +271,26 @@ class TestSubject(TestCase):
         # doesn't error but doesn't return anything
         assert not Subject.create_from_uri(viaf_uri)
 
+        # test LoC url with json-ld response
+        with open(os.path.join(FIXTURE_DIR, 'loc_sh2008113651.jsonld')) as jsonld_file:
+            mock_response.content.decode.return_value = jsonld_file.read()
+            mock_response.headers = {'content-type': 'application/ld+json'}
+            loc_uri = 'http://id.loc.gov/authorities/subjects/sh2008113651'
+            new_subject = Subject.create_from_uri(loc_uri)
+            assert isinstance(new_subject, Subject)
+            assert new_subject.uri == loc_uri
+            # order is not guaranteed so we get *one* of these
+            # (but I don't think we care)
+            assert new_subject.rdf_type in [
+                'http://www.w3.org/2004/02/skos/core#Concept',
+                'http://www.loc.gov/mads/rdf/v1#ComplexSubject'
+            ]
+            assert new_subject.name == 'Women--Economic conditions'
+
+            # explicitly requests jsonld version for LoC url
+            mock_requests.get.assert_called_with('%s.jsonld' % loc_uri,
+                                                 headers={})
+
         # simulate not found
         mock_response.status_code = requests.codes.not_found
         fast_uri = 'http://id.worldcat.org/fast/1259831/'
