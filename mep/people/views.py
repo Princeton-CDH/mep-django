@@ -54,10 +54,12 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         kwargs['data'] = form_data
         return kwargs
 
+
     def get_form(self, *args, **kwargs):
         # initialize the form, caching on current instance
         if not self._form:
             self._form = super().get_form(*args, **kwargs)
+        # Get facets from solr return
         return self._form
 
     #: name query alias field syntax (type defaults to edismax in solr config)
@@ -70,7 +72,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
     }
 
     def get_queryset(self):
-        sqs = PersonSolrQuerySet().facet('has_card')
+        sqs = PersonSolrQuerySet().facet_field('has_card')\
+                                  .facet_field('sex', missing=True, exclude='sex')
 
         # when form is valid, check for search term and filter queryset
         form = self.get_form()
@@ -84,14 +87,19 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
 
             if search_opts['has_card']:
                 sqs = sqs.filter(has_card=search_opts['has_card'])
-
+            if search_opts['sex']:
+                sqs = sqs.filter(sex__in=search_opts['sex'], tag='sex')
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
             # TODO: what happens if form is invalid?
             # (currently should not be possible, but eventually will)
-
         self.queryset = sqs
         return sqs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        self._form.set_choices_from_facets(self.object_list.get_facets()['facet_fields'])
+        return context
 
     def get_page_labels(self, paginator):
         '''generate labels for pagination'''
