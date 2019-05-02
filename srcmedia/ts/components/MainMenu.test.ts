@@ -76,7 +76,7 @@ it('hides itself when hide() is called', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     const mm = new MainMenu(element)
-    return mm.show(event).then(() => {
+    return mm.hide(event).then(() => {
         expect(element.style.zIndex).toBe('-100')
         expect(element.style.opacity).toBe('0')
         expect(element.style.pointerEvents).toBe('none')
@@ -87,7 +87,7 @@ it('allows scrolling when closed', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     const mm = new MainMenu(element)
-    return mm.show(event).then(() => {
+    return mm.hide(event).then(() => {
         expect(document.body.style.overflowY).not.toBe('hidden')
     })
 })
