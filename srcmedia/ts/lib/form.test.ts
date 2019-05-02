@@ -80,32 +80,30 @@ describe('RxSearchForm', () => {
         expect(rsf.pageLabels).toBeInstanceOf(Subject)
     })
     
-    it('makes an async GET request to its endpoint on submission', done => {
+    it('makes an async GET request to its endpoint on submission', () => {
         window.history.pushState({}, 'form', '/form') // to form a full request path
         const $form = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($form)
         const response = new Response(new Blob(['results!'], { type: 'text/plain' })) // a mock GET response
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
-        rsf.submit().then(() => { // check that we requested the right path, using the right header
+        return rsf.submit().then(() => { // check that we requested the right path, using the right header
             expect(window.fetch).toHaveBeenCalledWith('/form?query=mysearch', ajax)
-            done()
         })
     })
     
-    it('updates the results when it receives results', done => {
+    it('updates the results when it receives results', () => {
         const $form = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($form)
         const response = new Response(new Blob(['results!'], { type: 'text/plain' }))
         const watcher = jest.fn()
         rsf.results.subscribe(watcher)
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
-        rsf.submit().then(() => { // check that we pushed the new results onto state
+        return rsf.submit().then(() => { // check that we pushed the new results onto state
             expect(watcher).toHaveBeenCalledWith('results!')
-            done()
         })
     })
 
-    it('updates the total results when it receives the correct header', done => {
+    it('updates the total results when it receives the correct header', () => {
         const $form = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($form)
         const response = new Response(
@@ -115,13 +113,12 @@ describe('RxSearchForm', () => {
         const watcher = jest.fn()
         rsf.totalResults.subscribe(watcher)
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
-        rsf.submit().then(() => {
+        return rsf.submit().then(() => {
             expect(watcher).toHaveBeenCalledWith('50')
-            done()
         }) 
     })
 
-    it('parses and updates the page labels when it receives the correct header', done => {
+    it('parses and updates the page labels when it receives the correct header', () => {
         const $form = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($form)
         const response = new Response(
@@ -131,21 +128,19 @@ describe('RxSearchForm', () => {
         const watcher = jest.fn()
         rsf.pageLabels.subscribe(watcher)
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
-        rsf.submit().then(() => {
+        return rsf.submit().then(() => {
             expect(watcher).toHaveBeenCalledWith(['page one', 'page two', 'page three'])
-            done()
         }) 
     })
     
-    it('updates the URL/browser history on submission', done => {
+    it('updates the URL/browser history on submission', () => {
         const $form = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($form)
         const response = new Response(new Blob(['results!'], { type: 'text/plain' }))
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
-        rsf.submit().then(() => {
+        return rsf.submit().then(() => {
             expect(window.location.search).toBe('?query=mysearch') // querystring was changed
             expect(window.history.length).toBeGreaterThan(1) // we added entries to browser history
-            done()
         })
     })
 

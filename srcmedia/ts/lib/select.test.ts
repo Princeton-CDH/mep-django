@@ -23,12 +23,13 @@ it('stores options as an observable sequence', () => {
     expect(rs.options).toBeInstanceOf(Subject)
 })
 
-it('updates its value when the user chooses an option', () => {
+it('updates its value when the user chooses an option', done => {
     const element = document.querySelector('select') as HTMLSelectElement
     const option = document.querySelector('option[value=apple]') as HTMLOptionElement
     const rs = new RxSelect(element)
     rs.value.subscribe(value => {
         expect(value).toEqual('apple') // state was updated
+        done()
     })
     option.selected = true // manually select a new <option>
     element.dispatchEvent(new Event('input')) // fake an input event

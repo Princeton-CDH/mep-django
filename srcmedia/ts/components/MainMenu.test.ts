@@ -36,7 +36,9 @@ test('prevents default link click event when shown', () => {
     let mockPreventDefault = jest.fn()
     event.preventDefault = mockPreventDefault
     const mm = new MainMenu(element)
-    mm.show(event).then(() => expect(mockPreventDefault.mock.calls.length).toBe(1))
+    return mm.show(event).then(() => {
+        expect(mockPreventDefault.mock.calls.length).toBe(1)
+    })
 })
 
 test('prevents default link click event when hidden', () => {
@@ -45,14 +47,16 @@ test('prevents default link click event when hidden', () => {
     let mockPreventDefault = jest.fn()
     event.preventDefault = mockPreventDefault
     const mm = new MainMenu(element)
-    mm.hide(event).then(() => expect(mockPreventDefault.mock.calls.length).toBe(1))
+    return mm.hide(event).then(() => {
+        expect(mockPreventDefault.mock.calls.length).toBe(1)
+    })
 })
 
 test('shows itself when show() is called', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     const mm = new MainMenu(element)
-    mm.show(event).then(() => {
+    return mm.show(event).then(() => {
         expect(element.style.zIndex).toBe('100')
         expect(element.style.opacity).toBe('1')
         expect(element.style.pointerEvents).toBe('all')
@@ -63,7 +67,7 @@ test('prevents scrolling when open', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     const mm = new MainMenu(element)
-    mm.show(event).then(() => {
+    return mm.show(event).then(() => {
         expect(document.body.style.overflowY).toBe('hidden')
     })
 })
@@ -72,7 +76,7 @@ test('hides itself when hide() is called', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     const mm = new MainMenu(element)
-    mm.show(event).then(() => {
+    return mm.show(event).then(() => {
         expect(element.style.zIndex).toBe('-100')
         expect(element.style.opacity).toBe('0')
         expect(element.style.pointerEvents).toBe('none')
@@ -83,7 +87,7 @@ test('allows scrolling when closed', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     const mm = new MainMenu(element)
-    mm.show(event).then(() => {
+    return mm.show(event).then(() => {
         expect(document.body.style.overflowY).not.toBe('hidden')
     })
 })

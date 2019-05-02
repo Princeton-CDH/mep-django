@@ -19,7 +19,7 @@ describe('RxInput', () => {
         class RxFooInput extends RxInput { }
         const element = document.querySelector('input[type=text]') as HTMLInputElement
         const rfi = new RxFooInput(element)
-        rfi.update({ value: 'sesame' }).then(() => {
+        return rfi.update({ value: 'sesame' }).then(() => {
             expect(element.value).toBe('sesame')
         })
     })
