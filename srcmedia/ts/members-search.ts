@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     )
     const totalResults$ = membersSearchForm.totalResults.pipe(
         map(t => parseInt(t)),
-        distinctUntilChanged()
     )
     const totalPages$ = membersSearchForm.pageLabels.pipe(
         map(l => l.length), // number of page labels tells us the number of pages
@@ -84,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sortSelect.value
     )
     const totalResultsText$ = merge(
-        totalResults$.pipe(map(t => `${t} total results`)), // when there are results, say how many 
+        totalResults$.pipe(map(t => `${t.toLocaleString()} total results`)), // when there are results, say how many, with a comma 
         reloadResults$.pipe(mapTo('Results are loading')) // when loading, replace with this text
     )
     const sort$ = noKeyword$.pipe( // 'name' if no keyword, 'relevance' otherwise
