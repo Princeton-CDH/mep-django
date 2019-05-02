@@ -20,3 +20,5 @@ parasolr>=0.3
 django-widget-tweaks
 pymarc
 progressbar2
+rdflib
+rdflib-jsonld

@@ -125,8 +125,6 @@ class TestItem(TestCase):
         # no subjects on the eentity
         assert not item.subjects.all()
 
-        # TODO: create subject on demand to test create from uri,
-        # then call again with them existing to test using existing subjects
         worldcat_entity.subjects = [
             'http://viaf.org/viaf/97006051',
             'http://id.worldcat.org/fast/1259831/'
@@ -161,6 +159,33 @@ class TestItem(TestCase):
         del worldcat_entity.subjects[-1]
         item.populate_from_worldcat(worldcat_entity)
         assert item.subjects.count() == 1
+
+        # simulate error creating subject
+        worldcat_entity.subjects = [
+            'http://example.com/about/me',
+        ]
+        mock_create_from_uri.side_effect = requests.exceptions.HTTPError
+        # shouldn't error
+        item.populate_from_worldcat(worldcat_entity)
+        mock_create_from_uri.assert_called_with(worldcat_entity.subjects[0])
+        # should set to subjects it could find/create (in this case, none)
+        assert not item.subjects.count()
+
+    def test_subject_list(self):
+        # no subjects
+        item = Item.objects.create(title='Topicless')
+        assert item.subject_list() == ''
+
+        subj1 = Subject.objects.create(
+            uri='http://viaf.org/viaf/97006051', name='Ernest Hemingway',
+            rdf_type='http://schema.org/Person')
+        subj2 = Subject.objects.create(
+            uri='http://id.worldcat.org/fast/1259831/',
+            name='Lorton, Virginia', rdf_type='http://schema.org/Place')
+        item.subjects.add(subj1)
+        item.subjects.add(subj2)
+        assert item.subject_list() == '%s; %s' % (subj1.name, subj2.name)
+
 
 class TestPublisher(TestCase):
 
@@ -198,11 +223,18 @@ class TestCreator(TestCase):
 
 class TestSubject(TestCase):
 
-    def test_str(self):
-        subject = Subject(
+    def get_test_subject(self):
+        return Subject(
             name='Mark Twain', uri='https://viaf.org/viaf/50566653',
             rdf_type='http://schema.org/Person')
-        assert str(subject) == '%s (%s)' % (subject.name, subject.rdf_type)
+
+    def test_str(self):
+        subject = self.get_test_subject()
+        assert str(subject) == '%s (%s)' % (subject.name, subject.uri)
+
+    def test_repr(self):
+        subject = self.get_test_subject()
+        assert repr(subject) == '<Subject %s (%s)>' % (subject.uri, subject.name)
 
     @patch('mep.books.models.requests')
     def test_create_from_uri(self, mock_requests):
@@ -213,6 +245,8 @@ class TestSubject(TestCase):
         mock_response.status_code = requests.codes.ok
         with open(os.path.join(FIXTURE_DIR, 'viaf_97006051.rdf')) as rdf_file:
             mock_response.content.decode.return_value = rdf_file.read()
+            # needs to be not text/html
+            mock_response.headers = {'content-type': 'application/rdf+xml'}
 
         viaf_uri = 'http://viaf.org/viaf/97006051'
         new_subject = Subject.create_from_uri(viaf_uri)
@@ -226,6 +260,16 @@ class TestSubject(TestCase):
         # viaf URI should be called with accept haeder for content-negotiation
         mock_requests.get.assert_called_with(
             viaf_uri, headers={'accept': 'application/rdf+xml'})
+
+        # simulate no label
+        mock_response.content.decode.return_value = '''<rdf:RDF
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" />'''
+        assert not Subject.create_from_uri(viaf_uri)
+
+        # simulate success but html
+        mock_response.headers = {'content-type': 'text/html; charset=UTF-8'}
+        # doesn't error but doesn't return anything
+        assert not Subject.create_from_uri(viaf_uri)
 
         # simulate not found
         mock_response.status_code = requests.codes.not_found

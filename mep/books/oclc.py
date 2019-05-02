@@ -142,7 +142,8 @@ class WorldCatEntity:
     @property
     def work_uri(self) -> str:
         '''OCLC Work URI for this item'''
-        return str(self.rdf_resource.value(SCHEMA_ORG.exampleOfWork))
+        value = self.rdf_resource.value(SCHEMA_ORG.exampleOfWork)
+        return str(value) if value else None
 
     @property
     def item_type(self) -> str:
@@ -165,9 +166,11 @@ class WorldCatEntity:
     @property
     def subjects(self):
         '''URIs that this item is about, from schema.org/about; omits
-        experimental worldcat URIs.'''
+        experimental worldcat URIs, dewey.info URIs .'''
+        # dewey.info URL not resolving...
         return [str(subject) for subject in self.rdf_resource.objects(SCHEMA_ORG.about)
-                if 'experiment.worldcat.org' not in str(subject)]
+                if 'experiment.worldcat.org' not in str(subject) and
+                'dewey.info' not in str(subject)]
 
 
 class SRUSearch(WorldCatClientBase):

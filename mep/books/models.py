@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django.db import models
 from django.urls import reverse
@@ -10,6 +11,9 @@ from mep.common.models import Named, Notable
 from mep.common.validators import verify_latlon
 from mep.books.oclc import WorldCatEntity
 from mep.people.models import Person
+
+
+logger = logging.getLogger(__name__)
 
 
 class PublisherPlace(Named, Notable):
@@ -33,17 +37,23 @@ class PublisherPlace(Named, Notable):
 
 class Publisher(Named, Notable):
     '''Model for publishers'''
-    pass
 
 
-class Subject(Named):
+class Subject(models.Model):
     '''Linked data subjects for describing :class:`Item`'''
-    uri = models.URLField(help_text="Subject URI", unique=True)
-    rdf_type = models.URLField()
+
+    #: name/label for the subject (required but not required unique)
+    name = models.CharField(max_length=255)
+    #: linked data URI for the subject
+    uri = models.URLField("URI", help_text="Subject URI", unique=True)
+    #: rdf type for the subject
+    rdf_type = models.URLField("RDF Type")
 
     def __str__(self):
-        # could maybe strip schema.org from rdf type for display here
-        return '%s (%s)' % (self.name, self.rdf_type)
+        return '%s (%s)' % (self.name, self.uri)
+
+    def __repr__(self):
+        return '<Subject %s (%s)>' % (self.uri, self.name)
 
     @classmethod
     def create_from_uri(cls, uri: str) -> 'Subject':
@@ -62,11 +72,26 @@ class Subject(Named):
         request_headers = {}
         if uri.startswith('http://id.worldcat.org/fast/'):
             request_uri = '%s.rdf.xml' % request_uri.rstrip('/')
+        elif uri.startswith('http://id.loc.gov/authorities/'):
+            # at least one LOC url is redirecting alternately
+            # to an HTML version and json-ld, so explicitly request json-ld
+            request_uri = '%s.jsonld' % request_uri
         else:
             request_headers = {'accept': 'application/rdf+xml'}
         response = requests.get(request_uri, headers=request_headers)
-        if response.status_code == requests.codes.ok:
-            graph.parse(data=response.content.decode())
+
+        # exclude html responses, since they can't be parsed
+        # (some LOC json requests are redirecting to html)
+        # Possibly useful? LoC responses include a X-PrefLabel header,
+        # could just use that (and make type optional)
+        if response.status_code == requests.codes.ok and \
+          not response.headers['content-type'].startswith('text/html'):
+            parse_opts = {}
+            # some results return json-ld, and rdflib does not autodetect
+            if response.headers['content-type'] == 'application/ld+json':
+                parse_opts['format'] = 'json-ld'
+
+            graph.parse(data=response.content.decode(), **parse_opts)
 
             label_opts = {}
             # viaf records include multiple languages and some records
@@ -77,7 +102,9 @@ class Subject(Named):
             # if no labels were found with language tag, try without
             if not labels:
                 labels = graph.preferredLabel(uriref)
-
+            # if still no labels, bail out
+            if not labels:
+                return
             # preferred label returns a list of predicate, object
             # use the object for the first result
             name = str(labels[0][1])
@@ -160,7 +187,7 @@ class Item(Notable, Indexable):
         return self.creator_by_type('Author')
 
     def author_list(self):
-        '''comma separated list of author names'''
+        '''semicolonseparated list of author names'''
         return '; '.join([str(auth) for auth in self.authors])
     author_list.verbose_name = 'Authors'
 
@@ -183,6 +210,10 @@ class Item(Notable, Indexable):
         '''URL to edit this record in the admin site'''
         return reverse('admin:books_item_change', args=[self.id])
     admin_url.verbose_name = 'Admin Link'
+
+    def subject_list(self):
+        '''semicolon separated list of subject names'''
+        return '; '.join([subj.name for subj in self.subjects.all()])
 
     def index_data(self):
         '''data for indexing in Solr'''
@@ -232,7 +263,16 @@ class Item(Notable, Indexable):
             new_subject_uris = set(subject_uris) - \
                                set(subj.uri for subj in subjects)
             for subject_uri in new_subject_uris:
-                subjects.append(Subject.create_from_uri(subject_uri))
+                try:
+                    subject = Subject.create_from_uri(subject_uri)
+                    # could return None if there was no html error
+                    # but we got html
+                    if subject:
+                        subjects.append(subject)
+                except requests.exceptions.HTTPError as err:
+                    # warn if we get a 404
+                    logger.warning('Error creating Subject for %s (%s)',
+                                   subject_uri, err)
             # set subjects on this item (replacing any previously set)
             self.subjects.set(subjects)
 

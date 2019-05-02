@@ -262,6 +262,9 @@ class TestWorldCatEntity:
     def test_work_uri(self):
         wc_entity = self.worldcat_entity_from_fixture()
         assert wc_entity.work_uri == 'http://worldcat.org/entity/work/id/5090374654'
+        # handle missing work uri
+        wc_entity.rdf_resource._graph = rdflib.Graph()
+        assert wc_entity.work_uri is None
 
     def test_item_type(self):
         wc_entity = self.worldcat_entity_from_fixture()
