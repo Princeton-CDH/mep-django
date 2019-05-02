@@ -8,14 +8,14 @@ describe('RxInput', () => {
         document.body.innerHTML = `<input type="text">`
     })
 
-    test('stores state as an observable sequence', () => {
+    it('stores state as an observable sequence', () => {
         class RxFooInput extends RxInput { } // create a fake subclass
         const element = document.querySelector('input[type=text]') as HTMLInputElement
         const rfi = new RxFooInput(element)
         expect(rfi.state).toBeInstanceOf(Subject)
     })
 
-    test('can update its value', () => {
+    it('can update its value', () => {
         class RxFooInput extends RxInput { }
         const element = document.querySelector('input[type=text]') as HTMLInputElement
         const rfi = new RxFooInput(element)
@@ -32,7 +32,7 @@ describe('RxTextInput', () => {
         document.body.innerHTML = `<input type="text">`
     })
 
-    test('updates when the user types into it', done => {
+    it('updates when the user types into it', done => {
         const element = document.querySelector('input[type=text]') as HTMLInputElement
         const rti = new RxTextInput(element)
         rti.state.subscribe(state => { // set up so that test completes once state is updated
@@ -44,7 +44,7 @@ describe('RxTextInput', () => {
         element.dispatchEvent(new Event('input')) // fake an input event as though the user typed
     })
 
-    test('debounces rapid changes when the user is typing', done => {
+    it('debounces rapid changes when the user is typing', done => {
         const element = document.querySelector('input[type=text]') as HTMLInputElement
         const rti = new RxTextInput(element)
         const watcher = jest.fn()
@@ -70,7 +70,7 @@ describe('RxCheckboxInput', () => {
         document.body.innerHTML = `<input type="checkbox">`
     })
 
-    test('updates when the user toggles it', done => {
+    it('updates when the user toggles it', done => {
         const element = document.querySelector('input[type=checkbox]') as HTMLInputElement
         const rci = new RxCheckboxInput(element)
         rci.state.subscribe(state => {

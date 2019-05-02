@@ -4,33 +4,33 @@ beforeEach(() => {
     document.body.innerHTML = `<ul id="main-menu"></ul>`
 })
 
-test('keeps a reference to its element', () => {
+it('keeps a reference to its element', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     const mm = new MainMenu(element)
     expect(mm.element).toBe(element)
 })
 
-test('uses a transition duration of zero if none is provided', () => {
+it('uses a transition duration of zero if none is provided', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     const mm = new MainMenu(element)
     expect(mm.transitionDuration).toBe(0)
 })
 
-test('parses and stores a css transition-duration in ms units', () => {
+it('parses and stores a css transition-duration in ms units', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     element.style.transitionDuration = '500ms'
     const mm = new MainMenu(element)
     expect(mm.transitionDuration).toBe(500)
 })
 
-test('parses and stores a css transition-duration in s units', () => {
+it('parses and stores a css transition-duration in s units', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     element.style.transitionDuration = '1s'
     const mm = new MainMenu(element)
     expect(mm.transitionDuration).toBe(1000)
 })
 
-test('prevents default link click event when shown', () => {
+it('prevents default link click event when shown', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     let mockPreventDefault = jest.fn()
@@ -41,7 +41,7 @@ test('prevents default link click event when shown', () => {
     })
 })
 
-test('prevents default link click event when hidden', () => {
+it('prevents default link click event when hidden', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     let mockPreventDefault = jest.fn()
@@ -52,7 +52,7 @@ test('prevents default link click event when hidden', () => {
     })
 })
 
-test('shows itself when show() is called', () => {
+it('shows itself when show() is called', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     const mm = new MainMenu(element)
@@ -63,7 +63,7 @@ test('shows itself when show() is called', () => {
     })
 })
 
-test('prevents scrolling when open', () => {
+it('prevents scrolling when open', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     const mm = new MainMenu(element)
@@ -72,7 +72,7 @@ test('prevents scrolling when open', () => {
     })
 })
 
-test('hides itself when hide() is called', () => {
+it('hides itself when hide() is called', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     const mm = new MainMenu(element)
@@ -83,7 +83,7 @@ test('hides itself when hide() is called', () => {
     })
 })
 
-test('allows scrolling when closed', () => {
+it('allows scrolling when closed', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')
     const mm = new MainMenu(element)

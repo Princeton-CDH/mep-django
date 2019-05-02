@@ -6,13 +6,13 @@ beforeEach(() => {
     document.body.innerHTML = `<output></output>`
 })
 
-test('stores state as an observable sequence', () => {
+it('stores state as an observable sequence', () => {
     const element = document.querySelector('output') as HTMLOutputElement
     const ro = new RxOutput(element)
     expect(ro.state).toBeInstanceOf(Subject)
 })
 
-test('injects content directly into itself on update', done => {
+it('injects content directly into itself on update', done => {
     const results = `<div class="results"></div>`
     const element = document.querySelector('output') as HTMLOutputElement
     const ro = new RxOutput(element)
