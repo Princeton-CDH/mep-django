@@ -112,8 +112,8 @@ class RxSearchForm extends RxForm {
      * @memberof RxSearchForm
      */
     protected updateTotalResults = async (res: Response): Promise<Response> => {
-        const totalResults = res.headers.get(this.TOTAL_RESULTS_HEADER)
-        if (totalResults) this.totalResults.next(totalResults)
+        const totalResults = res.headers.get(this.TOTAL_RESULTS_HEADER) || '0'
+        this.totalResults.next(totalResults)
         return res
     }
     /**
@@ -124,10 +124,8 @@ class RxSearchForm extends RxForm {
      * @memberof RxSearchForm
      */
     protected updatePageLabels = async (res: Response): Promise<Response> => {
-        const pageLabels = res.headers.get(this.PAGE_LABELS_HEADER)
-        if (pageLabels) this.pageLabels.next(
-            pageLabels.split(this.PAGE_LABELS_SEPARATOR)
-        )
+        const pageLabels = res.headers.get(this.PAGE_LABELS_HEADER) || ''
+        this.pageLabels.next(pageLabels.split(this.PAGE_LABELS_SEPARATOR))
         return res
     }
     /**

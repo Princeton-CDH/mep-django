@@ -17,7 +17,7 @@
     <form id="members-form">
         {% render_field form.query %}
         <label for="{{ form.query.id_for_label }}"></label>
-        <fieldset>
+        <fieldset class="group">
             <legend>Filter by:</legend>
             <div class="inner">
                 {% render_field form.has_card class+="sr-only" tabindex=0 %}
@@ -27,6 +27,7 @@
                     <span id="{{ form.has_card.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip"
                         aria-label="{{ form.has_card.help_text }}" tabindex=0 />
                 </label>
+            {% render_field form.sex %}
             </div>
         </fieldset>
         <output class="total-results" id="total">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>

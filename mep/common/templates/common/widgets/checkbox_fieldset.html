@@ -1,0 +1,19 @@
+{% comment %}
+    This template is used with the CheckboxFielset widgets to render a facet and
+    it's various options.
+
+    It is never called externally, but instead maps widget attrs for the legend
+    for the fieldset and name for each checkbox input.
+{% endcomment%}
+{% with id=widget.attrs.id legend=widget.attrs.legend %}
+    <fieldset class="facet">
+    <legend>{{ legend }}</legend>
+    {% for group, options, index in widget.optgroups %}
+        {% for option in options %}
+           {# includes a revised version of Django's attr snippet to remove legend #}
+           <input type="checkbox" value="{{ option.value }}" id="{{ option.attrs.id }}" {% if widget.required %} required {% endif %} {% if option.attrs.checked %} checked {% endif %} {% for name, value in widget.attrs.items %}{% if value is not False and name != 'legend' %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}{% endfor %} />
+           <label for="{{ option.attrs.id }}"> {{ option.label }} </label>
+        {% endfor %}
+    {% endfor %}
+     </fieldset>
+{% endwith %}

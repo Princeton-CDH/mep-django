@@ -2,7 +2,7 @@ import json
 from datetime import date
 import time
 from types import LambdaType
-from unittest.mock import patch, Mock
+from unittest.mock import call, patch, Mock
 
 from django.contrib.auth.models import User, Permission
 from django.core.paginator import Paginator
@@ -602,6 +602,7 @@ class TestMembersListView(TestCase):
 
         # should display all library members in the database
         members = Person.objects.filter(account__isnull=False)
+
         assert response.context['members'].count() == members.count()
         self.assertContains(response, '%d total results' % members.count())
         for person in members:
@@ -709,13 +710,13 @@ class TestMembersListView(TestCase):
         # with query param present but empty, use default sort
         view.request = self.factory.get(self.members_url, {'query': ''})
         form_kwargs = view.get_form_kwargs()
-        assert form_kwargs['data']['sort'] == view.initial['sort']
+        assert form_kwargs['data']['sort'] ==  view.initial['sort']
 
     @patch('mep.people.views.PersonSolrQuerySet')
     def test_get_queryset(self, mock_solrqueryset):
         mock_qs = mock_solrqueryset.return_value
         # simulate fluent interface
-        for meth in ['facet', 'filter', 'only', 'search', 'also',
+        for meth in ['facet_field', 'filter', 'only', 'search', 'also',
                      'raw_query_parameters', 'order_by']:
             getattr(mock_qs, meth).return_value = mock_qs
 
@@ -727,27 +728,34 @@ class TestMembersListView(TestCase):
         mock_solrqueryset.assert_called_with()
         # inspect solr queryset filters called; should be only called once
         # because card filtering is not on
-        # faceting should be turned on via call to facet
-        mock_qs.facet.assert_called_with('has_card')
+        # faceting should be turned on via call to facet_fields twice
+        mock_qs.facet_field.assert_any_call('has_card')
+        mock_qs.facet_field.assert_any_call('sex', missing=True, exclude='sex')
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()
         # should sort by solr field corresponding to default sort
         mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
 
-        # enable card filter, also test that a blank query doesn't force relevance
-        view.request = self.factory.get(self.members_url, {'has_card': True,
-                                                           'query': ''})
+        # enable card and sex filter, also test that a blank query doesn't force relevance
+        view.request = self.factory.get(self.members_url, {
+            'has_card': True,
+            'query': '',
+            'sex': ['Female', '']
+        })
         # remove cached form
         del view._form
         sqs = view.get_queryset()
         assert view.queryset == sqs
         # blank query left default sort in place too
         mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
-        # faceting should be on *and* filtering by that facet
-        # as its most recent call
-        mock_qs.facet.assert_called_with('has_card')
-        mock_qs.filter.assert_called_with(has_card=True)
+        # faceting should be on for both fields
+        # and filtering by has card and sex, which should be tagged for
+        # exclusion in calculating facets
+        mock_qs.facet_field.assert_any_call('has_card')
+        mock_qs.facet_field.assert_any_call('sex', missing=True, exclude='sex')
+        mock_qs.filter.assert_any_call(has_card=True)
+        mock_qs.filter.assert_any_call(sex__in=['Female', ''], tag='sex')
 
         # with keyword search term - should call search and query param
         query_term = 'sylvia'

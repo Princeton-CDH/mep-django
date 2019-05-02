@@ -1,6 +1,7 @@
 from django import forms
 from django.template.loader import get_template
 
+from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset
 from mep.people.models import Person
 
 
@@ -74,7 +75,7 @@ class SelectWithDisabled(SelectDisabledMixin, forms.Select):
     '''
 
 
-class MemberSearchForm(forms.Form):
+class MemberSearchForm(FacetForm):
     '''Member search form'''
 
     SORT_CHOICES = [
@@ -96,6 +97,11 @@ class MemberSearchForm(forms.Form):
         }),
         help_text='This filter will narrow results to show only members whose \
         library records are available.')
+    # NOTE: Temporarily make submit on every click, for testing before adding
+    # to reactive search
+    sex = FacetChoiceField(label='Sex', widget=CheckboxFieldset(attrs={
+        'onchange': 'this.form.submit()'
+    }))
 
     def __init__(self, data=None, *args, **kwargs):
         '''
