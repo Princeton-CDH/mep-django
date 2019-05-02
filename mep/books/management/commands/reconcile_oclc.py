@@ -3,6 +3,10 @@ from collections import defaultdict
 import csv
 from typing import Dict
 
+from django.conf import settings
+from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 import progressbar
 import pymarc
@@ -34,12 +38,14 @@ class Command(BaseCommand):
         'update': 'Processed %(count)d items, updated %(updated)d',
     }
 
-    stats = None
     progbar = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.stats = defaultdict(int)
+
+        self.script_user = User.objects.get(username=settings.SCRIPT_USERNAME)
+        self.item_content_type = ContentType.objects.get_for_model(Item).pk
 
     def add_arguments(self, parser):
         parser.add_argument('mode', choices=['report', 'update'])
@@ -129,6 +135,15 @@ class Command(BaseCommand):
             if worldcat_entity:
                 item.populate_from_worldcat(worldcat_entity)
                 item.save()
+                # create log entry to document the change
+                LogEntry.objects.log_action(
+                    user_id=self.script_user.id,
+                    content_type_id=self.item_content_type,
+                    object_id=item.pk,
+                    object_repr=str(item),
+                    change_message='Updated from OCLC %s' % worldcat_entity.item_uri,
+                    action_flag=CHANGE)
+
                 self.stats['updated'] += 1
 
             self.tick()

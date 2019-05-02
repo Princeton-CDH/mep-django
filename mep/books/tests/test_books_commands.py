@@ -6,9 +6,10 @@ import os
 from tempfile import NamedTemporaryFile
 from unittest.mock import patch, Mock
 
+from django.contrib.admin.models import LogEntry, CHANGE
+from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.core.management import call_command
 import pymarc
 
 from mep.books.management.commands import reconcile_oclc
@@ -111,8 +112,6 @@ class TestReconcileOCLC(TestCase):
                      '--no-progress', stdout=stdout)
         mockprogressbar.ProgressBar.assert_not_called()
 
-
-
     def test_report(self):
         with patch.object(self.cmd, 'oclc_info') as mock_oclc_info:
             mock_result_info = {
@@ -178,6 +177,12 @@ class TestReconcileOCLC(TestCase):
             assert self.cmd.stats['count'] == 1
             assert self.cmd.stats['updated'] == 1
 
+            # should create a log entry
+            log_entry = LogEntry.objects.get(object_id=item.pk)
+            assert log_entry.action_flag == CHANGE
+            assert log_entry.change_message == \
+                'Updated from OCLC %s' % worldcat_entity.item_uri
+
             # simulate failure on search
             mock_oclc_search.return_value = None
             # reset stats
@@ -185,7 +190,6 @@ class TestReconcileOCLC(TestCase):
             self.cmd.update_items([item1])
             assert self.cmd.stats['count'] == 1
             assert self.cmd.stats['updated'] == 0
-
 
     def test_oclc_search(self):
         mock_sru_search = Mock()
