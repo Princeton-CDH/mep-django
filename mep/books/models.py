@@ -216,6 +216,26 @@ class Item(Notable, Indexable):
         if first_event:
             return first_event.start_date
 
+    def populate_from_worldcat(self, worldcat_entity: WorldCatEntity):
+        '''Set work URI, edition URI, genre, item type, and subjects
+        based on a WorldCat record.'''
+        self.uri = worldcat_entity.work_uri
+        self.edition_uri = worldcat_entity.item_uri
+        self.genre = worldcat_entity.genre or ''
+        self.item_type = worldcat_entity.item_type or ''
+
+        subject_uris = worldcat_entity.subjects
+        if subject_uris:
+            # find existing subjects already in the database
+            subjects = list(Subject.objects.filter(uri__in=subject_uris))
+            # create any new subjects that don't already exist
+            new_subject_uris = set(subject_uris) - \
+                               set(subj.uri for subj in subjects)
+            for subject_uri in new_subject_uris:
+                subjects.append(Subject.create_from_uri(subject_uri))
+            # set subjects on this item (replacing any previously set)
+            self.subjects.set(subjects)
+
 
 class CreatorType(Named, Notable):
     '''Type of creator role a person can have to an item; author,

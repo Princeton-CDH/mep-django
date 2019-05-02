@@ -1,7 +1,7 @@
 import datetime
 import os
 import re
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from django.test import TestCase
 import requests
@@ -107,6 +107,60 @@ class TestItem(TestCase):
         # should use previous borrow date, not the unknown (1900)
         assert item.first_known_interaction == borrow_date
 
+    @patch('mep.books.models.Subject.create_from_uri')
+    def test_populate_from_worldcat(self, mock_create_from_uri):
+        item = Item.objects.create(title='Time and Tide')
+        worldcat_entity = Mock(
+            work_uri='http://worldcat.org/entity/work/id/3372107206',
+            item_uri='http://www.worldcat.org/oclc/3484871',
+            genre='Periodicals',
+            item_type='http://schema.org/Periodical',
+            subjects=[]
+        )
+        item.populate_from_worldcat(worldcat_entity)
+        assert item.uri == worldcat_entity.work_uri
+        assert item.edition_uri == worldcat_entity.item_uri
+        assert item.genre == worldcat_entity.genre
+        assert item.item_type == worldcat_entity.item_type
+        # no subjects on the eentity
+        assert not item.subjects.all()
+
+        # TODO: create subject on demand to test create from uri,
+        # then call again with them existing to test using existing subjects
+        worldcat_entity.subjects = [
+            'http://viaf.org/viaf/97006051',
+            'http://id.worldcat.org/fast/1259831/'
+        ]
+
+        # create test subjects for mock so we can create
+        # them on-demand and test them not existing prior
+        def make_test_subject(uri):
+            if 'viaf' in uri:
+                return Subject.objects.create(
+                    uri=uri, name='Ernest Hemingway',
+                    rdf_type='http://schema.org/Person')
+
+            return Subject.objects.create(
+                uri=uri, name='Lorton, Virginia',
+                rdf_type='http://schema.org/Place')
+
+        mock_create_from_uri.side_effect = make_test_subject
+        item.populate_from_worldcat(worldcat_entity)
+        assert item.subjects.count() == 2
+        assert mock_create_from_uri.call_count == 2
+        mock_create_from_uri.assert_any_call(worldcat_entity.subjects[0])
+        mock_create_from_uri.assert_any_call(worldcat_entity.subjects[1])
+
+        # if the subjects already exist, they should not be created
+        mock_create_from_uri.reset_mock()
+        item.populate_from_worldcat(worldcat_entity)
+        mock_create_from_uri.assert_not_called()
+        assert item.subjects.count() == 2
+
+        # test replaces previous subjects
+        del worldcat_entity.subjects[-1]
+        item.populate_from_worldcat(worldcat_entity)
+        assert item.subjects.count() == 1
 
 class TestPublisher(TestCase):
 
