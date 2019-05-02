@@ -2,7 +2,7 @@ import 'whatwg-fetch' // used for Response typing
 import { Subject } from 'rxjs'
 
 import { ajax } from '../lib/common'
-import { RxForm, RxSearchForm } from './form'
+import { RxForm, RxSearchForm, RxFacetedSearchForm } from './form'
 
 describe('RxForm', () => {
 
@@ -118,6 +118,21 @@ describe('RxSearchForm', () => {
         }) 
     })
 
+
+    it('defaults to zero results if it doesn\'t receive the correct header', () => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($form)
+        const response = new Response(
+            new Blob(['results!'], { type: 'text/plain' }), // no headers
+        )
+        const watcher = jest.fn()
+        rsf.totalResults.subscribe(watcher)
+        jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
+        return rsf.getResults().then(() => {
+            expect(watcher).toHaveBeenCalledWith('0')
+        }) 
+    })
+
     it('parses and updates the page labels when it receives the correct header', () => {
         const $form = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($form)
@@ -132,6 +147,20 @@ describe('RxSearchForm', () => {
             expect(watcher).toHaveBeenCalledWith(['page one', 'page two', 'page three'])
         }) 
     })
+
+    it('defaults to empty page labels if it doesn\'t receive the correct header', () => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($form)
+        const response = new Response(
+            new Blob(['results!'], { type: 'text/plain' }),
+        )
+        const watcher = jest.fn()
+        rsf.pageLabels.subscribe(watcher)
+        jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
+        return rsf.getResults().then(() => {
+            expect(watcher).toHaveBeenCalledWith([''])
+        }) 
+    })
     
     it('updates the URL/browser history on submission', () => {
         const $form = document.querySelector('form') as HTMLFormElement
@@ -141,6 +170,42 @@ describe('RxSearchForm', () => {
         return rsf.getResults().then(() => {
             expect(window.location.search).toBe('?query=mysearch') // querystring was changed
             expect(window.history.length).toBeGreaterThan(1) // we added entries to browser history
+        })
+    })
+
+})
+
+describe('RxFacetedSearchForm', () => {
+
+    beforeEach(() => {
+        document.body.innerHTML = `
+        <form id="search">
+            <input type="text" name="query" value="mysearch">
+        </form>`
+    })
+
+    it('stores facet data from solr as an observable sequence', () => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rfsf = new RxFacetedSearchForm($form)
+        expect(rfsf.facets).toBeInstanceOf(Subject)
+    })
+
+    it('updates facet data when getFacets() is called', () => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rfsf = new RxFacetedSearchForm($form)
+        const facets = {
+            facet_fields: { 'facet_a': 'foo' },
+            facet_heatmaps: {},
+            facet_intervals: {},
+            facet_queries: {},
+            facet_ranges: {}
+        }
+        const response = new Response(new Blob([JSON.stringify(facets)], { type: 'application/json' }))
+        const watcher = jest.fn()
+        rfsf.facets.subscribe(watcher)
+        jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
+        return rfsf.getFacets().then(() => {
+            expect(watcher).toHaveBeenCalledWith(facets)
         })
     })
 

@@ -199,4 +199,5 @@ export {
     RxForm,
     RxSearchForm,
     RxFacetedSearchForm,
+    SolrFacets
 }
