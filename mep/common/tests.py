@@ -339,7 +339,7 @@ class TestCheckboxFieldset(TestCase):
     def test_render(self):
 
         # make sure that legend is rendered based on an attr
-        checkbox_fieldset = CheckboxFieldset(attrs={'legend': 'Foo', 'name': 'sex'})
+        checkbox_fieldset = CheckboxFieldset(attrs={'legend': 'Foo'})
         checkbox_fieldset.optgroups = Mock()
         # mock a substitute for the return value of optgroups
         # The reasons for this are two fold:
@@ -367,13 +367,13 @@ class TestCheckboxFieldset(TestCase):
                 0
             )
         ]
-        # placeholder args, just interested in the HTML
-        out = checkbox_fieldset.render('foo', 'bar')
+        # first arg sets the name attribute, other is unused by template
+        out = checkbox_fieldset.render('sex', 'bar')
         # legend should be upper-cased by default
         expected_output = '''
         <fieldset class="facet">
             <legend>Foo</legend>
-            <input type="checkbox" value="a" id="id_for_0"   checked name="sex" />
+            <input type="checkbox" value="a" id="id_for_0" name="sex" checked />
            <label for="id_for_0"> A </label>
            <input type="checkbox" value="b" id="id_for_1" name="sex" />
            <label for="id_for_1"> B </label>
