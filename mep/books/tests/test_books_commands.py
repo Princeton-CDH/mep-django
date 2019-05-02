@@ -285,3 +285,21 @@ class TestReconcileOCLC(TestCase):
         assert self.cmd.stats['count'] == 2
         self.cmd.progbar.update.assert_called_with(2)
 
+    def test_oclc_search_record(self):
+        srwresponse = get_srwresponse_xml_fixture()
+        item = Item(title='tester')
+
+        with patch.object(self.cmd, 'oclc_search') as mock_oclc_search:
+            self.cmd.sru_search = Mock()
+            mock_oclc_search.return_value = srwresponse
+            srwresponse.num_records = 0
+            # should return nothing if zero records
+            assert not self.cmd.oclc_search_record(item)
+            srwresponse.num_records = 1
+
+            result = self.cmd.oclc_search_record(item)
+            assert self.cmd.sru_search.get_worldcat_rdf.call_count == 1
+            assert result == self.cmd.sru_search.get_worldcat_rdf.return_value
+            call_args = self.cmd.sru_search.get_worldcat_rdf.call_args[0]
+            # can't compare pymarc records exactly so check type
+            assert isinstance(call_args[0], pymarc.record.Record)
