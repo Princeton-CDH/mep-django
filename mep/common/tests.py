@@ -430,7 +430,7 @@ class TestFacetForm(TestCase):
 
         # create facets in the format provided by parasolr
         facets = OrderedDict()
-        facets['name_s'] = OrderedDict([('Jane', 2), ('John', 1)])
+        facets['name_s'] = OrderedDict([('Jane', 2000), ('John', 1)])
         facets['member_type'] = OrderedDict([('weekly', 2), ('monthly', 1)])
         # handling should not choke on an unhandled field
         facets['unhandled_fields'] = OrderedDict(foo=1, bar=1)
@@ -444,7 +444,8 @@ class TestFacetForm(TestCase):
         ]
         # mapping should convert solr field name to form field name
         assert test_form.fields['name'].choices == [
-            ('Jane', '<span class="label">Jane</span> <span class="count">2</span>'),
+            # check that comma formatting appears as expected
+            ('Jane', '<span class="label">Jane</span> <span class="count">2,000</span>'),
             ('John', '<span class="label">John</span> <span class="count">1</span>')
         ]
         # unhandled field should not be passed in

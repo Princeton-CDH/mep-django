@@ -48,9 +48,11 @@ class FacetForm(forms.Form):
             formfield = self.solr_facet_fields.get(facet, facet)
             if formfield in self.fields:
                 self.fields[formfield].choices = [
-                    (val, mark_safe('<span class="label">%s</span> '
-                                    '<span class="count">%d</span>' %
-                     (val if val else 'Unknown', count)))
-                     for val, count in counts.items()
+                    # iterate over val and counts in counts dictionary
+                    # and format as a lable and comma separated integer
+                    (val, mark_safe('<span class="label">{}</span> '
+                                    '<span class="count">{:,}</span>'\
+                                    .format(val if val else 'Unknown', count)))
+                    for val, count in counts.items()
                 ]
 
