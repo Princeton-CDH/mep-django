@@ -338,9 +338,14 @@ class TestCheckboxFieldset(TestCase):
 
     def test_render(self):
 
-        checkbox_fieldset = CheckboxFieldset(attrs={'name': 'sex'})
+        # make sure that legend is rendered based on an attr
+        checkbox_fieldset = CheckboxFieldset(attrs={'legend': 'Foo', 'name': 'sex'})
         checkbox_fieldset.optgroups = Mock()
         # mock a substitute for the return value of optgroups
+        # The reasons for this are two fold:
+        #   1) The logic of how widgets are populated is fairly convoluted, and
+        #       we're only checking that the template does the right thing here.
+        #   2) optgroups is a function and needs a mock to supply the return.
         checkbox_fieldset.optgroups.return_value = [
             (
                 None,
@@ -355,7 +360,7 @@ class TestCheckboxFieldset(TestCase):
                     },
                     {
                         'label': 'B',
-                        'attrs': {'id': 'id_for_1' },
+                        'attrs': {'id': 'id_for_1'},
                         'value': 'b'
                     }
                 ],
@@ -366,10 +371,11 @@ class TestCheckboxFieldset(TestCase):
         out = checkbox_fieldset.render('foo', 'bar')
         # legend should be upper-cased by default
         expected_output = '''
-        <fieldset class="facet"> <legend>Sex</legend>
-           <input type="checkbox" value="a" id="id_for_0" checked name="sex"/>
+        <fieldset class="facet">
+            <legend>Foo</legend>
+            <input type="checkbox" value="a" id="id_for_0"   checked name="sex" />
            <label for="id_for_0"> A </label>
-            <input type="checkbox" value="b" id="id_for_1" name="sex"/>
+           <input type="checkbox" value="b" id="id_for_1" name="sex" />
            <label for="id_for_1"> B </label>
         </fieldset>
         '''
@@ -389,6 +395,14 @@ class TestFacetField(TestCase):
         # if not set, defaults to false
         facet_field = FacetChoiceField()
         assert not facet_field.required
+        # check that legend is set via label separately
+        facet_field = FacetChoiceField(label='Test')
+        assert facet_field.widget.attrs['legend'] == 'Test'
+        # but widget attrs overrules
+        facet_field = FacetChoiceField(
+                label='Test',
+            widget=CheckboxFieldset(attrs={'legend': 'NotTest'}))
+        assert facet_field.widget.attrs['legend'] == 'NotTest'
 
     def test_valid_value(self):
         # any value passed in returns true

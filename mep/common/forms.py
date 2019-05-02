@@ -25,11 +25,8 @@ class FacetChoiceField(forms.MultipleChoiceField):
             kwargs['required'] = False
         super().__init__(*args, **kwargs)
 
-        if self.label:
-            if 'legend' not in self.widget.attrs:
-                self.widget.attrs['legend'] = self.label
-            if 'name' not in self.widget.attrs:
-                self.widget.attrs['name'] = self.label.lower()
+        if 'legend' not in self.widget.attrs:
+            self.widget.attrs['legend'] = self.label
 
     def valid_value(self, value: Any) -> True:
         return True
