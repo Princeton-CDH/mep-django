@@ -2,13 +2,13 @@ from django import forms
 from django.conf.urls import url
 from django.contrib import admin
 from django.core.urlresolvers import reverse
-from django.db.models import Count
+from django.db.models import Count, URLField
 from django.utils.html import format_html
 from django.utils.timezone import now
 from tabular_export.admin import export_to_csv_response
 
 from mep.accounts.admin import AUTOCOMPLETE
-from mep.books.models import Creator, CreatorType, Item
+from mep.books.models import Creator, CreatorType, Item, Subject
 from mep.common.admin import CollapsibleTabularInline
 
 
@@ -32,6 +32,7 @@ class ItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'author_list', 'notes', 'borrow_count',
                     'updated_at')
     list_display_links = ('id', 'title')
+    list_filter = ('genre', 'item_type')
     inlines = [ItemCreatorInline]
     search_fields = ('mep_id', 'title', 'notes', 'creator__person__name', 'id')
     fieldsets = (
@@ -42,11 +43,18 @@ class ItemAdmin(admin.ModelAdmin):
             'fields': (
                 # ('publishers', 'pub_places'),
                 # ('volume'),
-                'uri', 'notes', 'mep_id'
+                'notes', 'mep_id'
+            )
+        }),
+        ('OCLC metadata', {
+            'fields': (
+                'uri', 'edition_uri', 'item_type', 'genre',
+                'subject_list',
+
             )
         })
     )
-    readonly_fields = ('mep_id', 'borrow_count')
+    readonly_fields = ('mep_id', 'borrow_count', 'genre', 'subject_list')
 
     actions = ['export_to_csv']
 
@@ -114,5 +122,12 @@ class CreatorTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'notes')
 
 
+class SubjectAdmin(admin.ModelAdmin):
+    list_display = ('name', 'uri', 'rdf_type')
+    search_fields = ('name', 'uri', 'rdf_type')
+    list_filter = ('rdf_type', )
+
+
 admin.site.register(Item, ItemAdmin)
 admin.site.register(CreatorType, CreatorTypeAdmin)
+admin.site.register(Subject, SubjectAdmin)
