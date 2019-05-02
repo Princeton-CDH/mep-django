@@ -67,10 +67,10 @@ class RxSearchForm extends RxForm {
         const serialized = this.serialize() // serialize the form for later
         return fetch(`${this.target}?${serialized}`, ajax)
             .then(res => {
-                const totalResults = res.headers.get('X-Total-Results')
-                const pageLabels = res.headers.get('X-Page-Labels')
-                if (totalResults) this.totalResults.next(totalResults)
-                if (pageLabels) this.pageLabels.next(pageLabels.split('|'))
+                const totalResults = res.headers.get('X-Total-Results') || '0'
+                const pageLabels = res.headers.get('X-Page-Labels') || ''
+                this.totalResults.next(totalResults)
+                this.pageLabels.next(pageLabels.split('|'))
                 return res.text()
             })
             .then(results => {
