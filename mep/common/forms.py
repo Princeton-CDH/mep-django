@@ -4,18 +4,18 @@ from django import forms
 from django.utils.text import mark_safe
 
 class CheckboxFieldset(forms.CheckboxSelectMultiple):
-
+    '''Override of :class:`~django.forms.CheckboxSelectMultiple`
+    that renders as a fieldset with checkbox inputs.'''
     template_name = 'common/widgets/checkbox_fieldset.html'
 
 
 class FacetChoiceField(forms.MultipleChoiceField):
-    '''Add CheckboxSelectMultiple field with facets taken from solr query'''
+    '''Add CheckboxSelectMultiple field with facets taken from solr query.'''
     # Borrowed from https://github.com/Princeton-CDH/derrida-django/blob/develop/derrida/books/forms.py
     # customize multiple choice field for use with facets.
-    # no other adaptations needed
     # - turn off choice validation (shouldn't fail if facets don't get loaded)
     # - default to not required
-    # - use checkbox select multiple as default widget
+    # - use CheckboxFieldset widget for rendering facet
 
     widget = CheckboxFieldset
 
@@ -26,7 +26,10 @@ class FacetChoiceField(forms.MultipleChoiceField):
         super().__init__(*args, **kwargs)
 
         if self.label:
-            self.widget.attrs['name'] = self.label.lower()
+            if 'legend' not in self.widget.attrs:
+                self.widget.attrs['legend'] = self.label
+            if 'name' not in self.widget.attrs:
+                self.widget.attrs['name'] = self.label.lower()
 
     def valid_value(self, value: Any) -> True:
         return True
