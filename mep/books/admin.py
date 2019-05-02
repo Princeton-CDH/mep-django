@@ -76,8 +76,11 @@ class ItemAdmin(admin.ModelAdmin):
     borrow_count.admin_order_field = 'event__borrow__count'
 
     #: fields to be included in CSV export
-    export_fields = ['admin_url', 'id', 'title', 'year', 'uri', 'author_list',
-                     'mep_id', 'notes']
+    export_fields = [
+        'admin_url', 'id', 'title', 'year', 'author_list', 'mep_id',
+        'uri', 'edition_uri', 'genre', 'item_type', 'subject_list',
+        'notes'
+    ]
 
     def csv_filename(self):
         return 'mep-items-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
