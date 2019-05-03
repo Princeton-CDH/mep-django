@@ -283,7 +283,8 @@ class TestSubject(TestCase):
             # (but I don't think we care)
             assert new_subject.rdf_type in [
                 'http://www.w3.org/2004/02/skos/core#Concept',
-                'http://www.loc.gov/mads/rdf/v1#ComplexSubject'
+                'http://www.loc.gov/mads/rdf/v1#ComplexSubject',
+                'http://www.loc.gov/mads/rdf/v1#Authority'
             ]
             assert new_subject.name == 'Women--Economic conditions'
 
