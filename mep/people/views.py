@@ -43,6 +43,13 @@ class MembersList(ListView):
 
         return sqs
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['breadcrumbs'] = {
+            'Members': reverse('people:members-list')
+        }
+        return context
+
 
 class MemberDetail(DetailView):
     '''Detail page for a single library member.'''
@@ -53,6 +60,15 @@ class MemberDetail(DetailView):
     def get_queryset(self):
         # throw a 404 if a non-member is accessed via this route
         return super().get_queryset().exclude(account=None)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['breadcrumbs'] = {
+            'Members': reverse('people:members-list'),
+            'name': self.object.get_absolute_url()
+        }
+        return context
+
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):
