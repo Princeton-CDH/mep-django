@@ -128,16 +128,16 @@ class TestPerson(TestCase):
         pers.nationalities.add(country)
         assert pers.list_nationalities() == 'France, Spain'
 
-    def test_accound_id(self):
+    def test_account_id(self):
         # create a person
         pers = Person.objects.create(name='Foobar')
         # create an account
         acct = Account.objects.create()
         # not associated so person has no account number
-        assert pers.accound_id() == ''
+        assert pers.account_id() == ''
         # associate
         acct.persons.add(pers)
-        pers.accound_id() == acct.id
+        pers.account_id() == acct.id
 
     def test_has_account(self):
         # create a person

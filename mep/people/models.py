@@ -345,7 +345,7 @@ class Person(Notable, DateRange, Indexable):
         return self.address_set.count()
     address_count.short_description = '# Addresses'
 
-    def accound_id(self):
+    def account_id(self):
         '''Return the id number of the person's associated
         :class:`~mep.accounts.models.Account` or empty string if not.'''
         # used in admin list view, assumes only one account but
