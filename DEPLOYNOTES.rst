@@ -3,6 +3,12 @@
 Deploy and Upgrade notes
 ========================
 
+0.15
+----
+
+* This release requires a reindex to update the ``sex`` field for use in
+  faceting.
+
 0.14
 ----
 

@@ -16,6 +16,12 @@ select {
     option {
         color: black;
     }
+
+    &:disabled {
+        + .dropdown.icon {
+            opacity: 0.2;
+        }
+    }
 }
 
 label > select + .dropdown.icon {

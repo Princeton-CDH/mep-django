@@ -42,11 +42,11 @@
         }
     }
 
-    fieldset {
+    fieldset.group {
         width: 100%;
         font-size: 0.8rem;
 
-        legend {
+        > legend {
             width: 100%;
             text-align: left;
             font-weight: bold;
@@ -63,7 +63,7 @@
             align-items: center;
         }
 
-        label {
+        .inner > label {
             flex: auto;
             height: 2.2rem;
             background: white;
@@ -100,16 +100,16 @@
             }
         }
 
-        input:focus + label {
+        .inner > input:focus + label {
             border-color: $green;
         }
 
-        input[type=checkbox] + label {
+        .inner > input[type=checkbox] + label {
             cursor: pointer;
         }
 
         // uses after so it can stack with tooltip info icon
-        input[type=checkbox] + label::after {
+        .inner > input[type=checkbox] + label::after {
             content: '';
             opacity: 0;
             position: absolute;
@@ -121,9 +121,10 @@
             background-repeat: no-repeat;
             background-position: center;
             pointer-events: none;
+            transition: opacity .25s ease;
         }
 
-        input:checked + label::after {
+        .inner > input:checked + label::after {
             opacity: 1;
         }
 
@@ -133,7 +134,7 @@
                 width: 100vw;
             }
 
-            legend {
+            > legend {
                 margin-left: $gutter-xs;
                 margin-right: $gutter-xs;
             }
