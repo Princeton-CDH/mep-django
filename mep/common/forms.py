@@ -8,6 +8,11 @@ class CheckboxFieldset(forms.CheckboxSelectMultiple):
     that renders as a fieldset with checkbox inputs.'''
     template_name = 'common/widgets/checkbox_fieldset.html'
 
+    def get_context(self, name, value, attrs):
+        '''Pass custom legend property into context dictionary for widget.'''
+        context = super().get_context(name, value, attrs)
+        context['widget']['legend'] = self.legend
+        return context
 
 class FacetChoiceField(forms.MultipleChoiceField):
     '''Add CheckboxSelectMultiple field with facets taken from solr query.'''
@@ -21,12 +26,22 @@ class FacetChoiceField(forms.MultipleChoiceField):
 
 
     def __init__(self, *args, **kwargs):
+        # default required to false
         if 'required' not in kwargs:
             kwargs['required'] = False
+
+        # get custom kwarg and remove before passing to MultipleChoiceField
+        # super method, which would cause an error
+        self.widget.legend = None
+        if 'legend' in kwargs:
+            self.widget.legend = kwargs['legend']
+            del kwargs['legend']
+
         super().__init__(*args, **kwargs)
 
-        if 'legend' not in self.widget.attrs:
-            self.widget.attrs['legend'] = self.label
+        # if no custom legend, set it from label
+        if not self.widget.legend:
+            self.widget.legend = self.label
 
     def valid_value(self, value: Any) -> True:
         return True
