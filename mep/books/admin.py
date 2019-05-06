@@ -30,7 +30,7 @@ class ItemCreatorInline(CollapsibleTabularInline):
 
 class ItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'author_list', 'notes', 'borrow_count',
-                    'updated_at')
+                    'updated_at', 'has_uri')
     list_display_links = ('id', 'title')
     list_filter = ('genre', 'item_type')
     inlines = [ItemCreatorInline]

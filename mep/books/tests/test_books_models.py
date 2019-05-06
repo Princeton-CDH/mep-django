@@ -186,6 +186,12 @@ class TestItem(TestCase):
         item.subjects.add(subj2)
         assert item.subject_list() == '%s; %s' % (subj1.name, subj2.name)
 
+    def test_has_uri(self):
+        item = Item(title='Topicless')
+        assert not item.has_uri()
+        item.uri = 'http://www.worldcat.org/oclc/578050'
+        assert item.has_uri()
+
 
 class TestPublisher(TestCase):
 

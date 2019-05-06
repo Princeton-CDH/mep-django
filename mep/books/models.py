@@ -211,6 +211,11 @@ class Item(Notable, Indexable):
         return reverse('admin:books_item_change', args=[self.id])
     admin_url.verbose_name = 'Admin Link'
 
+    def has_uri(self):
+        '''Is the URI is set for this item?'''
+        return self.uri != ''
+    has_uri.boolean = True
+
     def subject_list(self):
         '''semicolon separated list of subject names'''
         return '; '.join([subj.name for subj in self.subjects.all()])
