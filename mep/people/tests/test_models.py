@@ -137,7 +137,7 @@ class TestPerson(TestCase):
         assert pers.account_id() == ''
         # associate
         acct.persons.add(pers)
-        pers.account_id() == acct.id
+        assert pers.account_id() == acct.id
 
     def test_has_account(self):
         # create a person
