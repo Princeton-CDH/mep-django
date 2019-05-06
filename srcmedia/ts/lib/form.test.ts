@@ -2,7 +2,7 @@ import 'whatwg-fetch' // used for Response typing
 import { Subject } from 'rxjs'
 
 import { ajax } from '../lib/common'
-import { RxForm, RxSearchForm } from './form'
+import { RxForm, RxSearchForm, RxFacetedSearchForm } from './form'
 
 describe('RxForm', () => {
 
@@ -86,7 +86,7 @@ describe('RxSearchForm', () => {
         const rsf = new RxSearchForm($form)
         const response = new Response(new Blob(['results!'], { type: 'text/plain' })) // a mock GET response
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
-        return rsf.submit().then(() => { // check that we requested the right path, using the right header
+        return rsf.getResults().then(() => { // check that we requested the right path, using the right header
             expect(window.fetch).toHaveBeenCalledWith('/form?query=mysearch', ajax)
         })
     })
@@ -98,7 +98,7 @@ describe('RxSearchForm', () => {
         const watcher = jest.fn()
         rsf.results.subscribe(watcher)
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
-        return rsf.submit().then(() => { // check that we pushed the new results onto state
+        return rsf.getResults().then(() => { // check that we pushed the new results onto state
             expect(watcher).toHaveBeenCalledWith('results!')
         })
     })
@@ -113,8 +113,23 @@ describe('RxSearchForm', () => {
         const watcher = jest.fn()
         rsf.totalResults.subscribe(watcher)
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
-        return rsf.submit().then(() => {
+        return rsf.getResults().then(() => {
             expect(watcher).toHaveBeenCalledWith('50')
+        }) 
+    })
+
+
+    it('defaults to zero results if it doesn\'t receive the correct header', () => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($form)
+        const response = new Response(
+            new Blob(['results!'], { type: 'text/plain' }), // no headers
+        )
+        const watcher = jest.fn()
+        rsf.totalResults.subscribe(watcher)
+        jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
+        return rsf.getResults().then(() => {
+            expect(watcher).toHaveBeenCalledWith('0')
         }) 
     })
 
@@ -128,8 +143,22 @@ describe('RxSearchForm', () => {
         const watcher = jest.fn()
         rsf.pageLabels.subscribe(watcher)
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
-        return rsf.submit().then(() => {
+        return rsf.getResults().then(() => {
             expect(watcher).toHaveBeenCalledWith(['page one', 'page two', 'page three'])
+        }) 
+    })
+
+    it('defaults to empty page labels if it doesn\'t receive the correct header', () => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($form)
+        const response = new Response(
+            new Blob(['results!'], { type: 'text/plain' }),
+        )
+        const watcher = jest.fn()
+        rsf.pageLabels.subscribe(watcher)
+        jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
+        return rsf.getResults().then(() => {
+            expect(watcher).toHaveBeenCalledWith([''])
         }) 
     })
     
@@ -138,9 +167,45 @@ describe('RxSearchForm', () => {
         const rsf = new RxSearchForm($form)
         const response = new Response(new Blob(['results!'], { type: 'text/plain' }))
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
-        return rsf.submit().then(() => {
+        return rsf.getResults().then(() => {
             expect(window.location.search).toBe('?query=mysearch') // querystring was changed
             expect(window.history.length).toBeGreaterThan(1) // we added entries to browser history
+        })
+    })
+
+})
+
+describe('RxFacetedSearchForm', () => {
+
+    beforeEach(() => {
+        document.body.innerHTML = `
+        <form id="search">
+            <input type="text" name="query" value="mysearch">
+        </form>`
+    })
+
+    it('stores facet data from solr as an observable sequence', () => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rfsf = new RxFacetedSearchForm($form)
+        expect(rfsf.facets).toBeInstanceOf(Subject)
+    })
+
+    it('updates facet data when getFacets() is called', () => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rfsf = new RxFacetedSearchForm($form)
+        const facets = {
+            facet_fields: { 'facet_a': 'foo' },
+            facet_heatmaps: {},
+            facet_intervals: {},
+            facet_queries: {},
+            facet_ranges: {}
+        }
+        const response = new Response(new Blob([JSON.stringify(facets)], { type: 'application/json' }))
+        const watcher = jest.fn()
+        rfsf.facets.subscribe(watcher)
+        jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
+        return rfsf.getFacets().then(() => {
+            expect(watcher).toHaveBeenCalledWith(facets)
         })
     })
 
