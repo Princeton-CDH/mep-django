@@ -7,25 +7,31 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.views.generic import ListView, DetailView
-from django.views.generic.edit import FormView, FormMixin
+from django.views.generic import DetailView, ListView
+from django.views.generic.edit import FormMixin, FormView
 
 from mep.accounts.models import Event
 from mep.common.utils import alpha_pagelabels
-from mep.common.views import LabeledPagesMixin, AjaxTemplateMixin, FacetJSONMixin
-from mep.people.forms import PersonMergeForm, MemberSearchForm
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, RdfViewMixin)
+from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
+from mep.common.utils import absolutize_url
 
-class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJSONMixin):
+
+class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
     ajax_template_name = 'people/snippets/member_results.html'
     paginate_by = 100
     context_object_name = 'members'
+    breadcrumbs = [
+        ('Home', '/'),
+    ]
 
     form_class = MemberSearchForm
     # cached form instance for current request
@@ -99,10 +105,6 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         self._form.set_choices_from_facets(self.object_list.get_facets()['facet_fields'])
-        # breadcrumbs
-        context['breadcrumbs'] = {
-            'Members': reverse('people:members-list')
-        }
         return context
 
     def get_page_labels(self, paginator):
@@ -118,6 +120,10 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
                                         lambda x: x['sort_name'][0])
         # alpha labels is a dict; use items to return list of tuples
         return alpha_labels.items()
+
+
+    def get_uri(self):
+        return reverse('people:members-list')
 
 
 class MemberDetail(DetailView):
