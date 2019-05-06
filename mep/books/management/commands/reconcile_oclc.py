@@ -1,7 +1,6 @@
 import codecs
 from collections import defaultdict
 import csv
-from typing import Dict
 
 from django.conf import settings
 from django.contrib.admin.models import LogEntry, CHANGE
@@ -12,7 +11,7 @@ import progressbar
 import pymarc
 
 from mep.books.models import Item
-from mep.books.oclc import SRUSearch, SRWResponse, WorldCatEntity
+from mep.books.oclc import SRUSearch, WorldCatEntity
 
 
 class Command(BaseCommand):
@@ -148,7 +147,7 @@ class Command(BaseCommand):
 
             self.tick()
 
-    def oclc_search(self, item: Item) -> SRWResponse:
+    def oclc_search(self, item):
         """Search for an item in OCLC by title, author, date, and
         material type if noted as a Periodical. Returns
         :class:`~mep.books.oclc.SRWResponse`.
@@ -180,7 +179,7 @@ class Command(BaseCommand):
 
         return self.sru_search.search(**search_opts)
 
-    def oclc_info(self, item: Item) -> Dict:
+    def oclc_info(self, item):
         """Search for an item in OCLC by title, author, date.
         Returns dictionary with details found for inclusion in CSV.
         """

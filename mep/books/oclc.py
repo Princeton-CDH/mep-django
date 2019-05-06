@@ -5,7 +5,6 @@ searches.
 from io import BytesIO
 import logging
 import time
-from typing import List, Dict
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -81,7 +80,7 @@ class SRWResponse(xmlmap.XmlObject):
     records = xmlmap.NodeField('srw:records', xmlmap.XmlObject)
 
     @property
-    def marc_records(self) -> List[pymarc.record.Record]:
+    def marc_records(self):
         '''List of MARC records included in the response'''
         # serialize xml to a bytebytestream for loading by pymarc
         bytestream = BytesIO()
@@ -90,7 +89,6 @@ class SRWResponse(xmlmap.XmlObject):
         # pymarc is returning 'None' in the array alternating with
         # pymarc records; not sure why, but filter them out
         return list(filter(None, pymarc.parse_xml_to_array(bytestream)))
-
 
 
 #: schema.org RDF namespace
@@ -103,6 +101,7 @@ class RdfResource(rdflib.resource.Resource):
 
     def __str__(self):
         return str(self._identifier)
+
 
 class WorldCatEntity:
     '''Entity for a single WorldCat record, with support for
@@ -140,13 +139,13 @@ class WorldCatEntity:
                      self.item_uri, response.status_code)
 
     @property
-    def work_uri(self) -> str:
+    def work_uri(self):
         '''OCLC Work URI for this item'''
         value = self.rdf_resource.value(SCHEMA_ORG.exampleOfWork)
         return str(value) if value else None
 
     @property
-    def item_type(self) -> str:
+    def item_type(self):
         '''item type URI (e.g. book or periodical), from rdf:type.
         Skips schema.org/CreativeWork if present in preference of
         a more specific type'''
@@ -191,7 +190,7 @@ class SRUSearch(WorldCatClientBase):
     }
 
     @staticmethod
-    def _lookup_to_search(*args: List[str], **kwargs: Dict) -> str:
+    def _lookup_to_search(*args, **kwargs):
         '''Take a list of search terms and dictionary of field lookups
         and return as as a CQL search string. List arguments are included
         in the query as-is. Dictionary lookup supports field names in
@@ -228,7 +227,7 @@ class SRUSearch(WorldCatClientBase):
 
         return ' AND '.join(search_query)
 
-    def search(self, *args, **kwargs) -> SRWResponse:
+    def search(self, *args, **kwargs):
         '''Perform a CQL based search based on chained filters.'''
         search_query = SRUSearch._lookup_to_search(*args, **kwargs)
         response = super().search(query=search_query)
@@ -244,7 +243,7 @@ class SRUSearch(WorldCatClientBase):
                              err, response.content[:100])
                 # ... not sure what details are useful here
 
-    def get_worldcat_rdf(self, marc_record: pymarc.record.Record) -> WorldCatEntity:
+    def get_worldcat_rdf(self, marc_record):
         '''Given a MARC record from OCLC, load the RDF for the corresponding
         OCLC URI'''
 

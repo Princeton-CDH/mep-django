@@ -56,7 +56,7 @@ class Subject(models.Model):
         return '<Subject %s (%s)>' % (self.uri, self.name)
 
     @classmethod
-    def create_from_uri(cls, uri: str) -> 'Subject':
+    def create_from_uri(cls, uri):
         '''Initialize a new :class:`Subject` from a URI. Loads the URI
         as an :class:`rdflib.Graph` in order to pull the preferred label
         and RDF type for the URI.'''
@@ -187,7 +187,7 @@ class Item(Notable, Indexable):
         return self.creator_by_type('Author')
 
     def author_list(self):
-        '''semicolonseparated list of author names'''
+        '''semicolon separated list of author names'''
         return '; '.join([str(auth) for auth in self.authors])
     author_list.verbose_name = 'Authors'
 
@@ -238,7 +238,7 @@ class Item(Notable, Indexable):
         return index_data
 
     @property
-    def first_known_interaction(self) -> datetime.date:
+    def first_known_interaction(self):
         '''date of the earliest known interaction for this item'''
 
         # search for the earliest start date, excluding any borrow
@@ -252,7 +252,7 @@ class Item(Notable, Indexable):
         if first_event:
             return first_event.start_date
 
-    def populate_from_worldcat(self, worldcat_entity: WorldCatEntity):
+    def populate_from_worldcat(self, worldcat_entity):
         '''Set work URI, edition URI, genre, item type, and subjects
         based on a WorldCat record.'''
         self.uri = worldcat_entity.work_uri
@@ -285,7 +285,7 @@ class Item(Notable, Indexable):
 class CreatorType(Named, Notable):
     '''Type of creator role a person can have to an item; author,
     editor, translator, etc.'''
-    pass
+
 
 class Creator(Notable):
     creator_type = models.ForeignKey(CreatorType)
