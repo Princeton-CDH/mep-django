@@ -345,6 +345,15 @@ class Person(Notable, DateRange, Indexable):
         return self.address_set.count()
     address_count.short_description = '# Addresses'
 
+    def accound_id(self):
+        '''Return the id number of the person's associated
+        :class:`~mep.accounts.models.Account` or empty string if not.'''
+        # used in admin list view, assumes only one account but
+        # uses M2M prior to refactor
+        if self.account_set.exists():
+            return self.account_set.first().id
+        return ''
+
     def has_account(self):
         '''Return whether an instance of :class:`mep.accounts.models.Account` exists for this person.'''
         return self.account_set.exists()
