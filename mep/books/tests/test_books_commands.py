@@ -207,10 +207,10 @@ class TestReconcileOCLC(TestCase):
 
         result = self.cmd.oclc_search(item)
         assert result == srwresponse
-        # should search on title, author, year
+        # should search on title, author, year, material type book
         mock_sru_search.search.assert_called_with(
             title__exact=item.title, author__all=str(person),
-            year=item.year)
+            year=item.year, material_type__exact='book')
 
         # search does not include missing fields
         # - delete all but title, no events for first known interaction
@@ -218,7 +218,8 @@ class TestReconcileOCLC(TestCase):
         item.year = None
         self.cmd.oclc_search(item)
         # should search on title only
-        mock_sru_search.search.assert_called_with(title__exact=item.title)
+        mock_sru_search.search.assert_called_with(
+            title__exact=item.title, material_type__exact='book')
 
         # test filtering by material type  periodical
         item.notes = 'PERIODICAL'
@@ -232,7 +233,8 @@ class TestReconcileOCLC(TestCase):
             oclc_info = self.cmd.oclc_search(item)
             # should search on title and year range
             mock_sru_search.search.assert_called_with(
-                title__exact=item.title, year="-1940")
+                title__exact=item.title, year="-1940",
+                material_type__exact='book')
 
     def test_oclc_info(self):
         srwresponse = get_srwresponse_xml_fixture()

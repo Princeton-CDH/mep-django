@@ -173,9 +173,10 @@ class Command(BaseCommand):
                 # range search ending with first known event date
                 search_opts['year'] = "-%s" % first_date.year
 
-        # filter to just periodicals if notes indicate
-        if 'PERIODICAL' in item.notes:
-            search_opts['material_type__exact'] = 'periodical'
+        # filter by material type; assume item is a book unless
+        # notes indicate periodical
+        search_opts['material_type__exact'] = 'periodical' \
+            if 'PERIODICAL' in item.notes else 'book'
 
         return self.sru_search.search(**search_opts)
 
