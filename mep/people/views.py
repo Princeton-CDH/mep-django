@@ -99,6 +99,10 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         self._form.set_choices_from_facets(self.object_list.get_facets()['facet_fields'])
+        # breadcrumbs
+        context['breadcrumbs'] = {
+            'Members': reverse('people:members-list')
+        }
         return context
 
     def get_page_labels(self, paginator):
@@ -125,6 +129,15 @@ class MemberDetail(DetailView):
     def get_queryset(self):
         # throw a 404 if a non-member is accessed via this route
         return super().get_queryset().exclude(account=None)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['breadcrumbs'] = {
+            'Members': reverse('people:members-list'),
+            'name': self.object.get_absolute_url()
+        }
+        return context
+
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):
