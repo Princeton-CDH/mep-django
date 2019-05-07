@@ -7,11 +7,15 @@
 {% endcomment%}
 <fieldset class="facet"{% include "django/forms/widgets/attrs.html" %}>
 <legend>{{ widget.legend }}</legend>
+<ul class="choices">
 {% for group, options, index in widget.optgroups %}
-        {% for option in options %}
+    {% for option in options %}
+    <li class="choice">
         {# includes a revised version of Django's attr snippet to remove legend #}
         <input type="checkbox" value="{{ option.value }}" id="{{ option.attrs.id }}" name="{{ widget.name }}" {% if widget.required %}required{% endif %} {% if option.attrs.checked %}checked{% endif %}>
         <label for="{{ option.attrs.id }}"> {{ option.label }} </label>
+    </li>
     {% endfor %}
 {% endfor %}
-    </fieldset>
+</ul>
+</fieldset>
