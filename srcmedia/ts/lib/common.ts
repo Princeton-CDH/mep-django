@@ -97,10 +97,10 @@ function getTransitionDuration (element: HTMLElement): number {
     return isNaN(parsed) ? 0 : parsed
 }
 
-abstract class Rx<Element> {
-    element: Element
+abstract class Rx<E extends HTMLElement> {
+    protected element: E
     
-    constructor(element: Element) {
+    constructor(element: E) {
         this.element = element
     }
 }

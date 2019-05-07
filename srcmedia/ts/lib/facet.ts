@@ -1,7 +1,7 @@
-import { Subject } from 'rxjs'
+import { Observable, Subject, fromEvent, merge } from 'rxjs'
 
 import { RxCheckboxInput } from './input'
-import { animateElementContent } from './common'
+import { Rx, animateElementContent } from './common'
 
 /**
  * A boolean (checkbox) facet that can update the count in its <label>.
@@ -20,8 +20,10 @@ class RxBooleanFacet extends RxCheckboxInput {
         super(element)
         this.count = new Subject()
         // assume the count is an element inside the label with class 'count'
-        if (this.label) this.countElement = this.label.querySelector('.count')
-        this.count.subscribe(this.updateCount)
+        if (this.label) {
+            this.countElement = this.label.querySelector('.count')
+            this.count.subscribe(this.updateCount)
+        }
     }
 
     /**
@@ -35,10 +37,49 @@ class RxBooleanFacet extends RxCheckboxInput {
      * @memberof RxBooleanFacet
      */
     protected updateCount = async (count: number): Promise<string> => {
-        return animateElementContent(this.element, count.toLocaleString())
+        if (this.countElement) {
+            return animateElementContent(this.countElement, count.toLocaleString())
+        }
+        return count.toLocaleString()
+    }
+}
+
+class RxChoiceFacet extends Rx<HTMLFieldSetElement> {
+    
+    protected $inputs: Array<HTMLInputElement>
+    public counts: Subject<[string, number]> // input from solr
+    public events: Observable<Event>
+
+    constructor (element: HTMLFieldSetElement) {
+        super(element)
+        // find and save all the <input>s associated with this facet
+        this.$inputs = Array.from(this.element.getElementsByTagName('input'))
+        this.counts = new Subject()
+        // keep track of the user's selections so we can tell the form to update
+        this.events = merge(...this.$inputs.map($input => fromEvent($input, 'input')))
+        this.counts.subscribe(this.updateCount)
+    }
+
+    /**
+     * Finds the relevant count element for each choice input and calls
+     * animateElementContent() to swap out the number displayed in it.
+     * 
+     * Assumes the input has exactly one <label> that contains a <span> with
+     * class 'count'.
+     *
+     * @protected
+     * @memberof RxChoiceFacet
+     */
+    protected updateCount = async ([label, count]: [string, number]): Promise<void> => {
+        const value = (label == 'null' ? '' : label) // solr 'null' becomes empty value ""
+        const $input = this.$inputs.find($input => $input.value == value)
+        //@ts-ignore
+        const $count = $input.labels[0].querySelector('.count') as HTMLSpanElement
+        await animateElementContent($count, count.toLocaleString())
     }
 }
 
 export {
     RxBooleanFacet,
+    RxChoiceFacet
 }
