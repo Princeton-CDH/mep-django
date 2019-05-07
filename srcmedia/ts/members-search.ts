@@ -1,5 +1,5 @@
 import { merge } from 'rxjs'
-import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, skip } from 'rxjs/operators'
+import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, skip, flatMap } from 'rxjs/operators'
 
 import { arraysAreEqual, animateElementContent } from './lib/common'
 import { RxTextInput, RxCheckboxInput } from './lib/input'
@@ -7,6 +7,7 @@ import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
 import { RxSelect } from './lib/select'
 import PageControls from './components/PageControls'
+import { RxChoiceFacet, RxBooleanFacet } from './lib/facet'
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -14,22 +15,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const $membersSearchForm = document.getElementById('members-form') as HTMLFormElement
     const $keywordInput = document.querySelector('input[name=query]') as HTMLInputElement
     const $hasCardInput = document.querySelector('input[name=has_card]') as HTMLInputElement
-    const $hasCardCount = document.querySelector('input[name=has_card] + label .count') as HTMLSpanElement
     const $resultsOutput = document.querySelector('output[form=members-form]') as HTMLOutputElement
     const $totalResultsOutput = document.querySelector('output.total-results') as HTMLOutputElement
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
+    const $genderFacet = document.querySelector('#id_sex') as HTMLFieldSetElement
+
 
     /* COMPONENTS */
     const membersSearchForm = new RxFacetedSearchForm($membersSearchForm)
     const keywordInput = new RxTextInput($keywordInput)
-    const hasCardInput = new RxCheckboxInput($hasCardInput)
+    const hasCardFacet = new RxBooleanFacet($hasCardInput)
     const resultsOutput = new RxOutput($resultsOutput)
     const totalResultsOutput = new RxOutput($totalResultsOutput)
     const pageSelect = new RxSelect($pageSelect)
     const sortSelect = new RxSelect($sortSelect)
     const pageControls = new PageControls($pageControls)
+    const genderFacet = new RxChoiceFacet($genderFacet)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
@@ -80,10 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
     )
     const reloadFacets$ = merge( // a list of all the things that require fetching new facets
         keywordInput.state,
-        hasCardInput.state,
+        hasCardFacet.state,
+        genderFacet.events,
     )
     const reloadResults$ = merge( // a list of all the things that require fetching new results (jump to page 1)
-        reloadFacets$,
+        reloadFacets$, // anything that changes facets also triggers new results
         sortSelect.value
     ).pipe(debounceTime(100)) 
     // slight debounce - otherwise we would get repeated events when e.g.
@@ -100,10 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
         pluck('facet_fields'),
         pluck('has_card'),
         pluck('true'),
-        map(count => count.toLocaleString()), // map to string, including commas
-        startWith($hasCardCount.innerHTML), // start with current count
         distinctUntilChanged(), // only update when changed
-        skip(1), // ignore the initial update
+    )
+    const genderChoices = membersSearchForm.facets.pipe(
+        pluck('facet_fields'),
+        pluck('sex'),
+        flatMap(Object.entries),
     )
 
     /* SUBSCRIPTIONS */
@@ -115,7 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
     noResults$.subscribe(pageSelect.disabled)
 
     // Update the "has card" facet count
-    hasCardCount.subscribe(count => animateElementContent($hasCardCount, count))
+    hasCardCount.subscribe(hasCardFacet.count as any) // not sure why 'any' is necessary...
+
+    // Update the gender facet
+    genderChoices.subscribe(genderFacet.counts)
 
     // When a user changes the form, get new facets
     reloadFacets$.subscribe(() => membersSearchForm.getFacets())
