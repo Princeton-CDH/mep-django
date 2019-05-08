@@ -44,6 +44,17 @@ class RxBooleanFacet extends RxCheckboxInput {
     }
 }
 
+/**
+ * A choice facet consisting of multiple checkboxes where the user always
+ * has access to all the choices.
+ * 
+ * This facet is similar to a text facet, but intended for use where there are
+ * a limited number of choices that should always be displayed, regardless
+ * of counts.
+ *
+ * @class RxChoiceFacet
+ * @extends {Rx<HTMLFieldSetElement>}
+ */
 class RxChoiceFacet extends Rx<HTMLFieldSetElement> {
     
     protected $inputs: Array<HTMLInputElement>
