@@ -97,8 +97,6 @@ class MemberSearchForm(FacetForm):
         }),
         help_text='This filter will narrow results to show only members whose \
         library records are available.')
-    # NOTE: Temporarily make submit on every click, for testing before adding
-    # to reactive search
     sex = FacetChoiceField(label='Gender', widget=CheckboxFieldset())
 
     def __init__(self, data=None, *args, **kwargs):
