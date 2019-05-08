@@ -384,10 +384,16 @@ class TestCheckboxFieldset(TestCase):
         expected_output = '''
         <fieldset class="facet" id="widget_id">
             <legend>Foo</legend>
+            <ul class="choices">
+            <li class="choice">
             <input type="checkbox" value="a" id="id_for_0" name="sex" checked />
            <label for="id_for_0"> A </label>
+           </li>
+           <li class="choice">
            <input type="checkbox" value="b" id="id_for_1" name="sex" />
            <label for="id_for_1"> B </label>
+           </li>
+           </ul>
         </fieldset>
         '''
         self.assertHTMLEqual(out, expected_output)
