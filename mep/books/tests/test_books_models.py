@@ -160,11 +160,12 @@ class TestItem(TestCase):
         item.populate_from_worldcat(worldcat_entity)
         assert item.subjects.count() == 1
 
-        # simulate error creating subject
+        # simulate error creating subject - returns None
         worldcat_entity.subjects = [
             'http://example.com/about/me',
         ]
-        mock_create_from_uri.side_effect = requests.exceptions.HTTPError
+        mock_create_from_uri.side_effect = None
+        mock_create_from_uri.return_value = None
         # shouldn't error
         item.populate_from_worldcat(worldcat_entity)
         mock_create_from_uri.assert_called_with(worldcat_entity.subjects[0])

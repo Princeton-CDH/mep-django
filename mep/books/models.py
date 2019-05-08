@@ -112,8 +112,10 @@ class Subject(models.Model):
             return Subject.objects.create(uri=uri, name=name,
                                           rdf_type=rdf_type)
 
-        # raise the HTTP error if there was one
-        response.raise_for_status()
+        # if the request failed or was not usable, log the error
+        logger.warning('Error creating Subject for %s (response %s, %s)',
+                       uri, response.status_code,
+                       response.headers['content-type'])
 
 
 class Item(Notable, Indexable):
@@ -268,16 +270,11 @@ class Item(Notable, Indexable):
             new_subject_uris = set(subject_uris) - \
                                set(subj.uri for subj in subjects)
             for subject_uri in new_subject_uris:
-                try:
-                    subject = Subject.create_from_uri(subject_uri)
-                    # could return None if there was no html error
-                    # but we got html
-                    if subject:
-                        subjects.append(subject)
-                except requests.exceptions.HTTPError as err:
-                    # warn if we get a 404
-                    logger.warning('Error creating Subject for %s (%s)',
-                                   subject_uri, err)
+                # try to create the subject
+                subject = Subject.create_from_uri(subject_uri)
+                # if successful, add to the list
+                if subject:
+                    subjects.append(subject)
             # set subjects on this item (replacing any previously set)
             self.subjects.set(subjects)
 
