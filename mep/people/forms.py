@@ -97,7 +97,9 @@ class MemberSearchForm(FacetForm):
         }),
         help_text='This filter will narrow results to show only members whose \
         library records are available.')
-    sex = FacetChoiceField(label='Gender', widget=CheckboxFieldset())
+    sex = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
+        'class': 'choice facet'
+    }))
 
     def __init__(self, data=None, *args, **kwargs):
         '''

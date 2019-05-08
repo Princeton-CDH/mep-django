@@ -3,7 +3,6 @@
     background: white;
     display: block;
     width: 100%;
-    height: 12rem;
     padding: 0.7rem;
     position: relative;
 
@@ -82,5 +81,52 @@
                 opacity: 1;
             }
         }
+    }
+
+
+    /**
+     * CHOICE FACET - used for facets where all options are always shown, e.g.
+     * 'gender' on members search and 'format' on books search
+     */
+    &.choice {
+        @media (max-width: calc(#{$breakpoint-s} - 1px)) { // special styles only apply on mobile
+            legend {
+                padding: 0;
+            }
+
+            .choices {
+                display: flex;
+            }
+    
+            .choice {
+                flex: 1;
+                border: 1px solid $light-grey;
+                padding-top: 0.1rem;
+            }
+    
+            label {
+                display: flex;
+                flex-direction: column;
+                padding: 0;
+    
+                &::before {
+                    top: initial;
+                    left: 0.2rem;
+                    bottom: 0.2rem;
+                }
+            }
+    
+            input:checked + label {
+                padding: 0;
+            }
+        }
+    }
+
+    /**
+     * TEXT FACET - used for facets where there can be many options, and those
+     * with a count of zero will be hidden, e.g. 'nationality' on members
+     */
+     &.text {
+        min-height: 12rem;
     }
 }

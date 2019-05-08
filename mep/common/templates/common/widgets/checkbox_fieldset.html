@@ -5,7 +5,7 @@
     It is never called externally, but instead maps widget attrs for the legend
     for the fieldset and name for each checkbox input.
 {% endcomment%}
-<fieldset class="facet"{% include "django/forms/widgets/attrs.html" %}>
+<fieldset {% include "django/forms/widgets/attrs.html" %}>
 <legend>{{ widget.legend }}</legend>
 <ul class="choices">
 {% for group, options, index in widget.optgroups %}
