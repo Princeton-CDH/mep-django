@@ -384,10 +384,16 @@ class TestCheckboxFieldset(TestCase):
         expected_output = '''
         <fieldset class="facet" id="widget_id">
             <legend>Foo</legend>
+            <ul class="choices">
+            <li class="choice">
             <input type="checkbox" value="a" id="id_for_0" name="sex" checked />
            <label for="id_for_0"> A </label>
+           </li>
+           <li class="choice">
            <input type="checkbox" value="b" id="id_for_1" name="sex" />
            <label for="id_for_1"> B </label>
+           </li>
+           </ul>
         </fieldset>
         '''
         self.assertHTMLEqual(out, expected_output)
@@ -450,14 +456,14 @@ class TestFacetForm(TestCase):
 
         # no mapping but matching field should be rendered
         assert test_form.fields['member_type'].choices == [
-            ('weekly', '<span class="label">weekly</span> <span class="count">2</span>'),
-            ('monthly', '<span class="label">monthly</span> <span class="count">1</span>'),
+            ('weekly', 'weekly<span class="count">2</span>'),
+            ('monthly', 'monthly<span class="count">1</span>'),
         ]
         # mapping should convert solr field name to form field name
         assert test_form.fields['name'].choices == [
             # check that comma formatting appears as expected
-            ('Jane', '<span class="label">Jane</span> <span class="count">2,000</span>'),
-            ('John', '<span class="label">John</span> <span class="count">1</span>')
+            ('Jane', 'Jane<span class="count">2,000</span>'),
+            ('John', 'John<span class="count">1</span>')
         ]
         # unhandled field should not be passed in
         assert 'unhanded_field' not in test_form.fields

@@ -65,8 +65,7 @@ class FacetForm(forms.Form):
                 self.fields[formfield].choices = [
                     # iterate over val and counts in counts dictionary
                     # and format as a lable and comma separated integer
-                    (val, mark_safe('<span class="label">{}</span> '
-                                    '<span class="count">{:,}</span>'\
+                    (val, mark_safe('{}<span class="count">{:,}</span>'\
                                     .format(val if val else 'Unknown', count)))
                     for val, count in counts.items()
                 ]
