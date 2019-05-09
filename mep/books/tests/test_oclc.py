@@ -287,6 +287,10 @@ class TestWorldCatEntity:
         wc_entity.rdf_resource.add(rdflib.RDF.type, SCHEMA_ORG.Article)
         assert wc_entity.item_type == 'http://schema.org/Article'
 
+        # simulate no type
+        wc_entity.rdf_resource.remove(rdflib.RDF.type)
+        assert wc_entity.item_type == None
+
     def test_genre(self):
         time_and_tide = self.worldcat_entity_from_fixture_timetide()
         assert time_and_tide.genre == 'Periodicals'

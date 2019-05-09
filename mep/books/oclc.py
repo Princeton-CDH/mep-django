@@ -174,7 +174,8 @@ class WorldCatEntity:
         if basic_type:
             return basic_type.pop()
         # otherwise, use the first non-creative work rdf type
-        return rdf_types[0]
+        if rdf_types:
+            return rdf_types[0]
 
     @property
     def genre(self):

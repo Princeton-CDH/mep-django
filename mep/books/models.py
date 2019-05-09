@@ -268,7 +268,10 @@ class Item(Notable, Indexable):
     def populate_from_worldcat(self, worldcat_entity):
         '''Set work URI, edition URI, genre, item type, and subjects
         based on a WorldCat record.'''
-        self.uri = worldcat_entity.work_uri
+
+        # work URI apparently not available in all cases; set to
+        # empty string instead of None/null
+        self.uri = worldcat_entity.work_uri or ''
         self.edition_uri = worldcat_entity.item_uri
         self.genre = worldcat_entity.genre or ''
         # types will be prepopulated to work with OCLC search results
