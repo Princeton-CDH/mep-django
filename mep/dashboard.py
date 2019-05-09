@@ -58,6 +58,8 @@ class CustomIndexDashboard(Dashboard):
             models=([
                 'mep.books.models.Item',
                 'mep.books.models.CreatorType',
+                'mep.books.models.Format',
+                'mep.books.models.Subject',
             ]),
         ))
 
