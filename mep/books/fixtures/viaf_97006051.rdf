@@ -1,0 +1,1218 @@
+<rdf:RDF
+    xmlns:umbel="http://umbel.org/umbel#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:ns1="http://viaf.org/viaf/terms#"
+    xmlns:wdt="http://www.wikidata.org/prop/direct/"
+    xmlns:bgn="http://bibliograph.net/"
+    xmlns:dbo="http://dbpedia.org/ontology/"
+    xmlns:schema="http://schema.org/"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:genont="http://www.w3.org/2006/gen/ont#"
+    xmlns:void="http://rdfs.org/ns/void#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:re="http://oclcsrw.google.code/redirect"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:pto="http://www.productontology.org/id/"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/" > 
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/SELIBR%7C205435#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Хэмингуэй, Эрнест, 1899-1961.</skos:altLabel>
+    <skos:altLabel>Хемингуэй, Эрнест.</skos:altLabel>
+    <skos:altLabel>Cheminguej, Ernst, 1899-1961.</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/SELIBR"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NLA%7C000035186443#skos:Concept">
+    <skos:altLabel>Himīnjwāy, Īrnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hayminghwāy, Arnist, 1899-1961</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:altLabel>Haminghwāy, Irnist, 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:altLabel>Ḣeminguei̐, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvej, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hīminjwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvejs, Ernests, 1899-1961</skos:altLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NLA"/>
+    <skos:altLabel>Chemingouaiē, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest Miller, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿe, Ernesṭ, 1899-1961</skos:altLabel>
+    <skos:altLabel>Ḣeminguei̐, E. (Ernest), 1899-1961</skos:altLabel>
+    <skos:altLabel>Kheminguėĭ, Ėrnest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingwei, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿey, Ernesṭ, 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinghwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, E. (Ernest), 1899-1961</skos:altLabel>
+    <skos:altLabel>Hai-ming-wei, 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinghwāy, Bābā, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Haminghwāy, Arnist, 1899-1961</skos:altLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/RERO%7Cvtls003362021#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:prefLabel>Hemingway, Ernest</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/RERO"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/BLBNB%7C000582030#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Hemingway, Ernest Miller, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, E. 1899-1961 (Ernest)</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/BLBNB"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/SUDOC%7C026918471#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>همنغواي, إرنست.</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest Miller</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/SUDOC"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NTA%7C068506848#skos:Concept">
+    <skos:altLabel>Haminġwāy, Arnst, 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinġwāy, Irnist, 1899-1961</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NTA"/>
+    <schema:url>http://opc4.kb.nl/PPN?PPN=068506848</schema:url>
+    <skos:altLabel>海明威, 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest (Ernest Miller), 1899-1961</skos:prefLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Cheminguėj, Ėrnest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, E., 1899-1961</skos:altLabel>
+    <skos:altLabel>Haimingwei, 1899-1961</skos:altLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NII%7CDA00369747#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>ہمینگ وے, ارنسٹ</skos:altLabel>
+    <skos:altLabel>Хемингуэй, Эрнест</skos:altLabel>
+    <skos:altLabel>ヘミングウェイ, アーネスト</skos:altLabel>
+    <skos:altLabel>海明威, 厄纳斯特</skos:altLabel>
+    <skos:altLabel>Hai-ming-wei</skos:altLabel>
+    <skos:altLabel>Hemingvej, Ernest</skos:altLabel>
+    <skos:altLabel>海明威, 厄内斯特</skos:altLabel>
+    <skos:altLabel>Hemingwei</skos:altLabel>
+    <skos:altLabel>Hīminjwāy, Arnist</skos:altLabel>
+    <skos:altLabel>Kheminguėĭ, Ėrnest</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest M.</skos:altLabel>
+    <skos:altLabel>海明威, 欧内斯特</skos:altLabel>
+    <skos:altLabel>ارنسٹ ہمینگ وے</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest Miller</skos:altLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NII"/>
+    <skos:altLabel>Kheminguèĭ, Ernest</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:prefLabel>Hemingway, Ernest</skos:prefLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NLI%7C000061961#skos:Concept">
+    <skos:prefLabel>המינגוויי, ארנסט, 1899-1961</skos:prefLabel>
+    <skos:altLabel>המינגווי, ארנסט מילר</skos:altLabel>
+    <skos:altLabel>همينغواى، ارنست، 1899-1961</skos:altLabel>
+    <skos:prefLabel>هيمنغواى، ارنست، 1899-1961</skos:prefLabel>
+    <skos:altLabel>همنغواى، ارنست، 1899-1961</skos:altLabel>
+    <skos:prefLabel>Хемингуэй, Эрнест, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NLI"/>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>העמינגוועי, ארנסט, 1899-1961</skos:altLabel>
+    <skos:altLabel>האמינגווי, ארנסט</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:altLabel>המינגוי, ארנסט, 1899-1961</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NLR%7CRU+NLR+AUTH+7774728#skos:Concept">
+    <skos:altLabel>Хемiнгуей Е. 1899-1961</skos:altLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Хемингуэй Э. М. 1899-1961 z</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:prefLabel>Hemingway, E. 1899-1961 Ernest</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NLR"/>
+    <skos:altLabel>Хемингуэй Э. 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway E. 1899-1961</skos:altLabel>
+    <skos:prefLabel>Хемингуэй, Э. 1899-1961 Эрнест</skos:prefLabel>
+    <skos:prefLabel>Хемiнгуей, Е. 1899-1961 Ернест</skos:prefLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NUKAT%7Cn++93125702#skos:Concept">
+    <skos:altLabel>Heminguèj, Èrnest.</skos:altLabel>
+    <skos:altLabel>Chemingkgouei, Ernest.</skos:altLabel>
+    <skos:altLabel>E. H. [a]</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:altLabel>Hemingway, Ernest Miller.</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Heminguwei, Ānesuto.</skos:altLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NUKAT"/>
+    <skos:altLabel>Heminguèj, È.</skos:altLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/ISNI%7C0000000121445832#skos:Concept">
+    <skos:altLabel>إرنست همنغواي، 1899-1961</skos:altLabel>
+    <skos:altLabel>Ернест Хемінгуей</skos:altLabel>
+    <skos:altLabel>إرنست همنجواى، 1899-1961م</skos:altLabel>
+    <skos:altLabel>Hemingwei, Ŏnesŭtʻŭ 1899-1961</skos:altLabel>
+    <skos:altLabel>همنغواي، ‏إرنست ميلر، 1899-1961</skos:altLabel>
+    <skos:altLabel>ಅರ್ನೆಸ್ಟ್ ಹೆಮಿಂಗ್ವೇ</skos:altLabel>
+    <skos:altLabel>Chemingkgouei, Ernest</skos:altLabel>
+    <skos:altLabel>העמינגוועי, ארנסט 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinghwāy 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingve, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, Ernest</skos:altLabel>
+    <skos:altLabel>Himīnjwāy, Īrnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinġwāy, Irnist 1899-1961</skos:altLabel>
+    <skos:altLabel>همينگوى، ارنست</skos:altLabel>
+    <skos:altLabel>هيمنغواى، ارنست، 1899-1961</skos:altLabel>
+    <skos:altLabel>האמינגווי, ארנסט</skos:altLabel>
+    <skos:altLabel>Himinghway, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguwei, Anesuto 1899-1961</skos:altLabel>
+    <skos:altLabel>ஏர்னெஸ்ட் ஹெமிங்வே</skos:altLabel>
+    <skos:altLabel>Էռնեստ Հեմինգուեյ</skos:altLabel>
+    <skos:altLabel>Hemingwei 1899-1961</skos:altLabel>
+    <skos:altLabel>Hai-ming-wei 1899-1961</skos:altLabel>
+    <skos:altLabel>همنغواي، ارنست</skos:altLabel>
+    <skos:altLabel>Ernest Hemmingway</skos:altLabel>
+    <skos:altLabel>海明威 1899-1961</skos:altLabel>
+    <skos:altLabel>המינגווי, ארנסט 1899-1961</skos:altLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>همينغوي، ‏إرنست، 1899-1961</skos:altLabel>
+    <skos:altLabel>Ernest Miller Hemingway</skos:altLabel>
+    <skos:altLabel>আর্নেস্ট হেমিংওয়ে</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest Miller</skos:altLabel>
+    <skos:altLabel>Cheminhuej, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguèj, È.</skos:altLabel>
+    <skos:altLabel>Hemingṿey, Erneṣţ 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway Ernest Miller</skos:altLabel>
+    <skos:altLabel>ئېرنېست ھېمىڭۋاي</skos:altLabel>
+    <skos:altLabel>Himinghwāy 1899-1961 Bābā</skos:altLabel>
+    <skos:altLabel>Хемингуэй, Э 1899-1961</skos:altLabel>
+    <skos:altLabel>Ernest Hemingway US-amerikanischen Schriftsteller</skos:altLabel>
+    <skos:altLabel>Ernest Hemingway escritor estadounidense</skos:altLabel>
+    <skos:altLabel>Эрнест Миллер Хемингуэй</skos:altLabel>
+    <skos:altLabel>Hemingṿey, Ernesṭ 1899-1961</skos:altLabel>
+    <skos:altLabel>ארנסט המינגוויי</skos:altLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/ISNI"/>
+    <skos:altLabel>همنغواى، ارنست، 1899-1961</skos:altLabel>
+    <skos:altLabel>Ernest Hemigueý</skos:altLabel>
+    <skos:altLabel>ヘミングウェイ, アーネスト 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest Miller 1899-1961</skos:altLabel>
+    <skos:altLabel>Ernest Hemingway Amerikano a nobelista ken mannurat</skos:altLabel>
+    <skos:altLabel>ارنست همینگوی</skos:altLabel>
+    <skos:altLabel>Haminġwāy, Irnist 1899-1961</skos:altLabel>
+    <skos:altLabel>המינגווי, ארנסט מילר</skos:altLabel>
+    <skos:altLabel>ھېمىڭۋاي 1899-1961</skos:altLabel>
+    <skos:altLabel>ኧርነስት ሄሚንጔይ</skos:altLabel>
+    <skos:altLabel>Haimingwei, Eneisite 1899-1961</skos:altLabel>
+    <skos:altLabel>هيمنجواي، إرنست، 1899-1961</skos:altLabel>
+    <skos:altLabel>헤밍웨이, 어네스트 1899-1961</skos:altLabel>
+    <skos:altLabel>Ḣeminguei̐, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Ernest Hemingway Amerikaans schrijver</skos:altLabel>
+    <skos:prefLabel>Ernest Hemingway American author and journalist</skos:prefLabel>
+    <skos:altLabel>Hemingvej, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Эрнэст Хемінгуэй</skos:altLabel>
+    <skos:altLabel>Haimingwei, Ennasite 1899-1961</skos:altLabel>
+    <skos:altLabel>Chaiminkouaiē, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>E. ヘミングウェイ 1899-1961</skos:altLabel>
+    <skos:altLabel>އާނިސްޓް ހެމިންވޭ އާނިސްޓް ހެމިންވޭ</skos:altLabel>
+    <skos:altLabel>Ernest Hemingway écrivain, journaliste et correspondant de guerre américain</skos:altLabel>
+    <skos:altLabel>המינגוויי, ארנסט 1899-1961</skos:altLabel>
+    <skos:altLabel>همنغواي, إرنست</skos:altLabel>
+    <skos:altLabel>ဟင်းမင်းဝေး၊ အားနက်</skos:altLabel>
+    <skos:altLabel>Hemingṿe, Ernesṭ 1899-1961</skos:altLabel>
+    <skos:altLabel>ارنېست مېلر هېمېنگوې</skos:altLabel>
+    <skos:altLabel>Ernest Heminquey</skos:altLabel>
+    <skos:altLabel>Ernest Hemingway amerikansk forfatter</skos:altLabel>
+    <skos:altLabel>Hīminjwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>เออร์เนสต์ เฮมิงเวย์</skos:altLabel>
+    <skos:altLabel>Haminġwāy, Arnst 1899-1961</skos:altLabel>
+    <skos:altLabel>Эрнэст Гэмінгўэй амэрыканскі пісьменьнік</skos:altLabel>
+    <skos:altLabel>海明威, 欧内斯特 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguei, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Хемингуэй, Эрнест 1899-1961</skos:altLabel>
+    <skos:altLabel>Haimingwei, Ouneisite 1899-1961</skos:altLabel>
+    <skos:altLabel>Haiminġve 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, E.</skos:altLabel>
+    <skos:altLabel>Haminghway, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>海明威</skos:altLabel>
+    <skos:altLabel>ਅਰਨੈਸਟ ਹੈਮਿੰਗਵੇ</skos:altLabel>
+    <skos:altLabel>Хемингуэй, Э. М 1899-1961</skos:altLabel>
+    <skos:altLabel>Ърнест Хемингуей</skos:altLabel>
+    <skos:altLabel>Haminġwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Ḣeminguei̐, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>アーネスト・ヘミングウェイ</skos:altLabel>
+    <skos:altLabel>Hemingvey, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest M. 1899-1961</skos:altLabel>
+    <skos:altLabel>העמינגוועי, ערנעסט</skos:altLabel>
+    <skos:altLabel>어니스트 헤밍웨이</skos:altLabel>
+    <skos:altLabel>Ernest Hemingway americký spisovatel a novinář</skos:altLabel>
+    <skos:altLabel>Chemingouaie, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>همنغواي، إرنست، 1899-1961</skos:altLabel>
+    <skos:altLabel>ارنسٹ ہیمنگو ے</skos:altLabel>
+    <skos:altLabel>Хемингуэй</skos:altLabel>
+    <skos:altLabel>Hemingvejs, Ernests 1899-1961</skos:altLabel>
+    <skos:altLabel>ഏണസ്റ്റ് ഹെമിങ്‌വേ</skos:altLabel>
+    <skos:altLabel>Хемингуэй Э</skos:altLabel>
+    <skos:altLabel>Ernest Hemingway pisarz amerykański</skos:altLabel>
+    <skos:altLabel>Himinjway, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>ئرنست هەمنگوای</skos:altLabel>
+    <skos:altLabel>Ernests Hemingvejs amerikāņu rakstnieks un žurnālists</skos:altLabel>
+    <skos:altLabel>המינגוי, ארנסט</skos:altLabel>
+    <skos:altLabel>ერნესტ ჰემინგუეი</skos:altLabel>
+    <skos:altLabel>Hemingway 1899-1961</skos:altLabel>
+    <skos:altLabel>Эрнест Хемингуэй Американский писатель, журналист, лауреат Нобелевской премии по литературе 1954 года</skos:altLabel>
+    <skos:altLabel>Hemingṿe, Erneṣţ 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway E.</skos:altLabel>
+    <skos:altLabel>Himinghwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Ernest Hemingway</skos:altLabel>
+    <skos:altLabel>Haminghwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Chemingouaiē, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Ернест Хемингвеј</skos:altLabel>
+    <skos:altLabel>Хэмингуэй, Эрнест 1899-1961</skos:altLabel>
+    <skos:altLabel>ارنسٹ ہیمنگوئے</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest</skos:altLabel>
+    <skos:altLabel>Хемингуэй Э. М</skos:altLabel>
+    <skos:altLabel>המינגוי, ארנסט 1899-1961</skos:altLabel>
+    <skos:altLabel>همنجواي، إيرنست، 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway Ernest</skos:altLabel>
+    <skos:altLabel>Ernestus Hemingway</skos:altLabel>
+    <skos:altLabel>Heminguej, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Hayminghwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Ernest Hemingway scrittore e giornalista statunitense</skos:altLabel>
+    <skos:altLabel>अर्नस्ट हेमिंग्वे</skos:altLabel>
+    <skos:altLabel>ヘミングウェイ, アーネスト</skos:altLabel>
+    <skos:altLabel>Έρνεστ Χέμινγουεϊ</skos:altLabel>
+    <skos:altLabel>Hayminghway, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguwei, Ānesuto 1899-1961</skos:altLabel>
+    <skos:altLabel>अर्नेस्ट हेमिङ्वे</skos:altLabel>
+    <skos:altLabel>Хемiнгуей Е</skos:altLabel>
+    <skos:altLabel>Cheminguėj, Ėrnest 1899-1961</skos:altLabel>
+    <skos:altLabel>המינגווי, ארנסט</skos:altLabel>
+    <skos:altLabel>Hemingway, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvejs, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Cheminguej, Ernst 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernesto 1899-1961</skos:altLabel>
+    <skos:altLabel>ఎర్నెస్ట్ హెమింగ్‌వే</skos:altLabel>
+    <skos:altLabel>إرنست همينغوي</skos:altLabel>
+    <skos:altLabel>Hemingvej, Ernest</skos:altLabel>
+    <skos:altLabel>ارنست هيمنجواى</skos:altLabel>
+    <skos:altLabel>E. H</skos:altLabel>
+    <skos:altLabel>欧内斯特·海明威</skos:altLabel>
+    <skos:altLabel>Kheminguei, Ernest 1899-1961</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:altLabel>Heminguèj, Èrnest</skos:altLabel>
+    <skos:altLabel>Cheminguej, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>همينغواى، ارنست، 1899-1961</skos:altLabel>
+    <skos:altLabel>Kheminguėĭ, Ėrnest 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguei, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Эрнест Ҳемингуей</skos:altLabel>
+    <skos:altLabel>Haimingwei 1899-1961</skos:altLabel>
+    <skos:altLabel>Хемiнгуей, Е 1899-1961</skos:altLabel>
+    <skos:altLabel>Chėminguėj, Ėrnest 1899-1961</skos:altLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/97006051">
+    <schema:familyName>Himinghway</schema:familyName>
+    <schema:familyName>Ḣeminguei̐</schema:familyName>
+    <schema:alternateName>헤밍웨이</schema:alternateName>
+    <schema:familyName>Kheminguėĭ</schema:familyName>
+    <schema:familyName>Haminġwāy</schema:familyName>
+    <schema:familyName>Himīnjwāy</schema:familyName>
+    <schema:familyName>Hayminghway</schema:familyName>
+    <schema:alternateName>إرنست همنجواى،</schema:alternateName>
+    <schema:alternateName>어니스트 헤밍웨이</schema:alternateName>
+    <rdfs:comment>BCP47 tag for 'WKP|Q23434' is undetermined. Name is 'Ernest Miller Hemingway'.</rdfs:comment>
+    <schema:alternateName>Ernesṭ Hemingṿei</schema:alternateName>
+    <schema:alternateName>إرنست همنغواي</schema:alternateName>
+    <schema:alternateName>E. ヘミングウェイ</schema:alternateName>
+    <schema:alternateName>Irnist Haminghwāy</schema:alternateName>
+    <schema:birthDate>1899-07-21</schema:birthDate>
+    <schema:alternateName>Haiminġve</schema:alternateName>
+    <schema:givenName>ארנסט מילר</schema:givenName>
+    <schema:givenName>Eneisite</schema:givenName>
+    <schema:familyName>Хемiнгуей</schema:familyName>
+    <schema:alternateName>에네스트 헤밍웨이</schema:alternateName>
+    <schema:familyName>העמינגוועי</schema:familyName>
+    <schema:alternateName>ارنست همینگوی</schema:alternateName>
+    <schema:alternateName>Haimingwei</schema:alternateName>
+    <schema:alternateName>ארנסט העמינגוועי</schema:alternateName>
+    <rdfs:comment>BCP47 tag for 'ERRR' is undetermined. Name is 'Эрнест Хемингуэй'.</rdfs:comment>
+    <dbo:notableWork rdf:resource="http://viaf.org/viaf/186656023"/>
+    <schema:alternateName>Arnist Himinghwāy</schema:alternateName>
+    <schema:alternateName>Ŏnesŭtʻŭ Hemingwei</schema:alternateName>
+    <schema:alternateName>해명위</schema:alternateName>
+    <schema:alternateName>Эрнест Хэмингуэй</schema:alternateName>
+    <schema:alternateName>Arnist Haminghwāy</schema:alternateName>
+    <schema:familyName>Chaiminkouaiē</schema:familyName>
+    <schema:name xml:lang="ru-RU">E. Hemingway</schema:name>
+    <schema:name xml:lang="ar-EG">همنجواي، إرنست،</schema:name>
+    <schema:alternateName>Arnst Haminġwāy</schema:alternateName>
+    <schema:givenName>E.</schema:givenName>
+    <schema:alternateName>Ernest Chemingouaiē</schema:alternateName>
+    <schema:alternateName>Хемингуэй</schema:alternateName>
+    <schema:alternateName>Э. Хемингуэй</schema:alternateName>
+    <schema:familyName>ہمینگ وے</schema:familyName>
+    <schema:familyName>Haimingwei</schema:familyName>
+    <rdfs:comment xml:lang="en">Warning: skos:prefLabels are not ensured against change!</rdfs:comment>
+    <schema:givenName>Е</schema:givenName>
+    <schema:givenName>إرنست</schema:givenName>
+    <schema:deathDate>1961-07-02</schema:deathDate>
+    <schema:alternateName>ארנסט מילר המינגווי</schema:alternateName>
+    <schema:alternateName>Ē. M. Hemingvejs</schema:alternateName>
+    <schema:alternateName>Хемингуэй</schema:alternateName>
+    <schema:alternateName>Ānesuto Heminguwei</schema:alternateName>
+    <schema:alternateName>เออร์เนสต์ เฮมิงเวย์</schema:alternateName>
+    <schema:alternateName>ארנסט המינגוי</schema:alternateName>
+    <schema:alternateName>Эрнэст Хемінгуэй</schema:alternateName>
+    <schema:givenName>アーネスト</schema:givenName>
+    <schema:alternateName>Erneṣţ Hemingṿey</schema:alternateName>
+    <schema:alternateName>Ernest Hemingvej</schema:alternateName>
+    <rdfs:comment>BCP47 tag for 'CAOONL|ncf10100170' is undetermined. Name is 'Ernest Hemingway'.</rdfs:comment>
+    <schema:alternateName>ਅਰਨੈਸਟ ਹੈਮਿੰਗਵੇ</schema:alternateName>
+    <schema:alternateName>アーネスト ヘミングウェイ</schema:alternateName>
+    <dbo:notableWork rdf:resource="http://viaf.org/viaf/184296064"/>
+    <schema:alternateName>Ernest Chemingouaiē</schema:alternateName>
+    <schema:alternateName>अर्नेस्ट हेमिंग्वे</schema:alternateName>
+    <schema:alternateName>ارنست هيمنجواى</schema:alternateName>
+    <schema:givenName>厄内斯特</schema:givenName>
+    <schema:alternateName>Ernest Hemingway</schema:alternateName>
+    <schema:givenName>È.</schema:givenName>
+    <schema:name xml:lang="pt-PT">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="cs-CZ">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="fr-CA">Ernest Hemingway</schema:name>
+    <schema:alternateName>Irnist Himinġwāy</schema:alternateName>
+    <schema:name xml:lang="ca-ES">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="it-VA">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="lv-LV">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="en-AU">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="en-IL">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="sv-SE">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="es-CL">Ernest Hemingway</schema:name>
+    <schema:alternateName>Ernest Cheminguej</schema:alternateName>
+    <schema:name xml:lang="nl-NL">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="en-US">Ernest Hemingway</schema:name>
+    <schema:alternateName>Эрнест Хемингуэй</schema:alternateName>
+    <schema:name xml:lang="de-DE">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="es-ES">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="en-KR">Ernest Hemingway</schema:name>
+    <schema:alternateName>Ernest Kheminguei</schema:alternateName>
+    <schema:name xml:lang="no-NO">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="en">Ernest Hemingway</schema:name>
+    <schema:name>Ernest Hemingway</schema:name>
+    <schema:name xml:lang="fr-FR">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="fr-CH">Ernest Hemingway</schema:name>
+    <schema:alternateName>Ėrnest Chėminguėj</schema:alternateName>
+    <schema:name xml:lang="ja-JP">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="da-DK">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="hr-HR">Ernest Hemingway</schema:name>
+    <schema:name xml:lang="pl-PL">Ernest Hemingway</schema:name>
+    <schema:alternateName>Arnist Haminghwāy</schema:alternateName>
+    <schema:alternateName>Ernesṭ Hemingṿe</schema:alternateName>
+    <rdf:value rdf:parseType="Literal"><ns1:source xmlns:ns1="http://viaf.org/viaf/terms#" nsid="ncf10100170">CAOONL|ncf10100170</ns1:source></rdf:value>
+    <schema:givenName>Ernest Miller</schema:givenName>
+    <schema:familyName>Himinġwāy</schema:familyName>
+    <rdfs:comment>BCP47 tag for 'ERRR|a11145213' is undetermined. Name is 'Ernest Hemingway'.</rdfs:comment>
+    <schema:familyName>Hemingway</schema:familyName>
+    <schema:givenName>ערנעסט</schema:givenName>
+    <schema:givenName>Ėrnest</schema:givenName>
+    <schema:sameAs rdf:resource="http://datos.bne.es/resource/XX844022"/>
+    <schema:alternateName>Ėrnest Kheminguėĭ</schema:alternateName>
+    <schema:sameAs rdf:resource="http://vocab.getty.edu/ulan/500277629-agent"/>
+    <schema:familyName>Himinjway</schema:familyName>
+    <rdfs:comment>BCP47 tag for 'CAOONL' is undetermined. Name is 'Ernest Hemingway'.</rdfs:comment>
+    <schema:alternateName>إرنست همنجواي،</schema:alternateName>
+    <schema:givenName>Э.</schema:givenName>
+    <schema:familyName>Kheminguėĭ</schema:familyName>
+    <schema:givenName>Ernst</schema:givenName>
+    <schema:givenName>Ernest M.</schema:givenName>
+    <schema:givenName>Ernest,</schema:givenName>
+    <schema:gender rdf:resource="http://www.wikidata.org/entity/Q6581097"/>
+    <schema:givenName>Anesuto</schema:givenName>
+    <schema:alternateName>Ernest Heminguej</schema:alternateName>
+    <schema:alternateName>همينغواى، ارنست،</schema:alternateName>
+    <schema:alternateName>Erneṣţ Hemingṿe</schema:alternateName>
+    <schema:alternateName>Ānesuto Heminguwei</schema:alternateName>
+    <schema:alternateName>Эрнест Хемингуей</schema:alternateName>
+    <schema:name xml:lang="ru-RU">Е. Хемiнгуей</schema:name>
+    <schema:alternateName>어니스트 밀러 헤밍웨이</schema:alternateName>
+    <rdf:type rdf:resource="http://schema.org/Person"/>
+    <schema:alternateName>ერნესტ ჰემინგუეი</schema:alternateName>
+    <schema:familyName>Hemingvej</schema:familyName>
+    <schema:familyName>همنغواي</schema:familyName>
+    <schema:familyName>Himīnjwāy</schema:familyName>
+    <schema:alternateName>Ėrnest Kheminguėĭ</schema:alternateName>
+    <schema:alternateName>구내사특 해명위</schema:alternateName>
+    <schema:sameAs rdf:resource="http://id.ndl.go.jp/auth/entity/00442997"/>
+    <schema:sameAs rdf:resource="http://dbpedia.org/resource/Ernest_Hemingway"/>
+    <schema:alternateName>ארנסט האמינגווי</schema:alternateName>
+    <schema:description>Ернест</schema:description>
+    <skos:prefLabel xml:lang="pt-PT">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="cs-CZ">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="ca-ES">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="it-VA">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="en-US">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="lv-LV">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="ja-JP">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="en-AU">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="en-IL">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="sv-SE">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="es-CL">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="nl-NL">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="de-DE">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="es-ES">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="en-KR">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="no-NO">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="fr-CH">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="fr-FR">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="da-DK">Ernest Hemingway</skos:prefLabel>
+    <skos:prefLabel xml:lang="hr-HR">Ernest Hemingway</skos:prefLabel>
+    <schema:familyName>Hemingve</schema:familyName>
+    <skos:prefLabel xml:lang="pl-PL">Ernest Hemingway</skos:prefLabel>
+    <schema:familyName>Hemingṿe</schema:familyName>
+    <schema:alternateName>Ėrnest Chėminguėj</schema:alternateName>
+    <skos:prefLabel xml:lang="ar-LB">همنغواي، إرنست،</skos:prefLabel>
+    <schema:alternateName>Erneṣţ Hemingṿey</schema:alternateName>
+    <schema:alternateName>Ernst Cheminguej</schema:alternateName>
+    <schema:alternateName>ഏണസ്റ്റ് ഹെമിങ്‌വേ</schema:alternateName>
+    <schema:alternateName>अर्नस्ट हेमिंग्वे</schema:alternateName>
+    <schema:alternateName>Himinghwāy</schema:alternateName>
+    <schema:alternateName>Эрнест Хэмингуэй</schema:alternateName>
+    <schema:familyName>Haminghway</schema:familyName>
+    <schema:alternateName>Э Хемингуэй</schema:alternateName>
+    <schema:familyName>헤밍웨이</schema:familyName>
+    <schema:familyName>Kheminguei</schema:familyName>
+    <schema:alternateName>Arnist Haminġwāy</schema:alternateName>
+    <schema:alternateName>Arnist Hayminghway</schema:alternateName>
+    <rdfs:comment>BCP47 tag for 'BLBNB|000582030' is undetermined. Name is 'Ernest Hemingway'.</rdfs:comment>
+    <schema:familyName>המינגוויי</schema:familyName>
+    <schema:familyName>המינגווי</schema:familyName>
+    <schema:familyName>Хемингуэй</schema:familyName>
+    <schema:alternateName>Ernest Hemmingway</schema:alternateName>
+    <schema:givenName>Эрнест,</schema:givenName>
+    <schema:name>Эрнест Хемингуэй</schema:name>
+    <schema:name xml:lang="ru-IL">Эрнест Хемингуэй</schema:name>
+    <schema:alternateName>ارنسٹ ہمینگ وے</schema:alternateName>
+    <schema:familyName>Hayminghwāy</schema:familyName>
+    <schema:familyName>海明威</schema:familyName>
+    <schema:alternateName>Ennasite Haimingwei</schema:alternateName>
+    <schema:familyName>Ḣeminguei̐</schema:familyName>
+    <schema:alternateName>Е Хемiнгуей</schema:alternateName>
+    <schema:givenName>Ānesuto</schema:givenName>
+    <schema:alternateName>어네스트 밀러 헤밍웨이</schema:alternateName>
+    <schema:alternateName>È. Heminguèj</schema:alternateName>
+    <schema:givenName>Ānesuto</schema:givenName>
+    <schema:alternateName>Ернест Хемингвеј</schema:alternateName>
+    <schema:description xml:lang="en">American author and journalist</schema:description>
+    <schema:givenName>Ŏnesŭtʻŭ</schema:givenName>
+    <schema:alternateName>Эрнест Хемингуэй</schema:alternateName>
+    <dbo:notableWork rdf:resource="http://viaf.org/viaf/307966032"/>
+    <schema:alternateName>ئرنست هەمنگوای</schema:alternateName>
+    <schema:givenName>Э. М.</schema:givenName>
+    <schema:familyName>ヘミングウェイ</schema:familyName>
+    <schema:name xml:lang="ru-RU">Э. Хемингуэй</schema:name>
+    <schema:alternateName>Ŏnesŭtʻŭ Hemingwei</schema:alternateName>
+    <schema:givenName>欧内斯特</schema:givenName>
+    <schema:alternateName>همينغوي، ‏إرنست،</schema:alternateName>
+    <skos:prefLabel xml:lang="ru-IL">Эрнест Хемингуэй</skos:prefLabel>
+    <schema:alternateName>Ernest Ḣeminguei̐</schema:alternateName>
+    <schema:alternateName>厄纳斯特 海明威</schema:alternateName>
+    <schema:familyName>Hemingwei</schema:familyName>
+    <schema:alternateName>ارنست همینقوی</schema:alternateName>
+    <schema:alternateName>Hai-ming-wei</schema:alternateName>
+    <schema:familyName>Hemingvey</schema:familyName>
+    <schema:alternateName>Èrnest Heminguèj</schema:alternateName>
+    <schema:alternateName>アーネスト ヘミングウェイ</schema:alternateName>
+    <schema:alternateName>Ernest Miller Hemingway</schema:alternateName>
+    <schema:alternateName>欧内斯特·海明威</schema:alternateName>
+    <schema:alternateName>Irnist Haminġwāy</schema:alternateName>
+    <schema:givenName>Ernests Millers</schema:givenName>
+    <schema:alternateName>همنجواي، إيرنست،</schema:alternateName>
+    <schema:familyName>Хемингуей</schema:familyName>
+    <schema:givenName>Īrnist</schema:givenName>
+    <schema:alternateName>ערנעסט העמינגוועי</schema:alternateName>
+    <rdfs:comment>BCP47 tag for 'BLBNB' is undetermined. Name is 'Ernest Hemingway'.</rdfs:comment>
+    <schema:alternateName>Ernest Heminguei</schema:alternateName>
+    <schema:familyName>Cheminguėj</schema:familyName>
+    <schema:alternateName>ارنسٹ ہیمنگوئے</schema:alternateName>
+    <schema:alternateName>Himinghwāy</schema:alternateName>
+    <schema:alternateName>Ernesṭ Hemingṿey</schema:alternateName>
+    <schema:alternateName>ارنېست مېلر هېمېنگوې</schema:alternateName>
+    <schema:familyName>Himinghwāy</schema:familyName>
+    <schema:givenName>Э</schema:givenName>
+    <schema:alternateName>Vhemivgwei</schema:alternateName>
+    <schema:alternateName>ارنسٹ ہیمنگو ے</schema:alternateName>
+    <schema:alternateName>Էռնեստ Հեմինգուեյ</schema:alternateName>
+    <schema:alternateName>하이밍웨이</schema:alternateName>
+    <schema:alternateName>Ernest Cheminhuej</schema:alternateName>
+    <schema:alternateName>E. Hemingvejs</schema:alternateName>
+    <schema:alternateName>E. M. Hemingway</schema:alternateName>
+    <schema:alternateName>Arnist Hīminjwāy</schema:alternateName>
+    <schema:alternateName>Irnist Haminġwāy</schema:alternateName>
+    <schema:familyName>Хемингуэй</schema:familyName>
+    <schema:givenName>Ernest</schema:givenName>
+    <schema:alternateName>Haiminġve</schema:alternateName>
+    <schema:alternateName>Έρνεστ Χέμινγουεϊ</schema:alternateName>
+    <schema:givenName>Эрнест Миллер</schema:givenName>
+    <schema:givenName>어니스트 밀러</schema:givenName>
+    <schema:sameAs rdf:resource="http://data.bnf.fr/#foaf:Person"/>
+    <schema:alternateName>Ernestus Hemingway</schema:alternateName>
+    <schema:alternateName>Ernesto Hemingway</schema:alternateName>
+    <schema:alternateName>Ernest Hemingve</schema:alternateName>
+    <dbo:notableWork rdf:resource="http://viaf.org/viaf/182399836"/>
+    <schema:alternateName>Hemingvėjus</schema:alternateName>
+    <schema:familyName>Himinġwāy</schema:familyName>
+    <schema:alternateName>Arnist Hīminjwāy</schema:alternateName>
+    <schema:alternateName>ಅರ್ನೆಸ್ಟ್ ಹೆಮಿಂಗ್ವೇ</schema:alternateName>
+    <schema:alternateName>Ernest Chemingkgouei</schema:alternateName>
+    <schema:alternateName>E. Ḣeminguei̐</schema:alternateName>
+    <schema:familyName>Hemingṿe</schema:familyName>
+    <schema:alternateName>ఎర్నెస్ట్ హెమింగ్‌వే</schema:alternateName>
+    <schema:name xml:lang="ar-LB">همنغواي، إرنست،</schema:name>
+    <schema:familyName>Chemingouaie</schema:familyName>
+    <schema:givenName>Arnst</schema:givenName>
+    <schema:familyName>ヘミングウェイ</schema:familyName>
+    <schema:familyName>Heminguèj</schema:familyName>
+    <schema:familyName>Himinghwāy</schema:familyName>
+    <schema:givenName>Erneṣţ</schema:givenName>
+    <schema:familyName>Kheminguèĭ</schema:familyName>
+    <schema:alternateName>Arnist Hayminghwāy</schema:alternateName>
+    <schema:alternateName>Ernest Chaiminkouaiē</schema:alternateName>
+    <schema:alternateName>ھېمىڭۋاي</schema:alternateName>
+    <schema:alternateName>Ърнест Хемингуей</schema:alternateName>
+    <schema:name xml:lang="he-IL">ארנסט המינגוויי</schema:name>
+    <schema:alternateName>E. Heminguei</schema:alternateName>
+    <rdfs:comment>BCP47 tag for 'ERRR|a11231774' is undetermined. Name is 'Эрнест Хемингуэй'.</rdfs:comment>
+    <schema:givenName>어니스트</schema:givenName>
+    <schema:alternateName>আৰ্ণেষ্ট হেমিঙৱে</schema:alternateName>
+    <schema:familyName>Chemingouaiē</schema:familyName>
+    <schema:alternateName>Arnist Himinjway</schema:alternateName>
+    <schema:alternateName>E. M. 헤밍웨이</schema:alternateName>
+    <schema:sameAs rdf:resource="http://d-nb.info/gnd/118549030"/>
+    <schema:givenName>Ē. M.</schema:givenName>
+    <schema:alternateName>Ернест Хемінгуей</schema:alternateName>
+    <rdfs:comment>BCP47 tag for 'LIH' is undetermined. Name is 'Ernest Hemingway'.</rdfs:comment>
+    <schema:familyName>האמינגווי</schema:familyName>
+    <schema:familyName>Hemingṿey</schema:familyName>
+    <skos:prefLabel xml:lang="he-IL">ארנסט המינגוויי</skos:prefLabel>
+    <schema:familyName>Hayminghwāy</schema:familyName>
+    <schema:alternateName>Anesuto Heminguwei</schema:alternateName>
+    <schema:familyName>해명위</schema:familyName>
+    <schema:alternateName>허밍웨이</schema:alternateName>
+    <schema:alternateName>همنغواي، ‏إرنست ميلر،</schema:alternateName>
+    <schema:alternateName>އާނިސްޓް ހެމިންވޭ</schema:alternateName>
+    <schema:sameAs rdf:resource="http://www.idref.fr/026918471/id"/>
+    <schema:alternateName>Hemingway</schema:alternateName>
+    <schema:alternateName>ئېرنېست ھېمىڭۋاي</schema:alternateName>
+    <schema:familyName>Heminguei</schema:familyName>
+    <schema:alternateName>Ernest M. Hemingway</schema:alternateName>
+    <schema:givenName>Arnist</schema:givenName>
+    <schema:alternateName>ኧርነስት ሄሚንጔይ</schema:alternateName>
+    <schema:sameAs rdf:resource="http://alpha.bn.org.pl/record=a11792681"/>
+    <schema:familyName>Chemingkgouei</schema:familyName>
+    <schema:givenName>Ŏnesŭtʻŭ</schema:givenName>
+    <schema:alternateName>Э. М. Хемингуэй</schema:alternateName>
+    <schema:alternateName>Ernest Hemingvey</schema:alternateName>
+    <schema:alternateName>厄内斯特 海明威</schema:alternateName>
+    <schema:givenName>Ėrnest</schema:givenName>
+    <dbo:notableWork rdf:resource="http://viaf.org/viaf/177420720"/>
+    <rdf:value rdf:parseType="Literal"><ns1:source xmlns:ns1="http://viaf.org/viaf/terms#" nsid="LNB:V*323;=w3">LIH|LNB:V-323;=_w_3</ns1:source></rdf:value>
+    <schema:sameAs rdf:resource="http://id.loc.gov/authorities/names/n78078534"/>
+    <schema:name>Ernest Miller Hemingway</schema:name>
+    <schema:givenName>어네스트</schema:givenName>
+    <schema:givenName>Ernest, 1899-1961</schema:givenName>
+    <schema:givenName>Ernesṭ</schema:givenName>
+    <schema:alternateName>ארנסט המינגוויי</schema:alternateName>
+    <dcterms:identifier>97006051</dcterms:identifier>
+    <schema:alternateName>Have-ming-we</schema:alternateName>
+    <schema:alternateName>هيمنجواي، إرنست،</schema:alternateName>
+    <schema:alternateName>Arnist Himinghway</schema:alternateName>
+    <rdfs:comment>BCP47 tag for 'LIH|LNB:V-323;=_w_3' is undetermined. Name is 'Ernest Hemingway'.</rdfs:comment>
+    <schema:alternateName>Irnist Himinġwāy</schema:alternateName>
+    <schema:alternateName>Эрнест Ҳемингуей</schema:alternateName>
+    <schema:givenName>ארנסט,</schema:givenName>
+    <dbo:notableWork rdf:resource="http://viaf.org/viaf/361147484270649360003"/>
+    <rdfs:comment>BCP47 tag for 'WKP' is undetermined. Name is 'Ernest Miller Hemingway'.</rdfs:comment>
+    <schema:name xml:lang="en-US">Ernest, 1899-1961 Hemingway</schema:name>
+    <schema:alternateName>Eneisite Haimingwei</schema:alternateName>
+    <schema:alternateName>Arnist Haminġwāy</schema:alternateName>
+    <schema:alternateName>अर्नेस्ट हेमिङ्वे</schema:alternateName>
+    <schema:alternateName>Хемiнгуей</schema:alternateName>
+    <schema:alternateName>ဟင်းမင်းဝေး၊ အားနက်</schema:alternateName>
+    <schema:alternateName>إرنست همنغواي،</schema:alternateName>
+    <schema:familyName>Heminguwei</schema:familyName>
+    <schema:alternateName>E. Hemingway</schema:alternateName>
+    <schema:alternateName>Ernest Chaiminkouaiē</schema:alternateName>
+    <schema:familyName>Heminguej</schema:familyName>
+    <schema:familyName>Hemingṿey</schema:familyName>
+    <schema:givenName>Ouneisite</schema:givenName>
+    <rdfs:comment>BCP47 tag for 'ERRR' is undetermined. Name is 'Ernest Hemingway'.</rdfs:comment>
+    <schema:givenName>Эрнест</schema:givenName>
+    <schema:alternateName>Xeminguey Ernest Miller</schema:alternateName>
+    <schema:alternateName>Ernest Chemingouaie</schema:alternateName>
+    <schema:alternateName>E. Ḣeminguei̐</schema:alternateName>
+    <schema:familyName>Chėminguėj</schema:familyName>
+    <schema:alternateName>ஏர்னெஸ்ட் ஹெமிங்வே</schema:alternateName>
+    <schema:familyName>המינגוי</schema:familyName>
+    <schema:givenName>Erneṣţ</schema:givenName>
+    <schema:familyName>Haminġwāy</schema:familyName>
+    <schema:alternateName>ארנסט המינגווי</schema:alternateName>
+    <schema:alternateName>Arnst Haminġwāy</schema:alternateName>
+    <schema:givenName>Irnist</schema:givenName>
+    <schema:description>Ernest</schema:description>
+    <schema:givenName>어네스트 밀러</schema:givenName>
+    <schema:alternateName>어네스트 헤밍웨이</schema:alternateName>
+    <schema:familyName>Hemingvejs</schema:familyName>
+    <schema:alternateName>Hemingway E.</schema:alternateName>
+    <schema:givenName>E. M.</schema:givenName>
+    <schema:alternateName>همنغواي، ارنست</schema:alternateName>
+    <schema:givenName>Èrnest</schema:givenName>
+    <schema:familyName>Haminghwāy</schema:familyName>
+    <schema:name xml:lang="ar-IL">هيمنغواى، ارنست،</schema:name>
+    <schema:alternateName>همنغواى، ارنست،</schema:alternateName>
+    <schema:familyName>Hīminjwāy</schema:familyName>
+    <schema:alternateName>欧内斯特 海明威</schema:alternateName>
+    <schema:alternateName>Īrnist Himīnjwāy</schema:alternateName>
+    <schema:alternateName>Arnist Hayminghwāy</schema:alternateName>
+    <schema:givenName>ארנסט</schema:givenName>
+    <schema:givenName>ارنسٹ</schema:givenName>
+    <schema:alternateName>Īrnist Himīnjwāy</schema:alternateName>
+    <schema:familyName>Cheminguej</schema:familyName>
+    <schema:alternateName>E. 헤밍웨이</schema:alternateName>
+    <schema:alternateName>Хэмингуэй Эрнэст</schema:alternateName>
+    <schema:sameAs rdf:resource="http://libris.kb.se/resource/auth/205435"/>
+    <dbo:notableWork rdf:resource="http://viaf.org/viaf/178576388"/>
+    <schema:alternateName>Arnist Haminghway</schema:alternateName>
+    <schema:alternateName>Ernests Millers Hemingvejs</schema:alternateName>
+    <rdf:value rdf:parseType="Literal"><ns1:source xmlns:ns1="http://viaf.org/viaf/terms#" nsid="000582030">BLBNB|000582030</ns1:source></rdf:value>
+    <schema:givenName>에네스트</schema:givenName>
+    <schema:description>Эрнест</schema:description>
+    <schema:alternateName>Ernesṭ Hemingṿey</schema:alternateName>
+    <schema:alternateName>Erneṣţ Hemingṿe</schema:alternateName>
+    <schema:alternateName>海明威</schema:alternateName>
+    <schema:sameAs rdf:resource="http://data.bibsys.no/data/notrbib/authorityentry/x90054358"/>
+    <schema:givenName>Īrnist</schema:givenName>
+    <skos:prefLabel xml:lang="ar-EG">همنجواي، إرنست،</skos:prefLabel>
+    <schema:alternateName>إرنست همنغواي</schema:alternateName>
+    <schema:alternateName>همينگوى، ارنست</schema:alternateName>
+    <schema:familyName>Chaiminkouaiē</schema:familyName>
+    <schema:alternateName>Ernests Hemingvejs</schema:alternateName>
+    <skos:prefLabel xml:lang="ar-IL">هيمنغواى، ارنست،</skos:prefLabel>
+    <schema:alternateName>E. H. [a]</schema:alternateName>
+    <schema:alternateName>Ėrnest Cheminguėj</schema:alternateName>
+    <schema:alternateName>ཧའེ་མིང་ཝེ</schema:alternateName>
+    <schema:familyName>Хэмингуэй</schema:familyName>
+    <schema:alternateName>Хемiнгуей</schema:alternateName>
+    <schema:alternateName>Ernest Heminquey</schema:alternateName>
+    <schema:sameAs rdf:resource="http://www.wikidata.org/entity/Q23434"/>
+    <schema:familyName>Chėminguėj</schema:familyName>
+    <schema:givenName>Ernests</schema:givenName>
+    <schema:givenName>Э. М</schema:givenName>
+    <schema:alternateName>Э. М Хемингуэй</schema:alternateName>
+    <schema:description>American author and journalist, 1899-1961</schema:description>
+    <schema:givenName>厄纳斯特</schema:givenName>
+    <schema:familyName>Hīminjwāy</schema:familyName>
+    <schema:familyName>Hemingṿei</schema:familyName>
+    <schema:givenName>구내사특</schema:givenName>
+    <schema:alternateName>هيمنغواى، ارنست،</schema:alternateName>
+    <schema:familyName>Haminghwāy</schema:familyName>
+    <dbo:notableWork rdf:resource="http://viaf.org/viaf/217497521"/>
+    <schema:alternateName>Ernest Ḣeminguei̐</schema:alternateName>
+    <schema:familyName>Chemingouaiē</schema:familyName>
+    <schema:alternateName>همنغواي، إرنست،</schema:alternateName>
+    <schema:alternateName>Ernest Kheminguèĭ</schema:alternateName>
+    <schema:sameAs rdf:resource="http://isni.org/isni/0000000121445832"/>
+    <schema:givenName>إرنست</schema:givenName>
+    <schema:givenName>Ernesto</schema:givenName>
+    <schema:alternateName>Hemingwei</schema:alternateName>
+    <schema:alternateName>アーネスト・ヘミングウェイ</schema:alternateName>
+    <schema:alternateName>إرنست همينغوي</schema:alternateName>
+    <schema:familyName>Cheminhuej</schema:familyName>
+    <schema:givenName>Ernesṭ</schema:givenName>
+    <schema:alternateName>E. H</schema:alternateName>
+    <schema:alternateName>Khjeminguej</schema:alternateName>
+    <schema:alternateName>Ernest Hemigueý</schema:alternateName>
+    <dbo:notableWork rdf:resource="http://viaf.org/viaf/193683277"/>
+    <schema:givenName>Ennasite</schema:givenName>
+    <rdf:value rdf:parseType="Literal"><ns1:source xmlns:ns1="http://viaf.org/viaf/terms#" nsid="a11231774">ERRR|a11231774</ns1:source></rdf:value>
+    <schema:familyName>Хэмингуэй</schema:familyName>
+    <dbo:notableWork rdf:resource="http://viaf.org/viaf/203737037"/>
+    <schema:alternateName>E. Heminguej</schema:alternateName>
+    <schema:familyName>Cheminguėj</schema:familyName>
+    <schema:alternateName>E. H.</schema:alternateName>
+    <schema:alternateName>Ouneisite Haimingwei</schema:alternateName>
+    <schema:alternateName>Ėrnest Cheminguėj</schema:alternateName>
+    <schema:alternateName>আর্নেস্ট হেমিংওয়ে</schema:alternateName>
+    <rdf:value rdf:parseType="Literal"><ns1:source xmlns:ns1="http://viaf.org/viaf/terms#" nsid="a11145213">ERRR|a11145213</ns1:source></rdf:value>
+    <schema:alternateName>Arnist Himinghwāy</schema:alternateName>
+    <schema:alternateName>Эрнэст Гэмінгўэй</schema:alternateName>
+    <schema:alternateName>Ernesṭ Hemingṿe</schema:alternateName>
+    <schema:alternateName>Эрнест Миллер Хемингуэй</schema:alternateName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/184296064">
+    <rdfs:label>For whom the bell tolls</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/177420720">
+    <rdfs:label>sun also rises</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/BNE%7CXX844022#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Hemingway, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguei, Ernest 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/BNE"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/307966032">
+    <rdfs:label>Across the river and into the trees</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/203737037">
+    <rdfs:label>Green hills of Africa</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/EGAXA%7Cvtls000823082#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>هيمنجواي، إرنست، 1899-1961</skos:altLabel>
+    <skos:altLabel>همنغواي، إرنست، 1899-1961</skos:altLabel>
+    <skos:altLabel>همنجواي، إيرنست، 1899-1961</skos:altLabel>
+    <skos:altLabel>إرنست همنجواي، 1899-1961</skos:altLabel>
+    <skos:prefLabel>همنجواي، إرنست، 1899-1961</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/EGAXA"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/BNCHL%7C10000000000000000007686#skos:Concept">
+    <skos:altLabel>Heminguei, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Chemingouaie, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Haimingwei, Ouneisite, 1899-1961</skos:altLabel>
+    <skos:altLabel>Haimingwei, Eneisite, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingve, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hai-ming-wei, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvejs, Ernests, 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:altLabel>Haminghway, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, E. (Ernest), 1899-1961</skos:altLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Kheminguei, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguwei, Anesuto, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest Miller, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvey, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvej, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguei, E. (Ernest), 1899-1961</skos:altLabel>
+    <skos:altLabel>Hayminghway, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinjway, Arnist, 1899-1961</skos:altLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/BNCHL"/>
+    <skos:altLabel>Haimingwei, Ennasite, 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinghway, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingwei, 1899-1961</skos:altLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NKC%7Cjn19990003371#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Cheminguej, Ernest, 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NKC"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/97006051/">
+    <foaf:primaryTopic rdf:resource="http://viaf.org/viaf/97006051"/>
+    <void:inDataset rdf:resource="http://viaf.org/viaf/data"/>
+    <rdf:type rdf:resource="http://www.w3.org/2006/gen/ont#InformationResource"/>
+    <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Document"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/DNB%7C118549030#skos:Concept">
+    <skos:altLabel>Hemingway, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Hayminghwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Kheminguėĭ, Ėrnest 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿe, Erneṣţ 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvejs, Ernests 1899-1961</skos:altLabel>
+    <skos:altLabel>Haminġwāy, Irnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguwei, Ānesuto 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvej, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿey, Erneṣţ 1899-1961</skos:altLabel>
+    <skos:altLabel>ཧའེ་མིང་ཝེ 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguei, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingwei 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinghwāy 1899-1961</skos:altLabel>
+    <skos:altLabel>Haminġwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/DNB"/>
+    <skos:altLabel>Haiminġve 1899-1961</skos:altLabel>
+    <skos:altLabel>Hīminjwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguei, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Vhemivgwei 1899-1961</skos:altLabel>
+    <skos:altLabel>Hai-ming-wei 1899-1961</skos:altLabel>
+    <skos:altLabel>Chemingouaiē, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinghwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Cheminhuej, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest M. 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Cheminguėj, Ėrnest 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿei, Ernesṭ 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest Miller 1899-1961 navo http://d-nb.info/standards/elementset/gnd#FullerFormOfNameOfThePerson Vollstaendiger Name</skos:altLabel>
+    <skos:altLabel>Haminghwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Khjeminguej 1899-1961</skos:altLabel>
+    <skos:altLabel>Хемингуэй 1899-1961</skos:altLabel>
+    <skos:altLabel>Chėminguėj, Ėrnest 1899-1961</skos:altLabel>
+    <skos:altLabel>Have-ming-we 1899-1961</skos:altLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>ھېمىڭۋاي 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway 1899-1961</skos:altLabel>
+    <skos:altLabel>ヘミングウェイ, アーネスト 1899-1961</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:altLabel>海明威 1899-1961</skos:altLabel>
+    <skos:altLabel>המינגווי, ארנסט 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/BIBSYS%7C90054358#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Hemingway, Ernest Miller</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/BIBSYS"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/BNF%7C11907208#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/BNF"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NDL%7C00442997#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>ヘミングウェイ, アーネスト</skos:altLabel>
+    <skos:altLabel>Hemingway, E.</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NDL"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/JPG%7C500277629#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Ernest Hemingway</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest (American author and journalist, 1899-1961)</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/JPG"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/DBC%7C87097968424682#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:prefLabel>Hemingway, Ernest</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/DBC"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/B2Q%7C0000059141#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/B2Q"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/LNB%7CLNC10-000004955#skos:Concept">
+    <skos:altLabel>Хемингуэй, Э. (Эрнест), 1899-1961</skos:altLabel>
+    <skos:altLabel>Хемингуэй, Эрнест, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, E. (Ernest), 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvejs, E. (Ernests), 1899-1961</skos:altLabel>
+    <skos:altLabel>Хэмингуэй, Эрнест, 1899-1961</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:altLabel>Hemingvejs, Ernests Millers, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvejs, Ē. M. (Ernests Millers), 1899-1961</skos:altLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/LNB"/>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Hemingvejs, Ernests, 1899-1961</skos:altLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NLR%7CRU+NLR+AUTH+777882#skos:Concept">
+    <skos:altLabel>Хемингуэй Э. М. 1899-1961 z</skos:altLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:altLabel>Хемiнгуей Е. 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway E. 1899-1961</skos:altLabel>
+    <skos:prefLabel>Хемингуэй, Э. 1899-1961 Эрнест</skos:prefLabel>
+    <skos:prefLabel>Хемiнгуей, Е. 1899-1961 Ернест</skos:prefLabel>
+    <skos:altLabel>Хемингуэй Э. 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, E. 1899-1961 Ernest</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NLR"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/182399836">
+    <rdfs:label>farewell to arms</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/BAV%7CADV10219200#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/BAV"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/KRNLK%7CKAC199612072#skos:Concept">
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/KRNLK"/>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>해명위, 구내사특 海明威, 欧内斯特 1899-1961</skos:altLabel>
+    <skos:altLabel>헤밍웨이, 어네스트 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, E. M. 1899-1961</skos:altLabel>
+    <skos:altLabel>하이밍웨이 1899-1961</skos:altLabel>
+    <skos:altLabel>헤밍웨이, E. M. 1899-1961</skos:altLabel>
+    <skos:altLabel>헤밍웨이, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway E. 1899-1961</skos:altLabel>
+    <skos:altLabel>헤밍웨이, 어네스트 밀러 1899-1961</skos:altLabel>
+    <skos:altLabel>해명위 海明威 1899-1961</skos:altLabel>
+    <skos:altLabel>허밍웨이 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest Miller 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:altLabel>ヘミングウェイ, アーネスト 1899-1961</skos:altLabel>
+    <skos:altLabel>헤밍웨이, 에네스트 1899-1961</skos:altLabel>
+    <skos:altLabel>헤밍웨이 1899-1961</skos:altLabel>
+    <skos:altLabel>헤밍웨이, 어니스트 1899-1961</skos:altLabel>
+    <skos:altLabel>헤밍웨이, 어니스트 밀러 1899-1961</skos:altLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/LC%7Cn++78078534#skos:Concept">
+    <skos:altLabel>همينگوى، ارنست</skos:altLabel>
+    <skos:altLabel>Hayminghwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, E. (Ernest), 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿey, Ernesṭ, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingwei, 1899-1961</skos:altLabel>
+    <skos:altLabel>Chemingouaiē, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>E. ヘミングウェイ, 1899-1961</skos:altLabel>
+    <skos:altLabel>Haimingwei, Ouneisite, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvejs, Ernests, 1899-1961</skos:altLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Himinghwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Ḣeminguei̐, E. (Ernest), 1899-1961</skos:altLabel>
+    <skos:altLabel>Kheminguėĭ, Ėrnest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Chaiminkouaiē, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Хемингуэй, Эрнест, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguwei, Ānesuto, 1899-1961</skos:altLabel>
+    <skos:altLabel>海明威, 欧内斯特, 1899-1961</skos:altLabel>
+    <skos:altLabel>Haimingwei, Ennasite, 1899-1961</skos:altLabel>
+    <skos:altLabel>המינגוי, ארנסט</skos:altLabel>
+    <skos:altLabel>העמינגוועי, ערנעסט</skos:altLabel>
+    <skos:altLabel>Hemingṿe, Ernesṭ, 1899-1961</skos:altLabel>
+    <skos:altLabel>海明威, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hīminjwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingwei, Ŏnesŭtʻŭ, 1899-1961</skos:altLabel>
+    <skos:altLabel>헤밍웨이, 어네스트, 1899-1961</skos:altLabel>
+    <skos:altLabel>המינגווי, ארנסט</skos:altLabel>
+    <skos:altLabel>ヘミングウェイ, アーネスト, 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinghwāy, Bābā, 1899-1961</skos:altLabel>
+    <skos:altLabel>Ḣeminguei̐, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Haimingwei, Eneisite, 1899-1961</skos:altLabel>
+    <skos:altLabel>Haminghwāy, Arnist, 1899-1961</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:altLabel>Hai-ming-wei, 1899-1961</skos:altLabel>
+    <skos:altLabel>המינגווי, ארנסט, 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:altLabel>המינגוי, ארנסט, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvej, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Хемингуэй, Э. М., 1899-1961</skos:altLabel>
+    <skos:altLabel>همنغواي، ارنست</skos:altLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/LC"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/PTBNP%7C56672#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Hemingway, Ernest Miller</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/PTBNP"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/N6I%7Cvtls000085256#skos:Concept">
+    <skos:altLabel>Haimingwei, Ouneisite, 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinghwāy, Bābā, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingwei, Ŏnesŭtʻŭ, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvejs, Ernests, 1899-1961</skos:altLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Kheminguėĭ, Ėrnest, 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:altLabel>Haimingwei, Eneisite, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, E. (Ernest), 1899-1961</skos:altLabel>
+    <skos:altLabel>E. ヘミングウェイ, 1899-1961</skos:altLabel>
+    <skos:altLabel>همينگوى، ارنست</skos:altLabel>
+    <skos:altLabel>Himinghwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Ḣeminguei̐, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Ḣeminguei̐, E. (Ernest), 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingwei, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hai-ming-wei, 1899-1961</skos:altLabel>
+    <skos:altLabel>Haminghwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hayminghwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hīminjwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvej, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿey, Ernesṭ, 1899-1961</skos:altLabel>
+    <skos:altLabel>海明威, 欧内斯特, 1899-1961</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:altLabel>Hemingṿe, Ernesṭ, 1899-1961</skos:altLabel>
+    <skos:altLabel>Chemingouaiē, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguwei, Ānesuto, 1899-1961</skos:altLabel>
+    <skos:altLabel>Haimingwei, Ennasite, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, Ernest, 1899-1961</skos:altLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/N6I"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/W2Z%7C90054358#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Hemingway, Ernest Miller</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/W2Z"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/361147484270649360003">
+    <rdfs:label>Under Kilimanjaro</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/ERRR%7Ca11145213#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Хемингуэй, Эрнест Миллер</skos:altLabel>
+    <skos:altLabel>Хемингуей, Эрнест</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest Miller.</skos:altLabel>
+    <skos:prefLabel>Хемингуэй, Эрнест, 1899-1961.</skos:prefLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/ERRR"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/LIH%7CLNB:V-323;=_w_3#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Хемингуэй Эрнест Миллер</skos:altLabel>
+    <skos:altLabel>Хемингуэй Эрнест</skos:altLabel>
+    <skos:altLabel>Хемингуэй Э.</skos:altLabel>
+    <skos:altLabel>Hemingvėjus Ernestas</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/LIH"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/SZ%7C118549030#skos:Concept">
+    <skos:altLabel>Himinghwāy 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿei, Ernesṭ 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>海明威 1899-1961</skos:altLabel>
+    <skos:altLabel>Hai-ming-wei 1899-1961</skos:altLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/SZ"/>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:altLabel>Hemingway, Ernest Miller 1899-1961 navo http://d-nb.info/standards/elementset/gnd#FullerFormOfNameOfThePerson Vollstaendiger Name</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest M. 1899-1961</skos:altLabel>
+    <skos:altLabel>Haiminġve 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinghwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Chemingouaiē, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingwei 1899-1961</skos:altLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Have-ming-we 1899-1961</skos:altLabel>
+    <skos:altLabel>Haminġwāy, Irnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Khjeminguej 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿe, Erneṣţ 1899-1961</skos:altLabel>
+    <skos:altLabel>Kheminguėĭ, Ėrnest 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿey, Erneṣţ 1899-1961</skos:altLabel>
+    <skos:altLabel>Хемингуэй 1899-1961</skos:altLabel>
+    <skos:altLabel>Haminghwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>המינגווי, ארנסט 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguei, Ernest 1899-1961</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:altLabel>Heminguei, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Chėminguėj, Ėrnest 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway 1899-1961</skos:altLabel>
+    <skos:altLabel>Hīminjwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Vhemivgwei 1899-1961</skos:altLabel>
+    <skos:altLabel>Hayminghwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Haminġwāy, Arnist 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvej, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvejs, Ernests 1899-1961</skos:altLabel>
+    <skos:altLabel>ھېمىڭۋاي 1899-1961</skos:altLabel>
+    <skos:altLabel>ヘミングウェイ, アーネスト 1899-1961</skos:altLabel>
+    <skos:altLabel>Cheminhuej, Ernest 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguwei, Ānesuto 1899-1961</skos:altLabel>
+    <skos:altLabel>ཧའེ་མིང་ཝེ 1899-1961</skos:altLabel>
+    <skos:altLabel>Cheminguėj, Ėrnest 1899-1961</skos:altLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/193683277">
+    <rdfs:label>Islands in the stream</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/217497521">
+    <rdfs:label>moveable feast</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/LNL%7C12953#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>همينغوي، ‏إرنست، 1899-1961</skos:altLabel>
+    <skos:altLabel>همنغواي، ‏إرنست ميلر، 1899-1961</skos:altLabel>
+    <skos:altLabel>إرنست همنغواي، 1899-1961</skos:altLabel>
+    <skos:prefLabel>همنغواي، إرنست، 1899-1961</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/LNL"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/BNC%7Ca10099608#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Hemingway, Ernesto, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest</skos:altLabel>
+    <skos:altLabel>Hemingway, E. (Ernest), 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/BNC"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NLR%7CRU+NLR+AUTH+7720066#skos:Concept">
+    <skos:prefLabel>Хемiнгуей, Е. 1899-1961 Ернест</skos:prefLabel>
+    <skos:altLabel>Хемiнгуей Е. 1899-1961</skos:altLabel>
+    <skos:prefLabel>Хемингуэй, Э. 1899-1961 Эрнест</skos:prefLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:prefLabel>Hemingway, E. 1899-1961 Ernest</skos:prefLabel>
+    <skos:altLabel>Hemingway E. 1899-1961</skos:altLabel>
+    <skos:altLabel>Хемингуэй Э. М. 1899-1961 z</skos:altLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NLR"/>
+    <skos:altLabel>Хемингуэй Э. 1899-1961</skos:altLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/186656023">
+    <rdfs:label>My old man</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NLP%7Ca11792681#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Hemingwei</skos:altLabel>
+    <skos:altLabel>E. H. (1899-1961)</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NLP"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/N6I%7Cvtls001095196#skos:Concept">
+    <skos:altLabel>Haimingwei, Ennasite, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>همينگوى، ارنست</skos:altLabel>
+    <skos:altLabel>Kheminguėĭ, Ėrnest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hai-ming-wei, 1899-1961</skos:altLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/N6I"/>
+    <skos:altLabel>Hemingvejs, Ernests, 1899-1961</skos:altLabel>
+    <skos:altLabel>海明威, 欧内斯特, 1899-1961</skos:altLabel>
+    <skos:altLabel>Haminghwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hīminjwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Chemingouaiē, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hayminghwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Ḣeminguei̐, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguwei, Ānesuto, 1899-1961</skos:altLabel>
+    <skos:altLabel>Heminguej, E. (Ernest), 1899-1961</skos:altLabel>
+    <skos:altLabel>Ḣeminguei̐, E. (Ernest), 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinghwāy, Arnist, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingvej, Ernest, 1899-1961</skos:altLabel>
+    <skos:altLabel>Haimingwei, Eneisite, 1899-1961</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:altLabel>Haimingwei, Ouneisite, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿey, Ernesṭ, 1899-1961</skos:altLabel>
+    <skos:altLabel>Himinghwāy, Bābā, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingwei, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingwei, Ŏnesŭtʻŭ, 1899-1961</skos:altLabel>
+    <skos:altLabel>Hemingṿe, Ernesṭ, 1899-1961</skos:altLabel>
+    <skos:altLabel>E. ヘミングウェイ, 1899-1961</skos:altLabel>
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/NSK%7C000030962#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Hemingvej, Ernest</skos:altLabel>
+    <skos:altLabel>Heminguej, Ernest</skos:altLabel>
+    <skos:prefLabel>Hemingway, Ernest</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/NSK"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/CAOONL%7Cncf10100170#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/CAOONL"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/sourceID/ERRR%7Ca11231774#skos:Concept">
+    <foaf:focus rdf:resource="http://viaf.org/viaf/97006051"/>
+    <skos:altLabel>Хемингуэй, Эрнест Миллер</skos:altLabel>
+    <skos:altLabel>Хемингуей, Эрнест</skos:altLabel>
+    <skos:altLabel>Hemingway, Ernest Miller.</skos:altLabel>
+    <skos:prefLabel>Хемингуэй, Эрнест, 1899-1961.</skos:prefLabel>
+    <skos:prefLabel>Hemingway, Ernest, 1899-1961.</skos:prefLabel>
+    <skos:inScheme rdf:resource="http://viaf.org/authorityScheme/ERRR"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/178576388">
+    <rdfs:label>To have and have not</rdfs:label>
+  </rdf:Description>
+</rdf:RDF>
