@@ -1,0 +1,97 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:library="http://purl.org/library/"
+    xmlns:bgn="http://bibliograph.net/"
+    xmlns:wdrs="http://www.w3.org/2007/05/powder-s#"
+    xmlns:schema="http://schema.org/"
+    xmlns:genont="http://www.w3.org/2006/gen/ont#"
+    xmlns:pto="http://www.productontology.org/id/"
+    xmlns:void="http://rdfs.org/ns/void#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#" > 
+  <rdf:Description rdf:about="http://experiment.worldcat.org/entity/work/data/3372107206#Place/lorton_va">
+    <rdf:type rdf:resource="http://schema.org/Place"/>
+    <schema:name>Lorton, Va.</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.worldcat.org/title/-/oclc/3484871">
+    <rdf:type rdf:resource="http://www.w3.org/2006/gen/ont#ContentTypeGenericResource"/>
+    <rdf:type rdf:resource="http://www.w3.org/2006/gen/ont#InformationResource"/>
+    <schema:about rdf:resource="http://www.worldcat.org/oclc/3484871"/>
+    <schema:dateModified>2019-02-16</schema:dateModified>
+    <void:inDataset rdf:resource="http://purl.oclc.org/dataset/WorldCat"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://id.loc.gov/vocabulary/countries/vau">
+    <rdf:type rdf:resource="http://schema.org/Place"/>
+    <dcterms:identifier>vau</dcterms:identifier>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://experiment.worldcat.org/entity/work/data/3372107206#Topic/prisons_virginia_lorton">
+    <rdf:type rdf:resource="http://schema.org/Intangible"/>
+    <schema:hasPart rdf:resource="http://id.loc.gov/authorities/subjects/sh85106996"/>
+    <schema:name xml:lang="en">Prisons--Virginia--Lorton</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.worldcat.org/title/-/oclc/3484871#PublicationEvent/lorton_va_time_&amp;_tide">
+    <rdf:type rdf:resource="http://schema.org/PublicationEvent"/>
+    <schema:location rdf:resource="http://experiment.worldcat.org/entity/work/data/3372107206#Place/lorton_va"/>
+    <schema:organizer rdf:resource="http://experiment.worldcat.org/entity/work/data/3372107206#Agent/time_&amp;_tide"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://id.worldcat.org/fast/1204505">
+    <rdf:type rdf:resource="http://schema.org/Place"/>
+    <schema:name>Washington (D.C.)</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://experiment.worldcat.org/entity/work/data/3372107206#Organization/lorton_correctional_complex_washington_d_c">
+    <rdf:type rdf:resource="http://schema.org/Organization"/>
+    <schema:name>Lorton Correctional Complex (Washington, D.C.)</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://experiment.worldcat.org/entity/work/data/3372107206#Agent/time_&amp;_tide">
+    <rdf:type rdf:resource="http://bibliograph.net/Agent"/>
+    <schema:name>Time &amp; Tide</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://viaf.org/viaf/151712903">
+    <rdf:type rdf:resource="http://schema.org/Organization"/>
+    <schema:name>Lorton Correctional Complex (Washington, D.C.)</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://id.worldcat.org/fast/1077326">
+    <rdf:type rdf:resource="http://schema.org/Intangible"/>
+    <schema:name xml:lang="en">Prisons</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://experiment.worldcat.org/entity/work/data/3372107206#Topic/prisons_washington_d_c">
+    <rdf:type rdf:resource="http://schema.org/Intangible"/>
+    <schema:hasPart rdf:resource="http://id.loc.gov/authorities/subjects/sh85106996"/>
+    <schema:name xml:lang="en">Prisons--Washington (D.C.)</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.worldcat.org/oclc/3484871">
+    <rdf:type rdf:resource="http://schema.org/Periodical"/>
+    <schema:inLanguage>en</schema:inLanguage>
+    <schema:about rdf:resource="http://experiment.worldcat.org/entity/work/data/3372107206#Topic/prisons_washington_d_c"/>
+    <schema:about rdf:resource="http://id.worldcat.org/fast/1259831"/>
+    <schema:about rdf:resource="http://id.worldcat.org/fast/1204505"/>
+    <schema:about rdf:resource="http://id.worldcat.org/fast/1077063"/>
+    <schema:about rdf:resource="http://experiment.worldcat.org/entity/work/data/3372107206#Organization/lorton_correctional_complex_washington_d_c"/>
+    <schema:about rdf:resource="http://experiment.worldcat.org/entity/work/data/3372107206#Topic/prisons_virginia_lorton"/>
+    <schema:name xml:lang="en">Time and tide.</schema:name>
+    <library:oclcnum>3484871</library:oclcnum>
+    <rdf:type rdf:resource="http://schema.org/CreativeWork"/>
+    <schema:publisher rdf:resource="http://experiment.worldcat.org/entity/work/data/3372107206#Agent/time_&amp;_tide"/>
+    <schema:genre xml:lang="en">Periodicals</schema:genre>
+    <wdrs:describedby rdf:resource="http://www.worldcat.org/title/-/oclc/3484871"/>
+    <schema:productID>3484871</schema:productID>
+    <library:placeOfPublication rdf:resource="http://experiment.worldcat.org/entity/work/data/3372107206#Place/lorton_va"/>
+    <schema:about rdf:resource="http://viaf.org/viaf/151712903"/>
+    <schema:about rdf:resource="http://id.worldcat.org/fast/1077326"/>
+    <library:placeOfPublication rdf:resource="http://id.loc.gov/vocabulary/countries/vau"/>
+    <schema:exampleOfWork rdf:resource="http://worldcat.org/entity/work/id/3372107206"/>
+    <schema:alternateName>Time &amp; tide</schema:alternateName>
+    <schema:publication rdf:resource="http://www.worldcat.org/title/-/oclc/3484871#PublicationEvent/lorton_va_time_&amp;_tide"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://id.worldcat.org/fast/1259831">
+    <rdf:type rdf:resource="http://schema.org/Place"/>
+    <schema:name>Virginia--Lorton.</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://id.worldcat.org/fast/1077063">
+    <rdf:type rdf:resource="http://schema.org/Intangible"/>
+    <schema:name xml:lang="en">Prison periodicals</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://worldcat.org/entity/work/id/3372107206">
+    <schema:name xml:lang="en">Time and tide (Lorton, Va.)</schema:name>
+  </rdf:Description>
+</rdf:RDF>
