@@ -205,5 +205,5 @@ class Command(BaseCommand):
         match.'''
         """
         result = self.oclc_search(item)
-        if result.num_records:
+        if result and result.num_records:
             return self.sru_search.get_worldcat_rdf(result.marc_records[0])
