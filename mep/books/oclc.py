@@ -123,6 +123,12 @@ class WorldCatEntity:
             # initialize an rdflib.resource
             self.rdf_resource = RdfResource(graph, rdflib.URIRef(self.item_uri))
 
+    def __str__(self):
+        return self.item_uri
+
+    def __repr__(self):
+        return '<WorldCatEntity %s>' % self.item_uri
+
     def get_oclc_rdf(self) -> rdflib.Graph:
         '''Load the RDF for the OCLC URI for the MARC record for this
         entity.'''
@@ -144,15 +150,31 @@ class WorldCatEntity:
         value = self.rdf_resource.value(SCHEMA_ORG.exampleOfWork)
         return str(value) if value else None
 
+    basic_item_types = set([str(SCHEMA_ORG.Book), str(SCHEMA_ORG.Periodical)])
+
     @property
     def item_type(self):
         '''item type URI (e.g. book or periodical), from rdf:type.
         Skips schema.org/CreativeWork if present in preference of
         a more specific type'''
-        for item_type in self.rdf_resource.objects(rdflib.RDF.type):
-            # URIRef comparison doesn't seem to be reliable, using strings instead
-            if str(item_type) != str(SCHEMA_ORG.CreativeWork):
-                return str(item_type)
+
+        # handle some cases where we're getting an ebook or other version,
+        # which could be a media object or microform as well as a book;
+        # we only care about the book type
+
+        # get a list of all rdf types for this resource, omitting the generic
+        # schema.org creative work type
+        # (URIRef comparison is unreliable, using strings instead)
+        rdf_types = list(
+            str(rdf_type) for rdf_type in self.rdf_resource.objects(rdflib.RDF.type)
+            if str(rdf_type) != str(SCHEMA_ORG.CreativeWork))
+
+        # if there's a book or periodical in the list, use that
+        basic_type = set(rdf_types) & self.basic_item_types
+        if basic_type:
+            return basic_type.pop()
+        # otherwise, use the first non-creative work rdf type
+        return rdf_types[0]
 
     @property
     def genre(self):

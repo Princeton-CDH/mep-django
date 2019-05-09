@@ -8,7 +8,7 @@ import requests
 
 from mep.accounts.models import Borrow, Account
 from mep.books.models import Item, Publisher, PublisherPlace, Creator, \
-    CreatorType, Subject
+    CreatorType, Subject, Format
 from mep.books.tests.test_oclc import FIXTURE_DIR
 from mep.people.models import Person
 
@@ -121,7 +121,7 @@ class TestItem(TestCase):
         assert item.uri == worldcat_entity.work_uri
         assert item.edition_uri == worldcat_entity.item_uri
         assert item.genre == worldcat_entity.genre
-        assert item.item_type == worldcat_entity.item_type
+        assert item.item_format == Format.objects.get(uri=worldcat_entity.item_type)
         # no subjects on the eentity
         assert not item.subjects.all()
 

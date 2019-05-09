@@ -2,13 +2,13 @@ from django import forms
 from django.conf.urls import url
 from django.contrib import admin
 from django.core.urlresolvers import reverse
-from django.db.models import Count, URLField
+from django.db.models import Count
 from django.utils.html import format_html
 from django.utils.timezone import now
 from tabular_export.admin import export_to_csv_response
 
 from mep.accounts.admin import AUTOCOMPLETE
-from mep.books.models import Creator, CreatorType, Item, Subject
+from mep.books.models import Creator, CreatorType, Item, Subject, Format
 from mep.common.admin import CollapsibleTabularInline
 
 
@@ -32,7 +32,7 @@ class ItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'author_list', 'notes', 'borrow_count',
                     'updated_at', 'has_uri')
     list_display_links = ('id', 'title')
-    list_filter = ('genre', 'item_type')
+    list_filter = ('genre', 'item_format')
     inlines = [ItemCreatorInline]
     search_fields = ('mep_id', 'title', 'notes', 'creator__person__name', 'id')
     fieldsets = (
@@ -48,7 +48,7 @@ class ItemAdmin(admin.ModelAdmin):
         }),
         ('OCLC metadata', {
             'fields': (
-                'uri', 'edition_uri', 'item_type', 'genre',
+                'uri', 'edition_uri', 'item_format', 'genre',
                 'subject_list',
 
             )
@@ -78,7 +78,7 @@ class ItemAdmin(admin.ModelAdmin):
     #: fields to be included in CSV export
     export_fields = [
         'admin_url', 'id', 'title', 'year', 'author_list', 'mep_id',
-        'uri', 'edition_uri', 'genre', 'item_type', 'subject_list',
+        'uri', 'edition_uri', 'genre', 'format', 'subject_list',
         'notes'
     ]
 
@@ -130,7 +130,13 @@ class SubjectAdmin(admin.ModelAdmin):
     search_fields = ('name', 'uri', 'rdf_type')
     list_filter = ('rdf_type', )
 
+class FormatAdmin(admin.ModelAdmin):
+    list_display = ('name', 'uri')
+    # override default order to put notes last
+    fields = ('name', 'uri', 'notes')
+
 
 admin.site.register(Item, ItemAdmin)
 admin.site.register(CreatorType, CreatorTypeAdmin)
 admin.site.register(Subject, SubjectAdmin)
+admin.site.register(Format, FormatAdmin)

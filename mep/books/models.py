@@ -39,6 +39,12 @@ class Publisher(Named, Notable):
     '''Model for publishers'''
 
 
+class Format(Named, Notable):
+    '''Format of items in the library (book, periodical, etc)'''
+    #: linked data URI for the format
+    uri = models.URLField("URI", help_text="Format or type URI", unique=True)
+
+
 class Subject(models.Model):
     '''Linked data subjects for describing :class:`Item`'''
 
@@ -142,8 +148,9 @@ class Item(Notable, Indexable):
         help_text="Linked data URI for this edition, if known")
     genre = models.CharField(
         max_length=255, blank=True, help_text='Genre from OCLC Work record')
-    item_type = models.CharField(
-        max_length=255, blank=True, help_text='Type of item, e.g. book or periodical')
+    item_format = models.ForeignKey(
+        Format, verbose_name='Format', null=True, blank=True,
+        help_text='Format of the item, e.g. book or periodical')
 
     #: update timestamp
     updated_at = models.DateTimeField(auto_now=True, null=True)
@@ -222,6 +229,10 @@ class Item(Notable, Indexable):
         '''semicolon separated list of subject names'''
         return '; '.join([subj.name for subj in self.subjects.all()])
 
+    def format(self):
+        '''format of this item if known (e.g. book or periodical)'''
+        return self.item_format.name if self.item_format else ''
+
     def index_data(self):
         '''data for indexing in Solr'''
 
@@ -260,7 +271,11 @@ class Item(Notable, Indexable):
         self.uri = worldcat_entity.work_uri
         self.edition_uri = worldcat_entity.item_uri
         self.genre = worldcat_entity.genre or ''
-        self.item_type = worldcat_entity.item_type or ''
+        # types will be prepopulated to work with OCLC search results
+        # (predominantly books and periodicals), but in future
+        # we may need a method to create format from uri as for subjects
+        if worldcat_entity.item_type:
+            self.item_format = Format.objects.get(uri=worldcat_entity.item_type)
 
         subject_uris = worldcat_entity.subjects
         if subject_uris:
