@@ -72,7 +72,7 @@ describe('RxChoiceFacet', () => {
         const rcf = new RxChoiceFacet($facet)
         const watcher = jest.fn()
         rcf.events.subscribe(watcher)
-        $banana.dispatchEvent(new Event('input', { bubbles: true }))
+        $banana.dispatchEvent(new Event('change', { bubbles: true }))
         expect(watcher).toHaveBeenCalled()
     })
 })
