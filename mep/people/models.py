@@ -345,6 +345,15 @@ class Person(Notable, DateRange, Indexable):
         return self.address_set.count()
     address_count.short_description = '# Addresses'
 
+    def account_id(self):
+        '''Return the id number of the person's associated
+        :class:`~mep.accounts.models.Account` or empty string if not.'''
+        # used in admin list view, assumes only one account but
+        # uses M2M prior to refactor
+        if self.account_set.exists():
+            return self.account_set.first().id
+        return ''
+
     def has_account(self):
         '''Return whether an instance of :class:`mep.accounts.models.Account` exists for this person.'''
         return self.account_set.exists()
@@ -413,10 +422,17 @@ class Person(Notable, DateRange, Indexable):
             'sort_name_sort_s': self.sort_name,
             'birth_year_i': self.birth_year,
             'death_year_i': self.death_year,
-            'account_start_i': account_start.year if account_start else None,
-            'account_end_i': account_end.year if account_end else None,
             'has_card_b': self.has_card()
         })
+
+        # handle conditionally set fields, default to not setting them
+        # if they are None
+        if account_start:
+            index_data['account_start_i'] = account_start.year
+        if account_end:
+            index_data['account_end_i'] = account_end.year
+        if self.sex:
+            index_data['sex_s'] = self.get_sex_display()
 
         return index_data
 

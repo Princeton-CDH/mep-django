@@ -1,0 +1,8 @@
+// make the sorting dropdown non-interactive since it's auto-selected
+select[name=sort] {
+    pointer-events: none;
+    
+    + .dropdown.icon {
+        opacity: 0.2;
+    }
+}

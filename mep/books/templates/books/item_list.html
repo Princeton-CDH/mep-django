@@ -2,9 +2,7 @@
 {% load static humanize %}
 {% load render_bundle from webpack_loader %}
 
-{% block css %}{% render_bundle 'search' 'css' %}{% endblock %}
-
-{% block js %}{% render_bundle 'search' 'js' attrs='defer' %}{% endblock %}
+{% block js %}{% render_bundle 'booksSearch' 'js' %}{% endblock %}
 
 {% block page-subtitle %}Library Holdings · {% endblock %}
 
@@ -20,6 +18,10 @@
         <span class="total-results">{{ items.count|intcomma }} total result{{ items.count|pluralize }}</span>
     </form>
 </section>
+<div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
+    <label>SORTED BY</label>
+    <label>DISPLAYING</label> 
+</div>
 <section class="books sort-pages">
     <div class="inner">
         <label class="sort">
@@ -29,27 +31,12 @@
             </select>
             <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
         </label>
-        <label class="pagination">
-            <span>DISPLAYING</span>
-            <select name="page" form="books-form">
-                {% for value, label in page_labels %}
-                <option value="{{ value }}" {% if page_obj.number == value %}selected="selected"{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-            <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
-        </label>
-        <input type="submit" form="books-form" value="Go"/>
+        <button type="submit" form="books-form">Go</button>
+        {% include 'snippets/pagination.html' with form="books-form" %}
     </div>
     {% if page_obj.has_other_pages %} {# if only one page of results, don't show next/previous links #}
     <div class="outer">
-        <a rel="prev" {% if page_obj.has_previous %}href="?page={{ page_obj.previous_page_number }}"{% else %} class="inactive"{% endif %}>
-            <img class="previous icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
-            Previous
-        </a>
-        <a rel="next" {% if page_obj.has_next %}href="?page={{ page_obj.next_page_number }}"{% else %} class="inactive"{% endif %}>
-            Next
-            <img class="next icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
-        </a>
+        {% include 'snippets/page-controls.html' %}
     </div>
     {% endif %}
 </section>

@@ -168,7 +168,8 @@ class PersonTypeListFilter(admin.SimpleListFilter):
 class PersonAddressInline(AddressInline):
     # extend address inline for person to specify foreign key field
     # and remove account from editable fields
-    fields = ('location', 'start_date', 'end_date', 'care_of_person', 'notes')
+    fields = ('location', 'partial_start_date', 'partial_end_date',
+              'care_of_person', 'notes')
     fk_name = 'person'
 
 
@@ -179,10 +180,13 @@ class PersonAdmin(admin.ModelAdmin):
     people are edited here).
     '''
     form = PersonAdminForm
-    list_display = ('name', 'title', 'sort_name', 'list_nationalities',
-        'birth_year', 'death_year', 'sex', 'profession', 'viaf_id', 'mep_id',
-        'address_count', 'in_logbooks', 'has_card', 'verified', 'updated_at', 'note_snippet')
-    fields = ('mep_id',
+    list_display = (
+        'name', 'title', 'sort_name', 'list_nationalities',
+        'birth_year', 'death_year', 'sex', 'profession', 'viaf_id',
+        'mep_id', 'account_id', 'address_count', 'in_logbooks', 'has_card',
+        'verified', 'updated_at', 'note_snippet')
+    fields = (
+        'mep_id',
         ('has_account', 'in_logbooks', 'has_card', 'is_creator'),
         'title',
         ('name', 'sort_name'),
@@ -226,10 +230,11 @@ class PersonAdmin(admin.ModelAdmin):
 
     #: fields to be included in CSV export
     export_fields = [
-        'id', 'name', 'sort_name', 'mep_id', 'birth_year', 'death_year',
-        'sex', 'title', 'profession', 'is_organization', 'is_creator', 'has_account',
-        'in_logbooks', 'has_card', 'subscription_dates',
-        'verified', 'updated_at', 'admin_url']
+        'id', 'name', 'sort_name', 'mep_id', 'account_id', 'birth_year',
+        'death_year', 'sex', 'title', 'profession', 'is_organization',
+        'is_creator', 'has_account', 'in_logbooks', 'has_card',
+        'subscription_dates', 'verified', 'updated_at', 'admin_url'
+    ]
 
     def csv_filename(self):
         '''Generate filename for CSV download'''

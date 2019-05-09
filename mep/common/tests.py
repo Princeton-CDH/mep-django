@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import re
 from unittest.mock import Mock
 
@@ -6,16 +7,20 @@ from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
+from django.http import JsonResponse, HttpRequest
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
 from django.views.generic.list import ListView
 
 from mep.common.admin import LocalUserAdmin
+from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
+from mep.common.templatetags.mep_tags import dict_item
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
-from mep.common.views import LabeledPagesMixin
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, VaryOnHeadersMixin)
 
 
 class TestNamed(TestCase):
@@ -300,3 +305,225 @@ class TestLabeledPagesMixin(TestCase):
         view.request = rf.get('/', {'page': '1'})
         context = view.get_context_data()
         assert context['page_labels'] == []
+
+    def test_dispatch(self):
+
+        class MyLabeledPagesView(LabeledPagesMixin, ListView):
+            paginate_by = 5
+
+        view = MyLabeledPagesView()
+        # create some page labels
+        view._page_labels = [(1, '1-5'), (2, '6-10')]
+        # make an ajax request
+        view.request = Mock()
+        view.request.is_ajax.return_value = True
+        response = view.dispatch(view.request)
+        # should return serialized labels using '|' separator
+        assert response['X-Page-Labels'] == '1-5|6-10'
+
+
+class TestTemplateTags(TestCase):
+
+    def test_dict_item(self):
+        # no error on not found
+        assert dict_item({}, 'foo') is None
+        # string key
+        assert dict_item({'foo': 'bar'}, 'foo') is 'bar'
+        # integer key
+        assert dict_item({13: 'lucky'}, 13) is 'lucky'
+        # integer value
+        assert dict_item({13: 7}, 13) is 7
+
+class TestCheckboxFieldset(TestCase):
+
+    def test_get_context(self):
+        checkbox_fieldset = CheckboxFieldset()
+        checkbox_fieldset.legend = 'Test Legend'
+        context = checkbox_fieldset.get_context('a name', ['a', 'b', 'c'], {})
+        assert context['widget']['legend'] == 'Test Legend'
+
+    def test_render(self):
+
+        # make sure that legend is rendered based on a custom property
+        checkbox_fieldset = CheckboxFieldset()
+        # set legend and id for test purposes
+        checkbox_fieldset.legend = 'Foo'
+        checkbox_fieldset.attrs['id'] = 'widget_id'
+
+        checkbox_fieldset.optgroups = Mock()
+        # mock a substitute for the return value of optgroups
+        # The reasons for this are two fold:
+        #   1) The logic of how widgets are populated is fairly convoluted, and
+        #       we're only checking that the template does the right thing here.
+        #   2) optgroups is a function and needs a mock to supply the return.
+        checkbox_fieldset.optgroups.return_value = [
+            (
+                None,
+                [
+                    {
+                            'label': 'A',
+                            # ensure that checked value is respected
+                            # id is set
+                            # and value and label are not synonymous
+                            'attrs': {'checked': True, 'id': 'id_for_0'},
+                            'value': 'a'
+                    },
+                    {
+                        'label': 'B',
+                        'attrs': {'id': 'id_for_1'},
+                        'value': 'b'
+                    }
+                ],
+                0
+            )
+        ]
+        # first arg sets the name attribute, other is unused after optgroup
+        # override
+        out = checkbox_fieldset.render('sex', 'bar')
+        # legend should be upper-cased by default
+        expected_output = '''
+        <fieldset id="widget_id">
+            <legend>Foo</legend>
+            <ul class="choices">
+            <li class="choice">
+            <input type="checkbox" value="a" id="id_for_0" name="sex" checked />
+           <label for="id_for_0"> A </label>
+           </li>
+           <li class="choice">
+           <input type="checkbox" value="b" id="id_for_1" name="sex" />
+           <label for="id_for_1"> B </label>
+           </li>
+           </ul>
+        </fieldset>
+        '''
+        self.assertHTMLEqual(out, expected_output)
+        # if required is set, each input should have required set
+        checkbox_fieldset.is_required = True
+        out = checkbox_fieldset.render('foo', 'bar')
+        assert out.count('required') == 2
+
+class TestFacetField(TestCase):
+
+    def test_init(self):
+
+        # value of required is passed through on init
+        facet_field = FacetChoiceField(required=True)
+        assert facet_field.required
+        # if not set, defaults to false
+        facet_field = FacetChoiceField()
+        assert not facet_field.required
+        # check that legend is set via label separately
+        facet_field = FacetChoiceField(label='Test')
+        assert facet_field.widget.legend == 'Test'
+        # but widget attrs overrules
+        facet_field = FacetChoiceField(label='Test', legend='NotTest'
+           )
+        assert facet_field.widget.legend == 'NotTest'
+
+
+    def test_valid_value(self):
+        # any value passed in returns true
+        facet_field = FacetChoiceField()
+        assert facet_field.valid_value('A') is True
+        assert facet_field.valid_value(10) is True
+
+
+class TestFacetForm(TestCase):
+
+    def test_set_choices_from_facets(self):
+
+        # Create a test form with mappings
+        class TestForm(FacetForm):
+
+            solr_facet_fields = {
+                'name_s': 'name'
+            }
+
+            name = FacetChoiceField()
+            member_type = FacetChoiceField()
+
+
+        test_form = TestForm()
+
+        # create facets in the format provided by parasolr
+        facets = OrderedDict()
+        facets['name_s'] = OrderedDict([('Jane', 2000), ('John', 1)])
+        facets['member_type'] = OrderedDict([('weekly', 2), ('monthly', 1)])
+        # handling should not choke on an unhandled field
+        facets['unhandled_fields'] = OrderedDict(foo=1, bar=1)
+
+        test_form.set_choices_from_facets(facets)
+
+        # no mapping but matching field should be rendered
+        assert test_form.fields['member_type'].choices == [
+            ('weekly', 'weekly<span class="count">2</span>'),
+            ('monthly', 'monthly<span class="count">1</span>'),
+        ]
+        # mapping should convert solr field name to form field name
+        assert test_form.fields['name'].choices == [
+            # check that comma formatting appears as expected
+            ('Jane', 'Jane<span class="count">2,000</span>'),
+            ('John', 'John<span class="count">1</span>')
+        ]
+        # unhandled field should not be passed in
+        assert 'unhanded_field' not in test_form.fields
+
+
+
+
+class TestVaryOnHeadersMixin(TestCase):
+
+    def test_vary_on_headers_mixing(self):
+
+        # stub a View that will always return 405 since no methods are defined
+        vary_on_view = \
+            VaryOnHeadersMixin(vary_headers=['X-Foobar', 'X-Bazbar'])
+        # mock a request because we don't need its functionality
+        request = Mock()
+        response = vary_on_view.dispatch(request)
+        # check for the set header with the values supplied
+        assert response['Vary'] == 'X-Foobar, X-Bazbar'
+
+
+class TestAjaxTemplateMixin(TestCase):
+
+    def test_get_templates(self):
+        class MyAjaxyView(AjaxTemplateMixin):
+            ajax_template_name = 'my_ajax_template.json'
+            template_name = 'my_normal_template.html'
+
+        myview = MyAjaxyView()
+        myview.request = Mock()
+        myview.request.is_ajax.return_value = False
+        assert myview.get_template_names() == [MyAjaxyView.template_name]
+
+        myview.request.is_ajax.return_value = True
+        assert myview.get_template_names() == MyAjaxyView.ajax_template_name
+
+
+class TestFacetJSONMixin(TestCase):
+
+    def test_render_response(self):
+        class MyViewWithFacets(FacetJSONMixin):
+            template_name = 'my_normal_template.html'
+
+        # create a mock request and queryset
+        view = MyViewWithFacets()
+        view.object_list = Mock()
+        view.object_list.get_facets.return_value = {
+            'facets': 'foo'
+        }
+        view.request = HttpRequest()
+        request = Mock()
+
+        # if no Accept: header, should just return a regular response
+        view.request.META['HTTP_ACCEPT'] = ''
+        response = view.render_to_response(request)
+        assert not isinstance(response, JsonResponse)
+
+        # if header is set to 'application/json', should be json response
+        view.request.META['HTTP_ACCEPT'] = 'application/json'
+        response = view.render_to_response(request)
+        assert isinstance(response, JsonResponse)
+        assert response.content == b'{"facets": "foo"}'
+

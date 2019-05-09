@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>CHANGELOG &#8212; Mapping Expatriate Paris - Django 0.13.0 documentation</title>
+    <title>CHANGELOG &#8212; Mapping Expatriate Paris - Django 0.15.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -36,14 +36,35 @@
   <div class="section" id="changelog">
 <span id="id1"></span><h1>CHANGELOG<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id2">
-<h2>0.13<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<h2>0.15<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>As a user, I want the members list page updated as soon as I change search terms, filters, or results page so that I can refine my search without losing my place in the form and have results load more quickly.</li>
+<li>As a user, I want the count of members with cards to update as soon as I change search terms or filters so that I can see an accurate number for my current search.</li>
+<li>As a user, I want to filter library members by gender so that I can see the gender composition of library members.</li>
+<li>As a content editor, I want account id number listed in the person admin list view and person CSV export so that I have more information for decisions about merging people records.</li>
+<li>bugfix: don’t defer loading of &lt;script&gt;s to avoid flash of unstyled content</li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h2>0.14<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>As a user I want members automatically sorted by relevance if I have a keyword search term active and otherwise by member name, so that I see best matches first for keyword searches.</li>
+<li>As a user, I want to filter library members to those with a lending card available on the site so that I can focus on members with cards and borrowing activity.</li>
+<li>As an admin, I want to see a report of OCLC work and edition URI matches for all items so that I can review and determine the criteria for acceptable matches.</li>
+<li>As a content editor, I want to add partial start and end date information for addresses so I can document the dates when only the month or year is known.</li>
+<li>Completes template and styles for pagination and sorting controls</li>
+<li>bugfix: members keyword search sort most relevant items first instead of last</li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h2>0.13<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>As a user, I want to search for library members by name or partial name so that I can find specific people I’m interested in.</li>
 <li>Updated results template &amp; styles for book browse page</li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>0.12<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>0.12<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>As a user, I want the library member list paginated so that I don’t have to browse through all the names at once.</li>
 <li>As a user, I want to browse a list of books so that I can see all the books known to have circulated through the library.</li>
@@ -145,8 +166,8 @@ migration.</p>
 <li>Removes now obsolete <cite>import_logbooks</cite> manage command.</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>0.3.1<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>0.3.1<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Remove unneeded database backup from Ansible deploy.</li>
 </ul>
@@ -282,8 +303,10 @@ managing data about people associated with Sylvia Beach’s lending library.</p>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">CHANGELOG</a><ul>
-<li><a class="reference internal" href="#id2">0.13</a></li>
-<li><a class="reference internal" href="#id3">0.12</a></li>
+<li><a class="reference internal" href="#id2">0.15</a></li>
+<li><a class="reference internal" href="#id3">0.14</a></li>
+<li><a class="reference internal" href="#id4">0.13</a></li>
+<li><a class="reference internal" href="#id5">0.12</a></li>
 <li><a class="reference internal" href="#admin-enhancements-and-initial-solr-functionality">0.11 Admin enhancements and initial Solr functionality</a></li>
 <li><a class="reference internal" href="#initial-member-list-and-wagtail-cms-functionality">0.10 Initial member list and Wagtail CMS functionality</a></li>
 <li><a class="reference internal" href="#add-purchase-events-to-admin">0.9 Add Purchase events to admin</a></li>
@@ -292,7 +315,7 @@ managing data about people associated with Sylvia Beach’s lending library.</p>
 <li><a class="reference internal" href="#card-import-and-basic-item-admin">0.6 Card import and basic item admin</a></li>
 <li><a class="reference internal" href="#data-entry-improvements-ii">0.5 Data Entry Improvements II</a></li>
 <li><a class="reference internal" href="#personography-merge">0.4 Personography Merge</a></li>
-<li><a class="reference internal" href="#id4">0.3.1</a></li>
+<li><a class="reference internal" href="#id6">0.3.1</a></li>
 <li><a class="reference internal" href="#data-entry-improvements">0.3 Data Entry Improvements</a><ul>
 <li><a class="reference internal" href="#known-issues">Known issues</a></li>
 </ul>

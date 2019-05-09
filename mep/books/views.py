@@ -2,9 +2,8 @@ from dal import autocomplete
 from django.db.models import Q
 from django.views.generic import ListView
 
-from parasolr.django import SolrQuerySet
-
 from mep.books.models import Item
+from mep.books.queryset import ItemSolrQuerySet
 from mep.common.views import LabeledPagesMixin
 
 
@@ -16,14 +15,7 @@ class ItemList(LabeledPagesMixin, ListView):
     context_object_name = 'items'
 
     def get_queryset(self):
-        sqs = SolrQuerySet().filter(item_type='item') \
-                            .order_by('title_s') \
-                            .only(title='title_s', authors='authors_t',
-                                  editors='editors_t', pub_date='pub_date_i',
-                                  translators='translators_t', pk='pk_i')
-        # NOTE: using only / field limit to alias dynamic field names
-        # to something closer to model attribute names
-        return sqs
+        return ItemSolrQuerySet().order_by('title')
 
 
 class ItemAutocomplete(autocomplete.Select2QuerySetView):

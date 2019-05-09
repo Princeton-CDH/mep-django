@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.accounts.models &#8212; Mapping Expatriate Paris - Django 0.13.0 documentation</title>
+    <title>mep.accounts.models &#8212; Mapping Expatriate Paris - Django 0.15.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,6 @@
             
   <h1>Source code for mep.accounts.models</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
 
@@ -45,8 +44,8 @@
 <span class="kn">from</span> <span class="nn">django.core.validators</span> <span class="k">import</span> <span class="n">ValidationError</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">django.template.defaultfilters</span> <span class="k">import</span> <span class="n">pluralize</span>
-<span class="kn">from</span> <span class="nn">flags</span> <span class="k">import</span> <span class="n">Flags</span>
 
+<span class="kn">from</span> <span class="nn">mep.accounts.partial_date</span> <span class="k">import</span> <span class="n">PartialDateMixin</span>
 <span class="kn">from</span> <span class="nn">mep.books.models</span> <span class="k">import</span> <span class="n">Item</span>
 <span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Person</span><span class="p">,</span> <span class="n">Location</span>
@@ -208,7 +207,7 @@
         <span class="k">return</span> <span class="n">str_to_model</span><span class="p">[</span><span class="n">etype</span><span class="p">]</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Address"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Address">[docs]</a><span class="k">class</span> <span class="nc">Address</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
+<div class="viewcode-block" id="Address"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Address">[docs]</a><span class="k">class</span> <span class="nc">Address</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">PartialDateMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Address associated with an :class:`Account` or</span>
 <span class="sd">    a :class:`~mep.people.models.Person`.  Used to associate locations with</span>
 <span class="sd">    people and accounts, with optional start and end dates and a care/of person.&#39;&#39;&#39;</span>
@@ -497,189 +496,6 @@
     <span class="n">readable_duration</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;Duration&#39;</span>
     <span class="n">readable_duration</span><span class="o">.</span><span class="n">admin_order_field</span> <span class="o">=</span> <span class="s1">&#39;duration&#39;</span></div>
 
-
-<div class="viewcode-block" id="DatePrecision"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.DatePrecision">[docs]</a><span class="k">class</span> <span class="nc">DatePrecision</span><span class="p">(</span><span class="n">Flags</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Flag class to indicate which parts of a date are known.&#39;&#39;&#39;</span>
-    <span class="n">year</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">month</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">day</span> <span class="o">=</span> <span class="p">()</span></div>
-
-
-<div class="viewcode-block" id="DatePrecisionField"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.DatePrecisionField">[docs]</a><span class="k">class</span> <span class="nc">DatePrecisionField</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Integer representation of a :class:`DatePrecision`.&#39;&#39;&#39;</span>
-    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Integer representation of DatePrecision flags.&#39;</span>
-
-<div class="viewcode-block" id="DatePrecisionField.to_python"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.DatePrecisionField.to_python">[docs]</a>    <span class="k">def</span> <span class="nf">to_python</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">DatePrecision</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="kc">None</span></div></div>
-
-
-<div class="viewcode-block" id="PartialDate"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.PartialDate">[docs]</a><span class="k">class</span> <span class="nc">PartialDate</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Descriptor that gets and sets a related :class:`datetime.date` and</span>
-<span class="sd">    :class:`DatePrecision` from partial date strings, e.g. --05-02.&#39;&#39;&#39;</span>
-
-    <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Partial date generated from date and date precision flags&#39;</span>
-
-    <span class="n">partial_date_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-       <span class="sa">r</span><span class="s1">&#39;^(?P&lt;year&gt;\d</span><span class="si">{4}</span><span class="s1">|-)?(?:-(?P&lt;month&gt;[01]\d))?(?:-(?P&lt;day&gt;[0-3]\d))?$&#39;</span>
-    <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date_field</span><span class="p">,</span> <span class="n">date_precision_field</span><span class="p">,</span> <span class="n">unknown_year</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                 <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">date_field</span> <span class="o">=</span> <span class="n">date_field</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">date_precision_field</span> <span class="o">=</span> <span class="n">date_precision_field</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">unknown_year</span> <span class="o">=</span> <span class="n">unknown_year</span>
-
-        <span class="c1"># set attributes for display/sort in django admin</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">admin_order_field</span> <span class="o">=</span> <span class="n">date_field</span>
-        <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="n">label</span>
-
-    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">objtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Use :meth:`date_format` to transform a  :class:`datetime.date` and</span>
-<span class="sd">        :class:`DatePrecision` to a partial date string. If the date doesn&#39;t</span>
-<span class="sd">        exist yet, return None.&#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span>
-        <span class="n">date_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_field</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">date_val</span><span class="p">:</span>
-            <span class="n">date_precision_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_precision_field</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">date_val</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">date_format</span><span class="p">(</span><span class="n">date_precision_val</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Call :meth:`parse_date` to parse a partial date and set the</span>
-<span class="sd">        :class:`datetime.date` and :class:`DatePrecision`. If a falsy value was</span>
-<span class="sd">        passed, set them both to None.&#39;&#39;&#39;</span>
-        <span class="p">(</span><span class="n">date_val</span><span class="p">,</span> <span class="n">date_precision_val</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_date</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">if</span> <span class="n">val</span> <span class="k">else</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_field</span><span class="p">,</span> <span class="n">date_val</span><span class="p">)</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_precision_field</span><span class="p">,</span> <span class="n">date_precision_val</span><span class="p">)</span>
-
-<div class="viewcode-block" id="PartialDate.date_format"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.PartialDate.date_format">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">date_format</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Return a format string for use with :meth:`datetime.date.strftime`</span>
-<span class="sd">        to output a date with the appropriate precision&#39;&#39;&#39;</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># cast integer to date precision to check flags</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">DatePrecision</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-        <span class="c1"># no precision = no date</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;&#39;</span>
-
-        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;%Y&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># if no year, indicate with --</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">month</span><span class="p">:</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;%m&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">day</span><span class="p">:</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="c1"># this is potentially ambiguous in some cases, but those cases</span>
-        <span class="c1"># may not be meaningful anyway</span>
-        <span class="k">return</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="PartialDate.parse_date"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.PartialDate.parse_date">[docs]</a>    <span class="k">def</span> <span class="nf">parse_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Parse a partial date string and return a :class:`datetime.date`</span>
-<span class="sd">        and precision value.&#39;&#39;&#39;</span>
-        <span class="c1"># partial date parsing adapted in part from django_partial_date</span>
-        <span class="c1"># https://github.com/ktowen/django_partial_date</span>
-        <span class="n">match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_date_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-            <span class="n">match_info</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
-
-            <span class="c1"># turn matched values into numbers for initializing date object</span>
-            <span class="n">date_values</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">date_parts</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">match_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">date_values</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-                    <span class="n">date_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span> <span class="c1"># value was None or &#39;-&#39;</span>
-                    <span class="n">date_values</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unknown_year</span> <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;year&#39;</span> <span class="k">else</span> <span class="mi">1</span>
-
-            <span class="k">if</span> <span class="n">date_parts</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;day&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">date_parts</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">date_parts</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;day&#39;</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot; is not a recognized date.&#39;&#39;&#39;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
-
-            <span class="c1"># determine known date parts based on regex match values</span>
-            <span class="c1"># and initialize pecision flags accordingly</span>
-            <span class="n">precision</span> <span class="o">=</span> <span class="n">DatePrecision</span><span class="o">.</span><span class="n">from_simple_str</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">date_parts</span><span class="p">))</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="o">**</span><span class="n">date_values</span><span class="p">),</span> <span class="n">precision</span><span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot; is not a recognized date.&#39;&#39;&#39;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span></div></div>
-
-
-<div class="viewcode-block" id="PartialDateMixin"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.PartialDateMixin">[docs]</a><span class="k">class</span> <span class="nc">PartialDateMixin</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Mixin to add fields for partial start and end dates to a model using</span>
-<span class="sd">    :class:`DatePrecisionField` and :class:`PartialDate`.&#39;&#39;&#39;</span>
-    <span class="n">UNKNOWN_YEAR</span> <span class="o">=</span> <span class="mi">1900</span>
-
-    <span class="n">start_date_precision</span> <span class="o">=</span> <span class="n">DatePrecisionField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">end_date_precision</span> <span class="o">=</span> <span class="n">DatePrecisionField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">partial_start_date</span> <span class="o">=</span> <span class="n">PartialDate</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;start_date_precision&#39;</span><span class="p">,</span>
-        <span class="n">UNKNOWN_YEAR</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;start date&#39;</span><span class="p">)</span>
-    <span class="n">partial_end_date</span> <span class="o">=</span> <span class="n">PartialDate</span><span class="p">(</span><span class="s1">&#39;end_date&#39;</span><span class="p">,</span> <span class="s1">&#39;end_date_precision&#39;</span><span class="p">,</span>
-        <span class="n">UNKNOWN_YEAR</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;end date&#39;</span><span class="p">)</span>
-
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span>
-
-<div class="viewcode-block" id="PartialDateMixin.calculate_date"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.PartialDateMixin.calculate_date">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">dateval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">earliest</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">latest</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Calculate end or start date based on a single value in a</span>
-<span class="sd">        supported partial date form or based on earliest/latest datetime.&#39;&#39;&#39;</span>
-
-        <span class="c1"># kind must be either start_date or end_date</span>
-        <span class="k">if</span> <span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;end_date&#39;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span>
-
-        <span class="c1"># if there is a single date value, use partial date to parse it</span>
-        <span class="c1"># and set date precision</span>
-        <span class="k">if</span> <span class="n">dateval</span><span class="p">:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;partial_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">kind</span><span class="p">,</span> <span class="n">dateval</span><span class="p">)</span>
-            <span class="c1"># special case:</span>
-            <span class="c1"># 1900 dates were used to indicate unknown year; book store didn&#39;t</span>
-            <span class="c1"># open until 1919, so any year before that should be marked unknown</span>
-            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">)</span><span class="o">.</span><span class="n">year</span> <span class="o">&lt;</span> <span class="mi">1919</span><span class="p">:</span>
-                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_precision&#39;</span> <span class="o">%</span> <span class="n">kind</span><span class="p">,</span>
-                        <span class="n">DatePrecision</span><span class="o">.</span><span class="n">month</span> <span class="o">|</span> <span class="n">DatePrecision</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
-
-        <span class="c1"># no exact date, but earliest/latest possible dates</span>
-        <span class="k">elif</span> <span class="n">earliest</span> <span class="ow">and</span> <span class="n">latest</span><span class="p">:</span>
-            <span class="c1"># store earliest datetime</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">earliest</span><span class="p">)</span>
-            <span class="n">precision</span> <span class="o">=</span> <span class="n">DatePrecision</span><span class="p">()</span>
-            <span class="c1"># calculate the precision based on values in common</span>
-            <span class="k">if</span> <span class="n">earliest</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="n">latest</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
-                <span class="n">precision</span> <span class="o">|=</span> <span class="n">DatePrecision</span><span class="o">.</span><span class="n">year</span>
-            <span class="k">if</span> <span class="n">earliest</span><span class="o">.</span><span class="n">month</span> <span class="o">==</span> <span class="n">latest</span><span class="o">.</span><span class="n">month</span><span class="p">:</span>
-                <span class="n">precision</span> <span class="o">|=</span> <span class="n">DatePrecision</span><span class="o">.</span><span class="n">month</span>
-            <span class="k">if</span> <span class="n">earliest</span><span class="o">.</span><span class="n">day</span> <span class="o">==</span> <span class="n">latest</span><span class="o">.</span><span class="n">day</span><span class="p">:</span>
-                <span class="n">precision</span> <span class="o">|=</span> <span class="n">DatePrecision</span><span class="o">.</span><span class="n">day</span>
-
-            <span class="c1"># store the precision</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_precision&#39;</span> <span class="o">%</span> <span class="n">kind</span><span class="p">,</span> <span class="n">precision</span><span class="p">)</span></div>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">date_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Borrowing event date range as string, using partial dates.</span>
-<span class="sd">        Returns a single date in partial date format if both dates are</span>
-<span class="sd">        set to the same date. Uses &quot;??&quot; for unset dates,</span>
-<span class="sd">        and returns in format start/end.&#39;&#39;&#39;</span>
-
-        <span class="c1"># NOTE: this is the same logic as the Event date range method,</span>
-        <span class="c1"># just substituting partial start and end dates and dropping the</span>
-        <span class="c1"># isoformat method call.</span>
-
-        <span class="c1"># if both dates are set and the same, return a single date</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_start_date</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_end_date</span> <span class="ow">and</span> \
-                <span class="bp">self</span><span class="o">.</span><span class="n">partial_start_date</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_end_date</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_start_date</span>
-
-        <span class="c1"># otherwise, use both dates with ?? to indicate unknown date</span>
-        <span class="k">return</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">dt</span> <span class="k">if</span> <span class="n">dt</span> <span class="k">else</span> <span class="s1">&#39;??&#39;</span>
-                         <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">partial_start_date</span><span class="p">,</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">partial_end_date</span><span class="p">]])</span></div>
 
 
 <div class="viewcode-block" id="Borrow"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Borrow">[docs]</a><span class="k">class</span> <span class="nc">Borrow</span><span class="p">(</span><span class="n">PartialDateMixin</span><span class="p">,</span> <span class="n">Event</span><span class="p">):</span>

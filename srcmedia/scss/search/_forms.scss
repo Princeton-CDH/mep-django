@@ -1,0 +1,178 @@
+.search-form {
+    @include padding-container;
+    padding-top: 1rem;
+    background: $white;
+
+    form {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        position: relative;
+    }
+
+    input[name=query] {
+        flex: auto;
+        padding: .2rem 0;
+        font-size: 0.8rem;
+        background-color: transparent;
+        border-width: 0 0 2px 0;
+        border-color: $black;
+        border-bottom-style: dotted;
+        outline: none;
+        transition: border 0.5s;
+
+        &::placeholder {
+          color: $nearly-black;
+          opacity: 1; /* Firefox */
+        }
+
+        + label {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            background-image: url('/static/img/icons/search.svg');
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+
+        &:focus {
+            border-bottom-style: solid;
+        }
+    }
+     
+    // fade animation for when count changes
+    span.count {
+        opacity: 1;
+        transition: opacity 0.25s ease-in-out;
+        
+        &[aria-busy] {
+            opacity: 0;
+        }
+    }
+
+    fieldset.group {
+        width: 100%;
+        font-size: 0.8rem;
+
+        > legend {
+            width: 100%;
+            text-align: left;
+            font-weight: bold;
+            padding: 1.75rem 0rem 0.5rem;
+        }
+    
+        // chrome doesn't allow fieldsets to use flex, so we have to do this
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=262679
+        .inner { 
+            width: 100%;
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .inner > label {
+            flex: auto;
+            height: 2.2rem;
+            background: white;
+            margin-right: .1rem;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: flex-start;
+            padding: 0 .5rem;
+            align-items: center;
+            border: 2px solid white;
+            box-sizing: border-box;
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            &:hover {
+                border-color: $green;
+            }
+
+            img.icon {
+                max-height: 1.5rem;
+                margin-left: 0.5rem;
+            }
+
+            .count {
+                font-size: 0.6rem;
+            }
+
+            span[role=tooltip] {
+                position: absolute;
+                right: .5rem;
+                top: calc(50% - (.75rem / 2));
+            }
+        }
+
+        .inner > input:focus + label {
+            border-color: $green;
+        }
+
+        .inner > input[type=checkbox] + label {
+            cursor: pointer;
+        }
+
+        // uses after so it can stack with tooltip info icon
+        .inner > input[type=checkbox] + label::after {
+            content: '';
+            opacity: 0;
+            position: absolute;
+            width: .75rem;
+            height: .75rem;
+            right: .5rem;
+            top: calc(50% - (.75rem / 2));
+            background-image: url("/static/img/icons/filter_clicked_state.svg");
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+            transition: opacity .25s ease;
+        }
+
+        .inner > input:checked + label::after {
+            opacity: 1;
+        }
+
+        // full-width input styles for mobile only
+        @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+            .inner {
+                width: 100vw;
+            }
+
+            > legend {
+                margin-left: $gutter-xs;
+                margin-right: $gutter-xs;
+            }
+        }
+    }
+
+    .total-results,
+    .loader {
+        font-family: $serif;
+        font-style: italic;
+        font-size: 0.8rem;
+        margin: 3rem 0 1rem;
+        transition: opacity 0.5s;
+    }
+
+    .loader {
+        opacity: 0;
+        position: absolute;
+        bottom: 0;
+        flex: none;
+    }
+
+    &[aria-busy] {
+        .total-results {
+            opacity: 0;
+        }
+        .loader {
+            opacity: 1;
+        }
+    }
+}

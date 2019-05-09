@@ -3,6 +3,28 @@
 CHANGELOG
 =========
 
+0.15
+----
+
+* As a user, I want the members list page updated as soon as I change search terms, filters, or results page so that I can refine my search without losing my place in the form and have results load more quickly.
+* As a user, I want the count of members with cards to update as soon as I change search terms or filters so that I can see an accurate number for my current search.
+* As a user, I want to filter library members by gender so that I can see the gender composition of library members. 
+* As a content editor, I want account id number listed in the person admin list view and person CSV export so that I have more information for decisions about merging people records.
+
+* bugfix: don't defer loading of <script>s to avoid flash of unstyled content
+
+0.14
+----
+
+* As a user I want members automatically sorted by relevance if I have a keyword search term active and otherwise by member name, so that I see best matches first for keyword searches.
+* As a user, I want to filter library members to those with a lending card available on the site so that I can focus on members with cards and borrowing activity.
+* As an admin, I want to see a report of OCLC work and edition URI matches for all items so that I can review and determine the criteria for acceptable matches.
+* As a content editor, I want to add partial start and end date information for addresses so I can document the dates when only the month or year is known.
+
+* Completes template and styles for pagination and sorting controls
+* bugfix: members keyword search sort most relevant items first instead of last
+
+
 0.13
 ----
 

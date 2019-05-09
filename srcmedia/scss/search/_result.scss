@@ -1,4 +1,4 @@
-.result {
+output.results li {
     counter-increment: results;
     position: relative;
     border-top: 1px solid $white-two;
@@ -71,7 +71,7 @@
         }
     }
 
-    .dates {
+    .dates, .relevance {
         font-size: 0.8rem;
     }
 

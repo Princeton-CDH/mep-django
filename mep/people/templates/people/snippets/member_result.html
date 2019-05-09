@@ -36,6 +36,12 @@
                     {% endif %}
                 </span>
                 {% endif %}
+
+                {# display relevance score to logged in users if score is present #}
+                {% if user.is_authenticated and member.score %}
+                <h2>Relevance</h2>
+                <span class="relevance">{{ member.score }}</span>
+                {% endif %}
             </div>
             <span class="see-more">
                 See more details

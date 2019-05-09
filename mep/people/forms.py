@@ -1,6 +1,7 @@
 from django import forms
 from django.template.loader import get_template
 
+from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset
 from mep.people.models import Person
 
 
@@ -74,7 +75,7 @@ class SelectWithDisabled(SelectDisabledMixin, forms.Select):
     '''
 
 
-class MemberSearchForm(forms.Form):
+class MemberSearchForm(FacetForm):
     '''Member search form'''
 
     SORT_CHOICES = [
@@ -85,10 +86,20 @@ class MemberSearchForm(forms.Form):
     query = forms.CharField(label='Keyword or Phrase', required=False,
                             widget=forms.TextInput(attrs={
                                 'placeholder': 'Search member',
+                                'aria-label': 'Keyword or Phrase'
                             }))
-
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False,
                              widget=SelectWithDisabled)
+    has_card = forms.BooleanField(label='Card', required=False,
+        widget=forms.CheckboxInput(attrs={
+            'aria-label': 'Card',
+            'aria-describedby': 'has_card_tip'
+        }),
+        help_text='This filter will narrow results to show only members whose \
+        library records are available.')
+    sex = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
+        'class': 'choice facet'
+    }))
 
     def __init__(self, data=None, *args, **kwargs):
         '''
@@ -96,8 +107,15 @@ class MemberSearchForm(forms.Form):
         '''
         super().__init__(data=data, *args, **kwargs)
 
-
-        # relevance is disabled unless we have a keyword query present
-        if not data or not 'query' in data:
+        # if a keyword search term is present, only relevance sort is allowed
+        if data and data.get('query', None):
+            self.fields['sort'].widget.choices[1] = \
+                (self.SORT_CHOICES[1][0], {
+                    'label': self.SORT_CHOICES[1][1],
+                    'disabled': True})
+        # otherwise, relevance is disabled
+        else:
             self.fields['sort'].widget.choices[0] = \
-                ('relevance', {'label': 'Relevance', 'disabled': True})
+                (self.SORT_CHOICES[0][0], {
+                    'label': self.SORT_CHOICES[0][1],
+                    'disabled': True})

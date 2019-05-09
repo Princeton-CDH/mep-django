@@ -3,7 +3,8 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 
-from mep.accounts.models import Account, Subscription, Borrow, DatePrecision, \
+from mep.accounts.partial_date import DatePrecision
+from mep.accounts.models import Account, Subscription, Borrow, \
     Event, Purchase, Reimbursement
 from mep.accounts.admin import SubscriptionAdminForm, BorrowAdminForm, \
     EventAdmin, EventTypeListFilter

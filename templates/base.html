@@ -1,7 +1,7 @@
 {% load render_bundle from webpack_loader %}
 {% load static wagtailuserbar %}
 <!DOCTYPE html>
-<html lang="en" xmlns:schema="http://schema.org/" xmlns:og="http://ogp.me/ns#">
+<html lang="en" xmlns:schema="http://schema.org/" xmlns:og="http://ogp.me/ns#" class="no-js">
     <head>
         <!-- metadata -->
         <title>{% block page-subtitle %}{% endblock %}Shakespeare and Company Project</title>
@@ -20,7 +20,7 @@
         {% render_bundle 'main' 'css' %}
         {% block css %}{% endblock %}
         <!-- scripts -->
-        {% render_bundle 'main' 'js' attrs='defer' %}
+        {% render_bundle 'main' 'js' %}
         {% block js %}{% endblock %}
     </head>
     <body>

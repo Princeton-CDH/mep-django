@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.admin &#8212; Mapping Expatriate Paris - Django 0.13.0 documentation</title>
+    <title>mep.people.admin &#8212; Mapping Expatriate Paris - Django 0.15.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -203,7 +203,8 @@
 <div class="viewcode-block" id="PersonAddressInline"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAddressInline">[docs]</a><span class="k">class</span> <span class="nc">PersonAddressInline</span><span class="p">(</span><span class="n">AddressInline</span><span class="p">):</span>
     <span class="c1"># extend address inline for person to specify foreign key field</span>
     <span class="c1"># and remove account from editable fields</span>
-    <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;end_date&#39;</span><span class="p">,</span> <span class="s1">&#39;care_of_person&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">)</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_end_date&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;care_of_person&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">)</span>
     <span class="n">fk_name</span> <span class="o">=</span> <span class="s1">&#39;person&#39;</span></div>
 
 
@@ -214,10 +215,13 @@
 <span class="sd">    people are edited here).</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">form</span> <span class="o">=</span> <span class="n">PersonAdminForm</span>
-    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;list_nationalities&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span> <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;address_count&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span> <span class="s1">&#39;verified&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_at&#39;</span><span class="p">,</span> <span class="s1">&#39;note_snippet&#39;</span><span class="p">)</span>
-    <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span>
+    <span class="n">list_display</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;list_nationalities&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;account_id&#39;</span><span class="p">,</span> <span class="s1">&#39;address_count&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;verified&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_at&#39;</span><span class="p">,</span> <span class="s1">&#39;note_snippet&#39;</span><span class="p">)</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span>
         <span class="p">(</span><span class="s1">&#39;has_account&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span> <span class="s1">&#39;is_creator&#39;</span><span class="p">),</span>
         <span class="s1">&#39;title&#39;</span><span class="p">,</span>
         <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">),</span>
@@ -261,10 +265,11 @@
 
     <span class="c1">#: fields to be included in CSV export</span>
     <span class="n">export_fields</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;is_organization&#39;</span><span class="p">,</span> <span class="s1">&#39;is_creator&#39;</span><span class="p">,</span> <span class="s1">&#39;has_account&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span> <span class="s1">&#39;subscription_dates&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;verified&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_at&#39;</span><span class="p">,</span> <span class="s1">&#39;admin_url&#39;</span><span class="p">]</span>
+        <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;account_id&#39;</span><span class="p">,</span> <span class="s1">&#39;birth_year&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;death_year&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;is_organization&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;is_creator&#39;</span><span class="p">,</span> <span class="s1">&#39;has_account&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;subscription_dates&#39;</span><span class="p">,</span> <span class="s1">&#39;verified&#39;</span><span class="p">,</span> <span class="s1">&#39;updated_at&#39;</span><span class="p">,</span> <span class="s1">&#39;admin_url&#39;</span>
+    <span class="p">]</span>
 
 <div class="viewcode-block" id="PersonAdmin.csv_filename"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAdmin.csv_filename">[docs]</a>    <span class="k">def</span> <span class="nf">csv_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Generate filename for CSV download&#39;&#39;&#39;</span>
