@@ -13,7 +13,7 @@ import requests
 
 from mep import __version__ as mep_version
 from mep.books.oclc import WorldCatClientBase, SRUSearch, SRWResponse, \
-    WorldCatEntity
+    WorldCatEntity, SCHEMA_ORG
 
 
 FIXTURE_DIR = os.path.join('mep', 'books', 'fixtures')
@@ -195,6 +195,14 @@ class TestWorldCatEntity:
             mock_get_oclc_rdf.return_value = test_graph
             return WorldCatEntity(marc_record, mock_session)
 
+    def test_str(self):
+        wc_entity = self.worldcat_entity_from_fixture()
+        assert str(wc_entity) == wc_entity.item_uri
+
+    def test_repr(self):
+        wc_entity = self.worldcat_entity_from_fixture()
+        assert repr(wc_entity) == '<WorldCatEntity %s>' % wc_entity.item_uri
+
     def test_oclc_uri(self):
         # use first marc record from response fixture
         marc_record = get_srwresponse_xml_fixture().marc_records[0]
@@ -273,6 +281,11 @@ class TestWorldCatEntity:
 
         time_and_tide = self.worldcat_entity_from_fixture_timetide()
         assert time_and_tide.item_type == 'http://schema.org/Periodical'
+
+        # simulate article result
+        wc_entity.rdf_resource.remove(rdflib.RDF.type)
+        wc_entity.rdf_resource.add(rdflib.RDF.type, SCHEMA_ORG.Article)
+        assert wc_entity.item_type == 'http://schema.org/Article'
 
     def test_genre(self):
         time_and_tide = self.worldcat_entity_from_fixture_timetide()

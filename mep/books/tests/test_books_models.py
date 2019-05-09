@@ -85,6 +85,13 @@ class TestItem(TestCase):
         assert len(item.translators) == 1
         assert item.translators.first() == translator
 
+    def test_format(self):
+        item = Item.objects.create(title='Searching')
+        assert item.format() == ''
+
+        item.item_format = Format.objects.first()
+        assert item.format() == item.item_format.name
+
     def test_first_known_interaction(self):
         # create a test item with no events
         item = Item.objects.create(title='Searching')
