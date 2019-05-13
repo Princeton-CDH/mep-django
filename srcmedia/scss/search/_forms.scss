@@ -41,6 +41,33 @@
             border-bottom-style: solid;
         }
     }
+
+    input[type=number] {
+        appearance: textfield;
+        font-size: 0.8rem;
+        color: $black;
+        text-align: center;
+        border: 1px solid $light-grey;
+
+        // remove spinners in webkit browsers
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+            display: none;
+        }
+
+        @media (min-width: $breakpoint-s) {
+            border-color: $black;
+            border-style: dotted;
+            border-width: 0px;
+            border-bottom-width: .1rem;
+
+            &:focus {
+                border-bottom-style: solid;
+            }
+        }
+    }
      
     // fade animation for when count changes
     span.count {

@@ -11,4 +11,14 @@
             left: -6rem;
         }
     }
+
+    .range.facet {
+        @media (min-width: $breakpoint-s) {
+            max-width: 12rem;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            max-width: 15rem;
+        }
+    }
 }
