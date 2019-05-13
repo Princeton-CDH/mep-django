@@ -119,9 +119,13 @@ class WorldCatEntity:
         self.session = session
         self.item_uri = WorldCatEntity.oclc_uri(self.marc_record)
         graph = self.get_oclc_rdf()
-        if graph:
-            # initialize an rdflib.resource
-            self.rdf_resource = RdfResource(graph, rdflib.URIRef(self.item_uri))
+        # if loading the graph fails, raise an exception because
+        # this object is unusable without it
+        if not graph:
+            raise ConnectionError('Failed to load RDF for %s' % self.item_uri)
+
+        # initialize an rdflib.resource
+        self.rdf_resource = RdfResource(graph, rdflib.URIRef(self.item_uri))
 
     def __str__(self):
         return self.item_uri

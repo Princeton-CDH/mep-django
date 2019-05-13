@@ -119,9 +119,8 @@ class Subject(models.Model):
                                           rdf_type=rdf_type)
 
         # if the request failed or was not usable, log the error
-        logger.warning('Error creating Subject for %s (response %s, %s)',
-                       uri, response.status_code,
-                       response.headers['content-type'])
+        logger.warning('Error creating Subject for %s (response %s)',
+                       uri, response.status_code)
 
 
 class Item(Notable, Indexable):

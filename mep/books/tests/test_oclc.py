@@ -222,6 +222,14 @@ class TestWorldCatEntity:
         assert wc_entity.item_uri == WorldCatEntity.oclc_uri(marc_record)
         assert isinstance(wc_entity.rdf_resource, rdflib.resource.Resource)
 
+        # simulate graph load failure
+        with patch.object(WorldCatEntity, 'get_oclc_rdf') as mock_get_oclc_rdf:
+            marc_record = MagicMock()
+            marc_record['001'].value.return_value = '3484871'
+            mock_get_oclc_rdf.return_value = None
+            with pytest.raises(ConnectionError):
+                WorldCatEntity(marc_record, Mock())
+
     @patch('mep.books.oclc.rdflib', spec=True)
     def test_get_oclc_rdf(self, mockrdflib):
         # stub back in codes and exceptions for requests
@@ -259,9 +267,11 @@ class TestWorldCatEntity:
             # so using patch instead
             with patch('mep.books.oclc.logger') as mock_logger:
                 mock_response.status_code = requests.codes.not_found
-                wc_entity = WorldCatEntity(marc_record, mock_session)
-                # rdf resource not initialized
-                assert not wc_entity.rdf_resource
+                wc_entity = None
+                with pytest.raises(ConnectionError):
+                    wc_entity = WorldCatEntity(marc_record, mock_session)
+                # entity not initialized
+                assert not wc_entity
                 # should not error, return none, and log the error
                 mock_logger.error.assert_called_with(
                     'Error loading OCLC record as RDF %s => %d',

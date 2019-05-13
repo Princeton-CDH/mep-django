@@ -11,7 +11,7 @@ import progressbar
 import pymarc
 
 from mep.books.models import Item
-from mep.books.oclc import SRUSearch, WorldCatEntity
+from mep.books.oclc import SRUSearch
 
 
 class Command(BaseCommand):
@@ -130,7 +130,12 @@ class Command(BaseCommand):
         '''Search for Items in OCLC and update in the database if
         a match is found.'''
         for item in items:
-            worldcat_entity = self.oclc_search_record(item)
+            try:
+                worldcat_entity = self.oclc_search_record(item)
+            except ConnectionError as err:
+                self.stderr.write('Error: %s' % err)
+                worldcat_entity = None
+
             if worldcat_entity:
                 item.populate_from_worldcat(worldcat_entity)
                 item.save()
@@ -189,17 +194,21 @@ class Command(BaseCommand):
         if result.num_records:
             # assume first record is best match (seems to be true)
             marc_record = result.marc_records[0]
-            worldcat_rdf = self.sru_search.get_worldcat_rdf(marc_record)
-            oclc_info.update({
-                'OCLC Title': marc_record.title(),
-                'OCLC Author': marc_record.author(),
-                'OCLC Date': marc_record.pubyear(),
-                'OCLC URI': worldcat_rdf.item_uri,
-                'Work URI': worldcat_rdf.work_uri
-            })
+            try:
+                worldcat_rdf = self.sru_search.get_worldcat_rdf(marc_record)
+                oclc_info.update({
+                    'OCLC Title': marc_record.title(),
+                    'OCLC Author': marc_record.author(),
+                    'OCLC Date': marc_record.pubyear(),
+                    'OCLC URI': worldcat_rdf.item_uri,
+                    'Work URI': worldcat_rdf.work_uri
+                })
+            except ConnectionError as err:
+                self.stderr.write('Error: %s' % err)
+
         return oclc_info
 
-    def oclc_search_record(self, item: Item) -> WorldCatEntity:
+    def oclc_search_record(self, item):
         """Search for an item in OCLC by title, author, date.
         Returns :class:`~mep.books.oclc.WorldCatResource` for the first
         match.'''

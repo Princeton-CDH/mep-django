@@ -183,8 +183,21 @@ class TestReconcileOCLC(TestCase):
             assert log_entry.change_message == \
                 'Updated from OCLC %s' % worldcat_entity.item_uri
 
-            # simulate failure on search
+            # simulate failure loading worldcat rdf
+            mock_oclc_search.side_effect = ConnectionError
+            self.cmd.stderr = StringIO()
+            self.cmd.stats = defaultdict(int)
+            # shouldn't blow up
+            self.cmd.update_items([item1])
+            output = self.cmd.stderr.getvalue()
+            assert 'Error:' in output
+            # shouldn't update anything
+            assert self.cmd.stats['count'] == 1
+            assert self.cmd.stats['updated'] == 0
+
+            # simulate no results from search
             mock_oclc_search.return_value = None
+            mock_oclc_search.side_effect = None
             # reset stats
             self.cmd.stats = defaultdict(int)
             self.cmd.update_items([item1])
@@ -239,7 +252,7 @@ class TestReconcileOCLC(TestCase):
     def test_oclc_info(self):
         srwresponse = get_srwresponse_xml_fixture()
         # search item with title, author, year
-        mock_item = Mock()
+        mock_item = Mock(notes='')
         mock_sru_search = Mock()
         self.cmd.sru_search = mock_sru_search
 
@@ -265,6 +278,18 @@ class TestReconcileOCLC(TestCase):
         assert oclc_info['OCLC Date'] == marc_record.pubyear()
         assert oclc_info['OCLC URI'] == mock_wc_rdf.item_uri
         assert oclc_info['Work URI'] == mock_wc_rdf.work_uri
+
+        # simulate error loading worldcat rdf
+        mock_sru_search.get_worldcat_rdf.side_effect = ConnectionError
+        self.cmd.stderr = StringIO()
+        with patch.object(self.cmd, 'oclc_search') as mock_oclc_search:
+            mock_oclc_search.return_value = srwresponse
+            oclc_info = self.cmd.oclc_info(mock_item)
+        # only includes count
+        assert len(oclc_info.keys()) == 1
+        assert oclc_info['# matches'] == srwresponse.num_records
+        output = self.cmd.stderr.getvalue()
+        assert 'Error:' in output
 
         # simulate no results found
         with patch.object(self.cmd, 'oclc_search') as mock_oclc_search:
