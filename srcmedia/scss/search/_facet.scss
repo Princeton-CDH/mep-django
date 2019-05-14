@@ -3,16 +3,25 @@
     background: white;
     display: block;
     width: 100%;
-    height: 12rem;
     padding: 0.7rem;
     position: relative;
 
     > legend {
         position: absolute;
-        top: 0.7rem;
+        top: 0.75rem;
         left: 0.7rem;
         padding: 0;
         display: block;
+    }
+
+    .choices {
+        height: 100%;
+        padding-top: 1.5rem;
+        list-style: none;
+    }
+
+    .choice:hover {
+        background: #f1f1f1;
     }
     
     legend,
@@ -21,28 +30,18 @@
         font-size: 0.8rem;
         display: block;
         text-align: left;
-        height: fit-content;
         margin: 0;
         border: 0;
+        padding: 0 0.5rem;
     }
 
     label {
-        padding: 0 .5rem;
         color: $brownish-grey;
         cursor: pointer;
         display: flex;
         justify-content: space-between;
         align-items: center;
         transition: padding 0.25s ease;
-
-        &:hover {
-            background: #f1f1f1;
-        }
-
-        &:first-of-type {
-            margin-top: 1.4rem;
-            padding-top: 0;
-        }
 
         &::before {
             content: '';
@@ -57,14 +56,6 @@
             background-position: center;
             pointer-events: none;
             transition: opacity 0.25s ease;
-        }
-
-        .label,
-        .count {
-            display: inline-flex;
-            height: 1.2rem;
-            line-height: 1.2rem;
-            padding-top: .2rem; // to make the text to vertically center correctly :(
         }
 
         .count {
@@ -90,5 +81,52 @@
                 opacity: 1;
             }
         }
+    }
+
+
+    /**
+     * CHOICE FACET - used for facets where all options are always shown, e.g.
+     * 'gender' on members search and 'format' on books search
+     */
+    &.choice {
+        @media (max-width: calc(#{$breakpoint-s} - 1px)) { // special styles only apply on mobile
+            legend {
+                padding: 0;
+            }
+
+            .choices {
+                display: flex;
+            }
+    
+            .choice {
+                flex: 1;
+                border: 1px solid $light-grey;
+                padding-top: 0.1rem;
+            }
+    
+            label {
+                display: flex;
+                flex-direction: column;
+                padding: 0;
+    
+                &::before {
+                    top: initial;
+                    left: 0.2rem;
+                    bottom: 0.2rem;
+                }
+            }
+    
+            input:checked + label {
+                padding: 0;
+            }
+        }
+    }
+
+    /**
+     * TEXT FACET - used for facets where there can be many options, and those
+     * with a count of zero will be hidden, e.g. 'nationality' on members
+     */
+     &.text {
+        min-height: 12rem;
     }
 }

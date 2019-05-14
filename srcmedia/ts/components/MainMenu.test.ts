@@ -10,26 +10,6 @@ it('keeps a reference to its element', () => {
     expect(mm.element).toBe(element)
 })
 
-it('uses a transition duration of zero if none is provided', () => {
-    let element = document.getElementById('main-menu') as HTMLElement
-    const mm = new MainMenu(element)
-    expect(mm.transitionDuration).toBe(0)
-})
-
-it('parses and stores a css transition-duration in ms units', () => {
-    let element = document.getElementById('main-menu') as HTMLElement
-    element.style.transitionDuration = '500ms'
-    const mm = new MainMenu(element)
-    expect(mm.transitionDuration).toBe(500)
-})
-
-it('parses and stores a css transition-duration in s units', () => {
-    let element = document.getElementById('main-menu') as HTMLElement
-    element.style.transitionDuration = '1s'
-    const mm = new MainMenu(element)
-    expect(mm.transitionDuration).toBe(1000)
-})
-
 it('prevents default link click event when shown', () => {
     let element = document.getElementById('main-menu') as HTMLElement
     let event = new MouseEvent('click')

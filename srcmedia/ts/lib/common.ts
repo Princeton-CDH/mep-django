@@ -38,6 +38,15 @@ const ajax = {
 }
 
 /**
+ * Request header used to request facets from Django.
+ */
+const acceptJson = {
+    headers: {
+        'Accept': 'application/json'
+    }
+}
+
+/**
  * Validate that every element in array a is present in array b and that
  * their lengths are the same.
  * 
@@ -51,10 +60,47 @@ function arraysAreEqual (a: Array<any>, b: Array<any>): boolean {
     return a.every(e => b.includes(e)) && a.length == b.length
 }
 
-abstract class Rx<Element> {
-    element: Element
+/**
+ * Applies the 'aria-busy' attribute for the element's specified transition
+ * duration, then changes its content and removes the attribute.
+ *
+ * @param {HTMLElement} element
+ * @param {string} content
+ * @returns {Promise<string>}
+ */
+function animateElementContent (element: HTMLElement, content: string): Promise<string> {
+    return new Promise(resolve => {
+        element.setAttribute('aria-busy', '')
+        setTimeout(() => {
+            element.innerHTML = content
+            element.removeAttribute('aria-busy')
+            resolve(content)
+        }, getTransitionDuration(element))
+    })
+}
+
+/**
+ * Get the specified transition-duration for an element, or zero if none.
+ * 
+ * Parses values from CSS like '0.5s' or '200ms' into an integer number of
+ * milliseconds for use with functions like setTimeout().
+ * 
+ * Note that this only works for elements that specify a single transition-duration
+ * property.
+ *
+ * @param {HTMLElement} element
+ * @returns {number}
+ */
+function getTransitionDuration (element: HTMLElement): number {
+    const prop = window.getComputedStyle(element).getPropertyValue('transition-duration')
+    const parsed = parseFloat(prop) * (/\ds$/.test(prop) ? 1000 : 1)
+    return isNaN(parsed) ? 0 : parsed
+}
+
+abstract class Rx<E extends HTMLElement> {
+    protected element: E
     
-    constructor(element: Element) {
+    constructor(element: E) {
         this.element = element
     }
 }
@@ -64,5 +110,8 @@ export {
     Component,
     Rx,
     ajax,
-    arraysAreEqual
+    acceptJson,
+    arraysAreEqual,
+    animateElementContent,
+    getTransitionDuration,
 }

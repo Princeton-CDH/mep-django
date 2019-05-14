@@ -1,4 +1,4 @@
-import { Component, arraysAreEqual } from './common'
+import { Component, arraysAreEqual, getTransitionDuration } from './common'
 
 describe('Component', () => {
 
@@ -41,6 +41,31 @@ describe('arraysAreEqual', () => {
         const a = ['a', 1]
         const b = ['a', '1']
         expect(arraysAreEqual(a, b)).toBe(false)
+    })
+
+})
+
+describe('getTransitionDuration', () => {
+
+    beforeEach(() => {
+        document.body.innerHTML = `<div id="main-menu"></div>`
+    })
+
+    test('uses a transition duration of zero if none is provided', () => {
+        let element = document.getElementById('main-menu') as HTMLElement
+        expect(getTransitionDuration(element)).toBe(0)
+    })
+    
+    test('parses and stores a css transition-duration in ms units', () => {
+        let element = document.getElementById('main-menu') as HTMLElement
+        element.style.transitionDuration = '500ms'
+        expect(getTransitionDuration(element)).toBe(500)
+    })
+    
+    test('parses and stores a css transition-duration in s units', () => {
+        let element = document.getElementById('main-menu') as HTMLElement
+        element.style.transitionDuration = '1s'
+        expect(getTransitionDuration(element)).toBe(1000)
     })
 
 })

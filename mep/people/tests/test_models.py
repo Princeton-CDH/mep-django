@@ -128,6 +128,17 @@ class TestPerson(TestCase):
         pers.nationalities.add(country)
         assert pers.list_nationalities() == 'France, Spain'
 
+    def test_account_id(self):
+        # create a person
+        pers = Person.objects.create(name='Foobar')
+        # create an account
+        acct = Account.objects.create()
+        # not associated so person has no account number
+        assert pers.account_id() == ''
+        # associate
+        acct.persons.add(pers)
+        assert pers.account_id() == acct.id
+
     def test_has_account(self):
         # create a person
         pers = Person.objects.create(name='Foobar')
@@ -137,7 +148,6 @@ class TestPerson(TestCase):
         assert not pers.has_account()
         # associate, should return True
         acct.persons.add(pers)
-        acct.save()
         assert pers.has_account()
 
     def test_subscription_dates(self):

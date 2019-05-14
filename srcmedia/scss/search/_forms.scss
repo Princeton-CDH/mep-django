@@ -41,6 +41,16 @@
             border-bottom-style: solid;
         }
     }
+     
+    // fade animation for when count changes
+    span.count {
+        opacity: 1;
+        transition: opacity 0.25s ease-in-out;
+        
+        &[aria-busy] {
+            opacity: 0;
+        }
+    }
 
     fieldset.group {
         width: 100%;

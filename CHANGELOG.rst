@@ -3,6 +3,16 @@
 CHANGELOG
 =========
 
+0.15
+----
+
+* As a user, I want the members list page updated as soon as I change search terms, filters, or results page so that I can refine my search without losing my place in the form and have results load more quickly.
+* As a user, I want the count of members with cards to update as soon as I change search terms or filters so that I can see an accurate number for my current search.
+* As a user, I want to filter library members by gender so that I can see the gender composition of library members. 
+* As a content editor, I want account id number listed in the person admin list view and person CSV export so that I have more information for decisions about merging people records.
+
+* bugfix: don't defer loading of <script>s to avoid flash of unstyled content
+
 0.14
 ----
 

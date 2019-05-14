@@ -1,12 +1,13 @@
 import { merge } from 'rxjs'
-import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter } from 'rxjs/operators'
+import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, skip, flatMap } from 'rxjs/operators'
 
-import { arraysAreEqual } from './lib/common'
+import { arraysAreEqual, animateElementContent } from './lib/common'
 import { RxTextInput, RxCheckboxInput } from './lib/input'
 import { RxOutput } from './lib/output'
-import { RxSearchForm } from './lib/form'
+import { RxFacetedSearchForm } from './lib/form'
 import { RxSelect } from './lib/select'
 import PageControls from './components/PageControls'
+import { RxChoiceFacet, RxBooleanFacet } from './lib/facet'
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -19,16 +20,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
+    const $genderFacet = document.querySelector('#id_sex') as HTMLFieldSetElement
+
 
     /* COMPONENTS */
-    const membersSearchForm = new RxSearchForm($membersSearchForm)
+    const membersSearchForm = new RxFacetedSearchForm($membersSearchForm)
     const keywordInput = new RxTextInput($keywordInput)
-    const hasCardInput = new RxCheckboxInput($hasCardInput)
+    const hasCardFacet = new RxBooleanFacet($hasCardInput)
     const resultsOutput = new RxOutput($resultsOutput)
     const totalResultsOutput = new RxOutput($totalResultsOutput)
     const pageSelect = new RxSelect($pageSelect)
     const sortSelect = new RxSelect($sortSelect)
     const pageControls = new PageControls($pageControls)
+    const genderFacet = new RxChoiceFacet($genderFacet)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
@@ -77,17 +81,35 @@ document.addEventListener('DOMContentLoaded', () => {
         map(([a, c]) => a === 'next' ? c + 1 : c - 1), // if 'next', add 1, otherwise subtract 1
         map(c => c.toString()) // map to a string for passing as pageSelect value
     )
-    const reloadResults$ = merge( // a list of all the things that should submit the form when changed
+    const reloadFacets$ = merge( // a list of all the things that require fetching new facets
         keywordInput.state,
-        hasCardInput.state,
-        sortSelect.value
+        hasCardFacet.state,
+        genderFacet.events,
     )
+    const reloadResults$ = merge( // a list of all the things that require fetching new results (jump to page 1)
+        reloadFacets$, // anything that changes facets also triggers new results
+        sortSelect.value
+    ).pipe(debounceTime(100)) 
+    // slight debounce - otherwise we would get repeated events when e.g.
+    // the user types a keyword, which also switches the sort to relevance
+    // debounce ensures these are close enough to read as a single event  
     const totalResultsText$ = merge(
         totalResults$.pipe(map(t => `${t.toLocaleString()} total results`)), // when there are results, say how many, with a comma 
         reloadResults$.pipe(mapTo('Results are loading')) // when loading, replace with this text
     )
     const sort$ = noKeyword$.pipe( // 'name' if no keyword, 'relevance' otherwise
         map(n => n ? 'name' : 'relevance')
+    )
+    const hasCardCount = membersSearchForm.facets.pipe( // "has card" facet count
+        pluck('facet_fields'),
+        pluck('has_card'),
+        pluck('true'),
+        distinctUntilChanged(), // only update when changed
+    )
+    const genderChoices = membersSearchForm.facets.pipe(
+        pluck('facet_fields'),
+        pluck('sex'),
+        flatMap(Object.entries),
     )
 
     /* SUBSCRIPTIONS */
@@ -98,12 +120,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Disable the page selection dropdown if there aren't any results
     noResults$.subscribe(pageSelect.disabled)
 
-    // When a user changes the search or sort, go back to page 1
+    // Update the "has card" facet count
+    hasCardCount.subscribe(hasCardFacet.count as any) // not sure why 'any' is necessary...
+
+    // Update the gender facet
+    genderChoices.subscribe(genderFacet.counts)
+
+    // When a user changes the form, get new facets
+    reloadFacets$.subscribe(() => membersSearchForm.getFacets())
+
+    // When we need new results, go back to page 1
     reloadResults$.subscribe(() => pageSelect.value.next('1'))
 
     // When the page is changed, submit the form and apply loading styles
     pageSelect.value.subscribe(() => {
-        membersSearchForm.submit()
+        membersSearchForm.getResults()
         pageControls.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
         resultsOutput.element.setAttribute('aria-busy', '') 
     })
