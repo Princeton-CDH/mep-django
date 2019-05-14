@@ -53,13 +53,16 @@ class RdfViewMixin(ContextMixin):
 
     #: default schema.org type for a View
     rdf_type = SCHEMA_ORG.WebPage
-    #: default breadcrumbs, used to render breadcrumb navigation
+    #: breadcrumbs, used to render breadcrumb navigation. 'home' added by default
     breadcrumbs = []
+    #: json-ld context for the rdf graph; defaults to schema.org
+    json_ld_context = str(SCHEMA_ORG)
 
     def get_context_data(self, *args, **kwargs):
         '''Add generated breadcrumbs and an RDF graph to the view context.'''
         context = super().get_context_data(*args, **kwargs)
-        context['rdf'] = self.as_rdf().serialize(format='json-ld', indent=4)
+        context['rdf'] = self.as_rdf().serialize(format='json-ld', auto_compact=True,
+                                                 context=self.json_ld_context, indent=4)
         context['breadcrumbs'] = self.get_breadcrumbs()
         return context
 
@@ -69,17 +72,21 @@ class RdfViewMixin(ContextMixin):
 
     def as_rdf(self):
         '''Generate an RDF graph representing the page.'''
+        # add the root node (this page)
         graph = rdflib.Graph()
         page_uri = rdflib.URIRef(absolutize_url(self.get_uri()))
         graph.add((page_uri, rdflib.RDF.type, self.rdf_type))
         # generate and add breadcrumbs
+        breadcrumbs_node = rdflib.BNode()
+        graph.set((page_uri, SCHEMA_ORG.breadcrumb, breadcrumbs_node))
+        graph.set((breadcrumbs_node, rdflib.RDF.type, SCHEMA_ORG.BreadcrumbList))
         for pos, crumb in enumerate(self.get_breadcrumbs()):
-            crumb_name = rdflib.Literal(crumb[0])
-            graph.add((crumb_name, rdflib.RDF.type, SCHEMA_ORG.ListItem))
-            graph.add((crumb_name, SCHEMA_ORG.name, rdflib.Literal(crumb[0]))) # name/label
-            graph.add((crumb_name, SCHEMA_ORG.item, rdflib.Literal(crumb[1]))) # url
-            graph.add((crumb_name, SCHEMA_ORG.position, rdflib.Literal(pos + 1)))
-            graph.add((page_uri, SCHEMA_ORG.itemListElement, crumb_name))
+            crumb_node = rdflib.BNode()
+            graph.add((breadcrumbs_node, SCHEMA_ORG.itemListElement, crumb_node))
+            graph.set((crumb_node, rdflib.RDF.type, SCHEMA_ORG.ListItem))
+            graph.set((crumb_node, SCHEMA_ORG.name, rdflib.Literal(crumb[0]))) # name/label
+            graph.set((crumb_node, SCHEMA_ORG.item, rdflib.Literal(crumb[1]))) # url
+            graph.set((crumb_node, SCHEMA_ORG.position, rdflib.Literal(pos + 1))) # position
         return graph
 
     def get_breadcrumbs(self):
