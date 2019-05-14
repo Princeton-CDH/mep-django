@@ -27,6 +27,7 @@ span[role=tooltip] {
         background-color: white;
         z-index: 2;
         box-shadow: 0 0 4px 0 $transparent-blue;
+        pointer-events: none;
     }
     
     &::before,
