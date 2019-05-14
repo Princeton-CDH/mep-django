@@ -12,13 +12,25 @@
         float: left;
         position: relative;
 
-        &:first-child a {
-            padding-left: 0;
-            border-left-width: 2px;
+        &:first-child {
+            // Home crumb logo
+            &::before {
+                content: url('/static/img/logo/SCo_logo_graphic.svg');
+                position: absolute;
+                width: 1rem;
+                height: 1.5rem;
+                z-index: 1;
+                left: .1rem;
+            }
+
+            a {
+                border-left-width: 2px;
+            }
         }
     }
     
-    a {
+    a,
+    span {
         height: 1.5rem;
         padding-top: 1px;
         position: relative;
@@ -33,14 +45,6 @@
         border-bottom-width: 2px;
         border-top-width: 2px;
         box-sizing: border-box;
-
-        &:hover {
-            border-color: $green;
-
-            &::before {
-                border-left-color: $green;
-            }
-        }
 
         &::before,
         &::after {
@@ -70,8 +74,11 @@
         }
     }
 
-    .logo {
-        margin-top: -1px;
-        height: 1.5rem;
+    a:hover {
+        border-color: $green;
+
+        &::before {
+            border-left-color: $green;
+        }
     }
 }

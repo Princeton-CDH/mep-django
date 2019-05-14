@@ -1,33 +1,15 @@
 {% load static %}
 <nav class="breadcrumbs">
     <ol>
-        <li>
-            <a href="/">
-                <img class="logo" src="{% static 'img/logo/SCo_logo_graphic.png' %}">
-                Home
-            </a>
-        </li>
-        {% for label, crumb_url in breadcrumbs.items %}
-        <li>
-            <a href="{{ crumb_url }}">{{ label }}</a>
-        </li>
+        {% for crumb in breadcrumbs %}
+            <li>
+            {% if forloop.last %} {# last (current) crumb isn't a link #}
+            <span>{{ crumb.0 }}</span>
+            {% else %}
+            <a href="{{ crumb.1 }}">{{ crumb.0 }}</a>
+            {% endif %}
+            </li>
         {% endfor %}
     </ol>
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [{
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "/"
-        },{
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Members",
-            "item": "/members"
-        }]
-    }
-    </script>
+    <script type="application/ld+json">{{ rdf|safe }}</script>
 </nav>
