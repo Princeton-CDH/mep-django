@@ -29,9 +29,6 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
     ajax_template_name = 'people/snippets/member_results.html'
     paginate_by = 100
     context_object_name = 'members'
-    breadcrumbs = [
-        ('Home', '/'),
-    ]
 
     form_class = MemberSearchForm
     # cached form instance for current request
@@ -121,10 +118,14 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         # alpha labels is a dict; use items to return list of tuples
         return alpha_labels.items()
 
-
     def get_uri(self):
         return reverse('people:members-list')
 
+    def get_breadcrumbs(self):
+        return [
+            ('Home', absolutize_url('/')),
+            ('Members', absolutize_url(self.get_uri())),
+        ]
 
 class MemberDetail(DetailView):
     '''Detail page for a single library member.'''
