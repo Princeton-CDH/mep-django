@@ -100,18 +100,35 @@
             align-items: center;
         }
 
+        // 2px vert spacing on mobile, 2px horizontal spacing on tablet & above
+        .inner > label,
+        .inner > .facet {
+            margin-bottom: 0.1rem;
+
+            @media (min-width: $breakpoint-s) {
+                margin-right: 0.1rem;
+    
+                &:last-of-type {
+                    margin-right: 0;
+                }
+            }
+        }
+        
         .inner > label {
-            flex: auto;
             height: 2.2rem;
             background: white;
-            margin-right: .1rem;
+            flex: auto;
             display: flex;
             flex-flow: row nowrap;
             justify-content: flex-start;
-            padding: 0 .5rem;
+            padding: 0 .7rem;
             align-items: center;
             border: 2px solid white;
             box-sizing: border-box;
+
+            @media (min-width: $breakpoint-s) {
+                padding: 0 .5rem;
+            }
 
             &:last-child {
                 margin-right: 0;
