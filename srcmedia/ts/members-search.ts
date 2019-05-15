@@ -7,7 +7,7 @@ import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
 import { RxSelect } from './lib/select'
 import PageControls from './components/PageControls'
-import { RxChoiceFacet, RxBooleanFacet } from './lib/facet'
+import { RxChoiceFacet, RxBooleanFacet, RxRangeFacet } from './lib/facet'
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
     const $genderFacet = document.querySelector('#id_sex') as HTMLFieldSetElement
+    // FIXME should use an id selector
+    const $memDateFacet = document.querySelector('.range.facet') as HTMLFieldSetElement
 
 
     /* COMPONENTS */
@@ -33,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortSelect = new RxSelect($sortSelect)
     const pageControls = new PageControls($pageControls)
     const genderFacet = new RxChoiceFacet($genderFacet)
+    const memDateFacet = new RxRangeFacet($memDateFacet)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
@@ -85,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         keywordInput.state,
         hasCardFacet.state,
         genderFacet.events,
+        memDateFacet.values,
     )
     const reloadResults$ = merge( // a list of all the things that require fetching new results (jump to page 1)
         reloadFacets$, // anything that changes facets also triggers new results
