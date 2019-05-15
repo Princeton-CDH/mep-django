@@ -43,7 +43,8 @@ class Named(models.Model):
         ordering = ['name']
 
     def __repr__(self):
-        return '<%s %s>' % (self.__class__.__name__, self.__dict__)
+        # name is unique, so should be sufficient to identify
+        return '<%s %s>' % (self.__class__.__name__, self.name)
 
     def __str__(self):
         return self.name

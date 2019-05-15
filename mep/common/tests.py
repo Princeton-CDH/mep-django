@@ -27,8 +27,7 @@ class TestNamed(TestCase):
 
     def test_repr(self):
         named_obj = Named(name='foo')
-        overall = re.compile(r'<Named \{.+\}>')
-        assert re.search(overall, repr(named_obj))
+        assert repr(named_obj) == '<Named %s>' % named_obj.name
 
     def test_str(self):
         named_obj = Named(name='foo')
