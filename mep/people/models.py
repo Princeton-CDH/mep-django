@@ -324,6 +324,13 @@ class Person(Notable, DateRange, Indexable):
         if self.viaf_id:
             return ViafEntity(self.viaf_id)
 
+    @property
+    def short_name(self):
+        '''Shortened form of name used for locations where space is tight,
+        e.g. breadcrumb navigation'''
+        if self.sort_name:
+            return self.sort_name.split(',')[0]
+
     def set_birth_death_years(self):
         '''Set local birth and death dates based on information from VIAF'''
         if self.viaf_id:

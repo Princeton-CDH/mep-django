@@ -58,6 +58,17 @@ class TestPerson(TestCase):
         assert isinstance(pers.viaf, ViafEntity)
         assert pers.viaf.uri == pers.viaf_id
 
+    def test_short_name(self):
+        # should return up to comma for names with comma
+        pers = Person(sort_name='Casey, Jim')
+        assert pers.short_name is 'Casey'
+        # should just return the name if no comma
+        pers.sort_name = 'Jim Casey'
+        assert pers.short_name is 'Jim Casey'
+        # if no sort name should be None
+        pers.sort_name = None
+        assert pers.sort_name is None
+
     def test_set_birth_death_years(self):
         pers = Person(name='Humperdinck')
         # no viaf id
