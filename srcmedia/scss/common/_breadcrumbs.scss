@@ -1,8 +1,10 @@
 .breadcrumbs {
-    @include padding-container;
+    padding: 1rem $gutter-xs;
     background: $white;
-    display: block;
-    padding: 0.5rem 0;
+
+    @media (min-width: $breakpoint-s) {
+        padding: 1rem 0;
+    }
 
     ol {
         overflow: hidden;
@@ -12,7 +14,7 @@
         float: left;
         position: relative;
 
-        &:first-child {
+        &.home {
             // Home crumb logo
             &::before {
                 content: url('/static/img/logo/SCo_logo_graphic.svg');
@@ -21,10 +23,19 @@
                 height: 1.5rem;
                 z-index: 1;
                 left: .1rem;
+                pointer-events: none;
             }
 
             a {
                 border-left-width: 2px;
+                // don't show 'Home' text unless on larger screens
+                width: 0;
+                color: white;
+
+                @media (min-width: $breakpoint-s) {
+                    width: auto;
+                    color: inherit;
+                }
             }
         }
     }
@@ -74,7 +85,18 @@
         }
     }
 
+    // penultimate item (before active one) needs to make its right-side border green
+    li:nth-last-of-type(2) a::before {
+        border-left-color: $green;
+    }
+    
+    // remove default hover styles for links
     a:hover {
+        border-color: $white-two;
+    }
+
+    // last item is the active one, green border
+    span {
         border-color: $green;
 
         &::before {
