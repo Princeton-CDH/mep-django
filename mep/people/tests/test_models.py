@@ -67,7 +67,7 @@ class TestPerson(TestCase):
         assert pers.short_name == 'Jim Casey'
         # if no sort name should be None
         pers.sort_name = None
-        assert pers.sort_name is None
+        assert pers.short_name is None
 
     def test_set_birth_death_years(self):
         pers = Person(name='Humperdinck')
