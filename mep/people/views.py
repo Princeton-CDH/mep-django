@@ -124,10 +124,10 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
     def get_breadcrumbs(self):
         return [
             ('Home', absolutize_url('/')),
-            ('Members', absolutize_url(self.get_uri())),
+            ('Members', self.get_uri()),
         ]
 
-class MemberDetail(DetailView):
+class MemberDetail(DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -137,14 +137,16 @@ class MemberDetail(DetailView):
         # throw a 404 if a non-member is accessed via this route
         return super().get_queryset().exclude(account=None)
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['breadcrumbs'] = {
-            'Members': reverse('people:members-list'),
-            'name': self.object.get_absolute_url()
-        }
-        return context
+    def get_uri(self):
+        return self.object.get_absolute_url()
 
+    def get_breadcrumbs(self):
+        # FIXME duplicating get_uri() from MembersList here
+        return [
+            ('Home', absolutize_url('/')),
+            ('Members', absolutize_url(reverse('people:members-list'))),
+            (self.object.short_name, self.get_uri())
+        ]
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):

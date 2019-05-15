@@ -9,6 +9,7 @@
 {% block main-style %}tabbed{% endblock %}
 
 {% block content %}
+{% include 'snippets/breadcrumbs.html' %}
 <nav class="tabs">
     <li class="tab" aria-selected="true">
         <a href="{% url 'people:member-detail' pk=member.pk %}">personography</a>
