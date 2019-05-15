@@ -53,7 +53,8 @@ class RdfViewMixin(ContextMixin):
 
     #: default schema.org type for a View
     rdf_type = SCHEMA_ORG.WebPage
-    #: breadcrumbs, used to render breadcrumb navigation. 'home' added by default
+    #: breadcrumbs, used to render breadcrumb navigation. they should be a list
+    #: of tuples like ('Title', '/url')
     breadcrumbs = []
     #: json-ld context for the rdf graph; defaults to schema.org
     json_ld_context = str(SCHEMA_ORG)
@@ -67,14 +68,15 @@ class RdfViewMixin(ContextMixin):
         return context
 
     def get_uri(self):
-        '''Get a URI for this page to use for making RDF assertions.'''
+        '''Get a URI for this page to use for making RDF assertions. Note that
+        this should return a full absolute path, e.g. with absolutize_url().'''
         raise NotImplementedError
 
     def as_rdf(self):
         '''Generate an RDF graph representing the page.'''
         # add the root node (this page)
         graph = rdflib.Graph()
-        page_uri = rdflib.URIRef(absolutize_url(self.get_uri()))
+        page_uri = rdflib.URIRef(self.get_uri())
         graph.add((page_uri, rdflib.RDF.type, self.rdf_type))
         # generate and add breadcrumbs
         breadcrumbs_node = rdflib.BNode()

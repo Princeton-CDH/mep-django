@@ -119,7 +119,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         return alpha_labels.items()
 
     def get_uri(self):
-        return reverse('people:members-list')
+        return absolutize_url(reverse('people:members-list'))
 
     def get_breadcrumbs(self):
         return [
