@@ -9,7 +9,7 @@
     // on detail pages on mobile, we need a slight side margin
     @media (max-width: calc(#{$breakpoint-s} - 1px)) {
         main.tabbed & {
-            margin: 1rem $gutter-xs; 
+            margin: 1rem $gutter-xs;
         }
     }
 
