@@ -20,6 +20,23 @@ from mep.people.models import (Country, InfoURL, Location, Person, Profession,
                                Relationship, RelationshipType)
 
 
+class TestLocation(TestCase):
+
+    def test_repr(self):
+        loc = Location(name='L\'Hotel', city='Paris')
+        # unsaved
+        assert repr(loc) == '<Location pk:?? %s>' % str(loc)
+        # saved
+        loc.save()
+        assert repr(loc) == '<Location pk:%s %s>' % (loc.pk, str(loc))
+
+    def test_str(self):
+        hotel = Location.objects.create(name='L\'Hotel')
+        assert str(hotel) == hotel.name
+        paris_hotel = Location.objects.create(name='L\'Hotel', city='Paris')
+        assert str(paris_hotel) == '%s, %s' % (paris_hotel.name, paris_hotel.city)
+
+
 class TestPerson(TestCase):
 
     def test_str(self):
@@ -44,12 +61,13 @@ class TestPerson(TestCase):
         assert str(foo_bar) == 'Mr. Bar'
 
     def test_repr(self):
-        # Foo Bar, born 1900
-        person_foo = Person(name='Foo', sort_name='Bar, Foo', birth_year=1900)
-        # Using self.__dict__ so relying on method being correct
-        # Testing for form of "<Person {'k':v, ...}>""
-        overall = re.compile(r'<Person \{.+\}>')
-        assert re.search(overall, repr(person_foo))
+        person_foo = Person(name='Foo', sort_name='Bar, Foo')
+        # unsaved
+        assert repr(person_foo) == '<Person pk:?? %s>' % person_foo.sort_name
+        # saved
+        person_foo.save()
+        assert repr(person_foo) == '<Person pk:%s %s>' % \
+            (person_foo.pk, person_foo.sort_name)
 
     def test_viaf(self):
         pers = Person(name='Beach')
@@ -508,18 +526,6 @@ class TestPersonQuerySet(TestCase):
         assert 'association will be lost in merge' in logs.output[0]
 
 
-class TestProfession(TestCase):
-
-    def test_repr(self):
-        carpenter = Profession(name='carpenter')
-        overall = re.compile(r'<Profession \{.+\}>')
-        assert re.search(overall, repr(carpenter))
-
-    def test_str(self):
-        carpenter = Profession(name='carpenter')
-        assert str(carpenter) == 'carpenter'
-
-
 class TestRelationship(TestCase):
 
     def setUp(self):
@@ -541,17 +547,6 @@ class TestRelationship(TestCase):
             "'to_person': <Person Bar>, "
             "'relationship_type': <RelationshipType sibling>}>"
         )
-
-
-class TestRelationshipType(TestCase):
-    def test_repr(self):
-        sib = RelationshipType(name='sibling')
-        overall = re.compile(r'<RelationshipType \{.+\}>')
-        assert re.search(overall, repr(sib))
-
-    def test_str(self):
-        sib = RelationshipType(name='sibling')
-        assert str(sib) == 'sibling'
 
 
 class TestRelationshipM2M(TestCase):
@@ -644,14 +639,16 @@ class TestAddress(TestCase):
 class TestInfoURL(TestCase):
 
     def test_str(self):
-        p = Person.objects.create(name='Someone')
-        info_url = InfoURL(person=p, url='http://example.com/')
+        pers = Person.objects.create(name='Someone')
+        info_url = InfoURL(person=pers, url='http://example.com/')
         assert str(info_url) == info_url.url
 
     def test_repr(self):
-        p = Person.objects.create(name='Someone')
-        info_url = InfoURL(person=p, url='http://example.com/')
-        assert repr(info_url).startswith('<InfoURL ')
-        assert repr(info_url).endswith('>')
-        assert info_url.url in repr(info_url)
-        assert str(p) in repr(info_url)
+        pers = Person.objects.create(name='Someone')
+        info_url = InfoURL(person=pers, url='http://example.com/')
+        # unsaved
+        assert repr(info_url) == '<InfoURL pk:?? %s>' % info_url.url
+        # saved
+        info_url.save()
+        assert repr(info_url) == '<InfoURL pk:%s %s>' % \
+            (info_url.pk, info_url.url)

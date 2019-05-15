@@ -17,8 +17,11 @@ class TestItem(TestCase):
 
     def test_repr(self):
         item = Item(title='Le foo et le bar', year=1916)
-        overall = re.compile(r"<Item \{.+\}>")
-        assert re.search(overall, repr(item))
+        # unsaved
+        assert repr(item) == '<Item pk:?? %s>' % item
+        # saved
+        item.save()
+        assert repr(item) == '<Item pk:%s %s>' % (item.pk, item)
 
     def test_str(self):
 
@@ -199,30 +202,6 @@ class TestItem(TestCase):
         assert not item.has_uri()
         item.uri = 'http://www.worldcat.org/oclc/578050'
         assert item.has_uri()
-
-
-class TestPublisher(TestCase):
-
-    def test_repr(self):
-        publisher = Publisher(name='Foo, Bar, and Co.')
-        overall = re.compile(r"<Publisher \{.+\}>")
-        assert re.search(overall, repr(publisher))
-
-    def test_str(self):
-        publisher = Publisher(name='Foo, Bar, and Co.')
-        assert str(publisher) == 'Foo, Bar, and Co.'
-
-
-class TestPublisherPlace(TestCase):
-
-    def test_repr(self):
-        pub_place = PublisherPlace(name='London', latitude=23, longitude=45)
-        overall = re.compile(r"<PublisherPlace \{.+\}>")
-        assert re.search(overall, repr(pub_place))
-
-    def test_str(self):
-        pub_place = PublisherPlace(name='London', latitude=23, longitude=45)
-        assert str(pub_place) == 'London'
 
 
 class TestCreator(TestCase):
