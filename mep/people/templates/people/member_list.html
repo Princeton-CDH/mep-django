@@ -21,10 +21,8 @@
             <legend>Filter by:</legend>
             <div class="inner">
                 <fieldset class="range facet">
-                    <legend>Membership Dates</legend>
-                    <input id="id_mem_date_0" type="number" placeholder="1559" aria-label="start" max="1922" min="1559" size="4">
-                    <span class="separator">to</span>
-                    <input id="id_mem_date_1" type="number" placeholder="1922" aria-label="end" max="1922" min="1559" size="4">
+                    <legend>{{ form.membership_dates.label }}</legend>
+                    {{ form.membership_dates }}
                 </fieldset>
                 {% render_field form.has_card class+="sr-only" tabindex=0 %}
                 <label for="{{ form.has_card.id_for_label }}">

@@ -1,7 +1,8 @@
 from django import forms
 from django.template.loader import get_template
 
-from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset
+from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset, \
+    RangeField, RangeWidget
 from mep.people.models import Person
 
 
@@ -90,7 +91,8 @@ class MemberSearchForm(FacetForm):
                             }))
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False,
                              widget=SelectWithDisabled)
-    has_card = forms.BooleanField(label='Card', required=False,
+    has_card = forms.BooleanField(
+        label='Card', required=False,
         widget=forms.CheckboxInput(attrs={
             'aria-label': 'Card',
             'aria-describedby': 'has_card_tip'
@@ -100,6 +102,10 @@ class MemberSearchForm(FacetForm):
     sex = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
         'class': 'choice facet'
     }))
+
+    membership_dates = RangeField(label='Membership Dates', required=False,
+        widget=RangeWidget(attrs={'size': 4}))
+
 
     def __init__(self, data=None, *args, **kwargs):
         '''

@@ -1,7 +1,8 @@
-from typing import Any, Mapping
-
 from django import forms
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.utils.text import mark_safe
+
 
 class CheckboxFieldset(forms.CheckboxSelectMultiple):
     '''Override of :class:`~django.forms.CheckboxSelectMultiple`
@@ -14,6 +15,7 @@ class CheckboxFieldset(forms.CheckboxSelectMultiple):
         context['widget']['legend'] = self.legend
         return context
 
+
 class FacetChoiceField(forms.MultipleChoiceField):
     '''Add CheckboxSelectMultiple field with facets taken from solr query.'''
     # Borrowed from https://github.com/Princeton-CDH/derrida-django/blob/develop/derrida/books/forms.py
@@ -23,7 +25,6 @@ class FacetChoiceField(forms.MultipleChoiceField):
     # - use CheckboxFieldset widget for rendering facet
 
     widget = CheckboxFieldset
-
 
     def __init__(self, *args, **kwargs):
         # default required to false
@@ -43,8 +44,67 @@ class FacetChoiceField(forms.MultipleChoiceField):
         if not self.widget.legend:
             self.widget.legend = self.label
 
-    def valid_value(self, value: Any) -> True:
+    def valid_value(self, value):
         return True
+
+
+# RangeWidget and RangeField borrowed from Derrida codebase via PPA
+
+class RangeWidget(forms.MultiWidget):
+    '''date range widget, for two numeric inputs'''
+
+    #: separator string when splitting out values in decompress
+    sep = '-'
+
+    #: template to use to render range multiwidget
+    # (based on multiwidget, but adds "to" between dates)
+    template_name = 'common/widgets/rangewidget.html'
+
+    def __init__(self, *args, **kwargs):
+        widgets = [
+            forms.NumberInput(attrs={'aria-label': 'start'}),
+            forms.NumberInput(attrs={'aria-label': 'end'})
+        ]
+        super().__init__(widgets, *args, **kwargs)
+
+    def decompress(self, value):
+        if value:
+            return [int(val) for val in value.split(self.sep)]
+        return [None, None]
+
+
+class RangeField(forms.MultiValueField):
+    widget = RangeWidget
+
+    def __init__(self, *args, **kwargs):
+        # TODO: can we validate sequence here?
+        # can we presume range is low to high?
+        fields = (
+            forms.IntegerField(
+                error_messages={'invalid': 'Enter a number'},
+                validators=[
+                    RegexValidator(r'^[0-9]*$', 'Enter a valid number.'),
+                ],
+                required=False
+            ),
+            forms.IntegerField(
+                error_messages={'invalid': 'Enter a number'},
+                validators=[
+                    RegexValidator(r'^[0-9]*$', 'Enter a valid number.'),
+                ],
+                required=False
+            ),
+        )
+        kwargs['fields'] = fields
+        super().__init__(require_all_fields=False, *args, **kwargs)
+
+    def compress(self, data_list):
+        # if both values are set and the first is greater than the second,
+        # raise a validation error
+        if all(data_list) and len(data_list) == 2 and data_list[0] > data_list[1]:
+            raise ValidationError('Invalid range (%s - %s)' % (data_list[0], data_list[1]))
+        return self.widget.sep.join(['%d' % val if val else '' for val in data_list])
+
 
 
 class FacetForm(forms.Form):
@@ -54,7 +114,7 @@ class FacetForm(forms.Form):
     #: A mapping of facets fields to form fields.
     solr_facet_fields = {}
 
-    def set_choices_from_facets(self, facets: Mapping[str, int]) -> None:
+    def set_choices_from_facets(self, facets):
         '''Render a set of choices based on a mapping of facets to counts.'''
         # configure field choices based on facets returned from Solr
         # (adapted from derrida and winthrop codebase)
@@ -69,4 +129,3 @@ class FacetForm(forms.Form):
                                     .format(val if val else 'Unknown', count)))
                     for val, count in counts.items()
                 ]
-
