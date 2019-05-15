@@ -33,7 +33,12 @@ class Account(models.Model):
         on_delete=models.SET_NULL)
 
     def __repr__(self):
-        return '<Account %s>' % self.__dict__
+        names = ''
+        if self.pk and self.persons.count():
+            names = ' %s' % \
+                ';'.join([str(person) for person in self.persons.all()])
+
+        return '<Account pk:%s%s>' % (self.pk or '??', names)
 
     def __str__(self):
         if not self.persons.exists() and not self.locations.exists():
@@ -190,20 +195,24 @@ class Address(Notable, PartialDateMixin):
         verbose_name_plural = 'Addresses'
 
     def __repr__(self):
-        return '<Address %s>' % self.__dict__
+        # use pk to make it easy to find again; string representation
+        # for recognizability
+        return '<Address pk:%s %s>' % (self.pk or '??', str(self))
 
     def __str__(self):
-        dates = care_of = ''
+        details = self.account or self.person or ''
         if self.start_date or self.end_date:
-            dates = ' (%s)' % '-'.join([date.strftime('%Y') if date else ''
-                for date in [self.start_date, self.end_date]])
+            details = '%s (%s)' % (details, '-'.join([
+                date.strftime('%Y') if date else ''
+                for date in [self.start_date, self.end_date]]))
         if self.care_of_person:
-            care_of = ' c/o %s' % self.care_of_person
+            details = '%s c/o %s' % (details, self.care_of_person)
 
-        # NOTE: this is potentially redundant if account has only a
-        # location and not a name
-        return '%s - %s%s%s' % (self.location, self.account or self.person,
-            dates, care_of)
+        # include details if there are any
+        if details:
+            return '%s - %s' % (self.location, details)
+        # otherwise just location
+        return str(self.location)
 
     def clean(self):
         '''Validate to require one and only one of :class:`Account` or
@@ -266,7 +275,9 @@ class Event(Notable):
 
     def __repr__(self):
         '''Generic representation string for Event and subclasses'''
-        return '<%s %s>' % (self.__class__.__name__, self.__dict__)
+        return '<%s pk:%d account:%s %s>' % \
+            (self.__class__.__name__, self.pk, self.account.pk,
+             self.date_range)
 
     def __str__(self):
         '''Generic string method for Event and subclasses'''
