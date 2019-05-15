@@ -1,9 +1,16 @@
 .breadcrumbs {
-    padding: 1rem $gutter-xs;
+    margin: 1rem 0;
     background: $white;
 
     @media (min-width: $breakpoint-s) {
-        padding: 1rem 0;
+        margin: 2rem 0;
+    }
+
+    // on detail pages on mobile, we need a slight side margin
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+        main.tabbed & {
+            margin: 1rem $gutter-xs; 
+        }
     }
 
     ol {
