@@ -9,6 +9,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.http import HttpRequest, JsonResponse
+from django.template.loader import get_template
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
@@ -581,3 +582,32 @@ class TestRdfViewMixin(TestCase):
         # crumbs should belong to the list as itemListElements
         assert (crumb_list, SCHEMA_ORG.itemListElement, home_crumb) in graph
         assert (crumb_list, SCHEMA_ORG.itemListElement, page_crumb) in graph
+
+
+class TestBreadcrumbsTemplate(TestCase):
+
+    def test_home(self):
+        template = get_template('snippets/breadcrumbs.html')
+        # without a 'home' crumb
+        response = template.render(context={
+            'breadcrumbs': [('My Page', '/my-page')]
+        })
+        assert not '<li class="home">' in response
+        # with a 'home' crumb
+        response = template.render(context={
+            'breadcrumbs': [('Home', '/')]
+        })
+        assert '<li class="home">' in response
+
+    def test_last_crumb(self):
+        template = get_template('snippets/breadcrumbs.html')
+        response = template.render(context={
+            'breadcrumbs': [
+                ('Home', '/'),
+                ('My Page', '/my-page')
+            ]
+        })
+        # normal crumbs should be <a>
+        assert "<a href=\"/\">Home</a>" in response
+        # final crumb should be <span>
+        assert "<span>My Page</span>" in response
