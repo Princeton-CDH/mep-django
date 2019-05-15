@@ -1,6 +1,7 @@
-import { Observable, Subject, fromEvent, merge } from 'rxjs'
+import { Observable, Subject, fromEvent, merge, combineLatest } from 'rxjs'
+import { map, filter, distinctUntilChanged, withLatestFrom } from 'rxjs/operators'
 
-import { RxCheckboxInput } from './input'
+import { RxCheckboxInput, RxNumberInput } from './input'
 import { Rx, animateElementContent } from './common'
 
 /**
@@ -91,7 +92,41 @@ class RxChoiceFacet extends Rx<HTMLFieldSetElement> {
     }
 }
 
+/**
+ * A range facet consisting of two numeric inputs. No counts are shown.
+ * 
+ * The values are only updated when both inputs are a valid and unique combination
+ * of numbers.
+ *
+ * @class RxRangeFacet
+ * @extends {Rx<HTMLFieldSetElement>}
+ */
+class RxRangeFacet extends Rx<HTMLFieldSetElement> {
+
+    protected inputs: Array<RxNumberInput>
+    public values: Observable<Array<number>>
+
+    constructor(element: HTMLFieldSetElement) {
+        super(element)
+        // find the <input>s associated with the facet
+        this.inputs = Array.from(this.element.getElementsByTagName('input'))
+            .map($input => new RxNumberInput($input))
+        // keep track of user's changes so we can tell the form to update
+        this.values = combineLatest(
+            ...this.inputs.map(i => { // for each input,
+                return i.value.pipe( // update when the value updates
+                    withLatestFrom(i.valid),
+                    filter(([value, valid]) => valid), // but only if it's valid
+                    map(([value, valid]) => value), // only need the value
+                )
+            })
+        ).pipe(distinctUntilChanged()) // only unique combinations of inputs
+    }
+
+}
+
 export {
     RxBooleanFacet,
-    RxChoiceFacet
+    RxChoiceFacet,
+    RxRangeFacet
 }
