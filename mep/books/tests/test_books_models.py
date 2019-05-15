@@ -204,30 +204,6 @@ class TestItem(TestCase):
         assert item.has_uri()
 
 
-class TestPublisher(TestCase):
-
-    def test_repr(self):
-        publisher = Publisher(name='Foo, Bar, and Co.')
-        overall = re.compile(r"<Publisher \{.+\}>")
-        assert re.search(overall, repr(publisher))
-
-    def test_str(self):
-        publisher = Publisher(name='Foo, Bar, and Co.')
-        assert str(publisher) == 'Foo, Bar, and Co.'
-
-
-class TestPublisherPlace(TestCase):
-
-    def test_repr(self):
-        pub_place = PublisherPlace(name='London', latitude=23, longitude=45)
-        overall = re.compile(r"<PublisherPlace \{.+\}>")
-        assert re.search(overall, repr(pub_place))
-
-    def test_str(self):
-        pub_place = PublisherPlace(name='London', latitude=23, longitude=45)
-        assert str(pub_place) == 'London'
-
-
 class TestCreator(TestCase):
 
     def test_str(self):
