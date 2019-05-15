@@ -531,9 +531,8 @@ class TestFacetJSONMixin(TestCase):
 def test_range_widget():
     # range widget decompress logic
     assert RangeWidget().decompress('') == [None, None]
-    # not sure how it actually handles missing inputs...
-    # assert RangeWidget().decompress('100-') == [100, None]
-    # assert RangeWidget().decompress('-250') == [None, 250]
+    assert RangeWidget().decompress('100-') == [100, None]
+    assert RangeWidget().decompress('-250') == [None, 250]
     assert RangeWidget().decompress('100-250') == [100, 250]
 
 
@@ -547,3 +546,5 @@ def test_range_field():
     # out of order should raise exception
     with pytest.raises(ValidationError):
         RangeField().compress([200, 100])
+
+

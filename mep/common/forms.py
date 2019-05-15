@@ -69,7 +69,8 @@ class RangeWidget(forms.MultiWidget):
 
     def decompress(self, value):
         if value:
-            return [int(val) for val in value.split(self.sep)]
+            return [int(val) if val else None
+                    for val in value.split(self.sep)]
         return [None, None]
 
 
