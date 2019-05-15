@@ -1,13 +1,15 @@
 from dal import autocomplete
 from django.db.models import Q
 from django.views.generic import ListView
+from django.urls import reverse
 
 from mep.books.models import Item
 from mep.books.queryset import ItemSolrQuerySet
-from mep.common.views import LabeledPagesMixin
+from mep.common.views import LabeledPagesMixin, RdfViewMixin
+from mep.common.utils import absolutize_url
 
 
-class ItemList(LabeledPagesMixin, ListView):
+class ItemList(LabeledPagesMixin, ListView, RdfViewMixin):
     '''List page for searching and browsing library items.'''
     model = Item
     template_name = 'books/item_list.html'
@@ -16,6 +18,15 @@ class ItemList(LabeledPagesMixin, ListView):
 
     def get_queryset(self):
         return ItemSolrQuerySet().order_by('title')
+
+    def get_uri(self):
+        return absolutize_url(reverse('books:books-list'))
+
+    def get_breadcrumbs(self):
+        return [
+            ('Home', absolutize_url('/')),
+            ('Books', self.get_uri())
+        ]
 
 
 class ItemAutocomplete(autocomplete.Select2QuerySetView):
