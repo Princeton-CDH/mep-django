@@ -17,8 +17,11 @@ class TestItem(TestCase):
 
     def test_repr(self):
         item = Item(title='Le foo et le bar', year=1916)
-        overall = re.compile(r"<Item \{.+\}>")
-        assert re.search(overall, repr(item))
+        # unsaved
+        assert repr(item) == '<Item pk:?? %s>' % item
+        # saved
+        item.save()
+        assert repr(item) == '<Item pk:%s %s>' % (item.pk, item)
 
     def test_str(self):
 

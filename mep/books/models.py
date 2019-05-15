@@ -174,7 +174,8 @@ class Item(Notable, Indexable):
         super(Item, self).save(*args, **kwargs)
 
     def __repr__(self):
-        return '<Item %s>' % self.__dict__
+        # provide pk for easy lookup and string for recognition
+        return '<Item pk:%s %s>' % (self.pk or '??', str(self))
 
     def __str__(self):
         year_str = ''
