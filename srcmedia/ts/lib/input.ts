@@ -1,7 +1,7 @@
-import { fromEvent, Subject } from 'rxjs'
+import { fromEvent, Subject, Observable } from 'rxjs'
 import { map, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 
-import { Component, Reactive } from './common'
+import { Component, Reactive, Rx } from './common'
 
 interface RxInputState { // basic state common to all <input> types
     value: string
@@ -74,6 +74,36 @@ class RxTextInput extends RxInput implements Reactive<RxTextInputState> {
 }
 
 /**
+ * A reactive <input type="number"> element.
+ * 
+ * Publishes its validity state and current value; invalid values will be
+ * parsed to NaN.
+ *
+ * @class RxNumberInput
+ * @extends {Rx<HTMLInputElement>}
+ */
+class RxNumberInput extends Rx<HTMLInputElement> {
+
+    public value: Observable<number>
+    public valid: Observable<boolean>
+
+    constructor(element: HTMLInputElement) {
+        super(element)
+        // Update state when the user types in a new value, with debounce
+        this.value = fromEvent(this.element, 'input').pipe(
+            map(() => parseInt(this.element.value)),
+            debounceTime(500),
+            distinctUntilChanged()
+        )
+        // Update validity based on when value changes
+        this.valid = this.value.pipe(
+            map(() => this.element.checkValidity()),
+            distinctUntilChanged()
+        )
+    }
+}
+
+/**
  * A reactive <input type="checkbox"> element.
  *
  * @class RxCheckboxInput
@@ -111,5 +141,6 @@ class RxCheckboxInput extends RxInput implements Reactive<RxCheckboxInputState>{
 export {
     RxInput,
     RxCheckboxInput,
-    RxTextInput
+    RxTextInput,
+    RxNumberInput
 }
