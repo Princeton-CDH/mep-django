@@ -14,7 +14,8 @@ from django.urls import reverse
 from django.views.generic.list import ListView
 
 from mep.common.admin import LocalUserAdmin
-from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset
+from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset, \
+    RangeField, RangeWidget
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.templatetags.mep_tags import dict_item
 from mep.common.utils import absolutize_url, alpha_pagelabels
@@ -334,6 +335,7 @@ class TestTemplateTags(TestCase):
         # integer value
         assert dict_item({13: 7}, 13) is 7
 
+
 class TestCheckboxFieldset(TestCase):
 
     def test_get_context(self):
@@ -402,6 +404,7 @@ class TestCheckboxFieldset(TestCase):
         out = checkbox_fieldset.render('foo', 'bar')
         assert out.count('required') == 2
 
+
 class TestFacetField(TestCase):
 
     def test_init(self):
@@ -416,10 +419,8 @@ class TestFacetField(TestCase):
         facet_field = FacetChoiceField(label='Test')
         assert facet_field.widget.legend == 'Test'
         # but widget attrs overrules
-        facet_field = FacetChoiceField(label='Test', legend='NotTest'
-           )
+        facet_field = FacetChoiceField(label='Test', legend='NotTest')
         assert facet_field.widget.legend == 'NotTest'
-
 
     def test_valid_value(self):
         # any value passed in returns true
@@ -441,7 +442,6 @@ class TestFacetForm(TestCase):
 
             name = FacetChoiceField()
             member_type = FacetChoiceField()
-
 
         test_form = TestForm()
 
@@ -467,8 +467,6 @@ class TestFacetForm(TestCase):
         ]
         # unhandled field should not be passed in
         assert 'unhanded_field' not in test_form.fields
-
-
 
 
 class TestVaryOnHeadersMixin(TestCase):
@@ -527,3 +525,25 @@ class TestFacetJSONMixin(TestCase):
         assert isinstance(response, JsonResponse)
         assert response.content == b'{"facets": "foo"}'
 
+
+# range widget and field tests copied from derrida via ppa
+
+def test_range_widget():
+    # range widget decompress logic
+    assert RangeWidget().decompress('') == [None, None]
+    # not sure how it actually handles missing inputs...
+    # assert RangeWidget().decompress('100-') == [100, None]
+    # assert RangeWidget().decompress('-250') == [None, 250]
+    assert RangeWidget().decompress('100-250') == [100, 250]
+
+
+def test_range_field():
+    # range widget decompress logic
+    assert RangeField().compress([]) == ''
+    assert RangeField().compress([100, None]) == '100-'
+    assert RangeField().compress([None, 250]) == '-250'
+    assert RangeField().compress([100, 250]) == '100-250'
+
+    # out of order should raise exception
+    with pytest.raises(ValidationError):
+        RangeField().compress([200, 100])
