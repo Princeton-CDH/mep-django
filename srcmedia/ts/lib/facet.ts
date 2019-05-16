@@ -115,9 +115,11 @@ class RxRangeFacet extends Rx<HTMLFieldSetElement> {
         this.values = combineLatest(
             ...this.inputs.map(i => { // for each input,
                 return i.value.pipe( // update when the value updates
-                    withLatestFrom(i.valid),
-                    filter(([value, valid]) => valid), // but only if it's valid
-                    map(([value, valid]) => value), // only need the value
+                    // NOTE potentially a more elegant way to do this...probably
+                    // just a different operator would suffice
+                    withLatestFrom(i.valid), // only pass through value if valid
+                    filter(([value, valid]) => valid),
+                    map(([value, valid]) => value),
                 )
             })
         ).pipe(distinctUntilChanged()) // only unique combinations of inputs
