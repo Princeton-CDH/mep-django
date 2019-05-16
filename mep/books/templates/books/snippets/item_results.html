@@ -1,5 +1,9 @@
 <ol class="books results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
     {% for item in items %}
-        {% include 'books/snippets/item_result.html' %}
+        <li class="result">
+            <a href="{% url 'books:book-detail' pk=item.pk %}" aria-label="{{ item.title }}">
+                {% include 'books/snippets/item_result.html' %}
+            </a>
+        <li>
     {% endfor %}
 </ol>

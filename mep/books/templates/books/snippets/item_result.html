@@ -1,49 +1,45 @@
 {% load static %}
-<li class="books result">
-    <a href="#" aria-label="{{ item.title }}">
-        <article>
-            <div class="main">
-                <span class="counter"></span>
-                <div class="metadata">
-                    <h1 class="title">{{ item.title }}</h1>
-                    {% if item.authors %}
-                    <ul class="authors">
-                        {% for author in item.authors %}
-                            {% if forloop.counter <= 3 %}
-                            <li class="author">{{ author }}</li>
-                            {% endif %}
-                        {% endfor %}
-                        {% if item.authors|length > 3 %}
-                            <span>... {{ item.authors|length|add:"-3" }} more authors</span>
-                        {% endif %}
-                    </ul>
+<article class="item">
+    <div class="main">
+        <span class="counter"></span>
+        <div class="metadata">
+            <h1 class="title">{{ item.title }}</h1>
+            {% if item.authors %}
+            <ul class="authors">
+                {% for author in item.authors %}
+                    {% if forloop.counter <= 3 %}
+                    <li class="author">{{ author }}</li>
                     {% endif %}
-                    {% if item.pub_date %}
-                    <span class="dates">
-                        <time datetime="{{ item.pub_date }}">{{ item.pub_date }}</time>
-                    </span>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="secondary">
-                {% if item.publishers %}
-                <h2 class="publisher-label">Publishers</h2>
-                <ul class="publishers">
-                    {% for publisher in item.publishers %}
-                        {% if forloop.counter <= 3 %}
-                        <li class="publisher">{{ publisher }}</li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if item.publishers|length > 3 %}
-                        <span>... {{ item.publishers|length|add:"-3" }} more publishers</span>
-                    {% endif %}
-                </ul>
+                {% endfor %}
+                {% if item.authors|length > 3 %}
+                    <span>... {{ item.authors|length|add:"-3" }} more authors</span>
                 {% endif %}
-            </div>
-            <span class="see-more">
-                See more details
-                <img class="triangle icon" src="{% static 'img/icons/more_triangle.svg' %}" alt="">
+            </ul>
+            {% endif %}
+            {% if item.pub_date %}
+            <span class="dates">
+                <time datetime="{{ item.pub_date }}">{{ item.pub_date }}</time>
             </span>
-        </article>
-    </a>
-</li>
+            {% endif %}
+        </div>
+    </div>
+    <div class="secondary">
+        {% if item.publishers %}
+        <h2 class="publisher-label">Publishers</h2>
+        <ul class="publishers">
+            {% for publisher in item.publishers.all %}
+                {% if forloop.counter <= 3 %}
+                <li class="publisher">{{ publisher }}</li>
+                {% endif %}
+            {% endfor %}
+            {% if item.publishers|length > 3 %}
+                <span>... {{ item.publishers|length|add:"-3" }} more publishers</span>
+            {% endif %}
+        </ul>
+        {% endif %}
+    </div>
+    <span class="see-more">
+        See more details
+        <img class="triangle icon" src="{% static 'img/icons/more_triangle.svg' %}" alt="">
+    </span>
+</article>

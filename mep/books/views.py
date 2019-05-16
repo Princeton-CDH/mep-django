@@ -1,6 +1,6 @@
 from dal import autocomplete
 from django.db.models import Q
-from django.views.generic import ListView
+from django.views.generic import DetailView, ListView
 
 from mep.books.models import Item
 from mep.books.queryset import ItemSolrQuerySet
@@ -16,6 +16,13 @@ class ItemList(LabeledPagesMixin, ListView):
 
     def get_queryset(self):
         return ItemSolrQuerySet().order_by('title')
+
+
+class ItemDetail(DetailView):
+    '''Detail page for a single library book.'''
+    model = Item
+    template_name = 'books/item_detail.html'
+    context_object_name = 'item'
 
 
 class ItemAutocomplete(autocomplete.Select2QuerySetView):
