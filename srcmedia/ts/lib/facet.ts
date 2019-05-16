@@ -94,6 +94,7 @@ class RxChoiceFacet extends Rx<HTMLFieldSetElement> {
 
 /**
  * A range facet consisting of two numeric inputs. No counts are shown.
+ * Note that this technically makes it a filter, rather than a facet.
  * 
  * The values are only updated when both inputs are a valid and unique combination
  * of numbers.

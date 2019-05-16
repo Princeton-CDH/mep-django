@@ -137,23 +137,32 @@
         padding: 0 .7rem;
         height: 2.2rem;
         margin-top: 0;
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: flex-end;
-        align-items: center;
 
         @media (min-width: $breakpoint-s) {
             padding: 0 .5rem;
         }
 
-        legend {
+        legend,
+        .inputs {
             position: absolute;
+        }
+        
+        legend {
             top: .55rem;
             left: .7rem;
             padding: 0;
 
             @media (min-width: $breakpoint-s) {
                 left: 0.5rem;
+            }
+        }
+
+        .inputs {
+            top: calc(50% - 0.75rem);
+            right: .7rem;
+
+            @media (min-width: $breakpoint-s) {
+                right: 0.5rem;
             }
         }
 
