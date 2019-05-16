@@ -411,8 +411,6 @@ class Person(Notable, DateRange, Indexable):
 
         # get account membership dates
         account = self.account_set.first()
-        account_start = account.earliest_date()
-        account_end = account.last_date()
 
         index_data.update({
             'name_t': self.name,
@@ -425,12 +423,18 @@ class Person(Notable, DateRange, Indexable):
             'has_card_b': self.has_card()
         })
 
-        # handle conditionally set fields, default to not setting them
-        # if they are None
-        if account_start:
-            index_data['account_start_i'] = account_start.year
-        if account_end:
-            index_data['account_end_i'] = account_end.year
+        # conditionally set fields that are not always present
+        # to avoid having None values stored in Solr
+        account_dates = account.event_dates
+        if account_dates:
+            # convert dates to just years, use set to uniquify, and
+            # convert back to list for json serialization to Solr
+            account_years = list(set(date.year for date in account.event_dates))
+            index_data.update({
+                'account_years_i': account_years,
+                'account_start_i': account_years[0],
+                'account_end_i': account_years[-1],
+                })
         if self.sex:
             index_data['sex_s'] = self.get_sex_display()
 
