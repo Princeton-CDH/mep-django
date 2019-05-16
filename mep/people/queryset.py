@@ -19,5 +19,5 @@ class PersonSolrQuerySet(AliasedSolrQuerySet):
         'has_card':'has_card_b',
         'pk':'pk_i',
         'sex': 'sex_s',
-        'account_years': 'account_years_i'
+        'account_years': 'account_years_is'
     }

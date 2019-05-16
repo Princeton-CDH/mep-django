@@ -431,7 +431,7 @@ class Person(Notable, DateRange, Indexable):
             # convert back to list for json serialization to Solr
             account_years = list(set(date.year for date in account.event_dates))
             index_data.update({
-                'account_years_i': account_years,
+                'account_years_is': account_years,
                 'account_start_i': account_years[0],
                 'account_end_i': account_years[-1],
                 })
