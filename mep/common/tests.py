@@ -530,18 +530,20 @@ class TestFacetJSONMixin(TestCase):
 
 def test_range_widget():
     # range widget decompress logic
-    assert RangeWidget().decompress('') == [None, None]
-    assert RangeWidget().decompress('100-') == [100, None]
-    assert RangeWidget().decompress('-250') == [None, 250]
-    assert RangeWidget().decompress('100-250') == [100, 250]
+    assert RangeWidget().decompress((None, None)) == [None, None]
+    assert RangeWidget().decompress(None) == [None, None]
+    assert RangeWidget().decompress((100, None)) == [100, None]
+    assert RangeWidget().decompress((None, 250)) == [None, 250]
+    assert RangeWidget().decompress((100, 250)) == [100, 250]
+    assert RangeWidget().decompress(('100', '250')) == [100, 250]
 
 
 def test_range_field():
     # range widget decompress logic
-    assert RangeField().compress([]) == ''
-    assert RangeField().compress([100, None]) == '100-'
-    assert RangeField().compress([None, 250]) == '-250'
-    assert RangeField().compress([100, 250]) == '100-250'
+    assert RangeField().compress([]) == None
+    assert RangeField().compress([100, None]) == (100, None)
+    assert RangeField().compress([None, 250]) == (None, 250)
+    assert RangeField().compress([100, 250]) == (100, 250)
 
     # out of order should raise exception
     with pytest.raises(ValidationError):

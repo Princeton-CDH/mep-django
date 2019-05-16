@@ -48,13 +48,11 @@ class FacetChoiceField(forms.MultipleChoiceField):
         return True
 
 
-# RangeWidget and RangeField borrowed from Derrida codebase via PPA
+# RangeWidget and RangeField adapted from Derrida & PPA, but
+# returns a two-tuple instead of a string
 
 class RangeWidget(forms.MultiWidget):
     '''date range widget, for two numeric inputs'''
-
-    #: separator string when splitting out values in decompress
-    sep = '-'
 
     #: template to use to render range multiwidget
     # (based on multiwidget, but adds "to" between dates)
@@ -69,17 +67,17 @@ class RangeWidget(forms.MultiWidget):
 
     def decompress(self, value):
         if value:
-            return [int(val) if val else None
-                    for val in value.split(self.sep)]
+            return [int(val) if val else None for val in value]
         return [None, None]
 
 
 class RangeField(forms.MultiValueField):
+    '''Date range field, for two numeric inputs. Compresses to a tuple of
+    two values for the start and end of the range; tuple values set to
+    None for no input.'''
     widget = RangeWidget
 
     def __init__(self, *args, **kwargs):
-        # TODO: can we validate sequence here?
-        # can we presume range is low to high?
         fields = (
             forms.IntegerField(
                 error_messages={'invalid': 'Enter a number'},
@@ -100,12 +98,19 @@ class RangeField(forms.MultiValueField):
         super().__init__(require_all_fields=False, *args, **kwargs)
 
     def compress(self, data_list):
+        '''Compress into a single value; returns a two-tuple of range end,
+        start.'''
+
+        # If neither values is set, return None
+        if not any(data_list):
+            return None
+
         # if both values are set and the first is greater than the second,
         # raise a validation error
         if all(data_list) and len(data_list) == 2 and data_list[0] > data_list[1]:
             raise ValidationError('Invalid range (%s - %s)' % (data_list[0], data_list[1]))
-        return self.widget.sep.join(['%d' % val if val else '' for val in data_list])
 
+        return (data_list[0], data_list[1])
 
 
 class FacetForm(forms.Form):
