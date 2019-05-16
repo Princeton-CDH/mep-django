@@ -2,7 +2,7 @@ import json
 from datetime import date
 import time
 from types import LambdaType
-from unittest.mock import call, patch, Mock
+from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import User, Permission
 from django.core.paginator import Paginator
@@ -639,7 +639,8 @@ class TestMembersListView(TestCase):
         response = self.client.get(self.members_url, {'query': card_member.name})
         assert response.context['members'].count() == 1
         # should not display relevance score
-        self.assertNotContains(response, '<h2>Relevance</h2>',
+        self.assertNotContains(
+            response, '<h2>Relevance</h2>',
             msg_prefix='relevance score not displayed to anonymous user')
 
         # login as staff user with no special permissions
@@ -768,6 +769,20 @@ class TestMembersListView(TestCase):
         mock_qs.order_by.assert_called_with(view.solr_sort['relevance'])
         # include relevance score in return
         mock_qs.also.assert_called_with('score')
+
+        # with date range
+        view.request = self.factory.get(self.members_url, {'membership_dates_0': 1930})
+        # remove cached form
+        del view._form
+        sqs = view.get_queryset()
+        mock_qs.filter.assert_any_call(account_years__range=(1930, None))
+
+        view.request = self.factory.get(
+            self.members_url,
+            {'membership_dates_0': 1919, 'membership_dates_1': 1923})
+        del view._form
+        sqs = view.get_queryset()
+        mock_qs.filter.assert_any_call(account_years__range=(1919, 1923))
 
 
 class TestMemberDetailView(TestCase):
