@@ -1,4 +1,4 @@
-output[form=members-form].results li {
+.members .result {
     .card.icon {
         width: 1.5rem;
         position: absolute;
@@ -10,9 +10,5 @@ output[form=members-form].results li {
             left: -2.5rem;
             top: 0;
         }
-    }
-
-    .has-card {
-        display: none;
     }
 }

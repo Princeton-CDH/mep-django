@@ -16,3 +16,22 @@ main {
         margin-top: 0;
     }
 }
+
+// tabbed pages, like member or book details
+main.tabbed {
+
+    nav.tabs {
+        width: 100%;
+    }
+
+    section.details {
+        @include padding-container;
+        padding-top: 1rem;
+        flex: auto;
+        background: white;
+
+        @media (min-width: $breakpoint-s) {
+            padding-top: 2rem;
+        }
+    }
+}

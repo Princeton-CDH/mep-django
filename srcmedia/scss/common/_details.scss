@@ -1,0 +1,82 @@
+// detail display for an item, person, etc. 
+article.details {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    flex-flow: row wrap;
+    width: 100%;
+    max-width: $result-width;
+    height: 100%;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+    border: none;
+    margin: 0 auto;
+
+    @media (min-width: $breakpoint-s) {
+        flex-flow: row nowrap;
+    }
+
+    .counter { // hide the search result counter by default
+        position: relative;
+        display: none;
+    }
+
+    .see-more { // hide the "see more" link by default
+        display: none;
+    }
+
+    .title { // hide the title; only need it in search results
+        display: none;
+    }
+
+    .main,
+    .secondary {
+        flex: none;
+
+        @media (min-width: $breakpoint-s) {
+            flex: auto;
+        }
+    }
+
+    .main {
+        width: 100%;
+        position: relative;
+        display: flex;
+
+        @media (min-width: $breakpoint-s) {
+            width: fit-content;
+        }
+    }
+
+    .secondary {
+        text-align: right;
+        width: 100%;
+        margin-top: 0.5rem;
+
+        @media (min-width: $breakpoint-s) {
+            margin-top: 0;
+            width: initial;
+        }
+    }
+
+    h2 {
+        font-family: $sans;
+        text-align: right;
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+
+    .dates {
+        font-size: 0.8rem;
+    }
+
+    h1 {
+        text-transform: none;
+        font-family: $serif;
+        font-size: 1rem;
+
+        @media (min-width: $breakpoint-s) {
+            padding-right: .5rem;
+        }
+    }
+}

@@ -3,91 +3,34 @@ output.results .result {
     position: relative;
     border-top: 1px solid $white-two;
 
-    article {
-        position: relative;
-        display: flex;
-        align-items: baseline;
-        flex-flow: row wrap;
-        width: 100%;
-        max-width: $result-width;
-        height: 100%;
-        padding-top: 1rem;
-        padding-bottom: 2rem;
+    a {
         border: none;
-        margin: 0 auto;
-
-        @media (min-width: $breakpoint-s) {
-            flex-flow: row nowrap;
-        }
     }
 
+    // show the result counter/icons in the details
     .counter {
-        position: relative;
-    }
+        display: block;
 
-    .counter::after {
-        content: counter(results);
-        font-size: 0.8rem;
-        margin-right: 0.5rem;
-    }
-
-    .main,
-    .secondary {
-        flex: none;
-
-        @media (min-width: $breakpoint-s) {
-            flex: auto;
+        &::after {
+            content: counter(results);
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
         }
     }
 
-    .main {
-        width: 100%;
-        position: relative;
-        display: flex;
-
-        @media (min-width: $breakpoint-s) {
-            width: fit-content;
-        }
-    }
-
-    .secondary {
-        text-align: right;
-        width: 100%;
-        margin-top: 0.5rem;
-
-        @media (min-width: $breakpoint-s) {
-            margin-top: 0;
-            width: initial;
-        }
-    }
-
-    h1 {
-        text-transform: none;
-        font-family: $serif;
-        font-size: 1rem;
-
-        @media (min-width: $breakpoint-s) {
-            padding-right: .5rem;
-        }
-    }
-
-    .dates, .relevance {
+    // can be displayed for debug purposes
+    .relevance {
         font-size: 0.8rem;
     }
 
-    h2 {
-        font-family: $sans;
-        text-align: right;
-        font-size: 0.7rem;
-        font-weight: bold;
-    }
-
+    // links to "see more" only shown on result details
     a:hover .see-more {
         visibility: visible;
     }
 
     .see-more {
         position: absolute;
+        display: block;
         right: 0;
         bottom: 0.5rem;
         color: $dark-green;

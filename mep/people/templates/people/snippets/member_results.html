@@ -1,5 +1,9 @@
-<ol style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
+<ol class="members results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
     {% for person in members %}
-        {% include 'people/snippets/member_result.html' with member=person %}
+    <li class="members result">
+        <a href="{% url 'people:member-detail' pk=person.pk %}" aria-label="{{ person.sort_name.0 }}">
+            {% include 'people/snippets/member_result.html' with member=person %}
+        </a>
+    <li>
     {% endfor %}
 </ol>

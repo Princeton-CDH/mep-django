@@ -10,12 +10,12 @@
 {% block main-style %}tabbed{% endblock %}
 
 {% block content %}
-<nav class="tabs">
-    <li class="tab" aria-selected="true">
+<nav class="tabs" aria-label="sections">
+    <li class="tab active">
         <span>details</span>
     </li>
-    <li class="tab" aria-selected="false">
-        <span>events</span>
+    <li class="tab">
+        <a href="#">events</a>
     </li>
 </nav>
 <section class="details">

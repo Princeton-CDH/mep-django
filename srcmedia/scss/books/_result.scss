@@ -1,11 +1,16 @@
-.books.result {
-
-    .authors {
-        font-size: 0.8rem;
-        padding: 0.35rem 0 0;
+.books .result article.item.details {
+    // show the title
+    .title {
+        display: inline;
     }
 
-    .publishers {
-        font-size: 0.8rem;
+    // hide the "creators" label
+    .creator-label {
+        display: none;
+    }
+
+    // hide the "view cards" link
+    .view-cards {
+        display: none;
     }
 }
