@@ -10,7 +10,7 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
 
-from mep.accounts.partial_date import PartialDateMixin
+from mep.accounts.partial_date import PartialDateMixin, DatePrecision
 from mep.books.models import Item
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Location
@@ -66,12 +66,19 @@ class Account(models.Model):
 
     @property
     def event_dates(self):
-        '''sorted list of all unique event dates associated with this account'''
+        '''sorted list of all unique event dates associated with this account;
+        ignores borrow and purchase dates with unknown year'''
         # get value list of all start and end dates
-        date_values = self.event_set.values_list('start_date', 'end_date')
+        year_unknown = DatePrecision.month | DatePrecision.day
+        date_values = self.event_set \
+            .exclude(borrow__start_date_precision=year_unknown) \
+            .exclude(borrow__end_date_precision=year_unknown) \
+            .exclude(purchase__start_date_precision=year_unknown) \
+            .exclude(purchase__end_date_precision=year_unknown) \
+            .values_list('start_date', 'end_date')
         # flatten list of tuples into a list, filter out None, and make unique
         uniq_dates = set(filter(None, chain.from_iterable(date_values)))
-        # return as a sorted lsit
+        # return as a sorted list
         return sorted(list(uniq_dates))
 
     def earliest_date(self):

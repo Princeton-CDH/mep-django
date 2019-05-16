@@ -134,15 +134,42 @@ class TestAccount(TestCase):
                                     end_date=date3)
         assert account.event_dates == [date1, date2, date3]
 
+        # ignore partial dates with year unknown for borrow, purchase
+
+        borrow = Borrow(account=account)
+        # set partial start date with unknown year
+        borrow.partial_start_date = '--05-03'
+        borrow.save()
+        # 1900 for date with unknown year should not be included
+        assert account.event_dates == [date1, date2, date3]
+        # partial end date with unknown years
+        borrow.partial_start_date = None
+        borrow.end_start_date = '--05-03'
+        borrow.save()
+        assert account.event_dates == [date1, date2, date3]
+
+        purchase = Purchase(account=account)
+        purchase.partial_start_date = '--06-15'
+        purchase.save()
+        # 1900 for date with unknown year should not be included
+        assert account.event_dates == [date1, date2, date3]
+        # partial end date with unknown years
+        purchase.partial_start_date = None
+        purchase.end_start_date = '--09-21'
+        purchase.save()
+        assert account.event_dates == [date1, date2, date3]
+
     def test_earliest_date(self):
         account = Account.objects.create()
         # no date, no error
         assert not account.earliest_date()
 
-        event1 = Subscription.objects.create(account=account,
+        event1 = Subscription.objects.create(
+            account=account,
             start_date=datetime.date(1943, 1, 1),
             end_date=datetime.date(1944, 1, 1))
-        event2 = Reimbursement.objects.create(account=account,
+        event2 = Reimbursement.objects.create(
+            account=account,
             start_date=datetime.date(1944, 5, 1))
 
         assert account.earliest_date() == event1.start_date
@@ -769,7 +796,6 @@ class TestBorrow(TestCase):
 
         # handle partial dates
         self.borrow.partial_start_date = '2018-05'
-        print(self.borrow)
         assert str(self.borrow).endswith('%s/??' % self.borrow.partial_start_date)
 
     def test_save(self):
