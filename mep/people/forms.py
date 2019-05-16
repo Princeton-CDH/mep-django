@@ -106,7 +106,6 @@ class MemberSearchForm(FacetForm):
     membership_dates = RangeField(label='Membership Dates', required=False,
         widget=RangeWidget(attrs={'size': 4}))
 
-
     def __init__(self, data=None, *args, **kwargs):
         '''
         Set choices dynamically based on form kwargs and presence of keywords.

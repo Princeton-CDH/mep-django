@@ -54,7 +54,6 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         kwargs['data'] = form_data
         return kwargs
 
-
     def get_form(self, *args, **kwargs):
         # initialize the form, caching on current instance
         if not self._form:
@@ -89,10 +88,17 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
                 sqs = sqs.filter(has_card=search_opts['has_card'])
             if search_opts['sex']:
                 sqs = sqs.filter(sex__in=search_opts['sex'], tag='sex')
+
+            # range filter by membership dates, if set
+            if search_opts['membership_dates']:
+                sqs = sqs.filter(account_years__range=search_opts['membership_dates'])
+
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
-            # TODO: what happens if form is invalid?
-            # (currently should not be possible, but eventually will)
+
+        # TODO: handle invalid form
+        # now possible with date range input
+
         self.queryset = sqs
         return sqs
 
