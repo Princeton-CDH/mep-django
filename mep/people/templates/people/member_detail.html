@@ -9,19 +9,20 @@
 {% block main-style %}tabbed{% endblock %}
 
 {% block content %}
-<nav class="tabs">
-    <li class="tab" aria-selected="true">
-        <a href="{% url 'people:member-detail' pk=member.pk %}">personography</a>
+<nav class="tabs" aria-label="sections">
+    <li class="tab active">
+        <span>biography</span>
     </li>
-    <li class="tab" aria-selected="false">
-        <a>books borrowed</a>
+    <li class="tab">
+        <a href="#">activities</a>
     </li>
-    <li class="tab" aria-selected="false">
-        <a>lending cards</a>
+    <li class="tab">
+        <a href="#">cards</a>
     </li>
 </nav>
-<section class="personography">
-    <dl>
+<section class="biography">
+    {% include 'people/snippets/member_result.html' %}
+    {% comment %} <dl>
         {% if member.birth_year or member.death_year %}
         <div class="dates">
             <dt>Dates</dt>
@@ -56,6 +57,6 @@
             <dd></dd>
         </div>
         {% endif %}
-    </dl>
+    </dl> {% endcomment %}
 </section>
 {% endblock %}

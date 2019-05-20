@@ -1,4 +1,5 @@
-.members .result {
+.members .result div.member.details {
+    // show the "has card" icon if present
     .card.icon {
         width: 1.5rem;
         position: absolute;
@@ -10,5 +11,27 @@
             left: -2.5rem;
             top: 0;
         }
+    }
+
+    .primary {
+        flex: 2;
+    }
+
+    // hide the "birth/death dates" label
+    .birth-death dt {
+        display: none;
+    }
+
+    .birth-death dd {
+        margin-top: .5rem;
+    }
+
+    .secondary {
+        margin-top: 0.5rem;
+    }
+
+    // show the name
+    .name {
+        display: block;
     }
 }

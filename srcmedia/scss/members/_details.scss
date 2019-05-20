@@ -1,0 +1,32 @@
+div.member.details {
+
+    .name {
+        display: none;
+
+        dt {
+            @include sr-only;
+        }
+
+        dd {
+            line-height: 1.4rem;
+            font-size: 1rem;
+            font-family: $serif;
+        }
+    }
+
+    // items that go on the left/top on mobile
+    .name,
+    .birth-death,
+    .reference {
+        grid-column: 1 / 2;
+        text-align: left;
+    }
+    
+    // items that go on the right/bottom on mobile
+    .member-dates,
+    .nationality,
+    .profession {
+        grid-column: 2 / 3;
+        text-align: right;
+    }
+}

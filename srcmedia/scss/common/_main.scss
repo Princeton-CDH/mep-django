@@ -24,7 +24,7 @@ main.tabbed {
         width: 100%;
     }
 
-    section.details {
+    nav + section {
         @include padding-container;
         padding-top: 1rem;
         flex: auto;
