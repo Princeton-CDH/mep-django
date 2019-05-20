@@ -8,7 +8,11 @@
 
         span[role=tooltip]::after {
             width: 12rem;
-            left: -6rem;
+            left: -12rem; // keep all of tooltip text onscreen on mobile
+
+            @media (min-width: $breakpoint-s) {
+                left: -6rem; // large enough width to center it on tablet+
+            }
         }
     }
 

@@ -28,12 +28,20 @@ class TestNamed(TestCase):
 
     def test_repr(self):
         named_obj = Named(name='foo')
-        overall = re.compile(r'<Named \{.+\}>')
-        assert re.search(overall, repr(named_obj))
+        assert repr(named_obj) == '<Named %s>' % named_obj.name
+        # subclass
+
+        class MyName(Named):
+            pass
+
+        mynamed = MyName(name='bar')
+        assert repr(mynamed) == '<MyName %s>' % mynamed.name
 
     def test_str(self):
         named_obj = Named(name='foo')
         assert str(named_obj) == 'foo'
+
+
 
 
 class TestNotable(TestCase):

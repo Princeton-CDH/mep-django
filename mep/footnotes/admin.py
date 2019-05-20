@@ -4,8 +4,8 @@ from django.contrib.contenttypes.admin import GenericTabularInline
 
 from dal import autocomplete
 
-from mep.common.admin import AUTOCOMPLETE, NamedNotableAdmin
-from .models import SourceType, Bibliography, Footnote
+from mep.common.admin import NamedNotableAdmin
+from mep.footnotes.models import SourceType, Bibliography, Footnote
 
 
 class FootnoteAdminForm(forms.ModelForm):
@@ -36,7 +36,7 @@ class FootnoteAdmin(admin.ModelAdmin):
         }),
         (None, {
             'fields': ('bibliography', 'location', 'snippet_text', 'is_agree',
-                'notes')
+                       'notes')
         })
     ]
 
