@@ -34,10 +34,13 @@ class Command(BaseCommand):
     #: summary message string for each mode
     summary_message = {
         'report': 'Processed %(count)d items, found matches for %(found)d',
-        'update': 'Processed %(count)d items, updated %(updated)d',
+        'update': 'Processed %(count)d items, updated %(updated)d, no matches for %(no_match)d',
     }
 
     progbar = None
+
+    #: notes indicator for reconciliation attempted but no match found
+    oclc_no_match = "OCLCNoMatch"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -69,6 +72,7 @@ class Command(BaseCommand):
                             .exclude(notes__contains='PROBLEM') \
                             .exclude(notes__contains='OBSCURE') \
                             .exclude(notes__contains='ZERO') \
+                            .exclude(notes__contains=self.oclc_no_match) \
                             .filter(uri__exact='') \
                             .exclude(title__endswith='*')
 
@@ -130,25 +134,43 @@ class Command(BaseCommand):
         '''Search for Items in OCLC and update in the database if
         a match is found.'''
         for item in items:
+            error = False
+            log_message = None
+
             try:
                 worldcat_entity = self.oclc_search_record(item)
             except ConnectionError as err:
                 self.stderr.write('Error: %s' % err)
                 worldcat_entity = None
+                error = True
 
             if worldcat_entity:
                 item.populate_from_worldcat(worldcat_entity)
                 item.save()
-                # create log entry to document the change
+                # message for log entry to document the change
+                log_message = 'Updated from OCLC %s' % worldcat_entity.item_uri
+                self.stats['updated'] += 1
+
+            # if no match was found but there was no connection error,
+            # make a note and log the change
+            elif not error:
+                # add no match indicator to item notes
+                item.notes = '%s\n%s' % (item.notes, self.oclc_no_match)
+                item.save()
+                # message for log entry to document the change
+                log_message = 'No OCLC match found'
+                self.stats['no_match'] += 1
+
+            # create a log entry if a message was set
+            # (either updateor no match found)
+            if log_message:
                 LogEntry.objects.log_action(
                     user_id=self.script_user.id,
                     content_type_id=self.item_content_type,
                     object_id=item.pk,
                     object_repr=str(item),
-                    change_message='Updated from OCLC %s' % worldcat_entity.item_uri,
+                    change_message=log_message,
                     action_flag=CHANGE)
-
-                self.stats['updated'] += 1
 
             self.tick()
 
