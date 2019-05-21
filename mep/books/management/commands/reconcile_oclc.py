@@ -176,8 +176,9 @@ class Command(BaseCommand):
 
     def oclc_search(self, item):
         """Search for an item in OCLC by title, author, date, and
-        material type if noted as a Periodical. Returns
-        :class:`~mep.books.oclc.SRWResponse`.
+        material type if noted as a Periodical.  Filters by
+        english language and material type not Internet Resource
+        (i.e. electronic edition). Returns :class:`~mep.books.oclc.SRWResponse`.
         """
         search_opts = {}
 
@@ -203,6 +204,13 @@ class Command(BaseCommand):
         # notes indicate periodical
         search_opts['material_type__exact'] = 'periodical' \
             if 'PERIODICAL' in item.notes else 'book'
+
+        # add filters that apply to all S&co content
+        # restrict to english language content
+        # (nearly all are english, handful that are not will be handled manually)
+        search_opts['language_code__exact'] = 'eng'
+        # exclude electronic books
+        search_opts['-material_type__exact'] = 'Internet Resource'
 
         return self.sru_search.search(**search_opts)
 

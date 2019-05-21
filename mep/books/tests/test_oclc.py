@@ -116,6 +116,11 @@ class TestSRUSearch(SimpleTestCase):
         assert SRUSearch._lookup_to_search(year=1950) == \
             'srw.yr=1950'
 
+        # NOT option instead of AND
+        assert SRUSearch._lookup_to_search(title="Ulysses",
+            **{'-material_type__exact': 'Internet Resource'}) == \
+            'srw.ti="Ulysses" NOT srw.mt exact "Internet Resource"'
+
     @patch('mep.books.oclc.WorldCatClientBase.search')
     def test_search(self, mock_base_search):
         with open(SRW_RESPONSE_FIXTURE) as response:
