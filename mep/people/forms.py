@@ -84,6 +84,10 @@ class MemberSearchForm(FacetForm):
         ('name', 'Name A-Z'),
     ]
 
+    # NOTE these are not set by default!
+    error_css_class = 'error'
+    required_css_class = 'required'
+
     query = forms.CharField(label='Keyword or Phrase', required=False,
                             widget=forms.TextInput(attrs={
                                 'placeholder': 'Search member',
