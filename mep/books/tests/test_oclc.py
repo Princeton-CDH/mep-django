@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import os
 from unittest.mock import Mock, patch, MagicMock
 
@@ -117,8 +118,9 @@ class TestSRUSearch(SimpleTestCase):
             'srw.yr=1950'
 
         # NOT option instead of AND
-        assert SRUSearch._lookup_to_search(title="Ulysses",
-            **{'-material_type__exact': 'Internet Resource'}) == \
+        # using OrderedDict to guarantee expected order in py3.5
+        assert SRUSearch._lookup_to_search(**OrderedDict([('title', "Ulysses"),
+            ('-material_type__exact', 'Internet Resource')])) == \
             'srw.ti="Ulysses" NOT srw.mt exact "Internet Resource"'
 
     @patch('mep.books.oclc.WorldCatClientBase.search')
