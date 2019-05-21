@@ -784,6 +784,20 @@ class TestMembersListView(TestCase):
         sqs = view.get_queryset()
         mock_qs.filter.assert_any_call(account_years__range=(1919, 1923))
 
+    def test_invalid_form(self):
+        # make an invalid range request
+        view = MembersList()
+        view.request = self.factory.get(self.members_url, {
+            'membership_dates_0': '1930',
+            'membership_dates_1': '1900', # comes before start
+        })
+        # should be empty SolrQuerySet
+        sqs = view.get_queryset()
+        assert sqs.count() == 0
+        # page labels should be 'N/A'
+        labels = view.get_page_labels(None) # empty paginator
+        assert labels == [(1, 'N/A')]
+
 
 class TestMemberDetailView(TestCase):
     fixtures = ['sample_people.json']
