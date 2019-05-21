@@ -129,7 +129,7 @@ describe('RxRangeFacet', () => {
             setTimeout(() => {
                 $stop.value = '45'
                 $stop.dispatchEvent(new Event('input'))
-                // 300ms after that, we change our mind back to orig value 
+                // 300ms after that, we change our mind back to orig value
                 setTimeout(() => {
                     $stop.value = '35'
                     $stop.dispatchEvent(new Event('input'))

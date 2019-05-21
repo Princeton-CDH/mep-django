@@ -18,7 +18,7 @@ interface RxCheckboxInputState extends RxInputState {
 /**
  * An ancestor for all reactive <input> elements. These elements should always
  * have a `type` attribute, so the class is abstract.
- * 
+ *
  * The update() method has a default implementation that updates the `value` and
  * `name` attributes; simple types of <input> may not need to override it.
  *
@@ -75,7 +75,7 @@ class RxTextInput extends RxInput implements Reactive<RxTextInputState> {
 
 /**
  * A reactive <input type="number"> element.
- * 
+ *
  * Publishes its validity state and current value; invalid values will be
  * parsed to NaN.
  *

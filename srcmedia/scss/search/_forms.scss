@@ -17,7 +17,7 @@
         padding: .2rem 0;
         font-size: 0.8rem;
         background-color: transparent;
-        border-width: 0 0 2px 0;
+        border-width: 0 0 2px;
         border-color: $black;
         border-bottom-style: dotted;
         outline: none;
@@ -60,7 +60,7 @@
         @media (min-width: $breakpoint-s) {
             border-color: $black;
             border-style: dotted;
-            border-width: 0px;
+            border-width: 0;
             border-bottom-width: .1rem;
 
             &:focus {
@@ -87,12 +87,12 @@
             width: 100%;
             text-align: left;
             font-weight: bold;
-            padding: 1.75rem 0rem 0.5rem;
+            padding: 1.75rem 0 0.5rem;
         }
     
         // chrome doesn't allow fieldsets to use flex, so we have to do this
         // https://bugs.chromium.org/p/chromium/issues/detail?id=262679
-        .inner { 
+        .inner {
             width: 100%;
             display: flex;
             flex-flow: row wrap;

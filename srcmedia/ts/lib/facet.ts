@@ -6,7 +6,7 @@ import { Rx, animateElementContent, arraysAreEqual } from './common'
 
 /**
  * A boolean (checkbox) facet that can update the count in its <label>.
- * 
+ *
  * Assumes that it has an associated <label> element that contains another
  * element (ideally a <span>) with class "count",
  *
@@ -30,9 +30,9 @@ class RxBooleanFacet extends RxCheckboxInput {
     /**
      * Calls animateElementContent() to swap out the content of the count
      * element after its transition-duration.
-     * 
+     *
      * Returns the locale-string version of the count, which for the en-us
-     * locale will insert commas (e.g. 6544 -> 6,544). 
+     * locale will insert commas (e.g. 6544 -> 6,544).
      *
      * @protected
      * @memberof RxBooleanFacet
@@ -48,7 +48,7 @@ class RxBooleanFacet extends RxCheckboxInput {
 /**
  * A choice facet consisting of multiple checkboxes where the user always
  * has access to all the choices.
- * 
+ *
  * This facet is similar to a text facet, but intended for use where there are
  * a limited number of choices that should always be displayed, regardless
  * of counts.
@@ -76,7 +76,7 @@ class RxChoiceFacet extends Rx<HTMLFieldSetElement> {
     /**
      * Finds the relevant count element for each choice input and calls
      * animateElementContent() to swap out the number displayed in it.
-     * 
+     *
      * Assumes the input has exactly one <label> that contains a <span> with
      * class 'count'.
      *
@@ -95,7 +95,7 @@ class RxChoiceFacet extends Rx<HTMLFieldSetElement> {
 /**
  * A range facet consisting of two numeric inputs. No counts are shown.
  * Note that this technically makes it a filter, rather than a facet.
- * 
+ *
  * The values are only updated when both inputs are a valid and unique combination
  * of numbers.
  *
@@ -130,7 +130,7 @@ class RxRangeFacet extends Rx<HTMLFieldSetElement> {
             filter(([[value1, value2], valid]) => valid),
             map(([[value1, value2], valid]) => [value1, value2]), // don't need validity info
             distinctUntilChanged(arraysAreEqual), // only unique combinations of inputs
-        ) 
+        )
         // set an "error" class depending on if we're valid or not
         this.valid.subscribe(valid => {
             valid ?
