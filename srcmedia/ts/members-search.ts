@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $genderFacet = document.querySelector('#id_sex') as HTMLFieldSetElement
     // FIXME should use an id selector
     const $memDateFacet = document.querySelector('.range.facet') as HTMLFieldSetElement
-
+    const $errors = document.querySelector('div[role=alert].errors')
 
     /* COMPONENTS */
     const membersSearchForm = new RxFacetedSearchForm($membersSearchForm)
@@ -117,6 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
     )
 
     /* SUBSCRIPTIONS */
+
+    // If there were errors, make sure they're cleared when the form becomes valid
+    if ($errors) {
+        membersSearchForm.valid.pipe(filter(v => v)).subscribe(() => {
+            $errors.remove() // NOTE could use a nicer animation here?
+        })
+    }
 
     // Change the sort depending on if a keyword is active or not
     sort$.subscribe(sortSelect.value)

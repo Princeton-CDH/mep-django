@@ -158,10 +158,54 @@ describe('RxRangeFacet', () => {
             setTimeout(() => {
                 $stop.value = 'stop!'
                 $stop.dispatchEvent(new Event('input'))
-                expect(watcher).toHaveBeenCalledTimes(1)
+                expect(watcher).toHaveBeenCalledTimes(1) // didn't update
                 expect(watcher).toHaveBeenLastCalledWith([25, 35])
                 done()
             }, 550)
+        })
+
+        it('only updates if start is less than or equal to stop', done => {
+            const $facet = document.querySelector('.range.facet') as HTMLFieldSetElement
+            const $start = document.querySelector('#start') as HTMLInputElement
+            const $stop = document.querySelector('#end') as HTMLInputElement
+            const rrf = new RxRangeFacet($facet)
+            const watcher = jest.fn()
+            rrf.values.subscribe(watcher)
+            // set the initial values to 25 and 35
+            $start.value = '25'
+            $stop.value = '35'
+            $start.dispatchEvent(new Event('input'))
+            $stop.dispatchEvent(new Event('input'))
+            // 550ms later, we change a value to something invalid
+            setTimeout(() => {
+                $start.value = '45' // after stop
+                $start.dispatchEvent(new Event('input'))
+                expect(watcher).toHaveBeenCalledTimes(1) // didn't update
+                expect(watcher).toHaveBeenLastCalledWith([25, 35])
+                done()
+            }, 550)
+        })
+
+        it('updates its css class when validity changes', done => {
+            const $facet = document.querySelector('.range.facet') as HTMLFieldSetElement
+            const $start = document.querySelector('#start') as HTMLInputElement
+            const $stop = document.querySelector('#end') as HTMLInputElement
+            const rrf = new RxRangeFacet($facet)
+            rrf.valid.subscribe(() => expect($facet.classList).toContain('error'))
+            // set the initial values to 35 and 25; should add error class
+            $start.value = '35'
+            $stop.value = '25'
+            $start.dispatchEvent(new Event('input'))
+            $stop.dispatchEvent(new Event('input'))
+            rrf.valid.subscribe(() => {
+                expect($facet.classList).not.toContain('error')
+                done()
+            })
+            // set to valid values, should remove class
+            $start.value = '25'
+            $stop.value = '35'
+            $start.dispatchEvent(new Event('input'))
+            $stop.dispatchEvent(new Event('input'))
         })
     })
 })

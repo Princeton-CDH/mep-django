@@ -1,5 +1,5 @@
 import { fromEvent, Subject, Observable } from 'rxjs'
-import { map, debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { map, debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators'
 
 import { Component, Reactive, Rx } from './common'
 
@@ -93,12 +93,12 @@ class RxNumberInput extends Rx<HTMLInputElement> {
         this.value = fromEvent(this.element, 'input').pipe(
             map(() => parseInt(this.element.value)),
             debounceTime(500),
-            distinctUntilChanged()
+            distinctUntilChanged(),
         )
         // Update validity based on when value changes
         this.valid = this.value.pipe(
             map(() => this.element.checkValidity()),
-            distinctUntilChanged()
+            distinctUntilChanged(),
         )
     }
 }
