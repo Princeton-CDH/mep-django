@@ -114,6 +114,7 @@
             }
         }
         
+        /* boolean facet */
         .inner > label {
             height: 2.2rem;
             background: white;
@@ -123,7 +124,7 @@
             justify-content: flex-start;
             padding: 0 .7rem;
             align-items: center;
-            border: 2px solid white;
+            border: 0.1rem solid $transparent;
             box-sizing: border-box;
 
             @media (min-width: $breakpoint-s) {
@@ -192,6 +193,40 @@
                 margin-left: $gutter-xs;
                 margin-right: $gutter-xs;
             }
+        }
+    }
+
+    // errors output
+    div[role=alert].errors {
+        width: 100%;
+        text-align: left;
+        padding-top: 1.75rem;
+        font-size: 0.8rem;
+
+        span { // "Errors:" text
+            font-weight: bold;
+        }
+
+        > ul { // master list of errors
+            list-style: none;
+            display: block;
+            background: white;
+            padding: 0.8rem;
+            position: relative;
+        }
+
+        li {
+            padding-left: 1rem;
+        }
+
+        // error icons
+        li::before {
+            content: url('/static/img/icons/error-circle.svg');
+            width: 0.75rem;
+            height: 0.75rem;
+            position: absolute;
+            left: 0.8rem;
+            padding-top: 0.05rem;
         }
     }
 

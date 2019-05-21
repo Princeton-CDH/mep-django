@@ -4,6 +4,8 @@
     width: 100%;
     padding: 0.7rem;
     position: relative;
+    border: .1rem solid $transparent;
+    box-sizing: border-box;
 
     @media (min-width: $breakpoint-s) {
         padding: 0.5rem;
@@ -89,6 +91,9 @@
         }
     }
 
+    &.error {
+        border-color: red;
+    }
 
     /**
      * CHOICE FACET - used for facets where all options are always shown, e.g.
