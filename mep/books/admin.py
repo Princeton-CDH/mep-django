@@ -8,7 +8,8 @@ from django.utils.timezone import now
 from tabular_export.admin import export_to_csv_response
 
 from mep.accounts.admin import AUTOCOMPLETE
-from mep.books.models import Creator, CreatorType, Item, Subject, Format
+from mep.books.models import Creator, CreatorType, Item, Subject, Format, \
+    Genre
 from mep.common.admin import CollapsibleTabularInline
 
 
@@ -32,7 +33,7 @@ class ItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'author_list', 'notes', 'borrow_count',
                     'updated_at', 'has_uri')
     list_display_links = ('id', 'title')
-    list_filter = ('genre', 'item_format')
+    list_filter = ('genres', 'item_format')
     inlines = [ItemCreatorInline]
     search_fields = ('mep_id', 'title', 'notes', 'creator__person__name', 'id')
     fieldsets = (
@@ -48,13 +49,14 @@ class ItemAdmin(admin.ModelAdmin):
         }),
         ('OCLC metadata', {
             'fields': (
-                'uri', 'edition_uri', 'item_format', 'genre',
-                'subject_list',
-
+                'uri', 'edition_uri', 'item_format',
+                'genres',
+                'subjects',
             )
         })
     )
-    readonly_fields = ('mep_id', 'borrow_count', 'genre', 'subject_list')
+    readonly_fields = ('mep_id', 'borrow_count')
+    filter_horizontal = ('genres', 'subjects')
 
     actions = ['export_to_csv']
 
@@ -78,7 +80,7 @@ class ItemAdmin(admin.ModelAdmin):
     #: fields to be included in CSV export
     export_fields = [
         'admin_url', 'id', 'title', 'year', 'author_list', 'mep_id',
-        'uri', 'edition_uri', 'genre', 'format', 'subject_list',
+        'uri', 'edition_uri', 'genre_list', 'format', 'subject_list',
         'notes'
     ]
 
@@ -140,3 +142,4 @@ admin.site.register(Item, ItemAdmin)
 admin.site.register(CreatorType, CreatorTypeAdmin)
 admin.site.register(Subject, SubjectAdmin)
 admin.site.register(Format, FormatAdmin)
+admin.site.register(Genre)

@@ -306,13 +306,14 @@ class TestWorldCatEntity:
         wc_entity.rdf_resource.remove(rdflib.RDF.type)
         assert wc_entity.item_type == None
 
-    def test_genre(self):
+    def test_genres(self):
         time_and_tide = self.worldcat_entity_from_fixture_timetide()
-        assert time_and_tide.genre == 'Periodicals'
+        # use set to check values without failing on order
+        assert set(time_and_tide.genres) == set(['Periodicals', 'Electronic Books'])
 
         # other fixture has no genre
         wc_entity = self.worldcat_entity_from_fixture()
-        assert wc_entity.genre is None
+        assert wc_entity.genres == []
 
     def test_subjects(self):
         time_and_tide = self.worldcat_entity_from_fixture_timetide()

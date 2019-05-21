@@ -182,12 +182,10 @@ class WorldCatEntity:
             return rdf_types[0]
 
     @property
-    def genre(self):
-        '''Item genre from schema.org/genre, if set'''
-        genre = self.rdf_resource.value(SCHEMA_ORG.genre)
-        # return string if set, but not if None
-        if genre:
-            return str(genre)
+    def genres(self):
+        '''List of item genres from schema.org/genre, if any'''
+        return [str(genre)
+                for genre in self.rdf_resource.objects(SCHEMA_ORG.genre)]
 
     @property
     def subjects(self):

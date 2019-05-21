@@ -155,7 +155,8 @@ class Command(BaseCommand):
             # make a note and log the change
             elif not error:
                 # add no match indicator to item notes
-                item.notes = '%s\n%s' % (item.notes, self.oclc_no_match)
+                item.notes = '\n'.join([txt for txt in (item.notes, self.oclc_no_match)
+                                        if txt])
                 item.save()
                 # message for log entry to document the change
                 log_message = 'No OCLC match found'

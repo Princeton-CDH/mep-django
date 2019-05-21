@@ -7,8 +7,7 @@ from django.test import TestCase
 import requests
 
 from mep.accounts.models import Borrow, Account
-from mep.books.models import Item, Publisher, PublisherPlace, Creator, \
-    CreatorType, Subject, Format
+from mep.books.models import Item, Creator, CreatorType, Subject, Format, Genre
 from mep.books.tests.test_oclc import FIXTURE_DIR
 from mep.people.models import Person
 
@@ -123,14 +122,14 @@ class TestItem(TestCase):
         worldcat_entity = Mock(
             work_uri='http://worldcat.org/entity/work/id/3372107206',
             item_uri='http://www.worldcat.org/oclc/3484871',
-            genre='Periodicals',
+            genres=['Periodicals'],
             item_type='http://schema.org/Periodical',
             subjects=[]
         )
         item.populate_from_worldcat(worldcat_entity)
         assert item.uri == worldcat_entity.work_uri
         assert item.edition_uri == worldcat_entity.item_uri
-        assert item.genre == worldcat_entity.genre
+        assert item.genres.first().name == worldcat_entity.genres[0]
         assert item.item_format == Format.objects.get(uri=worldcat_entity.item_type)
         # no subjects on the eentity
         assert not item.subjects.all()
@@ -196,6 +195,17 @@ class TestItem(TestCase):
         item.subjects.add(subj1)
         item.subjects.add(subj2)
         assert item.subject_list() == '%s; %s' % (subj1.name, subj2.name)
+
+    def test_genre_list(self):
+        # no genres
+        item = Item.objects.create(title='Genreless')
+        assert item.genre_list() == ''
+
+        genre1 = Genre.objects.create(name='Periodicals')
+        genre2 = Genre.objects.create(name='Drama')
+        item.genres.add(genre1)
+        item.genres.add(genre2)
+        assert item.genre_list() == '%s; %s' % (genre2.name, genre1.name)
 
     def test_has_uri(self):
         item = Item(title='Topicless')

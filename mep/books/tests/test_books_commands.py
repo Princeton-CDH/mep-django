@@ -162,7 +162,7 @@ class TestReconcileOCLC(TestCase):
             worldcat_entity = Mock(
                 work_uri='http://worldcat.org/entity/work/id/3372107206',
                 item_uri='http://www.worldcat.org/oclc/3484871',
-                genre='Periodicals',
+                genres=['Periodicals'],
                 item_type='http://schema.org/Periodical',
                 subjects=[]
             )
@@ -171,7 +171,7 @@ class TestReconcileOCLC(TestCase):
 
             # confirm that item was saved with changes
             item = Item.objects.get(pk=item1.pk)
-            assert item.genre
+            assert item.genres.first().name == 'Periodicals'
             assert item.uri
 
             assert self.cmd.stats['count'] == 1
