@@ -32,7 +32,7 @@
             <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
         </label>
         <button type="submit" form="books-form">Go</button>
-        {% include 'snippets/pagination.html' with form="books-form" %}
+        {% include 'snippets/pagination.html' with form_id="books-form" %}
     </div>
     <div class="outer">
         {% include 'snippets/page-controls.html' %}

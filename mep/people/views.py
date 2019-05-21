@@ -74,9 +74,14 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         sqs = PersonSolrQuerySet().facet_field('has_card')\
                                   .facet_field('sex', missing=True, exclude='sex')
 
-        # when form is valid, check for search term and filter queryset
         form = self.get_form()
-        if form.is_valid():
+
+        # empty queryset if not valid
+        if not form.is_valid():
+            sqs = sqs.none()
+
+        # when form is valid, check for search term and filter queryset
+        else:
             search_opts = form.cleaned_data
 
             if search_opts['query']:
@@ -96,9 +101,6 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
 
-        # TODO: handle invalid form
-        # now possible with date range input
-
         self.queryset = sqs
         return sqs
 
@@ -110,8 +112,13 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
     def get_page_labels(self, paginator):
         '''generate labels for pagination'''
 
+        # if form is invalid, page labels should show 'N/A'
+        form = self.get_form()
+        if not form.is_valid():
+            return [(1, 'N/A')]
+
         # when sorting by relevance, use default page label logic
-        if self.get_form().cleaned_data['sort'] == 'relevance':
+        if form.cleaned_data['sort'] == 'relevance':
             return super().get_page_labels(paginator)
 
         # otherwise, when sorting by alpha, generate alpha page labels
