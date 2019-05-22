@@ -534,18 +534,18 @@ class TestFacetJSONMixin(TestCase):
 
 class TestRdfViewMixin(TestCase):
 
-    def test_get_uri(self):
+    def test_get_absolute_url(self):
         class MyRdfView(RdfViewMixin):
             pass
         view = MyRdfView()
-        # get_uri() not implemented by default
+        # get_absolute_url() not implemented by default
         with pytest.raises(NotImplementedError):
-            view.get_uri()
+            view.get_absolute_url()
 
     def test_get_breadcrumbs(self):
         class MyRdfView(RdfViewMixin):
             breadcrumbs = [('Home', '/'), ('My Page', '/my-page')]
-            def get_uri(self):
+            def get_absolute_url(self):
                 return ''
         view = MyRdfView()
         # should add provided breadcrumbs to context
@@ -555,7 +555,7 @@ class TestRdfViewMixin(TestCase):
     def test_rdf_graph(self):
         class MyRdfView(RdfViewMixin):
             breadcrumbs = [('Home', '/'), ('My Page', '/my-page')]
-            def get_uri(self):
+            def get_absolute_url(self):
                 return 'http://jimcasey.lifestyle/my-page'
         view = MyRdfView()
         graph = view.as_rdf()
@@ -586,22 +586,24 @@ class TestRdfViewMixin(TestCase):
 
 class TestBreadcrumbsTemplate(TestCase):
 
+    def setUp(self):
+        # get the template
+        self.template = get_template('snippets/breadcrumbs.html')
+
     def test_home(self):
-        template = get_template('snippets/breadcrumbs.html')
         # without a 'home' crumb
-        response = template.render(context={
+        response = self.template.render(context={
             'breadcrumbs': [('My Page', '/my-page')]
         })
         assert not '<li class="home">' in response
         # with a 'home' crumb
-        response = template.render(context={
+        response = self.template.render(context={
             'breadcrumbs': [('Home', '/')]
         })
         assert '<li class="home">' in response
 
     def test_last_crumb(self):
-        template = get_template('snippets/breadcrumbs.html')
-        response = template.render(context={
+        response = self.template.render(context={
             'breadcrumbs': [
                 ('Home', '/'),
                 ('My Page', '/my-page')
