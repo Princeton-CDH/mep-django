@@ -7,6 +7,7 @@ from mep.books.models import Item
 from mep.books.queryset import ItemSolrQuerySet
 from mep.common.views import LabeledPagesMixin, RdfViewMixin
 from mep.common.utils import absolutize_url
+from mep.common import SCHEMA_ORG
 
 
 class ItemList(LabeledPagesMixin, ListView, RdfViewMixin):
@@ -15,17 +16,22 @@ class ItemList(LabeledPagesMixin, ListView, RdfViewMixin):
     template_name = 'books/item_list.html'
     paginate_by = 100
     context_object_name = 'items'
+    rdf_type = SCHEMA_ORG.SearchResultPage
 
     def get_queryset(self):
         return ItemSolrQuerySet().order_by('title')
 
-    def get_uri(self):
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
         return absolutize_url(reverse('books:books-list'))
 
     def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        # NOTE we can't set this as an attribute on the view because it calls
+        # reverse() via get_absolute_url(), which needs the urlconf to be loaded
         return [
             ('Home', absolutize_url('/')),
-            ('Books', self.get_uri())
+            ('Books', self.get_absolute_url())
         ]
 
 

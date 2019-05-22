@@ -20,6 +20,7 @@ from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 from mep.common.utils import absolutize_url
+from mep.common import SCHEMA_ORG
 
 
 class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
@@ -29,6 +30,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
     ajax_template_name = 'people/snippets/member_results.html'
     paginate_by = 100
     context_object_name = 'members'
+    rdf_type = SCHEMA_ORG.SearchResultPage
 
     form_class = MemberSearchForm
     # cached form instance for current request
@@ -118,13 +120,15 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         # alpha labels is a dict; use items to return list of tuples
         return alpha_labels.items()
 
-    def get_uri(self):
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
         return absolutize_url(reverse('people:members-list'))
 
     def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
         return [
             ('Home', absolutize_url('/')),
-            ('Members', self.get_uri()),
+            ('Members', self.get_absolute_url()),
         ]
 
 class MemberDetail(DetailView, RdfViewMixin):
@@ -132,20 +136,23 @@ class MemberDetail(DetailView, RdfViewMixin):
     model = Person
     template_name = 'people/member_detail.html'
     context_object_name = 'member'
+    rdf_type = SCHEMA_ORG.ProfilePage
 
     def get_queryset(self):
         # throw a 404 if a non-member is accessed via this route
         return super().get_queryset().exclude(account=None)
 
-    def get_uri(self):
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
         return self.object.get_absolute_url()
 
     def get_breadcrumbs(self):
-        # FIXME duplicating get_uri() from MembersList here
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        # FIXME duplicating get_absolute_url() from MembersList here
         return [
             ('Home', absolutize_url('/')),
             ('Members', absolutize_url(reverse('people:members-list'))),
-            (self.object.short_name, self.get_uri())
+            (self.object.short_name, self.get_absolute_url())
         ]
 
 
