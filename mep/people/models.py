@@ -86,7 +86,6 @@ class Location(Notable):
 
 class Profession(Named, Notable):
     '''Profession for a :class:`Person`'''
-    pass
 
 
 class PersonQuerySet(models.QuerySet):
@@ -463,7 +462,6 @@ class InfoURL(Notable):
 
 class RelationshipType(Named, Notable):
     '''Types of relationships between one :class:`Person` and another'''
-    pass
 
 
 class Relationship(Notable):
