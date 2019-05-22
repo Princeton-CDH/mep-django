@@ -2,6 +2,10 @@
 
 {% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
 
+{% block js %}
+<script type="application/ld+json">{{ page_jsonld|safe }}</script>
+{% endblock %}
+
 {% block header %}
 {% include 'snippets/header.html' with title=member.name style="member" %}
 {% endblock %}

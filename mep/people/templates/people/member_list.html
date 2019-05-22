@@ -2,7 +2,10 @@
 {% load static humanize widget_tweaks mep_tags %}
 {% load render_bundle from webpack_loader %}
 
-{% block js %}{% render_bundle 'memberSearch' 'js' %}{% endblock %}
+{% block js %}
+{% render_bundle 'memberSearch' 'js' %}
+<script type="application/ld+json">{{ page_jsonld|safe }}</script>
+{% endblock %}
 
 {% block page-subtitle %}Library Members · {% endblock %}
 
