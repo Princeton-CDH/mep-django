@@ -643,6 +643,25 @@ class TestMembersListView(TestCase):
             response, '<h2>Relevance</h2>',
             msg_prefix='relevance score not displayed to anonymous user')
 
+        # check for max, min and placeholders for date ranges
+        # 1942 and 1950 should be the respective values
+        self.assertContains(
+            response, 'placeholder="1950"',
+            msg_prefix='Membership widget sets placeholder for max year.'
+        )
+        self.assertContains(
+            response, 'placeholder="1942"',
+            msg_prefix='Membership widget sets placeholder for min year.',
+        )
+        self.assertContains(
+            response, 'max="1950"', count=2,
+            msg_prefix='Response has max set twice for inputs'
+        )
+        self.assertContains(
+            response, 'min="1942"', count=2,
+            msg_prefix='Response has min set twice for inputs'
+        )
+
         # login as staff user with no special permissions
         staff_password = 'sosecret'
         staffuser = User.objects.create_user(
@@ -797,6 +816,39 @@ class TestMembersListView(TestCase):
         # page labels should be 'N/A'
         labels = view.get_page_labels(None) # empty paginator
         assert labels == [(1, 'N/A')]
+
+    @patch('mep.people.views.MemberSearchForm')
+    def test_missing_stats(self, mockmemberform):
+        view = MembersList()
+        view.request = self.factory.get(self.members_url)
+        view.get_year_range = Mock()
+        view.get_year_range.return_value = None
+        # if get_year_range returns None, assume it failed and
+        # shouldn't call the set_membership_dates_placeholder setter function
+        view.get_queryset()
+        assert not mockmemberform.set_membership_dates_placeholder.called
+
+    @patch('mep.people.views.PersonSolrQuerySet')
+    def test_get_year_range(self, mockPSQ):
+        mockPSQ.return_value.stats.return_value.get_stats.return_value = {
+            'stats_fields': {
+                'account_start': {
+                    'min': 1928.0
+                },
+                'account_end': {
+                    'max': 1940.0
+                }
+            }
+        }
+        min_max = MembersList().get_year_range()
+        # returns integer years
+        assert min_max == (1928, 1940)
+        # calls for the two correct fields in stats call
+        mockPSQ.return_value.stats.assert_called_with('account_start',
+                                                      'account_end')
+        # if get_stats returns None, also returns None
+        mockPSQ.return_value.stats.return_value.get_stats.return_value = None
+        assert MembersList().get_year_range() is None
 
 
 class TestMemberDetailView(TestCase):

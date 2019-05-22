@@ -431,8 +431,9 @@ class Person(Notable, DateRange, Indexable):
             account_years = list(set(date.year for date in account.event_dates))
             index_data.update({
                 'account_years_is': account_years,
-                'account_start_i': account_years[0],
-                'account_end_i': account_years[-1],
+                # use min and max because set order is not guaranteed
+                'account_start_i': min(account_years),
+                'account_end_i': max(account_years),
                 })
         if self.sex:
             index_data['sex_s'] = self.get_sex_display()

@@ -61,6 +61,22 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         # Get facets from solr return
         return self._form
 
+    @staticmethod
+    def get_year_range():
+        """Return the earliest and latest years for any account activity in
+        the library.
+
+        :return: Min and max years as integers or None
+        :rtype: tuple or None
+        """
+
+        stats = PersonSolrQuerySet().stats('account_start', 'account_end')\
+                                    .get_stats()
+        if stats:
+            min_year = int(stats['stats_fields']['account_start']['min'])
+            max_year = int(stats['stats_fields']['account_end']['max'])
+            return (min_year, max_year)
+
     #: name query alias field syntax (type defaults to edismax in solr config)
     search_name_query = '{!qf=$name_qf pf=$name_pf v=$name_query}'
 
@@ -82,6 +98,10 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
 
         # when form is valid, check for search term and filter queryset
         else:
+            # set minimum and maximum years for date range field
+            min_max = self.get_year_range()
+            if min_max:
+                form.set_membership_dates_placeholder(*min_max)
             search_opts = form.cleaned_data
 
             if search_opts['query']:
@@ -100,6 +120,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
 
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
+
 
         self.queryset = sqs
         return sqs

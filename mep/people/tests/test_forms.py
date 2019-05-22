@@ -136,6 +136,21 @@ class TestMemberForm(TestCase):
         assert form.fields['sort'].widget.choices[0] == \
             ('relevance', {'label': 'Relevance', 'disabled': True})
 
+    def test_set_membership_dates_placeholder(self):
+
+        form = MemberSearchForm()
+        form.set_membership_dates_placeholder(1900, 1928)
+
+        min_widget, max_widget = form.fields['membership_dates'].widget.widgets
+        multi_widget = form.fields['membership_dates'].widget
+
+        # placeholders for individual inputs are set
+        assert min_widget.attrs['placeholder'] == 1900
+        assert max_widget.attrs['placeholder'] == 1928
+        # attrs for both are set via multiwidget
+        assert multi_widget.attrs['min'] == 1900
+        assert multi_widget.attrs['max'] == 1928
+
 
 
 
