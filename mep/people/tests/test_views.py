@@ -706,6 +706,38 @@ class TestMembersListView(TestCase):
             result = view.get_page_labels(paginator)
             mock_alpha_pglabels.assert_not_called()
 
+    @patch('mep.people.views.super')
+    def test_get_form(self, mocksuper):
+        # mock out super to subsitute a mock for the actual form
+        mockform = Mock()
+        mocksuper.return_value.get_form.return_value = mockform
+        view = MembersList()
+        view.request = self.factory.get(self.members_url)
+        view.get_year_range = Mock()
+
+        # pass a min and max year
+        view.get_year_range.return_value = (1900, 1930)
+        view.get_form()
+        # cached form is set
+        assert view._form == mockform
+        # mock setter for dates is called
+        mockform.set_membership_dates_placeholder\
+            .assert_called_with(1900, 1930)
+
+        # form should be cached
+        mockform.reset_mock()
+        view.get_form()
+        assert not mockform.called
+
+        view._form = None
+
+        # if get_year_range returns None, assume it failed and
+        # shouldn't call the set_membership_dates_placeholder setter function
+        view.get_year_range.return_value = None
+
+        view.get_form()
+        assert not mockform.set_membership_dates_placeholder.called
+
     def test_get_form_kwargs(self):
         view = MembersList()
         # no query args
@@ -816,17 +848,6 @@ class TestMembersListView(TestCase):
         # page labels should be 'N/A'
         labels = view.get_page_labels(None) # empty paginator
         assert labels == [(1, 'N/A')]
-
-    @patch('mep.people.views.MemberSearchForm')
-    def test_missing_stats(self, mockmemberform):
-        view = MembersList()
-        view.request = self.factory.get(self.members_url)
-        view.get_year_range = Mock()
-        view.get_year_range.return_value = None
-        # if get_year_range returns None, assume it failed and
-        # shouldn't call the set_membership_dates_placeholder setter function
-        view.get_queryset()
-        assert not mockmemberform.set_membership_dates_placeholder.called
 
     @patch('mep.people.views.PersonSolrQuerySet')
     def test_get_year_range(self, mockPSQ):

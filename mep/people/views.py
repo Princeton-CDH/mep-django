@@ -58,6 +58,10 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         # initialize the form, caching on current instance
         if not self._form:
             self._form = super().get_form(*args, **kwargs)
+        # set minimum and maximum years for date range field
+            min_max = self.get_year_range()
+            if min_max:
+                self._form.set_membership_dates_placeholder(*min_max)
         # Get facets from solr return
         return self._form
 
@@ -98,10 +102,6 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
 
         # when form is valid, check for search term and filter queryset
         else:
-            # set minimum and maximum years for date range field
-            min_max = self.get_year_range()
-            if min_max:
-                form.set_membership_dates_placeholder(*min_max)
             search_opts = form.cleaned_data
 
             if search_opts['query']:
