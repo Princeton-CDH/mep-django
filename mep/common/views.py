@@ -67,7 +67,7 @@ class RdfViewMixin(ContextMixin):
         context['breadcrumbs'] = self.get_breadcrumbs()
         return context
 
-    def get_uri(self):
+    def get_absolute_url(self):
         '''Get a URI for this page to use for making RDF assertions. Note that
         this should return a full absolute path, e.g. with absolutize_url().'''
         raise NotImplementedError
@@ -76,19 +76,22 @@ class RdfViewMixin(ContextMixin):
         '''Generate an RDF graph representing the page.'''
         # add the root node (this page)
         graph = rdflib.Graph()
-        page_uri = rdflib.URIRef(self.get_uri())
+        page_uri = rdflib.URIRef(self.get_absolute_url())
         graph.add((page_uri, rdflib.RDF.type, self.rdf_type))
-        # generate and add breadcrumbs
-        breadcrumbs_node = rdflib.BNode()
-        graph.set((page_uri, SCHEMA_ORG.breadcrumb, breadcrumbs_node))
-        graph.set((breadcrumbs_node, rdflib.RDF.type, SCHEMA_ORG.BreadcrumbList))
-        for pos, crumb in enumerate(self.get_breadcrumbs()):
-            crumb_node = rdflib.BNode()
-            graph.add((breadcrumbs_node, SCHEMA_ORG.itemListElement, crumb_node))
-            graph.set((crumb_node, rdflib.RDF.type, SCHEMA_ORG.ListItem))
-            graph.set((crumb_node, SCHEMA_ORG.name, rdflib.Literal(crumb[0]))) # name/label
-            graph.set((crumb_node, SCHEMA_ORG.item, rdflib.Literal(crumb[1]))) # url
-            graph.set((crumb_node, SCHEMA_ORG.position, rdflib.Literal(pos + 1))) # position
+        # generate and add breadcrumbs, if any
+        breadcrumbs = self.get_breadcrumbs()
+        if breadcrumbs:
+            breadcrumbs_node = rdflib.BNode()
+            graph.set((page_uri, SCHEMA_ORG.breadcrumb, breadcrumbs_node))
+            graph.set((breadcrumbs_node, rdflib.RDF.type, SCHEMA_ORG.BreadcrumbList))
+            for pos, crumb in enumerate(breadcrumbs):
+                crumb_node = rdflib.BNode()
+                graph.add((breadcrumbs_node, SCHEMA_ORG.itemListElement, crumb_node))
+                graph.set((crumb_node, rdflib.RDF.type, SCHEMA_ORG.ListItem))
+                graph.set((crumb_node, SCHEMA_ORG.name, rdflib.Literal(crumb[0]))) # name/label
+                graph.set((crumb_node, SCHEMA_ORG.item, rdflib.Literal(crumb[1]))) # url
+                graph.set((crumb_node, SCHEMA_ORG.position, rdflib.Literal(pos + 1))) # position
+        # output full graph
         return graph
 
     def get_breadcrumbs(self):
