@@ -62,12 +62,17 @@ class TestPerson(TestCase):
         # should return up to comma for names with comma
         pers = Person(sort_name='Casey, Jim')
         assert pers.short_name == 'Casey'
-        # should just return the name if no comma
+        # should return up to parenthesis for names with parenthesis
+        pers = Person(sort_name='J.C. (Jim Casey)')
+        assert pers.short_name == 'J.C.'
+        # if both should return up to whichever is first - comma or paren
+        pers = Person(sort_name='J.C. (Jim Casey, Esq.)')
+        assert pers.short_name == 'J.C.'
+        pers = Person(sort_name='Jim Casey, Esq. (J.C.)')
+        assert pers.short_name == 'Jim Casey'
+        # should just return the full name if neither
         pers.sort_name = 'Jim Casey'
         assert pers.short_name == 'Jim Casey'
-        # if no sort name should be None
-        pers.sort_name = None
-        assert pers.short_name is None
 
     def test_set_birth_death_years(self):
         pers = Person(name='Humperdinck')

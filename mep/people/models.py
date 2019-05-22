@@ -328,8 +328,8 @@ class Person(Notable, DateRange, Indexable):
     def short_name(self):
         '''Shortened form of name used for locations where space is tight,
         e.g. breadcrumb navigation'''
-        if self.sort_name:
-            return self.sort_name.split(',')[0]
+        # return the initial portion, before parenthesis or a comma
+        return self.sort_name.split(',')[0].split('(')[0].strip()
 
     def set_birth_death_years(self):
         '''Set local birth and death dates based on information from VIAF'''
