@@ -1,12 +1,12 @@
 {% load static %}
 <nav class="breadcrumbs">
     <ol>
-        {% for crumb in breadcrumbs %}
-            <li {% if crumb.0 == "Home" %}class="home"{% endif %}>
+        {% for label, url in breadcrumbs %}
+            <li {% if label == "Home" %}class="home"{% endif %}>
             {% if forloop.last %} {# last (current) crumb isn't a link #}
-                <span>{{ crumb.0|truncatechars:20 }}</span>
+                <span>{{ label|truncatechars:20 }}</span>
             {% else %}
-                <a href="{{ crumb.1 }}">{{ crumb.0|truncatechars:20 }}</a>
+                <a href="{{ url }}">{{ label|truncatechars:20 }}</a>
             {% endif %}
             </li>
         {% endfor %}
