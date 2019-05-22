@@ -6,7 +6,7 @@
 {% include 'snippets/header.html' with title=member.name style="detail" %}
 {% endblock %}
 
-{% block main-style %}tabbed{% endblock %}
+{% block main-style %}tabbed white{% endblock %}
 
 {% block content %}
 <nav class="tabs" aria-label="sections">
@@ -21,42 +21,9 @@
     </li>
 </nav>
 <section class="biography">
-    {% include 'people/snippets/member_result.html' %}
-    {% comment %} <dl>
-        {% if member.birth_year or member.death_year %}
-        <div class="dates">
-            <dt>Dates</dt>
-            <dd>{{ member.birth_year|default:'' }} - {{ member.death_year|default:'' }}</dd>
-        </div>
-        {% endif %}
-        {% with member.account_set.first as account %}
-            {% if account.earliest_date or account.last_date %}
-            <div class="account-dates">
-                <dt>Membership Dates</dt>
-                <dd>{{ account.earliest_date|default:'' }} - {{ account.last_date|default:'' }}</dd>
-            </div>
-            {% endif %}
-        {% endwith %}
-        {% if member.nationalities.count > 0 %}
-        <div class="nationalities">
-            <dt>Nationality</dt>
-            {% for nation in member.nationalities.all %}
-            <dd>{{ nation }}</dd>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% if member.viaf_id %}
-        <div class="reference">
-            <dt>Reference</dt>
-            <dd><a href="{{ member.viaf_id }}">VIAF</a></dd>
-        </div>
-        {% endif %}
-        {% if member.profession %}
-        <div class="profession">
-            <dt>Profession</dt>
-            <dd></dd>
-        </div>
-        {% endif %}
-    </dl> {% endcomment %}
+    <section class="details">
+        {% include 'people/snippets/member_result.html' %}
+    </section>
+    <section class="map"></section>
 </section>
 {% endblock %}

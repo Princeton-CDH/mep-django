@@ -1,5 +1,5 @@
-div.member.details {
-
+// member-specific dl fields
+dl.member {
     .name {
         display: none;
 
@@ -28,5 +28,15 @@ div.member.details {
     .profession {
         grid-column: 2 / 3;
         text-align: right;
+    }
+
+    // display when on detail pages
+    .biography & {
+        max-width: $result-width;
+        margin: 2rem auto;
+
+        @media (min-width: $breakpoint-s) {
+            margin: 3rem auto;
+        }
     }
 }

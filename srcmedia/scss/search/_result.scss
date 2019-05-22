@@ -1,4 +1,4 @@
-output.results .result {
+.result {
     counter-increment: results;
     position: relative;
     border-top: 1px solid $white-two;
@@ -7,9 +7,32 @@ output.results .result {
         border: none;
     }
 
+    .container {
+        position: relative;
+        display: flex;
+        align-items: baseline;
+        width: 100%;
+        max-width: $result-width;
+        height: 100%;
+        padding-top: 1rem;
+        padding-bottom: 2rem;
+        border: none;
+        margin: 0 auto;
+    
+        @media (min-width: $breakpoint-s) {
+            flex-flow: row nowrap;
+        }
+    }
+
+    // remove extra margin in details
+    dl dd {
+        margin-bottom: 0;
+    }
+
     // show the result counter/icons in the details
     .counter {
         display: block;
+        position: relative;
 
         &::after {
             content: counter(results);
@@ -23,7 +46,7 @@ output.results .result {
         font-size: 0.8rem;
     }
 
-    // links to "see more" only shown on result details
+    // links to "see more" only shown on hover
     a:hover .see-more {
         visibility: visible;
     }

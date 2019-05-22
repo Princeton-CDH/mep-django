@@ -22,16 +22,24 @@ main.tabbed {
 
     nav.tabs {
         width: 100%;
+        background: $white;
     }
 
     nav + section {
-        @include padding-container;
-        padding-top: 1rem;
+        @include container;
         flex: auto;
         background: white;
+        display: flex;
+        flex-direction: column;
 
-        @media (min-width: $breakpoint-s) {
-            padding-top: 2rem;
+        // subsections
+        section {
+            width: 100%;
+            border-bottom: 0.05rem solid $white-two;
+
+            &:last-of-type {
+                border-bottom: none;
+            }
         }
     }
 }

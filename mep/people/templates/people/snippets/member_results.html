@@ -1,21 +1,24 @@
-<ol class="members results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
+{% load static %}
+<ol style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
     {% for person in members %}
     <li class="members result">
         <a href="{% url 'people:member-detail' pk=person.pk %}" aria-label="{{ person.sort_name.0 }}">
-            {# counter for search results, includes "has card" icon #}
-            <span class="counter">
-            {% if person.has_card %}
-                <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="member has card">
-            {% endif %}
-            </span>
-            {# member details #}
-            {% include 'people/snippets/member_result.html' with member=person %}
-            {# link to view detail page #}
-            <span class="see-more">
-                See more details
-                <img class="triangle icon" src="{% static 'img/icons/more_triangle.svg' %}" alt="">
-            </span>
+            <div class="container">
+                {# counter for search results, includes "has card" icon #}
+                <span class="counter">
+                {% if person.has_card %}
+                    <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="member has card">
+                {% endif %}
+                </span>
+                {# member details #}
+                {% include 'people/snippets/member_result.html' with member=person %}
+                {# link to view detail page #}
+                <span class="see-more">
+                    See more details
+                    <img class="triangle icon" src="{% static 'img/icons/more_triangle.svg' %}" alt="">
+                </span>
+            </div>
         </a>
-    <li>
+    </li>
     {% endfor %}
 </ol>

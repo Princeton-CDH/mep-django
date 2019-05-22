@@ -1,30 +1,8 @@
 // detail display for an item, person, etc. 
-div.details {
-    position: relative;
+dl {
     display: flex;
-    align-items: baseline;
-    width: 100%;
-    max-width: $result-width;
-    height: 100%;
-    padding-top: 1rem;
-    padding-bottom: 2rem;
-    border: none;
-    margin: 0 auto;
-
-    @media (min-width: $breakpoint-s) {
-        flex-flow: row nowrap;
-    }
-
-    .counter {
-        position: relative;
-        display: none;
-    }
-
-    dl {
-        display: flex;
-        flex: auto;
-    }
-
+    flex: auto;
+   
     .primary,
     .secondary {
         flex: 1;
@@ -44,9 +22,10 @@ div.details {
 
     dd {
         font-size: 0.8rem;
-    }
+        margin-bottom: .5rem;
 
-    .see-more {
-        display: none;
+        &:last-child {
+            margin-bottom: 1rem;
+        }
     }
 }
