@@ -105,6 +105,7 @@
     // last item is the active one, green border
     span {
         border-color: $green;
+        font-weight: bold;
 
         &::before {
             border-left-color: $green;
