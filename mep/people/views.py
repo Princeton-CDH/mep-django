@@ -74,11 +74,11 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         :rtype: tuple or None
         """
 
-        stats = PersonSolrQuerySet().stats('account_start', 'account_end')\
+        stats = PersonSolrQuerySet().stats('account_years')\
                                     .get_stats()
         if stats:
-            min_year = int(stats['stats_fields']['account_start']['min'])
-            max_year = int(stats['stats_fields']['account_end']['max'])
+            min_year = int(stats['stats_fields']['account_years']['min'])
+            max_year = int(stats['stats_fields']['account_years']['max'])
             return (min_year, max_year)
 
     #: name query alias field syntax (type defaults to edismax in solr config)

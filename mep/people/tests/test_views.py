@@ -674,9 +674,11 @@ class TestMembersListView(TestCase):
             msg_prefix='relevance score displayed for logged in users')
 
         # TODO: not sure how to test pagination/multiple pages
-
     def test_get_page_labels(self):
         view = MembersList()
+        # patch out get_form
+        view.get_year_range = Mock()
+        view.get_year_range.return_value = (1900, 1930)
         view.request = self.factory.get(self.members_url)
         # trigger form valid check to ensure cleaned data is available
         view.get_form().is_valid()
@@ -838,6 +840,8 @@ class TestMembersListView(TestCase):
     def test_invalid_form(self):
         # make an invalid range request
         view = MembersList()
+        view.get_year_range = Mock()
+        view.get_year_range.return_value = (1900, 1930)
         view.request = self.factory.get(self.members_url, {
             'membership_dates_0': '1930',
             'membership_dates_1': '1900', # comes before start
