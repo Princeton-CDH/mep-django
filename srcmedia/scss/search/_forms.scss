@@ -102,8 +102,12 @@
             span[role=tooltip] {
                 position: absolute;
                 height: 100%;
-                right: .5rem;
+                right: .2rem;
                 top: 0;
+
+                @media (min-width: $breakpoint-s) {
+                    right: .5rem;
+                }
             }
         }
 

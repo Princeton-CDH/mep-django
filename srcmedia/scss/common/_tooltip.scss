@@ -4,7 +4,7 @@ span[role=tooltip] {
     background: url('/static/img/icons/information-circle.svg');
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 75%;
+    background-size: 50%;
 
     @media (min-width: $breakpoint-s) {
         width: 0.75rem;
