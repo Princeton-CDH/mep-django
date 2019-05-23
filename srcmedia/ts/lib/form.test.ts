@@ -1,5 +1,5 @@
 import 'whatwg-fetch' // used for Response typing
-import { Subject } from 'rxjs'
+import { Subject, Observable } from 'rxjs'
 
 import { ajax } from '../lib/common'
 import { RxForm, RxSearchForm, RxFacetedSearchForm } from './form'
@@ -58,6 +58,7 @@ describe('RxSearchForm', () => {
         document.body.innerHTML = `
         <form id="search">
             <input type="text" name="query" value="mysearch">
+            <input type="number" name="age">
         </form>`
     })
     
@@ -78,6 +79,12 @@ describe('RxSearchForm', () => {
         const $element = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($element)
         expect(rsf.pageLabels).toBeInstanceOf(Subject)
+    })
+
+    it('stores validity as an observable sequence', () => {
+        const $element = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($element)
+        expect(rsf.valid).toBeInstanceOf(Observable)
     })
     
     it('makes an async GET request to its endpoint on submission', () => {
@@ -173,6 +180,12 @@ describe('RxSearchForm', () => {
         })
     })
 
+    it('updates its validity state when new results are received', () => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($form)
+        rsf.valid.subscribe(valid => expect(valid).toBe(true))
+        rsf.results.next('results!')
+    })
 })
 
 describe('RxFacetedSearchForm', () => {
