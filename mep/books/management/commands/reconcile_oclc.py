@@ -211,7 +211,7 @@ class Command(BaseCommand):
         # (nearly all are english, handful that are not will be handled manually)
         search_opts['language_code__exact'] = 'eng'
         # exclude electronic books
-        search_opts['-material_type__exact'] = 'Internet Resource'
+        search_opts['material_type__notexact'] = 'Internet Resource'
 
         return self.sru_search.search(**search_opts)
 
