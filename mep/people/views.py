@@ -7,25 +7,30 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.views.generic import ListView, DetailView
-from django.views.generic.edit import FormView, FormMixin
+from django.views.generic import DetailView, ListView
+from django.views.generic.edit import FormMixin, FormView
 
 from mep.accounts.models import Event
 from mep.common.utils import alpha_pagelabels
-from mep.common.views import LabeledPagesMixin, AjaxTemplateMixin, FacetJSONMixin
-from mep.people.forms import PersonMergeForm, MemberSearchForm
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, RdfViewMixin)
+from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
+from mep.common.utils import absolutize_url
+from mep.common import SCHEMA_ORG
 
-class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJSONMixin):
+
+class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
     ajax_template_name = 'people/snippets/member_results.html'
     paginate_by = 100
     context_object_name = 'members'
+    rdf_type = SCHEMA_ORG.SearchResultPage
 
     form_class = MemberSearchForm
     # cached form instance for current request
@@ -154,16 +159,40 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         # alpha labels is a dict; use items to return list of tuples
         return alpha_labels.items()
 
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
+        return absolutize_url(reverse('people:members-list'))
 
-class MemberDetail(DetailView):
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            ('Members', self.get_absolute_url()),
+        ]
+
+class MemberDetail(DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
     context_object_name = 'member'
+    rdf_type = SCHEMA_ORG.ProfilePage
 
     def get_queryset(self):
         # throw a 404 if a non-member is accessed via this route
         return super().get_queryset().exclude(account=None)
+
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
+        return self.object.get_absolute_url()
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        # FIXME duplicating get_absolute_url() from MembersList here
+        return [
+            ('Home', absolutize_url('/')),
+            ('Members', absolutize_url(reverse('people:members-list'))),
+            (self.object.short_name, self.get_absolute_url())
+        ]
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):

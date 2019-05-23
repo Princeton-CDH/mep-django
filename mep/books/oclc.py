@@ -182,12 +182,10 @@ class WorldCatEntity:
             return rdf_types[0]
 
     @property
-    def genre(self):
-        '''Item genre from schema.org/genre, if set'''
-        genre = self.rdf_resource.value(SCHEMA_ORG.genre)
-        # return string if set, but not if None
-        if genre:
-            return str(genre)
+    def genres(self):
+        '''List of item genres from schema.org/genre, if any'''
+        return [str(genre)
+                for genre in self.rdf_resource.objects(SCHEMA_ORG.genre)]
 
     @property
     def subjects(self):
@@ -213,7 +211,8 @@ class SRUSearch(WorldCatClientBase):
         'author': 'au',
         'year': 'yr',
         'keyword': 'kw',
-        'material_type': 'mt'
+        'material_type': 'mt',
+        'language_code': 'la'
     }
 
     @staticmethod
@@ -231,6 +230,12 @@ class SRUSearch(WorldCatClientBase):
         search_query.extend(args)
 
         for key, value in kwargs.items():
+            boolean_combination = ''
+            # use leading - as indicator to use  NOT instead of AND
+            if key.startswith('-'):
+                key = key[1:]
+                boolean_combination = 'NOT '
+
             # split field on __ to allow for specifying operator
             field_parts = key.split('__', 1)
             field = field_parts[0]
@@ -250,9 +255,10 @@ class SRUSearch(WorldCatClientBase):
             # if value is a string, wrap in quotes
             if isinstance(value, str):
                 value = '"%s"' % value
-            search_query.append('%s%s%s' % (field, operator, value))
+            search_query.append('%s%s%s%s' % \
+                    (boolean_combination, field, operator, value))
 
-        return ' AND '.join(search_query)
+        return ' AND '.join(search_query).replace(' AND NOT ', ' NOT ')
 
     def search(self, *args, **kwargs):
         '''Perform a CQL based search based on chained filters.'''

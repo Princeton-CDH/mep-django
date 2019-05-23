@@ -1,0 +1,114 @@
+.breadcrumbs {
+    margin: 1rem 0;
+    background: $white;
+
+    @media (min-width: $breakpoint-s) {
+        margin: 2rem 0;
+    }
+
+    // on detail pages on mobile, we need a slight side margin
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+        main.tabbed & {
+            margin: 1rem $gutter-xs;
+        }
+    }
+
+    ol {
+        overflow: hidden;
+    }
+
+    li {
+        float: left;
+        position: relative;
+
+        &.home {
+            // Home crumb logo
+            &::before {
+                content: url('/static/img/logo/SCo_logo_graphic.svg');
+                position: absolute;
+                width: 1rem;
+                height: 1.5rem;
+                z-index: 1;
+                left: .1rem;
+                pointer-events: none;
+            }
+
+            a {
+                border-left-width: 2px;
+                // don't show 'Home' text unless on larger screens
+                width: 0;
+                color: white;
+
+                @media (min-width: $breakpoint-s) {
+                    width: auto;
+                    color: inherit;
+                }
+            }
+        }
+    }
+    
+    a,
+    span {
+        height: 1.5rem;
+        padding-top: 1px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: white;
+        font-size: 0.7rem;
+        padding-left: 1rem;
+        border-color: $white-two;
+        border-style: solid;
+        border-bottom-width: 2px;
+        border-top-width: 2px;
+        box-sizing: border-box;
+
+        &::before,
+        &::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            position: absolute;
+            left: 100%;
+            border-style: solid;
+            border-color: transparent;
+        }
+
+        &::before {
+            top: -2px;
+            z-index: 1;
+            transition: all 0.2s;
+            border-width: 0.75rem 0 0.75rem 0.75rem;
+            border-left-color: $white-two;
+        }
+
+        &::after {
+            top: 0;
+            z-index: 2;
+            border-width: calc(0.75rem - 2px) 0 calc(0.75rem - 2px) calc(0.75rem - 2px);
+            border-left-color: white;
+        }
+    }
+
+    // penultimate item (before active one) needs to make its right-side border green
+    li:nth-last-of-type(2) a::before {
+        border-left-color: $green;
+    }
+    
+    // remove default hover styles for links
+    a:hover {
+        border-color: $white-two;
+    }
+
+    // last item is the active one, green border
+    span {
+        border-color: $green;
+        font-weight: bold;
+
+        &::before {
+            border-left-color: $green;
+        }
+    }
+}

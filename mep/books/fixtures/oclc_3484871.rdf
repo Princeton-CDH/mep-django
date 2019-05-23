@@ -8,7 +8,7 @@
     xmlns:genont="http://www.w3.org/2006/gen/ont#"
     xmlns:pto="http://www.productontology.org/id/"
     xmlns:void="http://rdfs.org/ns/void#"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema#" > 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#" >
   <rdf:Description rdf:about="http://experiment.worldcat.org/entity/work/data/3372107206#Place/lorton_va">
     <rdf:type rdf:resource="http://schema.org/Place"/>
     <schema:name>Lorton, Va.</schema:name>
@@ -73,6 +73,7 @@
     <rdf:type rdf:resource="http://schema.org/CreativeWork"/>
     <schema:publisher rdf:resource="http://experiment.worldcat.org/entity/work/data/3372107206#Agent/time_&amp;_tide"/>
     <schema:genre xml:lang="en">Periodicals</schema:genre>
+    <schema:genre xml:lang="en">Electronic Books</schema:genre>
     <wdrs:describedby rdf:resource="http://www.worldcat.org/title/-/oclc/3484871"/>
     <schema:productID>3484871</schema:productID>
     <library:placeOfPublication rdf:resource="http://experiment.worldcat.org/entity/work/data/3372107206#Place/lorton_va"/>

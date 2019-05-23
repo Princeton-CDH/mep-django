@@ -45,6 +45,10 @@ class Format(Named, Notable):
     uri = models.URLField("URI", help_text="Format or type URI", unique=True)
 
 
+class Genre(Named):
+    '''Genres of items from OCLC'''
+
+
 class Subject(models.Model):
     '''Linked data subjects for describing :class:`Item`'''
 
@@ -145,8 +149,6 @@ class Item(Notable, Indexable):
     edition_uri = models.URLField(
         blank=True, verbose_name='Edition URI',
         help_text="Linked data URI for this edition, if known")
-    genre = models.CharField(
-        max_length=255, blank=True, help_text='Genre from OCLC Work record')
     item_format = models.ForeignKey(
         Format, verbose_name='Format', null=True, blank=True,
         help_text='Format of the item, e.g. book or periodical')
@@ -163,7 +165,10 @@ class Item(Notable, Indexable):
     # direct access to all creator persons, using Creator as through model
     creators = models.ManyToManyField(Person, through='Creator')
 
-    #: optional subjects, from OCLC work record
+    #: optional genres, from OCLC record
+    genres = models.ManyToManyField(Genre, blank=True,
+        help_text='Genre(s) from OCLC record')
+    #: optional subjects, from OCLC record
     subjects = models.ManyToManyField(Subject, blank=True)
 
     def save(self, *args, **kwargs):
@@ -229,6 +234,10 @@ class Item(Notable, Indexable):
         '''semicolon separated list of subject names'''
         return '; '.join([subj.name for subj in self.subjects.all()])
 
+    def genre_list(self):
+        '''semicolon separated list of genres'''
+        return '; '.join([genre.name for genre in self.genres.all()])
+
     def format(self):
         '''format of this item if known (e.g. book or periodical)'''
         return self.item_format.name if self.item_format else ''
@@ -273,7 +282,11 @@ class Item(Notable, Indexable):
         # empty string instead of None/null
         self.uri = worldcat_entity.work_uri or ''
         self.edition_uri = worldcat_entity.item_uri
-        self.genre = worldcat_entity.genre or ''
+
+        # add associations for genres, creating if necessary
+        for genre in worldcat_entity.genres:
+            self.genres.add(Genre.objects.get_or_create(name=genre)[0])
+
         # types will be prepopulated to work with OCLC search results
         # (predominantly books and periodicals), but in future
         # we may need a method to create format from uri as for subjects
