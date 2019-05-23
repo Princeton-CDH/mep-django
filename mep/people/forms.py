@@ -115,11 +115,12 @@ class MemberSearchForm(FacetForm):
         '''Set the min, max, and placeholder values for
         :class:`mep.common.forms.RangeWidget` associated with membership_dates.'''
 
-        min_widget, max_widget = self.fields['membership_dates'].widget.widgets
+        start_widget, end_widget = \
+            self.fields['membership_dates'].widget.widgets
 
         # set placeholders for widgets individually
-        min_widget.attrs['placeholder'] = min_year
-        max_widget.attrs['placeholder'] = max_year
+        start_widget.attrs['placeholder'] = min_year
+        end_widget.attrs['placeholder'] = max_year
         # valid min and max for both via multiwidget
         self.fields['membership_dates'].widget.attrs.update({
             'min': min_year,

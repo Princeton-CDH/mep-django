@@ -74,8 +74,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         :rtype: tuple or None
         """
 
-        stats = PersonSolrQuerySet().stats('account_years')\
-                                    .get_stats()
+        stats = PersonSolrQuerySet().stats('account_years').get_stats()
         if stats:
             min_year = int(stats['stats_fields']['account_years']['min'])
             max_year = int(stats['stats_fields']['account_years']['max'])
