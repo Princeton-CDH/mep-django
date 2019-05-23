@@ -38,7 +38,7 @@ describe('RxRangeFilter', () => {
             $stop.dispatchEvent(new Event('input'))
         })
 
-        it('only updates if both values are new', done => {
+        it('only updates if values are new', done => {
             const $facet = document.querySelector('.range.facet') as HTMLFieldSetElement
             const $start = document.querySelector('#start') as HTMLInputElement
             const $stop = document.querySelector('#end') as HTMLInputElement
