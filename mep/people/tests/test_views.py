@@ -855,7 +855,7 @@ class TestMembersListView(TestCase):
 
     @patch('mep.people.views.PersonSolrQuerySet')
     def test_get_year_range(self, mockPSQ):
-        mockPSQ.return_value.stats.return_value.get_stats.return_value = {
+        mock_stats = {
             'stats_fields': {
                 'account_years': {
                     'min': 1928.0,
@@ -863,6 +863,8 @@ class TestMembersListView(TestCase):
                 },
             }
         }
+        mockPSQ.return_value.stats.return_value.get_stats.return_value \
+            = mock_stats
         min_max = MembersList().get_year_range()
         # returns integer years
         assert min_max == (1928, 1940)
@@ -871,6 +873,13 @@ class TestMembersListView(TestCase):
         # if get_stats returns None, also returns None
         mockPSQ.return_value.stats.return_value.get_stats.return_value = None
         assert MembersList().get_year_range() is None
+        # None set for min or max should result in None being returned also
+        mockPSQ.return_value.stats.return_value.get_stats.return_value\
+             = mock_stats
+        mock_stats['stats_fields']['account_years']['min'] = None
+        assert MembersList().get_year_range() is None
+
+
 
 
 class TestMemberDetailView(TestCase):

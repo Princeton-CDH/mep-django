@@ -76,8 +76,14 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
 
         stats = PersonSolrQuerySet().stats('account_years').get_stats()
         if stats:
-            min_year = int(stats['stats_fields']['account_years']['min'])
-            max_year = int(stats['stats_fields']['account_years']['max'])
+            try:
+                min_year = int(stats['stats_fields']['account_years']['min'])
+                max_year = int(stats['stats_fields']['account_years']['max'])
+            # min and max will be converted to None/NULL if no events
+            # are indexed
+            except TypeError:
+                return None
+
             return (min_year, max_year)
 
     #: name query alias field syntax (type defaults to edismax in solr config)
