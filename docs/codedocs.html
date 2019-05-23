@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.15.0 documentation</title>
+    <title>Code Documentation &#8212; Mapping Expatriate Paris - Django 0.16.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -188,7 +188,8 @@ One of <code class="docutils literal notranslate"><span class="pre">borrow</span
 <dl class="attribute">
 <dt id="mep.accounts.models.Account.event_dates">
 <code class="descname">event_dates</code><a class="headerlink" href="#mep.accounts.models.Account.event_dates" title="Permalink to this definition">¶</a></dt>
-<dd><p>sorted list of all unique event dates associated with this account</p>
+<dd><p>sorted list of all unique event dates associated with this account;
+ignores borrow and purchase dates with unknown year</p>
 </dd></dl>
 
 <dl class="method">
@@ -624,6 +625,44 @@ editor, translator, etc.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="mep.books.models.Format">
+<em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">Format</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format of items in the library (book, periodical, etc)</p>
+<dl class="exception">
+<dt id="mep.books.models.Format.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.books.models.Format.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.books.models.Format.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.Format.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Format.uri">
+<code class="descname">uri</code><a class="headerlink" href="#mep.books.models.Format.uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>linked data URI for the format</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.books.models.Genre">
+<em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">Genre</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Genre"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Genre" title="Permalink to this definition">¶</a></dt>
+<dd><p>Genres of items from OCLC</p>
+<dl class="exception">
+<dt id="mep.books.models.Genre.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.books.models.Genre.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.books.models.Genre.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.Genre.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="mep.books.models.Item">
 <em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">Item</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Primary model for <code class="xref py py-mod docutils literal notranslate"><span class="pre">books</span></code> module, also used for journals,
@@ -647,7 +686,7 @@ and other media types.</p>
 <dl class="method">
 <dt id="mep.books.models.Item.author_list">
 <code class="descname">author_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.author_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.author_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>comma separated list of author names</p>
+<dd><p>semicolon separated list of author names</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -681,6 +720,30 @@ and other media types.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.books.models.Item.format">
+<code class="descname">format</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.format" title="Permalink to this definition">¶</a></dt>
+<dd><p>format of this item if known (e.g. book or periodical)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.Item.genre_list">
+<code class="descname">genre_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.genre_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.genre_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>semicolon separated list of genres</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.genres">
+<code class="descname">genres</code><a class="headerlink" href="#mep.books.models.Item.genres" title="Permalink to this definition">¶</a></dt>
+<dd><p>optional genres, from OCLC record</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.Item.has_uri">
+<code class="descname">has_uri</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.has_uri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.has_uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is the URI is set for this item?</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.books.models.Item.index_data">
 <code class="descname">index_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.index_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.index_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>data for indexing in Solr</p>
@@ -693,6 +756,13 @@ and other media types.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.books.models.Item.populate_from_worldcat">
+<code class="descname">populate_from_worldcat</code><span class="sig-paren">(</span><em>worldcat_entity</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.populate_from_worldcat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.populate_from_worldcat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set work URI, edition URI, genre, item type, and subjects
+based on a WorldCat record.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.books.models.Item.save">
 <code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves the current instance. Override this in a subclass if you want to
@@ -700,6 +770,18 @@ control the saving process.</p>
 <p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
 that the “save” must be an SQL insert or update (or equivalent for
 non-SQL backends), respectively. Normally, they should not be set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.Item.subject_list">
+<code class="descname">subject_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Item.subject_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Item.subject_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>semicolon separated list of subject names</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Item.subjects">
+<code class="descname">subjects</code><a class="headerlink" href="#mep.books.models.Item.subjects" title="Permalink to this definition">¶</a></dt>
+<dd><p>optional subjects, from OCLC record</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -745,6 +827,48 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 <dt id="mep.books.models.PublisherPlace.MultipleObjectsReturned">
 <em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.PublisherPlace.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.books.models.Subject">
+<em class="property">class </em><code class="descclassname">mep.books.models.</code><code class="descname">Subject</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Subject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Subject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linked data subjects for describing <a class="reference internal" href="#mep.books.models.Item" title="mep.books.models.Item"><code class="xref py py-class docutils literal notranslate"><span class="pre">Item</span></code></a></p>
+<dl class="exception">
+<dt id="mep.books.models.Subject.DoesNotExist">
+<em class="property">exception </em><code class="descname">DoesNotExist</code><a class="headerlink" href="#mep.books.models.Subject.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mep.books.models.Subject.MultipleObjectsReturned">
+<em class="property">exception </em><code class="descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.Subject.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mep.books.models.Subject.create_from_uri">
+<em class="property">classmethod </em><code class="descname">create_from_uri</code><span class="sig-paren">(</span><em>uri</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Subject.create_from_uri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Subject.create_from_uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a new <a class="reference internal" href="#mep.books.models.Subject" title="mep.books.models.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a> from a URI. Loads the URI
+as an <code class="xref py py-class docutils literal notranslate"><span class="pre">rdflib.Graph</span></code> in order to pull the preferred label
+and RDF type for the URI.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Subject.name">
+<code class="descname">name</code><a class="headerlink" href="#mep.books.models.Subject.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>name/label for the subject (required but not required unique)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Subject.rdf_type">
+<code class="descname">rdf_type</code><a class="headerlink" href="#mep.books.models.Subject.rdf_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>rdf type for the subject</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.books.models.Subject.uri">
+<code class="descname">uri</code><a class="headerlink" href="#mep.books.models.Subject.uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>linked data URI for the subject</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -994,6 +1118,13 @@ and there’s a viaf id for the record</p>
 <dt id="mep.people.models.Person.sex">
 <code class="descname">sex</code><a class="headerlink" href="#mep.people.models.Person.sex" title="Permalink to this definition">¶</a></dt>
 <dd><p>sex</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.short_name">
+<code class="descname">short_name</code><a class="headerlink" href="#mep.people.models.Person.short_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shortened form of name used for locations where space is tight,
+e.g. breadcrumb navigation</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1308,6 +1439,18 @@ Use Q objects to search all relevant fields in autocomplete.</p>
 <em class="property">class </em><code class="descclassname">mep.people.views.</code><code class="descname">MemberDetail</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberDetail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberDetail" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detail page for a single library member.</p>
 <dl class="method">
+<dt id="mep.people.views.MemberDetail.get_absolute_url">
+<code class="descname">get_absolute_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberDetail.get_absolute_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberDetail.get_absolute_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full URI of this page.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.MemberDetail.get_breadcrumbs">
+<code class="descname">get_breadcrumbs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberDetail.get_breadcrumbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberDetail.get_breadcrumbs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of breadcrumbs and links to display for this page.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.people.views.MemberDetail.get_queryset">
 <code class="descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberDetail.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberDetail.get_queryset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <cite>QuerySet</cite> that will be used to look up the object.</p>
@@ -1331,6 +1474,18 @@ Use Q objects to search all relevant fields in autocomplete.</p>
 <dt id="mep.people.views.MembersList.form_class">
 <code class="descname">form_class</code><a class="headerlink" href="#mep.people.views.MembersList.form_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.forms.MemberSearchForm</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.MembersList.get_absolute_url">
+<code class="descname">get_absolute_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MembersList.get_absolute_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MembersList.get_absolute_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full URI of this page.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.MembersList.get_breadcrumbs">
+<code class="descname">get_breadcrumbs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MembersList.get_breadcrumbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MembersList.get_breadcrumbs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of breadcrumbs and links to display for this page.</p>
 </dd></dl>
 
 <dl class="method">
