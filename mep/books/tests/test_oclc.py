@@ -118,9 +118,12 @@ class TestSRUSearch(SimpleTestCase):
             'srw.yr=1950'
 
         # NOT option instead of AND
-        assert SRUSearch._lookup_to_search(
-            title="Ulysses", material_type__exact='-Internet Resource') == \
-            'srw.ti="Ulysses" NOT srw.mt exact "Internet Resource"'
+        query_string = SRUSearch._lookup_to_search(
+            title="Ulysses", material_type__exact='-Internet Resource')
+        # can't test directly because order is not guaranteed in py3.5
+        assert 'srw.ti="Ulysses"' in query_string
+        assert 'NOT srw.mt exact "Internet Resource"' in query_string
+        assert 'AND NOT' not in query_string
 
     @patch('mep.books.oclc.WorldCatClientBase.search')
     def test_search(self, mock_base_search):
