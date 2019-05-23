@@ -118,9 +118,8 @@ class TestSRUSearch(SimpleTestCase):
             'srw.yr=1950'
 
         # NOT option instead of AND
-        # using OrderedDict to guarantee expected order in py3.5
-        assert SRUSearch._lookup_to_search(**OrderedDict([('title', "Ulysses"),
-            ('-material_type__exact', 'Internet Resource')])) == \
+        assert SRUSearch._lookup_to_search(
+            title="Ulysses", material_type__exact='-Internet Resource') == \
             'srw.ti="Ulysses" NOT srw.mt exact "Internet Resource"'
 
     @patch('mep.books.oclc.WorldCatClientBase.search')

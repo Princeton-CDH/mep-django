@@ -231,9 +231,9 @@ class SRUSearch(WorldCatClientBase):
 
         for key, value in kwargs.items():
             boolean_combination = ''
-            # use leading - as indicator to use  NOT instead of AND
-            if key.startswith('-'):
-                key = key[1:]
+            # use leading "-" on value" as indicator to use NOT instead of AND
+            if isinstance(value, str) and value.startswith('-'):
+                value = value[1:]
                 boolean_combination = 'NOT '
 
             # split field on __ to allow for specifying operator
@@ -246,7 +246,14 @@ class SRUSearch(WorldCatClientBase):
 
             # determine operator to use
             if len(field_parts) > 1:  # operator specified via __
-                # spaces needed for everything besides = (?)
+
+                # use leading "not" on operator as indicator to
+                # use NOT instead of AND
+                if field_parts[1].startswith('not'):
+                    boolean_combination = 'NOT '
+                    field_parts[1] = field_parts[3:]
+
+                # spaces needed for everything besides =
                 operator = ' %s ' % field_parts[1]
             else:
                 # assume equal if not specified
@@ -261,7 +268,30 @@ class SRUSearch(WorldCatClientBase):
         return ' AND '.join(search_query).replace(' AND NOT ', ' NOT ')
 
     def search(self, *args, **kwargs):
-        '''Perform a CQL based search based on chained filters.'''
+        '''Perform a CQL search generated from keyword arguments in a style
+        similar to django querysets, e.g.::
+
+            search(title__exact="Huckleberry Finn", year=1884,
+                   material_type__notexact="Internet Resource")
+
+        Supports the following fields:
+
+            * title
+            * author
+            * year
+            * keyword
+            * material_type
+            * language_code
+
+        And the following operators:
+
+            * exact, notexact
+
+        'keyword': 'kw',
+        'material_type': 'mt',
+        'language_code': 'la'
+
+        '''
         search_query = SRUSearch._lookup_to_search(*args, **kwargs)
         response = super().search(query=search_query)
         if response:

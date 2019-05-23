@@ -229,7 +229,7 @@ class TestReconcileOCLC(TestCase):
         # all searches will include these filters
         default_filters = {
             'language_code__exact': 'eng',
-            '-material_type__exact': 'Internet Resource'
+            'material_type__notexact': 'Internet Resource'
         }
 
         # search item with title, author, year
