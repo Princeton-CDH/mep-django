@@ -22,8 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
     const $genderFacet = document.querySelector('#id_sex') as HTMLFieldSetElement
-    // FIXME should use an id selector
-    const $memDateFacet = document.querySelector('.range.facet') as HTMLFieldSetElement
+    const $memDateFacet = document.querySelector('#id_membership_dates') as HTMLFieldSetElement
     const $errors = document.querySelector('div[role=alert].errors')
 
     /* COMPONENTS */
