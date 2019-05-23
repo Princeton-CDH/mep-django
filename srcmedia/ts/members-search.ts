@@ -1,13 +1,14 @@
 import { merge } from 'rxjs'
-import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, skip, flatMap } from 'rxjs/operators'
+import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, flatMap } from 'rxjs/operators'
 
-import { arraysAreEqual, animateElementContent } from './lib/common'
-import { RxTextInput, RxCheckboxInput } from './lib/input'
+import { arraysAreEqual } from './lib/common'
+import { RxTextInput } from './lib/input'
 import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
 import { RxSelect } from './lib/select'
 import PageControls from './components/PageControls'
-import { RxChoiceFacet, RxBooleanFacet, RxRangeFacet } from './lib/facet'
+import { RxChoiceFacet, RxBooleanFacet } from './lib/facet'
+import { RxRangeFilter } from './lib/filter'
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -35,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortSelect = new RxSelect($sortSelect)
     const pageControls = new PageControls($pageControls)
     const genderFacet = new RxChoiceFacet($genderFacet)
-    const memDateFacet = new RxRangeFacet($memDateFacet)
+    const memDateFacet = new RxRangeFilter($memDateFacet)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
