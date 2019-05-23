@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.15.0 documentation</title>
+    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.16.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -42,25 +42,30 @@
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">format_html</span>
 <span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="k">import</span> <span class="n">mark_safe</span>
-<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">DetailView</span>
-<span class="kn">from</span> <span class="nn">django.views.generic.edit</span> <span class="k">import</span> <span class="n">FormView</span><span class="p">,</span> <span class="n">FormMixin</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">ListView</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.edit</span> <span class="k">import</span> <span class="n">FormMixin</span><span class="p">,</span> <span class="n">FormView</span>
 
 <span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Event</span>
 <span class="kn">from</span> <span class="nn">mep.common.utils</span> <span class="k">import</span> <span class="n">alpha_pagelabels</span>
-<span class="kn">from</span> <span class="nn">mep.common.views</span> <span class="k">import</span> <span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span>
-<span class="kn">from</span> <span class="nn">mep.people.forms</span> <span class="k">import</span> <span class="n">PersonMergeForm</span><span class="p">,</span> <span class="n">MemberSearchForm</span>
+<span class="kn">from</span> <span class="nn">mep.common.views</span> <span class="k">import</span> <span class="p">(</span><span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span>
+                              <span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mep.people.forms</span> <span class="k">import</span> <span class="n">MemberSearchForm</span><span class="p">,</span> <span class="n">PersonMergeForm</span>
 <span class="kn">from</span> <span class="nn">mep.people.geonames</span> <span class="k">import</span> <span class="n">GeoNamesAPI</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Country</span><span class="p">,</span> <span class="n">Location</span><span class="p">,</span> <span class="n">Person</span>
 <span class="kn">from</span> <span class="nn">mep.people.queryset</span> <span class="k">import</span> <span class="n">PersonSolrQuerySet</span>
 
+<span class="kn">from</span> <span class="nn">mep.common.utils</span> <span class="k">import</span> <span class="n">absolutize_url</span>
+<span class="kn">from</span> <span class="nn">mep.common</span> <span class="k">import</span> <span class="n">SCHEMA_ORG</span>
 
-<div class="viewcode-block" id="MembersList"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList">[docs]</a><span class="k">class</span> <span class="nc">MembersList</span><span class="p">(</span><span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">FormMixin</span><span class="p">,</span> <span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MembersList"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList">[docs]</a><span class="k">class</span> <span class="nc">MembersList</span><span class="p">(</span><span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">FormMixin</span><span class="p">,</span> <span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;List page for searching and browsing library members.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_list.html&#39;</span>
     <span class="n">ajax_template_name</span> <span class="o">=</span> <span class="s1">&#39;people/snippets/member_results.html&#39;</span>
     <span class="n">paginate_by</span> <span class="o">=</span> <span class="mi">100</span>
     <span class="n">context_object_name</span> <span class="o">=</span> <span class="s1">&#39;members&#39;</span>
+    <span class="n">rdf_type</span> <span class="o">=</span> <span class="n">SCHEMA_ORG</span><span class="o">.</span><span class="n">SearchResultPage</span>
 
     <span class="n">form_class</span> <span class="o">=</span> <span class="n">MemberSearchForm</span>
     <span class="c1"># cached form instance for current request</span>
@@ -148,18 +153,42 @@
         <span class="n">alpha_labels</span> <span class="o">=</span> <span class="n">alpha_pagelabels</span><span class="p">(</span><span class="n">paginator</span><span class="p">,</span> <span class="n">pagination_qs</span><span class="p">,</span>
                                         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;sort_name&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
         <span class="c1"># alpha labels is a dict; use items to return list of tuples</span>
-        <span class="k">return</span> <span class="n">alpha_labels</span><span class="o">.</span><span class="n">items</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="n">alpha_labels</span><span class="o">.</span><span class="n">items</span><span class="p">()</span></div>
 
+<div class="viewcode-block" id="MembersList.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the full URI of this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:members-list&#39;</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="MemberDetail"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail">[docs]</a><span class="k">class</span> <span class="nc">MemberDetail</span><span class="p">(</span><span class="n">DetailView</span><span class="p">):</span>
+<div class="viewcode-block" id="MembersList.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;Members&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+        <span class="p">]</span></div></div>
+
+<div class="viewcode-block" id="MemberDetail"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail">[docs]</a><span class="k">class</span> <span class="nc">MemberDetail</span><span class="p">(</span><span class="n">DetailView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Detail page for a single library member.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_detail.html&#39;</span>
     <span class="n">context_object_name</span> <span class="o">=</span> <span class="s1">&#39;member&#39;</span>
+    <span class="n">rdf_type</span> <span class="o">=</span> <span class="n">SCHEMA_ORG</span><span class="o">.</span><span class="n">ProfilePage</span>
 
 <div class="viewcode-block" id="MemberDetail.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># throw a 404 if a non-member is accessed via this route</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MemberDetail.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the full URI of this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MemberDetail.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
+        <span class="c1"># FIXME duplicating get_absolute_url() from MembersList here</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;Members&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:members-list&#39;</span><span class="p">))),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">short_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+        <span class="p">]</span></div></div>
 
 
 <div class="viewcode-block" id="GeoNamesLookup"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.GeoNamesLookup">[docs]</a><span class="k">class</span> <span class="nc">GeoNamesLookup</span><span class="p">(</span><span class="n">autocomplete</span><span class="o">.</span><span class="n">Select2ListView</span><span class="p">):</span>

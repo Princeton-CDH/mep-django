@@ -10,7 +10,7 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
 
-from mep.accounts.partial_date import PartialDateMixin
+from mep.accounts.partial_date import PartialDateMixin, DatePrecision
 from mep.books.models import Item
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Location
@@ -33,7 +33,12 @@ class Account(models.Model):
         on_delete=models.SET_NULL)
 
     def __repr__(self):
-        return '<Account %s>' % self.__dict__
+        names = ''
+        if self.pk and self.persons.count():
+            names = ' %s' % \
+                ';'.join([str(person) for person in self.persons.all()])
+
+        return '<Account pk:%s%s>' % (self.pk or '??', names)
 
     def __str__(self):
         if not self.persons.exists() and not self.locations.exists():
@@ -66,12 +71,19 @@ class Account(models.Model):
 
     @property
     def event_dates(self):
-        '''sorted list of all unique event dates associated with this account'''
+        '''sorted list of all unique event dates associated with this account;
+        ignores borrow and purchase dates with unknown year'''
         # get value list of all start and end dates
-        date_values = self.event_set.values_list('start_date', 'end_date')
+        year_unknown = DatePrecision.month | DatePrecision.day
+        date_values = self.event_set \
+            .exclude(borrow__start_date_precision=year_unknown) \
+            .exclude(borrow__end_date_precision=year_unknown) \
+            .exclude(purchase__start_date_precision=year_unknown) \
+            .exclude(purchase__end_date_precision=year_unknown) \
+            .values_list('start_date', 'end_date')
         # flatten list of tuples into a list, filter out None, and make unique
         uniq_dates = set(filter(None, chain.from_iterable(date_values)))
-        # return as a sorted lsit
+        # return as a sorted list
         return sorted(list(uniq_dates))
 
     def earliest_date(self):
@@ -190,20 +202,24 @@ class Address(Notable, PartialDateMixin):
         verbose_name_plural = 'Addresses'
 
     def __repr__(self):
-        return '<Address %s>' % self.__dict__
+        # use pk to make it easy to find again; string representation
+        # for recognizability
+        return '<Address pk:%s %s>' % (self.pk or '??', str(self))
 
     def __str__(self):
-        dates = care_of = ''
+        details = self.account or self.person or ''
         if self.start_date or self.end_date:
-            dates = ' (%s)' % '-'.join([date.strftime('%Y') if date else ''
-                for date in [self.start_date, self.end_date]])
+            details = '%s (%s)' % (details, '-'.join([
+                date.strftime('%Y') if date else ''
+                for date in [self.start_date, self.end_date]]))
         if self.care_of_person:
-            care_of = ' c/o %s' % self.care_of_person
+            details = '%s c/o %s' % (details, self.care_of_person)
 
-        # NOTE: this is potentially redundant if account has only a
-        # location and not a name
-        return '%s - %s%s%s' % (self.location, self.account or self.person,
-            dates, care_of)
+        # include details if there are any
+        if details:
+            return '%s - %s' % (self.location, details)
+        # otherwise just location
+        return str(self.location)
 
     def clean(self):
         '''Validate to require one and only one of :class:`Account` or
@@ -266,7 +282,9 @@ class Event(Notable):
 
     def __repr__(self):
         '''Generic representation string for Event and subclasses'''
-        return '<%s %s>' % (self.__class__.__name__, self.__dict__)
+        return '<%s pk:%d account:%s %s>' % \
+            (self.__class__.__name__, self.pk, self.account.pk,
+             self.date_range)
 
     def __str__(self):
         '''Generic string method for Event and subclasses'''

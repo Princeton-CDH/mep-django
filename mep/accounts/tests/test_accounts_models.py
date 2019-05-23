@@ -19,10 +19,20 @@ class TestAccount(TestCase):
 
     def test_repr(self):
         account = Account()
-        # Using self.__dict__ so relying on method being correct
-        # Testing for form of "<Account {"k":v, ...}>""
-        overall = re.compile(r"<Account \{.+\}>")
-        assert re.search(overall, repr(account))
+        # unsaved
+        assert repr(account) == '<Account pk:??>'
+        # saved but no names
+        account.save()
+        assert repr(account) == '<Account pk:%s>' % account.pk
+        # one name
+        pers1 = Person.objects.create(name='Mlle Foo')
+        account.persons.add(pers1)
+        assert repr(account) == '<Account pk:%s %s>' % (account.pk, str(pers1))
+        # multiple names
+        pers2 = Person.objects.create(name='Bazbar')
+        account.persons.add(pers2)
+        assert repr(account) == '<Account pk:%s %s;%s>' % \
+            (account.pk, str(pers1), str(pers2))
 
     def test_str(self):
         # create and save an account
@@ -134,15 +144,42 @@ class TestAccount(TestCase):
                                     end_date=date3)
         assert account.event_dates == [date1, date2, date3]
 
+        # ignore partial dates with year unknown for borrow, purchase
+
+        borrow = Borrow(account=account)
+        # set partial start date with unknown year
+        borrow.partial_start_date = '--05-03'
+        borrow.save()
+        # 1900 for date with unknown year should not be included
+        assert account.event_dates == [date1, date2, date3]
+        # partial end date with unknown years
+        borrow.partial_start_date = None
+        borrow.end_start_date = '--05-03'
+        borrow.save()
+        assert account.event_dates == [date1, date2, date3]
+
+        purchase = Purchase(account=account)
+        purchase.partial_start_date = '--06-15'
+        purchase.save()
+        # 1900 for date with unknown year should not be included
+        assert account.event_dates == [date1, date2, date3]
+        # partial end date with unknown years
+        purchase.partial_start_date = None
+        purchase.end_start_date = '--09-21'
+        purchase.save()
+        assert account.event_dates == [date1, date2, date3]
+
     def test_earliest_date(self):
         account = Account.objects.create()
         # no date, no error
         assert not account.earliest_date()
 
-        event1 = Subscription.objects.create(account=account,
+        event1 = Subscription.objects.create(
+            account=account,
             start_date=datetime.date(1943, 1, 1),
             end_date=datetime.date(1944, 1, 1))
-        event2 = Reimbursement.objects.create(account=account,
+        event2 = Reimbursement.objects.create(
+            account=account,
             start_date=datetime.date(1944, 5, 1))
 
         assert account.earliest_date() == event1.start_date
@@ -242,10 +279,11 @@ class TestAddress(TestCase):
         )
 
     def test_repr(self):
-        # Using self.__dict__ so relying on method being correct
-        # Testing for form of "<Account {"k":v, ...}>"
-        overall = re.compile(r"<Address \{.+\}>")
-        assert re.search(overall, repr(self.address))
+        new_addr = Address(location=self.location)
+        assert repr(new_addr) == '<Address pk:?? %s>' % new_addr
+
+        assert repr(self.address) == '<Address pk:%s %s>' % \
+            (self.address.pk, self.address)
 
     def test_str(self):
         # account only
@@ -316,10 +354,13 @@ class TestEvent(TestCase):
         self.event = Event.objects.create(account=self.account)
 
     def test_repr(self):
-        # Using self.__dict__ so relying on method being correct
-        # Testing for form of "<Account {"k":v, ...}>"
-        overall = re.compile(r"<Event \{.+\}>")
-        assert re.search(overall, repr(self.event))
+        assert repr(self.event) == '<Event pk:%s account:%s %s>' % \
+            (self.event.pk, self.account.pk, self.event.date_range)
+
+        # test one subclass
+        borrow = Borrow.objects.create(account=self.account, item=self.item)
+        assert repr(borrow) == '<Borrow pk:%s account:%s %s>' % \
+            (borrow.pk, self.account.pk, borrow.date_range)
 
     def test_str(self):
         assert str(self.event) == \
@@ -433,12 +474,6 @@ class TestSubscription(TestCase):
             volumes=2,
             price_paid=3.20
         )
-
-    def test_repr(self):
-        # Using self.__dict__ so relying on method being correct
-        # Testing for form of "<Account {"k":v, ...}>"
-        overall = re.compile(r"<Subscription \{.+\}>")
-        assert re.search(overall, repr(self.subscription))
 
     def test_str(self):
         assert str(self.subscription) == \
@@ -638,12 +673,6 @@ class TestPurchase(TestCase):
         self.purchase.calculate_date('start_date', '1920-02-03')
         self.purchase.save()
 
-    def test_repr(self):
-        # Using self.__dict__ so relying on method being correct
-        # Testing for form of "<Account {"k":v, ...}>"
-        overall = re.compile(r"<Purchase \{.+\}>")
-        assert re.search(overall, repr(self.purchase))
-
     def test_str(self):
         assert str(self.purchase) == ('Purchase for account #%s 1920-02-03' %
                                       self.purchase.account.pk)
@@ -699,15 +728,9 @@ class TestReimbursement(TestCase):
             currency='USD',
         )
 
-    def test_repr(self):
-        # Using self.__dict__ so relying on method being correct
-        # Testing for form of "<Account {"k":v, ...}>"
-        overall = re.compile(r"<Reimbursement \{.+\}>")
-        assert re.search(overall, repr(self.reimbursement))
-
     def test_str(self):
-        assert str(self.reimbursement) == ('Reimbursement for account #%s ??/??' %
-                                            self.reimbursement.account.pk)
+        assert str(self.reimbursement) == 'Reimbursement for account #%s ??/??' % \
+            self.reimbursement.account.pk
 
     def test_date(self):
         self.reimbursement.start_date = datetime.date(1920, 1, 1)
@@ -753,12 +776,6 @@ class TestBorrow(TestCase):
             account=self.account, item=self.item
         )
 
-    def test_repr(self):
-        # Using self.__dict__ so relying on method being correct
-        # Testing for form of "<Account {"k":v, ...}>"
-        overall = re.compile(r"<Borrow \{.+\}>")
-        assert re.search(overall, repr(self.borrow))
-
     def test_str(self):
         assert str(self.borrow) == ('Borrow for account #%s ??/??' %
                                     self.borrow.account.pk)
@@ -769,7 +786,6 @@ class TestBorrow(TestCase):
 
         # handle partial dates
         self.borrow.partial_start_date = '2018-05'
-        print(self.borrow)
         assert str(self.borrow).endswith('%s/??' % self.borrow.partial_start_date)
 
     def test_save(self):

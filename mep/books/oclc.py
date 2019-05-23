@@ -5,7 +5,6 @@ searches.
 from io import BytesIO
 import logging
 import time
-from typing import List, Dict
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -81,7 +80,7 @@ class SRWResponse(xmlmap.XmlObject):
     records = xmlmap.NodeField('srw:records', xmlmap.XmlObject)
 
     @property
-    def marc_records(self) -> List[pymarc.record.Record]:
+    def marc_records(self):
         '''List of MARC records included in the response'''
         # serialize xml to a bytebytestream for loading by pymarc
         bytestream = BytesIO()
@@ -92,17 +91,117 @@ class SRWResponse(xmlmap.XmlObject):
         return list(filter(None, pymarc.parse_xml_to_array(bytestream)))
 
 
-def oclc_uri(marc_record: pymarc.record.Record) -> str:
-    """Generate the worldcat URI for an OCLC MARC record"""
-    return 'http://www.worldcat.org/oclc/%s' % marc_record['001'].value()
-
-
 #: schema.org RDF namespace
 SCHEMA_ORG = rdflib.Namespace('http://schema.org/')
 
 
+class RdfResource(rdflib.resource.Resource):
+    # Extend rdflib resource to fix string method. This is based
+    # on their code, but actually works in python 3
+
+    def __str__(self):
+        return str(self._identifier)
+
+
+class WorldCatEntity:
+    '''Entity for a single WorldCat record, with support for
+    loading linked data and accessing values.'''
+
+    rdf_resource = None
+
+    @staticmethod
+    def oclc_uri(marc_record: pymarc.record.Record) -> str:
+        """Generate the worldcat URI for an OCLC MARC record"""
+        return 'http://www.worldcat.org/oclc/%s' % marc_record['001'].value()
+
+    def __init__(self, marc_record: pymarc.record.Record, session: requests.Session):
+        self.marc_record = marc_record
+        self.session = session
+        self.item_uri = WorldCatEntity.oclc_uri(self.marc_record)
+        graph = self.get_oclc_rdf()
+        # if loading the graph fails, raise an exception because
+        # this object is unusable without it
+        if not graph:
+            raise ConnectionError('Failed to load RDF for %s' % self.item_uri)
+
+        # initialize an rdflib.resource
+        self.rdf_resource = RdfResource(graph, rdflib.URIRef(self.item_uri))
+
+    def __str__(self):
+        return self.item_uri
+
+    def __repr__(self):
+        return '<WorldCatEntity %s>' % self.item_uri
+
+    def get_oclc_rdf(self) -> rdflib.Graph:
+        '''Load the RDF for the OCLC URI for the MARC record for this
+        entity.'''
+
+        graph = rdflib.Graph()
+        # control field in 001 is OCLC identifier, used for URIs
+        response = self.session.get("%s.rdf" % self.item_uri)
+        if response.status_code == requests.codes.ok:
+            graph.parse(data=response.content.decode())
+            return graph
+
+        # log an error for any other status
+        logger.error('Error loading OCLC record as RDF %s => %d',
+                     self.item_uri, response.status_code)
+
+    @property
+    def work_uri(self):
+        '''OCLC Work URI for this item'''
+        value = self.rdf_resource.value(SCHEMA_ORG.exampleOfWork)
+        return str(value) if value else None
+
+    basic_item_types = set([str(SCHEMA_ORG.Book), str(SCHEMA_ORG.Periodical)])
+
+    @property
+    def item_type(self):
+        '''item type URI (e.g. book or periodical), from rdf:type.
+        Skips schema.org/CreativeWork if present in preference of
+        a more specific type'''
+
+        # handle some cases where we're getting an ebook or other version,
+        # which could be a media object or microform as well as a book;
+        # we only care about the book type
+
+        # get a list of all rdf types for this resource, omitting the generic
+        # schema.org creative work type
+        # (URIRef comparison is unreliable, using strings instead)
+        rdf_types = list(
+            str(rdf_type) for rdf_type in self.rdf_resource.objects(rdflib.RDF.type)
+            if str(rdf_type) != str(SCHEMA_ORG.CreativeWork))
+
+        # if there's a book or periodical in the list, use that
+        basic_type = set(rdf_types) & self.basic_item_types
+        if basic_type:
+            return basic_type.pop()
+        # otherwise, use the first non-creative work rdf type
+        if rdf_types:
+            return rdf_types[0]
+
+    @property
+    def genres(self):
+        '''List of item genres from schema.org/genre, if any'''
+        return [str(genre)
+                for genre in self.rdf_resource.objects(SCHEMA_ORG.genre)]
+
+    @property
+    def subjects(self):
+        '''URIs that this item is about, from schema.org/about; omits
+        experimental worldcat URIs, dewey.info URIs .'''
+        # dewey.info URL not resolving...
+        return [str(subject) for subject in self.rdf_resource.objects(SCHEMA_ORG.about)
+                if 'experiment.worldcat.org' not in str(subject) and
+                'dewey.info' not in str(subject)]
+
+
 class SRUSearch(WorldCatClientBase):
     '''Client for peforming an SRU (specific edition) based search'''
+
+    # See https://www.oclc.org/developer/develop/web-services/worldcat-search-api/bibliographic-resource.en.html
+    # for specifics on available search fields
 
     API_ENDPOINT = 'search/worldcat/sru'
 
@@ -111,11 +210,13 @@ class SRUSearch(WorldCatClientBase):
         'title': 'ti',
         'author': 'au',
         'year': 'yr',
-        'keyword': 'kw'
+        'keyword': 'kw',
+        'material_type': 'mt',
+        'language_code': 'la'
     }
 
     @staticmethod
-    def _lookup_to_search(*args: List[str], **kwargs: Dict) -> str:
+    def _lookup_to_search(*args, **kwargs):
         '''Take a list of search terms and dictionary of field lookups
         and return as as a CQL search string. List arguments are included
         in the query as-is. Dictionary lookup supports field names in
@@ -129,6 +230,12 @@ class SRUSearch(WorldCatClientBase):
         search_query.extend(args)
 
         for key, value in kwargs.items():
+            boolean_combination = ''
+            # use leading "-" on value" as indicator to use NOT instead of AND
+            if isinstance(value, str) and value.startswith('-'):
+                value = value[1:]
+                boolean_combination = 'NOT '
+
             # split field on __ to allow for specifying operator
             field_parts = key.split('__', 1)
             field = field_parts[0]
@@ -139,7 +246,14 @@ class SRUSearch(WorldCatClientBase):
 
             # determine operator to use
             if len(field_parts) > 1:  # operator specified via __
-                # spaces needed for everything besides = (?)
+
+                # use leading "not" on operator as indicator to
+                # use NOT instead of AND
+                if field_parts[1].startswith('not'):
+                    boolean_combination = 'NOT '
+                    field_parts[1] = field_parts[3:]
+
+                # spaces needed for everything besides =
                 operator = ' %s ' % field_parts[1]
             else:
                 # assume equal if not specified
@@ -148,12 +262,36 @@ class SRUSearch(WorldCatClientBase):
             # if value is a string, wrap in quotes
             if isinstance(value, str):
                 value = '"%s"' % value
-            search_query.append('%s%s%s' % (field, operator, value))
+            search_query.append('%s%s%s%s' % \
+                    (boolean_combination, field, operator, value))
 
-        return ' AND '.join(search_query)
+        return ' AND '.join(search_query).replace(' AND NOT ', ' NOT ')
 
     def search(self, *args, **kwargs):
-        '''Perform a CQL based search based on chained filters.'''
+        '''Perform a CQL search generated from keyword arguments in a style
+        similar to django querysets, e.g.::
+
+            search(title__exact="Huckleberry Finn", year=1884,
+                   material_type__notexact="Internet Resource")
+
+        Supports the following fields:
+
+            * title
+            * author
+            * year
+            * keyword
+            * material_type
+            * language_code
+
+        And the following operators:
+
+            * exact, notexact
+
+        'keyword': 'kw',
+        'material_type': 'mt',
+        'language_code': 'la'
+
+        '''
         search_query = SRUSearch._lookup_to_search(*args, **kwargs)
         response = super().search(query=search_query)
         if response:
@@ -168,25 +306,10 @@ class SRUSearch(WorldCatClientBase):
                              err, response.content[:100])
                 # ... not sure what details are useful here
 
-    def get_work_uri(self, marc_record: pymarc.record.Record) -> str:
-        """Given a MARC record from OCLC, find and return the work URI"""
+    def get_worldcat_rdf(self, marc_record):
+        '''Given a MARC record from OCLC, load the RDF for the corresponding
+        OCLC URI'''
 
-        # NOTE: doesn't technically be part of SRUSearch;
-        # primarily here to allow sharing the requests session
-
-        graph = rdflib.Graph()
-        # control field in 001 is OCLC identifier, used for URIs
-        item_uri = oclc_uri(marc_record)
-        # let rdflib handle content-type negotiation and parsing
-        # - URI + extension should return requested type
-        response = self.session.get("%s.rdf" % item_uri)
-        if response.status_code == requests.codes.ok:
-            graph.parse(data=response.content.decode())
-
-            # get the URI for schema:exampleOfWork and return as a string
-            return str(graph.value(subject=rdflib.URIRef(item_uri),
-                                   predicate=SCHEMA_ORG.exampleOfWork))
-
-        # log an error for any other status
-        logger.error('Error loading OCLC record as RDF %s => %d',
-                     item_uri, response.status_code)
+        # NOTE: doesn't technically need to be part of SRUSearch;
+        # initialize here to allow sharing the requests session
+        return WorldCatEntity(marc_record, self.session)

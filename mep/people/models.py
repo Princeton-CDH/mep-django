@@ -77,7 +77,7 @@ class Location(Notable):
         unique_together = (("name", "street_address", "city", "country"),)
 
     def __repr__(self):
-        return '<Location %s>' % self.__dict__
+        return '<Location pk:%s %s>' % (self.pk or '??', str(self))
 
     def __str__(self):
         str_parts = [self.name, self.street_address, self.city]
@@ -86,7 +86,6 @@ class Location(Notable):
 
 class Profession(Named, Notable):
     '''Profession for a :class:`Person`'''
-    pass
 
 
 class PersonQuerySet(models.QuerySet):
@@ -278,7 +277,7 @@ class Person(Notable, DateRange, Indexable):
     objects = PersonQuerySet.as_manager()
 
     def __repr__(self):
-        return '<Person %s>' % self.__dict__
+        return '<Person pk:%s %s>' % (self.pk or '??', self.sort_name)
 
     def __str__(self):
         '''String representation; use sort name if available with fall back
@@ -323,6 +322,13 @@ class Person(Notable, DateRange, Indexable):
         is set.'''
         if self.viaf_id:
             return ViafEntity(self.viaf_id)
+
+    @property
+    def short_name(self):
+        '''Shortened form of name used for locations where space is tight,
+        e.g. breadcrumb navigation'''
+        # return the initial portion, before parenthesis or a comma
+        return self.sort_name.split(',')[0].split('(')[0].strip()
 
     def set_birth_death_years(self):
         '''Set local birth and death dates based on information from VIAF'''
@@ -448,7 +454,7 @@ class InfoURL(Notable):
         verbose_name = 'Informational URL'
 
     def __repr__(self):
-        return "<InfoURL %s>" % self.__dict__
+        return "<InfoURL pk:%s %s>" % (self.pk or '??', self.url)
 
     def __str__(self):
         return self.url
@@ -456,7 +462,6 @@ class InfoURL(Notable):
 
 class RelationshipType(Named, Notable):
     '''Types of relationships between one :class:`Person` and another'''
-    pass
 
 
 class Relationship(Notable):

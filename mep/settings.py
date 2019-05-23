@@ -200,6 +200,10 @@ SITE_ID = 1
 # use grappelli custom dashboard for consistent admin menu ordering
 GRAPPELLI_INDEX_DASHBOARD = 'mep.dashboard.CustomIndexDashboard'
 
+# username for logging activity by local scripts
+SCRIPT_USERNAME = 'script'
+
+
 ##################
 # LOCAL SETTINGS #
 ##################

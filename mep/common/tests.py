@@ -1,38 +1,50 @@
-from collections import OrderedDict
 import re
+from collections import OrderedDict
 from unittest.mock import Mock
 
 import pytest
+import rdflib
 from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
-from django.http import JsonResponse, HttpRequest
+from django.http import HttpRequest, JsonResponse
+from django.template.loader import get_template
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
 from django.views.generic.list import ListView
 
+from mep.common import SCHEMA_ORG
 from mep.common.admin import LocalUserAdmin
-from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset
+from mep.common.forms import CheckboxFieldset, FacetChoiceField, FacetForm
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.templatetags.mep_tags import dict_item
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, VaryOnHeadersMixin)
+                              LabeledPagesMixin, RdfViewMixin,
+                              VaryOnHeadersMixin)
 
 
 class TestNamed(TestCase):
 
     def test_repr(self):
         named_obj = Named(name='foo')
-        overall = re.compile(r'<Named \{.+\}>')
-        assert re.search(overall, repr(named_obj))
+        assert repr(named_obj) == '<Named %s>' % named_obj.name
+        # subclass
+
+        class MyName(Named):
+            pass
+
+        mynamed = MyName(name='bar')
+        assert repr(mynamed) == '<MyName %s>' % mynamed.name
 
     def test_str(self):
         named_obj = Named(name='foo')
         assert str(named_obj) == 'foo'
+
+
 
 
 class TestNotable(TestCase):
@@ -527,3 +539,85 @@ class TestFacetJSONMixin(TestCase):
         assert isinstance(response, JsonResponse)
         assert response.content == b'{"facets": "foo"}'
 
+
+class TestRdfViewMixin(TestCase):
+
+    def test_get_absolute_url(self):
+        class MyRdfView(RdfViewMixin):
+            pass
+        view = MyRdfView()
+        # get_absolute_url() not implemented by default
+        with pytest.raises(NotImplementedError):
+            view.get_absolute_url()
+
+    def test_get_breadcrumbs(self):
+        class MyRdfView(RdfViewMixin):
+            breadcrumbs = [('Home', '/'), ('My Page', '/my-page')]
+            def get_absolute_url(self):
+                return ''
+        view = MyRdfView()
+        # should add provided breadcrumbs to context
+        context = view.get_context_data()
+        assert context['breadcrumbs'] == [('Home', '/'), ('My Page', '/my-page')]
+
+    def test_rdf_graph(self):
+        class MyRdfView(RdfViewMixin):
+            breadcrumbs = [('Home', '/'), ('My Page', '/my-page')]
+            def get_absolute_url(self):
+                return 'http://jimcasey.lifestyle/my-page'
+        view = MyRdfView()
+        graph = view.as_rdf()
+        page_node = rdflib.URIRef('http://jimcasey.lifestyle/my-page')
+        # should have root node as URIRef to the page with default type WebPage
+        assert (page_node,
+                rdflib.RDF.type,
+                SCHEMA_ORG.WebPage) in graph
+        # should have (blank) nodes with URIs for each of the breadcrumbs
+        # any=False will raise an exception unless we find exactly one match
+        home_crumb = graph.value(predicate=SCHEMA_ORG.item,
+                                 object=rdflib.Literal('/'),
+                                 any=False)
+        page_crumb = graph.value(predicate=SCHEMA_ORG.item,
+                                 object=rdflib.Literal('/my-page'),
+                                 any=False)
+        # crumbs should have the correct name and position values
+        assert graph.value(home_crumb, SCHEMA_ORG.name) == rdflib.Literal('Home')
+        assert graph.value(page_crumb, SCHEMA_ORG.name) == rdflib.Literal('My Page')
+        assert graph.value(home_crumb, SCHEMA_ORG.position) == rdflib.Literal(1)
+        assert graph.value(page_crumb, SCHEMA_ORG.position) == rdflib.Literal(2)
+        # page should have breadcrumb list
+        crumb_list = graph.value(page_node, SCHEMA_ORG.breadcrumb, any=False)
+        # crumbs should belong to the list as itemListElements
+        assert (crumb_list, SCHEMA_ORG.itemListElement, home_crumb) in graph
+        assert (crumb_list, SCHEMA_ORG.itemListElement, page_crumb) in graph
+
+
+class TestBreadcrumbsTemplate(TestCase):
+
+    def setUp(self):
+        # get the template
+        self.template = get_template('snippets/breadcrumbs.html')
+
+    def test_home(self):
+        # without a 'home' crumb
+        response = self.template.render(context={
+            'breadcrumbs': [('My Page', '/my-page')]
+        })
+        assert not '<li class="home">' in response
+        # with a 'home' crumb
+        response = self.template.render(context={
+            'breadcrumbs': [('Home', '/')]
+        })
+        assert '<li class="home">' in response
+
+    def test_last_crumb(self):
+        response = self.template.render(context={
+            'breadcrumbs': [
+                ('Home', '/'),
+                ('My Page', '/my-page')
+            ]
+        })
+        # normal crumbs should be <a>
+        assert "<a href=\"/\">Home</a>" in response
+        # final crumb should be <span>
+        assert "<span>My Page</span>" in response

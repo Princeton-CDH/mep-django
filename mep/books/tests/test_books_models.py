@@ -1,11 +1,14 @@
 import datetime
+import os
 import re
+from unittest.mock import Mock, patch
 
 from django.test import TestCase
+import requests
 
 from mep.accounts.models import Borrow, Account
-from mep.books.models import Item, Publisher, PublisherPlace, Creator, \
-    CreatorType
+from mep.books.models import Item, Creator, CreatorType, Subject, Format, Genre
+from mep.books.tests.test_oclc import FIXTURE_DIR
 from mep.people.models import Person
 
 
@@ -13,8 +16,11 @@ class TestItem(TestCase):
 
     def test_repr(self):
         item = Item(title='Le foo et le bar', year=1916)
-        overall = re.compile(r"<Item \{.+\}>")
-        assert re.search(overall, repr(item))
+        # unsaved
+        assert repr(item) == '<Item pk:?? %s>' % item
+        # saved
+        item.save()
+        assert repr(item) == '<Item pk:%s %s>' % (item.pk, item)
 
     def test_str(self):
 
@@ -81,6 +87,13 @@ class TestItem(TestCase):
         assert len(item.translators) == 1
         assert item.translators.first() == translator
 
+    def test_format(self):
+        item = Item.objects.create(title='Searching')
+        assert item.format() == ''
+
+        item.item_format = Format.objects.first()
+        assert item.format() == item.item_format.name
+
     def test_first_known_interaction(self):
         # create a test item with no events
         item = Item.objects.create(title='Searching')
@@ -103,30 +116,102 @@ class TestItem(TestCase):
         # should use previous borrow date, not the unknown (1900)
         assert item.first_known_interaction == borrow_date
 
+    @patch('mep.books.models.Subject.create_from_uri')
+    def test_populate_from_worldcat(self, mock_create_from_uri):
+        item = Item.objects.create(title='Time and Tide')
+        worldcat_entity = Mock(
+            work_uri='http://worldcat.org/entity/work/id/3372107206',
+            item_uri='http://www.worldcat.org/oclc/3484871',
+            genres=['Periodicals'],
+            item_type='http://schema.org/Periodical',
+            subjects=[]
+        )
+        item.populate_from_worldcat(worldcat_entity)
+        assert item.uri == worldcat_entity.work_uri
+        assert item.edition_uri == worldcat_entity.item_uri
+        assert item.genres.first().name == worldcat_entity.genres[0]
+        assert item.item_format == Format.objects.get(uri=worldcat_entity.item_type)
+        # no subjects on the eentity
+        assert not item.subjects.all()
 
-class TestPublisher(TestCase):
+        worldcat_entity.subjects = [
+            'http://viaf.org/viaf/97006051',
+            'http://id.worldcat.org/fast/1259831/'
+        ]
 
-    def test_repr(self):
-        publisher = Publisher(name='Foo, Bar, and Co.')
-        overall = re.compile(r"<Publisher \{.+\}>")
-        assert re.search(overall, repr(publisher))
+        # create test subjects for mock so we can create
+        # them on-demand and test them not existing prior
+        def make_test_subject(uri):
+            if 'viaf' in uri:
+                return Subject.objects.create(
+                    uri=uri, name='Ernest Hemingway',
+                    rdf_type='http://schema.org/Person')
 
-    def test_str(self):
-        publisher = Publisher(name='Foo, Bar, and Co.')
-        assert str(publisher) == 'Foo, Bar, and Co.'
+            return Subject.objects.create(
+                uri=uri, name='Lorton, Virginia',
+                rdf_type='http://schema.org/Place')
 
+        mock_create_from_uri.side_effect = make_test_subject
+        item.populate_from_worldcat(worldcat_entity)
+        assert item.subjects.count() == 2
+        assert mock_create_from_uri.call_count == 2
+        mock_create_from_uri.assert_any_call(worldcat_entity.subjects[0])
+        mock_create_from_uri.assert_any_call(worldcat_entity.subjects[1])
 
-class TestPublisherPlace(TestCase):
+        # if the subjects already exist, they should not be created
+        mock_create_from_uri.reset_mock()
+        item.populate_from_worldcat(worldcat_entity)
+        mock_create_from_uri.assert_not_called()
+        assert item.subjects.count() == 2
 
-    def test_repr(self):
-        pub_place = PublisherPlace(name='London', latitude=23, longitude=45)
-        overall = re.compile(r"<PublisherPlace \{.+\}>")
-        assert re.search(overall, repr(pub_place))
+        # test replaces previous subjects
+        del worldcat_entity.subjects[-1]
+        item.populate_from_worldcat(worldcat_entity)
+        assert item.subjects.count() == 1
 
-    def test_str(self):
-        pub_place = PublisherPlace(name='London', latitude=23, longitude=45)
-        assert str(pub_place) == 'London'
+        # simulate error creating subject - returns None
+        worldcat_entity.subjects = [
+            'http://example.com/about/me',
+        ]
+        mock_create_from_uri.side_effect = None
+        mock_create_from_uri.return_value = None
+        # shouldn't error
+        item.populate_from_worldcat(worldcat_entity)
+        mock_create_from_uri.assert_called_with(worldcat_entity.subjects[0])
+        # should set to subjects it could find/create (in this case, none)
+        assert not item.subjects.count()
 
+    def test_subject_list(self):
+        # no subjects
+        item = Item.objects.create(title='Topicless')
+        assert item.subject_list() == ''
+
+        subj1 = Subject.objects.create(
+            uri='http://viaf.org/viaf/97006051', name='Ernest Hemingway',
+            rdf_type='http://schema.org/Person')
+        subj2 = Subject.objects.create(
+            uri='http://id.worldcat.org/fast/1259831/',
+            name='Lorton, Virginia', rdf_type='http://schema.org/Place')
+        item.subjects.add(subj1)
+        item.subjects.add(subj2)
+        assert item.subject_list() == '%s; %s' % (subj1.name, subj2.name)
+
+    def test_genre_list(self):
+        # no genres
+        item = Item.objects.create(title='Genreless')
+        assert item.genre_list() == ''
+
+        genre1 = Genre.objects.create(name='Periodicals')
+        genre2 = Genre.objects.create(name='Drama')
+        item.genres.add(genre1)
+        item.genres.add(genre2)
+        assert item.genre_list() == '%s; %s' % (genre2.name, genre1.name)
+
+    def test_has_uri(self):
+        item = Item(title='Topicless')
+        assert not item.has_uri()
+        item.uri = 'http://www.worldcat.org/oclc/578050'
+        assert item.has_uri()
 
 
 class TestCreator(TestCase):
@@ -137,3 +222,84 @@ class TestCreator(TestCase):
         item = Item.objects.create(title='Ulysses')
         creator = Creator(creator_type=ctype, person=person, item=item)
         assert str(creator) == ' '.join([str(person), ctype.name, str(item)])
+
+
+class TestSubject(TestCase):
+
+    def get_test_subject(self):
+        return Subject(
+            name='Mark Twain', uri='https://viaf.org/viaf/50566653',
+            rdf_type='http://schema.org/Person')
+
+    def test_str(self):
+        subject = self.get_test_subject()
+        assert str(subject) == '%s (%s)' % (subject.name, subject.uri)
+
+    def test_repr(self):
+        subject = self.get_test_subject()
+        assert repr(subject) == '<Subject %s (%s)>' % (subject.uri, subject.name)
+
+    @patch('mep.books.models.requests')
+    def test_create_from_uri(self, mock_requests):
+        # patch in status codes
+        mock_requests.codes = requests.codes
+        mock_response = mock_requests.get.return_value
+        # simulate success and return local fixture rdf data
+        mock_response.status_code = requests.codes.ok
+        with open(os.path.join(FIXTURE_DIR, 'viaf_97006051.rdf')) as rdf_file:
+            mock_response.content.decode.return_value = rdf_file.read()
+            # needs to be not text/html
+            mock_response.headers = {'content-type': 'application/rdf+xml'}
+
+        viaf_uri = 'http://viaf.org/viaf/97006051'
+        new_subject = Subject.create_from_uri(viaf_uri)
+        # should create subject with fields populated
+        assert isinstance(new_subject, Subject)
+        assert new_subject.uri == viaf_uri
+        assert new_subject.rdf_type == 'http://schema.org/Person'
+        assert new_subject.name == 'Ernest Hemingway'
+        # should be saved
+        assert new_subject.pk
+        # viaf URI should be called with accept haeder for content-negotiation
+        mock_requests.get.assert_called_with(
+            viaf_uri, headers={'accept': 'application/rdf+xml'})
+
+        # simulate no label
+        mock_response.content.decode.return_value = '''<rdf:RDF
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" />'''
+        assert not Subject.create_from_uri(viaf_uri)
+
+        # simulate success but html
+        mock_response.headers = {'content-type': 'text/html; charset=UTF-8'}
+        # doesn't error but doesn't return anything
+        assert not Subject.create_from_uri(viaf_uri)
+
+        # test LoC url with json-ld response
+        with open(os.path.join(FIXTURE_DIR, 'loc_sh2008113651.jsonld')) as jsonld_file:
+            mock_response.content.decode.return_value = jsonld_file.read()
+            mock_response.headers = {'content-type': 'application/ld+json'}
+            loc_uri = 'http://id.loc.gov/authorities/subjects/sh2008113651'
+            new_subject = Subject.create_from_uri(loc_uri)
+            assert isinstance(new_subject, Subject)
+            assert new_subject.uri == loc_uri
+            # order is not guaranteed so we get *one* of these
+            # (but I don't think we care)
+            assert new_subject.rdf_type in [
+                'http://www.w3.org/2004/02/skos/core#Concept',
+                'http://www.loc.gov/mads/rdf/v1#ComplexSubject',
+                'http://www.loc.gov/mads/rdf/v1#Authority'
+            ]
+            assert new_subject.name == 'Women--Economic conditions'
+
+            # explicitly requests jsonld version for LoC url
+            mock_requests.get.assert_called_with('%s.jsonld' % loc_uri,
+                                                 headers={})
+
+        # simulate not found
+        mock_response.status_code = requests.codes.not_found
+        fast_uri = 'http://id.worldcat.org/fast/1259831/'
+        new_subject = Subject.create_from_uri(fast_uri)
+        assert not new_subject
+        # fast URI requires different http request
+        mock_requests.get.assert_called_with(
+            '%s.rdf.xml' % fast_uri.rstrip('/'), headers={})

@@ -14,6 +14,7 @@
 
 {% block content %}
 <section class="books search-form">
+    {% include 'snippets/breadcrumbs.html' %}
     <form id="books-form">
         <span class="total-results">{{ items.count|intcomma }} total result{{ items.count|pluralize }}</span>
     </form>
@@ -34,15 +35,11 @@
         <button type="submit" form="books-form">Go</button>
         {% include 'snippets/pagination.html' with form="books-form" %}
     </div>
-    {% if page_obj.has_other_pages %} {# if only one page of results, don't show next/previous links #}
     <div class="outer">
         {% include 'snippets/page-controls.html' %}
     </div>
-    {% endif %}
 </section>
-<ol class="books results-list" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
-    {% for item in items %}
-        {% include 'books/snippets/item_result.html' %}
-    {% endfor %}
-</ol>
+<output form="books-form" class="results" aria-live="polite" aria-labelledby="total">
+    {% include 'books/snippets/item_results.html' %}
+</output>
 {% endblock %}

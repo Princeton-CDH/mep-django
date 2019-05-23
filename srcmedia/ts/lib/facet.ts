@@ -67,7 +67,8 @@ class RxChoiceFacet extends Rx<HTMLFieldSetElement> {
         this.$inputs = Array.from(this.element.getElementsByTagName('input'))
         this.counts = new Subject()
         // keep track of the user's selections so we can tell the form to update
-        this.events = merge(...this.$inputs.map($input => fromEvent($input, 'input')))
+        // note that mobile safari doesn't support 'input' here so we use 'change'
+        this.events = merge(...this.$inputs.map($input => fromEvent($input, 'change')))
         this.counts.subscribe(this.updateCount)
     }
 
