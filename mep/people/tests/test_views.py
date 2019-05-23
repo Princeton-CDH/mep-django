@@ -857,20 +857,17 @@ class TestMembersListView(TestCase):
     def test_get_year_range(self, mockPSQ):
         mockPSQ.return_value.stats.return_value.get_stats.return_value = {
             'stats_fields': {
-                'account_start': {
-                    'min': 1928.0
-                },
-                'account_end': {
+                'account_years': {
+                    'min': 1928.0,
                     'max': 1940.0
-                }
+                },
             }
         }
         min_max = MembersList().get_year_range()
         # returns integer years
         assert min_max == (1928, 1940)
-        # calls for the two correct fields in stats call
-        mockPSQ.return_value.stats.assert_called_with('account_start',
-                                                      'account_end')
+        # call for the correct field in stats
+        mockPSQ.return_value.stats.assert_called_with('account_years')
         # if get_stats returns None, also returns None
         mockPSQ.return_value.stats.return_value.get_stats.return_value = None
         assert MembersList().get_year_range() is None
