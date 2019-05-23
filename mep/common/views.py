@@ -1,8 +1,12 @@
+from collections import OrderedDict
 from django.core.paginator import Paginator
 from django.utils.cache import patch_vary_headers
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
 from django.http import JsonResponse
+import rdflib
 
+from mep.common import SCHEMA_ORG
+from mep.common.utils import absolutize_url
 
 class LabeledPagesMixin(ContextMixin):
     '''View mixin to add labels for pages to a paginated view's context,
@@ -41,6 +45,60 @@ class LabeledPagesMixin(ContextMixin):
         if self.request.is_ajax():
             response['X-Page-Labels'] = '|'.join([label for index, label in self._page_labels])
         return response
+
+
+class RdfViewMixin(ContextMixin):
+    '''View mixin to add an RDF linked data graph to context for use in serializing
+    and embedding structured data in templates.'''
+
+    #: default schema.org type for a View
+    rdf_type = SCHEMA_ORG.WebPage
+    #: breadcrumbs, used to render breadcrumb navigation. they should be a list
+    #: of tuples like ('Title', '/url')
+    breadcrumbs = []
+    #: json-ld context for the rdf graph; defaults to schema.org
+    json_ld_context = str(SCHEMA_ORG)
+
+    def get_context_data(self, *args, **kwargs):
+        '''Add generated breadcrumbs and an RDF graph to the view context.'''
+        context = super().get_context_data(*args, **kwargs)
+        context['page_jsonld'] = self.as_rdf().serialize(format='json-ld',
+                                                         auto_compact=True,
+                                                         context=self.json_ld_context)
+        context['breadcrumbs'] = self.get_breadcrumbs()
+        return context
+
+    def get_absolute_url(self):
+        '''Get a URI for this page to use for making RDF assertions. Note that
+        this should return a full absolute path, e.g. with absolutize_url().'''
+        raise NotImplementedError
+
+    def as_rdf(self):
+        '''Generate an RDF graph representing the page.'''
+        # add the root node (this page)
+        graph = rdflib.ConjunctiveGraph()
+        page_uri = rdflib.URIRef(self.get_absolute_url())
+        graph.add((page_uri, rdflib.RDF.type, self.rdf_type))
+        # generate and add breadcrumbs, if any
+        breadcrumbs = self.get_breadcrumbs()
+        if breadcrumbs:
+            breadcrumbs_node = rdflib.BNode()
+            graph.set((page_uri, SCHEMA_ORG.breadcrumb, breadcrumbs_node))
+            graph.set((breadcrumbs_node, rdflib.RDF.type, SCHEMA_ORG.BreadcrumbList))
+            for pos, crumb in enumerate(breadcrumbs):
+                crumb_node = rdflib.BNode()
+                graph.add((breadcrumbs_node, SCHEMA_ORG.itemListElement, crumb_node))
+                graph.set((crumb_node, rdflib.RDF.type, SCHEMA_ORG.ListItem))
+                graph.set((crumb_node, SCHEMA_ORG.name, rdflib.Literal(crumb[0]))) # name/label
+                graph.set((crumb_node, SCHEMA_ORG.item, rdflib.Literal(crumb[1]))) # url
+                graph.set((crumb_node, SCHEMA_ORG.position, rdflib.Literal(pos + 1))) # position
+        # output full graph
+        return graph
+
+    def get_breadcrumbs(self):
+        '''Generate the breadcrumbs that lead to this page. Returns the value of
+        `breadcrumbs` set on the View by default.'''
+        return self.breadcrumbs
 
 
 class VaryOnHeadersMixin(View):
