@@ -58,7 +58,7 @@ describe('RxSearchForm', () => {
         document.body.innerHTML = `
         <form id="search">
             <input type="text" name="query" value="mysearch">
-            <input type="number" name="age">
+            <input type="number" name="age" value="1">
         </form>`
     })
     
