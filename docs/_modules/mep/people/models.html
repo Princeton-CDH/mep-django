@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.15.0 documentation</title>
+    <title>mep.people.models &#8212; Mapping Expatriate Paris - Django 0.16.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -112,7 +112,7 @@
         <span class="n">unique_together</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;street_address&quot;</span><span class="p">,</span> <span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="s2">&quot;country&quot;</span><span class="p">),)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;&lt;Location </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;Location pk:</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span> <span class="ow">or</span> <span class="s1">&#39;??&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">str_parts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">street_address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">]</span>
@@ -120,8 +120,7 @@
 
 
 <div class="viewcode-block" id="Profession"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Profession">[docs]</a><span class="k">class</span> <span class="nc">Profession</span><span class="p">(</span><span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Profession for a :class:`Person`&#39;&#39;&#39;</span>
-    <span class="k">pass</span></div>
+    <span class="sd">&#39;&#39;&#39;Profession for a :class:`Person`&#39;&#39;&#39;</span></div>
 
 
 <div class="viewcode-block" id="PersonQuerySet"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.PersonQuerySet">[docs]</a><span class="k">class</span> <span class="nc">PersonQuerySet</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">QuerySet</span><span class="p">):</span>
@@ -313,7 +312,7 @@
     <span class="n">objects</span> <span class="o">=</span> <span class="n">PersonQuerySet</span><span class="o">.</span><span class="n">as_manager</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;&lt;Person </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;Person pk:</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span> <span class="ow">or</span> <span class="s1">&#39;??&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;String representation; use sort name if available with fall back</span>
@@ -358,6 +357,13 @@
 <span class="sd">        is set.&#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">viaf_id</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ViafEntity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viaf_id</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">short_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Shortened form of name used for locations where space is tight,</span>
+<span class="sd">        e.g. breadcrumb navigation&#39;&#39;&#39;</span>
+        <span class="c1"># return the initial portion, before parenthesis or a comma</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Person.set_birth_death_years"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.set_birth_death_years">[docs]</a>    <span class="k">def</span> <span class="nf">set_birth_death_years</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Set local birth and death dates based on information from VIAF&#39;&#39;&#39;</span>
@@ -483,15 +489,14 @@
         <span class="n">verbose_name</span> <span class="o">=</span> <span class="s1">&#39;Informational URL&#39;</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;&lt;InfoURL </span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;InfoURL pk:</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span> <span class="ow">or</span> <span class="s1">&#39;??&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span></div>
 
 
 <div class="viewcode-block" id="RelationshipType"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.RelationshipType">[docs]</a><span class="k">class</span> <span class="nc">RelationshipType</span><span class="p">(</span><span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Types of relationships between one :class:`Person` and another&#39;&#39;&#39;</span>
-    <span class="k">pass</span></div>
+    <span class="sd">&#39;&#39;&#39;Types of relationships between one :class:`Person` and another&#39;&#39;&#39;</span></div>
 
 
 <div class="viewcode-block" id="Relationship"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Relationship">[docs]</a><span class="k">class</span> <span class="nc">Relationship</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>

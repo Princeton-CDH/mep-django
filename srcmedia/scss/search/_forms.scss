@@ -135,10 +135,6 @@
                 margin-right: 0;
             }
 
-            &:hover {
-                border-color: $green;
-            }
-
             img.icon {
                 max-height: 1.5rem;
                 margin-left: 0.5rem;
@@ -150,8 +146,13 @@
 
             span[role=tooltip] {
                 position: absolute;
-                right: .5rem;
-                top: calc(50% - (.75rem / 2));
+                height: 100%;
+                right: .2rem;
+                top: 0;
+
+                @media (min-width: $breakpoint-s) {
+                    right: .5rem;
+                }
             }
         }
 

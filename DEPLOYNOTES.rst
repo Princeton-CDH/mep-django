@@ -3,6 +3,12 @@
 Deploy and Upgrade notes
 ========================
 
+0.16
+----
+
+* This release requires a reindex to incorporate a bugfix for account partial
+  date handling.
+
 0.15
 ----
 

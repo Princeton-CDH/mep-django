@@ -36,7 +36,7 @@
             a {
                 border-left-width: 2px;
                 // don't show 'Home' text unless on larger screens
-                width: 0;
+                width: 1px;
                 color: white;
 
                 @media (min-width: $breakpoint-s) {
@@ -50,6 +50,7 @@
     a,
     span {
         height: 1.5rem;
+        line-height: 1.5rem;
         padding-top: 1px;
         position: relative;
         display: flex;
