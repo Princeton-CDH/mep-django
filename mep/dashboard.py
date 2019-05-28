@@ -60,6 +60,7 @@ class CustomIndexDashboard(Dashboard):
                 'mep.books.models.CreatorType',
                 'mep.books.models.Format',
                 'mep.books.models.Subject',
+                'mep.books.models.Genre',
             ]),
         ))
 
