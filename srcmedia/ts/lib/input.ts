@@ -1,140 +1,103 @@
-import { fromEvent, Subject, Observable } from 'rxjs'
-import { map, debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators'
+import { fromEvent, Observable } from 'rxjs'
+import { map, startWith, share } from 'rxjs/operators'
 
-import { Component, Reactive, Rx } from './common'
-
-interface RxInputState { // basic state common to all <input> types
-    value: string
-}
-
-
-interface RxTextInputState extends RxInputState { // no special fields
-}
-
-interface RxCheckboxInputState extends RxInputState {
-    checked: boolean
-}
+import { Rx } from './common'
 
 /**
- * An ancestor for all reactive <input> elements. These elements should always
+ * An ancestor for all reactive `<input>` elements. These elements should always
  * have a `type` attribute, so the class is abstract.
- *
- * The update() method has a default implementation that updates the `value` and
- * `name` attributes; simple types of <input> may not need to override it.
+ * 
+ * Reactivity is based on UIEvents of type EVENT_TYPE, which will update the
+ * input's validity and (in ancestor classes) other properties like `value`.
  *
  * @abstract
  * @class RxInput
- * @extends {Component}
- * @implements {Reactive<RxInputState>}
+ * @extends {Rx<HTMLInputElement>}
  */
-abstract class RxInput extends Component implements Reactive<RxInputState> {
-    element: HTMLInputElement
-    state: Subject<RxInputState>
-    label: HTMLLabelElement | null
+abstract class RxInput extends Rx<HTMLInputElement> {
+    // Observables
+    public valid$: Observable<boolean>
+    public events$: Observable<UIEvent>
+    
+    // Local data
+    protected label: HTMLLabelElement | null
+    protected readonly EVENT_TYPE: string = 'input' // defaults to 'input' but some inputs will use 'change'
 
     constructor(element: HTMLInputElement) {
         super(element)
-        this.label = this.element.labels ? this.element.labels[0] : null
-        this.state = new Subject()
-        this.update = this.update.bind(this) // callers need access to `this`
-    }
-
-    /**
-     * Update state and propagate changes to the <input> element.
-     *
-     * @param {RxInputState} state
-     * @returns {Promise<void>}
-     * @memberof RxInput
-     */
-    update = async (newState: Partial<RxInputState>): Promise<void> => {
-        if (newState.value) this.element.value = newState.value
-        this.state.next({ value: this.element.value })
+        this.label = this.element.labels ? this.element.labels[0] : null // use the first label, if any
+        this.events$ = fromEvent(this.element, this.EVENT_TYPE) as Observable<UIEvent> // cast here because we know the specific Event subclass
+        this.valid$ = this.events$.pipe(
+            map(() => this.element.checkValidity()), // update validity when events of EVENT_TYPE occur
+            startWith(this.element.checkValidity()), // start with current value
+            share() // multicast
+        )
     }
 }
 
 /**
- * A reactive <input type="text"> element.
+ * A reactive `<input type="text">` element. Stores its `value` as an observable
+ * `string`.
  *
  * @class RxTextInput
  * @extends {RxInput}
- * @implements {Reactive<RxTextInputState>}
  */
-class RxTextInput extends RxInput implements Reactive<RxTextInputState> {
-    state: Subject<RxTextInputState>
+class RxTextInput extends RxInput {
+
+    public value$: Observable<string>
 
     constructor(element: HTMLInputElement) {
         super(element)
-        // Update state when the user types in a new value, with debounce
-        fromEvent(this.element, 'input').pipe(
-            map(() => ({ value: this.element.value })),
-            debounceTime(500),
-            distinctUntilChanged()
-        ).subscribe(this.update)
+        this.value$ = this.events$.pipe(
+            map(() => this.element.value),
+            startWith(this.element.value),
+            share()
+        )
     }
 }
 
 /**
- * A reactive <input type="number"> element.
- *
- * Publishes its validity state and current value; invalid values will be
- * parsed to NaN.
+ * A reactive `<input type="number">` element. Stores its `value` as an
+ * observable `number`. Non-integer values will be parsed to `NaN`.
  *
  * @class RxNumberInput
- * @extends {Rx<HTMLInputElement>}
+ * @extends {RxInput}
  */
-class RxNumberInput extends Rx<HTMLInputElement> {
+class RxNumberInput extends RxInput {
 
-    public value: Observable<number>
-    public valid: Observable<boolean>
+    public value$: Observable<number>
 
     constructor(element: HTMLInputElement) {
         super(element)
-        // Update state when the user types in a new value, with debounce
-        this.value = fromEvent(this.element, 'input').pipe(
-            map(() => parseInt(this.element.value)),
-            debounceTime(500),
-            distinctUntilChanged(),
-        )
-        // Update validity based on when value changes
-        this.valid = this.value.pipe(
-            map(() => this.element.checkValidity()),
-            distinctUntilChanged(),
+        this.value$ = this.events$.pipe(
+            map(() => this.element.value),
+            map(value => parseInt(value)), // will return NaN if not an integer
+            startWith(parseInt(this.element.value)),
+            share()
         )
     }
 }
 
 /**
- * A reactive <input type="checkbox"> element.
+ * A reactive `<input type="checkbox">` element. Stores its checked state as an
+ * observable `boolean`.
  *
  * @class RxCheckboxInput
  * @extends {RxInput}
- * @implements {Reactive<RxCheckboxInputState>}
  */
-class RxCheckboxInput extends RxInput implements Reactive<RxCheckboxInputState>{
-    state: Subject<RxCheckboxInputState>
+class RxCheckboxInput extends RxInput {
+
+    public checked$: Observable<boolean>
+
+    protected readonly EVENT_TYPE: string = 'change' // use the 'change' event for legacy compatibility
 
     constructor(element: HTMLInputElement) {
         super(element)
-        // Update state immediately when the checkbox is clicked
-        fromEvent(this.element, 'change').pipe(
-            map(() => ({ checked: this.element.checked })),
-        ).subscribe(this.update)
-    }
-
-    /**
-     * Update state and propagate changes to the checkbox element.
-     *
-     * @param {RxCheckboxInputState} state
-     * @returns {Promise<void>}
-     * @memberof RxCheckboxInput
-     */
-    update = async (newState: Partial<RxCheckboxInputState>): Promise<void> => {
-        if (newState.value) this.element.value = newState.value
-        if (newState.checked) this.element.checked = newState.checked
-        this.state.next({
-            value: this.element.value,
-            checked: this.element.checked
-        })
+        this.checked$ = this.events$.pipe(
+            map(() => this.element.checked),
+            startWith(this.element.checked),
+            share()
+        )
     }
 }
 
