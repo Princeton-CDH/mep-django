@@ -105,6 +105,27 @@ abstract class Rx<E extends HTMLElement> {
     }
 }
 
+/**
+ * Utility function for faking a value change event on <input>s in tests.
+ * 
+ * @param $element 
+ * @param value 
+ */
+function fakeValueChange ($element: HTMLInputElement, value: string) {
+    $element.value = value
+    $element.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
+/**
+ * Utility function for faking a checkbox toggle event in tests.
+ * 
+ * @param $element 
+ */
+function fakeToggle ($element: HTMLInputElement) {
+    $element.checked = !$element.checked
+    $element.dispatchEvent(new Event('change'))
+}
+
 export {
     Reactive,
     Component,
@@ -114,4 +135,6 @@ export {
     arraysAreEqual,
     animateElementContent,
     getTransitionDuration,
+    fakeValueChange,
+    fakeToggle
 }
