@@ -1,5 +1,5 @@
 import { merge } from 'rxjs'
-import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, flatMap } from 'rxjs/operators'
+import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, flatMap, skip, tap } from 'rxjs/operators'
 
 import { arraysAreEqual } from './lib/common'
 import { RxTextInput } from './lib/input'
@@ -8,7 +8,7 @@ import { RxFacetedSearchForm } from './lib/form'
 import { RxSelect } from './lib/select'
 import PageControls from './components/PageControls'
 import { RxChoiceFacet, RxBooleanFacet } from './lib/facet'
-import { RxRangeFilter } from './lib/filter'
+import { RxRangeFilter, rangesAreEqual } from './lib/filter'
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -54,8 +54,23 @@ document.addEventListener('DOMContentLoaded', () => {
         map(t => t === '0'), // true if totalResults is '0'
         distinctUntilChanged()
     )
-    const noKeyword$ = keywordInput.state.pipe(
-        pluck('value'),
+    const keywordChange$ = keywordInput.value$.pipe( // debounced, deduped changes
+        skip(1), // ignore initial value
+        debounceTime(500),
+        distinctUntilChanged()
+    )
+    const memDateChange$ = memDateFacet.value$.pipe( // debounced, deduped and valid changes
+        debounceTime(500), // debounce
+        withLatestFrom(memDateFacet.valid$), // check validity
+        distinctUntilChanged(([a, aValid], [b, bValid]) => { // for the first entry (used only for comparison), 
+            return rangesAreEqual(a, b) && (aValid == bValid) // we care whether there was a change in validity OR values
+        }),
+        skip(1), // for all other entries (used to actually update)
+        filter(([range, valid]) => valid), // only accept valid submissions
+        map(([range, valid]) => range), // only need range
+        distinctUntilChanged(rangesAreEqual) // ignore identical ranges, since we will always have valid ones
+    )
+    const noKeyword$ = keywordInput.value$.pipe(
         map(v => v === ''), // true if the value of the keyword input is ''
         distinctUntilChanged()
     )
@@ -85,10 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
         map(c => c.toString()) // map to a string for passing as pageSelect value
     )
     const reloadFacets$ = merge( // a list of all the things that require fetching new facets
-        keywordInput.state,
-        hasCardFacet.state,
+        keywordChange$,
+        memDateChange$,
+        hasCardFacet.checked$.pipe(skip(1)), // ignore initial
         genderFacet.events,
-        memDateFacet.values,
     )
     const reloadResults$ = merge( // a list of all the things that require fetching new results (jump to page 1)
         reloadFacets$, // anything that changes facets also triggers new results
