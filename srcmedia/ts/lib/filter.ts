@@ -1,8 +1,11 @@
 import { Observable, combineLatest } from 'rxjs'
-import { filter, map, withLatestFrom, distinctUntilChanged } from 'rxjs/operators'
+import { filter, map, withLatestFrom, publish, mapTo } from 'rxjs/operators'
 
-import { Rx, arraysAreEqual } from './common'
+import { Rx } from './common'
 import { RxNumberInput } from './input'
+
+
+type Range = [number, number] // Type alias for convenience
 
 /**
  * A range filter consisting of two numeric inputs. The values are only updated
@@ -13,42 +16,33 @@ import { RxNumberInput } from './input'
  */
 class RxRangeFilter extends Rx<HTMLFieldSetElement> {
 
-    protected inputs: Array<RxNumberInput>
-    public values: Observable<Array<number>>
-    public valid: Observable<boolean>
+    public value$: Observable<Range>
+    public valid$: Observable<boolean>
+
+    private startInput: RxNumberInput
+    private stopInput: RxNumberInput
 
     constructor(element: HTMLFieldSetElement) {
         super(element)
-        // find the <input>s associated with the facet
-        this.inputs = Array.from(this.element.getElementsByTagName('input'))
-            .map($input => new RxNumberInput($input))
+        // detect the <input>s associated with the facet
+        const inputs = this.element.getElementsByTagName('input')
+        this.startInput = new RxNumberInput(inputs[0])
+        this.stopInput = new RxNumberInput(inputs[1])
+        // combine the values of the two inputs
+        this.value$ = combineLatest(this.startInput.value$, this.stopInput.value$)
         // combine the validity state of the two inputs
-        this.valid = combineLatest(
-            ...this.inputs.map(i => i.value.pipe(withLatestFrom(i.valid)))
-        ).pipe(
-            filter(([[value1, valid1], [value2, valid2]]) => valid1 && valid2), // both valid
-            map(([[value1, valid1], [value2, valid2]]) => {
-                return (value1 || -Infinity) <= (value2 || Infinity) // if not empty, min <= max
-            }),
-        )
-        // keep track of user's changes so we can tell the form to update
-        this.values = combineLatest(
-            ...this.inputs.map(i => i.value)
-        ).pipe(
-            withLatestFrom(this.valid), // check that the facet is valid
-            filter(([[value1, value2], valid]) => valid),
-            map(([[value1, value2], valid]) => [value1, value2]), // don't need validity info
-            distinctUntilChanged(arraysAreEqual), // only unique combinations of inputs
-        )
-        // set an "error" class depending on if we're valid or not
-        this.valid.subscribe(valid => {
-            valid ?
-                this.element.classList.remove('error') :
-                this.element.classList.add('error')
-        })
+        this.valid$ = combineLatest(this.startInput.valid$, this.stopInput.valid$)
+            .pipe(
+                withLatestFrom(this.value$), // grab the values so we can check start <= stop
+                map(([[startValid, stopValid], [start, stop]]) => { // do the actual check; returns bool
+                    return ((start || -Infinity) <= (stop || Infinity)) && // only compare start < stop if they have values (not NaN)
+                    (startValid && stopValid) // both must also be valid
+                })
+            )
     }
 }
 
 export {
+    Range,
     RxRangeFilter,
 }
