@@ -68,7 +68,7 @@ describe('RxRangeFilter', () => {
         const valid = jest.fn()
         rrf.valid$.subscribe(valid)
         expect(valid).toHaveBeenLastCalledWith(true) // valid; both empty/NaN
-        fakeValueChange($start, '100') 
+        fakeValueChange($start, '100')
         fakeValueChange($stop, '50') // less than start
         expect(valid).toHaveBeenLastCalledWith(false) // invalid; start > stop
     })
@@ -80,10 +80,10 @@ describe('RxRangeFilter', () => {
         const rrf = new RxRangeFilter($facet)
         const valid = jest.fn()
         rrf.valid$.subscribe(valid)
-        fakeValueChange($start, '50') 
+        fakeValueChange($start, '50')
         fakeValueChange($stop, '100')
         expect(valid).toHaveBeenLastCalledWith(true) // valid; start < stop
-        fakeValueChange($start, '111') 
+        fakeValueChange($start, '111')
         fakeValueChange($stop, '111')
         expect(valid).toHaveBeenLastCalledWith(true) // valid; start = stop
     })
