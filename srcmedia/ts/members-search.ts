@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const memDateChange$ = memDateFacet.value$.pipe( // debounced, deduped and valid changes
         debounceTime(500), // debounce
         withLatestFrom(memDateFacet.valid$), // check validity
-        distinctUntilChanged(([a, aValid], [b, bValid]) => { // for the first entry (used only for comparison), 
+        distinctUntilChanged(([a, aValid], [b, bValid]) => { // for the first entry (used only for comparison),
             return rangesAreEqual(a, b) && (aValid == bValid) // we care whether there was a change in validity OR values
         }),
         skip(1), // for all other entries (used to actually update)
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     )
     const noResultsPageOption$ = noResults$.pipe(
         filter(n => n === true), // only generate if no results
-        mapTo([{ value: '1', text: 'N/A' }]) // create a 'N/A' page option    
+        mapTo([{ value: '1', text: 'N/A' }]) // create a 'N/A' page option
     )
     const pageLabelOptions$ = merge(
         pageLabels$.pipe( // generate new <options> based on page labels if we have any
@@ -108,12 +108,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const reloadResults$ = merge( // a list of all the things that require fetching new results (jump to page 1)
         reloadFacets$, // anything that changes facets also triggers new results
         sortSelect.value
-    ).pipe(debounceTime(100)) 
+    ).pipe(debounceTime(100))
     // slight debounce - otherwise we would get repeated events when e.g.
     // the user types a keyword, which also switches the sort to relevance
-    // debounce ensures these are close enough to read as a single event  
+    // debounce ensures these are close enough to read as a single event
     const totalResultsText$ = merge(
-        totalResults$.pipe(map(t => `${t.toLocaleString()} total results`)), // when there are results, say how many, with a comma 
+        totalResults$.pipe(map(t => `${t.toLocaleString()} total results`)), // when there are results, say how many, with a comma
         reloadResults$.pipe(mapTo('Results are loading')) // when loading, replace with this text
     )
     const sort$ = noKeyword$.pipe( // 'name' if no keyword, 'relevance' otherwise
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pageSelect.value.subscribe(() => {
         membersSearchForm.getResults()
         pageControls.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
-        resultsOutput.element.setAttribute('aria-busy', '') 
+        resultsOutput.element.setAttribute('aria-busy', '')
     })
 
     // When next/previous page links are clicked, go to the next page

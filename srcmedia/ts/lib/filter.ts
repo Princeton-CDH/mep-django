@@ -9,8 +9,8 @@ type Range = [number, number] // Type alias for convenience
 
 /**
  * Comparator function for determining if ranges are equal that treats `NaN`
- * as equal to itself. 
- * 
+ * as equal to itself.
+ *
  * @param a Range
  * @param b Range
  */
