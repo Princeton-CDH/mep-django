@@ -140,6 +140,13 @@ document.addEventListener('DOMContentLoaded', () => {
         })
     }
 
+    // If the membership date facet had an error, make sure it's cleared when it becomes valid
+    if ($memDateFacet.classList.contains('error')) {
+        memDateFacet.valid$.pipe(filter(v => v)).subscribe(() => {
+            $memDateFacet.classList.remove('error')
+        })
+    }
+
     // Change the sort depending on if a keyword is active or not
     sort$.subscribe(sortSelect.value)
 
