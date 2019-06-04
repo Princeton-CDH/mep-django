@@ -1,4 +1,4 @@
-import { RxRangeFilter } from './filter'
+import { RxRangeFilter, rangesAreEqual } from './filter'
 import { fakeValueChange } from './common'
 
 describe('RxRangeFilter', () => {
@@ -86,5 +86,37 @@ describe('RxRangeFilter', () => {
         fakeValueChange($start, '111')
         fakeValueChange($stop, '111')
         expect(valid).toHaveBeenLastCalledWith(true) // valid; start = stop
+    })
+})
+
+describe('rangesAreEqual', () => {
+
+    it('treats ranges with same start and same stop as equal', () => {
+        expect(rangesAreEqual([1, 10], [1, 10])).toBe(true)
+    })
+
+    it('treats ranges where both starts are NaN as equal', () => {
+        expect(rangesAreEqual([NaN, 10], [NaN, 10])).toBe(true)
+    })
+
+    it('treats ranges where both stops are NaN as equal', () => {
+        expect(rangesAreEqual([1, NaN], [1, NaN])).toBe(true)
+    })
+
+    it('treats ranges where all values are NaN as equal', () => {
+        expect(rangesAreEqual([NaN, NaN], [NaN, NaN])).toBe(true)
+    })
+
+    it('treats ranges with different start as unequal', () => {
+        expect(rangesAreEqual([1, 10], [2, 10])).toBe(false)
+    })
+
+    it('treats ranges with different stop as unequal', () => {
+        expect(rangesAreEqual([1, 10], [1, 11])).toBe(false)
+    })
+
+    it('treats ranges where NaN is start or stop as unequal', () => {
+        expect(rangesAreEqual([NaN, 10], [1, 10])).toBe(false)
+        expect(rangesAreEqual([1, 10], [1, NaN])).toBe(false)
     })
 })

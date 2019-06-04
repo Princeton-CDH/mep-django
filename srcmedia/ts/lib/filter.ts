@@ -8,6 +8,23 @@ import { RxNumberInput } from './input'
 type Range = [number, number] // Type alias for convenience
 
 /**
+ * Comparator function for determining if ranges are equal that treats `NaN`
+ * as equal to itself. 
+ * 
+ * @param a Range
+ * @param b Range
+ */
+function rangesAreEqual (a: Range, b: Range) {
+    const [aStart, aStop, bStart, bStop] = [...a, ...b] // named values for convenience
+    if (aStart === bStart || (isNaN(aStart) && isNaN(bStart))) { // starts can be equal or both NaN
+        if (aStop === bStop || (isNaN(aStop) && isNaN(bStop))) { // stops can be equal or both NaN
+            return true
+        }
+    }
+    return false
+}
+
+/**
  * A range filter consisting of two numeric inputs. The values are only updated
  * when both inputs are valid.
  *
@@ -45,4 +62,5 @@ class RxRangeFilter extends Rx<HTMLFieldSetElement> {
 export {
     Range,
     RxRangeFilter,
+    rangesAreEqual
 }
