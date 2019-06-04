@@ -30,7 +30,6 @@ abstract class RxInput extends Rx<HTMLInputElement> {
         this.valid$ = this.events$.pipe(
             map(() => this.element.checkValidity()), // update validity when events of EVENT_TYPE occur
             startWith(this.element.checkValidity()), // start with current value
-            share() // multicast
         )
     }
 }
@@ -51,7 +50,6 @@ class RxTextInput extends RxInput {
         this.value$ = this.events$.pipe(
             map(() => this.element.value),
             startWith(this.element.value),
-            share()
         )
     }
 }
@@ -73,7 +71,6 @@ class RxNumberInput extends RxInput {
             map(() => this.element.value),
             map(value => parseInt(value)), // will return NaN if not an integer
             startWith(parseInt(this.element.value)),
-            share()
         )
     }
 }
@@ -96,7 +93,6 @@ class RxCheckboxInput extends RxInput {
         this.checked$ = this.events$.pipe(
             map(() => this.element.checked),
             startWith(this.element.checked),
-            share()
         )
     }
 }
