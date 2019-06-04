@@ -1,6 +1,5 @@
-import { Observable } from 'rxjs'
-
 import { RxRangeFilter } from './filter'
+import { fakeValueChange } from './common'
 
 describe('RxRangeFilter', () => {
 
@@ -14,123 +13,78 @@ describe('RxRangeFilter', () => {
         `
     })
 
-    it('stores its values as an observable', () => {
+    it('publishes its values as an observable, starting with initial values', () => {
         const $facet = document.querySelector('.range.facet') as HTMLFieldSetElement
         const rrf = new RxRangeFilter($facet)
-        expect(rrf.values).toBeInstanceOf(Observable)
+        const values = jest.fn()
+        rrf.value$.subscribe(values)
+        expect(values).toHaveBeenCalledWith([NaN, NaN]) // both empty
+    })
+
+    it('publishes its validity as an observalbe, starting with initial validity', () => {
+        const $facet = document.querySelector('.range.facet') as HTMLFieldSetElement
+        const rrf = new RxRangeFilter($facet)
+        const valid = jest.fn()
+        rrf.valid$.subscribe(valid)
+        expect(valid).toHaveBeenCalledWith(true) // both are allowed to be empty, since not required
     })
 
     it('updates the values when either input changes value', () => {
+        jest.useFakeTimers()
         const $facet = document.querySelector('.range.facet') as HTMLFieldSetElement
         const $start = document.querySelector('#start') as HTMLInputElement
         const $stop = document.querySelector('#stop') as HTMLInputElement
         const rrf = new RxRangeFilter($facet)
-        rrf.values.subscribe(([start, stop]) => {
-            expect(start).toBe(50) // start is 50
-            expect(stop).toBeNaN() // stop has no value yet
-        })
-        $start.value = '50'
-        $start.dispatchEvent(new Event('input'))
-        rrf.values.subscribe(([start, stop]) => {
-            expect(start).toBe(50) // start is still 50
-            expect(stop).toBe(100) // stop is now 100
-        })
-        $stop.value = '100'
-        $stop.dispatchEvent(new Event('input'))
+        const values = jest.fn()
+        rrf.value$.subscribe(values)
+        setTimeout(() => fakeValueChange($start, '50'), 100) // after 100ms start = 50
+        setTimeout(() => fakeValueChange($stop, '100'), 200) // after 250ms stop = 100
+        jest.runAllTimers()
+        expect(values).toHaveBeenNthCalledWith(1, [NaN, NaN]) // initial values
+        expect(values).toHaveBeenNthCalledWith(2, [50, NaN]) // after first change
+        expect(values).toHaveBeenNthCalledWith(3, [50, 100]) // after second change
     })
 
-    it('only updates if values are new', done => {
+    it('becomes invalid if either input is invalid', () => {
         const $facet = document.querySelector('.range.facet') as HTMLFieldSetElement
         const $start = document.querySelector('#start') as HTMLInputElement
         const $stop = document.querySelector('#stop') as HTMLInputElement
         const rrf = new RxRangeFilter($facet)
-        const watcher = jest.fn()
-        rrf.values.subscribe(watcher)
-        // set the initial values to 25 and 35
-        $start.value = '25'
-        $stop.value = '35'
-        $start.dispatchEvent(new Event('input'))
-        $stop.dispatchEvent(new Event('input'))
-        // 250ms later, we change a value
-        setTimeout(() => {
-            $stop.value = '45'
-            $stop.dispatchEvent(new Event('input'))
-            // 300ms after that, we change our mind back to orig value
-            setTimeout(() => {
-                $stop.value = '35'
-                $stop.dispatchEvent(new Event('input'))
-                // ultimately the values should only be updated once
-                expect(watcher).toHaveBeenCalledTimes(1)
-                // and they should be the original values
-                expect(watcher).toHaveBeenLastCalledWith([25, 35])
-                done()
-            }, 300)
-        }, 250)
+        const valid = jest.fn()
+        rrf.valid$.subscribe(valid)
+        expect(valid).toHaveBeenLastCalledWith(true) // valid since inputs are empty
+        fakeValueChange($start, '-20') // start becomes invalid (below min)
+        expect(valid).toHaveBeenLastCalledWith(false) // has become false
+        fakeValueChange($start, '35') // start becomes valid
+        fakeValueChange($stop, '550') // stop becomes invalid (above max)
+        expect(valid).toHaveBeenLastCalledWith(false) // still false
     })
 
-    it('only updates if both values are valid', done => {
+    it('becomes invalid if values are not sequential', () => {
         const $facet = document.querySelector('.range.facet') as HTMLFieldSetElement
         const $start = document.querySelector('#start') as HTMLInputElement
         const $stop = document.querySelector('#stop') as HTMLInputElement
         const rrf = new RxRangeFilter($facet)
-        const watcher = jest.fn()
-        rrf.values.subscribe(watcher)
-        // set the initial values to 25 and 35
-        $start.value = '25'
-        $stop.value = '35'
-        $start.dispatchEvent(new Event('input'))
-        $stop.dispatchEvent(new Event('input'))
-        // 550ms later, we change a value to something invalid
-        setTimeout(() => {
-            $stop.value = 'stop!'
-            $stop.dispatchEvent(new Event('input'))
-            expect(watcher).toHaveBeenCalledTimes(1) // didn't update
-            expect(watcher).toHaveBeenLastCalledWith([25, 35])
-            done()
-        }, 550)
+        const valid = jest.fn()
+        rrf.valid$.subscribe(valid)
+        expect(valid).toHaveBeenLastCalledWith(true) // valid; both empty/NaN
+        fakeValueChange($start, '100') 
+        fakeValueChange($stop, '50') // less than start
+        expect(valid).toHaveBeenLastCalledWith(false) // invalid; start > stop
     })
 
-    it('only updates if start is less than or equal to stop', done => {
+    it('is valid if both inputs are sequential or equal', () => {
         const $facet = document.querySelector('.range.facet') as HTMLFieldSetElement
         const $start = document.querySelector('#start') as HTMLInputElement
         const $stop = document.querySelector('#stop') as HTMLInputElement
         const rrf = new RxRangeFilter($facet)
-        const watcher = jest.fn()
-        rrf.values.subscribe(watcher)
-        // set the initial values to 25 and 35
-        $start.value = '25'
-        $stop.value = '35'
-        $start.dispatchEvent(new Event('input'))
-        $stop.dispatchEvent(new Event('input'))
-        // 550ms later, we change a value to something invalid
-        setTimeout(() => {
-            $start.value = '45' // after stop
-            $start.dispatchEvent(new Event('input'))
-            expect(watcher).toHaveBeenCalledTimes(1) // didn't update
-            expect(watcher).toHaveBeenLastCalledWith([25, 35])
-            done()
-        }, 550)
-    })
-
-    it('updates its css class when validity changes', done => {
-        const $facet = document.querySelector('.range.facet') as HTMLFieldSetElement
-        const $start = document.querySelector('#start') as HTMLInputElement
-        const $stop = document.querySelector('#stop') as HTMLInputElement
-        const rrf = new RxRangeFilter($facet)
-        rrf.valid.subscribe(() => expect($facet.classList).toContain('error'))
-        // set the initial values to 35 and 25; should add error class
-        $start.value = '35'
-        $stop.value = '25'
-        $start.dispatchEvent(new Event('input'))
-        $stop.dispatchEvent(new Event('input'))
-        rrf.valid.subscribe(() => {
-            expect($facet.classList).not.toContain('error')
-            done()
-        })
-        // set to valid values, should remove class
-        $start.value = '25'
-        $stop.value = '35'
-        $start.dispatchEvent(new Event('input'))
-        $stop.dispatchEvent(new Event('input'))
+        const valid = jest.fn()
+        rrf.valid$.subscribe(valid)
+        fakeValueChange($start, '50') 
+        fakeValueChange($stop, '100')
+        expect(valid).toHaveBeenLastCalledWith(true) // valid; start < stop
+        fakeValueChange($start, '111') 
+        fakeValueChange($stop, '111')
+        expect(valid).toHaveBeenLastCalledWith(true) // valid; start = stop
     })
 })
