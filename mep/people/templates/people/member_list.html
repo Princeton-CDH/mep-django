@@ -2,7 +2,10 @@
 {% load static humanize widget_tweaks mep_tags %}
 {% load render_bundle from webpack_loader %}
 
-{% block js %}{% render_bundle 'memberSearch' 'js' %}{% endblock %}
+{% block js %}
+{% render_bundle 'memberSearch' 'js' %}
+<script type="application/ld+json">{{ page_jsonld|safe }}</script>
+{% endblock %}
 
 {% block page-subtitle %}Library Members · {% endblock %}
 
@@ -14,6 +17,7 @@
 
 {% block content %}
 <section class="members search-form">
+    {% include 'snippets/breadcrumbs.html' %}
     <form id="members-form">
         {% render_field form.query %}
         <label for="{{ form.query.id_for_label }}"></label>
@@ -25,7 +29,7 @@
                     <span>Card <span class="count">{{ members.get_facets.facet_fields.has_card.true }}</span></span>
                     <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="">
                     <span id="{{ form.has_card.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip"
-                        aria-label="{{ form.has_card.help_text }}" tabindex=0 />
+                        aria-label="{{ form.has_card.help_text }}" tabindex=0 onclick="event.preventDefault()"/>
                 </label>
             {% render_field form.sex %}
             </div>

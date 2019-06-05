@@ -41,12 +41,13 @@ class TestReconcileOCLC(TestCase):
         mockprogressbar.ProgressBar.assert_not_called()
 
         # create items that should be ignored
-        # generic, problem, title*, zero, existing uri
+        # generic, problem, title*, zero, existing uri, previous no match
         Item.objects.create(notes="GENERIC can't identify")
         Item.objects.create(notes="PROBLEM some problematic issue here")
         Item.objects.create(notes="OBSCURE")
         Item.objects.create(title="Plays*")
         Item.objects.create(notes="ZERO no borrows")
+        Item.objects.create(notes="OCLCNoMatch")
         Item.objects.create(
             title='Mark Twain\'s notebook',
             uri='http://experiment.worldcat.org/entity/work/data/477260')
@@ -87,23 +88,22 @@ class TestReconcileOCLC(TestCase):
             mock_oclc_search.return_value = None
             call_command('reconcile_oclc', 'update', stdout=stdout)
             output = stdout.getvalue()
-            print(output)
             assert mock_oclc_search.call_count == 2
             assert '2 items to reconcile' in output
             # summary output for update mode
             assert 'Processed 2 items, updated 0' in output
 
         # create enough items to trigger progressbar
-        for title in range(5):
+        for title in range(6):
             Item.objects.create(title=title)
         mock_oclc_info.side_effect = None
         call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
                      stdout=stdout)
         # progbar initialized
         mockprogressbar.ProgressBar.assert_called_with(
-            redirect_stdout=True, max_value=7) # 5 + 2
+            redirect_stdout=True, max_value=6)
         # progbar updated
-        assert mockprogressbar.ProgressBar.return_value.update.call_count == 7
+        assert mockprogressbar.ProgressBar.return_value.update.call_count == 6
         mockprogressbar.ProgressBar.return_value.finish.assert_called_with()
 
         # no progress option respected
@@ -156,13 +156,13 @@ class TestReconcileOCLC(TestCase):
         assert self.cmd.stats['found'] == 1
 
     def test_update_items(self):
-        item1 = Item.objects.create(title="Time + Tide")
+        item1 = Item.objects.create(title="Time + Tide", notes='some notes')
         with patch.object(self.cmd, 'oclc_search_record') as mock_oclc_search:
             # use a mock for the world cat entity
             worldcat_entity = Mock(
                 work_uri='http://worldcat.org/entity/work/id/3372107206',
                 item_uri='http://www.worldcat.org/oclc/3484871',
-                genre='Periodicals',
+                genres=['Periodicals'],
                 item_type='http://schema.org/Periodical',
                 subjects=[]
             )
@@ -171,17 +171,20 @@ class TestReconcileOCLC(TestCase):
 
             # confirm that item was saved with changes
             item = Item.objects.get(pk=item1.pk)
-            assert item.genre
+            assert item.genres.first().name == 'Periodicals'
             assert item.uri
 
             assert self.cmd.stats['count'] == 1
             assert self.cmd.stats['updated'] == 1
+            assert self.cmd.stats['no_match'] == 0
 
             # should create a log entry
             log_entry = LogEntry.objects.get(object_id=item.pk)
             assert log_entry.action_flag == CHANGE
             assert log_entry.change_message == \
                 'Updated from OCLC %s' % worldcat_entity.item_uri
+            # delete for simplicity in subsequent tests
+            log_entry.delete()
 
             # simulate failure loading worldcat rdf
             mock_oclc_search.side_effect = ConnectionError
@@ -203,6 +206,18 @@ class TestReconcileOCLC(TestCase):
             self.cmd.update_items([item1])
             assert self.cmd.stats['count'] == 1
             assert self.cmd.stats['updated'] == 0
+            assert self.cmd.stats['no_match'] == 1
+            # should add to notes
+            updated_item = Item.objects.get(pk=item.pk)
+            # should include no match indicator
+            assert self.cmd.oclc_no_match in updated_item.notes
+            # should still have previous note content
+            assert item.notes in updated_item.notes
+            # should create a log entry indicating no match found
+            log_entry = LogEntry.objects.get(object_id=item.pk)
+            assert log_entry.action_flag == CHANGE
+            assert log_entry.change_message == \
+                'No OCLC match found'
 
     def test_oclc_search(self):
         mock_sru_search = Mock()
@@ -210,6 +225,12 @@ class TestReconcileOCLC(TestCase):
         # use SRW response fixture for search response
         srwresponse = get_srwresponse_xml_fixture()
         mock_sru_search.search.return_value = srwresponse
+
+        # all searches will include these filters
+        default_filters = {
+            'language_code__exact': 'eng',
+            'material_type__notexact': 'Internet Resource'
+        }
 
         # search item with title, author, year
         item = Item.objects.create(title="Patriotic Adventurer", year=1936)
@@ -220,10 +241,13 @@ class TestReconcileOCLC(TestCase):
 
         result = self.cmd.oclc_search(item)
         assert result == srwresponse
-        # should search on title, author, year, material type book
+        # should search on title, author, year, material type book;
+        # filter to english language, non ebook
         mock_sru_search.search.assert_called_with(
             title__exact=item.title, author__all=str(person),
-            year=item.year, material_type__exact='book')
+            year=item.year, material_type__exact='book',
+            **default_filters
+            )
 
         # search does not include missing fields
         # - delete all but title, no events for first known interaction
@@ -232,13 +256,15 @@ class TestReconcileOCLC(TestCase):
         self.cmd.oclc_search(item)
         # should search on title only
         mock_sru_search.search.assert_called_with(
-            title__exact=item.title, material_type__exact='book')
+            title__exact=item.title, material_type__exact='book',
+            **default_filters)
 
         # test filtering by material type  periodical
         item.notes = 'PERIODICAL'
         oclc_info = self.cmd.oclc_search(item)
         mock_sru_search.search.assert_called_with(
-            title__exact=item.title, material_type__exact='periodical')
+            title__exact=item.title, material_type__exact='periodical',
+            **default_filters)
 
         item.notes = ''
         # simulate no year but first known year from events
@@ -247,7 +273,8 @@ class TestReconcileOCLC(TestCase):
             # should search on title and year range
             mock_sru_search.search.assert_called_with(
                 title__exact=item.title, year="-1940",
-                material_type__exact='book')
+                material_type__exact='book',
+                **default_filters)
 
     def test_oclc_info(self):
         srwresponse = get_srwresponse_xml_fixture()

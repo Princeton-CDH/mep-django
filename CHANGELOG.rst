@@ -3,6 +3,18 @@
 CHANGELOG
 =========
 
+0.16
+----
+
+* As a user, I want to view and navigate by breadcrumbs so I know where I am in the site hierarchy and can navigate to pages above the one I'm on.
+* As a content editor, I want to view and edit item format so I can designate item type.
+* As a content editor, I want to view and edit item work URI, edition URI, and view subject and genre information so that I can review and correct the information.
+* As an admin, I want items updated with matching OCLC work URI, best match edition URI, genre, and subjects so that I can include information from OCLC so users will know more about the books.
+
+* bugfix: account earliest_date and last_date methods don't account for partially known dates
+* bugfix: result list styles are broken on books list
+* bugfix: tooltip is triggered by hovering space where it would appear
+
 0.15
 ----
 

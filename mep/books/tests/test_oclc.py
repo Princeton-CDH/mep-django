@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import os
 from unittest.mock import Mock, patch, MagicMock
 
@@ -115,6 +116,14 @@ class TestSRUSearch(SimpleTestCase):
         # numeric doesn't get quoted
         assert SRUSearch._lookup_to_search(year=1950) == \
             'srw.yr=1950'
+
+        # NOT option instead of AND
+        query_string = SRUSearch._lookup_to_search(
+            title="Ulysses", material_type__notexact='Internet Resource')
+        # can't test directly because order is not guaranteed in py3.5
+        assert 'srw.ti="Ulysses"' in query_string
+        assert 'NOT srw.mt exact "Internet Resource"' in query_string
+        assert 'AND NOT' not in query_string
 
     @patch('mep.books.oclc.WorldCatClientBase.search')
     def test_search(self, mock_base_search):
@@ -301,13 +310,14 @@ class TestWorldCatEntity:
         wc_entity.rdf_resource.remove(rdflib.RDF.type)
         assert wc_entity.item_type == None
 
-    def test_genre(self):
+    def test_genres(self):
         time_and_tide = self.worldcat_entity_from_fixture_timetide()
-        assert time_and_tide.genre == 'Periodicals'
+        # use set to check values without failing on order
+        assert set(time_and_tide.genres) == set(['Periodicals', 'Electronic Books'])
 
         # other fixture has no genre
         wc_entity = self.worldcat_entity_from_fixture()
-        assert wc_entity.genre is None
+        assert wc_entity.genres == []
 
     def test_subjects(self):
         time_and_tide = self.worldcat_entity_from_fixture_timetide()

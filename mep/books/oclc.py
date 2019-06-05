@@ -182,12 +182,10 @@ class WorldCatEntity:
             return rdf_types[0]
 
     @property
-    def genre(self):
-        '''Item genre from schema.org/genre, if set'''
-        genre = self.rdf_resource.value(SCHEMA_ORG.genre)
-        # return string if set, but not if None
-        if genre:
-            return str(genre)
+    def genres(self):
+        '''List of item genres from schema.org/genre, if any'''
+        return [str(genre)
+                for genre in self.rdf_resource.objects(SCHEMA_ORG.genre)]
 
     @property
     def subjects(self):
@@ -213,7 +211,8 @@ class SRUSearch(WorldCatClientBase):
         'author': 'au',
         'year': 'yr',
         'keyword': 'kw',
-        'material_type': 'mt'
+        'material_type': 'mt',
+        'language_code': 'la'
     }
 
     @staticmethod
@@ -231,6 +230,8 @@ class SRUSearch(WorldCatClientBase):
         search_query.extend(args)
 
         for key, value in kwargs.items():
+            boolean_combination = ''
+
             # split field on __ to allow for specifying operator
             field_parts = key.split('__', 1)
             field = field_parts[0]
@@ -241,7 +242,14 @@ class SRUSearch(WorldCatClientBase):
 
             # determine operator to use
             if len(field_parts) > 1:  # operator specified via __
-                # spaces needed for everything besides = (?)
+
+                # use leading "not" on operator as indicator to
+                # use NOT instead of AND
+                if field_parts[1].startswith('not'):
+                    boolean_combination = 'NOT '
+                    field_parts[1] = field_parts[1][3:]
+
+                # spaces needed for everything besides =
                 operator = ' %s ' % field_parts[1]
             else:
                 # assume equal if not specified
@@ -250,12 +258,36 @@ class SRUSearch(WorldCatClientBase):
             # if value is a string, wrap in quotes
             if isinstance(value, str):
                 value = '"%s"' % value
-            search_query.append('%s%s%s' % (field, operator, value))
+            search_query.append('%s%s%s%s' % \
+                    (boolean_combination, field, operator, value))
 
-        return ' AND '.join(search_query)
+        return ' AND '.join(search_query).replace(' AND NOT ', ' NOT ')
 
     def search(self, *args, **kwargs):
-        '''Perform a CQL based search based on chained filters.'''
+        '''Perform a CQL search generated from keyword arguments in a style
+        similar to django querysets, e.g.::
+
+            search(title__exact="Huckleberry Finn", year=1884,
+                   material_type__notexact="Internet Resource")
+
+        Supports the following fields:
+
+            * title
+            * author
+            * year
+            * keyword
+            * material_type
+            * language_code
+
+        And the following operators:
+
+            * exact, notexact
+
+        'keyword': 'kw',
+        'material_type': 'mt',
+        'language_code': 'la'
+
+        '''
         search_query = SRUSearch._lookup_to_search(*args, **kwargs)
         response = super().search(query=search_query)
         if response:
