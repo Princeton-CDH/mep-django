@@ -11,13 +11,13 @@ class PersonSolrQuerySet(AliasedSolrQuerySet):
     #: map readable field names to actual solr fields
     field_aliases = {
         'name': 'name_t',
-        'sort_name':'sort_name_t',
-        'birth_year':'birth_year_i',
-        'death_year':'death_year_i',
-        'account_start':'account_start_i',
-        'account_end':'account_end_i',
-        'has_card':'has_card_b',
-        'pk':'pk_i',
+        'sort_name': 'sort_name_t',
+        'birth_year': 'birth_year_i',
+        'death_year': 'death_year_i',
+        'account_start': 'account_start_i',
+        'account_end': 'account_end_i',
+        'has_card': 'has_card_b',
+        'pk': 'pk_i',
         'sex': 'sex_s',
         'account_years': 'account_years_is'
     }

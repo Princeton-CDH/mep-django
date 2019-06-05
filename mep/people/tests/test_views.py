@@ -715,16 +715,18 @@ class TestMembersListView(TestCase):
         mocksuper.return_value.get_form.return_value = mockform
         view = MembersList()
         view.request = self.factory.get(self.members_url)
-        view.get_year_range = Mock()
+        view.get_year_ranges = Mock()
 
         # pass a min and max year
-        view.get_year_range.return_value = (1900, 1930)
+        view.get_year_ranges.return_value = {
+            'birth_year': (1900, 1920)
+        }
         view.get_form()
         # cached form is set
         assert view._form == mockform
         # mock setter for dates is called
-        mockform.set_membership_dates_placeholder\
-            .assert_called_with(1900, 1930)
+        mockform.set_daterange_placeholders\
+            .assert_called_with(view.get_year_ranges.return_value)
 
         # form should be cached
         mockform.reset_mock()
@@ -735,10 +737,10 @@ class TestMembersListView(TestCase):
 
         # if get_year_range returns None, assume it failed and
         # shouldn't call the set_membership_dates_placeholder setter function
-        view.get_year_range.return_value = None
+        view.get_year_ranges.return_value = {}
 
         view.get_form()
-        assert not mockform.set_membership_dates_placeholder.called
+        assert not mockform.set_daterange_placeholders.called
 
     def test_get_form_kwargs(self):
         view = MembersList()
@@ -854,32 +856,44 @@ class TestMembersListView(TestCase):
         assert labels == [(1, 'N/A')]
 
     @patch('mep.people.views.PersonSolrQuerySet')
-    def test_get_year_range(self, mockPSQ):
+    def test_get_year_ranges(self, mockPSQ):
         mock_stats = {
             'stats_fields': {
                 'account_years': {
                     'min': 1928.0,
                     'max': 1940.0
                 },
+                'birth_year': {
+                    'min': 1910.0,
+                    'max': 1932.0
+                }
             }
         }
         mockPSQ.return_value.stats.return_value.get_stats.return_value \
             = mock_stats
-        min_max = MembersList().get_year_range()
+        min_max = MembersList().get_year_ranges('account_years', 'birth_year')
         # returns integer years
-        assert min_max == (1928, 1940)
+        assert min_max == {
+            'account_years': (1928, 1940),
+            'birth_year': (1910, 1932)
+        }
         # call for the correct field in stats
-        mockPSQ.return_value.stats.assert_called_with('account_years')
-        # if get_stats returns None, also returns None
+        mockPSQ.return_value.stats.assert_called_with('account_years',
+                                                      'birth_year')
+        # asking for just one field will return just one
+        min_max = MembersList().get_year_ranges('account_years')
+        assert min_max == {'account_years': (1928, 1940)}
+        # if get stats returns None, should return an empty dict
         mockPSQ.return_value.stats.return_value.get_stats.return_value = None
-        assert MembersList().get_year_range() is None
-        # None set for min or max should result in None being returned also
+        assert MembersList().get_year_ranges('account_years', 'birth_year') \
+            == {}
+        # None set for min or max should result in the field not being
+        # returned (but the other should be passed through as expected)
         mockPSQ.return_value.stats.return_value.get_stats.return_value\
-             = mock_stats
+            = mock_stats
         mock_stats['stats_fields']['account_years']['min'] = None
-        assert MembersList().get_year_range() is None
-
-
+        assert MembersList().get_year_ranges('account_years', 'birth_year')\
+            == {'birth_year': (1910, 1932)}
 
 
 class TestMemberDetailView(TestCase):

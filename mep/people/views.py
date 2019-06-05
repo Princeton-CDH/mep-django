@@ -64,32 +64,38 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         if not self._form:
             self._form = super().get_form(*args, **kwargs)
         # set minimum and maximum years for date range field
-            min_max = self.get_year_range()
-            if min_max:
-                self._form.set_membership_dates_placeholder(*min_max)
+            min_max_ranges = self.get_year_ranges('birth_year', 'account_years')
+            if min_max_ranges:
+                self._form.set_daterange_placeholders(min_max_ranges)
         # Get facets from solr return
         return self._form
 
     @staticmethod
-    def get_year_range():
+    def get_year_ranges(*field_names):
         """Return the earliest and latest years for any account activity in
         the library.
 
-        :return: Min and max years as integers or None
-        :rtype: tuple or None
+        :param *field_names: ``str``
+            Field names for which to return min and max years.
+
+        :return: Field-keyed min and max years as integers
+        :rtype: dict
         """
 
-        stats = PersonSolrQuerySet().stats('account_years').get_stats()
+        stats = PersonSolrQuerySet().stats(*field_names).get_stats()
+        min_max_ranges = {}
         if stats:
-            try:
-                min_year = int(stats['stats_fields']['account_years']['min'])
-                max_year = int(stats['stats_fields']['account_years']['max'])
-            # min and max will be converted to None/NULL if no events
-            # are indexed
-            except TypeError:
-                return None
-
-            return (min_year, max_year)
+            for name in field_names:
+                try:
+                    min_year = int(stats['stats_fields'][name]['min'])
+                    max_year = int(stats['stats_fields'][name]['max'])
+                    min_max_ranges[name] =  (min_year, max_year)
+                # min and max will be converted to None/NULL if no events
+                # are indexed, but won't block other fields from being
+                # returned.
+                except TypeError:
+                    pass
+        return min_max_ranges
 
     #: name query alias field syntax (type defaults to edismax in solr config)
     search_name_query = '{!qf=$name_qf pf=$name_pf v=$name_query}'
@@ -131,7 +137,6 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
 
-
         self.queryset = sqs
         return sqs
 
@@ -169,6 +174,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
             ('Home', absolutize_url('/')),
             ('Members', self.get_absolute_url()),
         ]
+
 
 class MemberDetail(DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''

@@ -136,20 +136,39 @@ class TestMemberForm(TestCase):
         assert form.fields['sort'].widget.choices[0] == \
             ('relevance', {'label': 'Relevance', 'disabled': True})
 
-    def test_set_membership_dates_placeholder(self):
+    def test_set_daterange_placeholders(self):
 
         form = MemberSearchForm()
-        form.set_membership_dates_placeholder(1900, 1928)
+        # use membership dates and birth year, since they test both cases
+        # when either we're using a field that maps straight to the aliased
+        # solr field or one where we need an alias for the form field
+        min_max_conf = {
+            'birth_year': (1900, 1950),
+            'account_years': (1918, 1951)
+        }
+        form.set_daterange_placeholders(min_max_conf)
 
-        min_widget, max_widget = form.fields['membership_dates'].widget.widgets
+        # aliased field is set
         multi_widget = form.fields['membership_dates'].widget
+        start_widget, end_widget = multi_widget.widgets
 
         # placeholders for individual inputs are set
-        assert min_widget.attrs['placeholder'] == 1900
-        assert max_widget.attrs['placeholder'] == 1928
+        assert start_widget.attrs['placeholder'] == 1918
+        assert end_widget.attrs['placeholder'] == 1951
+        # attrs for both are set via multiwidget
+        assert multi_widget.attrs['min'] == 1918
+        assert multi_widget.attrs['max'] == 1951
+
+        # unaliased field is also set
+        multi_widget = form.fields['birth_year'].widget
+        start_widget, end_widget = multi_widget.widgets
+
+        # placeholders for individual inputs are set
+        assert start_widget.attrs['placeholder'] == 1900
+        assert end_widget.attrs['placeholder'] == 1950
         # attrs for both are set via multiwidget
         assert multi_widget.attrs['min'] == 1900
-        assert multi_widget.attrs['max'] == 1928
+        assert multi_widget.attrs['max'] == 1950
 
 
 

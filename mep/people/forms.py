@@ -86,6 +86,10 @@ class MemberSearchForm(FacetForm):
         ('name', 'Name A-Z'),
     ]
 
+    range_field_map = {
+        'membership_dates': 'account_years',
+    }
+
     # NOTE these are not set by default!
     error_css_class = 'error'
     required_css_class = 'required'
@@ -110,22 +114,26 @@ class MemberSearchForm(FacetForm):
     }))
     membership_dates = RangeField(label='Membership Dates', required=False,
         widget=RangeWidget(attrs={'size': 4}))
+    birth_year = RangeField(required=False,
+        widget=RangeWidget(attrs={'size': 4}))
 
-    def set_membership_dates_placeholder(self, min_year, max_year):
-        '''Set the min, max, and placeholder values for
-        :class:`mep.common.forms.RangeWidget` associated with membership_dates.'''
+    def set_daterange_placeholders(self, min_max_conf):
+        '''Set the min, max, and placeholder values for all fields associated
+        with :class:`mep.common.forms.RangeWidget`'''
+        for field, field_obj in self.fields.items():
+            if isinstance(field_obj, RangeField):
+                stats_field_name = self.range_field_map.get(field, field)
+                min_year, max_year = min_max_conf[stats_field_name]
+                start_widget, end_widget = field_obj.widget.widgets
 
-        start_widget, end_widget = \
-            self.fields['membership_dates'].widget.widgets
-
-        # set placeholders for widgets individually
-        start_widget.attrs['placeholder'] = min_year
-        end_widget.attrs['placeholder'] = max_year
-        # valid min and max for both via multiwidget
-        self.fields['membership_dates'].widget.attrs.update({
-            'min': min_year,
-            'max': max_year
-        })
+                # set placeholders for widgets individually
+                start_widget.attrs['placeholder'] = min_year
+                end_widget.attrs['placeholder'] = max_year
+                # valid min and max for both via multiwidget
+                field_obj.widget.attrs.update({
+                    'min': min_year,
+                    'max': max_year
+                })
 
     def __init__(self, data=None, *args, **kwargs):
         '''
