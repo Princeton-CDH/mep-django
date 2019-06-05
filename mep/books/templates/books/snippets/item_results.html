@@ -1,20 +1,20 @@
 {% load static %}
 <ol style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
     {% for item in items %}
-        <li class="books result">
-            <a href="{% url 'books:book-detail' pk=item.pk %}" aria-label="{{ item.title }}">
-                <div class="container">
-                    {# counter for search results #}
-                    <span class="counter"></span>
-                    {# book details #}
-                    {% include 'books/snippets/item_result.html' %}
-                    {# link to view detail page #}
-                    <span class="see-more">
-                        See more details
-                        <img class="triangle icon" src="{% static 'img/icons/more_triangle.svg' %}" alt="">
-                    </span>
-                <div>
-            </a>
-        <li>
+    <li class="books result">
+        <a href="{% url 'books:book-detail' pk=item.pk %}" aria-label="{{ item.title }}">
+            <div class="container">
+                {# counter for search results #}
+                <span class="counter"></span>
+                {# book details #}
+                {% include 'books/snippets/item_result.html' %}
+                {# link to view detail page #}
+                <span class="see-more">
+                    See more details
+                    <img class="triangle icon" src="{% static 'img/icons/more_triangle.svg' %}" alt="">
+                </span>
+            </div>
+        </a>
+    </li>
     {% endfor %}
 </ol>

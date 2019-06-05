@@ -19,7 +19,7 @@
 
     // hide the "birth/death dates" label
     .birth-death dt {
-        display: none;
+        @include sr-only;
     }
 
     .birth-death dd {

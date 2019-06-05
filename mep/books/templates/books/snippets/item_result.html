@@ -1,5 +1,75 @@
 {% load static %}
-<article class="item details">
+<dl class="book">
+    <div class="primary">
+        {# title #}
+        <div class="title">
+            <dt>title</dt>
+            <dd>{{ item.title }}</dt>
+        </div>
+        {# authors #}
+        {% if item.authors|length > 0 %}
+        <div class="authors">
+            <dt>authors</dt>
+            {% for author in item.authors %}
+                {% if forloop.counter <= 3 %}
+                <dd>{{ author }}</dd>
+                {% endif %}
+            {% endfor %}
+            {% if item.authors|length > 3 %}
+            <dd>... {{ item.authors|length|add:"-3" }} more authors</dd>
+            {% endif %}
+        </div>
+        {% endif %}
+        {# editors #}
+        {% if item.editors.count > 0 %}
+        <div class="editors">
+            <dt>editors</dt>
+            {% for editor in item.editors.all %}
+            <dd>{{ editor }}</dd>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {# translators #}
+        {% if item.translators.count > 0 %}
+        <div class="translators">
+            <dt>translators</dt>
+            {% for translator in item.translators.all %}
+            <dd>{{ translator }}</dd>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {# publication date #}
+        {% firstof item.pub_date item.year as pubdate %}
+        {% if pubdate %}
+        <div class="pubdate">
+            <dt>publication date</dt>
+            <dd><time datetime="{% pubdate }}">{{ pubdate }}</time></dd>
+        </div>
+        {% endif %}
+    </div>
+    <div class="secondary">
+        {# publishers #}
+        {% if item.publishers.count > 0 %}
+        <div class="publishers">
+            <dt>publishers</dt>
+            {% for publisher in item.publishers %}
+            <dd>{{ publisher }}</dd>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {# format #}
+        {% if item.format %}
+        {% endif %}
+        {# relevance #}
+        {% if user.is_authenticated and item.score %}
+        <div class="relevance">
+            <dt>relevance</dt>
+            <dd>{{ item.score }}</dd>
+        </div>
+        {% endif %}
+    </div>
+</dl>
+{% comment %} <article class="item details">
     <div class="main">
         <span class="counter"></span>
         <div class="metadata">
@@ -50,4 +120,4 @@
         See more details
         <img class="triangle icon" src="{% static 'img/icons/more_triangle.svg' %}" alt="">
     </span>
-</article>
+</article> {% endcomment %}

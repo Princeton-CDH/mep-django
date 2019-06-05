@@ -1,12 +1,25 @@
 .books.result {
-    // show the title
-    .title {
-        display: inline;
+
+    .primary {
+        flex: 2;
     }
 
-    // hide the "creators" label
-    .creator-label {
-        display: none;
+    // show the title
+    .title {
+        display: block;
+    }
+
+    .authors dt,
+    .pubdate dt {
+        @include sr-only;
+    }
+
+    .authors dd {
+        margin-top: 0.5rem;
+    }
+
+    .pubdate dd {
+        margin-top: 0.75rem;
     }
 
     // hide the "view cards" link
