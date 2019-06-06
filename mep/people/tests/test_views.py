@@ -616,7 +616,7 @@ class TestMembersListView(TestCase):
         self.assertContains(response, account.earliest_date().year)
         self.assertContains(response, account.last_date().year)
         # should not display relevance score
-        self.assertNotContains(response, '<h2>Relevance</h2>')
+        self.assertNotContains(response, '<dt>relevance</dt>')
 
         # icon for 'has card' should show up twice, once in the list
         # and once in the filter icon
@@ -639,7 +639,7 @@ class TestMembersListView(TestCase):
         response = self.client.get(self.members_url, {'query': card_member.name})
         assert response.context['members'].count() == 1
         # should not display relevance score
-        self.assertNotContains(response, '<h2>Relevance</h2>',
+        self.assertNotContains(response, '<dt>relevance</dt>',
             msg_prefix='relevance score not displayed to anonymous user')
 
         # login as staff user with no special permissions
@@ -650,7 +650,7 @@ class TestMembersListView(TestCase):
         self.client.login(username=staffuser.username, password=staff_password)
         response = self.client.get(self.members_url, {'query': card_member.name})
         self.assertContains(
-            response, '<h2>Relevance</h2>',
+            response, '<dt>relevance</dt>',
             msg_prefix='relevance score displayed for logged in users')
 
         # TODO: not sure how to test pagination/multiple pages
