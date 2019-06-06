@@ -21,7 +21,7 @@
         <div class="references">
             <dt>reference</dt>
             {% if member.viaf %}
-            <dd><a href="{{ member.viaf }}">VIAF</a></dd>
+            <dd><a href="{{ member.viaf.url }}">VIAF</a></dd>
             {% endif %}
             {% if member.urls.count > 0 %}
                 {% for reference in member.urls.all %}
