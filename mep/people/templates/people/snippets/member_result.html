@@ -10,13 +10,9 @@
         <div class="birth-death">
             <dt>birth / death</dt>
             <dd>
-                {% if member.birth_year %}
-                <time datetime="{{ member.birth_year }}">{{ member.birth_year }}</time>
-                {% endif %}
-                <span> - </span>
-                {% if member.death_year %}
-                <time datetime="{{ member.death_year }}">{{ member.death_year }}</time>
-                {% endif %}
+            {% if member.birth_year %}{{ member.birth_year }}{% endif %}
+             - 
+            {% if member.death_year %}{{ member.death_year }}{% endif %}
             </dd>
         </div>
         {% endif %}
@@ -37,19 +33,16 @@
     </div>
     <div class="secondary">
         {# membership dates #}
-        {% firstof member.account_start member.account_set.first.earliest_date|date:'Y' as account_start %}
-        {% firstof member.account_end member.account_set.first.last_date|date:'Y' as account_end %}
+        {% firstof member.account_start member.account_set.first.earliest_date as account_start %}
+        {% firstof member.account_end member.account_set.first.last_date as account_end %}
         {% if account_start or account_end %}
         <div class="member-dates">
             <dt>membership dates</dt>
             <dd>
-                {% if account_start %}
-                <time datetime="{{ account_start }}">{{ account_start }}</time>
-                {% endif %}
+                {% if account_start %}{{ account_start }}{% endif %}
                 {% if account_end and account_start != account_end %}
-                <span> - </span>
-                <time datetime="{{ account_end }}">{{ account_end }}</time>
-                {% endif %}
+                 - 
+                {{ account_end }}{% endif %}
             </dd>
         </div>
         {% endif %}

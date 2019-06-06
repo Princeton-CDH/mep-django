@@ -787,9 +787,8 @@ class TestMemberDetailView(TestCase):
             'library members should have a detail page'
         assert response.context['member'] == gay, \
             'page should correspond to the correct member'
-        # check name
-        self.assertContains(response, 'Francisque Gay')
         # check dates
+        self.assertContains(response, 'Birth / Death')
         self.assertContains(response, '1885 - 1963')
         # check membership dates
         self.assertContains(response, 'Membership Dates')
