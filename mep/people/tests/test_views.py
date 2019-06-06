@@ -788,16 +788,12 @@ class TestMemberDetailView(TestCase):
         assert response.context['member'] == gay, \
             'page should correspond to the correct member'
         # check dates
-        self.assertContains(response, 'Birth / Death')
         self.assertContains(response, '1885 - 1963')
         # check membership dates
-        self.assertContains(response, 'Membership Dates')
         self.assertContains(response, 'March 4, 1934 - Feb. 3, 1941')
         # check VIAF
-        self.assertContains(response, 'Reference')
         self.assertContains(response, 'http://viaf.org/viaf/9857613')
         # check nationalities
-        self.assertContains(response, 'Nationality')
         self.assertContains(response, 'France')
         # NOTE currently not including/checking profession
 
