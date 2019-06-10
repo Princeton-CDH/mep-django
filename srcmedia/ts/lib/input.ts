@@ -6,7 +6,7 @@ import { Rx } from './common'
 /**
  * An ancestor for all reactive `<input>` elements. These elements should always
  * have a `type` attribute, so the class is abstract.
- * 
+ *
  * Reactivity is based on UIEvents of type EVENT_TYPE, which will update the
  * input's validity and (in ancestor classes) other properties like `value`.
  *
@@ -88,7 +88,7 @@ class RxCheckboxInput extends RxInput {
 
     // use the 'change' event for compatibility with IE (and iOS Safari?)
     // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event#Browser_compatibility
-    protected readonly EVENT_TYPE: string = 'change' 
+    protected readonly EVENT_TYPE: string = 'change'
 
     constructor(element: HTMLInputElement) {
         super(element)
