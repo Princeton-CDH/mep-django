@@ -1,13 +1,14 @@
 import { merge } from 'rxjs'
-import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, skip, flatMap } from 'rxjs/operators'
+import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, flatMap, skip, tap } from 'rxjs/operators'
 
-import { arraysAreEqual, animateElementContent } from './lib/common'
-import { RxTextInput, RxCheckboxInput } from './lib/input'
+import { arraysAreEqual } from './lib/common'
+import { RxTextInput } from './lib/input'
 import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
 import { RxSelect } from './lib/select'
 import PageControls from './components/PageControls'
 import { RxChoiceFacet, RxBooleanFacet } from './lib/facet'
+import { RxRangeFilter, rangesAreEqual } from './lib/filter'
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -21,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
     const $genderFacet = document.querySelector('#id_sex') as HTMLFieldSetElement
-
+    const $memDateFacet = document.querySelector('#id_membership_dates') as HTMLFieldSetElement
+    const $errors = document.querySelector('div[role=alert].errors')
 
     /* COMPONENTS */
     const membersSearchForm = new RxFacetedSearchForm($membersSearchForm)
@@ -33,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortSelect = new RxSelect($sortSelect)
     const pageControls = new PageControls($pageControls)
     const genderFacet = new RxChoiceFacet($genderFacet)
+    const memDateFacet = new RxRangeFilter($memDateFacet)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
@@ -51,8 +54,23 @@ document.addEventListener('DOMContentLoaded', () => {
         map(t => t === '0'), // true if totalResults is '0'
         distinctUntilChanged()
     )
-    const noKeyword$ = keywordInput.state.pipe(
-        pluck('value'),
+    const keywordChange$ = keywordInput.value$.pipe( // debounced, deduped changes
+        skip(1), // ignore initial value
+        debounceTime(500),
+        distinctUntilChanged()
+    )
+    const memDateChange$ = memDateFacet.value$.pipe( // debounced, deduped and valid changes
+        debounceTime(500), // debounce
+        withLatestFrom(memDateFacet.valid$), // check validity
+        distinctUntilChanged(([a, aValid], [b, bValid]) => { // for the first entry (used only for comparison),
+            return rangesAreEqual(a, b) && (aValid == bValid) // we care whether there was a change in validity OR values
+        }),
+        skip(1), // for all other entries (used to actually update)
+        filter(([range, valid]) => valid), // only accept valid submissions
+        map(([range, valid]) => range), // only need range
+        distinctUntilChanged(rangesAreEqual) // ignore identical ranges, since we will always have valid ones
+    )
+    const noKeyword$ = keywordInput.value$.pipe(
         map(v => v === ''), // true if the value of the keyword input is ''
         distinctUntilChanged()
     )
@@ -65,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     )
     const noResultsPageOption$ = noResults$.pipe(
         filter(n => n === true), // only generate if no results
-        mapTo([{ value: '1', text: 'N/A' }]) // create a 'N/A' page option    
+        mapTo([{ value: '1', text: 'N/A' }]) // create a 'N/A' page option
     )
     const pageLabelOptions$ = merge(
         pageLabels$.pipe( // generate new <options> based on page labels if we have any
@@ -82,19 +100,20 @@ document.addEventListener('DOMContentLoaded', () => {
         map(c => c.toString()) // map to a string for passing as pageSelect value
     )
     const reloadFacets$ = merge( // a list of all the things that require fetching new facets
-        keywordInput.state,
-        hasCardFacet.state,
+        keywordChange$,
+        memDateChange$,
+        hasCardFacet.checked$.pipe(skip(1)), // ignore initial
         genderFacet.events,
     )
     const reloadResults$ = merge( // a list of all the things that require fetching new results (jump to page 1)
         reloadFacets$, // anything that changes facets also triggers new results
         sortSelect.value
-    ).pipe(debounceTime(100)) 
+    ).pipe(debounceTime(100))
     // slight debounce - otherwise we would get repeated events when e.g.
     // the user types a keyword, which also switches the sort to relevance
-    // debounce ensures these are close enough to read as a single event  
+    // debounce ensures these are close enough to read as a single event
     const totalResultsText$ = merge(
-        totalResults$.pipe(map(t => `${t.toLocaleString()} total results`)), // when there are results, say how many, with a comma 
+        totalResults$.pipe(map(t => `${t.toLocaleString()} total results`)), // when there are results, say how many, with a comma
         reloadResults$.pipe(mapTo('Results are loading')) // when loading, replace with this text
     )
     const sort$ = noKeyword$.pipe( // 'name' if no keyword, 'relevance' otherwise
@@ -113,6 +132,20 @@ document.addEventListener('DOMContentLoaded', () => {
     )
 
     /* SUBSCRIPTIONS */
+
+    // If there were errors, make sure they're cleared when the form becomes valid
+    if ($errors) {
+        membersSearchForm.valid.pipe(filter(v => v)).subscribe(() => {
+            $errors.remove() // NOTE could use a nicer animation here?
+        })
+    }
+
+    // If the membership date facet had an error, make sure it's cleared when it becomes valid
+    if ($memDateFacet.classList.contains('error')) {
+        memDateFacet.valid$.pipe(filter(v => v)).subscribe(() => {
+            $memDateFacet.classList.remove('error')
+        })
+    }
 
     // Change the sort depending on if a keyword is active or not
     sort$.subscribe(sortSelect.value)
@@ -136,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pageSelect.value.subscribe(() => {
         membersSearchForm.getResults()
         pageControls.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
-        resultsOutput.element.setAttribute('aria-busy', '') 
+        resultsOutput.element.setAttribute('aria-busy', '')
     })
 
     // When next/previous page links are clicked, go to the next page

@@ -34,7 +34,7 @@ class Command(BaseCommand):
     #: summary message string for each mode
     summary_message = {
         'report': 'Processed %(count)d items, found matches for %(found)d',
-        'update': 'Processed %(count)d items, updated %(updated)d, no matches for %(no_match)d',
+        'update': 'Processed %(count)d items, updated %(updated)d, no matches for %(no_match)d, %(error)d error(s)',
     }
 
     progbar = None
@@ -142,6 +142,7 @@ class Command(BaseCommand):
             except ConnectionError as err:
                 self.stderr.write('Error: %s' % err)
                 worldcat_entity = None
+                self.stats['error'] += 1
                 error = True
 
             if worldcat_entity:

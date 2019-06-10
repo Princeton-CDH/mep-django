@@ -296,23 +296,22 @@ class TestPerson(TestCase):
         assert index_data['sort_name_t'] == pers.sort_name
         assert index_data['birth_year_i'] == pers.birth_year
         assert index_data['death_year_i'] == pers.death_year
-        # account start/end should not be set
-        assert 'account_start_i' not in index_data
-        assert 'account_end_i' not in index_data
-        # sex should not be set
-        assert 'sex_s' not in index_data
-
+        # account dates and sex should not be set
+        for missing_val in ['account_start_i', 'account_end_i',
+                            'account_years_i', 'sex_s']:
+            assert missing_val not in index_data
 
         # add account events for earliest/latest
         Subscription.objects.create(account=acct,
                                     start_date=datetime.date(1921, 1, 1))
         Reimbursement.objects.create(account=acct,
-                                    start_date=datetime.date(1922, 1, 1))
+                                     start_date=datetime.date(1922, 1, 1))
         # add sex information
         pers.sex = Person.MALE
         index_data = pers.index_data()
         assert index_data['account_start_i'] == 1921
         assert index_data['account_end_i'] == 1922
+        assert index_data['account_years_is'] == [1921, 1922]
         assert index_data['sex_s'] == 'Male'
 
 

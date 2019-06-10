@@ -53,8 +53,7 @@ span[role=tooltip] {
     }
 
     &:hover,
-    &:focus,
-    &.active { // show when hovered, focused or clicked/tapped
+    &:focus { // show when hovered, focused or clicked/tapped
         &::before,
         &::after {
             opacity: 1;

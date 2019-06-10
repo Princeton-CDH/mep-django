@@ -1,4 +1,4 @@
-import { Subject } from 'rxjs'
+import { Subject, Observable } from 'rxjs'
 
 import { RxBooleanFacet, RxChoiceFacet } from './facet'
 
@@ -76,5 +76,3 @@ describe('RxChoiceFacet', () => {
         expect(watcher).toHaveBeenCalled()
     })
 })
-
-

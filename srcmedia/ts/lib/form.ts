@@ -1,5 +1,5 @@
-import { Subject, pipe, Observable } from 'rxjs'
-import { distinctUntilChanged } from 'rxjs/operators'
+import { Subject, Observable } from 'rxjs'
+import { distinctUntilChanged, map } from 'rxjs/operators'
 
 import { Component, ajax, acceptJson } from './common'
 
@@ -52,9 +52,11 @@ class RxForm extends Component {
  */
 class RxSearchForm extends RxForm {
     // Observables
-    results: Subject<string>
-    totalResults: Subject<string>
-    pageLabels: Subject<Array<string>>
+    public results: Subject<string>
+    public totalResults: Subject<string>
+    public pageLabels: Subject<Array<string>>
+    public valid: Observable<boolean>
+
     // Readonly constants
     protected readonly TOTAL_RESULTS_HEADER: string = 'X-Total-Results'
     protected readonly PAGE_LABELS_HEADER: string = 'X-Page-Labels'  
@@ -65,6 +67,11 @@ class RxSearchForm extends RxForm {
         this.results = new Subject()
         this.totalResults = new Subject()
         this.pageLabels = new Subject()
+        // Update validity when we get results
+        this.valid = this.results.pipe(
+            map(() => this.element.checkValidity()),
+            distinctUntilChanged()
+        )
     }
 
     /**
