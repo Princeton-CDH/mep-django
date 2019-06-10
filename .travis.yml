@@ -3,7 +3,7 @@ python:
 - '3.5'
 env:
   global:
-  - SOLR_VERSION=6.6.5
+  - SOLR_VERSION=6.6.6
 cache:
   pip: true
   directories:
@@ -25,9 +25,10 @@ before_script:
 - mysql -u root -e "create database travismep"; # setup a test db for pa11y
 - mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
 - python manage.py migrate
+- python manage.py loaddata sample_people sample_items # load sample people and books
+- python manage.py loaddata wagtail_pages # load test site and sample pages
 - python manage.py solr_schema --noinput  # create solr core and config schema
 - python manage.py index  # index content into solr
-- python manage.py loaddata wagtail_pages # load test site and sample pages
 - python manage.py runserver --insecure &  # serve in background for pa11y
 script:
 - py.test --cov=mep
