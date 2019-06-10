@@ -21,7 +21,7 @@ describe('RxRangeFilter', () => {
         expect(values).toHaveBeenCalledWith([NaN, NaN]) // both empty
     })
 
-    it('publishes its validity as an observalbe, starting with initial validity', () => {
+    it('publishes its validity as an observable, starting with initial validity', () => {
         const $facet = document.querySelector('.range.facet') as HTMLFieldSetElement
         const rrf = new RxRangeFilter($facet)
         const valid = jest.fn()
