@@ -86,7 +86,9 @@ class RxCheckboxInput extends RxInput {
 
     public checked$: Observable<boolean>
 
-    protected readonly EVENT_TYPE: string = 'change' // use the 'change' event for legacy compatibility
+    // use the 'change' event for compatibility with IE (and iOS Safari?)
+    // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event#Browser_compatibility
+    protected readonly EVENT_TYPE: string = 'change' 
 
     constructor(element: HTMLInputElement) {
         super(element)

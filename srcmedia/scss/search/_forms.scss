@@ -49,7 +49,9 @@
         text-align: center;
         border: 1px solid $light-grey;
 
-        // remove spinners in webkit browsers
+        // remove spinners in webkit browsers due to bug: when they are active,
+        // clicking the down arrow will eventually cause input value to "wrap"
+        // from min back up to max, rather than staying at min
         &::-webkit-inner-spin-button,
         &::-webkit-outer-spin-button {
             -webkit-appearance: none;
