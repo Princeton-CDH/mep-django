@@ -308,7 +308,7 @@ class TestWorldCatEntity:
 
         # simulate no type
         wc_entity.rdf_resource.remove(rdflib.RDF.type)
-        assert wc_entity.item_type == None
+        assert wc_entity.item_type is None
 
     def test_genres(self):
         time_and_tide = self.worldcat_entity_from_fixture_timetide()

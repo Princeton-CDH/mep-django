@@ -62,7 +62,7 @@ class Command(BaseCommand):
                 value = getattr(rel_delta, attr)
                 # use attribute name for label, and strip off s if singular
                 label = attr
-                if value is 1:
+                if value == 1:
                     label = attr.rstrip('s')
                 parts.append('{} {}'.format(value, label))
 
