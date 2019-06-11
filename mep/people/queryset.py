@@ -16,8 +16,8 @@ class PersonSolrQuerySet(AliasedSolrQuerySet):
         'death_year': 'death_year_i',
         'account_start': 'account_start_i',
         'account_end': 'account_end_i',
+        'account_years': 'account_years_is',
         'has_card': 'has_card_b',
         'pk': 'pk_i',
         'sex': 'sex_s',
-        'account_years': 'account_years_is'
     }

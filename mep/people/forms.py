@@ -123,7 +123,12 @@ class MemberSearchForm(FacetForm):
         for field, field_obj in self.fields.items():
             if isinstance(field_obj, RangeField):
                 stats_field_name = self.range_field_map.get(field, field)
-                min_year, max_year = min_max_conf[stats_field_name]
+                min_max = min_max_conf.get(stats_field_name, None)
+                # Continue if a field isn't found for whatever reason
+                if min_max is None:
+                    continue
+
+                min_year, max_year = min_max
                 start_widget, end_widget = field_obj.widget.widgets
 
                 # set placeholders for widgets individually

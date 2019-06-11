@@ -170,7 +170,28 @@ class TestMemberForm(TestCase):
         assert multi_widget.attrs['min'] == 1900
         assert multi_widget.attrs['max'] == 1950
 
+        # if an exepcted key is missing from conf, don't
+        # error, just don't set it.
+        min_max_conf['account_years'] = None
+        form = MemberSearchForm()
+        form.set_daterange_placeholders(min_max_conf)
+        # birth year set as before
+        multi_widget = form.fields['birth_year'].widget
+        start_widget, end_widget = multi_widget.widgets
+        # placeholders for individual inputs are set
+        assert start_widget.attrs['placeholder'] == 1900
+        assert end_widget.attrs['placeholder'] == 1950
 
+        # membership dates, however, should be skipped
+        # # aliased field is set
+        multi_widget = form.fields['membership_dates'].widget
+        start_widget, end_widget = multi_widget.widgets
 
+        # placeholders for individual inputs are NOT set
+        assert 'placeholder' not in start_widget.attrs
+        assert 'placeholder' not in end_widget.attrs
 
+        # attrs for both are NOT set via multiwidget
+        assert 'min' not in multi_widget.attrs
+        assert 'max' not in multi_widget.attrs
 
