@@ -69,8 +69,8 @@ class RxNumberInput extends RxInput {
         super(element)
         this.value$ = this.events$.pipe(
             map(() => this.element.value),
-            map(value => parseInt(value)), // will return NaN if not an integer
-            startWith(parseInt(this.element.value)),
+            map(value => parseInt(value, 10)), // will return NaN if not an integer
+            startWith(parseInt(this.element.value, 10)),
         )
     }
 }

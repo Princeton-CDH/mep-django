@@ -551,7 +551,7 @@ def test_range_widget():
 
 def test_range_field():
     # range widget decompress logic
-    assert RangeField().compress([]) == None
+    assert RangeField().compress([]) is None
     assert RangeField().compress([100, None]) == (100, None)
     assert RangeField().compress([None, 250]) == (None, 250)
     assert RangeField().compress([100, 250]) == (100, 250)
