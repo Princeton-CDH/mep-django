@@ -263,11 +263,9 @@ class EventQuerySet(models.QuerySet):
         return self._subtype('purchase')
 
 
-class Event(Notable):
+class Event(Notable, PartialDateMixin):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
     account = models.ForeignKey(Account)
-    temp_start_date_precision = DatePrecisionField(null=True, blank=True)
-    temp_end_date_precision = DatePrecisionField(null=True, blank=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     #: Optional associated :class:`~mep.books.models.Item`
@@ -483,8 +481,7 @@ class Subscription(Event, CurrencyMixin):
     readable_duration.admin_order_field = 'duration'
 
 
-
-class Borrow(PartialDateMixin, Event):
+class Borrow(Event):
     '''Inherited table indicating borrow events'''
     #: :class:`~mep.books.models.Item` that was borrowed;
     #: optional to account for unclear titles
@@ -510,7 +507,7 @@ class Borrow(PartialDateMixin, Event):
         super(Borrow, self).save(*args, **kwargs)
 
 
-class Purchase(PartialDateMixin, CurrencyMixin, Event):
+class Purchase(CurrencyMixin, Event):
     '''Inherited table indicating purchase events; extends :class:`Event`'''
     price = models.DecimalField(max_digits=8, decimal_places=2,
         blank=True, null=True)

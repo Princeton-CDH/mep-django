@@ -67,6 +67,11 @@ class PartialDate:
         '''Return a format string for use with :meth:`datetime.date.strftime`
         to output a date with the appropriate precision'''
         parts = []
+
+        # Handle NULL as indicating full date precision
+        if value is None:
+            return '%Y-%m-%d'
+
         # cast integer to date precision to check flags
         value = DatePrecision(value)
 

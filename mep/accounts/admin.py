@@ -57,7 +57,7 @@ class OpenFootnoteInline(FootnoteInline):
     extra = 1
 
 
-class EventAdminForm(forms.ModelForm):
+class EventAdminForm(PartialDateFormMixin):
     '''Admin form for the Event model, adds autocomplete to account'''
     class Meta:
         model = Event
@@ -112,14 +112,14 @@ class EventAdmin(admin.ModelAdmin):
     model = Event
     form = EventAdminForm
     date_hierarchy = 'start_date'
-    fields = ('account', 'event_type', 'start_date', 'end_date',
-              'item', 'notes')
+    fields = ('account', 'event_type', 'partial_start_date',
+              'partial_end_date', 'item', 'notes')
     readonly_fields = ('event_type',)
-    list_display = ('account', 'event_type', 'start_date', 'end_date',
-                    'item', 'notes')
+    list_display = ('account', 'event_type', 'partial_start_date',
+                    'partial_end_date', 'item', 'notes')
     search_fields = ('account__persons__name', 'account__persons__mep_id',
-                     'start_date', 'end_date', 'notes', 'item__title',
-                     'item__notes')
+                     'start_date', 'end_date', 'notes',
+                     'item__title', 'item__notes')
     list_filter = (EventTypeListFilter, )
     inlines = [OpenFootnoteInline]
 
