@@ -10,7 +10,8 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
 
-from mep.accounts.partial_date import PartialDateMixin, DatePrecision
+from mep.accounts.partial_date import PartialDateMixin, DatePrecision,\
+    DatePrecisionField
 from mep.books.models import Item
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Location
@@ -265,6 +266,8 @@ class EventQuerySet(models.QuerySet):
 class Event(Notable):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
     account = models.ForeignKey(Account)
+    temp_start_date_precision = DatePrecisionField(null=True, blank=True)
+    temp_end_date_precision = DatePrecisionField(null=True, blank=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     #: Optional associated :class:`~mep.books.models.Item`
