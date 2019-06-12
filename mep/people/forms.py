@@ -119,18 +119,26 @@ class MemberSearchForm(FacetForm):
 
     def set_daterange_placeholders(self, min_max_conf):
         '''Set the min, max, and placeholder values for all fields associated
-        with :class:`mep.common.forms.RangeWidget`'''
+        with :class:`mep.common.forms.RangeWidget`.
+
+        :param min_max_conf: set of (min, max) tuples
+        :type min_max_conf: dict
+        :rtype: None
+        '''
         for field, field_obj in self.fields.items():
             if isinstance(field_obj, RangeField):
+                # Lookup up alias in mapping of range fields to solr fields
+                # or look for field in dict
                 stats_field_name = self.range_field_map.get(field, field)
                 min_max = min_max_conf.get(stats_field_name, None)
+
                 # Continue if a field isn't found for whatever reason
+                # so that other facets can be processed correctly.
                 if min_max is None:
                     continue
 
                 min_year, max_year = min_max
                 start_widget, end_widget = field_obj.widget.widgets
-
                 # set placeholders for widgets individually
                 start_widget.attrs['placeholder'] = min_year
                 end_widget.attrs['placeholder'] = max_year

@@ -63,8 +63,9 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         # initialize the form, caching on current instance
         if not self._form:
             self._form = super().get_form(*args, **kwargs)
-        # set minimum and maximum years for date range field
-            min_max_ranges = self.get_year_ranges('birth_year', 'account_years')
+        # set minimum and maximum years for date range fields
+            min_max_ranges = self.get_year_ranges('birth_year',
+                                                  'account_years')
             if min_max_ranges:
                 self._form.set_daterange_placeholders(min_max_ranges)
         # Get facets from solr return
@@ -75,10 +76,11 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         """Return the earliest and latest years for any account activity in
         the library.
 
-        :param *field_names: ``str``
+        :param \*field_names:
             Field names for which to return min and max years.
+        :type \*field_names: tuple
 
-        :return: Field-keyed min and max years as integers
+        :returns: Field-keyed min and max years as integers
         :rtype: dict
         """
 
