@@ -662,6 +662,24 @@ class TestMembersListView(TestCase):
             msg_prefix='Response has min set twice for inputs'
         )
 
+        # check for max, min and placeholders for birth year
+        # should be 1885 and 1899 respectively
+        self.assertContains(
+            response, 'placeholder="1885"',
+            msg_prefix='Membership widget sets placeholder for max year.'
+        )
+        self.assertContains(
+            response, 'placeholder="1899"',
+            msg_prefix='Membership widget sets placeholder for min year.',
+        )
+        self.assertContains(
+            response, 'max="1899"', count=2,
+            msg_prefix='Response has max set twice for inputs'
+        )
+        self.assertContains(
+            response, 'min="1885"', count=2,
+            msg_prefix='Response has min set twice for inputs'
+        )
         # login as staff user with no special permissions
         staff_password = 'sosecret'
         staffuser = User.objects.create_user(

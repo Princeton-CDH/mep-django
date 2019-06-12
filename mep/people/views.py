@@ -91,10 +91,10 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
                 try:
                     min_year = int(stats['stats_fields'][name]['min'])
                     max_year = int(stats['stats_fields'][name]['max'])
-                    min_max_ranges[name] =  (min_year, max_year)
-                # min and max will be converted to None/NULL if no events
-                # are indexed, but won't block other fields from being
-                # returned.
+                    min_max_ranges[name] = (min_year, max_year)
+                # min and max will raise TypeError when cast to int if
+                # they are None/NULL (i.e. missing) but won't block
+                # other fields from being processed
                 except TypeError:
                     pass
         return min_max_ranges
