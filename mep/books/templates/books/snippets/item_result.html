@@ -1,12 +1,12 @@
 {% load static %}
 <dl class="book">
     <div class="primary">
-        {# title #}
+        {# title - solr only #}
         <div class="title">
             <dt>title</dt>
             <dd>{{ item.title }}</dt>
         </div>
-        {# authors #}
+        {# authors - solr & db #}
         {% if item.authors|length > 0 %}
         <div class="authors">
             <dt>authors</dt>
@@ -20,7 +20,7 @@
             {% endif %}
         </div>
         {% endif %}
-        {# editors #}
+        {# editors - db only #}
         {% if item.editors.count > 0 %}
         <div class="editors">
             <dt>editors</dt>
@@ -29,7 +29,7 @@
             {% endfor %}
         </div>
         {% endif %}
-        {# translators #}
+        {# translators - db only #}
         {% if item.translators.count > 0 %}
         <div class="translators">
             <dt>translators</dt>
@@ -38,7 +38,7 @@
             {% endfor %}
         </div>
         {% endif %}
-        {# publication date #}
+        {# publication date - solr (pub_date) & db (year) #}
         {% firstof item.pub_date item.year as pubdate %}
         {% if pubdate %}
         <div class="pubdate">
@@ -48,7 +48,7 @@
         {% endif %}
     </div>
     <div class="secondary">
-        {# publishers #}
+        {# publishers - db only #}
         {% if item.publishers.count > 0 %}
         <div class="publishers">
             <dt>publishers</dt>
@@ -57,10 +57,10 @@
             {% endfor %}
         </div>
         {% endif %}
-        {# format #}
+        {# format - not yet implemented #}
         {% if item.format %}
         {% endif %}
-        {# relevance #}
+        {# relevance - solr only #}
         {% if user.is_authenticated and item.score %}
         <div class="relevance">
             <dt>relevance</dt>

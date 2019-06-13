@@ -1,11 +1,11 @@
 <dl class="member">
     <div class="primary">
-        {# name #}
+        {# name - solr only #}
         <div class="name">
             <dt>name</dt>
             <dd>{{ member.sort_name.0 }}</dd>
         </div>
-        {# birth & death dates #}
+        {# birth & death dates - solr & db #}
         {% if member.birth_year or member.death_year %}
         <div class="birth-death">
             <dt>birth / death</dt>
@@ -16,7 +16,7 @@
             </dd>
         </div>
         {% endif %}
-        {# references #}
+        {# references - db only #}
         {% if member.viaf or member.urls.count > 0 %}
         <div class="references">
             <dt>reference</dt>
@@ -32,7 +32,8 @@
         {% endif %}
     </div>
     <div class="secondary">
-        {# membership dates #}
+        {# membership dates - solr & db #}
+        {# account_start/account_end are solr; account_set is db #}
         {% firstof member.account_start member.account_set.first.earliest_date as account_start %}
         {% firstof member.account_end member.account_set.first.last_date as account_end %}
         {% if account_start or account_end %}
@@ -46,7 +47,7 @@
             </dd>
         </div>
         {% endif %}
-        {# nationality #}
+        {# nationality - db only #}
         {% if member.nationalities.count > 0 %}
         <div class="nationality">
             <dt>nationality</dt>
@@ -55,14 +56,14 @@
             {% endfor %}
         </div>
         {% endif %}
-        {# profession #}
+        {# profession - db only #}
         {% if member.profession %}
         <div class="profession">
             <dt>profession</dt>
             <dd>{{ member.profession.name }}</dd>
         </div>
         {% endif %}
-        {# display relevance score to logged in users if score is present #}
+        {# relevance - solr only #}
         {% if user.is_authenticated and member.score %}
         <div class="relevance">
             <dt>relevance</dt>
