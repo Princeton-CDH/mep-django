@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>CHANGELOG &#8212; Mapping Expatriate Paris - Django 0.16.0 documentation</title>
+    <title>CHANGELOG &#8212; Mapping Expatriate Paris - Django 0.17.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -36,7 +36,17 @@
   <div class="section" id="changelog">
 <span id="id1"></span><h1>CHANGELOG<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id2">
-<h2>0.16<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<h2>0.17<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>As a user, I want to filter library members by membership dates so that I can see who was active in the library in a particular time period.</li>
+<li>As a user, if I load the members search page with invalid input I want to see the error so I know what’s wrong and can tell when I’ve fixed the problem.</li>
+<li>bugfix: OCLC search syntax error breaks OCLC reconciliation</li>
+<li>updates templates for book &amp; member details to use more semantic markup</li>
+<li>adds a stub book detail page</li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h2>0.16<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>As a user, I want to view and navigate by breadcrumbs so I know where I am in the site hierarchy and can navigate to pages above the one I’m on.</li>
 <li>As a content editor, I want to view and edit item format so I can designate item type.</li>
@@ -47,8 +57,8 @@
 <li>bugfix: tooltip is triggered by hovering space where it would appear</li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>0.15<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>0.15<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>As a user, I want the members list page updated as soon as I change search terms, filters, or results page so that I can refine my search without losing my place in the form and have results load more quickly.</li>
 <li>As a user, I want the count of members with cards to update as soon as I change search terms or filters so that I can see an accurate number for my current search.</li>
@@ -57,8 +67,8 @@
 <li>bugfix: don’t defer loading of &lt;script&gt;s to avoid flash of unstyled content</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>0.14<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>0.14<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>As a user I want members automatically sorted by relevance if I have a keyword search term active and otherwise by member name, so that I see best matches first for keyword searches.</li>
 <li>As a user, I want to filter library members to those with a lending card available on the site so that I can focus on members with cards and borrowing activity.</li>
@@ -68,15 +78,15 @@
 <li>bugfix: members keyword search sort most relevant items first instead of last</li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>0.13<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>0.13<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>As a user, I want to search for library members by name or partial name so that I can find specific people I’m interested in.</li>
 <li>Updated results template &amp; styles for book browse page</li>
 </ul>
 </div>
-<div class="section" id="id6">
-<h2>0.12<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h2>0.12<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>As a user, I want the library member list paginated so that I don’t have to browse through all the names at once.</li>
 <li>As a user, I want to browse a list of books so that I can see all the books known to have circulated through the library.</li>
@@ -178,8 +188,8 @@ migration.</p>
 <li>Removes now obsolete <cite>import_logbooks</cite> manage command.</li>
 </ul>
 </div>
-<div class="section" id="id7">
-<h2>0.3.1<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h2>0.3.1<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Remove unneeded database backup from Ansible deploy.</li>
 </ul>
@@ -315,11 +325,12 @@ managing data about people associated with Sylvia Beach’s lending library.</p>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">CHANGELOG</a><ul>
-<li><a class="reference internal" href="#id2">0.16</a></li>
-<li><a class="reference internal" href="#id3">0.15</a></li>
-<li><a class="reference internal" href="#id4">0.14</a></li>
-<li><a class="reference internal" href="#id5">0.13</a></li>
-<li><a class="reference internal" href="#id6">0.12</a></li>
+<li><a class="reference internal" href="#id2">0.17</a></li>
+<li><a class="reference internal" href="#id3">0.16</a></li>
+<li><a class="reference internal" href="#id4">0.15</a></li>
+<li><a class="reference internal" href="#id5">0.14</a></li>
+<li><a class="reference internal" href="#id6">0.13</a></li>
+<li><a class="reference internal" href="#id7">0.12</a></li>
 <li><a class="reference internal" href="#admin-enhancements-and-initial-solr-functionality">0.11 Admin enhancements and initial Solr functionality</a></li>
 <li><a class="reference internal" href="#initial-member-list-and-wagtail-cms-functionality">0.10 Initial member list and Wagtail CMS functionality</a></li>
 <li><a class="reference internal" href="#add-purchase-events-to-admin">0.9 Add Purchase events to admin</a></li>
@@ -328,7 +339,7 @@ managing data about people associated with Sylvia Beach’s lending library.</p>
 <li><a class="reference internal" href="#card-import-and-basic-item-admin">0.6 Card import and basic item admin</a></li>
 <li><a class="reference internal" href="#data-entry-improvements-ii">0.5 Data Entry Improvements II</a></li>
 <li><a class="reference internal" href="#personography-merge">0.4 Personography Merge</a></li>
-<li><a class="reference internal" href="#id7">0.3.1</a></li>
+<li><a class="reference internal" href="#id8">0.3.1</a></li>
 <li><a class="reference internal" href="#data-entry-improvements">0.3 Data Entry Improvements</a><ul>
 <li><a class="reference internal" href="#known-issues">Known issues</a></li>
 </ul>
