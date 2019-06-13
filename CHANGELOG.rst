@@ -3,6 +3,16 @@
 CHANGELOG
 =========
 
+0.17
+----
+
+* As a user, I want to filter library members by membership dates so that I can see who was active in the library in a particular time period.
+* As a user, if I load the members search page with invalid input I want to see the error so I know what’s wrong and can tell when I’ve fixed the problem.
+
+* bugfix: OCLC search syntax error breaks OCLC reconciliation
+* updates templates for book & member details to use more semantic markup
+* adds a stub book detail page
+
 0.16
 ----
 
