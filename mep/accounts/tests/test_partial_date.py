@@ -46,6 +46,9 @@ class TestPartialDate(TestCase):
         pdo.date = datetime.date(1901, 3, 5)
         pdo.date_precision = DatePrecision.year | DatePrecision.month | DatePrecision.day
         assert pdo.partial_date == '1901-03-05'
+        # NULL date precision returns full year
+        pdo.date_precision = None
+        assert pdo.partial_date == '1901-03-05'
         # partial precision
         pdo.date_precision = DatePrecision.year | DatePrecision.month
         assert pdo.partial_date == '1901-03'
@@ -53,6 +56,11 @@ class TestPartialDate(TestCase):
         assert pdo.partial_date == '--03-05'
         pdo.date_precision = DatePrecision.year
         assert pdo.partial_date == '1901'
+
+
+
+
+
         # change default unknown year value
         pdo = self.PartialDateObject1900()
         pdo.date = datetime.date(1900, 3, 5)

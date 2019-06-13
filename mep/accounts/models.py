@@ -292,20 +292,6 @@ class Event(Notable, PartialDateMixin):
         return '%s for account #%s %s' % \
             (self.__class__.__name__, self.account.pk, self.date_range)
 
-    @property
-    def date_range(self):
-        '''Event date range as string. Returns a single date in isoformat
-        if both dates are set to the same date. Uses "??" for unset dates,
-        and returns in format start/end.'''
-
-        # if both dates are set and the same, return a single date
-        if self.start_date and self.end_date and self.start_date == self.end_date:
-            return self.start_date.isoformat()
-
-        # otherwise, use both dates with ?? to indicate unknown date
-        return '/'.join([dt.isoformat() if dt else '??'
-                         for dt in [self.start_date, self.end_date]])
-
     @cached_property
     def event_type(self):
         try:
