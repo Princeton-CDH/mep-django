@@ -48,7 +48,7 @@ mysqlclient==1.3.14
 oauthlib==3.0.1
 packaging==19.0
 Pairtree==0.8.1
-parasolr==0.3.0
+parasolr==0.4.0
 pendulum==1.5.0
 Pillow==5.4.1
 pluggy==0.9.0
