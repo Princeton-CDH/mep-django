@@ -1,10 +1,15 @@
 .search-form fieldset.facet {
-    margin-top: .2rem;
     background: white;
     display: block;
     width: 100%;
     padding: 0.7rem;
     position: relative;
+    border: .1rem solid $transparent;
+    box-sizing: border-box;
+
+    @media (min-width: $breakpoint-s) {
+        padding: 0.5rem;
+    }
 
     > legend {
         position: absolute;
@@ -12,6 +17,10 @@
         left: 0.7rem;
         padding: 0;
         display: block;
+
+        @media (min-width: $breakpoint-s) {
+            left: 0.5rem;
+        }
     }
 
     .choices {
@@ -72,7 +81,6 @@
         overflow: hidden;
         clip: rect(0, 0, 0, 0);
         white-space: nowrap;
-        border: 0;
 
         &:checked + label {
             padding-left: 1.5rem;
@@ -83,6 +91,9 @@
         }
     }
 
+    &.error {
+        border-color: red;
+    }
 
     /**
      * CHOICE FACET - used for facets where all options are always shown, e.g.
@@ -108,6 +119,7 @@
                 display: flex;
                 flex-direction: column;
                 padding: 0;
+                color: $black;
     
                 &::before {
                     top: initial;
@@ -119,6 +131,58 @@
             input:checked + label {
                 padding: 0;
             }
+        }
+    }
+
+    /**
+     * RANGE FACET - two numeric inputs representing a range of values
+     */
+
+    &.range {
+        padding: 0 .7rem;
+        height: 2.2rem;
+        margin-top: 0;
+
+        @media (min-width: $breakpoint-s) {
+            padding: 0 .5rem;
+        }
+
+        legend,
+        .inputs {
+            position: absolute;
+        }
+        
+        legend {
+            top: .55rem;
+            left: .7rem;
+            padding: 0;
+
+            @media (min-width: $breakpoint-s) {
+                left: 0.5rem;
+            }
+        }
+
+        .inputs {
+            top: calc(50% - 0.75rem);
+            right: .7rem;
+
+            @media (min-width: $breakpoint-s) {
+                right: 0.5rem;
+            }
+        }
+
+        .separator {
+            display: inline-block;
+            padding: 0 .5rem;
+            font-size: 0.7rem;
+        }
+
+        input {
+            position: relative;
+            display: inline-block;
+            width: 2.4rem;
+            height: 1.4rem;
+            clip: auto;
         }
     }
 

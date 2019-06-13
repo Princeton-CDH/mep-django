@@ -17,14 +17,14 @@ from django.views.generic.list import ListView
 
 from mep.common import SCHEMA_ORG
 from mep.common.admin import LocalUserAdmin
-from mep.common.forms import CheckboxFieldset, FacetChoiceField, FacetForm
+from mep.common.forms import CheckboxFieldset, FacetChoiceField, FacetForm, \
+    RangeField, RangeWidget
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.templatetags.mep_tags import dict_item
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
-from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, RdfViewMixin,
-                              VaryOnHeadersMixin)
+from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
+    LabeledPagesMixin, RdfViewMixin, VaryOnHeadersMixin
 
 
 class TestNamed(TestCase):
@@ -51,13 +51,13 @@ class TestNotable(TestCase):
 
     def test_has_notes(self):
         noted = Notable()
-        assert False == noted.has_notes()
+        assert not noted.has_notes()
         noted.notes = 'some text'
-        assert True == noted.has_notes()
+        assert noted.has_notes()
         noted.notes = ''
-        assert False == noted.has_notes()
+        assert not noted.has_notes()
         noted.notes = None
-        assert False == noted.has_notes()
+        assert not noted.has_notes()
 
     def test_note_snippet(self):
         noted = Notable()
@@ -340,11 +340,12 @@ class TestTemplateTags(TestCase):
         # no error on not found
         assert dict_item({}, 'foo') is None
         # string key
-        assert dict_item({'foo': 'bar'}, 'foo') is 'bar'
+        assert dict_item({'foo': 'bar'}, 'foo') == 'bar'
         # integer key
-        assert dict_item({13: 'lucky'}, 13) is 'lucky'
+        assert dict_item({13: 'lucky'}, 13) == 'lucky'
         # integer value
-        assert dict_item({13: 7}, 13) is 7
+        assert dict_item({13: 7}, 13) == 7
+
 
 class TestCheckboxFieldset(TestCase):
 
@@ -414,6 +415,7 @@ class TestCheckboxFieldset(TestCase):
         out = checkbox_fieldset.render('foo', 'bar')
         assert out.count('required') == 2
 
+
 class TestFacetField(TestCase):
 
     def test_init(self):
@@ -428,10 +430,8 @@ class TestFacetField(TestCase):
         facet_field = FacetChoiceField(label='Test')
         assert facet_field.widget.legend == 'Test'
         # but widget attrs overrules
-        facet_field = FacetChoiceField(label='Test', legend='NotTest'
-           )
+        facet_field = FacetChoiceField(label='Test', legend='NotTest')
         assert facet_field.widget.legend == 'NotTest'
-
 
     def test_valid_value(self):
         # any value passed in returns true
@@ -453,7 +453,6 @@ class TestFacetForm(TestCase):
 
             name = FacetChoiceField()
             member_type = FacetChoiceField()
-
 
         test_form = TestForm()
 
@@ -479,8 +478,6 @@ class TestFacetForm(TestCase):
         ]
         # unhandled field should not be passed in
         assert 'unhanded_field' not in test_form.fields
-
-
 
 
 class TestVaryOnHeadersMixin(TestCase):
@@ -538,6 +535,30 @@ class TestFacetJSONMixin(TestCase):
         response = view.render_to_response(request)
         assert isinstance(response, JsonResponse)
         assert response.content == b'{"facets": "foo"}'
+
+
+# range widget and field tests copied from derrida via ppa
+
+def test_range_widget():
+    # range widget decompress logic
+    assert RangeWidget().decompress((None, None)) == [None, None]
+    assert RangeWidget().decompress(None) == [None, None]
+    assert RangeWidget().decompress((100, None)) == [100, None]
+    assert RangeWidget().decompress((None, 250)) == [None, 250]
+    assert RangeWidget().decompress((100, 250)) == [100, 250]
+    assert RangeWidget().decompress(('100', '250')) == [100, 250]
+
+
+def test_range_field():
+    # range widget decompress logic
+    assert RangeField().compress([]) == None
+    assert RangeField().compress([100, None]) == (100, None)
+    assert RangeField().compress([None, 250]) == (None, 250)
+    assert RangeField().compress([100, 250]) == (100, 250)
+
+    # out of order should raise exception
+    with pytest.raises(ValidationError):
+        RangeField().compress([200, 100])
 
 
 class TestRdfViewMixin(TestCase):

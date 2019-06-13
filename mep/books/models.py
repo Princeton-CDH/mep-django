@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
 from parasolr.indexing import Indexable
@@ -291,7 +292,10 @@ class Item(Notable, Indexable):
         # (predominantly books and periodicals), but in future
         # we may need a method to create format from uri as for subjects
         if worldcat_entity.item_type:
-            self.item_format = Format.objects.get(uri=worldcat_entity.item_type)
+            try:
+                self.item_format = Format.objects.get(uri=worldcat_entity.item_type)
+            except ObjectDoesNotExist:
+                logger.error('Unexpected item type %s', worldcat_entity.item_type)
 
         subject_uris = worldcat_entity.subjects
         if subject_uris:

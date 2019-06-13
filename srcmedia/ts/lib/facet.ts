@@ -1,11 +1,12 @@
-import { Observable, Subject, fromEvent, merge } from 'rxjs'
+import { Observable, Subject, fromEvent, merge, combineLatest } from 'rxjs'
+import { map, filter, distinctUntilChanged, withLatestFrom, skip } from 'rxjs/operators'
 
-import { RxCheckboxInput } from './input'
-import { Rx, animateElementContent } from './common'
+import { RxCheckboxInput, RxNumberInput } from './input'
+import { Rx, animateElementContent, arraysAreEqual } from './common'
 
 /**
  * A boolean (checkbox) facet that can update the count in its <label>.
- * 
+ *
  * Assumes that it has an associated <label> element that contains another
  * element (ideally a <span>) with class "count",
  *
@@ -29,9 +30,9 @@ class RxBooleanFacet extends RxCheckboxInput {
     /**
      * Calls animateElementContent() to swap out the content of the count
      * element after its transition-duration.
-     * 
+     *
      * Returns the locale-string version of the count, which for the en-us
-     * locale will insert commas (e.g. 6544 -> 6,544). 
+     * locale will insert commas (e.g. 6544 -> 6,544).
      *
      * @protected
      * @memberof RxBooleanFacet
@@ -47,7 +48,7 @@ class RxBooleanFacet extends RxCheckboxInput {
 /**
  * A choice facet consisting of multiple checkboxes where the user always
  * has access to all the choices.
- * 
+ *
  * This facet is similar to a text facet, but intended for use where there are
  * a limited number of choices that should always be displayed, regardless
  * of counts.
@@ -75,7 +76,7 @@ class RxChoiceFacet extends Rx<HTMLFieldSetElement> {
     /**
      * Finds the relevant count element for each choice input and calls
      * animateElementContent() to swap out the number displayed in it.
-     * 
+     *
      * Assumes the input has exactly one <label> that contains a <span> with
      * class 'count'.
      *

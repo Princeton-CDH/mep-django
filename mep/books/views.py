@@ -1,6 +1,6 @@
 from dal import autocomplete
 from django.db.models import Q
-from django.views.generic import ListView
+from django.views.generic import DetailView, ListView
 from django.urls import reverse
 
 from mep.books.models import Item
@@ -33,6 +33,13 @@ class ItemList(LabeledPagesMixin, ListView, RdfViewMixin):
             ('Home', absolutize_url('/')),
             ('Books', self.get_absolute_url())
         ]
+
+
+class ItemDetail(DetailView):
+    '''Detail page for a single library book.'''
+    model = Item
+    template_name = 'books/item_detail.html'
+    context_object_name = 'item'
 
 
 class ItemAutocomplete(autocomplete.Select2QuerySetView):

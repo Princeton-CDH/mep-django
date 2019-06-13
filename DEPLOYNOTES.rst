@@ -3,6 +3,12 @@
 Deploy and Upgrade notes
 ========================
 
+0.17
+----
+
+* This release requires a reindex to update the birth and death year fields for
+  use in faceting.
+
 0.16
 ----
 

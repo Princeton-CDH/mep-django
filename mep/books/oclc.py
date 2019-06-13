@@ -231,10 +231,6 @@ class SRUSearch(WorldCatClientBase):
 
         for key, value in kwargs.items():
             boolean_combination = ''
-            # use leading "-" on value" as indicator to use NOT instead of AND
-            if isinstance(value, str) and value.startswith('-'):
-                value = value[1:]
-                boolean_combination = 'NOT '
 
             # split field on __ to allow for specifying operator
             field_parts = key.split('__', 1)
@@ -251,7 +247,7 @@ class SRUSearch(WorldCatClientBase):
                 # use NOT instead of AND
                 if field_parts[1].startswith('not'):
                     boolean_combination = 'NOT '
-                    field_parts[1] = field_parts[3:]
+                    field_parts[1] = field_parts[1][3:]
 
                 # spaces needed for everything besides =
                 operator = ' %s ' % field_parts[1]

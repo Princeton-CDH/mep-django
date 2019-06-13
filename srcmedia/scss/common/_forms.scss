@@ -38,3 +38,11 @@ label > select + .dropdown.icon {
 label:target > select + .dropdown.icon {
     transform: rotate(180deg);
 }
+
+input[type=submit] {
+    display: none;
+}
+
+.no-js input[type=submit] {
+    display: inline;
+}

@@ -1,0 +1,43 @@
+nav.tabs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .tab {
+        flex: auto;
+        list-style: none;
+        height: 2.5rem;
+
+        &[aria-selected] {
+            border-bottom: .2rem solid $green;
+            font-weight: bold;
+
+            a, span {
+                font-size: 0.7rem;
+
+                @media (min-width: $breakpoint-s) {
+                    font-size: 0.9rem;
+                }
+            }
+        }
+    }
+
+    a, span {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        line-height: 1;
+        text-transform: uppercase;
+        font-size: 0.5rem;
+
+        @media (min-width: $breakpoint-s) {
+            font-size: 0.9rem;
+        }
+    }
+
+    a { // remove default link style
+        border: none;
+    }
+}

@@ -119,7 +119,7 @@ class TestSRUSearch(SimpleTestCase):
 
         # NOT option instead of AND
         query_string = SRUSearch._lookup_to_search(
-            title="Ulysses", material_type__exact='-Internet Resource')
+            title="Ulysses", material_type__notexact='Internet Resource')
         # can't test directly because order is not guaranteed in py3.5
         assert 'srw.ti="Ulysses"' in query_string
         assert 'NOT srw.mt exact "Internet Resource"' in query_string
@@ -308,7 +308,7 @@ class TestWorldCatEntity:
 
         # simulate no type
         wc_entity.rdf_resource.remove(rdflib.RDF.type)
-        assert wc_entity.item_type == None
+        assert wc_entity.item_type is None
 
     def test_genres(self):
         time_and_tide = self.worldcat_entity_from_fixture_timetide()

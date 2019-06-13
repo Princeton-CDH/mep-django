@@ -1,94 +1,40 @@
-/* member details */
+// member-specific dl fields
+dl.member {
+    .name {
+        display: none;
 
-main.tabbed {
-    @include container;
-    @media (max-width: $breakpoint-s) {
-        width: 100%;
-    }
-}
-
-.tabs {
-    height: 1.5rem;
-    flex: none;
-    display: flex;
-    flex-direction: row;
-    list-style: none;
-
-    @media (min-width: $breakpoint-s) {
-        height: 3rem;
-    }
-}
-
-.tab {
-    flex: auto;
-
-    &[aria-selected="true"] {
-        background: white;
-    }
-
-    a {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        text-transform: uppercase;
-        color: black;
-        font-size: 0.5rem;
-        
-        @media (min-width: $breakpoint-s) {
-            font-size: 0.9rem;
+        dt {
+            @include sr-only;
         }
 
-        &:hover {
-            border: none;
+        dd {
+            line-height: 1.4rem;
+            font-size: 1rem;
+            font-family: $serif;
         }
     }
-}
 
-.personography,
-.books-borrowed,
-.lending-cards {
-    box-sizing: border-box;
-    height: 100%;
-    background: white;
-    font-size: 0.8rem;
-    padding: 2rem 0.75rem;
+    // items that go on the left/top on mobile
+    .name,
+    .birth-death,
+    .reference {
+        text-align: left;
+    }
     
-    @media (min-width: $breakpoint-s) {
-        padding: 3rem 1.5rem;
+    // items that go on the right/bottom on mobile
+    .member-dates,
+    .nationality,
+    .profession {
+        text-align: right;
     }
 
-    @media (min-width: $breakpoint-l) {
-        padding: 3rem 5rem;
-    }
-}
+    // display when on detail pages
+    .biography & {
+        max-width: $result-width;
+        margin: 2rem auto;
 
-.personography {
-    dl {
-        width: 100%;
-        display: flex;
-        flex-flow: row wrap;
-
-        > div {
-            width: 100%;
-            flex: none;
-            margin-bottom: 1rem;
-
-            &:last-child {
-                margin-bottom: 0;
-            }
-
-            @media (min-width: $breakpoint-s) {
-                width: fit-content;
-                flex: auto;
-                margin-bottom: 0;
-            }
+        @media (min-width: $breakpoint-s) {
+            margin: 3rem auto;
         }
-    }
-
-    dt {
-        color: $mid-grey;
     }
 }

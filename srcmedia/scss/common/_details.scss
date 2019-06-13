@@ -1,0 +1,30 @@
+dl { // detail display for an item, person, etc.
+    display: flex;
+    flex: auto;
+   
+    .primary,
+    .secondary {
+        flex: 1;
+    }
+
+    dt,
+    dd {
+        line-height: 0.7rem;
+    }
+
+    dt {
+        text-transform: capitalize;
+        font-size: 0.7rem;
+        font-weight: bold;
+        margin-bottom: 0.7rem;
+    }
+
+    dd {
+        font-size: 0.8rem;
+        margin-bottom: .5rem;
+
+        &:last-child {
+            margin-bottom: 1rem;
+        }
+    }
+}

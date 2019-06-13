@@ -1,5 +1,5 @@
 import 'whatwg-fetch' // used for Response typing
-import { Subject } from 'rxjs'
+import { Subject, Observable } from 'rxjs'
 
 import { ajax } from '../lib/common'
 import { RxForm, RxSearchForm, RxFacetedSearchForm } from './form'
@@ -58,6 +58,7 @@ describe('RxSearchForm', () => {
         document.body.innerHTML = `
         <form id="search">
             <input type="text" name="query" value="mysearch">
+            <input type="number" name="age" value="1">
         </form>`
     })
     
@@ -79,6 +80,12 @@ describe('RxSearchForm', () => {
         const rsf = new RxSearchForm($element)
         expect(rsf.pageLabels).toBeInstanceOf(Subject)
     })
+
+    it('stores validity as an observable sequence', () => {
+        const $element = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($element)
+        expect(rsf.valid).toBeInstanceOf(Observable)
+    })
     
     it('makes an async GET request to its endpoint on submission', () => {
         window.history.pushState({}, 'form', '/form') // to form a full request path
@@ -87,7 +94,7 @@ describe('RxSearchForm', () => {
         const response = new Response(new Blob(['results!'], { type: 'text/plain' })) // a mock GET response
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
         return rsf.getResults().then(() => { // check that we requested the right path, using the right header
-            expect(window.fetch).toHaveBeenCalledWith('/form?query=mysearch', ajax)
+            expect(window.fetch).toHaveBeenCalledWith('/form?query=mysearch&age=1', ajax)
         })
     })
     
@@ -168,11 +175,17 @@ describe('RxSearchForm', () => {
         const response = new Response(new Blob(['results!'], { type: 'text/plain' }))
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
         return rsf.getResults().then(() => {
-            expect(window.location.search).toBe('?query=mysearch') // querystring was changed
+            expect(window.location.search).toBe('?query=mysearch&age=1') // querystring was changed
             expect(window.history.length).toBeGreaterThan(1) // we added entries to browser history
         })
     })
 
+    it('updates its validity state when new results are received', () => {
+        const $form = document.querySelector('form') as HTMLFormElement
+        const rsf = new RxSearchForm($form)
+        rsf.valid.subscribe(valid => expect(valid).toBe(true))
+        rsf.results.next('results!')
+    })
 })
 
 describe('RxFacetedSearchForm', () => {
