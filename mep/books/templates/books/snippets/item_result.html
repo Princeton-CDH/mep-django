@@ -1,49 +1,71 @@
 {% load static %}
-<li class="books result">
-    <a href="#" aria-label="{{ item.title }}">
-        <article>
-            <div class="main">
-                <span class="counter"></span>
-                <div class="metadata">
-                    <h1 class="title">{{ item.title }}</h1>
-                    {% if item.authors %}
-                    <ul class="authors">
-                        {% for author in item.authors %}
-                            {% if forloop.counter <= 3 %}
-                            <li class="author">{{ author }}</li>
-                            {% endif %}
-                        {% endfor %}
-                        {% if item.authors|length > 3 %}
-                            <span>... {{ item.authors|length|add:"-3" }} more authors</span>
-                        {% endif %}
-                    </ul>
-                    {% endif %}
-                    {% if item.pub_date %}
-                    <span class="dates">
-                        <time datetime="{{ item.pub_date }}">{{ item.pub_date }}</time>
-                    </span>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="secondary">
-                {% if item.publishers %}
-                <h2 class="publisher-label">Publishers</h2>
-                <ul class="publishers">
-                    {% for publisher in item.publishers %}
-                        {% if forloop.counter <= 3 %}
-                        <li class="publisher">{{ publisher }}</li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if item.publishers|length > 3 %}
-                        <span>... {{ item.publishers|length|add:"-3" }} more publishers</span>
-                    {% endif %}
-                </ul>
+<dl class="book">
+    <div class="primary">
+        {# title - solr only #}
+        <div class="title">
+            <dt>title</dt>
+            <dd>{{ item.title }}</dt>
+        </div>
+        {# authors - solr & db #}
+        {% if item.authors|length > 0 %}
+        <div class="authors">
+            <dt>authors</dt>
+            {% for author in item.authors %}
+                {% if forloop.counter <= 3 %}
+                <dd>{{ author }}</dd>
                 {% endif %}
-            </div>
-            <span class="see-more">
-                See more details
-                <img class="triangle icon" src="{% static 'img/icons/more_triangle.svg' %}" alt="">
-            </span>
-        </article>
-    </a>
-</li>
+            {% endfor %}
+            {% if item.authors|length > 3 %}
+            <dd>... {{ item.authors|length|add:"-3" }} more authors</dd>
+            {% endif %}
+        </div>
+        {% endif %}
+        {# editors - db only #}
+        {% if item.editors.count > 0 %}
+        <div class="editors">
+            <dt>editors</dt>
+            {% for editor in item.editors.all %}
+            <dd>{{ editor }}</dd>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {# translators - db only #}
+        {% if item.translators.count > 0 %}
+        <div class="translators">
+            <dt>translators</dt>
+            {% for translator in item.translators.all %}
+            <dd>{{ translator }}</dd>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {# publication date - solr (pub_date) & db (year) #}
+        {% firstof item.pub_date item.year as pubdate %}
+        {% if pubdate %}
+        <div class="pubdate">
+            <dt>publication date</dt>
+            <dd>{{ pubdate }}</dd>
+        </div>
+        {% endif %}
+    </div>
+    <div class="secondary">
+        {# publishers - db only #}
+        {% if item.publishers.count > 0 %}
+        <div class="publishers">
+            <dt>publishers</dt>
+            {% for publisher in item.publishers %}
+            <dd>{{ publisher }}</dd>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {# format - not yet implemented #}
+        {% if item.format %}
+        {% endif %}
+        {# relevance - solr only #}
+        {% if user.is_authenticated and item.score %}
+        <div class="relevance">
+            <dt>relevance</dt>
+            <dd>{{ item.score }}</dd>
+        </div>
+        {% endif %}
+    </div>
+</dl>

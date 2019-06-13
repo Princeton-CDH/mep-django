@@ -1,11 +1,29 @@
 .books.result {
 
-    .authors {
-        font-size: 0.8rem;
-        padding: 0.35rem 0 0;
+    .primary {
+        flex: 2;
     }
 
-    .publishers {
-        font-size: 0.8rem;
+    // show the title
+    .title {
+        display: block;
+    }
+
+    .authors dt,
+    .pubdate dt {
+        @include sr-only;
+    }
+
+    .authors dd {
+        margin-top: 0.5rem;
+    }
+
+    .pubdate dd {
+        margin-top: 0.75rem;
+    }
+
+    // hide the "view cards" link
+    .view-cards {
+        display: none;
     }
 }

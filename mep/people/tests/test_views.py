@@ -616,7 +616,7 @@ class TestMembersListView(TestCase):
         self.assertContains(response, account.earliest_date().year)
         self.assertContains(response, account.last_date().year)
         # should not display relevance score
-        self.assertNotContains(response, '<h2>Relevance</h2>')
+        self.assertNotContains(response, '<dt>relevance</dt>')
 
         # icon for 'has card' should show up twice, once in the list
         # and once in the filter icon
@@ -639,8 +639,7 @@ class TestMembersListView(TestCase):
         response = self.client.get(self.members_url, {'query': card_member.name})
         assert response.context['members'].count() == 1
         # should not display relevance score
-        self.assertNotContains(
-            response, '<h2>Relevance</h2>',
+        self.assertNotContains(response, '<dt>relevance</dt>',
             msg_prefix='relevance score not displayed to anonymous user')
 
         # check for max, min and placeholders for date ranges
@@ -670,7 +669,7 @@ class TestMembersListView(TestCase):
         self.client.login(username=staffuser.username, password=staff_password)
         response = self.client.get(self.members_url, {'query': card_member.name})
         self.assertContains(
-            response, '<h2>Relevance</h2>',
+            response, '<dt>relevance</dt>',
             msg_prefix='relevance score displayed for logged in users')
 
         # TODO: not sure how to test pagination/multiple pages
@@ -899,18 +898,13 @@ class TestMemberDetailView(TestCase):
             'library members should have a detail page'
         assert response.context['member'] == gay, \
             'page should correspond to the correct member'
-        # check name
-        self.assertContains(response, 'Francisque Gay')
         # check dates
-        self.assertContains(response, '1885 - 1963')
+        self.assertContains(response, '1885 - 1963', html=True)
         # check membership dates
-        self.assertContains(response, 'Membership Dates')
-        self.assertContains(response, 'March 4, 1934 - Feb. 3, 1941')
+        self.assertContains(response, 'March 4, 1934 - Feb. 3, 1941', html=True)
         # check VIAF
-        self.assertContains(response, 'Reference')
         self.assertContains(response, 'http://viaf.org/viaf/9857613')
         # check nationalities
-        self.assertContains(response, 'Nationality')
         self.assertContains(response, 'France')
         # NOTE currently not including/checking profession
 

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block page-subtitle %}{{ item.title }} · Library Holdings · {% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title=item.title style="detail" %}
+{% endblock %}
+
+{% block main-style %}tabbed{% endblock %}
+
+{% block content %}
+<nav class="tabs" aria-label="sections">
+    <li class="tab active">
+        <span>details</span>
+    </li>
+    <li class="tab">
+        <a href="#">events</a>
+    </li>
+</nav>
+<section class="details">
+    {% include 'books/snippets/item_result.html' %}
+</section>
+{% endblock %}
