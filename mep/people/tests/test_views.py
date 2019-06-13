@@ -2,7 +2,7 @@ import json
 from datetime import date
 import time
 from types import LambdaType
-from unittest.mock import call, patch, Mock
+from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import User, Permission
 from django.core.paginator import Paginator
@@ -642,6 +642,25 @@ class TestMembersListView(TestCase):
         self.assertNotContains(response, '<dt>relevance</dt>',
             msg_prefix='relevance score not displayed to anonymous user')
 
+        # check for max, min and placeholders for date ranges
+        # 1942 and 1950 should be the respective values
+        self.assertContains(
+            response, 'placeholder="1950"',
+            msg_prefix='Membership widget sets placeholder for max year.'
+        )
+        self.assertContains(
+            response, 'placeholder="1942"',
+            msg_prefix='Membership widget sets placeholder for min year.',
+        )
+        self.assertContains(
+            response, 'max="1950"', count=2,
+            msg_prefix='Response has max set twice for inputs'
+        )
+        self.assertContains(
+            response, 'min="1942"', count=2,
+            msg_prefix='Response has min set twice for inputs'
+        )
+
         # login as staff user with no special permissions
         staff_password = 'sosecret'
         staffuser = User.objects.create_user(
@@ -654,9 +673,11 @@ class TestMembersListView(TestCase):
             msg_prefix='relevance score displayed for logged in users')
 
         # TODO: not sure how to test pagination/multiple pages
-
     def test_get_page_labels(self):
         view = MembersList()
+        # patch out get_form
+        view.get_year_range = Mock()
+        view.get_year_range.return_value = (1900, 1930)
         view.request = self.factory.get(self.members_url)
         # trigger form valid check to ensure cleaned data is available
         view.get_form().is_valid()
@@ -685,6 +706,38 @@ class TestMembersListView(TestCase):
             view.get_form().is_valid()
             result = view.get_page_labels(paginator)
             mock_alpha_pglabels.assert_not_called()
+
+    @patch('mep.people.views.super')
+    def test_get_form(self, mocksuper):
+        # mock out super to subsitute a mock for the actual form
+        mockform = Mock()
+        mocksuper.return_value.get_form.return_value = mockform
+        view = MembersList()
+        view.request = self.factory.get(self.members_url)
+        view.get_year_range = Mock()
+
+        # pass a min and max year
+        view.get_year_range.return_value = (1900, 1930)
+        view.get_form()
+        # cached form is set
+        assert view._form == mockform
+        # mock setter for dates is called
+        mockform.set_membership_dates_placeholder\
+            .assert_called_with(1900, 1930)
+
+        # form should be cached
+        mockform.reset_mock()
+        view.get_form()
+        assert not mockform.called
+
+        view._form = None
+
+        # if get_year_range returns None, assume it failed and
+        # shouldn't call the set_membership_dates_placeholder setter function
+        view.get_year_range.return_value = None
+
+        view.get_form()
+        assert not mockform.set_membership_dates_placeholder.called
 
     def test_get_form_kwargs(self):
         view = MembersList()
@@ -768,6 +821,64 @@ class TestMembersListView(TestCase):
         mock_qs.order_by.assert_called_with(view.solr_sort['relevance'])
         # include relevance score in return
         mock_qs.also.assert_called_with('score')
+
+        # with date range
+        view.request = self.factory.get(self.members_url, {'membership_dates_0': 1930})
+        # remove cached form
+        del view._form
+        sqs = view.get_queryset()
+        mock_qs.filter.assert_any_call(account_years__range=(1930, None))
+
+        view.request = self.factory.get(
+            self.members_url,
+            {'membership_dates_0': 1919, 'membership_dates_1': 1923})
+        del view._form
+        sqs = view.get_queryset()
+        mock_qs.filter.assert_any_call(account_years__range=(1919, 1923))
+
+    def test_invalid_form(self):
+        # make an invalid range request
+        view = MembersList()
+        view.get_year_range = Mock()
+        view.get_year_range.return_value = (1900, 1930)
+        view.request = self.factory.get(self.members_url, {
+            'membership_dates_0': '1930',
+            'membership_dates_1': '1900', # comes before start
+        })
+        # should be empty SolrQuerySet
+        sqs = view.get_queryset()
+        assert sqs.count() == 0
+        # page labels should be 'N/A'
+        labels = view.get_page_labels(None) # empty paginator
+        assert labels == [(1, 'N/A')]
+
+    @patch('mep.people.views.PersonSolrQuerySet')
+    def test_get_year_range(self, mockPSQ):
+        mock_stats = {
+            'stats_fields': {
+                'account_years': {
+                    'min': 1928.0,
+                    'max': 1940.0
+                },
+            }
+        }
+        mockPSQ.return_value.stats.return_value.get_stats.return_value \
+            = mock_stats
+        min_max = MembersList().get_year_range()
+        # returns integer years
+        assert min_max == (1928, 1940)
+        # call for the correct field in stats
+        mockPSQ.return_value.stats.assert_called_with('account_years')
+        # if get_stats returns None, also returns None
+        mockPSQ.return_value.stats.return_value.get_stats.return_value = None
+        assert MembersList().get_year_range() is None
+        # None set for min or max should result in None being returned also
+        mockPSQ.return_value.stats.return_value.get_stats.return_value\
+             = mock_stats
+        mock_stats['stats_fields']['account_years']['min'] = None
+        assert MembersList().get_year_range() is None
+
+
 
 
 class TestMemberDetailView(TestCase):

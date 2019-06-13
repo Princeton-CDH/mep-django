@@ -3,7 +3,7 @@ import { Subject } from 'rxjs'
 /**
  * Denotes a class that will keep a record of state changes as an observable
  * sequence, and allow that state to be updated externally.
- * 
+ *
  * We expect that the update() method will add the new state to the sequence,
  * as well as perform all changes necessary to reflect the new state.
  *
@@ -32,7 +32,7 @@ class Component {
  * Request header used to signal an ajax request to Django.
  */
 const ajax = {
-    headers: { 
+    headers: {
         'X-Requested-With': 'XMLHttpRequest',
     }
 }
@@ -49,7 +49,7 @@ const acceptJson = {
 /**
  * Validate that every element in array a is present in array b and that
  * their lengths are the same.
- * 
+ *
  * Will return false if elements are arrays, and ignores order.
  *
  * @param {Array<any>} a
@@ -81,10 +81,10 @@ function animateElementContent (element: HTMLElement, content: string): Promise<
 
 /**
  * Get the specified transition-duration for an element, or zero if none.
- * 
+ *
  * Parses values from CSS like '0.5s' or '200ms' into an integer number of
  * milliseconds for use with functions like setTimeout().
- * 
+ *
  * Note that this only works for elements that specify a single transition-duration
  * property.
  *
@@ -105,6 +105,27 @@ abstract class Rx<E extends HTMLElement> {
     }
 }
 
+/**
+ * Utility function for faking a value change event on <input>s in tests.
+ *
+ * @param $element
+ * @param value
+ */
+function fakeValueChange ($element: HTMLInputElement, value: string) {
+    $element.value = value
+    $element.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
+/**
+ * Utility function for faking a checkbox toggle event in tests.
+ *
+ * @param $element
+ */
+function fakeToggle ($element: HTMLInputElement) {
+    $element.checked = !$element.checked
+    $element.dispatchEvent(new Event('change'))
+}
+
 export {
     Reactive,
     Component,
@@ -114,4 +135,6 @@ export {
     arraysAreEqual,
     animateElementContent,
     getTransitionDuration,
+    fakeValueChange,
+    fakeToggle
 }

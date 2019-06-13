@@ -59,13 +59,37 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         kwargs['data'] = form_data
         return kwargs
 
-
     def get_form(self, *args, **kwargs):
         # initialize the form, caching on current instance
         if not self._form:
             self._form = super().get_form(*args, **kwargs)
+        # set minimum and maximum years for date range field
+            min_max = self.get_year_range()
+            if min_max:
+                self._form.set_membership_dates_placeholder(*min_max)
         # Get facets from solr return
         return self._form
+
+    @staticmethod
+    def get_year_range():
+        """Return the earliest and latest years for any account activity in
+        the library.
+
+        :return: Min and max years as integers or None
+        :rtype: tuple or None
+        """
+
+        stats = PersonSolrQuerySet().stats('account_years').get_stats()
+        if stats:
+            try:
+                min_year = int(stats['stats_fields']['account_years']['min'])
+                max_year = int(stats['stats_fields']['account_years']['max'])
+            # min and max will be converted to None/NULL if no events
+            # are indexed
+            except TypeError:
+                return None
+
+            return (min_year, max_year)
 
     #: name query alias field syntax (type defaults to edismax in solr config)
     search_name_query = '{!qf=$name_qf pf=$name_pf v=$name_query}'
@@ -80,9 +104,14 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         sqs = PersonSolrQuerySet().facet_field('has_card')\
                                   .facet_field('sex', missing=True, exclude='sex')
 
-        # when form is valid, check for search term and filter queryset
         form = self.get_form()
-        if form.is_valid():
+
+        # empty queryset if not valid
+        if not form.is_valid():
+            sqs = sqs.none()
+
+        # when form is valid, check for search term and filter queryset
+        else:
             search_opts = form.cleaned_data
 
             if search_opts['query']:
@@ -94,10 +123,15 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
                 sqs = sqs.filter(has_card=search_opts['has_card'])
             if search_opts['sex']:
                 sqs = sqs.filter(sex__in=search_opts['sex'], tag='sex')
+
+            # range filter by membership dates, if set
+            if search_opts['membership_dates']:
+                sqs = sqs.filter(account_years__range=search_opts['membership_dates'])
+
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
-            # TODO: what happens if form is invalid?
-            # (currently should not be possible, but eventually will)
+
+
         self.queryset = sqs
         return sqs
 
@@ -109,8 +143,13 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
     def get_page_labels(self, paginator):
         '''generate labels for pagination'''
 
+        # if form is invalid, page labels should show 'N/A'
+        form = self.get_form()
+        if not form.is_valid():
+            return [(1, 'N/A')]
+
         # when sorting by relevance, use default page label logic
-        if self.get_form().cleaned_data['sort'] == 'relevance':
+        if form.cleaned_data['sort'] == 'relevance':
             return super().get_page_labels(paginator)
 
         # otherwise, when sorting by alpha, generate alpha page labels

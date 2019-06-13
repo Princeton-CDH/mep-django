@@ -15,4 +15,32 @@
             }
         }
     }
+
+    // sizing for "membership dates" filter
+    .range.facet {
+        legend { // "membership dates" text is too long; needs to wrap
+            width: 50%;
+        }
+
+        @media (min-width: $breakpoint-s) {
+            max-width: 13rem;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            max-width: 15rem;
+        }
+    }
+
+    // on tablet only, all facets get taller to accommodate wrapped "membership dates" text
+    @media (min-width: $breakpoint-s) and (max-width: calc(#{$breakpoint-m} - 1px)) {
+        .inner > .range.facet,
+        .inner > label {
+            height: 3rem; 
+        }
+
+        .range.facet legend {
+            line-height: 1.2;
+            top: 0.6rem;
+        }
+    }
 }

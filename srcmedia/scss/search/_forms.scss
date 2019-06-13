@@ -17,7 +17,7 @@
         padding: .2rem 0;
         font-size: 0.8rem;
         background-color: transparent;
-        border-width: 0 0 2px 0;
+        border-width: 0 0 2px;
         border-color: $black;
         border-bottom-style: dotted;
         outline: none;
@@ -41,6 +41,35 @@
             border-bottom-style: solid;
         }
     }
+
+    input[type=number] {
+        appearance: textfield;
+        font-size: 0.8rem;
+        color: $black;
+        text-align: center;
+        border: 1px solid $light-grey;
+
+        // remove spinners in webkit browsers due to bug: when they are active,
+        // clicking the down arrow will eventually cause input value to "wrap"
+        // from min back up to max, rather than staying at min
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+            display: none;
+        }
+
+        @media (min-width: $breakpoint-s) {
+            border-color: $black;
+            border-style: dotted;
+            border-width: 0;
+            border-bottom-width: .1rem;
+
+            &:focus {
+                border-bottom-style: solid;
+            }
+        }
+    }
      
     // fade animation for when count changes
     span.count {
@@ -60,12 +89,12 @@
             width: 100%;
             text-align: left;
             font-weight: bold;
-            padding: 1.75rem 0rem 0.5rem;
+            padding: 1.75rem 0 0.5rem;
         }
     
         // chrome doesn't allow fieldsets to use flex, so we have to do this
         // https://bugs.chromium.org/p/chromium/issues/detail?id=262679
-        .inner { 
+        .inner {
             width: 100%;
             display: flex;
             flex-flow: row wrap;
@@ -73,18 +102,36 @@
             align-items: center;
         }
 
+        // 2px vert spacing on mobile, 2px horizontal spacing on tablet & above
+        .inner > label,
+        .inner > .facet {
+            margin-bottom: 0.1rem;
+
+            @media (min-width: $breakpoint-s) {
+                margin-right: 0.1rem;
+    
+                &:last-of-type {
+                    margin-right: 0;
+                }
+            }
+        }
+        
+        /* boolean facet */
         .inner > label {
-            flex: auto;
             height: 2.2rem;
             background: white;
-            margin-right: .1rem;
+            flex: auto;
             display: flex;
             flex-flow: row nowrap;
             justify-content: flex-start;
-            padding: 0 .5rem;
+            padding: 0 .7rem;
             align-items: center;
-            border: 2px solid white;
+            border: 0.1rem solid $transparent;
             box-sizing: border-box;
+
+            @media (min-width: $breakpoint-s) {
+                padding: 0 .5rem;
+            }
 
             &:last-child {
                 margin-right: 0;
@@ -149,6 +196,40 @@
                 margin-left: $gutter-xs;
                 margin-right: $gutter-xs;
             }
+        }
+    }
+
+    // errors output
+    div[role=alert].errors {
+        width: 100%;
+        text-align: left;
+        padding-top: 1.75rem;
+        font-size: 0.8rem;
+
+        span { // "Errors:" text
+            font-weight: bold;
+        }
+
+        > ul { // master list of errors
+            list-style: none;
+            display: block;
+            background: white;
+            padding: 0.8rem;
+            position: relative;
+        }
+
+        li {
+            padding-left: 1rem;
+        }
+
+        // error icons
+        li::before {
+            content: url('/static/img/icons/error-circle.svg');
+            width: 0.75rem;
+            height: 0.75rem;
+            position: absolute;
+            left: 0.8rem;
+            padding-top: 0.05rem;
         }
     }
 

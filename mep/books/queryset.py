@@ -15,5 +15,7 @@ class ItemSolrQuerySet(AliasedSolrQuerySet):
         'editors': 'editors_t',
         'pub_date': 'pub_date_i',
         'translators': 'translators_t',
-        'pk':'pk_i'
+        'pk':'pk_i',
+        'account_start': 'account_start_i',
+        'account_end': 'account_end_i'
     }

@@ -1,8 +1,11 @@
 from django import forms
 from django.template.loader import get_template
 
-from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset
+from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset, \
+    RangeField, RangeWidget
+from django.core.cache import cache
 from mep.people.models import Person
+from mep.people.queryset import PersonSolrQuerySet
 
 
 class PersonChoiceField(forms.ModelChoiceField):
@@ -83,6 +86,10 @@ class MemberSearchForm(FacetForm):
         ('name', 'Name A-Z'),
     ]
 
+    # NOTE these are not set by default!
+    error_css_class = 'error'
+    required_css_class = 'required'
+
     query = forms.CharField(label='Keyword or Phrase', required=False,
                             widget=forms.TextInput(attrs={
                                 'placeholder': 'Search member',
@@ -90,7 +97,8 @@ class MemberSearchForm(FacetForm):
                             }))
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False,
                              widget=SelectWithDisabled)
-    has_card = forms.BooleanField(label='Card', required=False,
+    has_card = forms.BooleanField(
+        label='Card', required=False,
         widget=forms.CheckboxInput(attrs={
             'aria-label': 'Card',
             'aria-describedby': 'has_card_tip'
@@ -100,6 +108,24 @@ class MemberSearchForm(FacetForm):
     sex = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
         'class': 'choice facet'
     }))
+    membership_dates = RangeField(label='Membership Dates', required=False,
+        widget=RangeWidget(attrs={'size': 4}))
+
+    def set_membership_dates_placeholder(self, min_year, max_year):
+        '''Set the min, max, and placeholder values for
+        :class:`mep.common.forms.RangeWidget` associated with membership_dates.'''
+
+        start_widget, end_widget = \
+            self.fields['membership_dates'].widget.widgets
+
+        # set placeholders for widgets individually
+        start_widget.attrs['placeholder'] = min_year
+        end_widget.attrs['placeholder'] = max_year
+        # valid min and max for both via multiwidget
+        self.fields['membership_dates'].widget.attrs.update({
+            'min': min_year,
+            'max': max_year
+        })
 
     def __init__(self, data=None, *args, **kwargs):
         '''
