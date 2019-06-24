@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from django import forms
 from django.test import TestCase
@@ -113,7 +113,8 @@ class TestRadioWithDisabled(TestCase):
 
 class TestMemberForm(TestCase):
 
-    def test_init(self):
+    @patch('mep.people.forms.MemberSearchForm.set_range_placeholders')
+    def test_init(self, mock_range_placeholders):
         data = {
             'has_card': True,
             'query': 'Hemingway'
@@ -136,62 +137,23 @@ class TestMemberForm(TestCase):
         assert form.fields['sort'].widget.choices[0] == \
             ('relevance', {'label': 'Relevance', 'disabled': True})
 
-    def test_set_daterange_placeholders(self):
+        # should call set_range_placeholders with the value of min_max_conf
+        min_max_conf = {'start_year': (1910, 1920)}
+        form = MemberSearchForm(data, min_max_conf=min_max_conf)
+        mock_range_placeholders.assert_called_with(min_max_conf)
+
+    @patch('mep.common.forms.RangeField.set_min_max')
+    def test_set_range_placeholders(self, mock_set_min_max):
 
         form = MemberSearchForm()
-        # use membership dates and birth year, since they test both cases
-        # when either we're using a field that maps straight to the aliased
-        # solr field or one where we need an alias for the form field
+
         min_max_conf = {
             'birth_year': (1900, 1950),
-            'account_years': (1918, 1951)
+            'membership_dates': (1918, 1951)
         }
-        form.set_daterange_placeholders(min_max_conf)
+        form.set_range_placeholders(min_max_conf)
 
-        # aliased field is set
-        multi_widget = form.fields['membership_dates'].widget
-        start_widget, end_widget = multi_widget.widgets
-
-        # placeholders for individual inputs are set
-        assert start_widget.attrs['placeholder'] == 1918
-        assert end_widget.attrs['placeholder'] == 1951
-        # attrs for both are set via multiwidget
-        assert multi_widget.attrs['min'] == 1918
-        assert multi_widget.attrs['max'] == 1951
-
-        # unaliased field is also set
-        multi_widget = form.fields['birth_year'].widget
-        start_widget, end_widget = multi_widget.widgets
-
-        # placeholders for individual inputs are set
-        assert start_widget.attrs['placeholder'] == 1900
-        assert end_widget.attrs['placeholder'] == 1950
-        # attrs for both are set via multiwidget
-        assert multi_widget.attrs['min'] == 1900
-        assert multi_widget.attrs['max'] == 1950
-
-        # if an exepcted key is missing from conf, don't
-        # error, just don't set it.
-        min_max_conf['account_years'] = None
-        form = MemberSearchForm()
-        form.set_daterange_placeholders(min_max_conf)
-        # birth year set as before
-        multi_widget = form.fields['birth_year'].widget
-        start_widget, end_widget = multi_widget.widgets
-        # placeholders for individual inputs are set
-        assert start_widget.attrs['placeholder'] == 1900
-        assert end_widget.attrs['placeholder'] == 1950
-
-        # membership dates, however, should be skipped
-        # # aliased field is set
-        multi_widget = form.fields['membership_dates'].widget
-        start_widget, end_widget = multi_widget.widgets
-
-        # placeholders for individual inputs are NOT set
-        assert 'placeholder' not in start_widget.attrs
-        assert 'placeholder' not in end_widget.attrs
-
-        # attrs for both are NOT set via multiwidget
-        assert 'min' not in multi_widget.attrs
-        assert 'max' not in multi_widget.attrs
-
+        # Called twice on fields defined on the form using
+        # min and max as integers
+        mock_set_min_max.assert_any_call(1900, 1950)
+        mock_set_min_max.assert_any_call(1918, 1951)

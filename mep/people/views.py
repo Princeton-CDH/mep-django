@@ -40,6 +40,13 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         'sort': 'name'
     }
 
+    #: mappings for Solr field names to form aliases
+    range_field_map = {
+        'account_years': 'membership_dates',
+    }
+    #: fields to generate stats on in self.get_ranges
+    stats_fields = ('account_years', 'birth_year')
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         # use GET instead of default POST/PUT for form data
@@ -57,45 +64,46 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
             form_data.setdefault(key, val)
 
         kwargs['data'] = form_data
+
+
+        # get min/max configuration for range fields
+        kwargs['min_max_conf'] = self.get_ranges()
+
         return kwargs
 
     def get_form(self, *args, **kwargs):
-        # initialize the form, caching on current instance
+        # initialize the form, caching on current instance, including
+        # min/max data for
         if not self._form:
             self._form = super().get_form(*args, **kwargs)
-        # set minimum and maximum years for date range fields
-            min_max_ranges = self.get_year_ranges('birth_year',
-                                                  'account_years')
-            if min_max_ranges:
-                self._form.set_daterange_placeholders(min_max_ranges)
         # Get facets from solr return
         return self._form
 
-    @staticmethod
-    def get_year_ranges(*field_names):
-        """Return the earliest and latest years for any account activity in
-        the library.
+    def get_ranges(self):
+        """Return the min and max for fields specified in
+        :class:`MembershipList`'s stats_fields
 
-        :param \*field_names:
-            Field names for which to return min and max years.
-        :type \*field_names: tuple
-
-        :returns: Field-keyed min and max years as integers
+        :returns: Dictionary keyed on form field name with a tuple of
+            (min, max) as integers. If stats are not returned from the field,
+            the key is not added to a dictionary.
         :rtype: dict
         """
 
-        stats = PersonSolrQuerySet().stats(*field_names).get_stats()
+        stats = PersonSolrQuerySet().stats(*self.stats_fields).get_stats()
         min_max_ranges = {}
         if not stats:
             return min_max_ranges
-        for name in field_names:
+        for name in self.stats_fields:
             try:
                 min_year = int(stats['stats_fields'][name]['min'])
                 max_year = int(stats['stats_fields'][name]['max'])
-                min_max_ranges[name] = (min_year, max_year)
-            # min and max will raise TypeError when cast to int if
-            # they are None/NULL (i.e. missing) but won't block
-            # other fields from being processed
+                # map to form field name if an alias is provided
+                min_max_ranges[self.range_field_map.get(name, name)] \
+                    = (min_year, max_year)
+            # If the field stats are missing, min and max will be NULL,
+            # rendered as None.
+            # The TypeError will catch and pass returning an empty entry
+            # for that field but allowing others to be passed on.
             except TypeError:
                 pass
         return min_max_ranges

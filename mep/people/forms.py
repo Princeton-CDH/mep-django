@@ -86,9 +86,6 @@ class MemberSearchForm(FacetForm):
         ('name', 'Name A-Z'),
     ]
 
-    range_field_map = {
-        'membership_dates': 'account_years',
-    }
 
     # NOTE these are not set by default!
     error_css_class = 'error'
@@ -117,42 +114,32 @@ class MemberSearchForm(FacetForm):
     birth_year = RangeField(required=False,
         widget=RangeWidget(attrs={'size': 4}))
 
-    def set_daterange_placeholders(self, min_max_conf):
-        '''Set the min, max, and placeholder values for all fields associated
-        with :class:`mep.common.forms.RangeWidget`.
+    def set_range_placeholders(self, min_max_conf):
+        '''Set the min, max, and placeholder values for all
+        :class:`~mep.common.forms.RangeField` instances.
 
-        :param min_max_conf: set of (min, max) tuples
+        :param min_max_conf: a dictionary with form fields as key names and
+            tuples of min and max integers as values.
         :type min_max_conf: dict
+
         :rtype: None
         '''
-        for field, field_obj in self.fields.items():
-            if isinstance(field_obj, RangeField):
-                # Lookup up alias in mapping of range fields to solr fields
-                # or look for field in dict
-                stats_field_name = self.range_field_map.get(field, field)
-                min_max = min_max_conf.get(stats_field_name, None)
-
-                # Continue if a field isn't found for whatever reason
-                # so that other facets can be processed correctly.
-                if min_max is None:
-                    continue
-
-                min_year, max_year = min_max
-                start_widget, end_widget = field_obj.widget.widgets
-                # set placeholders for widgets individually
-                start_widget.attrs['placeholder'] = min_year
-                end_widget.attrs['placeholder'] = max_year
-                # valid min and max for both via multiwidget
-                field_obj.widget.attrs.update({
-                    'min': min_year,
-                    'max': max_year
-                })
+        for field_name, min_max in min_max_conf.items():
+            self.fields[field_name].set_min_max(min_max[0], min_max[1])
 
     def __init__(self, data=None, *args, **kwargs):
         '''
-        Set choices dynamically based on form kwargs and presence of keywords.
+        Override to set choices dynamically and configure min-max range values
+        based on form kwargs.
         '''
+        # pop min_max_conf out of kwargs to avoid clashing
+        # with django args
+        min_max_conf = kwargs.pop('min_max_conf', {})
+
         super().__init__(data=data, *args, **kwargs)
+
+        # call function to set min_max placeholders
+        self.set_range_placeholders(min_max_conf)
 
         # if a keyword search term is present, only relevance sort is allowed
         if data and data.get('query', None):
