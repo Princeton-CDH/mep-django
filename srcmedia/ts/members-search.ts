@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const reloadFacets$ = merge( // a list of all the things that require fetching new facets
         keywordChange$,
         memDateChange$,
+        birthdateChange$,
         hasCardFacet.checked$.pipe(skip(1)), // ignore initial
         genderFacet.events,
     )

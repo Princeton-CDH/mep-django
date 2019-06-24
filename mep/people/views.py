@@ -136,6 +136,9 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
             # range filter by membership dates, if set
             if search_opts['membership_dates']:
                 sqs = sqs.filter(account_years__range=search_opts['membership_dates'])
+            # range filter by birth year, if set
+            if search_opts['birth_year']:
+                sqs = sqs.filter(birth_year__range=search_opts['birth_year'])
 
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
