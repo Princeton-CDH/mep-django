@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize %}
+{% load static humanize widget_tweaks %}
 {% load render_bundle from webpack_loader %}
 
 {% block js %}{% render_bundle 'booksSearch' 'js' %}{% endblock %}
@@ -16,7 +16,21 @@
 <section class="books search-form">
     {% include 'snippets/breadcrumbs.html' %}
     <form id="books-form">
-        <span class="total-results">{{ items.count|intcomma }} total result{{ items.count|pluralize }}</span>
+        {% if form.errors %}
+        <div role="alert" class="errors" aria-labelledby="errors" aria-live="polite">
+            <span id="errors">Errors:</span>
+            <ul>
+                {% for field, errors in form.errors.items %}
+                {# no clean way to get field labels here, so we just collapse the error lists #}
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        <input type="submit" value="submit"/>
+        <output class="total-results" id="total">{{ items.count|intcomma }} total result{{ items.count|pluralize }}</output>
     </form>
 </section>
 <div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
@@ -27,9 +41,7 @@
     <div class="inner">
         <label class="sort">
             <span>SORTED BY</span>
-            <select name="sort" form="books-form">
-                <option selected>Title A-Z</option>
-            </select>
+            {% render_field form.sort form="books-form" %}
             <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
         </label>
         <button type="submit" form="books-form">Go</button>
