@@ -181,6 +181,13 @@ class TestItem(TestCase):
         # should set to subjects it could find/create (in this case, none)
         assert not item.subjects.count()
 
+        # unexpected item type / unknown format; should not error
+        worldcat_entity.item_type='http://schema.org/CreativeWork'
+        # clear out existing item format from previous calls
+        item.item_format = None
+        item.populate_from_worldcat(worldcat_entity)
+        assert not item.item_format
+
     def test_subject_list(self):
         # no subjects
         item = Item.objects.create(title='Topicless')

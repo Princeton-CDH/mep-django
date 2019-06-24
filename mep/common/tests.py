@@ -51,13 +51,13 @@ class TestNotable(TestCase):
 
     def test_has_notes(self):
         noted = Notable()
-        assert False == noted.has_notes()
+        assert not noted.has_notes()
         noted.notes = 'some text'
-        assert True == noted.has_notes()
+        assert noted.has_notes()
         noted.notes = ''
-        assert False == noted.has_notes()
+        assert not noted.has_notes()
         noted.notes = None
-        assert False == noted.has_notes()
+        assert not noted.has_notes()
 
     def test_note_snippet(self):
         noted = Notable()
@@ -340,11 +340,11 @@ class TestTemplateTags(TestCase):
         # no error on not found
         assert dict_item({}, 'foo') is None
         # string key
-        assert dict_item({'foo': 'bar'}, 'foo') is 'bar'
+        assert dict_item({'foo': 'bar'}, 'foo') == 'bar'
         # integer key
-        assert dict_item({13: 'lucky'}, 13) is 'lucky'
+        assert dict_item({13: 'lucky'}, 13) == 'lucky'
         # integer value
-        assert dict_item({13: 7}, 13) is 7
+        assert dict_item({13: 7}, 13) == 7
 
 
 class TestCheckboxFieldset(TestCase):
