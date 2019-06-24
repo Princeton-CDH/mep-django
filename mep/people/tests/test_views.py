@@ -767,7 +767,7 @@ class TestMembersListView(TestCase):
 
     def test_get_form_kwargs(self):
         view = MembersList()
-        view.get_ranges = Mock()
+        view.get_range_stats = Mock()
         # no query args
         view.request = self.factory.get(self.members_url)
         form_kwargs = view.get_form_kwargs()
@@ -775,7 +775,7 @@ class TestMembersListView(TestCase):
         assert form_kwargs['initial'] == view.initial
         # mock ranges should be called and its value assigned to
         # kwargs
-        assert form_kwargs['min_max_conf'] == view.get_ranges.return_value
+        assert form_kwargs['min_max_conf'] == view.get_range_stats.return_value
 
         # no query, use default sort
         assert form_kwargs['data']['sort'] == view.initial['sort']
@@ -886,7 +886,7 @@ class TestMembersListView(TestCase):
         assert labels == [(1, 'N/A')]
 
     @patch('mep.people.views.PersonSolrQuerySet')
-    def test_get_ranges(self, mockPSQ):
+    def test_get_range_stats(self, mockPSQ):
         # NOTE: This depends on configuration for mapping the fields
         # in the range_field_map class attribute of MembersList
         mock_stats = {
@@ -903,7 +903,7 @@ class TestMembersListView(TestCase):
         }
         mockPSQ.return_value.stats.return_value.get_stats.return_value \
             = mock_stats
-        min_max_conf = MembersList().get_ranges()
+        min_max_conf = MembersList().get_range_stats()
         # returns integer years
         # also converst membership_dates to
         assert min_max_conf == {
@@ -916,13 +916,13 @@ class TestMembersListView(TestCase):
         assert 'birth_year' in args
         # if get stats returns None, should return an empty dict
         mockPSQ.return_value.stats.return_value.get_stats.return_value = None
-        assert MembersList().get_ranges() == {}
+        assert MembersList().get_range_stats() == {}
         # None set for min or max should result in the field not being
         # returned (but the other should be passed through as expected)
         mockPSQ.return_value.stats.return_value.get_stats.return_value\
             = mock_stats
         mock_stats['stats_fields']['account_years']['min'] = None
-        assert MembersList().get_ranges() == {'birth_year': (1910, 1932)}
+        assert MembersList().get_range_stats() == {'birth_year': (1910, 1932)}
 
 
 class TestMemberDetailView(TestCase):

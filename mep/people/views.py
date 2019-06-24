@@ -67,7 +67,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
 
 
         # get min/max configuration for range fields
-        kwargs['min_max_conf'] = self.get_ranges()
+        kwargs['min_max_conf'] = self.get_range_stats()
 
         return kwargs
 
@@ -79,7 +79,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         # Get facets from solr return
         return self._form
 
-    def get_ranges(self):
+    def get_range_stats(self):
         """Return the min and max for fields specified in
         :class:`MembershipList`'s stats_fields
 
