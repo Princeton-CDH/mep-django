@@ -112,6 +112,25 @@ class RangeField(forms.MultiValueField):
 
         return (data_list[0], data_list[1])
 
+    def set_min_max(self, min_val, max_val):
+        '''Set a min and max value for :class:`RangeWidget` attributes
+        and placeholders.
+
+        :param min_value: minimum value to set on widget
+        :type min_value: int
+        :param max_value: maximum value to set on widget
+        :type max_value: int
+        :rtype: None
+        '''
+        start_widget, end_widget = self.widget.widgets
+        # set placeholders for widgets individually
+        start_widget.attrs['placeholder'] = min_val
+        end_widget.attrs['placeholder'] = max_val
+        # valid min and max for both via multiwidget
+        self.widget.attrs.update({
+            'min': min_val,
+            'max': max_val
+        })
 
 class FacetForm(forms.Form):
     '''Form mixin to support mapping facet fields to

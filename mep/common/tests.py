@@ -560,6 +560,15 @@ def test_range_field():
     with pytest.raises(ValidationError):
         RangeField().compress([200, 100])
 
+    # test_set_min_max
+    rangefield = RangeField()
+    rangefield.set_min_max(1910, 1930)
+    assert rangefield.widget.attrs['min'] == 1910
+    assert rangefield.widget.attrs['max'] == 1930
+    start_widget, end_widget = rangefield.widget.widgets
+    assert start_widget.attrs['placeholder'] == 1910
+    assert end_widget.attrs['placeholder'] == 1930
+
 
 class TestRdfViewMixin(TestCase):
 
