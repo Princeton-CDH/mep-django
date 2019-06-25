@@ -11,7 +11,8 @@ def copy_precisions(apps, schema_editor):
     Event = apps.get_model('accounts', 'Event')
 
     for related_name in ('purchase', 'borrow'):
-        # get all events with related name events and pull over related fields
+        # get all events with purchase and borrow events and
+        # pull over related fields to temporary ones on Event
         events = Event.objects\
             .filter(**{'%s__isnull' % related_name: False})\
             .select_related(related_name)

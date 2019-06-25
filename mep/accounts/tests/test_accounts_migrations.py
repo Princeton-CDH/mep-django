@@ -7,7 +7,7 @@ import pytest
 
 from mep.accounts.partial_date import DatePrecision
 
-## migration test case adapted from
+# migration test case adapted from
 # https://www.caktusgroup.com/blog/2016/02/02/writing-unit-tests-django-migrations/
 # and from winthrop-django
 
@@ -63,7 +63,6 @@ class TestTempPrecisionEvent(TestMigrations):
         # Account to hold events
         account = Account.objects.create()
 
-
         # Create some objects with partial dates
         Borrow.objects.create(
                 account=account,
@@ -114,7 +113,7 @@ class TestTempPrecisionEvent(TestMigrations):
             borrow_or_purchase = getattr(event, 'borrow', None)
             if borrow_or_purchase is None:
                 borrow_or_purchase = getattr(event, 'purchase')
-            # check that regardless of state, the precisions
+            # check that regardless of state (set or unset), the precisions
             # were copied over as expected
             assert event.temp_start_date_precision == \
                 borrow_or_purchase.start_date_precision
