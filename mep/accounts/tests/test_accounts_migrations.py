@@ -14,9 +14,6 @@ from mep.accounts.partial_date import DatePrecision
 
 class TestMigrations(TransactionTestCase):
 
-    # @property
-    # def app(self):
-    #     return apps.get_containing_app_config(type(self).__module__).name
     app = None
     migrate_from = None
     migrate_to = None
@@ -123,4 +120,3 @@ class TestTempPrecisionEvent(TestMigrations):
                 borrow_or_purchase.start_date_precision
             assert event.temp_end_date_precision == \
                 borrow_or_purchase.end_date_precision
-
