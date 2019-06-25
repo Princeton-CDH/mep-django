@@ -32,7 +32,7 @@ class PartialDate:
         r'^(?P<year>\d{4}|-)?(?:-(?P<month>[01]\d))?(?:-(?P<day>[0-3]\d))?$'
     )
 
-    def __init__(self, date_field, date_precision_field, unknown_year:int=1,
+    def __init__(self, date_field, date_precision_field, unknown_year=1,
                  label=None):
         self.date_field = date_field
         self.date_precision_field = date_precision_field
