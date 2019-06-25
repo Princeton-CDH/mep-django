@@ -86,6 +86,7 @@ class MemberSearchForm(FacetForm):
         ('name', 'Name A-Z'),
     ]
 
+
     # NOTE these are not set by default!
     error_css_class = 'error'
     required_css_class = 'required'
@@ -110,28 +111,35 @@ class MemberSearchForm(FacetForm):
     }))
     membership_dates = RangeField(label='Membership Dates', required=False,
         widget=RangeWidget(attrs={'size': 4}))
+    birth_year = RangeField(required=False,
+        widget=RangeWidget(attrs={'size': 4}))
 
-    def set_membership_dates_placeholder(self, min_year, max_year):
-        '''Set the min, max, and placeholder values for
-        :class:`mep.common.forms.RangeWidget` associated with membership_dates.'''
+    def set_range_minmax(self, range_minmax):
+        '''Set the min, max, and placeholder values for all
+        :class:`~mep.common.forms.RangeField` instances.
 
-        start_widget, end_widget = \
-            self.fields['membership_dates'].widget.widgets
+        :param range_minmax: a dictionary with form fields as key names and
+            tuples of min and max integers as values.
+        :type range_minmax: dict
 
-        # set placeholders for widgets individually
-        start_widget.attrs['placeholder'] = min_year
-        end_widget.attrs['placeholder'] = max_year
-        # valid min and max for both via multiwidget
-        self.fields['membership_dates'].widget.attrs.update({
-            'min': min_year,
-            'max': max_year
-        })
+        :rtype: None
+        '''
+        for field_name, min_max in range_minmax.items():
+            self.fields[field_name].set_min_max(min_max[0], min_max[1])
 
     def __init__(self, data=None, *args, **kwargs):
         '''
-        Set choices dynamically based on form kwargs and presence of keywords.
+        Override to set choices dynamically and configure min-max range values
+        based on form kwargs.
         '''
+        # pop range_minmax out of kwargs to avoid clashing
+        # with django args
+        range_minmax = kwargs.pop('range_minmax', {})
+
         super().__init__(data=data, *args, **kwargs)
+
+        # call function to set min_max and placeholders
+        self.set_range_minmax(range_minmax)
 
         # if a keyword search term is present, only relevance sort is allowed
         if data and data.get('query', None):

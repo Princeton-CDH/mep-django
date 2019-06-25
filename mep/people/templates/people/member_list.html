@@ -41,6 +41,10 @@
                     <legend>{{ form.membership_dates.label }}</legend>
                     {{ form.membership_dates }}
                 </fieldset>
+                <fieldset class="range facet {{ form.birth_year.css_classes }}" id="id_{{ form.birth_year.name }}">
+                    <legend>{{ form.birth_year.label }}</legend>
+                    {{ form.birth_year }}
+                </fieldset>
                 {% render_field form.has_card class+="sr-only" tabindex=0 %}
                 <label for="{{ form.has_card.id_for_label }}">
                     <span>Card <span class="count">{{ members.get_facets.facet_fields.has_card.true }}</span></span>

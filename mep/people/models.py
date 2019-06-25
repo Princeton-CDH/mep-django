@@ -444,7 +444,6 @@ class Person(Notable, DateRange, Indexable):
                 })
         if self.sex:
             index_data['sex_s'] = self.get_sex_display()
-
         return index_data
 
 
