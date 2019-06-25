@@ -72,11 +72,9 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         return kwargs
 
     def get_form(self, *args, **kwargs):
-        # initialize the form, caching on current instance, including
-        # min/max data for
+        # initialize the form, caching on current instance
         if not self._form:
             self._form = super().get_form(*args, **kwargs)
-        # Get facets from solr return
         return self._form
 
     def get_range_stats(self):
