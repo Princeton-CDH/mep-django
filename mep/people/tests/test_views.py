@@ -775,7 +775,7 @@ class TestMembersListView(TestCase):
         assert form_kwargs['initial'] == view.initial
         # mock ranges should be called and its value assigned to
         # kwargs
-        assert form_kwargs['min_max_conf'] == view.get_range_stats.return_value
+        assert form_kwargs['range_minmax'] == view.get_range_stats.return_value
 
         # no query, use default sort
         assert form_kwargs['data']['sort'] == view.initial['sort']
@@ -903,10 +903,10 @@ class TestMembersListView(TestCase):
         }
         mockPSQ.return_value.stats.return_value.get_stats.return_value \
             = mock_stats
-        min_max_conf = MembersList().get_range_stats()
+        range_minmax = MembersList().get_range_stats()
         # returns integer years
         # also converst membership_dates to
-        assert min_max_conf == {
+        assert range_minmax == {
             'membership_dates': (1928, 1940),
             'birth_year': (1910, 1932)
         }

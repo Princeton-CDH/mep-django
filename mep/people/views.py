@@ -67,7 +67,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
 
 
         # get min/max configuration for range fields
-        kwargs['min_max_conf'] = self.get_range_stats()
+        kwargs['range_minmax'] = self.get_range_stats()
 
         return kwargs
 

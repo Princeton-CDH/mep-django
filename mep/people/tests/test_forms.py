@@ -113,8 +113,8 @@ class TestRadioWithDisabled(TestCase):
 
 class TestMemberForm(TestCase):
 
-    @patch('mep.people.forms.MemberSearchForm.set_range_placeholders')
-    def test_init(self, mock_range_placeholders):
+    @patch('mep.people.forms.MemberSearchForm.set_range_minmax')
+    def test_init(self, mock_range_minmax):
         data = {
             'has_card': True,
             'query': 'Hemingway'
@@ -137,21 +137,21 @@ class TestMemberForm(TestCase):
         assert form.fields['sort'].widget.choices[0] == \
             ('relevance', {'label': 'Relevance', 'disabled': True})
 
-        # should call set_range_placeholders with the value of min_max_conf
-        min_max_conf = {'start_year': (1910, 1920)}
-        form = MemberSearchForm(data, min_max_conf=min_max_conf)
-        mock_range_placeholders.assert_called_with(min_max_conf)
+        # should call set_range_placeholders with the value of range_minmax
+        range_minmax = {'start_year': (1910, 1920)}
+        form = MemberSearchForm(data, range_minmax=range_minmax)
+        mock_range_minmax.assert_called_with(range_minmax)
 
     @patch('mep.common.forms.RangeField.set_min_max')
     def test_set_range_placeholders(self, mock_set_min_max):
 
         form = MemberSearchForm()
 
-        min_max_conf = {
+        range_minmax = {
             'birth_year': (1900, 1950),
             'membership_dates': (1918, 1951)
         }
-        form.set_range_placeholders(min_max_conf)
+        form.set_range_minmax(range_minmax)
 
         # Called twice on fields defined on the form using
         # min and max as integers

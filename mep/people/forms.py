@@ -114,17 +114,17 @@ class MemberSearchForm(FacetForm):
     birth_year = RangeField(required=False,
         widget=RangeWidget(attrs={'size': 4}))
 
-    def set_range_placeholders(self, min_max_conf):
+    def set_range_minmax(self, range_minmax):
         '''Set the min, max, and placeholder values for all
         :class:`~mep.common.forms.RangeField` instances.
 
-        :param min_max_conf: a dictionary with form fields as key names and
+        :param range_minmax: a dictionary with form fields as key names and
             tuples of min and max integers as values.
-        :type min_max_conf: dict
+        :type range_minmax: dict
 
         :rtype: None
         '''
-        for field_name, min_max in min_max_conf.items():
+        for field_name, min_max in range_minmax.items():
             self.fields[field_name].set_min_max(min_max[0], min_max[1])
 
     def __init__(self, data=None, *args, **kwargs):
@@ -132,14 +132,14 @@ class MemberSearchForm(FacetForm):
         Override to set choices dynamically and configure min-max range values
         based on form kwargs.
         '''
-        # pop min_max_conf out of kwargs to avoid clashing
+        # pop range_minmax out of kwargs to avoid clashing
         # with django args
-        min_max_conf = kwargs.pop('min_max_conf', {})
+        range_minmax = kwargs.pop('range_minmax', {})
 
         super().__init__(data=data, *args, **kwargs)
 
-        # call function to set min_max placeholders
-        self.set_range_placeholders(min_max_conf)
+        # call function to set min_max and placeholders
+        self.set_range_minmax(range_minmax)
 
         # if a keyword search term is present, only relevance sort is allowed
         if data and data.get('query', None):
