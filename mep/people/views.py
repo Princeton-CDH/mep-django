@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -209,6 +210,29 @@ class MemberDetail(DetailView, RdfViewMixin):
             ('Members', absolutize_url(reverse('people:members-list'))),
             (self.object.short_name, self.get_absolute_url())
         ]
+
+
+class MembershipActivities(ListView):
+    model = Event
+    template_name = 'people/membership_activities.html'
+
+    def get_queryset(self):
+        print(self.request)
+        print(self.kwargs)
+        print(self.args)
+        # filter to requested person, then get membership activities
+        return super().get_queryset() \
+                      .filter(account__persons__pk=self.kwargs['pk']) \
+                      .membership_activities()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # should 404 if not a person or valid person but not a library member
+        # TODO: person queryset to get library members?
+        context['member'] = get_object_or_404(Person.objects.exclude(account=None),
+                                              pk=self.kwargs['pk'])
+        return context
+
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):

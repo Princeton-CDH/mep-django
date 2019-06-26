@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
+
+{% block js %}
+<script type="application/ld+json">{{ page_jsonld|safe }}</script>
+{% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title=member.name style="detail" %}
+{% endblock %}
+
+{% block main-style %}tabbed white{% endblock %}
+
+{% block content %}
+<nav class="tabs" aria-label="sections">
+    <li class="tab">
+        <a href="{% url 'people:member-detail' pk=member.pk %}">biography</a>
+    </li>
+    <li class="tab" aria-selected="true">
+        <a href="{% url 'people:membership-activities' pk=member.pk %}">activities</a>
+    </li>
+    <li class="tab">
+        <a href="#">cards</a>
+    </li>
+</nav>
+{# TODO: needs subtabs #}
+<section class="activities">
+    <table>
+        <tr>
+            <th>Type</th>
+            <th>Category</th>
+            <th>Duration</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Amount</th>
+        </tr>
+        {% for event in event_list %}
+        <tr>
+            <td>{{ event.event_type }}</td>
+            <td>{{ event.subscription.category|default:'-' }}</td>
+            <td>{{ event.subscription.readable_duration|default:'-' }}</td>
+            <td>{{ event.start_date|date:"N j, Y" }}</td>
+            <td>{{ event.end_date|date:"N j, Y" }}</td>
+            <td>
+            {% if event.subscription %}
+                {{ event.subscription.price_paid|floatformat }}
+                {{ event.subscription.currency_symbol }}
+            {% elif event.reimbursement %}
+                -{{ event.reimbursement.refund|floatformat }}
+                {{ event.reimbursement.currency_symbol }}
+            {% else %} -
+            {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+</section>
+{% endblock %}
