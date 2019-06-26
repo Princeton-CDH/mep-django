@@ -257,6 +257,11 @@ class EventQuerySet(models.QuerySet):
         '''Events with associated purchase event only'''
         return self._subtype('purchase')
 
+    def membership_activities(self):
+        '''Subscription and reimbursement events'''
+        return self.filter(models.Q(subscription__isnull=False) |
+                           models.Q(reimbursement__isnull=False))
+
 
 class Event(Notable, PartialDateMixin):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
