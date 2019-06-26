@@ -8,7 +8,7 @@ from mep.books.forms import ItemSearchForm
 from mep.books.models import Item
 from mep.books.queryset import ItemSolrQuerySet
 from mep.common import SCHEMA_ORG
-from mep.common.utils import absolutize_url, alpha_pagelabels
+from mep.common.utils import absolutize_url
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
                               LabeledPagesMixin, RdfViewMixin)
 
@@ -65,7 +65,8 @@ class ItemList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJ
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self._form.set_choices_from_facets(self.object_list.get_facets()['facet_fields'])
+        self._form.set_choices_from_facets(
+            self.object_list.get_facets()['facet_fields'])
         return context
 
     def get_page_labels(self, paginator):
@@ -78,7 +79,7 @@ class ItemList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJ
         # otherwise default to numbered pages for now
         # NOTE could implement alpha here, but tougher for titles
         return super().get_page_labels(paginator)
-        
+
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
         return absolutize_url(reverse('books:books-list'))

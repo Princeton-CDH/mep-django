@@ -34,7 +34,7 @@ class TestBooksViews(TestCase):
 
         # search by title
         item1 = Item.objects.create(title='Poems Two Painters', mep_id='mep:01',
-            notes='Author: Knud Merrild')
+                                    notes='Author: Knud Merrild')
         item2 = Item.objects.create(title='Collected Poems', mep_id='mep:02')
         res = self.client.get(url, {'q': 'poems'})
         data = res.json()
@@ -55,6 +55,7 @@ class TestBooksViews(TestCase):
         data = res.json()
         assert len(data['results']) == 1
         assert data['results'][0]['text'] == item2.title
+
 
 class TestItemListView(TestCase):
     fixtures = ['sample_items.json', 'multi_creator_item.json']
