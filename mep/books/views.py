@@ -49,6 +49,7 @@ class ItemList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJ
     }
 
     def get_queryset(self):
+        # NOTE faceting on pub date currently as a placeholder; no UI use yet
         sqs = ItemSolrQuerySet().facet_field('pub_date_i')
         form = self.get_form()
 
