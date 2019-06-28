@@ -1,11 +1,9 @@
 from django import forms
 from django.template.loader import get_template
 
-from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset, \
-    RangeField, RangeWidget
-from django.core.cache import cache
+from mep.common.forms import (CheckboxFieldset, FacetChoiceField, FacetForm,
+                              RangeField, RangeWidget, SelectWithDisabled)
 from mep.people.models import Person
-from mep.people.queryset import PersonSolrQuerySet
 
 
 class PersonChoiceField(forms.ModelChoiceField):
@@ -33,49 +31,6 @@ class PersonMergeForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['primary_person'].queryset = \
             Person.objects.filter(id__in=person_ids)
-
-
-## SelectDisabledMixin borrowed from ppa-django
-
-
-class SelectDisabledMixin(object):
-    '''
-    Mixin for :class:`django.forms.RadioSelect` or :class:`django.forms.CheckboxSelect`
-    classes to set an option as disabled. To disable, the widget's choice
-    label option should be passed in as a dictionary with `disabled` set
-    to True::
-
-        {'label': 'option', 'disabled': True}.
-    '''
-
-    # Using a solution at https://djangosnippets.org/snippets/2453/
-    def create_option(self, name, value, label, selected, index, subindex=None,
-                      attrs=None):
-        disabled = None
-
-        if isinstance(label, dict):
-            label, disabled = label['label'], label.get('disabled', False)
-        option_dict = super().create_option(
-            name, value, label, selected, index,
-            subindex=subindex, attrs=attrs
-        )
-        if disabled:
-            option_dict['attrs'].update({'disabled': 'disabled'})
-        return option_dict
-
-
-class RadioSelectWithDisabled(SelectDisabledMixin, forms.RadioSelect):
-    '''
-    Subclass of :class:`django.forms.RadioSelect` with option to mark
-    a choice as disabled.
-    '''
-
-
-class SelectWithDisabled(SelectDisabledMixin, forms.Select):
-    '''
-    Subclass of :class:`django.forms.Select` with option to mark
-    a choice as disabled.
-    '''
 
 
 class MemberSearchForm(FacetForm):

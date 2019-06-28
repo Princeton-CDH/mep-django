@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $membersSearchForm = document.getElementById('members-form') as HTMLFormElement
     const $keywordInput = document.querySelector('input[name=query]') as HTMLInputElement
     const $hasCardInput = document.querySelector('input[name=has_card]') as HTMLInputElement
-    const $resultsOutput = document.querySelector('output[form=members-form]') as HTMLOutputElement
+    const $resultsOutput = document.querySelector('output.results') as HTMLOutputElement
     const $totalResultsOutput = document.querySelector('output.total-results') as HTMLOutputElement
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement

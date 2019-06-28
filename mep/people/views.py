@@ -11,16 +11,14 @@ from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin, FormView
 
 from mep.accounts.models import Event
-from mep.common.utils import alpha_pagelabels
+from mep.common import SCHEMA_ORG
+from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
                               LabeledPagesMixin, RdfViewMixin)
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
-
-from mep.common.utils import absolutize_url
-from mep.common import SCHEMA_ORG
 
 
 class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):

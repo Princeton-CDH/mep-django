@@ -7,8 +7,8 @@ from django.template.defaultfilters import date as format_date
 
 from mep.accounts.models import Account, Subscription, Borrow
 from mep.books.models import Item
-from mep.people.forms import PersonChoiceField, PersonMergeForm, \
-    RadioSelectWithDisabled, MemberSearchForm
+from mep.common.forms import RadioSelectWithDisabled
+from mep.people.forms import PersonChoiceField, PersonMergeForm, MemberSearchForm
 from mep.people.models import Person
 
 
