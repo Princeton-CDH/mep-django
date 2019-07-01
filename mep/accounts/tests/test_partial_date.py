@@ -57,10 +57,6 @@ class TestPartialDate(TestCase):
         pdo.date_precision = DatePrecision.year
         assert pdo.partial_date == '1901'
 
-
-
-
-
         # change default unknown year value
         pdo = self.PartialDateObject1900()
         pdo.date = datetime.date(1900, 3, 5)

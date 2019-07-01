@@ -26,7 +26,6 @@ def copy_precisions(apps, schema_editor):
                     getattr(event, related_name).end_date_precision
                 event.save()
 
-
 def revert_copy_precisions(apps, schema_editor):
     """Revert the copy of dates from Borrow and Purchase to Event."""
     Event = apps.get_model('accounts', 'Event')
