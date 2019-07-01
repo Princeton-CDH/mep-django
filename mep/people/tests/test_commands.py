@@ -108,5 +108,3 @@ class TestImportPersonography(TestCase):
         ]
         for txt in expected_text:
             assert txt in output
-
-
