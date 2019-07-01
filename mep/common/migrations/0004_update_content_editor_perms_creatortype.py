@@ -47,4 +47,3 @@ class Migration(migrations.Migration):
         migrations.RunPython(update_content_editor_group,
                              reverse_code=migrations.RunPython.noop),
     ]
-
