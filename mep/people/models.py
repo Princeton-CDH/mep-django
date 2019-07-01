@@ -290,8 +290,7 @@ class Person(Notable, DateRange, Indexable):
         if self.sort_name and len(self.sort_name.split(',')) > 1:
             return ('%s, %s' % (self.sort_name, self.title)).strip(', ')
         # otherwise, append it to the front for most natural format
-        else:
-            return ('%s %s' % (self.title, self.sort_name)).strip(', ')
+        return ('%s %s' % (self.title, self.sort_name)).strip(', ')
 
     class Meta:
         verbose_name_plural = 'people'

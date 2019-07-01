@@ -62,5 +62,3 @@ class Command(BaseCommand):
         for i in ['people', 'addresses', 'countries', 'urls']:
             self.stdout.write('%d %s added (%d total)' % \
                 (new_totals[i] - start_totals[i], i, new_totals[i]))
-
-

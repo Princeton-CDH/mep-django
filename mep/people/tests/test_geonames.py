@@ -96,7 +96,8 @@ class TestGeonamesApi(TestCase):
 
         # result should be cached and api not called second time
         mockrequests.reset_mock()
-        geo_api.countries
+        # assert that the cached result is the same
+        assert geo_api.countries == self.mock_countryinfo['geonames']
         mockrequests.get.assert_not_called()
 
     @patch('mep.people.geonames.requests')

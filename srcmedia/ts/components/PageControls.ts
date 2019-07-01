@@ -96,7 +96,7 @@ export default class PageControls extends Component {
 
         if (currentPage == 1) { // if on first page, no previous
             previousEnabled = false;
-        } 
+        }
         if (currentPage == totalPages) {  // if on last page, no next
             nextEnabled = false;
         }

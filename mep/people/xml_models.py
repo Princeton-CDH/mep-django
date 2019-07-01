@@ -102,7 +102,6 @@ class Residence(TeiXmlObject):
         "Châtenay-Malabry": 'FR',
         "Saint-Magne-de-Castillon": 'FR',
         "Arras": 'FR',
-        "New York": 'US',
         "Rueil-Malmaison": 'FR',
         "Berck": 'FR',
         "Marnes la Coquette": 'FR',
@@ -237,6 +236,7 @@ class Residence(TeiXmlObject):
 
         return addr
 
+
 class Name(TeiXmlObject):
     '''person name'''
     name_type = xmlmap.StringField('@type')
@@ -315,6 +315,7 @@ class PersonName(TeiXmlObject):
         sorted_names = sorted(self.first_names, key=lambda n: n.sort or 0)
         return ' '.join([str(n) for n in sorted_names])
 
+
 class Note(TeiXmlObject):
     '''TEI note. Includes logic for extracting ref attributes
     for inclusion as note text.'''
@@ -330,6 +331,7 @@ class Note(TeiXmlObject):
 
         # output note text normally, now including ref id
         return self.node.xpath("normalize-space(.)")
+
 
 class Person(TeiXmlObject):
     '''Person'''

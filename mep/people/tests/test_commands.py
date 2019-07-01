@@ -27,7 +27,7 @@ class TestImportPersonography(TestCase):
     @patch('mep.people.management.commands.import_personography.Personography')
     def test_command(self, mock_xmlpersonography):
         # simulate bad path
-        bad_path = '/tmp/not/here'
+        bad_path = '/home/me/not/here'
         mock_xmlpersonography.from_file.side_effect = Exception
         with pytest.raises(CommandError) as err:
             self.cmd.handle(path=bad_path)

@@ -311,27 +311,17 @@ class Event(Notable):
             return self.subscription.get_subtype_display()
         except ObjectDoesNotExist:
             pass
-        try:
-            self.reimbursement
+        if getattr(self, 'reimbursement', None):
             return 'Reimbursement'
-        except ObjectDoesNotExist:
-            pass
-        try:
-            self.borrow
+        if getattr(self, 'borrow', None):
             return 'Borrow'
-        except ObjectDoesNotExist:
-            pass
-        try:
-            self.purchase
+        if getattr(self, 'purchase', None):
             return 'Purchase'
-        except ObjectDoesNotExist:
-            pass
         return 'Generic'
 
 
 class SubscriptionType(Named, Notable):
     '''Type of subscription'''
-    pass
 
 
 class CurrencyMixin(models.Model):
@@ -478,7 +468,6 @@ class Subscription(Event, CurrencyMixin):
         return ', '.join(parts)
     readable_duration.short_description = 'Duration'
     readable_duration.admin_order_field = 'duration'
-
 
 
 class Borrow(PartialDateMixin, Event):

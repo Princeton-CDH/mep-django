@@ -115,9 +115,10 @@ class TestAccount(TestCase):
         for location in locations:
             Address.objects.create(account=account, location=location)
 
-        # semicolon separated string sorted by city, name, street address,
-        # displays name first, then street_address, and city as a last resort
-        account.list_locations() == 'Berlin; 1 Foo St.; Hotel Foo'
+        # semicolon separated string of locations with as much information as
+        # possible; presented in database order.
+        assert account.list_locations() == \
+            'Hotel Foo, Paris; 1 Foo St., London; Berlin'
 
     def test_event_dates(self):
         account = Account.objects.create()
@@ -225,7 +226,7 @@ class TestAccount(TestCase):
         generic = Event.objects.create(account=account)
 
         subscriptions = account.subscription_set
-        assert subscriptions.count() is 2
+        assert subscriptions.count() == 2
         assert isinstance(subscriptions.first(), Subscription)
         assert subs in subscriptions
         assert subs2 in subscriptions
@@ -830,5 +831,3 @@ class TestCurrencyMixin(TestCase):
         # when symbol is not known
         coin.currency = 'foo'
         assert coin.currency_symbol() == 'foo'
-
-

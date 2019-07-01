@@ -70,23 +70,23 @@
 
         @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
             background-image: url("#{$src}_M@2x.jpg");
-                
+
         }
     }
 
     // l -> xl
     @media (min-width: $breakpoint-l) {
         background-image: url("#{$src}@1x.jpg");
-        
+
         @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
             background-image: url("#{$src}@2x.jpg");
-                
+
         }
     }
 }
 
 // adds a transparent blue loading bar at top when element is aria-hidden
-@mixin loader-bottom { 
+@mixin loader-bottom {
     overflow: hidden;
 
     &::before {
@@ -128,6 +128,6 @@
         }
         to {
             left: 150%;
-        }  
+        }
     }
 }

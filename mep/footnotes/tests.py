@@ -94,4 +94,3 @@ class TestBibliographyAutocomplete(TestCase):
         assert 'results' in data
         assert len(data['results']) == 1
         assert data['results'][0]['text'] == str(bib2)
-

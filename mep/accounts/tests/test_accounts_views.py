@@ -66,4 +66,3 @@ class TestAccountsViews(TestCase):
         assert 'results' in data
         assert len(data['results']) == 1
         assert data['results'][0]['text'] == 'Account #%s: %s' % (acc3.pk, hemier)
-
