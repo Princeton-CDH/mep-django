@@ -2,6 +2,7 @@ import json
 from datetime import date
 import time
 from types import LambdaType
+import uuid
 from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import User, Permission
@@ -158,7 +159,7 @@ class TestPeopleViews(TestCase):
 
     def test_person_admin_change(self):
         # create user with permission to load admin edit form
-        su_password = 'itsasecret'
+        su_password = str(uuid.uuid4())
         superuser = User.objects.create_superuser(username='admin',
             password=su_password, email='su@example.com')
 
