@@ -120,6 +120,27 @@ class Account(models.Model):
         return bool(self.card)
     has_card.boolean = True
 
+    @staticmethod
+    def validate_etype(etype):
+        etype = etype.lower()
+        if etype not in ['borrow', 'event', 'subscription',
+                         'purchase', 'reimbursement']:
+            raise ValueError('etype must be one of borrow, event, purchase,'
+                             ' subscription, or reimbursement')
+
+    @staticmethod
+    def str_to_model(etype):
+        # moving mapping here so that we can forward reference classes
+        # not yet declared
+        mapping = {
+            'borrow': Borrow,
+            'reimbursement': Reimbursement,
+            'event': Event,
+            'purchase': Purchase,
+            'subscription': Subscription
+        }
+        return mapping[etype]
+
     def add_event(self, etype='event', **kwargs):
         '''Helper function to add a :class:`Event` or subclass to an
         instance of :class:`Account`. Requires that the :class:`Account`
@@ -132,21 +153,11 @@ class Account(models.Model):
             One of ``borrow``, ``event``, ``subscription``,
             ``purchase``, ``reimbursement``
         '''
-        # Catch an invalid class of event or subevent
-        etype = etype.lower()
-        if etype not in ['borrow', 'event', 'subscription',
-                         'purchase', 'reimbursement']:
-            raise ValueError('etype must be one of borrow, event, purchase,'
-                             ' subscription, or reimbursement')
-
-        str_to_model = {
-            'borrow': Borrow,
-            'reimbursement': Reimbursement,
-            'event': Event,
-            'purchase': Purchase,
-            'subscription': Subscription
-        }
-        str_to_model[etype].objects.create(account=self, **kwargs)
+        # Catch an invalid class of event or subevent and raise
+        # ValueError
+        self.validate_etype(etype)
+        # Create the event
+        self.str_to_model(etype).objects.create(account=self, **kwargs)
 
     def get_events(self, etype='event', **kwargs):
         '''Helper function to retrieve related events of any valid type for
@@ -164,24 +175,8 @@ class Account(models.Model):
 
         '''
         # Catch an invalid class of event or subevent
-        etype = etype.lower()
-        if etype not in ['borrow', 'event', 'subscription',
-                         'purchase', 'reimbursement']:
-            raise ValueError('etype must be one of borrow, event, purchase,'
-                             ' subscription, or reimbursement')
-
-        str_to_model = {
-            'borrow': Borrow,
-            'reimbursement': Reimbursement,
-            'event': Event,
-            'purchase': Purchase,
-            'subscription': Subscription
-        }
-
-        if not kwargs:
-            return str_to_model[etype].objects.filter(account=self)
-
-        return str_to_model[etype].objects.filter(account=self, **kwargs)
+        self.validate_etype(etype)
+        return self.str_to_model(etype).objects.filter(account=self, **kwargs)
 
 
 class Address(Notable, PartialDateMixin):

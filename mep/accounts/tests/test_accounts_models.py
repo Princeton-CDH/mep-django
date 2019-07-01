@@ -49,6 +49,20 @@ class TestAccount(TestCase):
         account.persons.add(pers1)
         assert str(account) == "Account #%s: Mlle Foo" % account.pk
 
+    def test_validate_etype(self):
+
+        account = Account()
+        # no error
+        account.validate_etype('Borrow')
+        with pytest.raises(ValueError):
+            account.validate_etype('Rental')
+
+    def test_str_to_model(self):
+        account = Account()
+        # check that the function properly maps
+        assert account.str_to_model('borrow') == Borrow
+        assert account.str_to_model('purchase') == Purchase
+
     def test_add_event(self):
 
         # Make a saved Account object
