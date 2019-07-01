@@ -150,8 +150,3 @@ class TestMemberForm(TestCase):
         # attrs for both are set via multiwidget
         assert multi_widget.attrs['min'] == 1900
         assert multi_widget.attrs['max'] == 1928
-
-
-
-
-
