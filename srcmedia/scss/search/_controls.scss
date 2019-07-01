@@ -18,7 +18,6 @@
 
     .inner,
     .outer {
-        height: 100%;
         display: flex;
         align-items: center;
         height: 2.5rem;
@@ -27,7 +26,7 @@
             height: 3rem;
             margin: 0 3rem;
         }
-        
+
         @media (min-width: $breakpoint-l) {
             height: 4rem;
             margin: 0 4rem;
@@ -89,10 +88,10 @@
             @media(min-width: $breakpoint-s) {
                 width: fit-content;
             }
-            
+
             span {
                 display: none;
-                
+
                 @media (min-width: $breakpoint-s) {
                     display: block;
                 }
@@ -136,7 +135,7 @@
 
         span {
             display: none;
-            
+
             @media (min-width: $breakpoint-m) {
                 margin-right: 0.5rem;
                 display: inline;

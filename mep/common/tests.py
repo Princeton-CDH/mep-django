@@ -1,6 +1,7 @@
 import re
 from collections import OrderedDict
 from unittest.mock import Mock
+import uuid
 
 import pytest
 import rdflib
@@ -195,7 +196,7 @@ class TestAdminDashboard(TestCase):
 
     def test_dashboard(self):
         # create admin user who can view the admin dashboard
-        su_password = 'itsasecret'
+        su_password = str(uuid.uuid4())
         superuser = User.objects.create_superuser(username='admin',
             password=su_password, email='su@example.com')
         # login as admin user

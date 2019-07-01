@@ -227,7 +227,7 @@ class TestPeopleViews(TestCase):
 
     def test_person_admin_list(self):
         # create user with permission to load admin edit form
-        su_password = 'itsasecret'
+        su_password = str(uuid.uuid4())
         superuser = User.objects.create_superuser(username='admin',
             password=su_password, email='su@example.com')
 
@@ -255,7 +255,7 @@ class TestPeopleViews(TestCase):
         # default django behavior is redirect to admin login page
         assert response.status_code == 302
 
-        staff_password = 'sosecret'
+        staff_password = str(uuid.uuid4())
         staffuser = User.objects.create_user(username='staff',
             password=staff_password, email='staff@example.com',
             is_staff=True)
@@ -698,7 +698,7 @@ class TestMembersListView(TestCase):
             msg_prefix='Response has min set twice for inputs'
         )
         # login as staff user with no special permissions
-        staff_password = 'sosecret'
+        staff_password = str(uuid.uuid4())
         staffuser = User.objects.create_user(
             username='staff', is_staff=True,
             password=staff_password, email='staff@example.com')
