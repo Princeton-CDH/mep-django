@@ -10,7 +10,8 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
 
-from mep.accounts.partial_date import PartialDateMixin, DatePrecision
+from mep.accounts.partial_date import PartialDateMixin, DatePrecision,\
+    DatePrecisionField
 from mep.books.models import Item
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Location
@@ -257,7 +258,7 @@ class EventQuerySet(models.QuerySet):
         return self._subtype('purchase')
 
 
-class Event(Notable):
+class Event(Notable, PartialDateMixin):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
     account = models.ForeignKey(Account)
     start_date = models.DateField(blank=True, null=True)
@@ -285,20 +286,6 @@ class Event(Notable):
         '''Generic string method for Event and subclasses'''
         return '%s for account #%s %s' % \
             (self.__class__.__name__, self.account.pk, self.date_range)
-
-    @property
-    def date_range(self):
-        '''Event date range as string. Returns a single date in isoformat
-        if both dates are set to the same date. Uses "??" for unset dates,
-        and returns in format start/end.'''
-
-        # if both dates are set and the same, return a single date
-        if self.start_date and self.end_date and self.start_date == self.end_date:
-            return self.start_date.isoformat()
-
-        # otherwise, use both dates with ?? to indicate unknown date
-        return '/'.join([dt.isoformat() if dt else '??'
-                         for dt in [self.start_date, self.end_date]])
 
     @cached_property
     def event_type(self):
@@ -465,7 +452,7 @@ class Subscription(Event, CurrencyMixin):
     readable_duration.admin_order_field = 'duration'
 
 
-class Borrow(PartialDateMixin, Event):
+class Borrow(Event):
     '''Inherited table indicating borrow events'''
     #: :class:`~mep.books.models.Item` that was borrowed;
     #: optional to account for unclear titles
@@ -491,7 +478,7 @@ class Borrow(PartialDateMixin, Event):
         super(Borrow, self).save(*args, **kwargs)
 
 
-class Purchase(PartialDateMixin, CurrencyMixin, Event):
+class Purchase(CurrencyMixin, Event):
     '''Inherited table indicating purchase events; extends :class:`Event`'''
     price = models.DecimalField(max_digits=8, decimal_places=2,
         blank=True, null=True)

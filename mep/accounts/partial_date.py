@@ -32,7 +32,7 @@ class PartialDate:
         r'^(?P<year>\d{4}|-)?(?:-(?P<month>[01]\d))?(?:-(?P<day>[0-3]\d))?$'
     )
 
-    def __init__(self, date_field, date_precision_field, unknown_year:int=1,
+    def __init__(self, date_field, date_precision_field, unknown_year=1,
                  label=None):
         self.date_field = date_field
         self.date_precision_field = date_precision_field
@@ -67,10 +67,16 @@ class PartialDate:
         '''Return a format string for use with :meth:`datetime.date.strftime`
         to output a date with the appropriate precision'''
         parts = []
+
+        # Handle NULL as indicating full date precision
+        if value is None:
+            return '%Y-%m-%d'
+
         # cast integer to date precision to check flags
         value = DatePrecision(value)
 
-        # no precision = no date
+        # If the date was not set, this value will be defaulted to no flags,
+        # which is a boolean falsy, i.e. 0., so return no date.
         if not value:
             return ''
 
