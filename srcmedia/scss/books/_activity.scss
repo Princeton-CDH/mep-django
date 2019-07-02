@@ -1,8 +1,14 @@
 .activities {
+    @include padding-container;
+
+    /* no margins around the table on mobile */
+    @media (max-width: $breakpoint-s) {
+        padding: 0;
+    }
 
     table {
         font-family: $sans;
-        font-size: 16px;
+        font-size: 0.8rem;
         width: 100%;
 
         th {
@@ -10,7 +16,7 @@
         }
 
         tr {
-            border-top: solid 1px $white-two;
+            border-top: solid 0.1rem $white-two;
             &:first-child {
                 border-top: none;
             }
@@ -18,8 +24,8 @@
 
         td, th {
             text-align: center;
-            padding-top: 19px;
-            padding-bottom: 38px;
+            padding-top: 1rem;
+            padding-bottom: 2rem;
 
             &:first-child {
                 text-align: left;
@@ -28,15 +34,59 @@
                 text-align: right;
             }
         }
+
+        /* styles adapted from tablesort */
+        th[role=columnheader]:not(.no-sort) {
+            cursor: pointer;
+
+            /* display icon to indicate sortable and current sort status */
+            &::after {
+                content: '';
+                display: inline-block;
+                margin-left: 0.35rem;
+                background-image: url('/static/img/icons/default-table-sort.svg');
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 200%;
+                vertical-align: text-bottom;
+                width: 0.8rem;
+                height: 1.35rem;
+                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.27);
+            }
+
+            &[aria-sort=ascending]::after {
+                background-image: url('/static/img/icons/selected-table-sort.svg');
+            }
+
+            &[aria-sort=descending]::after {
+                background-image: url('/static/img/icons/selected-table-sort.svg');
+                -webkit-transform: rotate(180deg);
+                transform: rotate(180deg);
+            }
+
+        }
+
+        /* for mobile, display each row as a card and use flex
+           to arrange table cells within the card */
         @media (max-width: $breakpoint-s) {
 
-            th {
+            thead {
                 display: none;
             }
             tr {
                 display: flex;
                 flex-wrap: wrap;
-                padding: 15px;
+                padding: 1rem 0.75rem 0;
+
+                border: solid 0.025rem $brown-grey-two;
+                border-bottom: none;
+
+                &:first-child {
+                    border-top: solid 0.025rem $brown-grey-two;
+                }
+                &:last-child {
+                    border-bottom: solid 0.025rem $brown-grey-two;
+                }
 
                 /* use full-width pseudo-element with order to force line break */
                 &::before {
@@ -45,6 +95,31 @@
                   height: 22px;
                   order: 4;
                 }
+
+                &::after {
+                    content: '';
+                    order: 6;
+                    width: 100%;
+                    height: 1rem;
+                    background-image: url('/static/img/icons/blackChevron_down.svg');
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: 0.5rem 0.25rem;
+                    margin-bottom: 0.5rem;
+                }
+
+                &.expanded  {
+                    /* secondary fields are displayed when expanded */
+                    .amount, .duration, .category {
+                        display: block;
+                    }
+
+                    &::after {
+                        transform: rotate(180deg);
+                        margin-top: 1rem;
+                    }
+                }
+
             }
             td {
                 display: block;
@@ -70,26 +145,27 @@
                     width: auto;
                 }
 
+                /* secondary fields are hidden by default, get labels */
+                &.amount, &.duration, &.category {
+                    display: none;
+
+                    &::before {
+                        font-weight: bold;
+                        display: block;
+                    }
+                }
 
                 &.amount::before {
                     content: "Amount";
-                    font-weight: bold;
-                    display: block;
                 }
                 &.duration::before {
                     content: "Duration";
-                    font-weight: bold;
-                    display: block;
                 }
                 &.category::before {
                     content: "Category";
-                    font-weight: bold;
-                    display: block;
                 }
 
             }
-
-            td:last-;
 
         }
     }

@@ -26,15 +26,27 @@
         <a href="#">cards</a>
     </li>
 </nav>
-{# TODO: needs subtabs #}
-<section class="activities">
+
+<nav class="tabs subsection" aria-label="Activities">
+    <li class="tab">
+        <a href="#">Borrowing</a>
+    </li>
+    <li class="tab" aria-selected="true">
+        <a href="{% url 'people:membership-activities' pk=member.pk %}">Membership</a>
+    </li>
+</nav>
+
+<div class="activities">
     <table id="activity-table">
         <thead>
             <tr>
                 <th>Type</th>
-                <th>Category</th>
+                <th>Category
+                    <span role="tooltip" class="question"
+                        aria-label="TBD" tabindex=0 onclick="event.preventDefault()"/>
+                </th>
                 <th data-sort-method="number">Duration</th>
-                <th>Start Date</th>
+                <th data-sort-default>Start Date</th>
                 <th>End Date</th>
                 <th>Amount</th>
             </tr>
@@ -60,6 +72,5 @@
         {% endfor %}
 
     </table>
-
-</section>
+</div>
 {% endblock %}

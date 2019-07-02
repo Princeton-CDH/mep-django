@@ -1,10 +1,17 @@
 span[role=tooltip] {
     width: 1.5rem;
     height: 100%;
-    background: url('/static/img/icons/information-circle.svg');
+    background-image: url('/static/img/icons/information-circle.svg');
     background-repeat: no-repeat;
     background-position: center;
     background-size: 50%;
+    min-height: 1rem;
+    display: inline-block;
+
+
+    &.question {
+        background-image: url('/static/img/icons/question-circle.svg');
+    }
 
     @media (min-width: $breakpoint-s) {
         width: 0.75rem;
@@ -44,7 +51,7 @@ span[role=tooltip] {
             bottom: 1.5rem;
         }
     }
-    
+
     &::before,
     &::after {
         position: absolute;
