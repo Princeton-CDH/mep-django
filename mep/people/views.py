@@ -217,9 +217,6 @@ class MembershipActivities(ListView):
     template_name = 'people/membership_activities.html'
 
     def get_queryset(self):
-        print(self.request)
-        print(self.kwargs)
-        print(self.args)
         # filter to requested person, then get membership activities
         return super().get_queryset() \
                       .filter(account__persons__pk=self.kwargs['pk']) \
@@ -232,7 +229,6 @@ class MembershipActivities(ListView):
         context['member'] = get_object_or_404(Person.objects.exclude(account=None),
                                               pk=self.kwargs['pk'])
         return context
-
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):

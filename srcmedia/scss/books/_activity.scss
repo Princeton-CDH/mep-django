@@ -1,0 +1,97 @@
+.activities {
+
+    table {
+        font-family: $sans;
+        font-size: 16px;
+        width: 100%;
+
+        th {
+            font-weight: bold;
+        }
+
+        tr {
+            border-top: solid 1px $white-two;
+            &:first-child {
+                border-top: none;
+            }
+        }
+
+        td, th {
+            text-align: center;
+            padding-top: 19px;
+            padding-bottom: 38px;
+
+            &:first-child {
+                text-align: left;
+            }
+            &:last-child {
+                text-align: right;
+            }
+        }
+        @media (max-width: $breakpoint-s) {
+
+            th {
+                display: none;
+            }
+            tr {
+                display: flex;
+                flex-wrap: wrap;
+                padding: 15px;
+
+                /* use full-width pseudo-element with order to force line break */
+                &::before {
+                  content: '';
+                  width: 100%;
+                  height: 22px;
+                  order: 4;
+                }
+            }
+            td {
+                display: block;
+                padding: 0;
+                text-align: left;
+                order: 5;
+                width: 30%;
+
+                &.type {
+                    order: 1;
+                    width: 100%;
+                }
+                &.start {
+                    order: 2;
+                    padding-right: 3px;
+                    &::after {
+                        content:" — ";
+                    }
+                    width: auto;
+                }
+                &.end {
+                    order: 3;
+                    width: auto;
+                }
+
+
+                &.amount::before {
+                    content: "Amount";
+                    font-weight: bold;
+                    display: block;
+                }
+                &.duration::before {
+                    content: "Duration";
+                    font-weight: bold;
+                    display: block;
+                }
+                &.category::before {
+                    content: "Category";
+                    font-weight: bold;
+                    display: block;
+                }
+
+            }
+
+            td:last-;
+
+        }
+    }
+
+}
