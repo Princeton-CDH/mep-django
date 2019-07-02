@@ -212,7 +212,9 @@ class MemberDetail(DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(ListView):
+class MembershipActivities(ListView, RdfViewMixin):
+    '''Display a list of membership activities (subscriptions, renewals,
+    and reimbursements) for an individual member.'''
     model = Event
     template_name = 'people/membership_activities.html'
 
@@ -223,12 +225,28 @@ class MembershipActivities(ListView):
                       .membership_activities()
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
         # should 404 if not a person or valid person but not a library member
         # TODO: person queryset to get library members?
-        context['member'] = get_object_or_404(Person.objects.exclude(account=None),
-                                              pk=self.kwargs['pk'])
+        # store member before calling super so available for breadcrumbs
+        self.member = get_object_or_404(Person.objects.exclude(account=None),
+                                        pk=self.kwargs['pk'])
+        context = super().get_context_data(**kwargs)
+        context['member'] = self.member
         return context
+
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
+        return reverse('people:membership-activities', kwargs=self.kwargs)
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        # FIXME duplicating get_absolute_url() from MembersList here
+        return [
+            ('Home', absolutize_url('/')),
+            ('Members', absolutize_url(reverse('people:members-list'))),
+            (self.member.short_name, self.member.get_absolute_url()),
+            ('Membership Activities', self.get_absolute_url())
+        ]
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):
