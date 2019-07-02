@@ -75,7 +75,8 @@ class PartialDate:
         # cast integer to date precision to check flags
         value = DatePrecision(value)
 
-        # no precision = no date
+        # If the date was not set, this value will be defaulted to no flags,
+        # which is a boolean falsy, i.e. 0., so return no date.
         if not value:
             return ''
 
