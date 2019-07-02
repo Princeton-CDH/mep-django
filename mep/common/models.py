@@ -54,7 +54,8 @@ class Notable(models.Model):
     '''Abstract model with an optional notes text field'''
 
     #: optional notes
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True,
+        help_text='Private notes for internal data curation')
 
     class Meta:
         abstract = True
