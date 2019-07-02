@@ -6,13 +6,30 @@
         padding: 0;
     }
 
+    /* form controls are mobile only */
+    form {
+        display: none;
+
+        @media (max-width: $breakpoint-s) {
+            display: block;
+        }
+    }
+
     table {
         font-family: $sans;
         font-size: 0.8rem;
         width: 100%;
 
+        thead {
+            position: sticky;
+        }
+
         th {
             font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10  ;
+            background: white;
         }
 
         tr {
@@ -60,7 +77,6 @@
 
             &[aria-sort=descending]::after {
                 background-image: url('/static/img/icons/selected-table-sort.svg');
-                -webkit-transform: rotate(180deg);
                 transform: rotate(180deg);
             }
 

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load render_bundle from webpack_loader %}
+{% load static %}
 
 {% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
 
@@ -38,6 +39,25 @@
 </nav>
 
 <div class="activities">
+
+    {% comment %} preliminary form controls for sorting and expand/collapse on mobile
+    <form id="activity-mobile-control">
+        <label class="sort">
+            <span>SORTED BY</span>
+            <select>
+                <option value="1">Type</option>
+                <option value="2">Category</option>
+                <option value="3">Duration</option>
+                <option value="4" selected="selected">Start Date</option>
+                <option value="5">End Date</option>
+                <option value="6">Amount</option>
+            </select>
+            <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+        </label>
+        <button id="expand">Expand all</button>
+    </form>
+    {% endcomment %}
+
     <table id="activity-table">
         <thead>
             <tr>
