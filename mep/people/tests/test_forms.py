@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from django import forms
 from django.test import TestCase
@@ -7,8 +7,8 @@ from django.template.defaultfilters import date as format_date
 
 from mep.accounts.models import Account, Subscription, Borrow
 from mep.books.models import Item
-from mep.people.forms import PersonChoiceField, PersonMergeForm, \
-    RadioSelectWithDisabled, MemberSearchForm
+from mep.common.forms import RadioSelectWithDisabled
+from mep.people.forms import PersonChoiceField, PersonMergeForm, MemberSearchForm
 from mep.people.models import Person
 
 
@@ -113,7 +113,8 @@ class TestRadioWithDisabled(TestCase):
 
 class TestMemberForm(TestCase):
 
-    def test_init(self):
+    @patch('mep.people.forms.MemberSearchForm.set_range_minmax')
+    def test_init(self, mock_range_minmax):
         data = {
             'has_card': True,
             'query': 'Hemingway'
@@ -136,17 +137,23 @@ class TestMemberForm(TestCase):
         assert form.fields['sort'].widget.choices[0] == \
             ('relevance', {'label': 'Relevance', 'disabled': True})
 
-    def test_set_membership_dates_placeholder(self):
+        # should call set_range_placeholders with the value of range_minmax
+        range_minmax = {'start_year': (1910, 1920)}
+        form = MemberSearchForm(data, range_minmax=range_minmax)
+        mock_range_minmax.assert_called_with(range_minmax)
+
+    @patch('mep.common.forms.RangeField.set_min_max')
+    def test_set_range_placeholders(self, mock_set_min_max):
 
         form = MemberSearchForm()
-        form.set_membership_dates_placeholder(1900, 1928)
 
-        min_widget, max_widget = form.fields['membership_dates'].widget.widgets
-        multi_widget = form.fields['membership_dates'].widget
+        range_minmax = {
+            'birth_year': (1900, 1950),
+            'membership_dates': (1918, 1951)
+        }
+        form.set_range_minmax(range_minmax)
 
-        # placeholders for individual inputs are set
-        assert min_widget.attrs['placeholder'] == 1900
-        assert max_widget.attrs['placeholder'] == 1928
-        # attrs for both are set via multiwidget
-        assert multi_widget.attrs['min'] == 1900
-        assert multi_widget.attrs['max'] == 1928
+        # Called twice on fields defined on the form using
+        # min and max as integers
+        mock_set_min_max.assert_any_call(1900, 1950)
+        mock_set_min_max.assert_any_call(1918, 1951)

@@ -17,7 +17,7 @@
 
     a {
         transition: color 0.2s;
-        
+
         &:hover {
             color: black;
         }
@@ -74,7 +74,7 @@
     }
 
     #pu-logo {
-        width: 6.25rem; 
+        width: 6.25rem;
     }
 
     #cdh-logo {
@@ -104,7 +104,7 @@
 
         #a11y-assist {
             text-align: right;
-    
+
             @media (min-width: $breakpoint-s) {
                 text-align: left;
                 flex: none;
@@ -118,9 +118,9 @@
                 margin-left: 2rem;
             }
         }
-    
+
         #sw-version {
             text-align: right;
         }
     }
-} 
+}

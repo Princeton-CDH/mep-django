@@ -1,11 +1,9 @@
 from django import forms
 from django.template.loader import get_template
 
-from mep.common.forms import FacetChoiceField, FacetForm, CheckboxFieldset, \
-    RangeField, RangeWidget
-from django.core.cache import cache
+from mep.common.forms import (CheckboxFieldset, FacetChoiceField, FacetForm,
+                              RangeField, RangeWidget, SelectWithDisabled)
 from mep.people.models import Person
-from mep.people.queryset import PersonSolrQuerySet
 
 
 class PersonChoiceField(forms.ModelChoiceField):
@@ -35,49 +33,6 @@ class PersonMergeForm(forms.Form):
             Person.objects.filter(id__in=person_ids)
 
 
-## SelectDisabledMixin borrowed from ppa-django
-
-
-class SelectDisabledMixin(object):
-    '''
-    Mixin for :class:`django.forms.RadioSelect` or :class:`django.forms.CheckboxSelect`
-    classes to set an option as disabled. To disable, the widget's choice
-    label option should be passed in as a dictionary with `disabled` set
-    to True::
-
-        {'label': 'option', 'disabled': True}.
-    '''
-
-    # Using a solution at https://djangosnippets.org/snippets/2453/
-    def create_option(self, name, value, label, selected, index, subindex=None,
-                      attrs=None):
-        disabled = None
-
-        if isinstance(label, dict):
-            label, disabled = label['label'], label.get('disabled', False)
-        option_dict = super().create_option(
-            name, value, label, selected, index,
-            subindex=subindex, attrs=attrs
-        )
-        if disabled:
-            option_dict['attrs'].update({'disabled': 'disabled'})
-        return option_dict
-
-
-class RadioSelectWithDisabled(SelectDisabledMixin, forms.RadioSelect):
-    '''
-    Subclass of :class:`django.forms.RadioSelect` with option to mark
-    a choice as disabled.
-    '''
-
-
-class SelectWithDisabled(SelectDisabledMixin, forms.Select):
-    '''
-    Subclass of :class:`django.forms.Select` with option to mark
-    a choice as disabled.
-    '''
-
-
 class MemberSearchForm(FacetForm):
     '''Member search form'''
 
@@ -85,6 +40,7 @@ class MemberSearchForm(FacetForm):
         ('relevance', 'Relevance'),
         ('name', 'Name A-Z'),
     ]
+
 
     # NOTE these are not set by default!
     error_css_class = 'error'
@@ -110,28 +66,35 @@ class MemberSearchForm(FacetForm):
     }))
     membership_dates = RangeField(label='Membership Dates', required=False,
         widget=RangeWidget(attrs={'size': 4}))
+    birth_year = RangeField(required=False,
+        widget=RangeWidget(attrs={'size': 4}))
 
-    def set_membership_dates_placeholder(self, min_year, max_year):
-        '''Set the min, max, and placeholder values for
-        :class:`mep.common.forms.RangeWidget` associated with membership_dates.'''
+    def set_range_minmax(self, range_minmax):
+        '''Set the min, max, and placeholder values for all
+        :class:`~mep.common.forms.RangeField` instances.
 
-        start_widget, end_widget = \
-            self.fields['membership_dates'].widget.widgets
+        :param range_minmax: a dictionary with form fields as key names and
+            tuples of min and max integers as values.
+        :type range_minmax: dict
 
-        # set placeholders for widgets individually
-        start_widget.attrs['placeholder'] = min_year
-        end_widget.attrs['placeholder'] = max_year
-        # valid min and max for both via multiwidget
-        self.fields['membership_dates'].widget.attrs.update({
-            'min': min_year,
-            'max': max_year
-        })
+        :rtype: None
+        '''
+        for field_name, min_max in range_minmax.items():
+            self.fields[field_name].set_min_max(min_max[0], min_max[1])
 
     def __init__(self, data=None, *args, **kwargs):
         '''
-        Set choices dynamically based on form kwargs and presence of keywords.
+        Override to set choices dynamically and configure min-max range values
+        based on form kwargs.
         '''
+        # pop range_minmax out of kwargs to avoid clashing
+        # with django args
+        range_minmax = kwargs.pop('range_minmax', {})
+
         super().__init__(data=data, *args, **kwargs)
+
+        # call function to set min_max and placeholders
+        self.set_range_minmax(range_minmax)
 
         # if a keyword search term is present, only relevance sort is allowed
         if data and data.get('query', None):

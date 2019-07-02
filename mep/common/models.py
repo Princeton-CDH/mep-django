@@ -110,14 +110,13 @@ class DateRange(models.Model):
 
         return '%s-%s' % (self.start_year, self.end_year) # both CE, '1900-1901'
 
-
     def clean(self):
         '''validate that end year is greater than or equal to start year'''
 
         # require end year to be greater than or equal to start year
         # (allowing equal to support single-year ranges)
         if self.start_year and self.end_year and \
-                not self.end_year >= self.start_year:
+                not self.start_year <= self.end_year:
             raise ValidationError('End year must be after start year')
 
     @staticmethod

@@ -4,6 +4,46 @@ from django.core.validators import RegexValidator
 from django.utils.text import mark_safe
 
 
+class SelectDisabledMixin():
+    '''
+    Mixin for :class:`django.forms.RadioSelect` or :class:`django.forms.CheckboxSelect`
+    classes to set an option as disabled. To disable, the widget's choice
+    label option should be passed in as a dictionary with `disabled` set
+    to True::
+
+        {'label': 'option', 'disabled': True}.
+    '''
+
+    # Using a solution at https://djangosnippets.org/snippets/2453/
+    def create_option(self, name, value, label, selected, index, subindex=None,
+                      attrs=None):
+        disabled = None
+
+        if isinstance(label, dict):
+            label, disabled = label['label'], label.get('disabled', False)
+        option_dict = super().create_option(
+            name, value, label, selected, index,
+            subindex=subindex, attrs=attrs
+        )
+        if disabled:
+            option_dict['attrs'].update({'disabled': 'disabled'})
+        return option_dict
+
+
+class RadioSelectWithDisabled(SelectDisabledMixin, forms.RadioSelect):
+    '''
+    Subclass of :class:`django.forms.RadioSelect` with option to mark
+    a choice as disabled.
+    '''
+
+
+class SelectWithDisabled(SelectDisabledMixin, forms.Select):
+    '''
+    Subclass of :class:`django.forms.Select` with option to mark
+    a choice as disabled.
+    '''
+
+
 class CheckboxFieldset(forms.CheckboxSelectMultiple):
     '''Override of :class:`~django.forms.CheckboxSelectMultiple`
     that renders as a fieldset with checkbox inputs.'''
@@ -112,6 +152,25 @@ class RangeField(forms.MultiValueField):
 
         return (data_list[0], data_list[1])
 
+    def set_min_max(self, min_val, max_val):
+        '''Set a min and max value for :class:`RangeWidget` attributes
+        and placeholders.
+
+        :param min_value: minimum value to set on widget
+        :type min_value: int
+        :param max_value: maximum value to set on widget
+        :type max_value: int
+        :rtype: None
+        '''
+        start_widget, end_widget = self.widget.widgets
+        # set placeholders for widgets individually
+        start_widget.attrs['placeholder'] = min_val
+        end_widget.attrs['placeholder'] = max_val
+        # valid min and max for both via multiwidget
+        self.widget.attrs.update({
+            'min': min_val,
+            'max': max_val
+        })
 
 class FacetForm(forms.Form):
     '''Form mixin to support mapping facet fields to

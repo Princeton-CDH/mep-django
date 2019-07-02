@@ -81,4 +81,3 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(create_content_editor_group, reverse_code=migrations.RunPython.noop),
     ]
-

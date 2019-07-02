@@ -19,7 +19,7 @@ class GeoNamesUnauthorized(GeoNamesError):
     '''GeoNames unauthorized response (raised when username is not set)'''
 
 
-class GeoNamesAPI(object):
+class GeoNamesAPI:
     '''Minimal wrapper around GeoNames API.  Currently supports simple
     searching by name and generating a uri from an id.  Expects
     **GEONAMES_USERNAME** to be configured in django settings.'''
@@ -58,7 +58,7 @@ class GeoNamesAPI(object):
             return data
 
     def search(self, query, max_rows=None, feature_class=None,
-        feature_code=None, name_start=False):
+               feature_code=None, name_start=False):
         '''Search for places and return the list of results'''
         api_method = 'searchJSON'
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.books.models &#8212; Mapping Expatriate Paris - Django 0.16.0 documentation</title>
+    <title>mep.books.models &#8212; Mapping Expatriate Paris - Django 0.17.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -36,6 +36,7 @@
 <span></span><span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ObjectDoesNotExist</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">parasolr.indexing</span> <span class="k">import</span> <span class="n">Indexable</span>
@@ -326,7 +327,10 @@
         <span class="c1"># (predominantly books and periodicals), but in future</span>
         <span class="c1"># we may need a method to create format from uri as for subjects</span>
         <span class="k">if</span> <span class="n">worldcat_entity</span><span class="o">.</span><span class="n">item_type</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">item_format</span> <span class="o">=</span> <span class="n">Format</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="n">worldcat_entity</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">item_format</span> <span class="o">=</span> <span class="n">Format</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="n">worldcat_entity</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Unexpected item type </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">worldcat_entity</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
 
         <span class="n">subject_uris</span> <span class="o">=</span> <span class="n">worldcat_entity</span><span class="o">.</span><span class="n">subjects</span>
         <span class="k">if</span> <span class="n">subject_uris</span><span class="p">:</span>

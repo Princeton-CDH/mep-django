@@ -16,3 +16,30 @@ main {
         margin-top: 0;
     }
 }
+
+// tabbed pages, like member or book details
+main.tabbed {
+
+    nav.tabs {
+        width: 100%;
+        background: $white;
+    }
+
+    nav + section {
+        @include container;
+        flex: auto;
+        background: white;
+        display: flex;
+        flex-direction: column;
+
+        // subsections
+        section {
+            width: 100%;
+            border-bottom: 0.05rem solid $white-two;
+
+            &:last-of-type {
+                border-bottom: none;
+            }
+        }
+    }
+}

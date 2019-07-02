@@ -18,7 +18,7 @@ abstract class RxInput extends Rx<HTMLInputElement> {
     // Observables
     public valid$: Observable<boolean>
     public events$: Observable<UIEvent>
-    
+
     // Local data
     protected label: HTMLLabelElement | null
     protected readonly EVENT_TYPE: string = 'input' // defaults to 'input' but some inputs will use 'change'
@@ -69,8 +69,8 @@ class RxNumberInput extends RxInput {
         super(element)
         this.value$ = this.events$.pipe(
             map(() => this.element.value),
-            map(value => parseInt(value)), // will return NaN if not an integer
-            startWith(parseInt(this.element.value)),
+            map(value => parseInt(value, 10)), // will return NaN if not an integer
+            startWith(parseInt(this.element.value, 10)),
         )
     }
 }

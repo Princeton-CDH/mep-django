@@ -208,6 +208,3 @@ class Command(BaseCommand):
         account.card = Bibliography.objects.create(bibliographic_note=reference,
             source_type=self.lending_card_sourcetype, notes=notes)
         account.save()
-
-
-

@@ -13,7 +13,6 @@ $(document).ready(function() {
     function display_edit_links() {
         // remove any current/outdated edit links
         editlinks.empty();
-        var person_ids = person_select.val();
 
         // add a new link for each current value
         $(person_select.val()).each(function(idx, person_id) {

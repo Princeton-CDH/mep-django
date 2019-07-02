@@ -1,5 +1,23 @@
+{% load static %}
 <ol style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
     {% for person in members %}
-        {% include 'people/snippets/member_result.html' with member=person %}
+    <li class="members result">
+        <a href="{% url 'people:member-detail' pk=person.pk %}" aria-label="{{ person.sort_name.0 }}">
+            <div class="container">
+                {# counter for search results, includes "has card" icon #}
+                <span class="counter">
+                {% if person.has_card %}
+                    <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="member has card">
+                {% endif %}
+                </span>
+                {# member details #}
+                {% include 'people/snippets/member_result.html' with member=person %}
+                {# link to view detail page #}
+                <span class="see-more">
+                    See more details
+                </span>
+            </div>
+        </a>
+    </li>
     {% endfor %}
 </ol>

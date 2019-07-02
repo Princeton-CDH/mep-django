@@ -11,16 +11,14 @@ from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin, FormView
 
 from mep.accounts.models import Event
-from mep.common.utils import alpha_pagelabels
+from mep.common import SCHEMA_ORG
+from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
                               LabeledPagesMixin, RdfViewMixin)
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
-
-from mep.common.utils import absolutize_url
-from mep.common import SCHEMA_ORG
 
 
 class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
@@ -40,6 +38,13 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         'sort': 'name'
     }
 
+    #: mappings for Solr field names to form aliases
+    range_field_map = {
+        'account_years': 'membership_dates',
+    }
+    #: fields to generate stats on in self.get_ranges
+    stats_fields = ('account_years', 'birth_year')
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         # use GET instead of default POST/PUT for form data
@@ -57,39 +62,47 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
             form_data.setdefault(key, val)
 
         kwargs['data'] = form_data
+
+
+        # get min/max configuration for range fields
+        kwargs['range_minmax'] = self.get_range_stats()
+
         return kwargs
 
     def get_form(self, *args, **kwargs):
         # initialize the form, caching on current instance
         if not self._form:
             self._form = super().get_form(*args, **kwargs)
-        # set minimum and maximum years for date range field
-            min_max = self.get_year_range()
-            if min_max:
-                self._form.set_membership_dates_placeholder(*min_max)
-        # Get facets from solr return
         return self._form
 
-    @staticmethod
-    def get_year_range():
-        """Return the earliest and latest years for any account activity in
-        the library.
+    def get_range_stats(self):
+        """Return the min and max for fields specified in
+        :class:`MembershipList`'s stats_fields
 
-        :return: Min and max years as integers or None
-        :rtype: tuple or None
+        :returns: Dictionary keyed on form field name with a tuple of
+            (min, max) as integers. If stats are not returned from the field,
+            the key is not added to a dictionary.
+        :rtype: dict
         """
 
-        stats = PersonSolrQuerySet().stats('account_years').get_stats()
-        if stats:
+        stats = PersonSolrQuerySet().stats(*self.stats_fields).get_stats()
+        min_max_ranges = {}
+        if not stats:
+            return min_max_ranges
+        for name in self.stats_fields:
             try:
-                min_year = int(stats['stats_fields']['account_years']['min'])
-                max_year = int(stats['stats_fields']['account_years']['max'])
-            # min and max will be converted to None/NULL if no events
-            # are indexed
+                min_year = int(stats['stats_fields'][name]['min'])
+                max_year = int(stats['stats_fields'][name]['max'])
+                # map to form field name if an alias is provided
+                min_max_ranges[self.range_field_map.get(name, name)] \
+                    = (min_year, max_year)
+            # If the field stats are missing, min and max will be NULL,
+            # rendered as None.
+            # The TypeError will catch and pass returning an empty entry
+            # for that field but allowing others to be passed on.
             except TypeError:
-                return None
-
-            return (min_year, max_year)
+                pass
+        return min_max_ranges
 
     #: name query alias field syntax (type defaults to edismax in solr config)
     search_name_query = '{!qf=$name_qf pf=$name_pf v=$name_query}'
@@ -127,10 +140,12 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
             # range filter by membership dates, if set
             if search_opts['membership_dates']:
                 sqs = sqs.filter(account_years__range=search_opts['membership_dates'])
+            # range filter by birth year, if set
+            if search_opts['birth_year']:
+                sqs = sqs.filter(birth_year__range=search_opts['birth_year'])
 
             # order based on solr name for search option
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
-
 
         self.queryset = sqs
         return sqs
@@ -169,6 +184,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
             ('Home', absolutize_url('/')),
             ('Members', self.get_absolute_url()),
         ]
+
 
 class MemberDetail(DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''

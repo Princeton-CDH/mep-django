@@ -20,7 +20,7 @@ class RxForm extends Component {
     }
     /**
      * Serializes the form's state for appending to a URL querystring.
-     * 
+     *
      * NOTE TypeScript isn't aware FormData can be passed directly to
      * URLSearchParams(), hence the ignore. Open issue:
      * https://github.com/Microsoft/TypeScript/issues/30584#issuecomment-486967902
@@ -59,7 +59,7 @@ class RxSearchForm extends RxForm {
 
     // Readonly constants
     protected readonly TOTAL_RESULTS_HEADER: string = 'X-Total-Results'
-    protected readonly PAGE_LABELS_HEADER: string = 'X-Page-Labels'  
+    protected readonly PAGE_LABELS_HEADER: string = 'X-Page-Labels'
     protected readonly PAGE_LABELS_SEPARATOR: string = '|'
 
     constructor(element: HTMLFormElement) {

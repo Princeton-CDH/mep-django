@@ -205,7 +205,3 @@ class TestReportTimegaps(TestCase):
         borrow.partial_start_date = (event3.start_date + timedelta(days=30)).isoformat()
         max_gap, msg = self.cmd.report_gap_details([(event3, borrow)])
         assert '{}/?? Borrow'.format(borrow.partial_start_date) in msg
-
-
-
-

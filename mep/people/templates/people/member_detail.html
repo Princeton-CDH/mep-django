@@ -7,60 +7,27 @@
 {% endblock %}
 
 {% block header %}
-{% include 'snippets/header.html' with title=member.name style="member" %}
+{% include 'snippets/header.html' with title=member.name style="detail" %}
 {% endblock %}
 
-{% block main-style %}tabbed{% endblock %}
+{% block main-style %}tabbed white{% endblock %}
 
 {% block content %}
-{% include 'snippets/breadcrumbs.html' %}
-<nav class="tabs">
+<nav class="tabs" aria-label="sections">
     <li class="tab" aria-selected="true">
-        <a href="{% url 'people:member-detail' pk=member.pk %}">personography</a>
+        <a href="{% url 'people:member-detail' pk=member.pk %}">biography</a>
     </li>
-    <li class="tab" aria-selected="false">
-        <a>books borrowed</a>
+    <li class="tab">
+        <a href="#">activities</a>
     </li>
-    <li class="tab" aria-selected="false">
-        <a>lending cards</a>
+    <li class="tab">
+        <a href="#">cards</a>
     </li>
 </nav>
-<section class="personography">
-    <dl>
-        {% if member.birth_year or member.death_year %}
-        <div class="dates">
-            <dt>Dates</dt>
-            <dd>{{ member.birth_year|default:'' }} - {{ member.death_year|default:'' }}</dd>
-        </div>
-        {% endif %}
-        {% with member.account_set.first as account %}
-            {% if account.earliest_date or account.last_date %}
-            <div class="account-dates">
-                <dt>Membership Dates</dt>
-                <dd>{{ account.earliest_date|default:'' }} - {{ account.last_date|default:'' }}</dd>
-            </div>
-            {% endif %}
-        {% endwith %}
-        {% if member.nationalities.count > 0 %}
-        <div class="nationalities">
-            <dt>Nationality</dt>
-            {% for nation in member.nationalities.all %}
-            <dd>{{ nation }}</dd>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% if member.viaf_id %}
-        <div class="reference">
-            <dt>Reference</dt>
-            <dd><a href="{{ member.viaf_id }}">VIAF</a></dd>
-        </div>
-        {% endif %}
-        {% if member.profession %}
-        <div class="profession">
-            <dt>Profession</dt>
-            <dd></dd>
-        </div>
-        {% endif %}
-    </dl>
+<section class="biography">
+    <section class="details">
+        {% include 'people/snippets/member_result.html' %}
+    </section>
+    <section class="map"></section>
 </section>
 {% endblock %}

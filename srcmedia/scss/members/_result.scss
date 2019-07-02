@@ -1,4 +1,5 @@
-output[form=members-form].results li {
+.members.result {
+    // show the "has card" icon if present
     .card.icon {
         width: 1.5rem;
         position: absolute;
@@ -12,7 +13,25 @@ output[form=members-form].results li {
         }
     }
 
-    .has-card {
-        display: none;
+    .primary {
+        flex: 2;
+    }
+
+    // hide the "birth/death dates" label
+    .birth-death dt {
+        @include sr-only;
+    }
+
+    .birth-death dd {
+        margin-top: .5rem;
+    }
+
+    .secondary {
+        margin-top: 0.5rem;
+    }
+
+    // show the name
+    .name {
+        display: block;
     }
 }

@@ -1,25 +1,85 @@
 from dal import autocomplete
 from django.db.models import Q
-from django.views.generic import ListView
 from django.urls import reverse
+from django.views.generic import DetailView, ListView
+from django.views.generic.edit import FormMixin
 
+from mep.books.forms import ItemSearchForm
 from mep.books.models import Item
 from mep.books.queryset import ItemSolrQuerySet
-from mep.common.views import LabeledPagesMixin, RdfViewMixin
-from mep.common.utils import absolutize_url
 from mep.common import SCHEMA_ORG
+from mep.common.utils import absolutize_url
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, RdfViewMixin)
 
 
-class ItemList(LabeledPagesMixin, ListView, RdfViewMixin):
+class ItemList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library items.'''
     model = Item
     template_name = 'books/item_list.html'
+    ajax_template_name = 'books/snippets/item_results.html'
     paginate_by = 100
     context_object_name = 'items'
     rdf_type = SCHEMA_ORG.SearchResultPage
 
+    form_class = ItemSearchForm
+    _form = None
+    initial = {'sort': 'title'}
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        form_data = self.request.GET.copy()
+
+        # set defaults
+        for key, val in self.initial.items():
+            form_data.setdefault(key, val)
+
+        kwargs['data'] = form_data
+        return kwargs
+
+    def get_form(self, *args, **kwargs):
+        if not self._form:
+            self._form = super().get_form(*args, **kwargs)
+        return self._form
+
+    # map form sort to solr sort
+    solr_sort = {
+        'relevance': '-score',
+        'title': 'title_s',
+    }
+
     def get_queryset(self):
-        return ItemSolrQuerySet().order_by('title')
+        # NOTE faceting on pub date currently as a placeholder; no UI use yet
+        sqs = ItemSolrQuerySet().facet_field('pub_date_i')
+        form = self.get_form()
+
+        # empty qs if not valid
+        if not form.is_valid():
+            sqs = sqs.none()
+        # otherwise apply filters, query, sort, etc.
+        else:
+            search_opts = form.cleaned_data
+            sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
+
+        self.queryset = sqs
+        return sqs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        self._form.set_choices_from_facets(
+            self.object_list.get_facets()['facet_fields'])
+        return context
+
+    def get_page_labels(self, paginator):
+        '''generate labels for pagination'''
+        form = self.get_form()
+        # if invalid, should show 'N/A'
+        if not form.is_valid():
+            return [(1, 'N/A')]
+
+        # otherwise default to numbered pages for now
+        # NOTE could implement alpha here, but tougher for titles
+        return super().get_page_labels(paginator)
 
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
@@ -33,6 +93,13 @@ class ItemList(LabeledPagesMixin, ListView, RdfViewMixin):
             ('Home', absolutize_url('/')),
             ('Books', self.get_absolute_url())
         ]
+
+
+class ItemDetail(DetailView):
+    '''Detail page for a single library book.'''
+    model = Item
+    template_name = 'books/item_detail.html'
+    context_object_name = 'item'
 
 
 class ItemAutocomplete(autocomplete.Select2QuerySetView):
