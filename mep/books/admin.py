@@ -35,7 +35,8 @@ class ItemAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'title')
     list_filter = ('genres', 'item_format')
     inlines = [ItemCreatorInline]
-    search_fields = ('mep_id', 'title', 'notes', 'creator__person__name', 'id')
+    search_fields = ('mep_id', 'title', 'notes', 'public_notes' ,
+                     'creator__person__name', 'id')
     fieldsets = (
         ('Basic metadata', {
             'fields': ('title', 'year', 'borrow_count')
@@ -44,7 +45,7 @@ class ItemAdmin(admin.ModelAdmin):
             'fields': (
                 # ('publishers', 'pub_places'),
                 # ('volume'),
-                'notes', 'mep_id', 'ebook_url',
+                'notes', 'public_notes', 'ebook_url', 'mep_id'
             )
         }),
         ('OCLC metadata', {

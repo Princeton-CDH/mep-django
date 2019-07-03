@@ -175,6 +175,9 @@ class Item(Notable, Indexable):
                                     help_text='Genre(s) from OCLC record')
     #: optional subjects, from OCLC record
     subjects = models.ManyToManyField(Subject, blank=True)
+    #: a field for notes publicly displayed on the website
+    public_notes = models.TextField(blank=True,
+        help_text='Notes for public display on the S&Co. website')
 
     def save(self, *args, **kwargs):
         # override save to ensure mep ID is None rather than empty string
