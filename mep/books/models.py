@@ -96,7 +96,7 @@ class Subject(models.Model):
         # Possibly useful? LoC responses include a X-PrefLabel header,
         # could just use that (and make type optional)
         if response.status_code == requests.codes.ok and \
-          not response.headers['content-type'].startswith('text/html'):
+                not response.headers['content-type'].startswith('text/html'):
             parse_opts = {}
             # some results return json-ld, and rdflib does not autodetect
             if response.headers['content-type'] == 'application/ld+json':
@@ -150,6 +150,10 @@ class Item(Notable, Indexable):
     edition_uri = models.URLField(
         blank=True, verbose_name='Edition URI',
         help_text="Linked data URI for this edition, if known")
+    ebook_url = models.URLField(
+        blank=True, verbose_name='eBook URL',
+        help_text='Link to a webpage where one or more ebook versions can be \
+            downloaded, e.g. Project Gutenberg page for this item')
     item_format = models.ForeignKey(
         Format, verbose_name='Format', null=True, blank=True,
         help_text='Format of the item, e.g. book or periodical')
@@ -168,7 +172,7 @@ class Item(Notable, Indexable):
 
     #: optional genres, from OCLC record
     genres = models.ManyToManyField(Genre, blank=True,
-        help_text='Genre(s) from OCLC record')
+                                    help_text='Genre(s) from OCLC record')
     #: optional subjects, from OCLC record
     subjects = models.ManyToManyField(Subject, blank=True)
     #: a field for notes publicly displayed on the website
@@ -296,9 +300,11 @@ class Item(Notable, Indexable):
         # we may need a method to create format from uri as for subjects
         if worldcat_entity.item_type:
             try:
-                self.item_format = Format.objects.get(uri=worldcat_entity.item_type)
+                self.item_format = Format.objects.get(
+                    uri=worldcat_entity.item_type)
             except ObjectDoesNotExist:
-                logger.error('Unexpected item type %s', worldcat_entity.item_type)
+                logger.error('Unexpected item type %s',
+                             worldcat_entity.item_type)
 
         subject_uris = worldcat_entity.subjects
         if subject_uris:
@@ -306,7 +312,7 @@ class Item(Notable, Indexable):
             subjects = list(Subject.objects.filter(uri__in=subject_uris))
             # create any new subjects that don't already exist
             new_subject_uris = set(subject_uris) - \
-                               set(subj.uri for subj in subjects)
+                set(subj.uri for subj in subjects)
             for subject_uri in new_subject_uris:
                 # try to create the subject
                 subject = Subject.create_from_uri(subject_uri)

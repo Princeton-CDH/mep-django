@@ -45,7 +45,7 @@ class ItemAdmin(admin.ModelAdmin):
             'fields': (
                 # ('publishers', 'pub_places'),
                 # ('volume'),
-                'notes', 'public_notes', 'mep_id'
+                'notes', 'public_notes', 'ebook_url', 'mep_id'
             )
         }),
         ('OCLC metadata', {
@@ -102,12 +102,14 @@ class ItemAdmin(admin.ModelAdmin):
         # use verbose names to label the columns (adapted from django-tabular-export)
 
         # get verbose names for model fields
-        verbose_names = {i.name: i.verbose_name for i in queryset.model._meta.fields}
+        verbose_names = {
+            i.name: i.verbose_name for i in queryset.model._meta.fields}
 
         # get verbose field name if there is one; look for verbose name
         # on a non-field attribute (e.g. a method); otherwise, title case the field name
         headers = [verbose_names.get(field, None) or
-                   getattr(getattr(queryset.model, field), 'verbose_name', field.title())
+                   getattr(getattr(queryset.model, field),
+                           'verbose_name', field.title())
                    for field in self.export_fields]
 
         return export_to_csv_response(self.csv_filename(), headers,
@@ -132,6 +134,7 @@ class SubjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'uri', 'rdf_type')
     search_fields = ('name', 'uri', 'rdf_type')
     list_filter = ('rdf_type', )
+
 
 class FormatAdmin(admin.ModelAdmin):
     list_display = ('name', 'uri')
