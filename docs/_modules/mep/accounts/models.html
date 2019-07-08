@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.accounts.models &#8212; Mapping Expatriate Paris - Django 0.17.0 documentation</title>
+    <meta charset="utf-8" />
+    <title>mep.accounts.models &#8212; Mapping Expatriate Paris - Django 0.18.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -45,7 +43,8 @@
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">django.template.defaultfilters</span> <span class="k">import</span> <span class="n">pluralize</span>
 
-<span class="kn">from</span> <span class="nn">mep.accounts.partial_date</span> <span class="k">import</span> <span class="n">PartialDateMixin</span><span class="p">,</span> <span class="n">DatePrecision</span>
+<span class="kn">from</span> <span class="nn">mep.accounts.partial_date</span> <span class="k">import</span> <span class="n">PartialDateMixin</span><span class="p">,</span> <span class="n">DatePrecision</span><span class="p">,</span>\
+    <span class="n">DatePrecisionField</span>
 <span class="kn">from</span> <span class="nn">mep.books.models</span> <span class="k">import</span> <span class="n">Item</span>
 <span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Person</span><span class="p">,</span> <span class="n">Location</span>
@@ -155,6 +154,27 @@
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">)</span></div>
     <span class="n">has_card</span><span class="o">.</span><span class="n">boolean</span> <span class="o">=</span> <span class="kc">True</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">validate_etype</span><span class="p">(</span><span class="n">etype</span><span class="p">):</span>
+        <span class="n">etype</span> <span class="o">=</span> <span class="n">etype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">etype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;borrow&#39;</span><span class="p">,</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;subscription&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;purchase&#39;</span><span class="p">,</span> <span class="s1">&#39;reimbursement&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;etype must be one of borrow, event, purchase,&#39;</span>
+                             <span class="s1">&#39; subscription, or reimbursement&#39;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">str_to_model</span><span class="p">(</span><span class="n">etype</span><span class="p">):</span>
+        <span class="c1"># moving mapping here so that we can forward reference classes</span>
+        <span class="c1"># not yet declared</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;borrow&#39;</span><span class="p">:</span> <span class="n">Borrow</span><span class="p">,</span>
+            <span class="s1">&#39;reimbursement&#39;</span><span class="p">:</span> <span class="n">Reimbursement</span><span class="p">,</span>
+            <span class="s1">&#39;event&#39;</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span>
+            <span class="s1">&#39;purchase&#39;</span><span class="p">:</span> <span class="n">Purchase</span><span class="p">,</span>
+            <span class="s1">&#39;subscription&#39;</span><span class="p">:</span> <span class="n">Subscription</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">mapping</span><span class="p">[</span><span class="n">etype</span><span class="p">]</span>
+
 <div class="viewcode-block" id="Account.add_event"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account.add_event">[docs]</a>    <span class="k">def</span> <span class="nf">add_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Helper function to add a :class:`Event` or subclass to an</span>
 <span class="sd">        instance of :class:`Account`. Requires that the :class:`Account`</span>
@@ -167,21 +187,11 @@
 <span class="sd">            One of ``borrow``, ``event``, ``subscription``,</span>
 <span class="sd">            ``purchase``, ``reimbursement``</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># Catch an invalid class of event or subevent</span>
-        <span class="n">etype</span> <span class="o">=</span> <span class="n">etype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">etype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;borrow&#39;</span><span class="p">,</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;subscription&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;purchase&#39;</span><span class="p">,</span> <span class="s1">&#39;reimbursement&#39;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;etype must be one of borrow, event, purchase,&#39;</span>
-                             <span class="s1">&#39; subscription, or reimbursement&#39;</span><span class="p">)</span>
-
-        <span class="n">str_to_model</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;borrow&#39;</span><span class="p">:</span> <span class="n">Borrow</span><span class="p">,</span>
-            <span class="s1">&#39;reimbursement&#39;</span><span class="p">:</span> <span class="n">Reimbursement</span><span class="p">,</span>
-            <span class="s1">&#39;event&#39;</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span>
-            <span class="s1">&#39;purchase&#39;</span><span class="p">:</span> <span class="n">Purchase</span><span class="p">,</span>
-            <span class="s1">&#39;subscription&#39;</span><span class="p">:</span> <span class="n">Subscription</span>
-        <span class="p">}</span>
-        <span class="n">str_to_model</span><span class="p">[</span><span class="n">etype</span><span class="p">]</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="c1"># Catch an invalid class of event or subevent and raise</span>
+        <span class="c1"># ValueError</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_etype</span><span class="p">(</span><span class="n">etype</span><span class="p">)</span>
+        <span class="c1"># Create the event</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">str_to_model</span><span class="p">(</span><span class="n">etype</span><span class="p">)</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Account.get_events"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account.get_events">[docs]</a>    <span class="k">def</span> <span class="nf">get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Helper function to retrieve related events of any valid type for</span>
@@ -199,24 +209,8 @@
 
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="c1"># Catch an invalid class of event or subevent</span>
-        <span class="n">etype</span> <span class="o">=</span> <span class="n">etype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">etype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;borrow&#39;</span><span class="p">,</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;subscription&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;purchase&#39;</span><span class="p">,</span> <span class="s1">&#39;reimbursement&#39;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;etype must be one of borrow, event, purchase,&#39;</span>
-                             <span class="s1">&#39; subscription, or reimbursement&#39;</span><span class="p">)</span>
-
-        <span class="n">str_to_model</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;borrow&#39;</span><span class="p">:</span> <span class="n">Borrow</span><span class="p">,</span>
-            <span class="s1">&#39;reimbursement&#39;</span><span class="p">:</span> <span class="n">Reimbursement</span><span class="p">,</span>
-            <span class="s1">&#39;event&#39;</span><span class="p">:</span> <span class="n">Event</span><span class="p">,</span>
-            <span class="s1">&#39;purchase&#39;</span><span class="p">:</span> <span class="n">Purchase</span><span class="p">,</span>
-            <span class="s1">&#39;subscription&#39;</span><span class="p">:</span> <span class="n">Subscription</span>
-        <span class="p">}</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">str_to_model</span><span class="p">[</span><span class="n">etype</span><span class="p">]</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">str_to_model</span><span class="p">[</span><span class="n">etype</span><span class="p">]</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_etype</span><span class="p">(</span><span class="n">etype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">str_to_model</span><span class="p">(</span><span class="n">etype</span><span class="p">)</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Address"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Address">[docs]</a><span class="k">class</span> <span class="nc">Address</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">PartialDateMixin</span><span class="p">):</span>
@@ -297,7 +291,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subtype</span><span class="p">(</span><span class="s1">&#39;purchase&#39;</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Event"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Event">[docs]</a><span class="k">class</span> <span class="nc">Event</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
+<div class="viewcode-block" id="Event"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Event">[docs]</a><span class="k">class</span> <span class="nc">Event</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">PartialDateMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Base table for events in the Shakespeare and Co. Lending Library&#39;&#39;&#39;</span>
     <span class="n">account</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Account</span><span class="p">)</span>
     <span class="n">start_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -326,47 +320,23 @@
         <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> for account #</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> \
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_range</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">date_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Event date range as string. Returns a single date in isoformat</span>
-<span class="sd">        if both dates are set to the same date. Uses &quot;??&quot; for unset dates,</span>
-<span class="sd">        and returns in format start/end.&#39;&#39;&#39;</span>
-
-        <span class="c1"># if both dates are set and the same, return a single date</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-
-        <span class="c1"># otherwise, use both dates with ?? to indicate unknown date</span>
-        <span class="k">return</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">dt</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="n">dt</span> <span class="k">else</span> <span class="s1">&#39;??&#39;</span>
-                         <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">]])</span>
-
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subscription</span><span class="o">.</span><span class="n">get_subtype_display</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
             <span class="k">pass</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">reimbursement</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;reimbursement&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">return</span> <span class="s1">&#39;Reimbursement&#39;</span>
-        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">borrow</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;borrow&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">return</span> <span class="s1">&#39;Borrow&#39;</span>
-        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">purchase</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;purchase&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">return</span> <span class="s1">&#39;Purchase&#39;</span>
-        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
-            <span class="k">pass</span>
         <span class="k">return</span> <span class="s1">&#39;Generic&#39;</span></div>
 
 
 <div class="viewcode-block" id="SubscriptionType"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.SubscriptionType">[docs]</a><span class="k">class</span> <span class="nc">SubscriptionType</span><span class="p">(</span><span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Type of subscription&#39;&#39;&#39;</span>
-    <span class="k">pass</span></div>
+    <span class="sd">&#39;&#39;&#39;Type of subscription&#39;&#39;&#39;</span></div>
 
 
 <div class="viewcode-block" id="CurrencyMixin"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.CurrencyMixin">[docs]</a><span class="k">class</span> <span class="nc">CurrencyMixin</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
@@ -515,8 +485,7 @@
     <span class="n">readable_duration</span><span class="o">.</span><span class="n">admin_order_field</span> <span class="o">=</span> <span class="s1">&#39;duration&#39;</span></div>
 
 
-
-<div class="viewcode-block" id="Borrow"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Borrow">[docs]</a><span class="k">class</span> <span class="nc">Borrow</span><span class="p">(</span><span class="n">PartialDateMixin</span><span class="p">,</span> <span class="n">Event</span><span class="p">):</span>
+<div class="viewcode-block" id="Borrow"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Borrow">[docs]</a><span class="k">class</span> <span class="nc">Borrow</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Inherited table indicating borrow events&#39;&#39;&#39;</span>
     <span class="c1">#: :class:`~mep.books.models.Item` that was borrowed;</span>
     <span class="c1">#: optional to account for unclear titles</span>
@@ -542,7 +511,7 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">Borrow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Purchase"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Purchase">[docs]</a><span class="k">class</span> <span class="nc">Purchase</span><span class="p">(</span><span class="n">PartialDateMixin</span><span class="p">,</span> <span class="n">CurrencyMixin</span><span class="p">,</span> <span class="n">Event</span><span class="p">):</span>
+<div class="viewcode-block" id="Purchase"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Purchase">[docs]</a><span class="k">class</span> <span class="nc">Purchase</span><span class="p">(</span><span class="n">CurrencyMixin</span><span class="p">,</span> <span class="n">Event</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Inherited table indicating purchase events; extends :class:`Event`&#39;&#39;&#39;</span>
     <span class="n">price</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -688,13 +657,11 @@
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -713,7 +680,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

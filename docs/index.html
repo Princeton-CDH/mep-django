@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Mapping Expatriate Paris - Django documentation &#8212; Mapping Expatriate Paris - Django 0.17.0 documentation</title>
+    <meta charset="utf-8" />
+    <title>Mapping Expatriate Paris - Django documentation &#8212; Mapping Expatriate Paris - Django 0.18.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -51,36 +49,36 @@ was previously called “Mapping Expatriate Paris” or MEP).</p>
 <p>Python 3.5 / Django 1.11 / Node 10.5.0</p>
 <a class="reference external image-reference" href="https://travis-ci.org/Princeton-CDH/mep-django"><img alt="Build status" src="https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=master" /></a>
 <a class="reference external image-reference" href="https://codecov.io/gh/Princeton-CDH/mep-django/branch/master"><img alt="Code coverage" src="https://codecov.io/gh/Princeton-CDH/mep-django/branch/master/graph/badge.svg" /></a>
-<a class="reference external image-reference" href="https://codeclimate.com/github/Princeton-CDH/mep-django/maintainability"><img alt="Maintainability" src="https://api.codeclimate.com/v1/badges/871a9e9a9d832c01b0c6/maintainability" /></a>
+<a class="reference external image-reference" href="https://www.codefactor.io/repository/github/princeton-cdh/mep-django"><img alt="CodeFactor" src="https://www.codefactor.io/repository/github/princeton-cdh/mep-django/badge" /></a>
 <a class="reference external image-reference" href="https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=master"><img alt="Requirements Status" src="https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=master" /></a>
 <p><a class="reference external" href="https://princeton-cdh.github.io/mep-django/">Current release documentation</a>.</p>
 <div class="section" id="development-instructions">
 <h2>Development instructions<a class="headerlink" href="#development-instructions" title="Permalink to this headline">¶</a></h2>
 <p>Initial setup and installation:</p>
 <ul>
-<li><p class="first">recommended: create and activate a python 3.5 virtualenv:</p>
+<li><p>recommended: create and activate a python 3.5 virtualenv:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="n">mep</span> <span class="o">-</span><span class="n">p</span> <span class="n">python3</span><span class="o">.</span><span class="mi">5</span>
 <span class="n">source</span> <span class="n">mep</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Install required python dependencies:</p>
+<li><p>Install required python dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
 <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">dev</span><span class="o">-</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Install javascript dependencies:</p>
+<li><p>Install javascript dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">install</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Compile static assets (css and javascript) with sourcemaps for development:</p>
+<li><p>Compile static assets (css and javascript) with sourcemaps for development:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">run</span> <span class="n">build</span><span class="p">:</span><span class="n">qa</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Copy sample local settings and configure for your environment:</p>
+<li><p>Copy sample local settings and configure for your environment:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">mep</span><span class="o">/</span><span class="n">local_settings</span><span class="o">.</span><span class="n">py</span><span class="o">.</span><span class="n">sample</span> <span class="n">mep</span><span class="o">/</span><span class="n">local_settings</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
@@ -88,19 +86,19 @@ was previously called “Mapping Expatriate Paris” or MEP).</p>
 </ul>
 <p>Remember to add a <code class="docutils literal notranslate"><span class="pre">SECRET_KEY</span></code> setting!</p>
 <ul>
-<li><p class="first">Run the manage command to create your Solr core and configure the schema:</p>
+<li><p>Run the manage command to create your Solr core and configure the schema:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">solr_schema</span>
 </pre></div>
 </div>
 <p>The manage command will automatically reload the core to ensure schema
 changes take effect.</p>
 </li>
-<li><p class="first">Index all indexable content into Solr:</p>
+<li><p>Index all indexable content into Solr:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">index</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">optionally, you can populate the Wagtail CMS with stub pages for the main
+<li><p>optionally, you can populate the Wagtail CMS with stub pages for the main
 navigation:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">setup_site_pages</span>
 </pre></div>
@@ -210,9 +208,9 @@ use with Github Pages.</p>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </div>
 
@@ -288,13 +286,11 @@ use with Github Pages.</p>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -313,7 +309,7 @@ use with Github Pages.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
