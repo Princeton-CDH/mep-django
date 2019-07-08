@@ -16,13 +16,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const $membersSearchForm = document.getElementById('members-form') as HTMLFormElement
     const $keywordInput = document.querySelector('input[name=query]') as HTMLInputElement
     const $hasCardInput = document.querySelector('input[name=has_card]') as HTMLInputElement
-    const $resultsOutput = document.querySelector('output[form=members-form]') as HTMLOutputElement
+    const $resultsOutput = document.querySelector('output.results') as HTMLOutputElement
     const $totalResultsOutput = document.querySelector('output.total-results') as HTMLOutputElement
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
     const $genderFacet = document.querySelector('#id_sex') as HTMLFieldSetElement
     const $memDateFacet = document.querySelector('#id_membership_dates') as HTMLFieldSetElement
+    const $birthDateFacet = document.querySelector('#id_birth_year') as HTMLFieldSetElement
     const $errors = document.querySelector('div[role=alert].errors')
 
     /* COMPONENTS */
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageControls = new PageControls($pageControls)
     const genderFacet = new RxChoiceFacet($genderFacet)
     const memDateFacet = new RxRangeFilter($memDateFacet)
+    const birthDateFacet = new RxRangeFilter($birthDateFacet)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
@@ -70,6 +72,18 @@ document.addEventListener('DOMContentLoaded', () => {
         map(([range, valid]) => range), // only need range
         distinctUntilChanged(rangesAreEqual) // ignore identical ranges, since we will always have valid ones
     )
+    const birthdateChange$ = birthDateFacet.value$.pipe( // debounced, deduped and valid changes
+        debounceTime(500), // debounce
+        withLatestFrom(birthDateFacet.valid$), // check validity
+        distinctUntilChanged(([a, aValid], [b, bValid]) => { // for the first entry (used only for comparison),
+            return rangesAreEqual(a, b) && (aValid == bValid) // we care whether there was a change in validity OR values
+        }),
+        skip(1), // for all other entries (used to actually update)
+        filter(([range, valid]) => valid), // only accept valid submissions
+        map(([range, valid]) => range), // only need range
+        distinctUntilChanged(rangesAreEqual) // ignore identical ranges, since we will always have valid ones
+    )
+
     const noKeyword$ = keywordInput.value$.pipe(
         map(v => v === ''), // true if the value of the keyword input is ''
         distinctUntilChanged()
@@ -102,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const reloadFacets$ = merge( // a list of all the things that require fetching new facets
         keywordChange$,
         memDateChange$,
+        birthdateChange$,
         hasCardFacet.checked$.pipe(skip(1)), // ignore initial
         genderFacet.events,
     )
@@ -144,6 +159,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if ($memDateFacet.classList.contains('error')) {
         memDateFacet.valid$.pipe(filter(v => v)).subscribe(() => {
             $memDateFacet.classList.remove('error')
+        })
+    }
+
+    // If the birth year date facet had an error, make sure it's cleared when it becomes valid
+    if ($birthDateFacet.classList.contains('error')) {
+        birthDateFacet.valid$.pipe(filter(v => v)).subscribe(() => {
+            $birthDateFacet.classList.remove('error')
         })
     }
 

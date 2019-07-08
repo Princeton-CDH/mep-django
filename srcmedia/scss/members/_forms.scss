@@ -1,7 +1,7 @@
 #members-form {
 
     label[for=id_has_card] {
-        
+
         @media (min-width: $breakpoint-s) {
             max-width: 7rem;
         }
@@ -35,7 +35,7 @@
     @media (min-width: $breakpoint-s) and (max-width: calc(#{$breakpoint-m} - 1px)) {
         .inner > .range.facet,
         .inner > label {
-            height: 3rem; 
+            height: 3rem;
         }
 
         .range.facet legend {

@@ -2,6 +2,7 @@ import json
 from datetime import date
 import time
 from types import LambdaType
+import uuid
 from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import User, Permission
@@ -158,7 +159,7 @@ class TestPeopleViews(TestCase):
 
     def test_person_admin_change(self):
         # create user with permission to load admin edit form
-        su_password = 'itsasecret'
+        su_password = str(uuid.uuid4())
         superuser = User.objects.create_superuser(username='admin',
             password=su_password, email='su@example.com')
 
@@ -226,7 +227,7 @@ class TestPeopleViews(TestCase):
 
     def test_person_admin_list(self):
         # create user with permission to load admin edit form
-        su_password = 'itsasecret'
+        su_password = str(uuid.uuid4())
         superuser = User.objects.create_superuser(username='admin',
             password=su_password, email='su@example.com')
 
@@ -254,7 +255,7 @@ class TestPeopleViews(TestCase):
         # default django behavior is redirect to admin login page
         assert response.status_code == 302
 
-        staff_password = 'sosecret'
+        staff_password = str(uuid.uuid4())
         staffuser = User.objects.create_user(username='staff',
             password=staff_password, email='staff@example.com',
             is_staff=True)
@@ -582,7 +583,6 @@ class TestMembersListView(TestCase):
                                            source_type=src_type)
         account.card = card
         account.save()
-
         Person.index_items(Person.objects.all())
         time.sleep(1)
 
@@ -642,6 +642,21 @@ class TestMembersListView(TestCase):
         self.assertNotContains(response, '<dt>relevance</dt>',
             msg_prefix='relevance score not displayed to anonymous user')
 
+
+        # sanity check date filters -- exclude the member with events
+        response = self.client.get(self.members_url, {'membership_dates_0': 1951})
+        assert response.context['members'].count() == 0
+        # now include the member
+        response = self.client.get(self.members_url, {'membership_dates_0': 1948})
+        assert response.context['members'].count() == 1
+
+        # sanity check birth year filter -- exclude active member
+        response = self.client.get(self.members_url, {'birth_year_0': 1952})
+        assert response.context['members'].count() == 0
+        # now include members with accounts whose birthdates fall after 1882
+        response = self.client.get(self.members_url, {'birth_year_0': 1882})
+        assert response.context['members'].count() == 2
+
         # check for max, min and placeholders for date ranges
         # 1942 and 1950 should be the respective values
         self.assertContains(
@@ -652,6 +667,8 @@ class TestMembersListView(TestCase):
             response, 'placeholder="1942"',
             msg_prefix='Membership widget sets placeholder for min year.',
         )
+
+        # There should be two min/max, one for each input
         self.assertContains(
             response, 'max="1950"', count=2,
             msg_prefix='Response has max set twice for inputs'
@@ -661,8 +678,27 @@ class TestMembersListView(TestCase):
             msg_prefix='Response has min set twice for inputs'
         )
 
+        # check for max, min and placeholders for birth year
+        # should be 1885 and 1899 respectively
+        self.assertContains(
+            response, 'placeholder="1885"',
+            msg_prefix='Membership widget sets placeholder for max year.'
+        )
+        self.assertContains(
+            response, 'placeholder="1899"',
+            msg_prefix='Membership widget sets placeholder for min year.',
+        )
+       # There should be two min/max, one for each input
+        self.assertContains(
+            response, 'max="1899"', count=2,
+            msg_prefix='Response has max set twice for inputs'
+        )
+        self.assertContains(
+            response, 'min="1885"', count=2,
+            msg_prefix='Response has min set twice for inputs'
+        )
         # login as staff user with no special permissions
-        staff_password = 'sosecret'
+        staff_password = str(uuid.uuid4())
         staffuser = User.objects.create_user(
             username='staff', is_staff=True,
             password=staff_password, email='staff@example.com')
@@ -714,38 +750,33 @@ class TestMembersListView(TestCase):
         mocksuper.return_value.get_form.return_value = mockform
         view = MembersList()
         view.request = self.factory.get(self.members_url)
-        view.get_year_range = Mock()
+        view.get_year_ranges = Mock()
 
         # pass a min and max year
-        view.get_year_range.return_value = (1900, 1930)
+        view.get_year_ranges.return_value = {
+            'birth_year': (1900, 1920)
+        }
         view.get_form()
         # cached form is set
         assert view._form == mockform
-        # mock setter for dates is called
-        mockform.set_membership_dates_placeholder\
-            .assert_called_with(1900, 1930)
 
         # form should be cached
         mockform.reset_mock()
         view.get_form()
         assert not mockform.called
 
-        view._form = None
-
-        # if get_year_range returns None, assume it failed and
-        # shouldn't call the set_membership_dates_placeholder setter function
-        view.get_year_range.return_value = None
-
-        view.get_form()
-        assert not mockform.set_membership_dates_placeholder.called
-
     def test_get_form_kwargs(self):
         view = MembersList()
+        view.get_range_stats = Mock()
         # no query args
         view.request = self.factory.get(self.members_url)
         form_kwargs = view.get_form_kwargs()
         # form initial data copied from view
         assert form_kwargs['initial'] == view.initial
+        # mock ranges should be called and its value assigned to
+        # kwargs
+        assert form_kwargs['range_minmax'] == view.get_range_stats.return_value
+
         # no query, use default sort
         assert form_kwargs['data']['sort'] == view.initial['sort']
 
@@ -763,7 +794,9 @@ class TestMembersListView(TestCase):
         # with query param present but empty, use default sort
         view.request = self.factory.get(self.members_url, {'query': ''})
         form_kwargs = view.get_form_kwargs()
-        assert form_kwargs['data']['sort'] ==  view.initial['sort']
+        assert form_kwargs['data']['sort'] == view.initial['sort']
+
+
 
     @patch('mep.people.views.PersonSolrQuerySet')
     def test_get_queryset(self, mock_solrqueryset):
@@ -853,32 +886,43 @@ class TestMembersListView(TestCase):
         assert labels == [(1, 'N/A')]
 
     @patch('mep.people.views.PersonSolrQuerySet')
-    def test_get_year_range(self, mockPSQ):
+    def test_get_range_stats(self, mockPSQ):
+        # NOTE: This depends on configuration for mapping the fields
+        # in the range_field_map class attribute of MembersList
         mock_stats = {
             'stats_fields': {
                 'account_years': {
                     'min': 1928.0,
                     'max': 1940.0
                 },
+                'birth_year': {
+                    'min': 1910.0,
+                    'max': 1932.0
+                }
             }
         }
         mockPSQ.return_value.stats.return_value.get_stats.return_value \
             = mock_stats
-        min_max = MembersList().get_year_range()
+        range_minmax = MembersList().get_range_stats()
         # returns integer years
-        assert min_max == (1928, 1940)
+        # also converst membership_dates to
+        assert range_minmax == {
+            'membership_dates': (1928, 1940),
+            'birth_year': (1910, 1932)
+        }
         # call for the correct field in stats
-        mockPSQ.return_value.stats.assert_called_with('account_years')
-        # if get_stats returns None, also returns None
+        args, kwargs = mockPSQ.return_value.stats.call_args_list[0]
+        assert 'account_years' in args
+        assert 'birth_year' in args
+        # if get stats returns None, should return an empty dict
         mockPSQ.return_value.stats.return_value.get_stats.return_value = None
-        assert MembersList().get_year_range() is None
-        # None set for min or max should result in None being returned also
+        assert MembersList().get_range_stats() == {}
+        # None set for min or max should result in the field not being
+        # returned (but the other should be passed through as expected)
         mockPSQ.return_value.stats.return_value.get_stats.return_value\
-             = mock_stats
+            = mock_stats
         mock_stats['stats_fields']['account_years']['min'] = None
-        assert MembersList().get_year_range() is None
-
-
+        assert MembersList().get_range_stats() == {'birth_year': (1910, 1932)}
 
 
 class TestMemberDetailView(TestCase):

@@ -21,25 +21,17 @@
     <form id="members-form">
         {% render_field form.query %}
         <label for="{{ form.query.id_for_label }}"></label>
-        {% if form.errors %}
-        <div role="alert" class="errors" aria-labelledby="errors" aria-live="polite">
-            <span id="errors">Errors:</span>
-            <ul>
-                {% for field, errors in form.errors.items %}
-                {# no clean way to get field labels here, so we just collapse the error lists #}
-                {% for error in errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
+        {% include 'common/form_errors.html' %}
         <fieldset class="group">
             <legend>Filter by:</legend>
             <div class="inner">
                 <fieldset class="range facet {{ form.membership_dates.css_classes }}" id="id_{{ form.membership_dates.name }}">
                     <legend>{{ form.membership_dates.label }}</legend>
                     {{ form.membership_dates }}
+                </fieldset>
+                <fieldset class="range facet {{ form.birth_year.css_classes }}" id="id_{{ form.birth_year.name }}">
+                    <legend>{{ form.birth_year.label }}</legend>
+                    {{ form.birth_year }}
                 </fieldset>
                 {% render_field form.has_card class+="sr-only" tabindex=0 %}
                 <label for="{{ form.has_card.id_for_label }}">

@@ -1,6 +1,7 @@
-pytest>=4.2.1
+pytest>=4.2.1,<5
 pytest-django>=3.4.7
 pytest-cov
+pytest-ordering
 # note: pytest-sugar is optional but pretty
 pytest-sugar
 django-debug-toolbar

@@ -16,7 +16,7 @@ describe('RxForm', () => {
         const rxf = new RxForm($form)
         expect(rxf.target).toEqual('/myendpoint/')
     })
-    
+
     it('uses the current page as target if none is set', () => {
         window.history.pushState({}, 'form', '/form/') // go to some path /form
         const $form = document.querySelector('form') as HTMLFormElement
@@ -32,7 +32,7 @@ describe('RxForm', () => {
         rxf.reset()
         expect($input.value).toBe('')
     })
-    
+
     it('can seralize itself', () => {
         const $form = document.querySelector('form') as HTMLFormElement
         const $input = document.querySelector('input[type=text]') as HTMLInputElement
@@ -61,8 +61,8 @@ describe('RxSearchForm', () => {
             <input type="number" name="age" value="1">
         </form>`
     })
-    
-    
+
+
     it('stores results as an observable sequence', () => {
         const $element = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($element)
@@ -86,7 +86,7 @@ describe('RxSearchForm', () => {
         const rsf = new RxSearchForm($element)
         expect(rsf.valid).toBeInstanceOf(Observable)
     })
-    
+
     it('makes an async GET request to its endpoint on submission', () => {
         window.history.pushState({}, 'form', '/form') // to form a full request path
         const $form = document.querySelector('form') as HTMLFormElement
@@ -97,7 +97,7 @@ describe('RxSearchForm', () => {
             expect(window.fetch).toHaveBeenCalledWith('/form?query=mysearch&age=1', ajax)
         })
     })
-    
+
     it('updates the results when it receives results', () => {
         const $form = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($form)
@@ -122,7 +122,7 @@ describe('RxSearchForm', () => {
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
         return rsf.getResults().then(() => {
             expect(watcher).toHaveBeenCalledWith('50')
-        }) 
+        })
     })
 
 
@@ -137,7 +137,7 @@ describe('RxSearchForm', () => {
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
         return rsf.getResults().then(() => {
             expect(watcher).toHaveBeenCalledWith('0')
-        }) 
+        })
     })
 
     it('parses and updates the page labels when it receives the correct header', () => {
@@ -152,7 +152,7 @@ describe('RxSearchForm', () => {
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
         return rsf.getResults().then(() => {
             expect(watcher).toHaveBeenCalledWith(['page one', 'page two', 'page three'])
-        }) 
+        })
     })
 
     it('defaults to empty page labels if it doesn\'t receive the correct header', () => {
@@ -166,9 +166,9 @@ describe('RxSearchForm', () => {
         jest.spyOn(window, 'fetch').mockImplementation(() => Promise.resolve(response))
         return rsf.getResults().then(() => {
             expect(watcher).toHaveBeenCalledWith([''])
-        }) 
+        })
     })
-    
+
     it('updates the URL/browser history on submission', () => {
         const $form = document.querySelector('form') as HTMLFormElement
         const rsf = new RxSearchForm($form)

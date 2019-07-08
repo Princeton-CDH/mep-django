@@ -20,8 +20,7 @@ tar xzf $file
 # Start the solr instance with all default settings
 echo "Starting solr..."
 bin="solr-${version}/bin/solr"
-$bin start
-if [ $? -eq 0 ];
+if $bin start
 then
         echo "Solr appears to have started..."
 else

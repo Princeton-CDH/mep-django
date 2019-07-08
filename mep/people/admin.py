@@ -193,10 +193,11 @@ class PersonAdmin(admin.ModelAdmin):
         'viaf_id',
         ('birth_year', 'death_year'),
         'sex', 'profession', 'nationalities', 'is_organization', 'verified',
-        'notes')
+        'notes', 'public_notes')
     readonly_fields = ('mep_id', 'in_logbooks', 'has_account', 'has_card',
                        'is_creator')
-    search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'viaf_id')
+    search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'public_notes',
+                     'viaf_id')
     list_filter = (PersonTypeListFilter, 'sex', 'profession', 'nationalities',
                    'is_organization')
     # Note: moving relationships to last for adjacency to list of relationships

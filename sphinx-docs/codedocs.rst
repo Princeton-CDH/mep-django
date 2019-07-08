@@ -69,6 +69,12 @@ XML Models
 .. automodule:: mep.people.xml_models
     :members:
 
+Forms
+^^^^^
+
+.. automodule:: mep.people.forms
+    :members:
+
 Views
 ^^^^^
 .. automodule:: mep.people.views

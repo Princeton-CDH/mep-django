@@ -1,0 +1,14 @@
+{# this template is included on search forms to display form errors. #}
+{% if form.errors %}
+<div role="alert" class="errors" aria-labelledby="errors" aria-live="polite">
+    <span id="errors">Errors:</span>
+    <ul>
+        {% for field, errors in form.errors.items %}
+        {# no clean way to get field labels here, so we just collapse the error lists #}
+        {% for error in errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}

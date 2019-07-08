@@ -354,7 +354,7 @@ class TestPersonQuerySet(TestCase):
         # even if the record is included in the queryset
         assert Person.objects.filter(id=main_person.id).exists()
         # account events should be reassociated
-        main_acct.event_set.count() == 3
+        assert main_acct.event_set.count() == 3
         # account address should be reassociated
         assert main_acct.address_set.filter(id=acct_addr.id).exists()
         # person address should be reassociated

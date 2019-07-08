@@ -10,7 +10,7 @@ interface RxOption {
 
 /**
  * A reactive <select> element that emits its current value when changed.
- * 
+ *
  * @class RxSelect
  * @extends {Component}
  * @implements {Reactive<RxSelectState>}
@@ -40,7 +40,7 @@ class RxSelect extends Component {
 
     /**
      * Render a new set of <options> for this <select>.
-     * 
+     *
      * @param {Array<RxOption>} options
      * @returns {Promise<void>}
      * @memberof RxSelect

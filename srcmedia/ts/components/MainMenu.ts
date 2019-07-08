@@ -16,7 +16,7 @@ export default class MainMenu {
     /**
      * Open/show the main menu. Returned Promise resolves after the transition
      * duration specified in CSS, or immediately if none specified.
-     * 
+     *
      * @param event click event on #open-main-menu
      */
     async show(event: MouseEvent): Promise<void> {
@@ -31,7 +31,7 @@ export default class MainMenu {
     /**
      * Close/hide the main menu. Returned Promise resolves after the transition
      * duration specified in CSS, or immediately if none specified.
-     * 
+     *
      * @param event click event on #close-main-menu
      */
     async hide(event: MouseEvent): Promise<void> {

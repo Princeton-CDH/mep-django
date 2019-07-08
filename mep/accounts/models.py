@@ -10,7 +10,8 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
 
-from mep.accounts.partial_date import PartialDateMixin, DatePrecision
+from mep.accounts.partial_date import PartialDateMixin, DatePrecision,\
+    DatePrecisionField
 from mep.books.models import Item
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Location
@@ -120,6 +121,27 @@ class Account(models.Model):
         return bool(self.card)
     has_card.boolean = True
 
+    @staticmethod
+    def validate_etype(etype):
+        etype = etype.lower()
+        if etype not in ['borrow', 'event', 'subscription',
+                         'purchase', 'reimbursement']:
+            raise ValueError('etype must be one of borrow, event, purchase,'
+                             ' subscription, or reimbursement')
+
+    @staticmethod
+    def str_to_model(etype):
+        # moving mapping here so that we can forward reference classes
+        # not yet declared
+        mapping = {
+            'borrow': Borrow,
+            'reimbursement': Reimbursement,
+            'event': Event,
+            'purchase': Purchase,
+            'subscription': Subscription
+        }
+        return mapping[etype]
+
     def add_event(self, etype='event', **kwargs):
         '''Helper function to add a :class:`Event` or subclass to an
         instance of :class:`Account`. Requires that the :class:`Account`
@@ -132,21 +154,11 @@ class Account(models.Model):
             One of ``borrow``, ``event``, ``subscription``,
             ``purchase``, ``reimbursement``
         '''
-        # Catch an invalid class of event or subevent
-        etype = etype.lower()
-        if etype not in ['borrow', 'event', 'subscription',
-                         'purchase', 'reimbursement']:
-            raise ValueError('etype must be one of borrow, event, purchase,'
-                             ' subscription, or reimbursement')
-
-        str_to_model = {
-            'borrow': Borrow,
-            'reimbursement': Reimbursement,
-            'event': Event,
-            'purchase': Purchase,
-            'subscription': Subscription
-        }
-        str_to_model[etype].objects.create(account=self, **kwargs)
+        # Catch an invalid class of event or subevent and raise
+        # ValueError
+        self.validate_etype(etype)
+        # Create the event
+        self.str_to_model(etype).objects.create(account=self, **kwargs)
 
     def get_events(self, etype='event', **kwargs):
         '''Helper function to retrieve related events of any valid type for
@@ -164,24 +176,8 @@ class Account(models.Model):
 
         '''
         # Catch an invalid class of event or subevent
-        etype = etype.lower()
-        if etype not in ['borrow', 'event', 'subscription',
-                         'purchase', 'reimbursement']:
-            raise ValueError('etype must be one of borrow, event, purchase,'
-                             ' subscription, or reimbursement')
-
-        str_to_model = {
-            'borrow': Borrow,
-            'reimbursement': Reimbursement,
-            'event': Event,
-            'purchase': Purchase,
-            'subscription': Subscription
-        }
-
-        if not kwargs:
-            return str_to_model[etype].objects.filter(account=self)
-
-        return str_to_model[etype].objects.filter(account=self, **kwargs)
+        self.validate_etype(etype)
+        return self.str_to_model(etype).objects.filter(account=self, **kwargs)
 
 
 class Address(Notable, PartialDateMixin):
@@ -262,7 +258,7 @@ class EventQuerySet(models.QuerySet):
         return self._subtype('purchase')
 
 
-class Event(Notable):
+class Event(Notable, PartialDateMixin):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
     account = models.ForeignKey(Account)
     start_date = models.DateField(blank=True, null=True)
@@ -291,47 +287,23 @@ class Event(Notable):
         return '%s for account #%s %s' % \
             (self.__class__.__name__, self.account.pk, self.date_range)
 
-    @property
-    def date_range(self):
-        '''Event date range as string. Returns a single date in isoformat
-        if both dates are set to the same date. Uses "??" for unset dates,
-        and returns in format start/end.'''
-
-        # if both dates are set and the same, return a single date
-        if self.start_date and self.end_date and self.start_date == self.end_date:
-            return self.start_date.isoformat()
-
-        # otherwise, use both dates with ?? to indicate unknown date
-        return '/'.join([dt.isoformat() if dt else '??'
-                         for dt in [self.start_date, self.end_date]])
-
     @cached_property
     def event_type(self):
         try:
             return self.subscription.get_subtype_display()
         except ObjectDoesNotExist:
             pass
-        try:
-            self.reimbursement
+        if getattr(self, 'reimbursement', None):
             return 'Reimbursement'
-        except ObjectDoesNotExist:
-            pass
-        try:
-            self.borrow
+        if getattr(self, 'borrow', None):
             return 'Borrow'
-        except ObjectDoesNotExist:
-            pass
-        try:
-            self.purchase
+        if getattr(self, 'purchase', None):
             return 'Purchase'
-        except ObjectDoesNotExist:
-            pass
         return 'Generic'
 
 
 class SubscriptionType(Named, Notable):
     '''Type of subscription'''
-    pass
 
 
 class CurrencyMixin(models.Model):
@@ -480,8 +452,7 @@ class Subscription(Event, CurrencyMixin):
     readable_duration.admin_order_field = 'duration'
 
 
-
-class Borrow(PartialDateMixin, Event):
+class Borrow(Event):
     '''Inherited table indicating borrow events'''
     #: :class:`~mep.books.models.Item` that was borrowed;
     #: optional to account for unclear titles
@@ -507,7 +478,7 @@ class Borrow(PartialDateMixin, Event):
         super(Borrow, self).save(*args, **kwargs)
 
 
-class Purchase(PartialDateMixin, CurrencyMixin, Event):
+class Purchase(CurrencyMixin, Event):
     '''Inherited table indicating purchase events; extends :class:`Event`'''
     price = models.DecimalField(max_digits=8, decimal_places=2,
         blank=True, null=True)
