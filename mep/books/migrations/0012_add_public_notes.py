@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='item',
             name='public_notes',
-            field=models.TextField(blank=True, help_text='Notes for public display on the S&Co. website'),
+            field=models.TextField(blank=True, help_text='Notes for display on the public website'),
         ),
     ]

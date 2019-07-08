@@ -3,6 +3,14 @@
 CHANGELOG
 =========
 
+0.18
+----
+* As a content editor I want to enter public notes for items and people so I can document details to be shown on the public site
+* As a content editor, I want a URL field on library items so I can add a link to a full-text version.
+* As a content editor, I need to add and edit partial dates for generic events so that I can record whatever portion of the date is available when the exact date is not known.
+* As a user, I want to filter library members by birth year so that I can do generational comparison, such as looking at just members from the Lost Generation.
+* Initial reactive Books search
+
 0.17
 ----
 
@@ -30,7 +38,7 @@ CHANGELOG
 
 * As a user, I want the members list page updated as soon as I change search terms, filters, or results page so that I can refine my search without losing my place in the form and have results load more quickly.
 * As a user, I want the count of members with cards to update as soon as I change search terms or filters so that I can see an accurate number for my current search.
-* As a user, I want to filter library members by gender so that I can see the gender composition of library members. 
+* As a user, I want to filter library members by gender so that I can see the gender composition of library members.
 * As a content editor, I want account id number listed in the person admin list view and person CSV export so that I have more information for decisions about merging people records.
 
 * bugfix: don't defer loading of <script>s to avoid flash of unstyled content
