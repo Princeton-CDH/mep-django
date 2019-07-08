@@ -135,7 +135,7 @@ class DatePrecisionCopies(TestMigrations):
 class TestCopyPrecisions(DatePrecisionCopies):
 
     migrate_from = '0027_address_partial_dates'
-    migrate_to = '0028_refactor_precision_event'
+    migrate_to = '0028_generic_event_partial_dates'
 
     def test_copy_precisions(self):
 
@@ -163,7 +163,7 @@ class TestCopyPrecisions(DatePrecisionCopies):
 
 @pytest.mark.last
 class TestRevertPrecisionCopy(DatePrecisionCopies):
-    migrate_from = '0028_refactor_precision_event'
+    migrate_from = '0028_generic_event_partial_dates'
     migrate_to = '0027_address_partial_dates'
 
     def test_revert_precision_copy(self):
