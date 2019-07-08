@@ -148,11 +148,11 @@ class TestAliasIntegerField(TestCase):
         TestModel(bar_year=1901).clean()
 
     def test_error_on_create_non_field(self):
-        with pytest.raises(AttributeError) as e:
+        with pytest.raises(AttributeError) as excinfo:
             # simulate passing a None because the object didn't set right
             AliasIntegerField.__get__(AliasIntegerField(), None)
         assert ('Are you trying to set a field that does not '
-                'exist on the aliased model?') in str(e)
+                'exist on the aliased model?') in str(excinfo.value)
 
 
 class TestVerifyLatLon(TestCase):
