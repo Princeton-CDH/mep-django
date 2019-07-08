@@ -177,7 +177,7 @@ class Item(Notable, Indexable):
     subjects = models.ManyToManyField(Subject, blank=True)
     #: a field for notes publicly displayed on the website
     public_notes = models.TextField(blank=True,
-        help_text='Notes for public display on the S&Co. website')
+        help_text='Notes for display on the public website')
 
     def save(self, *args, **kwargs):
         # override save to ensure mep ID is None rather than empty string
