@@ -6,12 +6,13 @@ from django import forms
 from django.contrib import admin
 from django.core.validators import RegexValidator, ValidationError
 
-from mep.accounts.partial_date import DatePrecision, PartialDate, \
-    PartialDateFormMixin
+from mep.accounts.partial_date import PartialDateFormMixin
 from mep.accounts.models import Account, Address, Subscription,\
     Reimbursement, Event, SubscriptionType, Borrow, Purchase
+from mep.books.models import Edition
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 from mep.footnotes.admin import FootnoteInline
+
 
 # predefine autocomplete lookups (most are used on more than one form)
 AUTOCOMPLETE = {
@@ -61,8 +62,18 @@ class OpenFootnoteInline(FootnoteInline):
     extra = 1
 
 
-class EventAdminForm(PartialDateFormMixin):
+class EventEditionFormMixin:
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.work:
+            self.fields['edition'].queryset = Edition.objects.filter(
+                work=self.instance.work.pk)
+
+
+class EventAdminForm(EventEditionFormMixin, PartialDateFormMixin):
     '''Admin form for the Event model, adds autocomplete to account'''
+
     class Meta:
         model = Event
         fields = ('__all__')
@@ -117,7 +128,7 @@ class EventAdmin(admin.ModelAdmin):
     form = EventAdminForm
     date_hierarchy = 'start_date'
     fields = ('account', 'event_type', 'partial_start_date',
-              'partial_end_date', 'work', 'notes')
+              'partial_end_date', 'work', 'edition', 'notes')
     readonly_fields = ('event_type',)
     list_display = ('account', 'event_type', 'partial_start_date',
                     'partial_end_date', 'work', 'notes')
@@ -125,7 +136,7 @@ class EventAdmin(admin.ModelAdmin):
                      'start_date', 'end_date', 'notes',
                      'work__title', 'work__notes')
     list_filter = (EventTypeListFilter, )
-    inlines = [OpenFootnoteInline]
+    # inlines = [OpenFootnoteInline]
 
 
 class SubscriptionAdminForm(forms.ModelForm):
@@ -140,13 +151,14 @@ class SubscriptionAdminForm(forms.ModelForm):
     # custom input field to allow users to view and enter human-readable
     # duration; used to calculate end date if start date and duration
     # are present but end date is not
-    duration_units = forms.CharField(label='Duration', required=False,
+    duration_units = forms.CharField(
+        label='Duration', required=False,
         help_text='Duration in days, weeks, months, or years. ' + \
                   'Enter as 1 day, 2 weeks, 3 months, 1 year, etc.',
         validators=[RegexValidator(regex=duration_regex,
                                    message=duration_msg)
                     ]
-        )
+    )
 
     class Meta:
         model = Subscription
@@ -241,8 +253,8 @@ class ReimbursementAdmin(admin.ModelAdmin):
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
 
 
-
 class PurchaseAdminForm(PartialDateFormMixin):
+
     class Meta:
         model = Purchase
         fields = ('account', 'work', 'partial_start_date', 'price', 'currency', 'notes')
@@ -376,7 +388,8 @@ class BorrowAdminListForm(forms.ModelForm):
 
 class BorrowAdmin(admin.ModelAdmin):
     form = BorrowAdminForm
-    list_display = ('account', 'work', 'partial_start_date', 'partial_end_date',
+    list_display = ('account', 'work', 'edition',
+                    'partial_start_date', 'partial_end_date',
                     'item_status', 'note_snippet')
     date_hierarchy = 'start_date'
     search_fields = ('account__persons__name', 'account__persons__mep_id',
