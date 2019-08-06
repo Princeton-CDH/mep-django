@@ -9,7 +9,7 @@ from mep.accounts.xml_models import LogBook, Measure, BorrowedItem, \
     BorrowedItemTitle, FacsimileSurface, LendingCardSide
 from mep.accounts.models import Event, Subscription, Reimbursement, Account, \
     CurrencyMixin, Borrow
-from mep.books.models import Item
+from mep.books.models import Work
 from mep.people.models import Person
 
 
@@ -515,7 +515,7 @@ class TestBorrowingEvent(TestCase):
                                                      BorrowingEvent)
         account = Account()
         # create stub title record - should be used if present
-        poets = Item.objects.create(mep_id='mep:006866', title="Poets Two Painters")
+        poets = Work.objects.create(mep_id='mep:006866', title="Poets Two Painters")
         db_borrow = xmlevent.to_db_event(account)
         assert isinstance(db_borrow, Borrow)
         assert db_borrow.account == account
@@ -533,11 +533,11 @@ class TestBorrowingEvent(TestCase):
         xmlevent.item.author = 'Knud Merrild'
         db_borrow = xmlevent.to_db_event(account)
         # get a fresh copy of the item to check
-        poets = Item.objects.get(pk=poets.pk)
+        poets = Work.objects.get(pk=poets.pk)
         assert 'Author: %s' % xmlevent.item.author in poets.notes
 
         # partial date, item with author
-        Item.objects.create(mep_id='mep:000j03',
+        Work.objects.create(mep_id='mep:000j03',
             title="Toussaint Louverture")
         xmlevent = xmlmap.load_xmlobject_from_string(self.partial_date,
             BorrowingEvent)
@@ -615,7 +615,7 @@ class TestBorrowingEvent(TestCase):
         # item has no mep id
         xmlevent.item.mep_id = None
         db_borrow = xmlevent.to_db_event(account)
-        assert isinstance(db_borrow.item, Item)
+        assert isinstance(db_borrow.item, Work)
         assert str(db_borrow.item.title) == str(xmlevent.item.title)
 
        # include edition with bibl scope info
@@ -628,7 +628,7 @@ class TestBorrowingEvent(TestCase):
         xmlevent = xmlmap.load_xmlobject_from_string(self.no_title,
             BorrowingEvent)
         db_borrow = xmlevent.to_db_event(account)
-        assert isinstance(db_borrow.item, Item)
+        assert isinstance(db_borrow.item, Work)
         assert db_borrow.item.title == '[no title]'
 
         # ambiguous not before/after dates, month/year known but not year
@@ -671,7 +671,7 @@ class TestBorrowingEvent(TestCase):
         xmlevent = xmlmap.load_xmlobject_from_string(self.generic_title,
             BorrowingEvent)
         # create generic title item with matching mep id
-        existing_item = Item.objects.create(title=xmlevent.item.title,
+        existing_item = Work.objects.create(title=xmlevent.item.title,
             mep_id=xmlevent.item.mep_id)
         db_borrow = xmlevent.to_db_event(account)
         assert db_borrow.item != existing_item

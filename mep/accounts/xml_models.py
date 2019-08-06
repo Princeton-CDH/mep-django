@@ -10,7 +10,7 @@ import pendulum
 from mep.accounts.models import Account, Subscription, SubscriptionType, \
     Borrow
 from mep.accounts.partial_date import DatePrecision
-from mep.books.models import Item
+from mep.books.models import Work
 from mep.people.models import Person
 
 
@@ -468,13 +468,13 @@ class BorrowingEvent(TeiXmlObject):
             # find item that was borrowed
             # *should* already exist from regularized title import;
             # if item does not exist, create a new stub record
-            borrow.item, created = Item.objects.get_or_create(mep_id=self.item.mep_id)
+            borrow.item, created = Work.objects.get_or_create(mep_id=self.item.mep_id)
 
         # if no mep id or a generic id, create a new record
         else:
             # NOTE: some records have an unclear title or partially unclear title
             #  with no mep id for the item
-            borrow.item = Item.objects.create()
+            borrow.item = Work.objects.create()
             created = True
 
         # if item was newly created OR borrow title is unclear, set the title

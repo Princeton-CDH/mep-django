@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand
 import progressbar
 import pymarc
 
-from mep.books.models import Item
+from mep.books.models import Work
 from mep.books.oclc import SRUSearch
 
 
@@ -33,8 +33,8 @@ class Command(BaseCommand):
 
     #: summary message string for each mode
     summary_message = {
-        'report': 'Processed %(count)d items, found matches for %(found)d',
-        'update': 'Processed %(count)d items, updated %(updated)d, no matches for %(no_match)d, %(error)d error(s)',
+        'report': 'Processed %(count)d works, found matches for %(found)d',
+        'update': 'Processed %(count)d works, updated %(updated)d, no matches for %(no_match)d, %(error)d error(s)',
     }
 
     progbar = None
@@ -47,7 +47,7 @@ class Command(BaseCommand):
         self.stats = defaultdict(int)
 
         self.script_user = User.objects.get(username=settings.SCRIPT_USERNAME)
-        self.item_content_type = ContentType.objects.get_for_model(Item).pk
+        self.work_content_type = ContentType.objects.get_for_model(Work).pk
 
     def add_arguments(self, parser):
         parser.add_argument('mode', choices=['report', 'update'])
@@ -58,17 +58,17 @@ class Command(BaseCommand):
             '-o', '--output', help='Filename for the report to be generated')
 
     def handle(self, *args, **kwargs):
-        """Loop through Items in the database and look for matches in OCLC"""
+        """Loop through Works in the database and look for matches in OCLC"""
 
         # store operating mode
         self.mode = kwargs['mode']
         # initialize OCLC search client
         self.sru_search = SRUSearch()
 
-        # filter out items with problems that we don't expect to be
+        # filter out works with problems that we don't expect to be
         # able to match reliably
-        # only include items that do not already have a work URI
-        items = Item.objects.exclude(notes__contains='GENERIC') \
+        # only include works that do not already have a work URI
+        works = Work.objects.exclude(notes__contains='GENERIC') \
                             .exclude(notes__contains='PROBLEM') \
                             .exclude(notes__contains='OBSCURE') \
                             .exclude(notes__contains='ZERO') \
@@ -77,8 +77,8 @@ class Command(BaseCommand):
                             .exclude(title__endswith='*')
 
         # report on total to process
-        total = items.count()
-        self.stdout.write('%d items to reconcile' % total)
+        total = works.count()
+        self.stdout.write('%d works to reconcile' % total)
 
         # bail out if there is nothing to do
         if not total:
@@ -89,10 +89,10 @@ class Command(BaseCommand):
                                                    max_value=total)
         if self.mode == 'report':
             # use output name specified in args, with a default fallback
-            outfilename = kwargs.get('output', None) or 'items-oclc.csv'
-            self.report(items, outfilename)
+            outfilename = kwargs.get('output', None) or 'works-oclc.csv'
+            self.report(works, outfilename)
         elif self.mode == 'update':
-            self.update_items(items)
+            self.update_works(works)
 
         if self.progbar:
             self.progbar.finish()
@@ -106,7 +106,7 @@ class Command(BaseCommand):
         if self.progbar:
             self.progbar.update(self.stats['count'])
 
-    def report(self, items, outfilename):
+    def report(self, works, outfilename):
         '''Generate an CSV file to report on OCLC matches found'''
         with open(outfilename, 'w') as csvfile:
             # write utf-8 byte order mark at the beginning of the file
@@ -115,14 +115,14 @@ class Command(BaseCommand):
             writer = csv.DictWriter(csvfile, fieldnames=self.csv_fieldnames)
             writer.writeheader()
 
-            for item in items:
+            for work in works:
                 info = {
-                    'Title': item.title,
-                    'Date': item.year,
-                    'Creators': ';'.join([str(person) for person in item.creators.all()]),
-                    'Notes': item.notes
+                    'Title': work.title,
+                    'Date': work.year,
+                    'Creators': ';'.join([str(person) for person in work.creators.all()]),
+                    'Notes': work.notes
                 }
-                info.update(self.oclc_info(item))
+                info.update(self.oclc_info(work))
                 writer.writerow(info)
                 # keep track of how many records found any matches
                 if info.get('# matches', None):
@@ -130,15 +130,15 @@ class Command(BaseCommand):
 
                 self.tick()
 
-    def update_items(self, items):
-        '''Search for Items in OCLC and update in the database if
+    def update_works(self, works):
+        '''Search for Works in OCLC and update in the database if
         a match is found.'''
-        for item in items:
+        for work in works:
             error = False
             log_message = None
 
             try:
-                worldcat_entity = self.oclc_search_record(item)
+                worldcat_entity = self.oclc_search_record(work)
             except ConnectionError as err:
                 self.stderr.write('Error: %s' % err)
                 worldcat_entity = None
@@ -146,19 +146,19 @@ class Command(BaseCommand):
                 error = True
 
             if worldcat_entity:
-                item.populate_from_worldcat(worldcat_entity)
-                item.save()
+                work.populate_from_worldcat(worldcat_entity)
+                work.save()
                 # message for log entry to document the change
-                log_message = 'Updated from OCLC %s' % worldcat_entity.item_uri
+                log_message = 'Updated from OCLC %s' % worldcat_entity.work_uri
                 self.stats['updated'] += 1
 
             # if no match was found but there was no connection error,
             # make a note and log the change
             elif not error:
-                # add no match indicator to item notes
-                item.notes = '\n'.join([txt for txt in (item.notes, self.oclc_no_match)
+                # add no match indicator to work notes
+                work.notes = '\n'.join([txt for txt in (work.notes, self.oclc_no_match)
                                         if txt])
-                item.save()
+                work.save()
                 # message for log entry to document the change
                 log_message = 'No OCLC match found'
                 self.stats['no_match'] += 1
@@ -168,16 +168,16 @@ class Command(BaseCommand):
             if log_message:
                 LogEntry.objects.log_action(
                     user_id=self.script_user.id,
-                    content_type_id=self.item_content_type,
-                    object_id=item.pk,
-                    object_repr=str(item),
+                    content_type_id=self.work_content_type,
+                    object_id=work.pk,
+                    object_repr=str(work),
                     change_message=log_message,
                     action_flag=CHANGE)
 
             self.tick()
 
-    def oclc_search(self, item):
-        """Search for an item in OCLC by title, author, date, and
+    def oclc_search(self, work):
+        """Search for an work in OCLC by title, author, date, and
         material type if noted as a Periodical.  Filters by
         english language and material type not Internet Resource
         (i.e. electronic edition). Returns :class:`~mep.books.oclc.SRWResponse`.
@@ -185,27 +185,27 @@ class Command(BaseCommand):
         search_opts = {}
 
         # search by title if known
-        if item.title:
-            search_opts['title__exact'] = item.title
+        if work.title:
+            search_opts['title__exact'] = work.title
 
         # search by first author if there is one
-        if item.authors.exists():
-            search_opts['author__all'] = str(item.authors.first())
+        if work.authors.exists():
+            search_opts['author__all'] = str(work.authors.first())
 
         # search by year if known
-        if item.year:
-            search_opts['year'] = item.year
+        if work.year:
+            search_opts['year'] = work.year
         # search year by range based on first documented event for this book
         else:
-            first_date = item.first_known_interaction
+            first_date = work.first_known_interaction
             if first_date:
                 # range search ending with first known event date
                 search_opts['year'] = "-%s" % first_date.year
 
-        # filter by material type; assume item is a book unless
+        # filter by material type; assume work is a book unless
         # notes indicate periodical
         search_opts['material_type__exact'] = 'periodical' \
-            if 'PERIODICAL' in item.notes else 'book'
+            if 'PERIODICAL' in work.notes else 'book'
 
         # add filters that apply to all S&co content
         # restrict to english language content
@@ -216,11 +216,11 @@ class Command(BaseCommand):
 
         return self.sru_search.search(**search_opts)
 
-    def oclc_info(self, item):
-        """Search for an item in OCLC by title, author, date.
+    def oclc_info(self, work):
+        """Search for an work in OCLC by title, author, date.
         Returns dictionary with details found for inclusion in CSV.
         """
-        result = self.oclc_search(item)
+        result = self.oclc_search(work)
         # report number of matches so 0 is explicit/obvious
         oclc_info = {'# matches': result.num_records}
         if result.num_records:
@@ -232,7 +232,7 @@ class Command(BaseCommand):
                     'OCLC Title': marc_record.title(),
                     'OCLC Author': marc_record.author(),
                     'OCLC Date': marc_record.pubyear(),
-                    'OCLC URI': worldcat_rdf.item_uri,
+                    'OCLC URI': worldcat_rdf.work_uri,
                     'Work URI': worldcat_rdf.work_uri
                 })
             except ConnectionError as err:
@@ -240,11 +240,11 @@ class Command(BaseCommand):
 
         return oclc_info
 
-    def oclc_search_record(self, item):
-        """Search for an item in OCLC by title, author, date.
+    def oclc_search_record(self, work):
+        """Search for an work in OCLC by title, author, date.
         Returns :class:`~mep.books.oclc.WorldCatResource` for the first
         match.'''
         """
-        result = self.oclc_search(item)
+        result = self.oclc_search(work)
         if result and result.num_records:
             return self.sru_search.get_worldcat_rdf(result.marc_records[0])

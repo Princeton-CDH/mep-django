@@ -4,42 +4,42 @@
         {# title - solr only #}
         <div class="title">
             <dt>title</dt>
-            <dd>{{ item.title }}</dt>
+            <dd>{{ work.title }}</dt>
         </div>
         {# authors - solr & db #}
-        {% if item.authors|length > 0 %}
+        {% if work.authors|length > 0 %}
         <div class="authors">
             <dt>authors</dt>
-            {% for author in item.authors %}
+            {% for author in work.authors %}
                 {% if forloop.counter <= 3 %}
                 <dd>{{ author }}</dd>
                 {% endif %}
             {% endfor %}
-            {% if item.authors|length > 3 %}
-            <dd>... {{ item.authors|length|add:"-3" }} more authors</dd>
+            {% if work.authors|length > 3 %}
+            <dd>... {{ work.authors|length|add:"-3" }} more authors</dd>
             {% endif %}
         </div>
         {% endif %}
         {# editors - db only #}
-        {% if item.editors.count > 0 %}
+        {% if work.editors.count > 0 %}
         <div class="editors">
             <dt>editors</dt>
-            {% for editor in item.editors.all %}
+            {% for editor in work.editors.all %}
             <dd>{{ editor }}</dd>
             {% endfor %}
         </div>
         {% endif %}
         {# translators - db only #}
-        {% if item.translators.count > 0 %}
+        {% if work.translators.count > 0 %}
         <div class="translators">
             <dt>translators</dt>
-            {% for translator in item.translators.all %}
+            {% for translator in work.translators.all %}
             <dd>{{ translator }}</dd>
             {% endfor %}
         </div>
         {% endif %}
         {# publication date - solr (pub_date) & db (year) #}
-        {% firstof item.pub_date item.year as pubdate %}
+        {% firstof work.pub_date work.year as pubdate %}
         {% if pubdate %}
         <div class="pubdate">
             <dt>publication date</dt>
@@ -49,22 +49,22 @@
     </div>
     <div class="secondary">
         {# publishers - db only #}
-        {% if item.publishers.count > 0 %}
+        {% if work.publishers.count > 0 %}
         <div class="publishers">
             <dt>publishers</dt>
-            {% for publisher in item.publishers %}
+            {% for publisher in work.publishers %}
             <dd>{{ publisher }}</dd>
             {% endfor %}
         </div>
         {% endif %}
         {# format - not yet implemented #}
-        {% if item.format %}
+        {% if work.format %}
         {% endif %}
         {# relevance - solr only #}
-        {% if user.is_authenticated and item.score %}
+        {% if user.is_authenticated and work.score %}
         <div class="relevance">
             <dt>relevance</dt>
-            <dd>{{ item.score }}</dd>
+            <dd>{{ work.score }}</dd>
         </div>
         {% endif %}
     </div>

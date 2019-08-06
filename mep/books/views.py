@@ -4,25 +4,26 @@ from django.urls import reverse
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
 
-from mep.books.forms import ItemSearchForm
-from mep.books.models import Item
-from mep.books.queryset import ItemSolrQuerySet
+from mep.books.forms import WorkSearchForm
+from mep.books.models import Work
+from mep.books.queryset import WorkSolrQuerySet
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
                               LabeledPagesMixin, RdfViewMixin)
 
 
-class ItemList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
+class WorkList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
+               FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library items.'''
-    model = Item
-    template_name = 'books/item_list.html'
-    ajax_template_name = 'books/snippets/item_results.html'
+    model = Work
+    template_name = 'books/work_list.html'
+    ajax_template_name = 'books/snippets/work_results.html'
     paginate_by = 100
-    context_object_name = 'items'
+    context_object_name = 'works'
     rdf_type = SCHEMA_ORG.SearchResultPage
 
-    form_class = ItemSearchForm
+    form_class = WorkSearchForm
     _form = None
     initial = {'sort': 'title'}
 
@@ -50,7 +51,7 @@ class ItemList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJ
 
     def get_queryset(self):
         # NOTE faceting on pub date currently as a placeholder; no UI use yet
-        sqs = ItemSolrQuerySet().facet_field('pub_date_i')
+        sqs = WorkSolrQuerySet().facet_field('pub_date_i')
         form = self.get_form()
 
         # empty qs if not valid
@@ -95,23 +96,23 @@ class ItemList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJ
         ]
 
 
-class ItemDetail(DetailView):
+class WorkDetail(DetailView):
     '''Detail page for a single library book.'''
-    model = Item
-    template_name = 'books/item_detail.html'
-    context_object_name = 'item'
+    model = Work
+    template_name = 'books/work_detail.html'
+    context_object_name = 'work'
 
 
-class ItemAutocomplete(autocomplete.Select2QuerySetView):
+class WorkAutocomplete(autocomplete.Select2QuerySetView):
     '''Basic autocomplete lookup, for use with django-autocomplete-light and
-    :class:`mep.books.models.Item` for borrowing and purchasing events'''
+    :class:`mep.books.models.Work` for borrowing and purchasing events'''
 
     def get_queryset(self):
         '''Get a queryset filtered by query string. Only
         searches on title, mep id and notes for now, since that is all
         our stub records include.
         '''
-        return Item.objects.filter(
+        return Work.objects.filter(
             Q(title__icontains=self.q) |
             Q(mep_id__icontains=self.q) |
             Q(notes__icontains=self.q)

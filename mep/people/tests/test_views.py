@@ -14,7 +14,7 @@ from django.urls import reverse, resolve
 
 from mep.accounts.models import Account, Address, Event, Subscription, \
     Reimbursement
-from mep.books.models import Item, CreatorType, Creator
+from mep.books.models import Work, CreatorType, Creator
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
@@ -47,12 +47,12 @@ class TestPeopleViews(TestCase):
         # decode response to inspect
         data = json.loads(result.content.decode('utf-8'))
         # inspect constructed result
-        item = data['results'][0]
-        assert item['text'] == 'New York City, USA'
-        assert item['name'] == 'New York City'
-        assert item['lat'] == mock_response[0]['lat']
-        assert item['lng'] == mock_response[0]['lng']
-        assert item['id'] == \
+        work = data['results'][0]
+        assert work['text'] == 'New York City, USA'
+        assert work['name'] == 'New York City'
+        assert work['lat'] == mock_response[0]['lat']
+        assert work['lng'] == mock_response[0]['lng']
+        assert work['id'] == \
             GeoNamesAPI.uri_from_id(mock_response[0]['geonameId'])
 
         # country specific lookup
@@ -294,14 +294,14 @@ class TestPeopleViews(TestCase):
         acct2.persons.add(pers2)
         Subscription.objects.create(account=acct2)
 
-        # add creator relationships to items
-        book1 = Item.objects.create()
-        book2 = Item.objects.create()
+        # add creator relationships to works
+        book1 = Work.objects.create()
+        book2 = Work.objects.create()
         author = CreatorType.objects.get(name='Author')
         editor = CreatorType.objects.get(name='Editor')
-        Creator.objects.create(creator_type=author, person=pers, item=book1) # pers author of book1
-        Creator.objects.create(creator_type=editor, person=pers2, item=book2) # pers2 editor of book2
-        Creator.objects.create(creator_type=author, person=pers2, item=book2) # pers2 author of book2
+        Creator.objects.create(creator_type=author, person=pers, work=book1) # pers author of book1
+        Creator.objects.create(creator_type=editor, person=pers2, work=book2) # pers2 editor of book2
+        Creator.objects.create(creator_type=author, person=pers2, work=book2) # pers2 author of book2
 
         # GET should include account info
         response = self.client.get(reverse('people:merge'), {'ids': idstring})
@@ -391,12 +391,12 @@ class TestGeonamesLookup(TestCase):
 
     def test_geonames_get_label(self):
         geo_lookup = GeoNamesLookup()
-        item = {'name': 'New York City', 'countryName': 'USA'}
+        work = {'name': 'New York City', 'countryName': 'USA'}
         # country code used if available
-        assert geo_lookup.get_label(item) == 'New York City, USA'
-        del item['countryName']
+        assert geo_lookup.get_label(work) == 'New York City, USA'
+        del work['countryName']
         # and just name, if no country is available
-        assert geo_lookup.get_label(item) == 'New York City'
+        assert geo_lookup.get_label(work) == 'New York City'
 
 
 class TestGeonamesLookupWidget(TestCase):
@@ -719,8 +719,8 @@ class TestMembersListView(TestCase):
         view.get_form().is_valid()
         view.queryset = Mock()
         with patch('mep.people.views.alpha_pagelabels') as mock_alpha_pglabels:
-            items = range(101)
-            paginator = Paginator(items, per_page=50)
+            works = range(101)
+            paginator = Paginator(works, per_page=50)
             result = view.get_page_labels(paginator)
             view.queryset.only.assert_called_with('sort_name')
             alpha_pagelabels_args = mock_alpha_pglabels.call_args[0]
@@ -795,8 +795,6 @@ class TestMembersListView(TestCase):
         view.request = self.factory.get(self.members_url, {'query': ''})
         form_kwargs = view.get_form_kwargs()
         assert form_kwargs['data']['sort'] == view.initial['sort']
-
-
 
     @patch('mep.people.views.PersonSolrQuerySet')
     def test_get_queryset(self, mock_solrqueryset):

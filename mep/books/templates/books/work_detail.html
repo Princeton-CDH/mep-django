@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load static humanize %}
 
-{% block page-subtitle %}{{ item.title }} · Library Holdings · {% endblock %}
+{% block page-subtitle %}{{ work.title }} · Library Holdings · {% endblock %}
 
 {% block header %}
-{% include 'snippets/header.html' with title=item.title style="detail" %}
+{% include 'snippets/header.html' with title=work.title style="detail" %}
 {% endblock %}
 
 {% block main-style %}tabbed{% endblock %}
@@ -19,6 +19,6 @@
     </li>
 </nav>
 <section class="details">
-    {% include 'books/snippets/item_result.html' %}
+    {% include 'books/snippets/work_result.html' %}
 </section>
 {% endblock %}

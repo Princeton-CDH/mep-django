@@ -14,7 +14,7 @@ from django.utils import timezone
 from viapy.api import ViafEntity
 
 from mep.accounts.models import Account, Address, Reimbursement, Subscription
-from mep.books.models import Creator, CreatorType, Item
+from mep.books.models import Creator, CreatorType, Work
 from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.models import (Country, InfoURL, Location, Person, Profession,
                                Relationship, RelationshipType)
@@ -204,13 +204,13 @@ class TestPerson(TestCase):
         # create a person
         pers = Person.objects.create(name='Foobar')
         # create an item and creator type
-        item = Item(title='Le foo et le bar', year=1916, mep_id='lfelb')
-        item.save()
+        work = Work(title='Le foo et le bar', year=1916, mep_id='lfelb')
+        work.save()
         ctype = CreatorType(1)
         # not associated, returns False
         assert not pers.is_creator()
         # associate via Creator, should return True
-        creator = Creator(creator_type=ctype, person=pers, item=item)
+        creator = Creator(creator_type=ctype, person=pers, work=work)
         creator.save()
         assert pers.is_creator()
 
@@ -468,21 +468,24 @@ class TestPersonQuerySet(TestCase):
         mike = Person.objects.create(name='Mike Mulshine')
         spencer = Person.objects.create(name='Spencer Hadley')
         nikitas = Person.objects.create(name='Nikitas Tampakis')
-        book1 = Item.objects.create()
-        book2 = Item.objects.create()
+        book1 = Work.objects.create()
+        book2 = Work.objects.create()
         author = CreatorType.objects.get(name='Author')
         editor = CreatorType.objects.get(name='Editor')
-        Creator.objects.create(creator_type=author, person=spencer, item=book1) # spencer author of book1
-        Creator.objects.create(creator_type=editor, person=nikitas, item=book2) # nikitas editor of book2
-        Creator.objects.create(creator_type=author, person=spencer, item=book2) # spencer author of book2
+        # spencer author of book1
+        Creator.objects.create(creator_type=author, person=spencer, work=book1)
+        # nikitas editor of book2
+        Creator.objects.create(creator_type=editor, person=nikitas, work=book2)
+        # spencer author of book2
+        Creator.objects.create(creator_type=author, person=spencer, work=book2)
         qs = Person.objects.filter(pk=spencer.id) | Person.objects.filter(pk=nikitas.id)
         qs.merge_with(mike)
         assert mike in book1.authors
         assert mike in book2.authors
         assert mike in book2.editors
-        assert not spencer in book1.authors
-        assert not spencer in book2.authors
-        assert not nikitas in book2.editors
+        assert spencer not in book1.authors
+        assert spencer not in book2.authors
+        assert nikitas not in book2.editors
 
         # main person with no account data should receive the first merged
         # account and all subsequent events/addresses will merge to that account

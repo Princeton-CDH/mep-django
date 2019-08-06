@@ -8,12 +8,12 @@ from django.utils.timezone import now
 from tabular_export.admin import export_to_csv_response
 
 from mep.accounts.admin import AUTOCOMPLETE
-from mep.books.models import Creator, CreatorType, Item, Subject, Format, \
+from mep.books.models import Creator, CreatorType, Work, Subject, Format, \
     Genre
 from mep.common.admin import CollapsibleTabularInline
 
 
-class ItemCreatorInlineForm(forms.ModelForm):
+class WorkCreatorInlineForm(forms.ModelForm):
     class Meta:
         model = Creator
         fields = ('creator_type', 'person', 'notes')
@@ -22,19 +22,19 @@ class ItemCreatorInlineForm(forms.ModelForm):
         }
 
 
-class ItemCreatorInline(CollapsibleTabularInline):
+class WorkCreatorInline(CollapsibleTabularInline):
     # generic address edit - includes both account and person
     model = Creator
-    form = ItemCreatorInlineForm
+    form = WorkCreatorInlineForm
     extra = 1
 
 
-class ItemAdmin(admin.ModelAdmin):
+class WorkAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'author_list', 'notes', 'borrow_count',
                     'updated_at', 'has_uri')
     list_display_links = ('id', 'title')
-    list_filter = ('genres', 'item_format')
-    inlines = [ItemCreatorInline]
+    list_filter = ('genres', 'work_format')
+    inlines = [WorkCreatorInline]
     search_fields = ('mep_id', 'title', 'notes', 'public_notes' ,
                      'creator__person__name', 'id')
     fieldsets = (
@@ -50,7 +50,7 @@ class ItemAdmin(admin.ModelAdmin):
         }),
         ('OCLC metadata', {
             'fields': (
-                'uri', 'edition_uri', 'item_format',
+                'uri', 'edition_uri', 'work_format',
                 'genres',
                 'subjects',
             )
@@ -63,13 +63,13 @@ class ItemAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         '''Annotate the queryset with the number of borrows for sorting'''
-        return super(ItemAdmin, self).get_queryset(request) \
+        return super(WorkAdmin, self).get_queryset(request) \
                                      .annotate(Count('event__borrow'))
 
     def borrow_count(self, obj):
         '''Display the borrow count as a link to view associated borrows'''
         return format_html(
-            '<a href="{0}?item__id__exact={1!s}" target="_blank">{2}</a>',
+            '<a href="{0}?work__id__exact={1!s}" target="_blank">{2}</a>',
             reverse('admin:accounts_borrow_changelist'), str(obj.id),
             # use the database annotation rather than the object property
             # for efficiency
@@ -86,15 +86,15 @@ class ItemAdmin(admin.ModelAdmin):
     ]
 
     def csv_filename(self):
-        return 'mep-items-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
+        return 'mep-works-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
 
     def tabulate_queryset(self, queryset):
         '''Generator for data in tabular form, including custom fields'''
-        for item in queryset.prefetch_related('creator_set'):
+        for work in queryset.prefetch_related('creator_set'):
             # retrieve values for configured export fields; if the attribute
             # is a callable (i.e., a custom property method), call it
             yield [value() if callable(value) else value
-                   for value in (getattr(item, field) for field in self.export_fields)]
+                   for value in (getattr(work, field) for field in self.export_fields)]
 
     def export_to_csv(self, request, queryset=None):
         '''Stream tabular data as a CSV file'''
@@ -114,15 +114,15 @@ class ItemAdmin(admin.ModelAdmin):
 
         return export_to_csv_response(self.csv_filename(), headers,
                                       self.tabulate_queryset(queryset))
-    export_to_csv.short_description = 'Export selected items to CSV'
+    export_to_csv.short_description = 'Export selected works to CSV'
 
     def get_urls(self):
             # adds a custom URL for exporting all items as CSRF_FAILURE_VIEW = ''
         urls = [
             url(r'^csv/$', self.admin_site.admin_view(self.export_to_csv),
-                name='books_item_csv')
+                name='books_work_csv')
         ]
-        return urls + super(ItemAdmin, self).get_urls()
+        return urls + super(WorkAdmin, self).get_urls()
 
 
 class CreatorTypeAdmin(admin.ModelAdmin):
@@ -142,7 +142,7 @@ class FormatAdmin(admin.ModelAdmin):
     fields = ('name', 'uri', 'notes')
 
 
-admin.site.register(Item, ItemAdmin)
+admin.site.register(Work, WorkAdmin)
 admin.site.register(CreatorType, CreatorTypeAdmin)
 admin.site.register(Subject, SubjectAdmin)
 admin.site.register(Format, FormatAdmin)
