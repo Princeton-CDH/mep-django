@@ -10,7 +10,6 @@ import requests
 
 from mep.common.models import Named, Notable
 from mep.common.validators import verify_latlon
-from mep.books.oclc import WorldCatEntity
 from mep.people.models import Person
 
 
@@ -129,7 +128,9 @@ class Subject(models.Model):
 
 
 class Work(Notable, Indexable):
-    '''Work record for items that cirtulated in the library.'''
+    '''Work record for an item that circulated in the library or was
+    other referenced in library activities.'''
+
     #: mep id from stub records imported from xml
     mep_id = models.CharField(
         max_length=255, blank=True, unique=True,
@@ -137,13 +138,11 @@ class Work(Notable, Indexable):
     # NOTE: mep_id has null=true so we can enforce unique constraint but
     # allow for items with no mep id
 
-    title = models.CharField(max_length=255, blank=True)
-    volume = models.PositiveSmallIntegerField(blank=True, null=True)
-    number = models.PositiveSmallIntegerField(blank=True, null=True)
+    title = models.CharField(
+        max_length=255, blank=True,
+        help_text='Title of the work in English')
     year = models.PositiveSmallIntegerField(
         blank=True, null=True, verbose_name='Date of Publication')
-    season = models.CharField(max_length=255, blank=True)
-    edition = models.CharField(max_length=255, blank=True)
     uri = models.URLField(blank=True, verbose_name='Work URI',
                           help_text="Linked data URI for this work")
     edition_uri = models.URLField(
@@ -159,12 +158,6 @@ class Work(Notable, Indexable):
 
     #: update timestamp
     updated_at = models.DateTimeField(auto_now=True, null=True)
-
-    # QUESTION: On the diagram these are labeled as FK, but they seem to imply
-    # M2M (i.e. more than one publisher or more than one pub place?)
-    publishers = models.ManyToManyField(Publisher, blank=True)
-    pub_places = models.ManyToManyField(
-        PublisherPlace, blank=True, verbose_name="Places of Publication")
 
     # direct access to all creator persons, using Creator as through model
     creators = models.ManyToManyField(Person, through='Creator')
@@ -323,6 +316,50 @@ class Work(Notable, Indexable):
             self.subjects.set(subjects)
 
 
+class Edition(Notable):
+    '''A specific known edition if a :class:`Work` that circulated.'''
+
+    work = models.ForeignKey(
+        Work, help_text='Generic Work associated with this edition.')
+    title = models.CharField(
+        max_length=255, blank=True,
+        help_text='Title of this edition, if different from associated work')
+    volume = models.PositiveSmallIntegerField(blank=True, null=True)
+    number = models.PositiveSmallIntegerField(blank=True, null=True)
+    year = models.PositiveSmallIntegerField(
+        blank=True, null=True,
+        verbose_name='Date of Publication for this edition')
+    season = models.CharField(max_length=255, blank=True)
+    edition = models.CharField(max_length=255, blank=True)
+    uri = models.URLField(
+        blank=True, verbose_name='URI',
+        help_text="Linked data URI for this edition, if known")
+
+    #: update timestamp
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
+    # direct access to all creator persons, using Creator as through model
+    creators = models.ManyToManyField(Person, through='EditionCreator')
+
+    # multiple or single?
+    publisher = models.ForeignKey(Publisher, blank=True)
+    # single edition: many or single?
+    pub_places = models.ManyToManyField(
+        PublisherPlace, blank=True, verbose_name="Places of Publication")
+
+    # language
+
+    def __repr__(self):
+        # provide pk for easy lookup and string for recognition
+        return '<Edition pk:%s %s>' % (self.pk or '??', str(self))
+
+    def __str__(self):
+        # simple string representation
+        # TODO: include volume/number/issue
+        return '%s (%s)' % (self.title or self.work.title or '??',
+                            self.year or self.work.year or '??')
+
+
 class CreatorType(Named, Notable):
     '''Type of creator role a person can have in relation to a work;
     author, editor, translator, etc.'''
@@ -335,3 +372,15 @@ class Creator(Notable):
 
     def __str__(self):
         return '%s %s %s' % (self.person, self.creator_type, self.work)
+
+
+class EditionCreator(Notable):
+    '''Creator specific to an :class:`Edition` of a :class:`Work`.'''
+
+    creator_type = models.ForeignKey(CreatorType)
+    person = models.ForeignKey(Person)
+    edition = models.ForeignKey(Edition)
+
+    def __str__(self):
+        '''String representation: person, creator type, edition.'''
+        return '%s %s %s' % (self.person, self.creator_type, self.edition)

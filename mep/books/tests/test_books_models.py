@@ -7,7 +7,8 @@ from django.test import TestCase
 import requests
 
 from mep.accounts.models import Borrow, Account
-from mep.books.models import Work, Creator, CreatorType, Subject, Format, Genre
+from mep.books.models import Work, Creator, CreatorType, Subject, Format, \
+    Genre, Edition
 from mep.books.tests.test_oclc import FIXTURE_DIR
 from mep.people.models import Person
 
@@ -310,3 +311,12 @@ class TestSubject(TestCase):
         # fast URI requires different http request
         mock_requests.get.assert_called_with(
             '%s.rdf.xml' % fast_uri.rstrip('/'), headers={})
+
+
+class TestEdition(TestCase):
+
+    def test_str(self):
+        work = Work.objects.create(title='Le foo et le bar', year=1916)
+        # unsaved, no edition title or year
+        edition = Edition(work=work)
+        assert str(edition) == '%s (%s)' % (work.title, work.year)
