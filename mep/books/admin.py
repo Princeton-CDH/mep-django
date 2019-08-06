@@ -35,7 +35,7 @@ class WorkAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'title')
     list_filter = ('genres', 'work_format')
     inlines = [WorkCreatorInline]
-    search_fields = ('mep_id', 'title', 'notes', 'public_notes' ,
+    search_fields = ('mep_id', 'title', 'notes', 'public_notes',
                      'creator__person__name', 'id')
     fieldsets = (
         ('Basic metadata', {
@@ -43,8 +43,6 @@ class WorkAdmin(admin.ModelAdmin):
         }),
         ('Additional metadata', {
             'fields': (
-                # ('publishers', 'pub_places'),
-                # ('volume'),
                 'notes', 'public_notes', 'ebook_url', 'mep_id'
             )
         }),

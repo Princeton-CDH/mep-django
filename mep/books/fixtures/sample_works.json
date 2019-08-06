@@ -6,14 +6,8 @@
 			"notes": "Edition Everyman",
 			"mep_id": "exite",
 			"title": "Exit Eliza",
-			"volume": null,
-			"number": null,
 			"year": 1912,
-			"season": "",
-			"edition": "",
-			"uri": "http://www.worldcat.org/oclc/2777112",
-			"publishers": [],
-			"pub_places": []
+			"uri": "http://www.worldcat.org/oclc/2777112"
 		}
 	},
 	{
@@ -23,14 +17,8 @@
 			"notes": "",
 			"mep_id": null,
 			"title": "Grimm Fairy Tales",
-			"volume": null,
-			"number": null,
 			"year": null,
-			"season": "",
-			"edition": "",
-			"uri": "",
-			"publishers": [],
-			"pub_places": []
+			"uri": ""
 		}
 	},
 	{
@@ -40,14 +28,8 @@
 			"notes": "",
 			"mep_id": null,
 			"title": "The Kreutzer sonata",
-			"volume": null,
-			"number": null,
 			"year": null,
-			"season": "",
-			"edition": "",
-			"uri": "http://worldcat.org/entity/work/id/4918580916",
-			"publishers": [],
-			"pub_places": []
+			"uri": "http://worldcat.org/entity/work/id/4918580916"
 		}
 	},
 	{
@@ -57,14 +39,8 @@
 			"notes": "",
 			"mep_id": null,
 			"title": "Chronicle of my Life",
-			"volume": null,
-			"number": null,
 			"year": null,
-			"season": "",
-			"edition": "",
-			"uri": "",
-			"publishers": [],
-			"pub_places": []
+			"uri": ""
 		}
 	},
 	{
@@ -74,14 +50,8 @@
 			"notes": "",
 			"mep_id": null,
 			"title": "Murder on the Blue Train",
-			"volume": null,
-			"number": null,
 			"year": null,
-			"season": "",
-			"edition": "",
-			"uri": "",
-			"publishers": [],
-			"pub_places": []
+			"uri": ""
 		}
     },
 	{
