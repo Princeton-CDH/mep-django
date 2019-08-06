@@ -3,7 +3,7 @@ from django import forms
 from mep.common.forms import FacetForm, SelectWithDisabled
 
 
-class ItemSearchForm(FacetForm):
+class WorkSearchForm(FacetForm):
     '''Book search form'''
 
     SORT_CHOICES = [

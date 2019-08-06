@@ -398,7 +398,7 @@
     }
 },
 {
-    "model": "books.item",
+    "model": "books.work",
     "pk": 4126,
     "fields": {
         "notes": "Variant titles: English Novelists.",
@@ -450,7 +450,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 7799,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -460,7 +460,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 6324,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -470,7 +470,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 6814,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -480,7 +480,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 6032,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -490,7 +490,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 6118,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -500,7 +500,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 6358,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -510,7 +510,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 6705,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -520,7 +520,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 8231,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -530,7 +530,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 8230,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -540,7 +540,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 6103,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -550,7 +550,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 7366,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -560,7 +560,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 5652,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -570,7 +570,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 6066,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -580,7 +580,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 7261,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -590,7 +590,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 6107,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -600,7 +600,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 8229,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -610,7 +610,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 5435,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -620,7 +620,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 5766,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -630,7 +630,7 @@
         "notes": "",
         "creator_type": 1,
         "person": 6016,
-        "item": 4126
+        "work": 4126
     }
 },
 {
@@ -640,7 +640,7 @@
         "notes": "",
         "creator_type": 2,
         "person": 8228,
-        "item": 4126
+        "work": 4126
     }
 }
 ]

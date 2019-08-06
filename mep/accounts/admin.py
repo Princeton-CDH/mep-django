@@ -15,7 +15,8 @@ from mep.footnotes.admin import FootnoteInline
 
 # predefine autocomplete lookups (most are used on more than one form)
 AUTOCOMPLETE = {
-    'person': autocomplete.ModelSelect2(url='people:autocomplete',
+    'person': autocomplete.ModelSelect2(
+        url='people:autocomplete',
         attrs={
             'data-placeholder': 'Type to search for people...',
             'data-minimum-input-length': 3,
@@ -30,21 +31,24 @@ AUTOCOMPLETE = {
             'data-html': True
         }
     ),
-    'account': autocomplete.ModelSelect2(url='accounts:autocomplete',
+    'account': autocomplete.ModelSelect2(
+        url='accounts:autocomplete',
         attrs={
             'data-placeholder': 'Type to search for account...',
             'data-minimum-input-length': 3
         }
     ),
-    'location': autocomplete.ModelSelect2(url='people:location-autocomplete',
+    'location': autocomplete.ModelSelect2(
+        url='people:location-autocomplete',
         attrs={
             'data-placeholder': 'Type to search for location... ',
             'data-minimum-input-length': 3
         }
     ),
-    'item': autocomplete.ModelSelect2(url='books:item-autocomplete',
+    'work': autocomplete.ModelSelect2(
+        url='books:work-autocomplete',
         attrs={
-            'data-placeholder': 'Type to search for item... ',
+            'data-placeholder': 'Type to search for work... ',
             'data-minimum-input-length': 3
         }
     ),
@@ -69,7 +73,7 @@ class EventAdminForm(PartialDateFormMixin):
         }
         widgets = {
             'account': AUTOCOMPLETE['account'],
-            'item': AUTOCOMPLETE['item'],
+            'work': AUTOCOMPLETE['work'],
         }
 
 
@@ -113,13 +117,13 @@ class EventAdmin(admin.ModelAdmin):
     form = EventAdminForm
     date_hierarchy = 'start_date'
     fields = ('account', 'event_type', 'partial_start_date',
-              'partial_end_date', 'item', 'notes')
+              'partial_end_date', 'work', 'notes')
     readonly_fields = ('event_type',)
     list_display = ('account', 'event_type', 'partial_start_date',
-                    'partial_end_date', 'item', 'notes')
+                    'partial_end_date', 'work', 'notes')
     search_fields = ('account__persons__name', 'account__persons__mep_id',
                      'start_date', 'end_date', 'notes',
-                     'item__title', 'item__notes')
+                     'work__title', 'work__notes')
     list_filter = (EventTypeListFilter, )
     inlines = [OpenFootnoteInline]
 
@@ -217,13 +221,7 @@ class ReimbursementAdminForm(forms.ModelForm):
                         'address data.'),
         }
         widgets = {
-            'account': autocomplete.ModelSelect2(
-                url='accounts:autocomplete',
-                attrs={
-                    'data-placeholder': 'Type to search account data...',
-                    'data-minimum-input-length': 3
-                }
-            ),
+            'account': AUTOCOMPLETE['account']
         }
 
     def __init__(self, *args, **kwargs):
@@ -247,7 +245,7 @@ class ReimbursementAdmin(admin.ModelAdmin):
 class PurchaseAdminForm(PartialDateFormMixin):
     class Meta:
         model = Purchase
-        fields = ('account', 'item', 'partial_start_date', 'price', 'currency', 'notes')
+        fields = ('account', 'work', 'partial_start_date', 'price', 'currency', 'notes')
         help_texts = {
             'account': ('Searches and displays on system assigned '
                         'account id, as well as associated person and '
@@ -255,7 +253,7 @@ class PurchaseAdminForm(PartialDateFormMixin):
         }
         widgets = {
             'account': AUTOCOMPLETE['account'],
-            'item': AUTOCOMPLETE['item']
+            'work': AUTOCOMPLETE['work']
         }
 
     def __init__(self, *args, **kwargs):
@@ -268,7 +266,7 @@ class PurchaseAdminForm(PartialDateFormMixin):
 class PurchaseAdmin(admin.ModelAdmin):
     form = PurchaseAdminForm
     date_hierarchy = 'start_date'
-    fields = ('account', 'item', ('partial_start_date', 'price', 'currency'), 'notes')
+    fields = ('account', 'work', ('partial_start_date', 'price', 'currency'), 'notes')
     list_display = ('account', 'date', 'price', 'currency_symbol',)
     list_filter = ('currency',)
     search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
@@ -279,7 +277,7 @@ class PurchaseInline(CollapsibleTabularInline):
     model = Purchase
     form = PurchaseAdminForm
     extra = 1
-    fields = ('item', ('partial_start_date', 'price', 'currency'), 'notes')
+    fields = ('work', ('partial_start_date', 'price', 'currency'), 'notes')
 
 
 class ReimbursementInline(CollapsibleTabularInline):
@@ -357,11 +355,11 @@ class BorrowAdminForm(PartialDateFormMixin):
 
     class Meta:
         model = Borrow
-        fields = ('account', 'item', 'item_status', 'partial_start_date',
+        fields = ('account', 'work', 'item_status', 'partial_start_date',
             'partial_end_date', 'notes')
         widgets = {
             'account': AUTOCOMPLETE['account'],
-            'item': AUTOCOMPLETE['item'],
+            'work': AUTOCOMPLETE['work'],
         }
 
 
@@ -378,16 +376,16 @@ class BorrowAdminListForm(forms.ModelForm):
 
 class BorrowAdmin(admin.ModelAdmin):
     form = BorrowAdminForm
-    list_display = ('account', 'item', 'partial_start_date', 'partial_end_date',
+    list_display = ('account', 'work', 'partial_start_date', 'partial_end_date',
                     'item_status', 'note_snippet')
     date_hierarchy = 'start_date'
     search_fields = ('account__persons__name', 'account__persons__mep_id',
-                     'notes', 'item__title', 'item__notes')
-    list_filter = ('item_status', 'item')
+                     'notes', 'work__title', 'work__notes')
+    list_filter = ('item_status', 'work')
     list_editable = ('item_status',)
     fields = (
         'account',
-        ('item', 'item_status'),
+        ('work', 'item_status'),
         ('partial_start_date', 'partial_end_date'),
         ('notes')
     )

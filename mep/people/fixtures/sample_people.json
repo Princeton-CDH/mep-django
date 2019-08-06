@@ -97,7 +97,7 @@
         }
     },
     {
-        "model": "books.item",
+        "model": "books.work",
         "pk": 5276,
         "fields": {
             "notes": "Variant titles: Sun also Rises; Sun also rises.; The sun also rises.; The Sun also Rises; . Sun also rises; Sun Also Rises; Sun Also Rises.; The sun also rises; Sun also rises",
@@ -115,7 +115,7 @@
         }
     },
     {
-        "model": "books.item",
+        "model": "books.work",
         "pk": 3528,
         "fields": {
             "notes": "Author: Aeschylus",
@@ -147,7 +147,7 @@
             "notes": "",
             "creator_type": 1,
             "person": 224,
-            "item": 5276
+            "work": 5276
         }
     },
     {
@@ -157,8 +157,7 @@
             "notes": "",
             "creator_type": 1,
             "person": 7152,
-            "item": 3528
+            "work": 3528
         }
     }
 ]
-    

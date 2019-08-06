@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from mep.accounts.models import Account, Subscription
-from mep.books.models import Creator, CreatorType, Item
+from mep.books.models import Creator, CreatorType, Work
 from mep.people.admin import PersonAdmin, PersonTypeListFilter
 from mep.people.models import Person
 
@@ -118,12 +118,12 @@ class TestPersonTypeListFilter(TestCase):
         e_acc = Account.objects.create()
         e_acc.persons.add(engelbert)
         e_acc.save()
-        # create a test item and creator
-        item = Item(title='Le foo et le bar', year=1916, mep_id='lfelb')
-        item.save()
+        # create a test work and creator
+        work = Work(title='Le foo et le bar', year=1916, mep_id='lfelb')
+        work.save()
         ctype = CreatorType(1)
         ctype.save()
-        creator = Creator(creator_type=ctype, person=engelbert, item=item)
+        creator = Creator(creator_type=ctype, person=engelbert, work=work)
         creator.save()
         # sanity check our person types outside the admin
         assert humperdinck.has_account()

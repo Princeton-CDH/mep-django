@@ -12,7 +12,7 @@ from django.template.defaultfilters import pluralize
 
 from mep.accounts.partial_date import PartialDateMixin, DatePrecision,\
     DatePrecisionField
-from mep.books.models import Item
+from mep.books.models import Work
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Location
 from mep.footnotes.models import Bibliography, Footnote
@@ -263,9 +263,12 @@ class Event(Notable, PartialDateMixin):
     account = models.ForeignKey(Account)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
-    #: Optional associated :class:`~mep.books.models.Item`
-    item = models.ForeignKey(Item, null=True, blank=True,
-                             help_text='Item associated with this event, if any.')
+    #: Optional associated :class:`~mep.books.models.Work`
+    # temporary item as integer id
+    work = models.ForeignKey(
+        Work, null=True, blank=True,
+        help_text='Work associated with this event, if any.',
+        on_delete=models.deletion.SET_NULL)
     event_footnotes = GenericRelation(Footnote)
 
     objects = EventQuerySet.as_manager()
@@ -404,7 +407,7 @@ class Subscription(Event, CurrencyMixin):
         qs = Subscription.objects.filter(start_date=self.start_date,
             account=self.account, subtype=self.subtype)
 
-        # if current item is already saved, exclude it from the queryset
+        # if current work is already saved, exclude it from the queryset
         if not self._state.adding and self.pk is not None:
             qs = qs.exclude(pk=self.pk)
 
@@ -454,7 +457,7 @@ class Subscription(Event, CurrencyMixin):
 
 class Borrow(Event):
     '''Inherited table indicating borrow events'''
-    #: :class:`~mep.books.models.Item` that was borrowed;
+    #: :class:`~mep.books.models.Work` that was borrowed;
     #: optional to account for unclear titles
     ITEM_RETURNED = 'R'
     ITEM_BOUGHT = 'B'
@@ -508,14 +511,14 @@ class Purchase(CurrencyMixin, Event):
         # check to prevent duplicate event (date + account + item)
         try:
             qs = Purchase.objects.filter(start_date=self.start_date,
-                account=self.account, item=self.item)
+                account=self.account, work=self.work)
         except ObjectDoesNotExist:
             # bail out without making any further assertions because
             # we've had a missing required related field and other checks
             # will catch it
             return
 
-        # if current item is already saved, exclude it from the queryset
+        # if current work is already saved, exclude it from the queryset
         if not self._state.adding and self.pk is not None:
             qs = qs.exclude(pk=self.pk)
 
@@ -558,7 +561,7 @@ class Reimbursement(Event, CurrencyMixin):
             # we've had a missing related field and other checks
             # will catch it
             return
-        # if current item is already saved, exclude it from the queryset
+        # if current work is already saved, exclude it from the queryset
         if not self._state.adding and self.pk is not None:
             qs = qs.exclude(pk=self.pk)
 

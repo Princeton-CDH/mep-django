@@ -1,6 +1,6 @@
 [
 	{
-		"model": "books.item",
+		"model": "books.work",
 		"pk": 1,
 		"fields": {
 			"notes": "Edition Everyman",
@@ -17,7 +17,7 @@
 		}
 	},
 	{
-		"model": "books.item",
+		"model": "books.work",
 		"pk": 2,
 		"fields": {
 			"notes": "",
@@ -34,7 +34,7 @@
 		}
 	},
 	{
-		"model": "books.item",
+		"model": "books.work",
 		"pk": 3,
 		"fields": {
 			"notes": "",
@@ -51,7 +51,7 @@
 		}
 	},
 	{
-		"model": "books.item",
+		"model": "books.work",
 		"pk": 4,
 		"fields": {
 			"notes": "",
@@ -68,7 +68,7 @@
 		}
 	},
 	{
-		"model": "books.item",
+		"model": "books.work",
 		"pk": 5,
 		"fields": {
 			"notes": "",
@@ -91,7 +91,7 @@
 			"notes": "",
 			"creator_type": 1,
 			"person": 1,
-			"item": 1
+			"work": 1
 		}
 	},
 	{
@@ -101,7 +101,7 @@
 			"notes": "",
 			"creator_type": 1,
 			"person": 2,
-			"item": 3
+			"work": 3
 		}
 	},
 	{

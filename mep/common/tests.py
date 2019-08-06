@@ -221,7 +221,7 @@ class TestAdminDashboard(TestCase):
         # spot check a few expected urls
         for admin_url in ['people_person_changelist', 'accounts_account_changelist',
                           'accounts_borrow_changelist', 'footnotes_footnote_changelist',
-                          'books_item_changelist']:
+                          'books_work_changelist']:
             assert reverse('admin:%s' % admin_url) in response_content
 
 
