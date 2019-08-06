@@ -9,7 +9,7 @@ from tabular_export.admin import export_to_csv_response
 
 from mep.accounts.admin import AUTOCOMPLETE
 from mep.books.models import Creator, CreatorType, Work, Subject, Format, \
-    Genre
+    Genre, Edition
 from mep.common.admin import CollapsibleTabularInline
 
 
@@ -29,12 +29,25 @@ class WorkCreatorInline(CollapsibleTabularInline):
     extra = 1
 
 
+class EditionInline(admin.StackedInline):
+    model = Edition
+    # form = EditionInlineForm
+    extra = 1
+    show_change_link = True
+    classes = ('grp-collapse grp-open',)
+    fields = (
+        'title', 'year',
+        ('volume', 'number', 'season', 'edition'),
+        'uri', 'notes'
+    )
+
+
 class WorkAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'author_list', 'notes', 'borrow_count',
                     'updated_at', 'has_uri')
     list_display_links = ('id', 'title')
     list_filter = ('genres', 'work_format')
-    inlines = [WorkCreatorInline]
+    inlines = [EditionInline, WorkCreatorInline]
     search_fields = ('mep_id', 'title', 'notes', 'public_notes',
                      'creator__person__name', 'id')
     fieldsets = (
@@ -145,3 +158,7 @@ admin.site.register(CreatorType, CreatorTypeAdmin)
 admin.site.register(Subject, SubjectAdmin)
 admin.site.register(Format, FormatAdmin)
 admin.site.register(Genre)
+
+# NOTE: edition needs to be registered to allow adding from event
+# edit form; allow editing not inline?
+# admin.site.register(Edition)
