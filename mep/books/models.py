@@ -328,7 +328,7 @@ class Edition(Notable):
     number = models.PositiveSmallIntegerField(blank=True, null=True)
     year = models.PositiveSmallIntegerField(
         blank=True, null=True,
-        verbose_name='Date of Publication for this edition')
+        help_text='Date of Publication for this edition')
     season = models.CharField(max_length=255, blank=True)
     edition = models.CharField(max_length=255, blank=True)
     uri = models.URLField(
@@ -342,7 +342,7 @@ class Edition(Notable):
     creators = models.ManyToManyField(Person, through='EditionCreator')
 
     # multiple or single?
-    publisher = models.ForeignKey(Publisher, blank=True)
+    publisher = models.ForeignKey(Publisher, blank=True, null=True)
     # single edition: many or single?
     pub_places = models.ManyToManyField(
         PublisherPlace, blank=True, verbose_name="Places of Publication")

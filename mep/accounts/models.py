@@ -12,7 +12,7 @@ from django.template.defaultfilters import pluralize
 
 from mep.accounts.partial_date import PartialDateMixin, DatePrecision,\
     DatePrecisionField
-from mep.books.models import Work
+from mep.books.models import Work, Edition
 from mep.common.models import Named, Notable
 from mep.people.models import Person, Location
 from mep.footnotes.models import Bibliography, Footnote
@@ -263,12 +263,15 @@ class Event(Notable, PartialDateMixin):
     account = models.ForeignKey(Account)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
-    #: Optional associated :class:`~mep.books.models.Work`
-    # temporary item as integer id
     work = models.ForeignKey(
         Work, null=True, blank=True,
         help_text='Work associated with this event, if any.',
         on_delete=models.deletion.SET_NULL)
+    edition = models.ForeignKey(
+        Edition, null=True, blank=True,
+        help_text='Edition of the work, if known.',
+        on_delete=models.deletion.SET_NULL)
+
     event_footnotes = GenericRelation(Footnote)
 
     objects = EventQuerySet.as_manager()
