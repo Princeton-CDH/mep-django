@@ -229,6 +229,7 @@ class Work(Notable, Indexable):
         '''Is the URI is set for this work?'''
         return self.uri != ''
     has_uri.boolean = True
+    has_uri.admin_order_field = 'uri'
 
     def subject_list(self):
         '''semicolon separated list of subject names'''
