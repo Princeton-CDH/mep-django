@@ -341,9 +341,7 @@ class Edition(Notable):
     # direct access to all creator persons, using Creator as through model
     creators = models.ManyToManyField(Person, through='EditionCreator')
 
-    # multiple or single?
-    publisher = models.ForeignKey(Publisher, blank=True, null=True)
-    # single edition: many or single?
+    publisher = models.ManyToManyField(Publisher, blank=True)
     pub_places = models.ManyToManyField(
         PublisherPlace, blank=True, verbose_name="Places of Publication")
 
