@@ -8,6 +8,8 @@ from django.db import migrations
 from django.db.models import Count
 from django.utils import timezone
 
+from mep.books.migration_group_work_utils import ok_to_merge
+
 
 def create_logentry(obj, obj_repr, message, apps, schema_editor):
     '''Create a log entry to document a change'''
