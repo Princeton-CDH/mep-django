@@ -1,14 +1,13 @@
 import datetime
 import os
-import re
 from unittest.mock import Mock, patch
 
 from django.test import TestCase
 import requests
 
-from mep.accounts.models import Borrow, Account
-from mep.books.models import Work, Creator, CreatorType, Subject, Format, \
-    Genre, Edition
+from mep.accounts.models import Account, Borrow
+from mep.books.models import Creator, CreatorType, Edition, EditionCreator, \
+    Format, Genre, Subject, Work
 from mep.books.tests.test_oclc import FIXTURE_DIR
 from mep.people.models import Person
 
@@ -317,6 +316,51 @@ class TestEdition(TestCase):
 
     def test_str(self):
         work = Work.objects.create(title='Le foo et le bar', year=1916)
-        # unsaved, no edition title or year
+        # no edition title or year - uses work details
         edition = Edition(work=work)
         assert str(edition) == '%s (%s)' % (work.title, work.year)
+
+        # edition title takes precedence
+        edition.title = 'The foo and the bar'
+        assert str(edition) == '%s (%s)' % (edition.title, work.year)
+
+        # edition year takes precedence
+        edition.year = 1920
+        assert str(edition) == '%s (%s)' % (edition.title, edition.year)
+
+        # includes volume, number, season when present
+        edition.volume = 2
+        assert str(edition) == '%s (%s) vol. 2' % (edition.title, edition.year)
+        edition.number = 3
+        assert str(edition) == '%s (%s) vol. 2 no. 3' % \
+            (edition.title, edition.year)
+        edition.season = 'Winter'
+        assert str(edition) == '%s (%s) vol. 2 no. 3 Winter' % \
+            (edition.title, edition.year)
+
+        unknown_work = Work.objects.create()
+        # handles missing title
+        unknown_edition = Edition(work=unknown_work)
+        assert str(unknown_edition) == '?? (??)'
+
+    def test_repr(self):
+        work = Work.objects.create(title='Le foo et le bar', year=1916)
+        # unsaved edition has no pk
+        edition = Edition(work=work)
+        assert repr(edition) == '<Edition pk:?? %s>' % edition
+
+        # saved repr
+        edition.save()
+        assert repr(edition) == '<Edition pk:%d %s>' % (edition.pk, edition)
+
+
+class TestEditionCreator(TestCase):
+
+    def test_str(self):
+        ctype = CreatorType.objects.get(name='Editor')
+        person = Person.objects.create(name='Joyce')
+        work = Work.objects.create(title='Ulysses')
+        edition = Edition.objects.create(work=work)
+        creator = EditionCreator(creator_type=ctype, person=person,
+                                 edition=edition)
+        assert str(creator) == ' '.join([str(person), ctype.name, str(edition)])
