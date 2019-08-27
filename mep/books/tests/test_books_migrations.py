@@ -140,7 +140,11 @@ class TestMergeWorks(TestCase):
         work2 = Work.objects.create(title=work.title, uri=work.uri)
         author = CreatorType.objects.get(name='Author')
         auth2 = Person.objects.create(name='Jean Foo')
-        Creator.objects.create(person=auth2, creator_type=author, work=work2)
+        # put on both works to test cleanup
+        creator_w1 = Creator.objects.create(
+            person=auth2, creator_type=author, work=work)
+        creator_w2 = Creator.objects.create(
+            person=auth2, creator_type=author, work=work2)
         translator = CreatorType.objects.get(name='Translator')
         translat2 = Person.objects.create(name='Jean LeNoir')
         Creator.objects.create(person=translat2, creator_type=translator,
@@ -152,6 +156,8 @@ class TestMergeWorks(TestCase):
         assert merged_work.authors.count() == 2
         # shouldn't technically be on works, but allowed and test
         assert merged_work.translators.count() == 1
+        # redundant creator record removed
+        assert not Creator.objects.filter(pk=creator_w2.pk).exists()
 
     def test_move_events(self):
         work = Work.objects.get(mep_id='exite')
