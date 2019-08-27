@@ -318,7 +318,7 @@ class Work(Notable, Indexable):
 
 
 class Edition(Notable):
-    '''A specific known edition if a :class:`Work` that circulated.'''
+    '''A specific known edition of a :class:`Work` that circulated.'''
 
     work = models.ForeignKey(
         Work, help_text='Generic Work associated with this edition.')
@@ -346,17 +346,26 @@ class Edition(Notable):
     pub_places = models.ManyToManyField(
         PublisherPlace, blank=True, verbose_name="Places of Publication")
 
-    # language
+    # language model foreign key may be added in future
 
     def __repr__(self):
         # provide pk for easy lookup and string for recognition
-        return '<Edition pk:%s %s>' % (self.pk or '??', str(self))
+        return '<Edition pk:%s %s>' % (self.pk or '??', self)
 
     def __str__(self):
         # simple string representation
-        # TODO: include volume/number/issue
-        return '%s (%s)' % (self.title or self.work.title or '??',
-                            self.year or self.work.year or '??')
+        parts = [
+            self.title or self.work.title or '??',
+            '(%s)' % (self.year or self.work.year or '??', ),
+        ]
+        if self.volume:
+            parts.append('vol. %s' % self.volume)
+        if self.number:
+            parts.append('no. %s' % self.number)
+        if self.season:
+            parts.append(self.season)
+        # include edition?
+        return ' '.join(parts)
 
 
 class CreatorType(Named, Notable):
