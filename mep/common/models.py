@@ -13,10 +13,10 @@ class AliasIntegerField(models.IntegerField):
 
     def contribute_to_class(self, cls, name, private_only=False):
         # configure as a non-concrete field (no db column associated)
-        super(AliasIntegerField, self).contribute_to_class(cls, name, private_only=True,)
+        super(AliasIntegerField, self).contribute_to_class(
+            cls, name, private_only=True,)
         self.concrete = False
         setattr(cls, name, self)
-
 
     def __get__(self, instance, instance_type=None):
         if not instance:
@@ -66,10 +66,13 @@ class Notable(models.Model):
     has_notes.boolean = True
 
     snippet_length = 75
+
     def note_snippet(self):
         '''First 75 letters of the note, for brief display'''
-        return ''.join([self.notes[:self.snippet_length],
-                         ' ...' if len(self.notes) > self.snippet_length else ''])
+        return ''.join([
+            self.notes[:self.snippet_length],
+            ' ...' if len(self.notes) > self.snippet_length else ''
+        ])
     note_snippet.short_description = 'Notes'
     note_snippet.admin_order_field = 'notes'
 
@@ -91,24 +94,35 @@ class DateRange(models.Model):
     def dates(self):
         '''Date or date range as a string for display'''
 
-        if not self.start_year and not self.end_year: # no dates are set
+        # no dates are set
+        if not self.start_year and not self.end_year:
             return ''
 
-        if not self.end_year: # only start year
-            return '%s-' % DateRange._year_str(self.start_year) # '100 BCE-' / '1900-'
+        if not self.end_year:  # only start year
+            # '100 BCE-' / '1900-'
+            return '%s-' % DateRange._year_str(self.start_year)
 
-        if not self.start_year: # only end year
-            return '-%s' % DateRange._year_str(self.end_year) # '-100 BCE' / '-1900'
+        # only end year
+        if not self.start_year:
+            # '-100 BCE' / '-1900'
+            return '-%s' % DateRange._year_str(self.end_year)
 
-        if self.start_year == self.end_year: # same year
-            return DateRange._year_str(self.start_year) # '100 BCE' / '1900'
+        # same year
+        if self.start_year == self.end_year:
+            # '100 BCE' / '1900'
+            return DateRange._year_str(self.start_year)
 
-        if self.start_year < 0: # start date is BCE
-            if self.end_year < 0: # end date is BCE
-                return '%s-%s BCE' % (abs(self.start_year), abs(self.end_year)) # '100-50 BCE'
-            return '%s BCE-%s CE' % (abs(self.start_year), self.end_year) # '100 BCE-20 CE'
+        # start date is BCE
+        if self.start_year < 0:
+            # end date is BCE
+            if self.end_year < 0:
+                # '100-50 BCE'
+                return '%s-%s BCE' % (abs(self.start_year), abs(self.end_year))
+            # '100 BCE-20 CE'
+            return '%s BCE-%s CE' % (abs(self.start_year), self.end_year)
 
-        return '%s-%s' % (self.start_year, self.end_year) # both CE, '1900-1901'
+        # both CE, '1900-1901'
+        return '%s-%s' % (self.start_year, self.end_year)
 
     def clean(self):
         '''validate that end year is greater than or equal to start year'''
@@ -116,7 +130,7 @@ class DateRange(models.Model):
         # require end year to be greater than or equal to start year
         # (allowing equal to support single-year ranges)
         if self.start_year and self.end_year and \
-                not self.start_year <= self.end_year:
+                self.start_year > self.end_year:
             raise ValidationError('End year must be after start year')
 
     @staticmethod
