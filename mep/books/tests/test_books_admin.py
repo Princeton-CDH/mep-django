@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.timezone import now
 
-from mep.accounts.models import Borrow, Account
+from mep.accounts.models import Account, Borrow, Purchase
 from mep.books.admin import WorkAdmin
 from mep.books.models import Work
 
@@ -40,22 +40,23 @@ class TestWorkAdmin(TestCase):
         assert qs.get(pk=self.kreuzer_sonata.id).event__borrow__count == 1
         assert qs.get(pk=self.exit_eliza.id).event__borrow__count == 2
 
-    def test_borrow_count(self):
+    def test_borrows(self):
         # get items via itemadmin queryset with borrow count annotation
         rqst = self.client.get(reverse('admin:books_work_changelist')).request
-        kreuzer_sonata_annotated = self.work_admin.get_queryset(rqst).get(pk=self.kreuzer_sonata.pk)
-        exit_eliza_annotated = self.work_admin.get_queryset(rqst).get(pk=self.exit_eliza.pk)
+        work_queryset = self.work_admin.get_queryset(rqst)
+        kreuzer_sonata_annotated = work_queryset.get(pk=self.kreuzer_sonata.pk)
+        exit_eliza_annotated = work_queryset.get(pk=self.exit_eliza.pk)
         # store the URLs that the borrow count links should point to
         kreuzer_sonata_link = (
             reverse('admin:accounts_borrow_changelist') +
-            '?work__id__exact=' + str(self.kreuzer_sonata.id))
+            '?work__id__exact=%s' % self.kreuzer_sonata.id)
         exit_eliza_link = (
             reverse('admin:accounts_borrow_changelist') +
-            '?work__id__exact=' + str(self.exit_eliza.id))
-        # check that borrow count is rendered as a link with zero borrows
-        assert self.work_admin.borrow_count(kreuzer_sonata_annotated) == \
+            '?work__id__exact=%s' % self.exit_eliza.id)
+        # check that event count is rendered as a link with zero events
+        assert self.work_admin.borrows(kreuzer_sonata_annotated) == \
             '<a href="%s" target="_blank">0</a>' % kreuzer_sonata_link
-        assert self.work_admin.borrow_count(exit_eliza_annotated) == \
+        assert self.work_admin.borrows(exit_eliza_annotated) == \
             '<a href="%s" target="_blank">0</a>' % exit_eliza_link
         # francisque borrows "the kreutzer sonata" once
         Borrow(work=self.kreuzer_sonata, account=self.francisque_gay).save()
@@ -63,12 +64,76 @@ class TestWorkAdmin(TestCase):
         Borrow(work=self.exit_eliza, account=self.francisque_gay).save()
         Borrow(work=self.exit_eliza, account=self.francisque_gay).save()
         # check that the borrow counts inside the links are updated
-        kreuzer_sonata_annotated = self.work_admin.get_queryset(rqst).get(pk=self.kreuzer_sonata.pk)
-        exit_eliza_annotated = self.work_admin.get_queryset(rqst).get(pk=self.exit_eliza.pk)
-        assert self.work_admin.borrow_count(kreuzer_sonata_annotated) == \
+        kreuzer_sonata_annotated = work_queryset.get(pk=self.kreuzer_sonata.pk)
+        exit_eliza_annotated = work_queryset.get(pk=self.exit_eliza.pk)
+        assert self.work_admin.borrows(kreuzer_sonata_annotated) == \
             '<a href="%s" target="_blank">1</a>' % kreuzer_sonata_link
-        assert self.work_admin.borrow_count(exit_eliza_annotated) == \
+        assert self.work_admin.borrows(exit_eliza_annotated) == \
             '<a href="%s" target="_blank">2</a>' % exit_eliza_link
+
+    def test_events(self):
+        # get items via itemadmin queryset with event count annotation
+        rqst = self.client.get(reverse('admin:books_work_changelist')).request
+        work_queryset = self.work_admin.get_queryset(rqst)
+        kreuzer_sonata_annotated = work_queryset.get(pk=self.kreuzer_sonata.pk)
+        exit_eliza_annotated = work_queryset.get(pk=self.exit_eliza.pk)
+        # store the URLs that the event count links should point to
+        kreuzer_sonata_link = (
+            reverse('admin:accounts_event_changelist') +
+            '?work__id__exact=%s' % self.kreuzer_sonata.id)
+        exit_eliza_link = (
+            reverse('admin:accounts_event_changelist') +
+            '?work__id__exact=%s' % self.exit_eliza.id)
+
+        # check that event count is rendered as a link with zero
+        assert self.work_admin.events(kreuzer_sonata_annotated) == \
+            '<a href="%s" target="_blank">0</a>' % kreuzer_sonata_link
+        assert self.work_admin.events(exit_eliza_annotated) == \
+            '<a href="%s" target="_blank">0</a>' % exit_eliza_link
+        # francisque borrows "the kreutzer sonata" once
+        Borrow(work=self.kreuzer_sonata, account=self.francisque_gay).save()
+        # francisque borrows "exit eliza" once & purchases once
+        Borrow(work=self.exit_eliza, account=self.francisque_gay).save()
+        Purchase(work=self.exit_eliza, account=self.francisque_gay).save()
+        # check that the borrow counts inside the links are updated
+        kreuzer_sonata_annotated = work_queryset.get(pk=self.kreuzer_sonata.pk)
+        exit_eliza_annotated = work_queryset.get(pk=self.exit_eliza.pk)
+        assert self.work_admin.events(kreuzer_sonata_annotated) == \
+            '<a href="%s" target="_blank">1</a>' % kreuzer_sonata_link
+        assert self.work_admin.events(exit_eliza_annotated) == \
+            '<a href="%s" target="_blank">2</a>' % exit_eliza_link
+
+    def test_purchases(self):
+        # get items via itemadmin queryset with purchase count annotation
+        rqst = self.client.get(reverse('admin:books_work_changelist')).request
+        work_queryset = self.work_admin.get_queryset(rqst)
+        kreuzer_sonata_annotated = work_queryset.get(pk=self.kreuzer_sonata.pk)
+        exit_eliza_annotated = work_queryset.get(pk=self.exit_eliza.pk)
+        # store the URLs that the event count links should point to
+        kreuzer_sonata_link = (
+            reverse('admin:accounts_purchase_changelist') +
+            '?work__id__exact=%s' % self.kreuzer_sonata.id)
+        exit_eliza_link = (
+            reverse('admin:accounts_purchase_changelist') +
+            '?work__id__exact=%s' % self.exit_eliza.id)
+
+        # check that purchase count is rendered as a link with zero
+        assert self.work_admin.purchases(kreuzer_sonata_annotated) == \
+            '<a href="%s" target="_blank">0</a>' % kreuzer_sonata_link
+        assert self.work_admin.purchases(exit_eliza_annotated) == \
+            '<a href="%s" target="_blank">0</a>' % exit_eliza_link
+        # francisque borrows "the kreutzer sonata" once
+        Purchase(work=self.kreuzer_sonata, account=self.francisque_gay).save()
+        # francisque borrows "exit eliza" once & purchases once
+        Borrow(work=self.exit_eliza, account=self.francisque_gay).save()
+        Purchase(work=self.exit_eliza, account=self.francisque_gay).save()
+        # check that the purchase counts inside the links are updated
+        kreuzer_sonata_annotated = work_queryset.get(pk=self.kreuzer_sonata.pk)
+        exit_eliza_annotated = work_queryset.get(pk=self.exit_eliza.pk)
+        assert self.work_admin.purchases(kreuzer_sonata_annotated) == \
+            '<a href="%s" target="_blank">1</a>' % kreuzer_sonata_link
+        assert self.work_admin.purchases(exit_eliza_annotated) == \
+            '<a href="%s" target="_blank">1</a>' % exit_eliza_link
 
     def test_tabulate_queryset(self):
         items = Work.objects.order_by('id').all()

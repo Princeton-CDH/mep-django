@@ -216,9 +216,19 @@ class Work(Notable, Indexable):
         return self.creator_by_type('Translator')
 
     @property
+    def event_count(self):
+        '''Number of events of any kind associated with this work.'''
+        return self.event_set.count()
+
+    @property
     def borrow_count(self):
         '''Number of times this work was borrowed.'''
         return self.event_set.filter(borrow__isnull=False).count()
+
+    @property
+    def purchase_count(self):
+        '''Number of times this work was purchased.'''
+        return self.event_set.filter(purchase__isnull=False).count()
 
     def admin_url(self):
         '''URL to edit this record in the admin site'''

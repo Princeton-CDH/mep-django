@@ -278,10 +278,16 @@ class PurchaseAdminForm(PartialDateFormMixin):
 class PurchaseAdmin(admin.ModelAdmin):
     form = PurchaseAdminForm
     date_hierarchy = 'start_date'
-    fields = ('account', 'work', ('partial_start_date', 'price', 'currency'), 'notes')
-    list_display = ('account', 'date', 'price', 'currency_symbol',)
+    fields = (
+        'account', 'work',
+        ('partial_start_date', 'price', 'currency'),
+        'notes'
+    )
+    list_display = ('account', 'work', 'edition', 'date', 'price',
+                    'currency_symbol',)
     list_filter = ('currency',)
-    search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
+    search_fields = ('account__persons__name', 'account__persons__mep_id',
+                     'notes')
     inlines = [OpenFootnoteInline]
 
 
