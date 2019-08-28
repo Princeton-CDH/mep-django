@@ -122,6 +122,7 @@ class WorkAdmin(admin.ModelAdmin):
     export_fields = [
         'admin_url', 'id', 'title', 'year', 'author_list', 'mep_id',
         'uri', 'edition_uri', 'genre_list', 'format', 'subject_list',
+        'event_count', 'borrow_count', 'purchase_count',
         'notes'
     ]
 
@@ -130,7 +131,15 @@ class WorkAdmin(admin.ModelAdmin):
 
     def tabulate_queryset(self, queryset):
         '''Generator for data in tabular form, including custom fields'''
-        for work in queryset.prefetch_related('creator_set'):
+
+        # prefetch creators to speed up bulk processing
+        # annotate with event counts for inclusion
+        queryset = queryset.prefetch_related('creator_set') \
+                           .annotate(Count('event'),
+                                     Count('event__borrow'),
+                                     Count('event__purchase')
+                                     )
+        for work in queryset:
             # retrieve values for configured export fields; if the attribute
             # is a callable (i.e., a custom property method), call it
             yield [value() if callable(value) else value
@@ -143,7 +152,13 @@ class WorkAdmin(admin.ModelAdmin):
 
         # get verbose names for model fields
         verbose_names = {
-            i.name: i.verbose_name for i in queryset.model._meta.fields}
+            i.name: i.verbose_name for i in queryset.model._meta.fields
+        }
+        # add verbose names for event counts
+        verbose_names.update({
+            'event_count': 'Events', 'borrow_count': 'Borrows',
+            'purchase_count': 'Purchases'
+        })
 
         # get verbose field name if there is one; look for verbose name
         # on a non-field attribute (e.g. a method); otherwise, title case the field name
