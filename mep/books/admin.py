@@ -43,8 +43,10 @@ class EditionInline(admin.StackedInline):
 
 
 class WorkAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'author_list', 'notes', 'borrow_count',
-                    'updated_at', 'has_uri')
+    list_display = (
+        'id', 'title', 'author_list', 'notes',
+        'events', 'borrows', 'purchases',
+        'updated_at', 'has_uri')
     list_display_links = ('id', 'title')
     list_filter = ('genres', 'work_format')
     inlines = [EditionInline, WorkCreatorInline]
@@ -52,7 +54,8 @@ class WorkAdmin(admin.ModelAdmin):
                      'creator__person__name', 'id')
     fieldsets = (
         ('Basic metadata', {
-            'fields': ('title', 'year', 'borrow_count')
+            'fields': ('title', 'year',
+                       ('events', 'borrows', 'purchases'))
         }),
         ('Additional metadata', {
             'fields': (
@@ -67,27 +70,53 @@ class WorkAdmin(admin.ModelAdmin):
             )
         })
     )
-    readonly_fields = ('mep_id', 'borrow_count')
+    readonly_fields = ('mep_id', 'events', 'borrows', 'purchases')
     filter_horizontal = ('genres', 'subjects')
 
     actions = ['export_to_csv']
 
     def get_queryset(self, request):
-        '''Annotate the queryset with the number of borrows for sorting'''
-        return super(WorkAdmin, self).get_queryset(request) \
-                                     .annotate(Count('event__borrow'))
+        '''Annotate the queryset with the number of events, borrows,
+        and purchases for sorting and display.'''
+        return super(WorkAdmin, self) \
+            .get_queryset(request) \
+            .annotate(Count('event'),
+                      Count('event__borrow'),
+                      Count('event__purchase')
+                      )
 
-    def borrow_count(self, obj):
-        '''Display the borrow count as a link to view associated borrows'''
+    def _event_count(self, obj, event_type='event'):
+        '''Display an event count as a link to associated event.
+        Takes an optional event type to allow displaying and linking to
+        event types (i.e. borrow or purchase).'''
+        admin_link_url = 'admin:accounts_%s_changelist' % event_type
+        # use the database annotation rather than the object property
+        # for efficiency
+        count_attr = 'event__%scount' % \
+            ('%s__' % event_type if event_type != 'event' else '')
         return format_html(
             '<a href="{0}?work__id__exact={1!s}" target="_blank">{2}</a>',
-            reverse('admin:accounts_borrow_changelist'), str(obj.id),
-            # use the database annotation rather than the object property
-            # for efficiency
-            obj.event__borrow__count
+            reverse(admin_link_url), str(obj.id),
+            getattr(obj, count_attr)
         )
+
+    def events(self, obj):
+        '''Display total event count as a link to view associated events'''
+        return self._event_count(obj)
     # use the annotated queryset value to make the field sortable
-    borrow_count.admin_order_field = 'event__borrow__count'
+    events.admin_order_field = 'event__count'
+
+    def borrows(self, obj):
+        '''Display the borrow count as a link to view associated borrows'''
+        return self._event_count(obj, 'borrow')
+    # use the annotated queryset value to make the field sortable
+    borrows.admin_order_field = 'event__borrow__count'
+
+    def purchases(self, obj):
+        '''Display the purchase count as a link to view associated purchases'''
+        return self._event_count(obj, 'purchase')
+    # use the annotated queryset value to make the field sortable
+    purchases.admin_order_field = 'event__purchase__count'
 
     #: fields to be included in CSV export
     export_fields = [
