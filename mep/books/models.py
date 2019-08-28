@@ -217,7 +217,7 @@ class Work(Notable, Indexable):
 
     @property
     def event_count(self):
-        '''Number of events of any kind associated wit this work.'''
+        '''Number of events of any kind associated with this work.'''
         return self.event_set.count()
 
     @property

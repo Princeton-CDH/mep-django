@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 from django.test import TestCase
 import requests
 
-from mep.accounts.models import Account, Borrow
+from mep.accounts.models import Account, Borrow, Event, Purchase
 from mep.books.models import Creator, CreatorType, Edition, EditionCreator, \
     Format, Genre, Subject, Work
 from mep.books.tests.test_oclc import FIXTURE_DIR
@@ -51,6 +51,36 @@ class TestWork(TestCase):
         Borrow(work=work, account=acct).save()
         assert work.borrow_count == 4
 
+    def test_event_count(self):
+        # create a test work
+        # should have zero events
+        work = Work(title='Le foo et le bar', year=1916)
+        work.save()
+        assert work.event_count == 0
+        # create a test account and add some events
+        acct = Account()
+        acct.save()
+        Borrow(work=work, account=acct).save()
+        # borrow a few more times and test the count
+        Purchase(work=work, account=acct).save()
+        Event(work=work, account=acct).save()
+        assert work.event_count == 3
+
+    def test_purchase_count(self):
+        # create a test work
+        # should have zero purchases
+        work = Work(title='Le foo et le bar', year=1916)
+        work.save()
+        assert work.purchase_count == 0
+        # create a test account and purchase the work once
+        # should have one purchase
+        acct = Account()
+        acct.save()
+        Purchase(work=work, account=acct).save()
+        # add one borrow
+        Borrow(work=work, account=acct).save()
+        assert work.purchase_count == 1
+
     def test_authors_editors_translators(self):
         work = Work.objects.create(title='Poems', year=1916)
         author1 = Person.objects.create(name='Smith')
@@ -62,12 +92,12 @@ class TestWork(TestCase):
         translator_type = CreatorType.objects.get(name='Translator')
 
         # add one each of author, editor, and translator
-        Creator.objects.create(creator_type=author_type, person=author1,
-            work=work)
-        Creator.objects.create(creator_type=editor_type, person=editor,
-            work=work)
-        Creator.objects.create(creator_type=translator_type, person=translator,
-            work=work)
+        Creator.objects.create(
+            creator_type=author_type, person=author1, work=work)
+        Creator.objects.create(
+            creator_type=editor_type, person=editor, work=work)
+        Creator.objects.create(
+            creator_type=translator_type, person=translator, work=work)
 
         assert len(work.authors) == 1
         assert work.authors.first() == author1
