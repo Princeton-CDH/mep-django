@@ -80,9 +80,9 @@ class WorkAdmin(admin.ModelAdmin):
         and purchases for sorting and display.'''
         return super(WorkAdmin, self) \
             .get_queryset(request) \
-            .annotate(Count('event'),
-                      Count('event__borrow'),
-                      Count('event__purchase')
+            .annotate(Count('event', distinct=True),
+                      Count('event__borrow', distinct=True),
+                      Count('event__purchase', distinct=True)
                       )
 
     def _event_count(self, obj, event_type='event'):
@@ -133,11 +133,12 @@ class WorkAdmin(admin.ModelAdmin):
         '''Generator for data in tabular form, including custom fields'''
 
         # prefetch creators to speed up bulk processing
-        # annotate with event counts for inclusion
+        # annotate with event counts for inclusion (needed in case
+        # queryset was generated from a search and doesn't get default logic)
         queryset = queryset.prefetch_related('creator_set') \
-                           .annotate(Count('event'),
-                                     Count('event__borrow'),
-                                     Count('event__purchase')
+                           .annotate(Count('event', distinct=True),
+                                     Count('event__borrow', distinct=True),
+                                     Count('event__purchase', distinct=True)
                                      )
         for work in queryset:
             # retrieve values for configured export fields; if the attribute
