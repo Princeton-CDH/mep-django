@@ -1,7 +1,7 @@
 from unittest.mock import Mock, patch
 
-from django.test import TestCase
 from django.contrib import admin
+from django.test import TestCase
 from django.urls import reverse
 from django.utils.timezone import now
 
@@ -137,6 +137,16 @@ class TestWorkAdmin(TestCase):
 
     def test_tabulate_queryset(self):
         items = Work.objects.order_by('id').all()
+
+        # create some events to check event counts
+        # kreuzer_sonata = items.get(pk=self.kreuzer_sonata.pk)
+        # exit_eliza = items.get(pk=self.exit_eliza.pk)
+        # francisque borrows "the kreutzer sonata" once
+        Borrow(work=self.kreuzer_sonata, account=self.francisque_gay).save()
+        # francisque borrows "exit eliza" once & purchases once
+        Borrow(work=self.exit_eliza, account=self.francisque_gay).save()
+        Purchase(work=self.exit_eliza, account=self.francisque_gay).save()
+
         # test that tabular data matches queryset data
         for item, item_data in zip(items, self.work_admin.tabulate_queryset(items)):
             # test some properties
@@ -145,6 +155,10 @@ class TestWorkAdmin(TestCase):
             # test some methods
             assert item.author_list() in item_data
             assert item.admin_url() in item_data
+            # test event counts from annotation
+            for event_count in ('event_count', 'borrow_count',
+                                'purchase_count'):
+                assert getattr(item, event_count) in item_data
 
     @patch('mep.books.admin.export_to_csv_response')
     def test_export_csv(self, mock_export_to_csv_response):
@@ -170,3 +184,7 @@ class TestWorkAdmin(TestCase):
             assert 'MEP ID' in headers
             # or verbose name for property
             assert 'Admin Link' in headers
+            # verbose name for event counts
+            assert 'Events' in headers
+            assert 'Borrows' in headers
+            assert 'Purchases' in headers

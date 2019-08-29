@@ -51,6 +51,10 @@ class TestWork(TestCase):
         Borrow(work=work, account=acct).save()
         assert work.borrow_count == 4
 
+        # uses db annotation if present
+        work.event__borrow__count = 3
+        assert work.borrow_count == 3
+
     def test_event_count(self):
         # create a test work
         # should have zero events
@@ -66,6 +70,10 @@ class TestWork(TestCase):
         Event(work=work, account=acct).save()
         assert work.event_count == 3
 
+        # uses db annotation if present
+        work.event__count = 12
+        assert work.event_count == 12
+
     def test_purchase_count(self):
         # create a test work
         # should have zero purchases
@@ -80,6 +88,10 @@ class TestWork(TestCase):
         # add one borrow
         Borrow(work=work, account=acct).save()
         assert work.purchase_count == 1
+
+        # uses db annotation if present
+        work.event__purchase__count = 7
+        assert work.purchase_count == 7
 
     def test_authors_editors_translators(self):
         work = Work.objects.create(title='Poems', year=1916)
