@@ -187,3 +187,4 @@ class TestWorkAdmin(TestCase):
             # verbose name for event counts
             assert 'Events' in headers
             assert 'Borrows' in headers
+            assert 'Purchases' in headers
