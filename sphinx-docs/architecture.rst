@@ -8,6 +8,28 @@ Architecture
 Database Diagrams
 -----------------
 
+
+Overview (v0.19)
+^^^^^^^^^^^^^^^^
+
+Database overview. Book item has now been broken out into Work and Edition.
+
+(Standard Django and Wagtail tables omitted for simplicity.)
+
+.. image:: _static/db-v019-overview.png
+    :target: _static/db-v019-overview.png
+    :alt: overview of database structure for version 0.19
+
+Book details (v0.19)
+^^^^^^^^^^^^^^^^^^^^
+
+Work and edition details.
+
+.. image:: _static/db-v019-books.png
+    :target: _static/db-v019-books.png
+    :alt: work/edition details for version 0.19
+
+
 Overview (v0.18)
 ^^^^^^^^^^^^^^^^
 
@@ -146,8 +168,15 @@ Initial Schema Design (Version 004)
     per 19 June 2017 project meeting.
 
 
-Database updates and Changes by version
+Database updates and changes by version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+0.19
+~~~~
+
+- Renamed ``Item`` to :class:`~mep.books.models.Work` and split out
+  edition-specific information into :class:`~mep.books.models.Edition`.
+
 
 0.18
 ~~~~

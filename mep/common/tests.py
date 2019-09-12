@@ -167,14 +167,16 @@ class TestVerifyLatLon(TestCase):
         # Also OK
         verify_latlon(-156.23)
         # Not OK
-        with pytest.raises(ValidationError) as err:
+        with pytest.raises(ValidationError) as excinfo:
             verify_latlon(-181)
-        assert 'Lat/Lon must be between -180 and 180 degrees.' in str(err)
+        assert 'Lat/Lon must be between -180 and 180 degrees.' in \
+            str(excinfo.value)
 
         # Still not OK
-        with pytest.raises(ValidationError) as err:
+        with pytest.raises(ValidationError) as excinfo:
             verify_latlon(200)
-        assert 'Lat/Lon must be between -180 and 180 degrees.' in str(err)
+        assert 'Lat/Lon must be between -180 and 180 degrees.' in \
+            str(excinfo.value)
 
 
 class TestLocalUserAdmin(TestCase):
@@ -584,18 +586,23 @@ class TestRdfViewMixin(TestCase):
     def test_get_breadcrumbs(self):
         class MyRdfView(RdfViewMixin):
             breadcrumbs = [('Home', '/'), ('My Page', '/my-page')]
+
             def get_absolute_url(self):
                 return ''
+
         view = MyRdfView()
         # should add provided breadcrumbs to context
         context = view.get_context_data()
-        assert context['breadcrumbs'] == [('Home', '/'), ('My Page', '/my-page')]
+        assert context['breadcrumbs'] == [('Home', '/'),
+                                          ('My Page', '/my-page')]
 
     def test_rdf_graph(self):
         class MyRdfView(RdfViewMixin):
             breadcrumbs = [('Home', '/'), ('My Page', '/my-page')]
+
             def get_absolute_url(self):
                 return 'http://jimcasey.lifestyle/my-page'
+
         view = MyRdfView()
         graph = view.as_rdf()
         page_node = rdflib.URIRef('http://jimcasey.lifestyle/my-page')
