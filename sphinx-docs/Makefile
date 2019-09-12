@@ -17,9 +17,9 @@ help:
 # build production documentation for publishing on github pages
 # run the html build, then move to /docs/ folder and add to git
 docs:
-	rm -rf ../docs
+	rm -rf ../docs/*
 	@make html
-	mv html ../docs
+	mv html/* ../docs/
 	touch ../docs/.nojekyll
 	git add -f ../docs
 
