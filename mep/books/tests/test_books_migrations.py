@@ -22,8 +22,12 @@ def test_similar_titles():
     # exact same
     assert merge_utils.similar_titles(['Helene', 'Helene'])
 
-    # variance in definite article
+    # variance in definite article and similar
     assert merge_utils.similar_titles(['New Yorker', 'The New Yorker'])
+    assert merge_utils.similar_titles([
+        'The New Poetry: Anthology of Twentieth Century Verse in English',
+        'The New Poetry: An Anthology of Twentieth-Century Verse in English'
+    ])
 
     # variance in upper/lower case
     assert merge_utils.similar_titles(['New Yorker', 'a new yorker'])
@@ -34,6 +38,9 @@ def test_similar_titles():
     # variation in initials
     assert merge_utils.similar_titles(['Short Stories of H.G. Wells',
                                        'Short Stories of H. G. Wells'])
+
+    assert merge_utils.similar_titles(['Collected Poems of H.D.',
+                                       'Collected Poems of H. D.'])
 
     # em dash and regular dash
     assert merge_utils.similar_titles(['Collected Poems, 1909–1935',

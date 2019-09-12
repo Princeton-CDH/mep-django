@@ -22,16 +22,15 @@ def similar_titles(titles):
         # lower case, ignore whitespace and punctuation
         slugify(
             # remove minimal stopwords
-            re.sub(r'\b(the|and|a)\b', '',
+            re.sub(r'\b(the|and|a|an)\b', '',
                    # make two-letter initials consistent (D.H. vs D. H.)
-                   re.sub(r'\b([A-Z]\.)\s([A-Z]\.)\s', r'\1\2 ', title)
+                   re.sub(r'\b([A-Z]\.)\s([A-Z]\.)(\s|$)', r'\1\2 ', title)
                    # convert to lower case for replacing stop words;
                    # replace em-dash with regular dash, since slugify
                    # handles differently
                    .lower().replace('–', '-')))
         for title in titles
     ])
-
     # if normalized titles have collapsed to a single title, then they
     # are similar enough to merge
     return len(normalized_titles) == 1
