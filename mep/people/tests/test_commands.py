@@ -29,10 +29,10 @@ class TestImportPersonography(TestCase):
         # simulate bad path
         bad_path = '/home/me/not/here'
         mock_xmlpersonography.from_file.side_effect = Exception
-        with pytest.raises(CommandError) as err:
+        with pytest.raises(CommandError) as excinfo:
             self.cmd.handle(path=bad_path)
         mock_xmlpersonography.from_file.assert_called_with(bad_path)
-        assert 'Failed to load' in str(err)
+        assert 'Failed to load' in str(excinfo.value)
 
         # simulate valid path
         mock_xmlpersonography.from_file.side_effect = None

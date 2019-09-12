@@ -122,29 +122,30 @@ class TestGeonamesApi(TestCase):
         # no result found
         error_message = {
             "status": {
-              "message": "no administrative country subdivision for latitude and longitude :51.03,-20.0",
-              "value": 15
+                "message": "no administrative country subdivision for " +
+                           "latitude and longitude :51.03,-20.0",
+                "value": 15
             }
         }
         mockrequests.get.return_value.json.return_value = error_message
         geo_api = GeoNamesAPI()
         # generic error
-        with pytest.raises(GeoNamesError) as geo_err:
+        with pytest.raises(GeoNamesError) as excinfo:
             geo_api.call_api('testmethod')
 
         # exception text should include geonames api message
-        assert error_message['status']['message'] in str(geo_err)
+        assert error_message['status']['message'] in str(excinfo.value)
 
         # unauthorized error
         error_message = {
             "status": {
-              "message": "invalid username or no username supplied",
-              "value": 10
+                "message": "invalid username or no username supplied",
+                "value": 10
             }
         }
         mockrequests.get.return_value.json.return_value = error_message
         # unauthorized error
-        with pytest.raises(GeoNamesUnauthorized) as geo_err:
+        with pytest.raises(GeoNamesUnauthorized) as excinfo:
             geo_api.call_api('testmethod')
 
-        assert error_message['status']['message'] in str(geo_err)
+        assert error_message['status']['message'] in str(excinfo.value)

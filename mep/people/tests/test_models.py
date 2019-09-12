@@ -373,19 +373,20 @@ class TestPersonQuerySet(TestCase):
         # error on attempt to merge to person with multiple accounts
         second_acct = Account.objects.create()
         second_acct.persons.add(main_person)
-        with pytest.raises(MultipleObjectsReturned) as err:
+        with pytest.raises(MultipleObjectsReturned) as excinfo:
             Person.objects.merge_with(main_person)
-        assert "Can't merge with a person record that has multiple accounts" in \
-            str(err)
+        assert "Can't merge with a person record that has multiple accounts" \
+            in str(excinfo.value)
         main_person.delete()
 
         # copy person details when merging
         main = Person.objects.create(name='Jones')
         prof = Profession.objects.create(name='Professor')
-        full = Person.objects.create(name='Jones',
+        full = Person.objects.create(
+            name='Jones',
             title='Mr', mep_id="jone.mi", birth_year=1901, death_year=1950,
-            viaf_id='http://viaf.org/viaf/123456', sex='M', notes='some details',
-            profession=prof)
+            viaf_id='http://viaf.org/viaf/123456', sex='M',
+            notes='some details', profession=prof)
         acct = Account.objects.create()
         acct.persons.add(main)
 
@@ -404,8 +405,9 @@ class TestPersonQuerySet(TestCase):
         assert 'Merged MEP id %s on %s' % (full.mep_id, iso_date) in main.notes
 
         # should _not_ copy over existing field values
-        full2 = Person.objects.create(name='Jones',
-            title='Dr', mep_id="jone.dr", birth_year=1911, notes='more details')
+        full2 = Person.objects.create(
+            name='Jones', title='Dr', mep_id="jone.dr", birth_year=1911,
+            notes='more details')
         Person.objects.merge_with(main)
         # get fresh copy of main record from db
         main = Person.objects.get(id=main.id)
@@ -415,30 +417,34 @@ class TestPersonQuerySet(TestCase):
         # notes should be appended
         assert full.notes in main.notes
         assert full2.notes in main.notes
-        assert 'Merged MEP id %s on %s' % (full2.mep_id, iso_date) in main.notes
+        assert 'Merged MEP id %s on %s' % (full2.mep_id, iso_date) \
+            in main.notes
 
         # many-to-many relationships should be shifted to merged person record
         related = Person.objects.create(name='Jonesy')
         jones_jr = Person.objects.create(name='Jonesy Jr.')
-        france = Country.objects.create(name='France', code='fr',
-            geonames_id='http://www.geonames.org/3017382/')
-        germany = Country.objects.create(name='Germany', code='gm',
-            geonames_id='http://www.geonames.org/2921044/')
+        france = Country.objects.create(
+            name='France', code='fr', geonames_id='http://www.geonames.org/3017382/')
+        germany = Country.objects.create(
+            name='Germany', code='gm', geonames_id='http://www.geonames.org/2921044/')
         related.nationalities.add(france, germany)
-        info_url = InfoURL.objects.create(person=related, url='http://example.com/')
-        info_url2 = InfoURL.objects.create(person=related, url='http://google.com/')
+        info_url = InfoURL.objects.create(
+            person=related, url='http://example.com/')
+        info_url2 = InfoURL.objects.create(
+            person=related, url='http://google.com/')
         child = RelationshipType.objects.create(name='child')
         parent = RelationshipType.objects.create(name='parent')
-        child_rel = Relationship.objects.create(from_person=related,
-            to_person=jones_jr, relationship_type=child)
-        parent_rel = Relationship.objects.create(from_person=jones_jr,
-            to_person=related, relationship_type=parent)
+        child_rel = Relationship.objects.create(
+            from_person=related, to_person=jones_jr, relationship_type=child)
+        parent_rel = Relationship.objects.create(
+            from_person=jones_jr, to_person=related, relationship_type=parent)
         # footnote
         src_type = SourceType.objects.create(name='website')
-        bibl = Bibliography.objects.create(bibliographic_note='citation',
-            source_type=src_type)
+        bibl = Bibliography.objects.create(
+            bibliographic_note='citation', source_type=src_type)
         person_contenttype = ContentType.objects.get_for_model(Person)
-        fn = Footnote.objects.create(bibliography=bibl, content_type=person_contenttype,
+        fn = Footnote.objects.create(
+            bibliography=bibl, content_type=person_contenttype,
             object_id=related.pk, is_agree=False)
 
         Person.objects.filter(name='Jonesy').merge_with(main)
@@ -458,10 +464,10 @@ class TestPersonQuerySet(TestCase):
         acct = Account.objects.create()
         acct.persons.add(sib1, sib2)
 
-        with pytest.raises(MultipleObjectsReturned) as err:
+        with pytest.raises(MultipleObjectsReturned) as excinfo:
             Person.objects.merge_with(main)
         assert "Can't merge a person record with a shared account." in \
-            str(err)
+            str(excinfo.value)
 
         # merging a person who is a creator should change their items to point
         # to the new person as creator
@@ -478,7 +484,8 @@ class TestPersonQuerySet(TestCase):
         Creator.objects.create(creator_type=editor, person=nikitas, work=book2)
         # spencer author of book2
         Creator.objects.create(creator_type=author, person=spencer, work=book2)
-        qs = Person.objects.filter(pk=spencer.id) | Person.objects.filter(pk=nikitas.id)
+        qs = Person.objects.filter(pk=spencer.id) | \
+            Person.objects.filter(pk=nikitas.id)
         qs.merge_with(mike)
         assert mike in book1.authors
         assert mike in book2.authors
@@ -488,7 +495,7 @@ class TestPersonQuerySet(TestCase):
         assert nikitas not in book2.editors
 
         # main person with no account data should receive the first merged
-        # account and all subsequent events/addresses will merge to that account
+        # account & all subsequent events/addresses will merge to that account
         mike = Person.objects.create(name='Mike Mulshine')
         spencer = Person.objects.create(name='Spencer Hadley', birth_year=1990)
         nikitas = Person.objects.create(name='Nikitas Tampakis')
@@ -505,20 +512,27 @@ class TestPersonQuerySet(TestCase):
         nikitas_event = Subscription.objects.create(account=nikitas_acct)
         qs = Person.objects.filter(pk__in=[spencer.id, nikitas.id])
         qs.merge_with(mike)
-        assert mike.name == 'Mike Mulshine' # kept set properties
-        assert mike.birth_year == 1990 # merged new properties
-        assert spencer_acct in mike.account_set.all() # first account was used
-        assert nikitas_acct not in mike.account_set.all() # subsequent ones were deleted
-        assert spencer_address in mike.account_set.first().address_set.all() # addresses were merged
+        assert mike.name == 'Mike Mulshine'  # kept set properties
+        assert mike.birth_year == 1990  # merged new properties
+        assert spencer_acct in mike.account_set.all()  # first account was used
+        # subsequent ones were deleted
+        assert nikitas_acct not in mike.account_set.all()
+        # addresses were merged
+        assert spencer_address in mike.account_set.first().address_set.all()
         assert nikitas_address in mike.account_set.first().address_set.all()
-        assert spencer_event in mike.account_set.first().get_events(etype='subscription') # events were merged
-        assert nikitas_event in mike.account_set.first().get_events(etype='subscription')
+        # events were merged
+        assert spencer_event in \
+            mike.account_set.first().get_events(etype='subscription')
+        assert nikitas_event in \
+            mike.account_set.first().get_events(etype='subscription')
 
         # merge a record with associated card bibliography to
         # a record without should copy the card
         nicholas = Person.objects.create(name='Nicholas')
-        src_type = SourceType.objects.get_or_create(name='Lending Library Card')[0]
-        card = Bibliography.objects.create(bibliographic_note='Nicholas\' library card, North Pole Library',
+        src_type = SourceType.objects.get_or_create(
+            name='Lending Library Card')[0]
+        card = Bibliography.objects.create(
+            bibliographic_note='Nicholas\' library card, North Pole Library',
             source_type=src_type)
         nicholas_acct = Account.objects.create(card=card)
         nicholas_acct.persons.add(nicholas)
@@ -531,15 +545,15 @@ class TestPersonQuerySet(TestCase):
         # merging a record with a card to another record with a card
         # should log a warning
         john = Person.objects.create(name='John')
-        card = Bibliography.objects.create(bibliographic_note='John\'s library card',
-            source_type=src_type)
+        card = Bibliography.objects.create(
+            bibliographic_note='John\'s library card', source_type=src_type)
         john_acct = Account.objects.create(card=card)
         john_acct.persons.add(john)
         qs = Person.objects.filter(pk=john.id)
         assert mike.has_card()
         with self.assertLogs('mep', level='WARN') as logs:
             qs.merge_with(mike)
-            # mike's existing card should not be overwritten with the john's card
+            # mike's existing card should not be overwritten with john's card
             assert mike.account_set.first().card != card
         assert 'association will be lost in merge' in logs.output[0]
 
@@ -593,21 +607,24 @@ class TestRelationshipM2M(TestCase):
         # With the relationship 'parent'
 
         # foo is parent of bar - should get Foo
-        assert (Person.objects.get(from_relationships__relationship_type=self.parent)
-                == self.foo)
+        assert Person.objects \
+                     .get(from_relationships__relationship_type=self.parent) \
+            == self.foo
         # reverse - should get Bar
-        assert (Person.objects.get(to_relationships__relationship_type=self.parent)
-                == self.bar)
+        assert Person.objects \
+                     .get(to_relationships__relationship_type=self.parent) \
+            == self.bar
         # foo is partner of bas - should get Baz
-        assert (Person.objects.get(to_relationships__relationship_type=self.partner)
-                == self.baz)
+        assert Person.objects \
+                     .get(to_relationships__relationship_type=self.partner) \
+            == self.baz
 
         # foo is related to both Bar and Baz, so length of 2
         assert len(self.foo.relations.all()) == 2
         # Should still be two if we filter out only Bar and Baz
         # Short way to check if both and only both are in the query set
-        assert (len(self.foo.relations.filter(name__in=['Baz', 'Bar']))
-                == 2)
+        assert len(self.foo.relations.filter(name__in=['Baz', 'Bar'])) \
+            == 2
 
 
 class TestAddress(TestCase):
@@ -622,8 +639,8 @@ class TestAddress(TestCase):
         assert str(address) == "1 Rue Le Foo, Paris"
 
         # Name, street, and city
-        address = Location(street_address="1 Rue Le Foo", city="Paris",
-            name="La Hotel")
+        address = Location(
+            street_address="1 Rue Le Foo", city="Paris", name="La Hotel")
         assert str(address) == "La Hotel, 1 Rue Le Foo, Paris"
 
         # city only
@@ -643,10 +660,11 @@ class TestAddress(TestCase):
         address.clean_fields()
 
         # Not valid, should error out
-        with pytest.raises(ValidationError) as err:
+        with pytest.raises(ValidationError) as excinfo:
             address.latitude = -500
             address.clean_fields()
-        assert "Lat/Lon must be between -180 and 180 degrees." in str(err)
+        assert "Lat/Lon must be between -180 and 180 degrees." in \
+            str(excinfo.value)
 
         # String should error out too, Django handles the message
         address = Location(latitude="foo", longitude="bar")
