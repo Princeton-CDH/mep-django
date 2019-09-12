@@ -197,9 +197,14 @@ directory::
     cd sphinx-docs
     make html
 
-When building for a release ``make docs`` will create a folder called ``docs``,
-build the HTML documents and static assets, and force add it to the commit for
-use with Github Pages.
+To build and publish documentation for a release, add the ``gh-pages`` branch
+to the ``docs`` folder in your worktree::
+
+  git worktree add -B gh-pages docs origin/gh-pages
+
+In the ``sphinx-docs`` folder, use ``make docs`` to build the HTML documents
+and static assets, add it to the docs folder, and commit it for publication on
+Github Pages. After the build completes, push to GitHub from the ``docs`` folder.
 
 License
 -------
