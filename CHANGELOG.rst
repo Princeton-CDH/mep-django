@@ -3,6 +3,14 @@
 CHANGELOG
 =========
 
+0.19
+----
+
+* As a data editor, I want to view and edit library items as works and associated editions so that I can have events related to the same item grouped but still document known editions.
+* As an admin, I want to see how many times an item was purchased or associated with any event so that I can investigate unborrowed books more easily.
+* As an admin, I want item borrow, purchase, and total event counts included in the CSV export so I can find and analyze books without associated events.
+* bugfix: incorrect borrow counts in admin when search terms are active
+
 0.18
 ----
 * As a content editor I want to enter public notes for items and people so I can document details to be shown on the public site
