@@ -10,6 +10,7 @@ CHANGELOG
 * As an admin, I want to see how many times an item was purchased or associated with any event so that I can investigate unborrowed books more easily.
 * As an admin, I want item borrow, purchase, and total event counts included in the CSV export so I can find and analyze books without associated events.
 * bugfix: incorrect borrow counts in admin when search terms are active
+* Removed XML import code (no longer needed, not maintaining)
 
 0.18
 ----
