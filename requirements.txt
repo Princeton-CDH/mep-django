@@ -3,8 +3,6 @@ mysqlclient<1.4
 django-grappelli<2.11
 cached_property
 pucas>=0.6
-# require pendulum 1.5; not compatible with 2.0
-pendulum==1.5.0
 eulxml
 viapy
 wagtail>=2.3,<2.4
