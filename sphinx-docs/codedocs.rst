@@ -27,18 +27,6 @@ Models
 Manage Commands
 ^^^^^^^^^^^^^^^
 
-import titles
-~~~~~~~~~~~~~
-
-.. automodule:: mep.accounts.management.commands.import_titles
-
-
-import cards
-~~~~~~~~~~~~
-
-.. automodule:: mep.accounts.management.commands.import_cards
-
-
 report timegaps
 ~~~~~~~~~~~~~~~
 
@@ -64,11 +52,6 @@ Models
 .. automodule:: mep.people.models
     :members:
 
-XML Models
-^^^^^^^^^^
-.. automodule:: mep.people.xml_models
-    :members:
-
 Forms
 ^^^^^
 
@@ -89,14 +72,6 @@ Admin
 ^^^^^^
 .. automodule:: mep.people.admin
     :members:
-
-Manage Commands
-^^^^^^^^^^^^^^^
-
-import personography
-~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: mep.people.management.commands.import_personography
 
 Footnotes
 ---------
