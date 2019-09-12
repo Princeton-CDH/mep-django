@@ -8,12 +8,12 @@ from django.utils.timezone import now
 from tabular_export.admin import export_to_csv_response
 
 from mep.accounts.admin import AUTOCOMPLETE
-from mep.books.models import Creator, CreatorType, Item, Subject, Format, \
-    Genre
+from mep.books.models import Creator, CreatorType, Work, Subject, Format, \
+    Genre, Edition
 from mep.common.admin import CollapsibleTabularInline
 
 
-class ItemCreatorInlineForm(forms.ModelForm):
+class WorkCreatorInlineForm(forms.ModelForm):
     class Meta:
         model = Creator
         fields = ('creator_type', 'person', 'notes')
@@ -22,79 +22,129 @@ class ItemCreatorInlineForm(forms.ModelForm):
         }
 
 
-class ItemCreatorInline(CollapsibleTabularInline):
+class WorkCreatorInline(CollapsibleTabularInline):
     # generic address edit - includes both account and person
     model = Creator
-    form = ItemCreatorInlineForm
+    form = WorkCreatorInlineForm
     extra = 1
 
 
-class ItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'author_list', 'notes', 'borrow_count',
-                    'updated_at', 'has_uri')
+class EditionInline(admin.StackedInline):
+    model = Edition
+    # form = EditionInlineForm
+    extra = 1
+    show_change_link = True
+    classes = ('grp-collapse grp-open',)
+    fields = (
+        'title', 'year',
+        ('volume', 'number', 'season', 'edition'),
+        'uri', 'notes'
+    )
+
+
+class WorkAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'title', 'author_list', 'notes',
+        'events', 'borrows', 'purchases',
+        'updated_at', 'has_uri')
     list_display_links = ('id', 'title')
-    list_filter = ('genres', 'item_format')
-    inlines = [ItemCreatorInline]
-    search_fields = ('mep_id', 'title', 'notes', 'public_notes' ,
+    list_filter = ('genres', 'work_format')
+    inlines = [EditionInline, WorkCreatorInline]
+    search_fields = ('mep_id', 'title', 'notes', 'public_notes',
                      'creator__person__name', 'id')
     fieldsets = (
         ('Basic metadata', {
-            'fields': ('title', 'year', 'borrow_count')
+            'fields': ('title', 'year',
+                       ('events', 'borrows', 'purchases'))
         }),
         ('Additional metadata', {
             'fields': (
-                # ('publishers', 'pub_places'),
-                # ('volume'),
                 'notes', 'public_notes', 'ebook_url', 'mep_id'
             )
         }),
         ('OCLC metadata', {
             'fields': (
-                'uri', 'edition_uri', 'item_format',
+                'uri', 'edition_uri', 'work_format',
                 'genres',
                 'subjects',
             )
         })
     )
-    readonly_fields = ('mep_id', 'borrow_count')
+    readonly_fields = ('mep_id', 'events', 'borrows', 'purchases')
     filter_horizontal = ('genres', 'subjects')
 
     actions = ['export_to_csv']
 
     def get_queryset(self, request):
-        '''Annotate the queryset with the number of borrows for sorting'''
-        return super(ItemAdmin, self).get_queryset(request) \
-                                     .annotate(Count('event__borrow'))
+        '''Annotate the queryset with the number of events, borrows,
+        and purchases for sorting and display.'''
+        return super(WorkAdmin, self) \
+            .get_queryset(request) \
+            .annotate(Count('event', distinct=True),
+                      Count('event__borrow', distinct=True),
+                      Count('event__purchase', distinct=True)
+                      )
 
-    def borrow_count(self, obj):
-        '''Display the borrow count as a link to view associated borrows'''
+    def _event_count(self, obj, event_type='event'):
+        '''Display an event count as a link to associated event.
+        Takes an optional event type to allow displaying and linking to
+        event types (i.e. borrow or purchase).'''
+        admin_link_url = 'admin:accounts_%s_changelist' % event_type
+        # use the database annotation rather than the object property
+        # for efficiency
+        count_attr = 'event__%scount' % \
+            ('%s__' % event_type if event_type != 'event' else '')
         return format_html(
-            '<a href="{0}?item__id__exact={1!s}" target="_blank">{2}</a>',
-            reverse('admin:accounts_borrow_changelist'), str(obj.id),
-            # use the database annotation rather than the object property
-            # for efficiency
-            obj.event__borrow__count
+            '<a href="{0}?work__id__exact={1!s}" target="_blank">{2}</a>',
+            reverse(admin_link_url), str(obj.id),
+            getattr(obj, count_attr)
         )
+
+    def events(self, obj):
+        '''Display total event count as a link to view associated events'''
+        return self._event_count(obj)
     # use the annotated queryset value to make the field sortable
-    borrow_count.admin_order_field = 'event__borrow__count'
+    events.admin_order_field = 'event__count'
+
+    def borrows(self, obj):
+        '''Display the borrow count as a link to view associated borrows'''
+        return self._event_count(obj, 'borrow')
+    # use the annotated queryset value to make the field sortable
+    borrows.admin_order_field = 'event__borrow__count'
+
+    def purchases(self, obj):
+        '''Display the purchase count as a link to view associated purchases'''
+        return self._event_count(obj, 'purchase')
+    # use the annotated queryset value to make the field sortable
+    purchases.admin_order_field = 'event__purchase__count'
 
     #: fields to be included in CSV export
     export_fields = [
         'admin_url', 'id', 'title', 'year', 'author_list', 'mep_id',
         'uri', 'edition_uri', 'genre_list', 'format', 'subject_list',
+        'event_count', 'borrow_count', 'purchase_count',
         'notes'
     ]
 
     def csv_filename(self):
-        return 'mep-items-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
+        return 'mep-works-%s.csv' % now().strftime('%Y%m%dT%H:%M:%S')
 
     def tabulate_queryset(self, queryset):
         '''Generator for data in tabular form, including custom fields'''
-        for item in queryset.prefetch_related('creator_set'):
+
+        # prefetch creators to speed up bulk processing
+        # annotate with event counts for inclusion (needed in case
+        # queryset was generated from a search and doesn't get default logic)
+        queryset = queryset.prefetch_related('creator_set') \
+                           .annotate(Count('event', distinct=True),
+                                     Count('event__borrow', distinct=True),
+                                     Count('event__purchase', distinct=True)
+                                     )
+        for work in queryset:
             # retrieve values for configured export fields; if the attribute
             # is a callable (i.e., a custom property method), call it
             yield [value() if callable(value) else value
-                   for value in (getattr(item, field) for field in self.export_fields)]
+                   for value in (getattr(work, field) for field in self.export_fields)]
 
     def export_to_csv(self, request, queryset=None):
         '''Stream tabular data as a CSV file'''
@@ -103,7 +153,13 @@ class ItemAdmin(admin.ModelAdmin):
 
         # get verbose names for model fields
         verbose_names = {
-            i.name: i.verbose_name for i in queryset.model._meta.fields}
+            i.name: i.verbose_name for i in queryset.model._meta.fields
+        }
+        # add verbose names for event counts
+        verbose_names.update({
+            'event_count': 'Events', 'borrow_count': 'Borrows',
+            'purchase_count': 'Purchases'
+        })
 
         # get verbose field name if there is one; look for verbose name
         # on a non-field attribute (e.g. a method); otherwise, title case the field name
@@ -114,15 +170,15 @@ class ItemAdmin(admin.ModelAdmin):
 
         return export_to_csv_response(self.csv_filename(), headers,
                                       self.tabulate_queryset(queryset))
-    export_to_csv.short_description = 'Export selected items to CSV'
+    export_to_csv.short_description = 'Export selected works to CSV'
 
     def get_urls(self):
             # adds a custom URL for exporting all items as CSRF_FAILURE_VIEW = ''
         urls = [
             url(r'^csv/$', self.admin_site.admin_view(self.export_to_csv),
-                name='books_item_csv')
+                name='books_work_csv')
         ]
-        return urls + super(ItemAdmin, self).get_urls()
+        return urls + super(WorkAdmin, self).get_urls()
 
 
 class CreatorTypeAdmin(admin.ModelAdmin):
@@ -142,8 +198,12 @@ class FormatAdmin(admin.ModelAdmin):
     fields = ('name', 'uri', 'notes')
 
 
-admin.site.register(Item, ItemAdmin)
+admin.site.register(Work, WorkAdmin)
 admin.site.register(CreatorType, CreatorTypeAdmin)
 admin.site.register(Subject, SubjectAdmin)
 admin.site.register(Format, FormatAdmin)
 admin.site.register(Genre)
+
+# NOTE: edition needs to be registered to allow adding from event
+# edit form; allow editing not inline?
+# admin.site.register(Edition)

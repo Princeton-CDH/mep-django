@@ -97,39 +97,27 @@
         }
     },
     {
-        "model": "books.item",
+        "model": "books.work",
         "pk": 5276,
         "fields": {
             "notes": "Variant titles: Sun also Rises; Sun also rises.; The sun also rises.; The Sun also Rises; . Sun also rises; Sun Also Rises; Sun Also Rises.; The sun also rises; Sun also rises",
             "mep_id": "mep:002m04",
             "title": "The Sun Also Rises",
-            "volume": null,
-            "number": null,
             "year": 1926,
-            "season": "",
-            "edition": "",
             "uri": "",
-            "updated_at": "2018-07-13T23:19:49Z",
-            "publishers": [],
-            "pub_places": []
+            "updated_at": "2018-07-13T23:19:49Z"
         }
     },
     {
-        "model": "books.item",
+        "model": "books.work",
         "pk": 3528,
         "fields": {
             "notes": "Author: Aeschylus",
             "mep_id": "mep:00dz09",
             "title": "Suppliant Maidens",
-            "volume": null,
-            "number": null,
             "year": 1922,
-            "season": "",
-            "edition": "",
             "uri": "",
-            "updated_at": "2018-07-02T00:24:06Z",
-            "publishers": [],
-            "pub_places": []
+            "updated_at": "2018-07-02T00:24:06Z"
         }
     },
     {
@@ -147,7 +135,7 @@
             "notes": "",
             "creator_type": 1,
             "person": 224,
-            "item": 5276
+            "work": 5276
         }
     },
     {
@@ -157,8 +145,7 @@
             "notes": "",
             "creator_type": 1,
             "person": 7152,
-            "item": 3528
+            "work": 3528
         }
     }
 ]
-    

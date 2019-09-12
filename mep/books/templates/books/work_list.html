@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static humanize widget_tweaks %}
+{% load render_bundle from webpack_loader %}
+
+{% block js %}{% render_bundle 'booksSearch' 'js' %}{% endblock %}
+
+{% block page-subtitle %}Library Holdings · {% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title="books" style="search" %}
+{% endblock %}
+
+{% block main-style %}white{% endblock %}
+
+{% block content %}
+<section class="books search-form">
+    {% include 'snippets/breadcrumbs.html' %}
+    <form id="books-form">
+        {% include 'common/form_errors.html' %}
+        <input type="submit" value="submit"/>
+        <output class="total-results" id="total">{{ works.count|intcomma }} total result{{ works.count|pluralize }}</output>
+    </form>
+</section>
+<div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
+    <label>SORTED BY</label>
+    <label>DISPLAYING</label>
+</div>
+<section class="books sort-pages">
+    <div class="inner">
+        <label class="sort">
+            <span>SORTED BY</span>
+            {% render_field form.sort form="books-form" %}
+            <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+        </label>
+        <button type="submit" form="books-form">Go</button>
+        {% include 'snippets/pagination.html' with form_id="books-form" %}
+    </div>
+    <div class="outer">
+        {% include 'snippets/page-controls.html' %}
+    </div>
+</section>
+<output form="books-form" class="results" aria-live="polite" aria-labelledby="total">
+    {% include 'books/snippets/work_results.html' %}
+</output>
+{% endblock %}

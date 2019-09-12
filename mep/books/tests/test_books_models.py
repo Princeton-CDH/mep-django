@@ -1,58 +1,100 @@
 import datetime
 import os
-import re
 from unittest.mock import Mock, patch
 
 from django.test import TestCase
 import requests
 
-from mep.accounts.models import Borrow, Account
-from mep.books.models import Item, Creator, CreatorType, Subject, Format, Genre
+from mep.accounts.models import Account, Borrow, Event, Purchase
+from mep.books.models import Creator, CreatorType, Edition, EditionCreator, \
+    Format, Genre, Subject, Work
 from mep.books.tests.test_oclc import FIXTURE_DIR
 from mep.people.models import Person
 
 
-class TestItem(TestCase):
+class TestWork(TestCase):
 
     def test_repr(self):
-        item = Item(title='Le foo et le bar', year=1916)
+        work = Work(title='Le foo et le bar', year=1916)
         # unsaved
-        assert repr(item) == '<Item pk:?? %s>' % item
+        assert repr(work) == '<Work pk:?? %s>' % work
         # saved
-        item.save()
-        assert repr(item) == '<Item pk:%s %s>' % (item.pk, item)
+        work.save()
+        assert repr(work) == '<Work pk:%s %s>' % (work.pk, work)
 
     def test_str(self):
 
         # Test pattern for title and year
-        item = Item(title='Le foo et le bar', year=1916)
-        assert str(item) == 'Le foo et le bar (1916)'
+        work = Work(title='Le foo et le bar', year=1916)
+        assert str(work) == 'Le foo et le bar (1916)'
         # Test pattern for just title
-        item.year = None
-        assert str(item) == 'Le foo et le bar'
+        work.year = None
+        assert str(work) == 'Le foo et le bar'
         # Test pattern for no title or year
-        item.title = ''
-        assert str(item) == '(No title, year)'
+        work.title = ''
+        assert str(work) == '(No title, year)'
 
     def test_borrow_count(self):
-        # create a test item
+        # create a test work
         # should have zero borrows
-        item = Item(title='Le foo et le bar', year=1916)
-        item.save()
-        assert item.borrow_count == 0
-        # create a test account and borrow the item once
+        work = Work(title='Le foo et le bar', year=1916)
+        work.save()
+        assert work.borrow_count == 0
+        # create a test account and borrow the work once
         # should have one borrow
         acct = Account()
         acct.save()
-        Borrow(item=item, account=acct).save()
+        Borrow(work=work, account=acct).save()
         # borrow a few more times and test the count
-        Borrow(item=item, account=acct).save()
-        Borrow(item=item, account=acct).save()
-        Borrow(item=item, account=acct).save()
-        assert item.borrow_count == 4
+        Borrow(work=work, account=acct).save()
+        Borrow(work=work, account=acct).save()
+        Borrow(work=work, account=acct).save()
+        assert work.borrow_count == 4
+
+        # uses db annotation if present
+        work.event__borrow__count = 3
+        assert work.borrow_count == 3
+
+    def test_event_count(self):
+        # create a test work
+        # should have zero events
+        work = Work(title='Le foo et le bar', year=1916)
+        work.save()
+        assert work.event_count == 0
+        # create a test account and add some events
+        acct = Account()
+        acct.save()
+        Borrow(work=work, account=acct).save()
+        # borrow a few more times and test the count
+        Purchase(work=work, account=acct).save()
+        Event(work=work, account=acct).save()
+        assert work.event_count == 3
+
+        # uses db annotation if present
+        work.event__count = 12
+        assert work.event_count == 12
+
+    def test_purchase_count(self):
+        # create a test work
+        # should have zero purchases
+        work = Work(title='Le foo et le bar', year=1916)
+        work.save()
+        assert work.purchase_count == 0
+        # create a test account and purchase the work once
+        # should have one purchase
+        acct = Account()
+        acct.save()
+        Purchase(work=work, account=acct).save()
+        # add one borrow
+        Borrow(work=work, account=acct).save()
+        assert work.purchase_count == 1
+
+        # uses db annotation if present
+        work.event__purchase__count = 7
+        assert work.purchase_count == 7
 
     def test_authors_editors_translators(self):
-        item = Item.objects.create(title='Poems', year=1916)
+        work = Work.objects.create(title='Poems', year=1916)
         author1 = Person.objects.create(name='Smith')
         author2 = Person.objects.create(name='Jones')
         editor = Person.objects.create(name='Ed Mund')
@@ -62,63 +104,63 @@ class TestItem(TestCase):
         translator_type = CreatorType.objects.get(name='Translator')
 
         # add one each of author, editor, and translator
-        Creator.objects.create(creator_type=author_type, person=author1,
-            item=item)
-        Creator.objects.create(creator_type=editor_type, person=editor,
-            item=item)
-        Creator.objects.create(creator_type=translator_type, person=translator,
-            item=item)
+        Creator.objects.create(
+            creator_type=author_type, person=author1, work=work)
+        Creator.objects.create(
+            creator_type=editor_type, person=editor, work=work)
+        Creator.objects.create(
+            creator_type=translator_type, person=translator, work=work)
 
-        assert len(item.authors) == 1
-        assert item.authors.first() == author1
-        assert item.author_list() == str(author1)
+        assert len(work.authors) == 1
+        assert work.authors.first() == author1
+        assert work.author_list() == str(author1)
 
         # add second author
         Creator.objects.create(creator_type=author_type, person=author2,
-            item=item)
-        assert len(item.authors) == 2
-        assert author1 in item.authors
-        assert author2 in item.authors
-        assert item.author_list() == '%s; %s' % (author1, author2)
+            work=work)
+        assert len(work.authors) == 2
+        assert author1 in work.authors
+        assert author2 in work.authors
+        assert work.author_list() == '%s; %s' % (author1, author2)
 
-        assert len(item.editors) == 1
-        assert item.editors.first() == editor
+        assert len(work.editors) == 1
+        assert work.editors.first() == editor
 
-        assert len(item.translators) == 1
-        assert item.translators.first() == translator
+        assert len(work.translators) == 1
+        assert work.translators.first() == translator
 
     def test_format(self):
-        item = Item.objects.create(title='Searching')
-        assert item.format() == ''
+        work = Work.objects.create(title='Searching')
+        assert work.format() == ''
 
-        item.item_format = Format.objects.first()
-        assert item.format() == item.item_format.name
+        work.work_format = Format.objects.first()
+        assert work.format() == work.work_format.name
 
     def test_first_known_interaction(self):
-        # create a test item with no events
-        item = Item.objects.create(title='Searching')
-        assert not item.first_known_interaction
+        # create a test work with no events
+        work = Work.objects.create(title='Searching')
+        assert not work.first_known_interaction
 
         # create a borrow with date
         acct = Account()
         acct.save()
         borrow_date = datetime.date(1940, 3, 2)
-        borrow = Borrow(item=item, account=acct)
+        borrow = Borrow(work=work, account=acct)
         borrow.partial_start_date = borrow_date.isoformat()
         borrow.save()
         # first date should be borrow start date
-        assert item.first_known_interaction == borrow_date
+        assert work.first_known_interaction == borrow_date
 
         # create a borrow with an unknown date
-        unknown_borrow = Borrow.objects.create(item=item, account=acct)
+        unknown_borrow = Borrow.objects.create(work=work, account=acct)
         unknown_borrow.partial_start_date = '--01-01'
         unknown_borrow.save()
         # should use previous borrow date, not the unknown (1900)
-        assert item.first_known_interaction == borrow_date
+        assert work.first_known_interaction == borrow_date
 
     @patch('mep.books.models.Subject.create_from_uri')
     def test_populate_from_worldcat(self, mock_create_from_uri):
-        item = Item.objects.create(title='Time and Tide')
+        work = Work.objects.create(title='Time and Tide')
         worldcat_entity = Mock(
             work_uri='http://worldcat.org/entity/work/id/3372107206',
             item_uri='http://www.worldcat.org/oclc/3484871',
@@ -126,13 +168,13 @@ class TestItem(TestCase):
             item_type='http://schema.org/Periodical',
             subjects=[]
         )
-        item.populate_from_worldcat(worldcat_entity)
-        assert item.uri == worldcat_entity.work_uri
-        assert item.edition_uri == worldcat_entity.item_uri
-        assert item.genres.first().name == worldcat_entity.genres[0]
-        assert item.item_format == Format.objects.get(uri=worldcat_entity.item_type)
+        work.populate_from_worldcat(worldcat_entity)
+        assert work.uri == worldcat_entity.work_uri
+        assert work.edition_uri == worldcat_entity.item_uri
+        assert work.genres.first().name == worldcat_entity.genres[0]
+        assert work.work_format == Format.objects.get(uri=worldcat_entity.item_type)
         # no subjects on the eentity
-        assert not item.subjects.all()
+        assert not work.subjects.all()
 
         worldcat_entity.subjects = [
             'http://viaf.org/viaf/97006051',
@@ -152,22 +194,22 @@ class TestItem(TestCase):
                 rdf_type='http://schema.org/Place')
 
         mock_create_from_uri.side_effect = make_test_subject
-        item.populate_from_worldcat(worldcat_entity)
-        assert item.subjects.count() == 2
+        work.populate_from_worldcat(worldcat_entity)
+        assert work.subjects.count() == 2
         assert mock_create_from_uri.call_count == 2
         mock_create_from_uri.assert_any_call(worldcat_entity.subjects[0])
         mock_create_from_uri.assert_any_call(worldcat_entity.subjects[1])
 
         # if the subjects already exist, they should not be created
         mock_create_from_uri.reset_mock()
-        item.populate_from_worldcat(worldcat_entity)
+        work.populate_from_worldcat(worldcat_entity)
         mock_create_from_uri.assert_not_called()
-        assert item.subjects.count() == 2
+        assert work.subjects.count() == 2
 
         # test replaces previous subjects
         del worldcat_entity.subjects[-1]
-        item.populate_from_worldcat(worldcat_entity)
-        assert item.subjects.count() == 1
+        work.populate_from_worldcat(worldcat_entity)
+        assert work.subjects.count() == 1
 
         # simulate error creating subject - returns None
         worldcat_entity.subjects = [
@@ -176,22 +218,22 @@ class TestItem(TestCase):
         mock_create_from_uri.side_effect = None
         mock_create_from_uri.return_value = None
         # shouldn't error
-        item.populate_from_worldcat(worldcat_entity)
+        work.populate_from_worldcat(worldcat_entity)
         mock_create_from_uri.assert_called_with(worldcat_entity.subjects[0])
         # should set to subjects it could find/create (in this case, none)
-        assert not item.subjects.count()
+        assert not work.subjects.count()
 
-        # unexpected item type / unknown format; should not error
-        worldcat_entity.item_type='http://schema.org/CreativeWork'
-        # clear out existing item format from previous calls
-        item.item_format = None
-        item.populate_from_worldcat(worldcat_entity)
-        assert not item.item_format
+        # unexpected work type / unknown format; should not error
+        worldcat_entity.item_type = 'http://schema.org/CreativeWork'
+        # clear out existing work format from previous calls
+        work.work_format = None
+        work.populate_from_worldcat(worldcat_entity)
+        assert not work.work_format
 
     def test_subject_list(self):
         # no subjects
-        item = Item.objects.create(title='Topicless')
-        assert item.subject_list() == ''
+        work = Work.objects.create(title='Topicless')
+        assert work.subject_list() == ''
 
         subj1 = Subject.objects.create(
             uri='http://viaf.org/viaf/97006051', name='Ernest Hemingway',
@@ -199,26 +241,26 @@ class TestItem(TestCase):
         subj2 = Subject.objects.create(
             uri='http://id.worldcat.org/fast/1259831/',
             name='Lorton, Virginia', rdf_type='http://schema.org/Place')
-        item.subjects.add(subj1)
-        item.subjects.add(subj2)
-        assert item.subject_list() == '%s; %s' % (subj1.name, subj2.name)
+        work.subjects.add(subj1)
+        work.subjects.add(subj2)
+        assert work.subject_list() == '%s; %s' % (subj1.name, subj2.name)
 
     def test_genre_list(self):
         # no genres
-        item = Item.objects.create(title='Genreless')
-        assert item.genre_list() == ''
+        work = Work.objects.create(title='Genreless')
+        assert work.genre_list() == ''
 
         genre1 = Genre.objects.create(name='Periodicals')
         genre2 = Genre.objects.create(name='Drama')
-        item.genres.add(genre1)
-        item.genres.add(genre2)
-        assert item.genre_list() == '%s; %s' % (genre2.name, genre1.name)
+        work.genres.add(genre1)
+        work.genres.add(genre2)
+        assert work.genre_list() == '%s; %s' % (genre2.name, genre1.name)
 
     def test_has_uri(self):
-        item = Item(title='Topicless')
-        assert not item.has_uri()
-        item.uri = 'http://www.worldcat.org/oclc/578050'
-        assert item.has_uri()
+        work = Work(title='Topicless')
+        assert not work.has_uri()
+        work.uri = 'http://www.worldcat.org/oclc/578050'
+        assert work.has_uri()
 
 
 class TestCreator(TestCase):
@@ -226,9 +268,9 @@ class TestCreator(TestCase):
     def test_str(self):
         ctype = CreatorType.objects.get(name='Author')
         person = Person.objects.create(name='Joyce')
-        item = Item.objects.create(title='Ulysses')
-        creator = Creator(creator_type=ctype, person=person, item=item)
-        assert str(creator) == ' '.join([str(person), ctype.name, str(item)])
+        work = Work.objects.create(title='Ulysses')
+        creator = Creator(creator_type=ctype, person=person, work=work)
+        assert str(creator) == ' '.join([str(person), ctype.name, str(work)])
 
 
 class TestSubject(TestCase):
@@ -310,3 +352,57 @@ class TestSubject(TestCase):
         # fast URI requires different http request
         mock_requests.get.assert_called_with(
             '%s.rdf.xml' % fast_uri.rstrip('/'), headers={})
+
+
+class TestEdition(TestCase):
+
+    def test_str(self):
+        work = Work.objects.create(title='Le foo et le bar', year=1916)
+        # no edition title or year - uses work details
+        edition = Edition(work=work)
+        assert str(edition) == '%s (%s)' % (work.title, work.year)
+
+        # edition title takes precedence
+        edition.title = 'The foo and the bar'
+        assert str(edition) == '%s (%s)' % (edition.title, work.year)
+
+        # edition year takes precedence
+        edition.year = 1920
+        assert str(edition) == '%s (%s)' % (edition.title, edition.year)
+
+        # includes volume, number, season when present
+        edition.volume = 2
+        assert str(edition) == '%s (%s) vol. 2' % (edition.title, edition.year)
+        edition.number = 3
+        assert str(edition) == '%s (%s) vol. 2 no. 3' % \
+            (edition.title, edition.year)
+        edition.season = 'Winter'
+        assert str(edition) == '%s (%s) vol. 2 no. 3 Winter' % \
+            (edition.title, edition.year)
+
+        unknown_work = Work.objects.create()
+        # handles missing title
+        unknown_edition = Edition(work=unknown_work)
+        assert str(unknown_edition) == '?? (??)'
+
+    def test_repr(self):
+        work = Work.objects.create(title='Le foo et le bar', year=1916)
+        # unsaved edition has no pk
+        edition = Edition(work=work)
+        assert repr(edition) == '<Edition pk:?? %s>' % edition
+
+        # saved repr
+        edition.save()
+        assert repr(edition) == '<Edition pk:%d %s>' % (edition.pk, edition)
+
+
+class TestEditionCreator(TestCase):
+
+    def test_str(self):
+        ctype = CreatorType.objects.get(name='Editor')
+        person = Person.objects.create(name='Joyce')
+        work = Work.objects.create(title='Ulysses')
+        edition = Edition.objects.create(work=work)
+        creator = EditionCreator(creator_type=ctype, person=person,
+                                 edition=edition)
+        assert str(creator) == ' '.join([str(person), ctype.name, str(edition)])

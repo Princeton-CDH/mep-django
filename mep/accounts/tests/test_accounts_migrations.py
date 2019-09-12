@@ -125,7 +125,6 @@ class DatePrecisionCopies(TestMigrations):
             assert model.end_date_precision == tup[2]
 
 
-
 # NOTE: TransactionTestCase must be run after all other test cases,
 # because it truncates the database, removing fixture objects expected
 # to be present by other tests.

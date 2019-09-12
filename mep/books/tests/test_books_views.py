@@ -6,23 +6,23 @@ from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory, TestCase
 
-from mep.books.models import Item
-from mep.books.views import ItemList
+from mep.books.models import Work
+from mep.books.views import WorkList
 
 
-class TestBooksViews(TestCase):
-    fixtures = ['sample_items']
+class BooksViews(TestCase):
+    fixtures = ['sample_works']
 
     def setUp(self):
         self.admin_pass = 'password'
         self.admin_user = get_user_model().objects.create_superuser(
             'admin', 'admin@example.com', self.admin_pass)
 
-    def test_item_autocomplete(self):
+    def test_work_autocomplete(self):
         # remove fixture items to duplicate previous test conditions
-        Item.objects.all().delete()
+        Work.objects.all().delete()
 
-        url = reverse('books:item-autocomplete')
+        url = reverse('books:work-autocomplete')
         res = self.client.get(url)
 
         # getting the view returns 200
@@ -36,36 +36,36 @@ class TestBooksViews(TestCase):
         # - test basic search and sort
 
         # search by title
-        item1 = Item.objects.create(title='Poems Two Painters', mep_id='mep:01',
+        work1 = Work.objects.create(title='Poems Two Painters', mep_id='mep:01',
                                     notes='Author: Knud Merrild')
-        item2 = Item.objects.create(title='Collected Poems', mep_id='mep:02')
+        work2 = Work.objects.create(title='Collected Poems', mep_id='mep:02')
         res = self.client.get(url, {'q': 'poems'})
         data = res.json()
         assert res.status_code == 200
         assert 'results' in data
         assert len(data['results']) == 2
-        assert data['results'][0]['text'] == item2.title
-        assert data['results'][1]['text'] == item1.title
+        assert data['results'][0]['text'] == work2.title
+        assert data['results'][1]['text'] == work1.title
 
         # search by note text
         res = self.client.get(url, {'q': 'knud'})
         data = res.json()
         assert len(data['results']) == 1
-        assert data['results'][0]['text'] == item1.title
+        assert data['results'][0]['text'] == work1.title
 
         # search by mep id
         res = self.client.get(url, {'q': 'mep:02'})
         data = res.json()
         assert len(data['results']) == 1
-        assert data['results'][0]['text'] == item2.title
+        assert data['results'][0]['text'] == work2.title
 
 
-class TestItemListView(TestCase):
-    fixtures = ['sample_items.json', 'multi_creator_item.json']
+class TestWorkListView(TestCase):
+    fixtures = ['sample_works', 'multi_creator_work']
 
     def setUp(self):
         # index fixtures and give time for index to take effect
-        Item.index_items(Item.objects.all())
+        Work.index_items(Work.objects.all())
         time.sleep(10)
         # bind some convenience items
         self.factory = RequestFactory()
@@ -74,15 +74,17 @@ class TestItemListView(TestCase):
     def test_list(self):
         response = self.client.get(self.url)
 
-        # should display all items in the database
-        items = Item.objects.all()
-        assert response.context['items'].count() == items.count()
-        self.assertContains(response, '%d total results' % items.count())
-        for item in items:
-            self.assertContains(response, item.title)
-            self.assertContains(response, item.year)
-            # NOTE should link to item detail page; not yet implemented
-            # self.assertContains(response, item.get_absolute_url())
+        # should display all works in the database
+        works = Work.objects.all()
+        assert response.context['works'].count() == works.count()
+        self.assertContains(response, '%d total results' % works.count())
+        for work in works:
+            self.assertContains(response, work.title)
+            self.assertContains(response, work.year)
+            self.assertContains(response,
+                                reverse('books:book-detail', args=[work.pk]))
+            # TODO: get abs url not yet implemented, should be used here
+            # self.assertContains(response, work.get_absolute_url())
 
         # NOTE publishers display is designed but data not yet available
 
@@ -90,7 +92,7 @@ class TestItemListView(TestCase):
         response = self.client.get(self.url)
 
         # multi-author item should show first three authors
-        novelists = Item.objects.get(pk=4126)
+        novelists = Work.objects.get(pk=4126)
         self.assertContains(response, novelists.authors.first())
         self.assertContains(response, novelists.authors[1])
         self.assertContains(response, novelists.authors[2])
@@ -103,15 +105,15 @@ class TestItemListView(TestCase):
 
     def test_get_queryset(self):
         # create a mocked form
-        view = ItemList()
+        view = WorkList()
         form = Mock()
         view.get_form = Mock(return_value=form)
         view.request = self.factory.get(self.url)
-        # if form is valid, should return all items sorted by chosen sort
+        # if form is valid, should return all works sorted by chosen sort
         form.is_valid.return_value = True
         form.cleaned_data = {'sort': 'title'}  # becomes 'title_s'
         solr_qs = view.get_queryset()
-        db_qs = Item.objects.order_by('title')
+        db_qs = Work.objects.order_by('title')
         # querysets from solr and db should match
         for index, item in enumerate(solr_qs):
             assert db_qs[index].title == item['title']
@@ -123,13 +125,13 @@ class TestItemListView(TestCase):
         assert solr_qs.count() == 0
 
     def test_get_page_labels(self):
-        # create a mocked form and some fake items to paginate
-        view = ItemList()
+        # create a mocked form and some fake works to paginate
+        view = WorkList()
         form = Mock()
         view.get_form = Mock(return_value=form)
         view.request = self.factory.get(self.url)
-        items = range(120)
-        paginator = Paginator(items, per_page=view.paginate_by)
+        works = range(120)
+        paginator = Paginator(works, per_page=view.paginate_by)
         # if form is valid, should use default implementation (numbered pages)
         # NOTE this will change if we implement alpha pagination for this view
         form.is_valid.return_value = True

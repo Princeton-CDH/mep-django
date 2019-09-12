@@ -56,7 +56,7 @@ class CustomIndexDashboard(Dashboard):
             column=1,
             collapsible=False,
             models=([
-                'mep.books.models.Item',
+                'mep.books.models.Work',
                 'mep.books.models.CreatorType',
                 'mep.books.models.Format',
                 'mep.books.models.Subject',

@@ -1,12 +1,12 @@
 from parasolr.django import AliasedSolrQuerySet
 
 
-class ItemSolrQuerySet(AliasedSolrQuerySet):
+class WorkSolrQuerySet(AliasedSolrQuerySet):
     """':class:`~parasolr.django.AliasedSolrQuerySet` for
     :class:`~mep.book.models.Item`"""
 
     #: always filter to item records
-    filter_qs = ['item_type:item']
+    filter_qs = ['item_type:work']
 
     #: map readable field names to actual solr fields
     field_aliases = {

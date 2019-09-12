@@ -14,7 +14,7 @@ was previously called "Mapping Expatriate Paris" or MEP).
 
 See the preliminary `project website <http://mep.princeton.edu/>`_ for more details.
 
-Python 3.5 / Django 1.11 / Node 10.5.0
+Python 3.5 / Django 1.11 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info
 
 .. image:: https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=master
     :target: https://travis-ci.org/Princeton-CDH/mep-django
@@ -79,6 +79,20 @@ Remember to add a ``SECRET_KEY`` setting!
 
     python manage.py setup_site_pages
 
+- If running this application on MariaDB/MySQL, you must make sure that
+  time zone definitions are installed. On most flavors of Linux/MacOS,
+  you may use the following command, which will prompt
+  for the database server's root password::
+
+    mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql -p
+
+  If this command does not work, make sure you have the command line utilities
+  for MariaDB/MySQL installed and consult the documentation for your OS for
+  timezone info. Windows users will need to install a copy of the zoneinfo
+  files.
+
+  See `MariaDB <https://mariadb.com/kb/en/library/mysql_tzinfo_to_sql/>`_'s
+  info on the utility for more information.
 
 Note that the admin index page will not reflect some changes without a manual
 update - you will need to edit ``mep/dashboard.py`` to control the display and
@@ -183,9 +197,14 @@ directory::
     cd sphinx-docs
     make html
 
-When building for a release ``make docs`` will create a folder called ``docs``,
-build the HTML documents and static assets, and force add it to the commit for
-use with Github Pages.
+To build and publish documentation for a release, add the ``gh-pages`` branch
+to the ``docs`` folder in your worktree::
+
+  git worktree add -B gh-pages docs origin/gh-pages
+
+In the ``sphinx-docs`` folder, use ``make docs`` to build the HTML documents
+and static assets, add it to the docs folder, and commit it for publication on
+Github Pages. After the build completes, push to GitHub from the ``docs`` folder.
 
 License
 -------

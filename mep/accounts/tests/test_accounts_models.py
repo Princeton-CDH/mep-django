@@ -10,7 +10,7 @@ import pytest
 
 from mep.accounts.models import Account, Address, \
     Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin
-from mep.books.models import Item
+from mep.books.models import Work
 from mep.people.models import Person, Location
 from mep.footnotes.models import Bibliography, SourceType
 
@@ -365,7 +365,7 @@ class TestEvent(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
-        self.item = Item.objects.create(title='Selected poems')
+        self.work = Work.objects.create(title='Selected poems')
         self.event = Event.objects.create(account=self.account)
 
     def test_repr(self):
@@ -373,7 +373,7 @@ class TestEvent(TestCase):
             (self.event.pk, self.account.pk, self.event.date_range)
 
         # test one subclass
-        borrow = Borrow.objects.create(account=self.account, item=self.item)
+        borrow = Borrow.objects.create(account=self.account, work=self.work)
         assert repr(borrow) == '<Borrow pk:%s account:%s %s>' % \
             (borrow.pk, self.account.pk, borrow.date_range)
 
@@ -430,12 +430,12 @@ class TestEvent(TestCase):
         assert reimbursement.event_ptr.event_type == 'Reimbursement'
 
         # borrow
-        borrow = Borrow.objects.create(account=self.account, item=self.item)
+        borrow = Borrow.objects.create(account=self.account, work=self.work)
         assert borrow.event_ptr.event_type == 'Borrow'
 
         # purchase
         purchase = Purchase.objects.create(account=self.account,
-            item=self.item, price=5)
+            work=self.work, price=5)
         assert purchase.event_ptr.event_type == 'Purchase'
 
 
@@ -683,7 +683,7 @@ class TestPurchase(TestCase):
             account=self.account,
             price=2.30,
             currency='USD',
-            item=Item.objects.create(title='Le Foo'),
+            work=Work.objects.create(title='Le Foo'),
         )
         self.purchase.calculate_date('start_date', '1920-02-03')
         self.purchase.save()
@@ -708,22 +708,22 @@ class TestPurchase(TestCase):
         # resaving existing record should not error
         self.purchase.validate_unique()
 
-        # creating new purchase for same account, date, and item should error
+        # creating new purchase for same account, date, and work should error
         with pytest.raises(ValidationError):
             purchase = Purchase(
                 account=self.account,
                 start_date=self.purchase.start_date,
-                item=self.purchase.item,
+                work=self.purchase.work,
                 price=self.purchase.price
             )
             purchase.validate_unique()
 
-        # a new purchase on same date and account, but different item,
+        # a new purchase on same date and account, but different work,
         # should not trigger ValidationError
         purchase = Purchase(
             account=self.account,
             start_date=self.purchase.start_date,
-            item=Item.objects.create(title='Le Bar'),
+            work=Work.objects.create(title='Le Bar'),
             price=self.purchase.price
         )
         purchase.validate_unique()
@@ -786,9 +786,9 @@ class TestBorrow(TestCase):
 
     def setUp(self):
         self.account = Account.objects.create()
-        self.item = Item.objects.create(title='Collected works')
+        self.work = Work.objects.create(title='Collected works')
         self.borrow = Borrow.objects.create(
-            account=self.account, item=self.item
+            account=self.account, work=self.work
         )
 
     def test_str(self):
@@ -805,7 +805,7 @@ class TestBorrow(TestCase):
 
     def test_save(self):
         today = datetime.date.today()
-        borrow = Borrow(account=self.account, item=self.item)
+        borrow = Borrow(account=self.account, work=self.work)
         # no end date, no item status; item status should not be set
         borrow.save()
         assert not borrow.item_status

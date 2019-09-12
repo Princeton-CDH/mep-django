@@ -10,7 +10,6 @@ import requests
 
 from mep.common.models import Named, Notable
 from mep.common.validators import verify_latlon
-from mep.books.oclc import WorldCatEntity
 from mep.people.models import Person
 
 
@@ -128,9 +127,10 @@ class Subject(models.Model):
                        uri, response.status_code)
 
 
-class Item(Notable, Indexable):
-    '''Primary model for :mod:`books` module, also used for journals,
-    and other media types.'''
+class Work(Notable, Indexable):
+    '''Work record for an item that circulated in the library or was
+    other referenced in library activities.'''
+
     #: mep id from stub records imported from xml
     mep_id = models.CharField(
         max_length=255, blank=True, unique=True,
@@ -138,13 +138,11 @@ class Item(Notable, Indexable):
     # NOTE: mep_id has null=true so we can enforce unique constraint but
     # allow for items with no mep id
 
-    title = models.CharField(max_length=255, blank=True)
-    volume = models.PositiveSmallIntegerField(blank=True, null=True)
-    number = models.PositiveSmallIntegerField(blank=True, null=True)
+    title = models.CharField(
+        max_length=255, blank=True,
+        help_text='Title of the work in English')
     year = models.PositiveSmallIntegerField(
         blank=True, null=True, verbose_name='Date of Publication')
-    season = models.CharField(max_length=255, blank=True)
-    edition = models.CharField(max_length=255, blank=True)
     uri = models.URLField(blank=True, verbose_name='Work URI',
                           help_text="Linked data URI for this work")
     edition_uri = models.URLField(
@@ -154,18 +152,12 @@ class Item(Notable, Indexable):
         blank=True, verbose_name='eBook URL',
         help_text='Link to a webpage where one or more ebook versions can be \
             downloaded, e.g. Project Gutenberg page for this item')
-    item_format = models.ForeignKey(
+    work_format = models.ForeignKey(
         Format, verbose_name='Format', null=True, blank=True,
-        help_text='Format of the item, e.g. book or periodical')
+        help_text='Format, e.g. book or periodical')
 
     #: update timestamp
     updated_at = models.DateTimeField(auto_now=True, null=True)
-
-    # QUESTION: On the diagram these are labeled as FK, but they seem to imply
-    # M2M (i.e. more than one publisher or more than one pub place?)
-    publishers = models.ManyToManyField(Publisher, blank=True)
-    pub_places = models.ManyToManyField(
-        PublisherPlace, blank=True, verbose_name="Places of Publication")
 
     # direct access to all creator persons, using Creator as through model
     creators = models.ManyToManyField(Person, through='Creator')
@@ -176,19 +168,19 @@ class Item(Notable, Indexable):
     #: optional subjects, from OCLC record
     subjects = models.ManyToManyField(Subject, blank=True)
     #: a field for notes publicly displayed on the website
-    public_notes = models.TextField(blank=True,
-        help_text='Notes for display on the public website')
+    public_notes = models.TextField(
+        blank=True, help_text='Notes for display on the public website')
 
     def save(self, *args, **kwargs):
         # override save to ensure mep ID is None rather than empty string
         # if not set
         if not self.mep_id:
             self.mep_id = None
-        super(Item, self).save(*args, **kwargs)
+        super(Work, self).save(*args, **kwargs)
 
     def __repr__(self):
         # provide pk for easy lookup and string for recognition
-        return '<Item pk:%s %s>' % (self.pk or '??', str(self))
+        return '<Work pk:%s %s>' % (self.pk or '??', str(self))
 
     def __str__(self):
         year_str = ''
@@ -200,12 +192,12 @@ class Item(Notable, Indexable):
         return '(No title, year)'
 
     def creator_by_type(self, creator_type):
-        '''return item creators of a single type, e.g. author'''
+        '''return work creators of a single type, e.g. author'''
         return self.creators.filter(creator__creator_type__name=creator_type)
 
     @property
     def authors(self):
-        '''item creators with type author'''
+        '''work creators with type author'''
         return self.creator_by_type('Author')
 
     def author_list(self):
@@ -215,28 +207,45 @@ class Item(Notable, Indexable):
 
     @property
     def editors(self):
-        '''item creators with type editor'''
+        '''work creators with type editor'''
         return self.creator_by_type('Editor')
 
     @property
     def translators(self):
-        '''item creators with type translator'''
+        '''work creators with type translator'''
         return self.creator_by_type('Translator')
 
     @property
+    def event_count(self):
+        '''Number of events of any kind associated with this work.'''
+        # use database annotation if present; otherwise use queryset
+        return getattr(self, 'event__count',
+                       self.event_set.count())
+
+    @property
     def borrow_count(self):
-        '''Number of times this item was borrowed.'''
-        return self.event_set.filter(borrow__isnull=False).count()
+        '''Number of times this work was borrowed.'''
+        # use database annotation if present; otherwise use queryset
+        return getattr(self, 'event__borrow__count',
+                       self.event_set.filter(borrow__isnull=False).count())
+
+    @property
+    def purchase_count(self):
+        '''Number of times this work was purchased.'''
+        # use database annotation if present; otherwise use queryset
+        return getattr(self, 'event__purchase__count',
+                       self.event_set.filter(purchase__isnull=False).count())
 
     def admin_url(self):
         '''URL to edit this record in the admin site'''
-        return reverse('admin:books_item_change', args=[self.id])
+        return reverse('admin:books_work_change', args=[self.id])
     admin_url.verbose_name = 'Admin Link'
 
     def has_uri(self):
-        '''Is the URI is set for this item?'''
+        '''Is the URI is set for this work?'''
         return self.uri != ''
     has_uri.boolean = True
+    has_uri.admin_order_field = 'uri'
 
     def subject_list(self):
         '''semicolon separated list of subject names'''
@@ -247,8 +256,8 @@ class Item(Notable, Indexable):
         return '; '.join([genre.name for genre in self.genres.all()])
 
     def format(self):
-        '''format of this item if known (e.g. book or periodical)'''
-        return self.item_format.name if self.item_format else ''
+        '''format of this work if known (e.g. book or periodical)'''
+        return self.work_format.name if self.work_format else ''
 
     def index_data(self):
         '''data for indexing in Solr'''
@@ -299,8 +308,9 @@ class Item(Notable, Indexable):
         # (predominantly books and periodicals), but in future
         # we may need a method to create format from uri as for subjects
         if worldcat_entity.item_type:
+            print('entity item type %s' % worldcat_entity.item_type)
             try:
-                self.item_format = Format.objects.get(
+                self.work_format = Format.objects.get(
                     uri=worldcat_entity.item_type)
             except ObjectDoesNotExist:
                 logger.error('Unexpected item type %s',
@@ -323,15 +333,78 @@ class Item(Notable, Indexable):
             self.subjects.set(subjects)
 
 
+class Edition(Notable):
+    '''A specific known edition of a :class:`Work` that circulated.'''
+
+    work = models.ForeignKey(
+        Work, help_text='Generic Work associated with this edition.')
+    title = models.CharField(
+        max_length=255, blank=True,
+        help_text='Title of this edition, if different from associated work')
+    volume = models.PositiveSmallIntegerField(blank=True, null=True)
+    number = models.PositiveSmallIntegerField(blank=True, null=True)
+    year = models.PositiveSmallIntegerField(
+        blank=True, null=True,
+        help_text='Date of Publication for this edition')
+    season = models.CharField(max_length=255, blank=True)
+    edition = models.CharField(max_length=255, blank=True)
+    uri = models.URLField(
+        blank=True, verbose_name='URI',
+        help_text="Linked data URI for this edition, if known")
+
+    #: update timestamp
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
+    # direct access to all creator persons, using Creator as through model
+    creators = models.ManyToManyField(Person, through='EditionCreator')
+
+    publisher = models.ManyToManyField(Publisher, blank=True)
+    pub_places = models.ManyToManyField(
+        PublisherPlace, blank=True, verbose_name="Places of Publication")
+
+    # language model foreign key may be added in future
+
+    def __repr__(self):
+        # provide pk for easy lookup and string for recognition
+        return '<Edition pk:%s %s>' % (self.pk or '??', self)
+
+    def __str__(self):
+        # simple string representation
+        parts = [
+            self.title or self.work.title or '??',
+            '(%s)' % (self.year or self.work.year or '??', ),
+        ]
+        if self.volume:
+            parts.append('vol. %s' % self.volume)
+        if self.number:
+            parts.append('no. %s' % self.number)
+        if self.season:
+            parts.append(self.season)
+        # include edition?
+        return ' '.join(parts)
+
+
 class CreatorType(Named, Notable):
-    '''Type of creator role a person can have to an item; author,
-    editor, translator, etc.'''
+    '''Type of creator role a person can have in relation to a work;
+    author, editor, translator, etc.'''
 
 
 class Creator(Notable):
     creator_type = models.ForeignKey(CreatorType)
     person = models.ForeignKey(Person)
-    item = models.ForeignKey(Item)
+    work = models.ForeignKey(Work)
 
     def __str__(self):
-        return '%s %s %s' % (self.person, self.creator_type, self.item)
+        return '%s %s %s' % (self.person, self.creator_type, self.work)
+
+
+class EditionCreator(Notable):
+    '''Creator specific to an :class:`Edition` of a :class:`Work`.'''
+
+    creator_type = models.ForeignKey(CreatorType)
+    person = models.ForeignKey(Person)
+    edition = models.ForeignKey(Edition)
+
+    def __str__(self):
+        '''String representation: person, creator type, edition.'''
+        return '%s %s %s' % (self.person, self.creator_type, self.edition)

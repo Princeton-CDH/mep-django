@@ -1,0 +1,19 @@
+{% load static %}
+<ol style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
+    {% for work in works %}
+    <li class="books result">
+        <a href="{% url 'books:book-detail' pk=work.pk %}" aria-label="{{ work.title }}">
+            <div class="container">
+                {# counter for search results #}
+                <span class="counter"></span>
+                {# book details #}
+                {% include 'books/snippets/work_result.html' %}
+                {# link to view detail page #}
+                <span class="see-more">
+                    See more details
+                </span>
+            </div>
+        </a>
+    </li>
+    {% endfor %}
+</ol>
