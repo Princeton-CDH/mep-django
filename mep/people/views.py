@@ -226,9 +226,8 @@ class MembershipActivities(ListView, RdfViewMixin):
 
     def get_context_data(self, **kwargs):
         # should 404 if not a person or valid person but not a library member
-        # TODO: person queryset to get library members?
         # store member before calling super so available for breadcrumbs
-        self.member = get_object_or_404(Person.objects.exclude(account=None),
+        self.member = get_object_or_404(Person.objects.library_members(),
                                         pk=self.kwargs['pk'])
         context = super().get_context_data(**kwargs)
         context['member'] = self.member
