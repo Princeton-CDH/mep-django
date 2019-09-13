@@ -11,7 +11,7 @@ export default class StickyControls extends Component {
     stuck: boolean = false
     top: number = 0
 
-    constructor(element: HTMLElement, classed_element: HTMLElement) {
+    constructor(element: HTMLElement) {
         super(element)
         // Get the top property
         let top = window
