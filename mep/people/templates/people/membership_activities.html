@@ -77,15 +77,15 @@
             <td class="type">{{ event.event_type }}</td>
             <td class="category">{{ event.subscription.category|default:'-' }}</td>
             <td class="duration" data-sort="{{ event.subscription.duration }}">{{ event.subscription.readable_duration|default:'-' }}</td>
-            <td class="start" data-sort="{{ event.start_date|date:"Ymd" }}">{{ event.start_date }}</td>
-            <td class="end" data-sort="{{ event.end_date|date:"Ymd" }}">{{ event.end_date }}</td>
+            <td class="start" data-sort="{{ event.start_date|date:"Ymd" }}">{{ event.start_date|default:'-' }}</td>
+            <td class="end" data-sort="{{ event.end_date|date:"Ymd" }}">
+                {% if event.reimbursement %} - {% else %}{{ event.end_date|default:'-' }}{% endif %}
+            </td>
             <td class="amount">
-            {% if event.subscription %}
-                {{ event.subscription.price_paid|floatformat }}
-                {{ event.subscription.currency_symbol }}
-            {% elif event.reimbursement %}
-                -{{ event.reimbursement.refund|floatformat }}
-                {{ event.reimbursement.currency_symbol }}
+            {% if event.subscription and event.subscription.price_paid%}
+                {{ event.subscription.price_paid|floatformat }} {{ event.subscription.currency_symbol }}
+            {% elif event.reimbursement and event.reimbursement.refund %}
+                -{{ event.reimbursement.refund|floatformat }} {{ event.reimbursement.currency_symbol }}
             {% else %} -
             {% endif %}
             </td>

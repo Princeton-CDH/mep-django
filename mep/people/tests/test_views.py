@@ -14,7 +14,7 @@ from django.urls import reverse, resolve
 import pytest
 
 from mep.accounts.models import Account, Address, Event, Subscription, \
-    Reimbursement
+    SubscriptionType, Reimbursement
 from mep.books.models import Work, CreatorType, Creator
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
@@ -962,7 +962,7 @@ class TestMemberDetailView(TestCase):
 
 class TestMembershipActivities(TestCase):
     fixtures = ['sample_people.json']
-    # TODO: event fixture?
+    # NOTE: might want an event fixture for testing at some point
 
     def setUp(self):
         self.member = Person.objects.get(pk=224)
@@ -972,12 +972,16 @@ class TestMembershipActivities(TestCase):
         # create account with test events
         acct = Account.objects.create()
         acct.persons.add(self.member)
+        subtype = SubscriptionType.objects.create(name='Std')
         # create one event of each type to test with
         self.events = {
             'subscription': Subscription.objects.create(
-                account=acct, category='Standard',
-                start_date=),
-            'reimbursement': Reimbursement.objects.create(account=acct),
+                account=acct, category=subtype, start_date=date(1920, 3, 1),
+                end_date=date(1920, 4, 1), price_paid=30,
+                currency='FRF'),
+            'reimbursement': Reimbursement.objects.create(
+                account=acct, start_date=date(1920, 5, 5),
+                end_date=date(1920, 5, 5), refund=15, currency='USD'),
             'generic': Event.objects.create(account=acct)
         }
 
@@ -1022,14 +1026,37 @@ class TestMembershipActivities(TestCase):
         assert crumbs[-2][0] == self.member.short_name
         assert crumbs[-2][1] == self.member.get_absolute_url()
 
-    # def test_view_template(self):
-    #     response = self.client.get(reverse('people:membership-activities',
-    #                                kwargs={'pk': self.member.pk}))
-    #     # table headers
-    #     self.assertContains(response, 'Type')
-    #     self.assertContains(response, 'Category')
-    #     self.assertContains(response, 'Duration')
-    #     self.assertContains(response, 'Start Date')
-    #     self.assertContains(response, 'End Date')
-    #     self.assertContains(response, 'Amount')
-    #     # event details
+    def test_view_template(self):
+        response = self.client.get(reverse('people:membership-activities',
+                                   kwargs={'pk': self.member.pk}))
+        # table headers
+        self.assertContains(response, 'Type')
+        self.assertContains(response, 'Category')
+        self.assertContains(response, 'Duration')
+        self.assertContains(response, 'Start Date')
+        self.assertContains(response, 'End Date')
+        self.assertContains(response, 'Amount')
+        # event details
+        subs = self.events['subscription']
+        self.assertContains(response, 'Subscription')
+        self.assertContains(response, str(subs.category))
+        self.assertContains(response, subs.readable_duration())
+        # NOTE: can't currently duplicate the django date format used in the
+        # template (and it might not be exactly what we want, either)
+        # self.assertContains(response, subs.start_date.strftime('%b %d, %Y'))
+        self.assertContains(
+            response, 'data-sort="%s"' % subs.start_date.strftime('%Y%m%d'))
+        self.assertContains(
+            response, 'data-sort="%s"' % subs.end_date.strftime('%Y%m%d'))
+        self.assertContains(
+            response, '%d %s' % (subs.price_paid, subs.currency_symbol()))
+        self.assertContains(response, 'Reimbursement')
+        reimburse = self.events['reimbursement']
+        # start/end should be same sort value stwice
+        self.assertContains(
+            response, 'data-sort="%s"' %
+            reimburse.start_date.strftime('%Y%m%d'),
+            count=2)
+        self.assertContains(
+            response, '-%d %s' % (reimburse.refund,
+                                  reimburse.currency_symbol()))
