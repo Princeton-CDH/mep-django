@@ -20,7 +20,7 @@ dl.member {
     .reference {
         text-align: left;
     }
-    
+
     // items that go on the right/bottom on mobile
     .member-dates,
     .nationality,
@@ -36,5 +36,13 @@ dl.member {
         @media (min-width: $breakpoint-s) {
             margin: 3rem auto;
         }
+    }
+}
+
+aside  {
+    background-color:  $white;
+
+    .breadcrumbs {
+        @include padding-container;
     }
 }

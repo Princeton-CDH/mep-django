@@ -20,15 +20,25 @@
         font-size: 0.8rem;
         width: 100%;
 
-        thead {
-            position: sticky;
-        }
+        $shadow: rgba(0, 0, 0, 0.2);
 
+        // thead.stuck th::before {
+        th.stuck::before {
+            content: ' ';
+            position: absolute;
+            bottom: 0;
+            margin-left: -200%;
+            width: 1200%;
+            height: 100%;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2)
+        }
+        /* NOTE: have to stick the individual th elements because
+           sticky doesn't work on thead and tr elements */;
         th {
             font-weight: bold;
             position: sticky;
             top: 0;
-            z-index: 10  ;
+            z-index: 10;
             background: white;
         }
 
@@ -78,6 +88,7 @@
             &[aria-sort=descending]::after {
                 background-image: url('/static/img/icons/selected-table-sort.svg');
                 transform: rotate(180deg);
+                box-shadow: 0 -2px 4px 0 rgba(0, 0, 0, 0.27);
             }
 
         }

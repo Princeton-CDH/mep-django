@@ -436,8 +436,7 @@ class PersonMerge(PermissionRequiredMixin, FormView):
             # by default, prefer the first record created
             return {'primary_person': sorted(self.person_ids)[0]}
 
-        else:
-            self.person_ids = []
+        self.person_ids = []
 
     def form_valid(self, form):
         # process the valid POSTed form
