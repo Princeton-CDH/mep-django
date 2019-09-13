@@ -71,7 +71,7 @@
                 content: '';
                 display: inline-block;
                 margin-left: 0.35rem;
-                background-image: url('/static/img/icons/default-table-sort.svg');
+                background-image: url('/static/img/icons/inactive-table-sort.svg');
                 background-repeat: no-repeat;
                 background-position: center;
                 background-size: 200%;
@@ -82,13 +82,11 @@
             }
 
             &[aria-sort=ascending]::after {
-                background-image: url('/static/img/icons/selected-table-sort.svg');
+                background-image: url('/static/img/icons/selected-table-sort-down.svg');
             }
 
             &[aria-sort=descending]::after {
-                background-image: url('/static/img/icons/selected-table-sort.svg');
-                transform: rotate(180deg);
-                box-shadow: 0 -2px 4px 0 rgba(0, 0, 0, 0.27);
+                background-image: url('/static/img/icons/selected-table-sort-up.svg');
             }
 
         }
