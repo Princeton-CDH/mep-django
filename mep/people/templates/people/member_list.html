@@ -16,8 +16,8 @@
 {% block main-style %}white{% endblock %}
 
 {% block content %}
+{% include 'snippets/breadcrumbs.html' %}
 <section class="members search-form">
-    {% include 'snippets/breadcrumbs.html' %}
     <form id="members-form">
         {% render_field form.query %}
         <label for="{{ form.query.id_for_label }}"></label>

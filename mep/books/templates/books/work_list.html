@@ -13,8 +13,8 @@
 {% block main-style %}white{% endblock %}
 
 {% block content %}
+{% include 'snippets/breadcrumbs.html' %}
 <section class="books search-form">
-    {% include 'snippets/breadcrumbs.html' %}
     <form id="books-form">
         {% include 'common/form_errors.html' %}
         <input type="submit" value="submit"/>
