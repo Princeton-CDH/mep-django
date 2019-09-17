@@ -1,0 +1,197 @@
+.activities {
+    @include padding-container;
+
+    /* no margins around the table on mobile */
+    @media (max-width: $breakpoint-s) {
+        padding: 0;
+    }
+
+    /* form controls are mobile only */
+    form {
+        display: none;
+
+        @media (max-width: $breakpoint-s) {
+            display: block;
+        }
+    }
+
+    table {
+        font-family: $sans;
+        font-size: 0.8rem;
+        width: 100%;
+
+        $shadow: rgba(0, 0, 0, 0.2);
+
+        /* NOTE: have to stick the individual th elements because
+           sticky doesn't work on thead and tr elements */
+        th.stuck::before {
+            content: ' ';
+            position: absolute;
+            bottom: 0;
+            margin-left: -200%;
+            width: 1200%;
+            height: 100%;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2)
+        }
+        th {
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: white;
+        }
+
+        tr {
+            border-top: solid 0.1rem $white-two;
+            &:first-child {
+                border-top: none;
+            }
+        }
+
+        td, th {
+            text-align: center;
+            padding-top: 1rem;
+            padding-bottom: 2rem;
+
+            &:first-child {
+                text-align: left;
+            }
+            &:last-child {
+                text-align: right;
+            }
+        }
+
+        /* styles adapted from tablesort */
+        th[role=columnheader]:not(.no-sort) {
+            cursor: pointer;
+
+            /* display icon to indicate sortable and current sort status */
+            &::after {
+                content: '';
+                display: inline-block;
+                margin-left: 0.35rem;
+                background-image: url('/static/img/icons/inactive-table-sort.svg');
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 200%;
+                vertical-align: text-bottom;
+                width: 0.8rem;
+                height: 1.35rem;
+                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.27);
+            }
+
+            &[aria-sort=ascending]::after {
+                background-image: url('/static/img/icons/selected-table-sort-down.svg');
+            }
+
+            &[aria-sort=descending]::after {
+                background-image: url('/static/img/icons/selected-table-sort-up.svg');
+            }
+
+        }
+
+        /* for mobile, display each row as a card and use flex
+           to arrange table cells within the card */
+        @media (max-width: $breakpoint-s) {
+
+            thead {
+                display: none;
+            }
+            tr {
+                display: flex;
+                flex-wrap: wrap;
+                padding: 1rem 0.75rem 0;
+
+                border: solid 0.025rem $light-grey;
+                border-bottom: none;
+
+                &:first-child {
+                    border-top: solid 0.025rem $light-grey;
+                }
+                &:last-child {
+                    border-bottom: solid 0.025rem $light-grey;
+                }
+
+                /* use full-width pseudo-element with order to force line break */
+                &::before {
+                  content: '';
+                  width: 100%;
+                  height: 22px;
+                  order: 4;
+                }
+
+                &::after {
+                    content: '';
+                    order: 6;
+                    width: 100%;
+                    height: 1rem;
+                    background-image: url('/static/img/icons/blackChevron_down.svg');
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: 0.5rem 0.25rem;
+                    margin-bottom: 0.5rem;
+                }
+
+                &.expanded  {
+                    /* secondary fields are displayed when expanded */
+                    .amount, .duration, .category {
+                        display: block;
+                    }
+
+                    &::after {
+                        transform: rotate(180deg);
+                        margin-top: 1rem;
+                    }
+                }
+
+            }
+            td {
+                display: block;
+                padding: 0;
+                text-align: left;
+                order: 5;
+                width: 30%;
+
+                &.type {
+                    order: 1;
+                    width: 100%;
+                }
+                &.start {
+                    order: 2;
+                    padding-right: 3px;
+                    &::after {
+                        content:" — ";
+                    }
+                    width: auto;
+                }
+                &.end {
+                    order: 3;
+                    width: auto;
+                }
+
+                /* secondary fields are hidden by default, get labels */
+                &.amount, &.duration, &.category {
+                    display: none;
+
+                    &::before {
+                        font-weight: bold;
+                        display: block;
+                    }
+                }
+
+                &.amount::before {
+                    content: "Amount";
+                }
+                &.duration::before {
+                    content: "Duration";
+                }
+                &.category::before {
+                    content: "Category";
+                }
+
+            }
+
+        }
+    }
+
+}

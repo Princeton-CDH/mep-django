@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+{% load static %}
+
+{% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
+
+{% block js %}
+<script type="application/ld+json">{{ page_jsonld|safe }}</script>
+{% render_bundle 'activities' 'js' %}
+{% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title=member.name style="detail" %}
+{% endblock %}
+
+{% block main-style %}tabbed white{% endblock %}
+
+{% block content %}
+{% include 'snippets/breadcrumbs.html' %}
+<nav class="tabs" aria-label="sections">
+    <li class="tab">
+        <a href="{% url 'people:member-detail' pk=member.pk %}">biography</a>
+    </li>
+    <li class="tab" aria-selected="true">
+        <a href="{% url 'people:membership-activities' pk=member.pk %}">activities</a>
+    </li>
+    <li class="tab">
+        <a href="#">cards</a>
+    </li>
+</nav>
+
+<nav class="tabs subsection" aria-label="Activities">
+    <li class="tab">
+        <a href="#">Borrowing</a>
+    </li>
+    <li class="tab" aria-selected="true">
+        <a href="{% url 'people:membership-activities' pk=member.pk %}">Membership</a>
+    </li>
+</nav>
+
+<div class="activities">
+
+    {% comment %} preliminary form controls for sorting and expand/collapse on mobile
+    <form id="activity-mobile-control">
+        <label class="sort">
+            <span>SORTED BY</span>
+            <select>
+                <option value="1">Type</option>
+                <option value="2">Category</option>
+                <option value="3">Duration</option>
+                <option value="4" selected="selected">Start Date</option>
+                <option value="5">End Date</option>
+                <option value="6">Amount</option>
+            </select>
+            <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+        </label>
+        <button id="expand">Expand all</button>
+    </form>
+    {% endcomment %}
+
+    <table id="activity-table">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Category
+                    <span role="tooltip" class="question"
+                        aria-label="TBD" tabindex=0 onclick="event.preventDefault()"/>
+                </th>
+                <th data-sort-method="number">Duration</th>
+                <th data-sort-default>Start Date</th>
+                <th>End Date</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        {% for event in event_list %}
+        <tr>
+            <td class="type">{{ event.event_type }}</td>
+            <td class="category">{{ event.subscription.category|default:'-' }}</td>
+            <td class="duration" data-sort="{{ event.subscription.duration|default:0 }}">{{ event.subscription.readable_duration|default:'-' }}</td>
+            <td class="start" data-sort="{{ event.start_date|date:"Ymd" }}">{{ event.start_date|default:'-' }}</td>
+            <td class="end" data-sort="{{ event.end_date|date:"Ymd" }}">
+                {% if event.reimbursement %} - {% else %}{{ event.end_date|default:'-' }}{% endif %}
+            </td>
+            <td class="amount">
+            {% if event.subscription and event.subscription.price_paid%}
+                {{ event.subscription.price_paid|floatformat }} {{ event.subscription.currency_symbol }}
+            {% elif event.reimbursement and event.reimbursement.refund %}
+                -{{ event.reimbursement.refund|floatformat }} {{ event.reimbursement.currency_symbol }}
+            {% else %} -
+            {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+
+    </table>
+</div>
+{% endblock %}

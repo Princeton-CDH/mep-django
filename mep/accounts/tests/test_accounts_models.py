@@ -1,5 +1,4 @@
 import datetime
-import re
 from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
@@ -476,6 +475,14 @@ class TestEventQuerySet(TestCase):
         assert Event.objects.purchases().count() == 1
         assert self.event_types['purchase'].event_ptr in \
             Event.objects.purchases()
+
+    def test_membership_activities(self):
+        # one subscription, one reimbursement
+        assert Event.objects.membership_activities().count() == 2
+        assert self.event_types['subscription'].event_ptr in \
+            Event.objects.membership_activities()
+        assert self.event_types['reimbursement'].event_ptr in \
+            Event.objects.membership_activities()
 
 
 class TestSubscription(TestCase):

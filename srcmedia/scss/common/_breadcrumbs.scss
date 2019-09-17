@@ -1,17 +1,8 @@
 .breadcrumbs {
-    margin: 1rem 0;
+    @include padding-container;
     background: $white;
-
-    @media (min-width: $breakpoint-s) {
-        margin: 2rem 0;
-    }
-
-    // on detail pages on mobile, we need a slight side margin
-    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
-        main.tabbed & {
-            margin: 1rem $gutter-xs;
-        }
-    }
+    padding-top: 1rem;
+    padding-bottom: 1rem;
 
     ol {
         overflow: hidden;
