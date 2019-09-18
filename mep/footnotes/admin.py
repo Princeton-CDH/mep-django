@@ -22,27 +22,39 @@ class FootnoteAdminForm(forms.ModelForm):
             ),
         }
 
+
 class FootnoteAdmin(admin.ModelAdmin):
     form = FootnoteAdminForm
-    list_display = ('content_object', 'bibliography', 'location', 'is_agree')
+    list_display = ('content_object', 'bibliography', 'location',
+                    'image', 'is_agree')
     list_filter = ('bibliography__source_type', 'content_type')
     search_fields = ('bibliography__bibliographic_note', 'location', 'notes')
     CONTENT_LOOKUP_HELP = '''Select the kind of record you want to attach
     a footnote to, and then use the object id search button to select an item.'''
     fieldsets = [
         (None, {
-            'fields':('content_type', 'object_id'),
+            'fields': ('content_type', 'object_id'),
             'description': '<div class="help">%s</div>' % CONTENT_LOOKUP_HELP
         }),
         (None, {
-            'fields': ('bibliography', 'location', 'snippet_text', 'is_agree',
-                       'notes')
+            'fields': (
+                'bibliography', 'location',
+                ('image_location', 'image'),
+                'snippet_text', 'is_agree', 'notes')
         })
     ]
+
+    readonly_fields = ('image',)
 
     related_lookup_fields = {
         'generic': [['content_type', 'object_id']]
     }
+
+    def image(self, obj):
+        '''thumbnail for image location if associated'''
+        if obj.image_location:
+            return obj.image.admin_thumbnail()
+    image.allow_tags = True
 
 
 class FootnoteInline(GenericTabularInline):
@@ -58,12 +70,24 @@ class SourceTypeAdmin(NamedNotableAdmin):
 
 
 class BibliographyAdmin(admin.ModelAdmin):
-    list_display = ('bibliographic_note', 'source_type', 'footnote_count',
-        'note_snippet')
+    list_display = (
+        'manifest_thumbnail', 'bibliographic_note', 'source_type',
+        'footnote_count', 'note_snippet'
+    )
     search_fields = ('bibliographic_note', 'notes')
-    fields = ('source_type', 'bibliographic_note', 'notes')
+    fields = (
+        'source_type', 'bibliographic_note', 'notes',
+        ('manifest', 'manifest_thumbnail')
+    )
+    readonly_fields = ('manifest_thumbnail', )
     list_filter = ('source_type',)
 
+    def manifest_thumbnail(self, obj):
+        if obj.manifest:
+            return obj.manifest.admin_thumbnail()
+    manifest_thumbnail.allow_tags = True
+
+# TODO: digital edition autocomplete?
 
 admin.site.register(SourceType, SourceTypeAdmin)
 admin.site.register(Bibliography, BibliographyAdmin)

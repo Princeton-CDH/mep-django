@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from djiffy.models import Canvas, Manifest
 
 from mep.common.models import Named, Notable
 
@@ -18,6 +19,11 @@ class Bibliography(Notable):  # would citation be a better singular?
     bibliographic_note = models.TextField(
         help_text='Full bibliographic citation')
     source_type = models.ForeignKey(SourceType)
+
+    #: digital version as instance of :class:`djiffy.models.Manifest`
+    manifest = models.OneToOneField(
+        Manifest, blank=True, null=True, on_delete=models.SET_NULL,
+        help_text='Digitized version of lending card, if locally available')
 
     class Meta:
         verbose_name_plural = 'Bibliographies'
@@ -38,11 +44,13 @@ class Footnote(Notable):
     for or against information in the system.
     '''
     bibliography = models.ForeignKey(Bibliography)
-    location = models.TextField(blank=True,
+    location = models.TextField(
+        blank=True,
         help_text='Page number for a book, URL for part of a website,' +
         ' or other location inside of a larger work.')
     snippet_text = models.TextField(blank=True)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE,
         # restrict choices to "content" models (exclude django/admin models)
         # and models that are available in django admin
         # (otherwise, lookup is not possible)
@@ -60,6 +68,10 @@ class Footnote(Notable):
     is_agree = models.BooleanField('Supports', help_text='True if the evidence ' +
         'supports the information in the system, False if it contradicts.',
         default=True)
+
+    image = models.ForeignKey(
+        Canvas, blank=True, null=True,
+        help_text='''Image location from an imported manifest, if available.''')
 
     def __str__(self):
         return 'Footnote on %s (%s)' % (self.content_object,
