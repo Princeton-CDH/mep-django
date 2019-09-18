@@ -1060,3 +1060,9 @@ class TestMembershipActivities(TestCase):
         self.assertContains(
             response, '-%d %s' % (reimburse.refund,
                                   reimburse.currency_symbol()))
+
+        # test member with no membership activity
+        response = self.client.get(reverse('people:membership-activities',
+                                   kwargs={'pk': 189}))
+        self.assertNotContains(response, '<table')
+        self.assertContains(response, 'No documented membership activity')

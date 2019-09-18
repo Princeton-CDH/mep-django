@@ -58,6 +58,9 @@
     </form>
     {% endcomment %}
 
+    {% if not event_list.count %}
+    <p>No documented membership activity.</p>
+    {% else %}
     <table id="activity-table">
         <thead>
             <tr>
@@ -91,7 +94,7 @@
             </td>
         </tr>
         {% endfor %}
-
     </table>
+    {% endif %}
 </div>
 {% endblock %}
