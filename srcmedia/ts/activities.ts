@@ -1,6 +1,10 @@
-import Tablesort from 'tablesort';
+import Tablesort from 'tablesort'
+import { sortItem, compareItem } from './lib/sort'
 
 import StickyControls from './components/StickyControls'
+
+// enable numeric sorting in Tablesort
+Tablesort.extend('number', sortItem, compareItem)
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -18,11 +22,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // const stickyControls = new StickyControls($tableHeaderElement, $tableHeader)
     const stickyControls = new StickyControls($tableHeaderElement)
 
-
-    Tablesort($table);
-
-    // $expand.onclick
-
-    // $html.classList.remove('no-js') // remove the 'no-js' class
-
+    Tablesort($table)
 })
