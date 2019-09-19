@@ -5,7 +5,7 @@ from django.contrib.contenttypes.admin import GenericTabularInline
 from dal import autocomplete
 
 from mep.common.admin import NamedNotableAdmin
-from mep.footnotes.models import SourceType, Bibliography, Footnote
+from mep.footnotes.models import Bibliography, Footnote, SourceType
 
 
 class FootnoteAdminForm(forms.ModelForm):
@@ -21,6 +21,14 @@ class FootnoteAdminForm(forms.ModelForm):
                 }
             ),
         }
+
+
+def figgy_uri_from_manifest(manifest_uri):
+    '''Generate a figgy item url from manifest or canvas id.'''
+    # this logic is figgy-specific
+    return manifest_uri.replace('/concern/scanned_resources/',
+                                '/catalog/') \
+                       .partition('/manifest')[0]
 
 
 class FootnoteAdmin(admin.ModelAdmin):
@@ -39,22 +47,27 @@ class FootnoteAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'bibliography', 'location',
-                ('image_location', 'image'),
+                ('image', 'image_thumbnail'),
                 'snippet_text', 'is_agree', 'notes')
         })
     ]
 
-    readonly_fields = ('image',)
+    readonly_fields = ('image_thumbnail',)
 
     related_lookup_fields = {
         'generic': [['content_type', 'object_id']]
     }
 
-    def image(self, obj):
+    def image_thumbnail(self, obj):
         '''thumbnail for image location if associated'''
-        if obj.image_location:
-            return obj.image.admin_thumbnail()
-    image.allow_tags = True
+        if obj.image:
+            img = obj.image.admin_thumbnail()
+            if 'figgy.princeton' in obj.image.uri:
+                img = '<a target="_blank" href="%s">%s</a>' % \
+                    (figgy_uri_from_manifest(obj.image.uri),
+                     img)
+            return img
+    image_thumbnail.allow_tags = True
 
 
 class FootnoteInline(GenericTabularInline):
@@ -71,8 +84,8 @@ class SourceTypeAdmin(NamedNotableAdmin):
 
 class BibliographyAdmin(admin.ModelAdmin):
     list_display = (
-        'manifest_thumbnail', 'bibliographic_note', 'source_type',
-        'footnote_count', 'note_snippet'
+        'bibliographic_note', 'source_type',
+        'footnote_count', 'note_snippet', 'manifest_thumbnail'
     )
     search_fields = ('bibliographic_note', 'notes')
     fields = (
@@ -84,7 +97,12 @@ class BibliographyAdmin(admin.ModelAdmin):
 
     def manifest_thumbnail(self, obj):
         if obj.manifest:
-            return obj.manifest.admin_thumbnail()
+            img = obj.manifest.admin_thumbnail()
+            if 'figgy.princeton' in obj.manifest.uri:
+                img = '<a target="_blank" href="%s">%s</a>' % \
+                    (figgy_uri_from_manifest(obj.manifest.uri),
+                     img)
+            return img
     manifest_thumbnail.allow_tags = True
 
 # TODO: digital edition autocomplete?
