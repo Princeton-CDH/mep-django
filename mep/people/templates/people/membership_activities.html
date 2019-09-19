@@ -72,7 +72,7 @@
                 <th data-sort-method="number">Duration</th>
                 <th data-sort-default>Start Date</th>
                 <th>End Date</th>
-                <th>Amount</th>
+                <th data-sort-method="number">Amount</th>
             </tr>
         </thead>
         {% for event in event_list %}
@@ -84,13 +84,12 @@
             <td class="end" data-sort="{{ event.end_date|date:"Ymd" }}">
                 {% if event.reimbursement %} - {% else %}{{ event.end_date|default:'-' }}{% endif %}
             </td>
-            <td class="amount">
-            {% if event.subscription and event.subscription.price_paid%}
-                {{ event.subscription.price_paid|floatformat }} {{ event.subscription.currency_symbol }}
-            {% elif event.reimbursement and event.reimbursement.refund %}
-                -{{ event.reimbursement.refund|floatformat }} {{ event.reimbursement.currency_symbol }}
-            {% else %} -
-            {% endif %}
+            {# amount is either subscription price or refund amount; refund is negative #}
+            {% with subscription_price=event.subscription.price_paid refund=event.reimbursement.refund %}
+            <td class="amount" data-sort="{% if refund %}-{% endif %}{% firstof subscription_price refund 0 %}">
+                {# only display currency if there is a value #}
+                {% if refund %}-{% endif %}{% firstof subscription_price|floatformat refund|floatformat '-' %}{% if subscription_price or refund %} {% firstof event.subscription.currency_symbol event.reimbursement.currency_symbol '' %}{% endif %}
+            {% endwith %}
             </td>
         </tr>
         {% endfor %}
