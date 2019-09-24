@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load mep_tags %}
 
 {% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
 
@@ -25,10 +26,16 @@
         <a href="#">cards</a>
     </li>
 </nav>
-<section class="biography">
-    <section class="details">
+<section class="biography" aria-label="biography">
+    <div class="details">
         {% include 'people/snippets/member_result.html' %}
-    </section>
-    <section class="map"></section>
+    </div>
+    <div class="timeline">
+        <script>
+            const data = {{ timeline|json }}
+            console.log('timeline data: ', data)
+        </script>
+    </div>
+    <div class="map"></div>
 </section>
 {% endblock %}

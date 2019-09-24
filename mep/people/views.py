@@ -1,3 +1,7 @@
+from collections import defaultdict
+from datetime import timedelta
+from itertools import chain
+
 from dal import autocomplete
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -63,7 +67,6 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
             form_data.setdefault(key, val)
 
         kwargs['data'] = form_data
-
 
         # get min/max configuration for range fields
         kwargs['range_minmax'] = self.get_range_stats()
@@ -131,7 +134,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
             if search_opts['query']:
                 sqs = sqs.search(self.search_name_query) \
                          .raw_query_parameters(name_query=search_opts['query']) \
-                         .also('score') # include relevance score in results
+                         .also('score')  # include relevance score in results
 
             if search_opts['has_card']:
                 sqs = sqs.filter(has_card=search_opts['has_card'])
@@ -140,7 +143,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
 
             # range filter by membership dates, if set
             if search_opts['membership_dates']:
-                sqs = sqs.filter(account_years__range=search_opts['membership_dates'])
+                sqs = sqs.filter(
+                    account_years__range=search_opts['membership_dates'])
             # range filter by birth year, if set
             if search_opts['birth_year']:
                 sqs = sqs.filter(birth_year__range=search_opts['birth_year'])
@@ -153,7 +157,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self._form.set_choices_from_facets(self.object_list.get_facets()['facet_fields'])
+        self._form.set_choices_from_facets(
+            self.object_list.get_facets()['facet_fields'])
         return context
 
     def get_page_labels(self, paginator):
@@ -201,6 +206,49 @@ class MemberDetail(DetailView, RdfViewMixin):
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
         return self.object.get_absolute_url()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        account = self.object.account_set.first()
+        month_counts = defaultdict(int)
+        # count events by month
+        for event in account.event_set.book_activities():
+            if event.start_date:
+                month_counts[event.start_date.strftime('%Y-%m-01')] += 1
+            # if end date is different from start date, count that also
+            if event.end_date and event.start_date != event.end_date:
+                month_counts[event.end_date.strftime('%Y-%m-01')] += 1
+        # find active date ranges
+        activity_ranges = []
+        current_range = None
+        for event in account.event_set.all():
+            if not event.start_date or not event.end_date:
+                continue
+            if not current_range:
+                current_range = [event.start_date, event.end_date]
+            elif current_range[0] <= event.start_date <= (current_range[1] + timedelta(days=1)):
+                current_range[1] = max(event.end_date, current_range[1])
+            else:
+                activity_ranges.append(current_range)
+                current_range = [event.start_date, event.end_date]
+
+        activity_ranges.append(current_range)
+
+        context['timeline'] = {
+            'membership_activities': [
+                {'startDate': event.start_date.isoformat(),
+                 'endDate': event.end_date.isoformat(),
+                 'type': event.event_type
+                 }
+                for event in account.event_set.membership_activities()
+            ],
+            'book_activities': month_counts,
+            'activity_ranges': [
+                {'startDate': start.isoformat(),
+                 'endDate': end.isoformat()
+                 } for start, end in activity_ranges]
+        }
+        return context
 
     def get_breadcrumbs(self):
         '''Get the list of breadcrumbs and links to display for this page.'''
@@ -267,7 +315,7 @@ class GeoNamesLookup(autocomplete.Select2ListView):
             })
 
         results = geo_api.search(self.q, max_rows=50, name_start=True,
-            **extra_args)
+                                 **extra_args)
         return JsonResponse({
             'results': [dict(
                 id=geo_api.uri_from_id(item['geonameId']),
@@ -294,6 +342,7 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
     Basic person autocomplete lookup, for use with django-autocomplete-light.
     Use Q objects to help distinguish people using mepid.
     '''
+
     def get_result_label(self, person):
         '''
         Provide a more detailed result label for the people autocomplete that
@@ -326,8 +375,8 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
             # pull the first event
             if person.account_set.first():
                 event = Event.objects.filter(
-                        account=person.account_set.first()
-                    ).order_by('start_date').first()
+                    account=person.account_set.first()
+                ).order_by('start_date').first()
                 # if it has a first event (not all do), return that event
                 if event:
                     labels['start_date'] = event.start_date
@@ -344,17 +393,17 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
                                **labels)
         # we have some of the information, return it in an interpolated string
         return format_html(
-                    '<strong>{main_string}{bio_dates}'
-                    '</strong>{mep_id}<br /> {note_string}'.strip(),
-                    **labels
-                )
+            '<strong>{main_string}{bio_dates}'
+            '</strong>{mep_id}<br /> {note_string}'.strip(),
+            **labels
+        )
 
     def get_queryset(self):
         ''':class:`~mep.people.models.Person` queryset, filtered on
         text in name or MEP id (case-insensitive, partial match)'''
         return Person.objects.filter(
-                Q(name__icontains=self.q) |
-                Q(mep_id__icontains=self.q)
+            Q(name__icontains=self.q) |
+            Q(mep_id__icontains=self.q)
         )
 
 
@@ -444,7 +493,7 @@ class PersonMerge(PermissionRequiredMixin, FormView):
         existing_events = 0
         existing_creators = 0
 
-        if primary_person.has_account(): # get existing events, if any
+        if primary_person.has_account():  # get existing events, if any
             primary_account = primary_person.account_set.first()
             existing_events = primary_account.event_set.count()
 
@@ -457,29 +506,31 @@ class PersonMerge(PermissionRequiredMixin, FormView):
                           .merge_with(primary_person)
 
             message = 'Merge for <a href="%s">%s</a> complete.' % (
-                reverse('admin:people_person_change', args=[primary_person.id]),
+                reverse('admin:people_person_change',
+                        args=[primary_person.id]),
                 primary_person
             )
 
-            if primary_person.has_account(): # calculate events reassociated
-                primary_account = primary_person.account_set.first() # if there wasn't one before
+            if primary_person.has_account():  # calculate events reassociated
+                primary_account = primary_person.account_set.first()  # if there wasn't one before
                 added_events = primary_account.event_set.count() - existing_events
                 message += ' Reassociated %d event%s with <a href="%s">%s</a>.' % (
                     added_events,
                     's' if added_events != 1 else '',
-                    reverse('admin:accounts_account_change', args=[primary_account.id]),
+                    reverse('admin:accounts_account_change',
+                            args=[primary_account.id]),
                     primary_account
                 )
-            else: # no accounts merged
+            else:  # no accounts merged
                 message += ' No accounts to reassociate.'
 
-            if primary_person.is_creator(): # calculate creator roles reassociated
+            if primary_person.is_creator():  # calculate creator roles reassociated
                 added_creators = primary_person.creator_set.count() - existing_creators
                 message += ' Reassociated %d creator role%s on items.' % (
                     added_creators,
                     's' if added_creators != 1 else ''
                 )
-            else: # no creators reassociated
+            else:  # no creators reassociated
                 message += ' No creator relationships to reassociate.'
 
             messages.success(self.request, mark_safe(message))

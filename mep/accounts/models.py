@@ -262,6 +262,10 @@ class EventQuerySet(models.QuerySet):
         return self.filter(models.Q(subscription__isnull=False) |
                            models.Q(reimbursement__isnull=False))
 
+    def book_activities(self):
+        '''All events tied to a :class:`~mep.books.models.Work`.'''
+        return self.filter(work__isnull=False)
+
 
 class Event(Notable, PartialDateMixin):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
