@@ -236,13 +236,17 @@ class MemberDetail(DetailView, RdfViewMixin):
 
         context['timeline'] = {
             'membership_activities': [
-                {'startDate': event.start_date.isoformat(),
-                 'endDate': event.end_date.isoformat(),
+                {'startDate': event.start_date.isoformat() if event.start_date else '',
+                 'endDate': event.end_date.isoformat() if event.end_date else '',
                  'type': event.event_type
                  }
                 for event in account.event_set.membership_activities()
             ],
-            'book_activities': month_counts,
+            'book_activities': [
+                {'startDate': start_date, 
+                 'count': count
+                } for start_date, count in month_counts.items()
+            ],
             'activity_ranges': [
                 {'startDate': start.isoformat(),
                  'endDate': end.isoformat()
