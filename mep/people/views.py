@@ -212,6 +212,7 @@ class MemberDetail(DetailView, RdfViewMixin):
         account = self.object.account_set.first()
         month_counts = defaultdict(int)
         # count events by month
+        # FIXME doesn't handle partial dates
         for event in account.event_set.book_activities():
             if event.start_date:
                 month_counts[event.start_date.strftime('%Y-%m-01')] += 1
@@ -219,6 +220,7 @@ class MemberDetail(DetailView, RdfViewMixin):
             if event.end_date and event.start_date != event.end_date:
                 month_counts[event.end_date.strftime('%Y-%m-01')] += 1
         # find active date ranges
+        # FIXME doesn't handle partial dates
         activity_ranges = []
         current_range = None
         for event in account.event_set.all():
@@ -236,8 +238,8 @@ class MemberDetail(DetailView, RdfViewMixin):
 
         context['timeline'] = {
             'membership_activities': [
-                {'startDate': event.start_date.isoformat() if event.start_date else '',
-                 'endDate': event.end_date.isoformat() if event.end_date else '',
+                {'startDate': event.start_date.isoformat() if event.start_date else '', # FIXME partial dates
+                 'endDate': event.end_date.isoformat() if event.end_date else '', # FIXME partial dates
                  'type': event.event_type
                  }
                 for event in account.event_set.membership_activities()
