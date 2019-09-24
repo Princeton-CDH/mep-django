@@ -1,14 +1,14 @@
 import csv
-from os.path import splitext
-
 
 from django.conf import settings
-from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.admin.models import CHANGE, LogEntry
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
-from djiffy.models import IIIFPresentation
+from django.db import models
+
 from djiffy.importer import ManifestImporter
+from djiffy.models import IIIFPresentation
 
 from mep.footnotes.models import Bibliography, Footnote
 
@@ -19,6 +19,7 @@ class Command(BaseCommand):
     help = __doc__
 
     pudl_basepath = 'https://diglib.princeton.edu/tools/ib/pudl0123/825298/'
+    log_message = 'Migrated from pudl to figgy'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -31,113 +32,144 @@ class Command(BaseCommand):
         # Read in the CSV to generate a dictionary lookup of PUDL base
         # filename to figgy file site id, scanned resource id, canvas id
 
-
-        # loop over csv file
-        # get groups of paths for each manifest id
-        # find matching bibliography with all paths
-        # - if no match, error!
-        # update bibliography
-        # update associated footnotes
-
-        mapping = {}
-        with open(kwargs['csv']) as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                row['pudl filename']
-                mapping[row['pudl filename']] = row
-
         card_bibliographies = Bibliography.objects\
             .filter(notes__contains=self.pudl_basepath)
 
-        self.stdout.write('Found %d bibliographies with pudl image path' %
+        self.stdout.write('Found %d bibliographies with pudl image paths' %
                           card_bibliographies.count())
-        # TODO: bail if nothing to do
+        # bail out if there is nothing to do
+        if not card_bibliographies.count():
+            return
 
-        importer = ManifestImporter(stdout=self.stdout, stderr=self.stderr,
-                                    style=self.style, update=kwargs['update'])
-
+        # initialize manifest importer
+        self.importer = ManifestImporter(
+            stdout=self.stdout, stderr=self.stderr, style=self.style,
+            update=kwargs['update'])
+        # initialize user and content types for creating log entries
         self.script_user = User.objects.get(username=settings.SCRIPT_USERNAME)
         self.bib_ctype = ContentType.objects.get_for_model(Bibliography).pk
         self.footnote_ctype = ContentType.objects.get_for_model(Footnote).pk
 
-        for card in card_bibliographies:
-            # TODO convert into method ?
-            image_paths = [
-                path.partition(self.pudl_basepath)[2].strip()
-                    .replace('.jp2', '.tif').replace('.jpg', '.tif').lstrip('/')
-                for path in card.notes.split('\n')
-                if self.pudl_basepath in path
-            ]
+        # loop over csv file and get all image paths for each manifest id
+        manifest_id = None
+        image_paths = []
+        canvas_map = {}
+        with open(kwargs['csv']) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                # if manifest id is set and we hit a new id, process
+                # the previous manifest with all gathered paths
+                if manifest_id and manifest_id != row['scanned_resource.id']:
+                    # update bibliography record
+                    # generate manifest URI from canvas id (split on canvas)
+                    manifest_uri = list(canvas_map.values())[0]\
+                        .partition('/canvas/')[0]
+                    # if manifest uri is not set, store it
+                    card = self.migrate_card_bibliography(manifest_uri,
+                                                          image_paths)
+                    # migrate footnotes
+                    if card:
+                        self.migrate_footnotes(card, canvas_map)
 
-            manifest_uri = None
-            for img in image_paths:
+                    # clear out path list and mapping for next manifest
+                    image_paths = []
+                    canvas_map = {}
 
-                # print(img)
-                # print(mapping[img]['scanned_resource.id'])
-                # get manifest uri for this canvas
-                img_manifest = mapping[img]['canvas.id'].partition('/canvas/')[0]
-                # if manifest uri is not set, store it
-                if manifest_uri is None:
-                    manifest_uri = img_manifest
-                # if it is already set, make sure we have the same one
-                elif manifest_uri != img_manifest:
-                    self.stdout.write('Manifest error!')
-                    continue
+                # store current manifest id
+                manifest_id = row['scanned_resource.id']
+                # add to list of image paths
+                # remove .tif extension for simplicity, since some notes
+                # have .jpg or .jp2
+                image_paths.append(row['pudl filename'].replace('.tif', ''))
+                # store mapping from filename to canvas id for updating
+                # associated footnotes
+                canvas_map[row['pudl filename']] = row['canvas.id']
 
-            iiifpres = IIIFPresentation.from_url(manifest_uri)
-            # import the manifest into the database
-            db_manifest = importer.import_manifest(iiifpres, manifest_uri)
-            print(db_manifest)
-            # associate it with the bibliography and remove the notes
-            card.manifest = db_manifest
-            # NOTE: assumes notes are *only* image paths.
-            # (used to generate export for figgy, so should be reasonable)
-            card.notes = ''
-            card.save()
+        # process the last manifest in the file after the loop finishes
+        manifest_uri = list(canvas_map.values())[0].partition('/canvas/')[0]
+        card = self.migrate_card_bibliography(manifest_uri,
+                                              image_paths)
+        self.migrate_footnotes(card, canvas_map)
 
-            # TODO: fix footnotes
-            # TODO: django history
+        # TODO: clean up abandoned footnotes (?)
 
-            # for each image, find and update all footnotes with that path
-            print(card)
-            for img in image_paths:
-                print(img)
-                # search on the image path without the extension, since
-                # csv uses .tif but many pudl urls are .jp2
-                imgpath = splitext(img)[0]
-                print(imgpath)
-                canvas_id = mapping[img]['canvas.id']
-
-                fn_count = card.footnote_set.filter(location__contains=imgpath).count()
-                if fn_count:
-                    print(manifest_uri)
-                    print('%d footnotes' % fn_count)
-                    print(canvas_id)
-                # skip if no footnotes to update
-                else:
-                    continue
-
-                canvas = db_manifest.canvases.get(uri=canvas_id)
-                card.footnote_set.filter(location__contains=imgpath) \
-                    .update(
-                        location=canvas_id,
-                        image=canvas,
-                        bibliography=card
-                )
-
-
-                # TODO: edit goodwin footnote to remove tif 0004 ? (actually enfield()
-
-
-                # footnotes = Footnote.objects.filter(location__contains=img)
-                # for footnote in footnotes:
-                #     # convert location note o new canvas id
-                #     footnote.location = canvas_id
-                #     # associate canvas
-                #     footnote.image_location = canvas
-                #     # make sure footnote is associated with current card bibliography
-                #     footnote.bibliography = card
-                #     # save footnote
-                #     footnote.save()
+        # summarize what was done
 
         # self.summarize(dmi.stats)
+
+    def migrate_card_bibliography(self, manifest_uri, image_paths):
+        # generate a q filter to find a bibliography record that
+        # matches *all* paths
+        q_filter = models.Q()
+        for path in image_paths:
+            q_filter &= models.Q(notes__contains=path)
+
+        cards = Bibliography.objects.filter(q_filter)
+        # since some images are used in more than one card, it's
+        # possible to find more than one match if we process the shorter
+        # image list first
+        card = None
+        # if we found exactly one card, use it
+        if cards.count() == 1:
+            card = cards.first()
+        # otherwise, find the best match
+        if cards.count() > 1:
+            # find the best match based on number of images
+            for card in cards:
+                # if the number of images match, use this card
+                if card.notes.count(self.pudl_basepath) == len(image_paths):
+                    break
+                else:
+                    card = None
+
+        if card is None:
+            self.stderr.write('Could not identify card for %s' %
+                              ','.join(image_paths))
+            return
+
+        # if card is found, import the manifest and associate
+        iiifpres = IIIFPresentation.from_url(manifest_uri)
+        # import the manifest into the database
+        db_manifest = self.importer.import_manifest(iiifpres, manifest_uri)
+        # associate it with the bibliography and remove the notes
+        card.manifest = db_manifest
+        # NOTE: assumes notes are *only* image paths.
+        # (these were used to generate export for figgy, so this is reasonable)
+        card.notes = ''
+        card.save()
+
+        # create log entry to document the change
+        LogEntry.objects.log_action(
+            user_id=self.script_user.id,
+            content_type_id=self.bib_ctype,
+            object_id=card.pk,
+            object_repr=repr(card),
+            change_message=self.log_message,
+            action_flag=CHANGE)
+
+        # return the bibliography object
+        return card
+
+    def migrate_footnotes(self, card, canvas_map):
+        for imgpath, canvas_id in canvas_map.items():
+            footnotes = card.footnote_set.filter(location__contains=imgpath)
+            if footnotes.exists():
+                # get the canvas object
+                canvas = card.manifest.canvases.get(uri=canvas_id)
+                # update all cards at once
+                footnotes.update(
+                    location=canvas_id,
+                    image=canvas,
+                    bibliography=card
+                )
+                # bulk create log entry records for the updated footnotes
+                LogEntry.objects.bulk_create([
+                    LogEntry(user_id=self.script_user.id,
+                             content_type_id=self.footnote_ctype,
+                             object_id=footnote.id,
+                             object_repr=repr(footnote),
+                             change_message=self.log_message,
+                             action_flag=CHANGE
+                             )
+                    for footnote in footnotes
+                ])
