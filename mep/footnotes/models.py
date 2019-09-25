@@ -59,7 +59,7 @@ class Footnote(Notable):
             model__in=['country', 'person', 'address', 'profession']) |
             models.Q(app_label='accounts',
                 model__in=['account', 'event', 'subscription', 'borrow',
-                           'reimbursement']) |
+                           'reimbursement', 'purchase']) |
             models.Q(app_label='books',
                 model__in=['item'])
         )
