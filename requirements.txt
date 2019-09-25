@@ -5,7 +5,7 @@ cached_property
 pucas>=0.6
 eulxml
 viapy
-wagtail>=2.3,<2.4
+wagtail
 django-autocomplete-light<3.3
 python-dateutil
 django-apptemplates
