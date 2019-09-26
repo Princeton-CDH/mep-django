@@ -3,6 +3,11 @@
 CHANGELOG
 =========
 
+0.20
+----
+
+* As a user, I want to see a chronological list of membership activities for a single library member so that I can see the complete subscription activity for that person.
+
 0.19
 ----
 

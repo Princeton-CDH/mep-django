@@ -91,6 +91,11 @@ class Profession(Named, Notable):
 class PersonQuerySet(models.QuerySet):
     '''Custom :class:`models.QuerySet` for :class:`Person`'''
 
+    def library_members(self):
+        '''Rsestrict queryset to people who are library members,
+        based on assocatide account.'''
+        return self.exclude(account=None)
+
     @transaction.atomic
     def merge_with(self, person):
         '''Merge all person records in the current queryset with the

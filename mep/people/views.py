@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -203,11 +204,45 @@ class MemberDetail(DetailView, RdfViewMixin):
 
     def get_breadcrumbs(self):
         '''Get the list of breadcrumbs and links to display for this page.'''
-        # FIXME duplicating get_absolute_url() from MembersList here
         return [
             ('Home', absolutize_url('/')),
-            ('Members', absolutize_url(reverse('people:members-list'))),
+            ('Members', MembersList().get_absolute_url()),
             (self.object.short_name, self.get_absolute_url())
+        ]
+
+
+class MembershipActivities(ListView, RdfViewMixin):
+    '''Display a list of membership activities (subscriptions, renewals,
+    and reimbursements) for an individual member.'''
+    model = Event
+    template_name = 'people/membership_activities.html'
+
+    def get_queryset(self):
+        # filter to requested person, then get membership activities
+        return super().get_queryset() \
+                      .filter(account__persons__pk=self.kwargs['pk']) \
+                      .membership_activities()
+
+    def get_context_data(self, **kwargs):
+        # should 404 if not a person or valid person but not a library member
+        # store member before calling super so available for breadcrumbs
+        self.member = get_object_or_404(Person.objects.library_members(),
+                                        pk=self.kwargs['pk'])
+        context = super().get_context_data(**kwargs)
+        context['member'] = self.member
+        return context
+
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
+        return reverse('people:membership-activities', kwargs=self.kwargs)
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            ('Members', MembersList().get_absolute_url()),
+            (self.member.short_name, self.member.get_absolute_url()),
+            ('Membership Activities', self.get_absolute_url())
         ]
 
 
@@ -399,8 +434,7 @@ class PersonMerge(PermissionRequiredMixin, FormView):
             # by default, prefer the first record created
             return {'primary_person': sorted(self.person_ids)[0]}
 
-        else:
-            self.person_ids = []
+        self.person_ids = []
 
     def form_valid(self, form):
         # process the valid POSTed form

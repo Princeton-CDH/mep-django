@@ -317,6 +317,15 @@ class TestPerson(TestCase):
 
 class TestPersonQuerySet(TestCase):
 
+    def test_library_members(self):
+        jones = Person.objects.create(name='Jones')
+        # person with no account = no members
+        assert not Person.objects.library_members().exists()
+
+        acct = Account.objects.create()
+        acct.persons.add(jones)
+        assert jones in Person.objects.library_members()
+
     def test_merge_with(self):
         # create test records to merge
         Person.objects.bulk_create([

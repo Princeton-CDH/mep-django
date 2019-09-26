@@ -17,6 +17,7 @@ module.exports = env => ({
         ],
         memberSearch: './ts/members-search.ts',
         booksSearch: './ts/books-search.ts',
+        activities: './ts/activities.ts',
     },
     output: {
         path: path.resolve(__dirname, 'bundles'), // where to output bundles
@@ -79,7 +80,7 @@ module.exports = env => ({
             'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
         },
         stats: { // hides file-level verbose output when server is running
-            children: false, 
+            children: false,
             modules: false,
         }
     },

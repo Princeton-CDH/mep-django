@@ -56,6 +56,7 @@
         "whatwg-fetch": "^3.0.0"
     },
     "dependencies": {
-        "rxjs": "^6.5.1"
+        "rxjs": "^6.5.1",
+        "tablesort": "^5.1.0"
     }
 }

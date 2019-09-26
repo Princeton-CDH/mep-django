@@ -7,20 +7,22 @@ from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import User, Permission
 from django.core.paginator import Paginator
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.template.defaultfilters import date as format_date
 from django.test import TestCase, RequestFactory
 from django.urls import reverse, resolve
+import pytest
 
 from mep.accounts.models import Account, Address, Event, Subscription, \
-    Reimbursement
+    SubscriptionType, Reimbursement
 from mep.books.models import Work, CreatorType, Creator
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person, Relationship, \
     RelationshipType
-from mep.people.views import GeoNamesLookup, PersonMerge, MembersList
+from mep.people.views import GeoNamesLookup, PersonMerge, MembersList, \
+    MembershipActivities
 from mep.footnotes.models import Bibliography, SourceType
 
 
@@ -956,3 +958,111 @@ class TestMemberDetailView(TestCase):
         response = self.client.get(url)
         assert response.status_code == 404, \
             'non-members should not have a detail page'
+
+
+class TestMembershipActivities(TestCase):
+    fixtures = ['sample_people.json']
+    # NOTE: might want an event fixture for testing at some point
+
+    def setUp(self):
+        self.member = Person.objects.get(pk=224)
+        self.view = MembershipActivities()
+        self.view.kwargs = {'pk': self.member.pk}
+
+        # create account with test events
+        acct = Account.objects.create()
+        acct.persons.add(self.member)
+        subtype = SubscriptionType.objects.create(name='Std')
+        # create one event of each type to test with
+        self.events = {
+            'subscription': Subscription.objects.create(
+                account=acct, category=subtype, start_date=date(1920, 3, 1),
+                end_date=date(1920, 4, 1), price_paid=30,
+                currency='FRF'),
+            'reimbursement': Reimbursement.objects.create(
+                account=acct, start_date=date(1920, 5, 5),
+                end_date=date(1920, 5, 5), refund=15, currency='USD'),
+            'generic': Event.objects.create(account=acct)
+        }
+
+    def test_get_queryset(self):
+        events = self.view.get_queryset()
+        # should have two events
+        assert events.count() == 2
+        # should return teh event object
+        assert self.events['subscription'].event_ptr in events
+        assert self.events['reimbursement'].event_ptr in events
+
+    def test_get_context_data(self):
+        # get queryset must be run first to populate object_list
+        self.view.object_list = self.view.get_queryset()
+        context = self.view.get_context_data()
+        # library member set in context
+        assert context['member'] == self.member
+        # set on the view
+        assert self.view.member == self.member
+
+        # non-member should 404 - try author from fixture
+        self.view.kwargs['pk'] = 7152
+        self.view.object_list = self.view.get_queryset()
+        with pytest.raises(Http404):
+            self.view.get_context_data()
+
+    def test_get_absolute_url(self):
+        assert self.view.get_absolute_url() == \
+            reverse('people:membership-activities',
+                    kwargs={'pk': self.member.pk})
+
+    def test_get_breadcrumbs(self):
+        self.view.object_list = self.view.get_queryset()
+        self.view.get_context_data()
+        self.view.member = self.member
+        crumbs = self.view.get_breadcrumbs()
+        assert crumbs[0][0] == 'Home'
+        # last item is this page
+        assert crumbs[-1][0] == 'Membership Activities'
+        assert crumbs[-1][1] == self.view.get_absolute_url()
+        # second to last is member page
+        assert crumbs[-2][0] == self.member.short_name
+        assert crumbs[-2][1] == self.member.get_absolute_url()
+
+    def test_view_template(self):
+        response = self.client.get(reverse('people:membership-activities',
+                                   kwargs={'pk': self.member.pk}))
+        # table headers
+        self.assertContains(response, 'Type')
+        self.assertContains(response, 'Category')
+        self.assertContains(response, 'Duration')
+        self.assertContains(response, 'Start Date')
+        self.assertContains(response, 'End Date')
+        self.assertContains(response, 'Amount')
+        # event details
+        subs = self.events['subscription']
+        self.assertContains(response, 'Subscription')
+        self.assertContains(response, str(subs.category))
+        self.assertContains(response, subs.readable_duration())
+        # NOTE: can't currently duplicate the django date format used in the
+        # template (and it might not be exactly what we want, either)
+        # self.assertContains(response, subs.start_date.strftime('%b %d, %Y'))
+        self.assertContains(
+            response, 'data-sort="%s"' % subs.start_date.strftime('%Y%m%d'))
+        self.assertContains(
+            response, 'data-sort="%s"' % subs.end_date.strftime('%Y%m%d'))
+        self.assertContains(
+            response, '%d %s' % (subs.price_paid, subs.currency_symbol()))
+        self.assertContains(response, 'Reimbursement')
+        reimburse = self.events['reimbursement']
+        # start/end should be same sort value stwice
+        self.assertContains(
+            response, 'data-sort="%s"' %
+            reimburse.start_date.strftime('%Y%m%d'),
+            count=2)
+        self.assertContains(
+            response, '-%d %s' % (reimburse.refund,
+                                  reimburse.currency_symbol()))
+
+        # test member with no membership activity
+        response = self.client.get(reverse('people:membership-activities',
+                                   kwargs={'pk': 189}))
+        self.assertNotContains(response, '<table')
+        self.assertContains(response, 'No documented membership activity')
