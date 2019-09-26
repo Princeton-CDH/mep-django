@@ -1,10 +1,12 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Mapping Expatriate Paris - Django documentation &#8212; Mapping Expatriate Paris - Django 0.19.0 documentation</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Mapping Expatriate Paris - Django documentation &#8212; Mapping Expatriate Paris - Django 0.20.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -56,29 +58,29 @@ was previously called “Mapping Expatriate Paris” or MEP).</p>
 <h2>Development instructions<a class="headerlink" href="#development-instructions" title="Permalink to this headline">¶</a></h2>
 <p>Initial setup and installation:</p>
 <ul>
-<li><p>recommended: create and activate a python 3.5 virtualenv:</p>
+<li><p class="first">recommended: create and activate a python 3.5 virtualenv:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="n">mep</span> <span class="o">-</span><span class="n">p</span> <span class="n">python3</span><span class="o">.</span><span class="mi">5</span>
 <span class="n">source</span> <span class="n">mep</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
 </pre></div>
 </div>
 </li>
-<li><p>Install required python dependencies:</p>
+<li><p class="first">Install required python dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
 <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">dev</span><span class="o">-</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 </li>
-<li><p>Install javascript dependencies:</p>
+<li><p class="first">Install javascript dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">install</span>
 </pre></div>
 </div>
 </li>
-<li><p>Compile static assets (css and javascript) with sourcemaps for development:</p>
+<li><p class="first">Compile static assets (css and javascript) with sourcemaps for development:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">run</span> <span class="n">build</span><span class="p">:</span><span class="n">qa</span>
 </pre></div>
 </div>
 </li>
-<li><p>Copy sample local settings and configure for your environment:</p>
+<li><p class="first">Copy sample local settings and configure for your environment:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">mep</span><span class="o">/</span><span class="n">local_settings</span><span class="o">.</span><span class="n">py</span><span class="o">.</span><span class="n">sample</span> <span class="n">mep</span><span class="o">/</span><span class="n">local_settings</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
@@ -86,25 +88,25 @@ was previously called “Mapping Expatriate Paris” or MEP).</p>
 </ul>
 <p>Remember to add a <code class="docutils literal notranslate"><span class="pre">SECRET_KEY</span></code> setting!</p>
 <ul>
-<li><p>Run the manage command to create your Solr core and configure the schema:</p>
+<li><p class="first">Run the manage command to create your Solr core and configure the schema:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">solr_schema</span>
 </pre></div>
 </div>
 <p>The manage command will automatically reload the core to ensure schema
 changes take effect.</p>
 </li>
-<li><p>Index all indexable content into Solr:</p>
+<li><p class="first">Index all indexable content into Solr:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">index</span>
 </pre></div>
 </div>
 </li>
-<li><p>optionally, you can populate the Wagtail CMS with stub pages for the main
+<li><p class="first">optionally, you can populate the Wagtail CMS with stub pages for the main
 navigation:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">setup_site_pages</span>
 </pre></div>
 </div>
 </li>
-<li><p>If running this application on MariaDB/MySQL, you must make sure that
+<li><p class="first">If running this application on MariaDB/MySQL, you must make sure that
 time zone definitions are installed. On most flavors of Linux/MacOS,
 you may use the following command, which will prompt
 for the database server’s root password:</p>
@@ -210,9 +212,14 @@ directory:</p>
 <span class="n">make</span> <span class="n">html</span>
 </pre></div>
 </div>
-<p>When building for a release <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">docs</span></code> will create a folder called <code class="docutils literal notranslate"><span class="pre">docs</span></code>,
-build the HTML documents and static assets, and force add it to the commit for
-use with Github Pages.</p>
+<p>To build and publish documentation for a release, add the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch
+to the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder in your worktree:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">worktree</span> <span class="n">add</span> <span class="o">-</span><span class="n">B</span> <span class="n">gh</span><span class="o">-</span><span class="n">pages</span> <span class="n">docs</span> <span class="n">origin</span><span class="o">/</span><span class="n">gh</span><span class="o">-</span><span class="n">pages</span>
+</pre></div>
+</div>
+<p>In the <code class="docutils literal notranslate"><span class="pre">sphinx-docs</span></code> folder, use <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">docs</span></code> to build the HTML documents
+and static assets, add it to the docs folder, and commit it for publication on
+Github Pages. After the build completes, push to GitHub from the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder.</p>
 </div>
 <div class="section" id="license">
 <h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
@@ -222,9 +229,9 @@ use with Github Pages.</p>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
 </ul>
 </div>
 
@@ -300,11 +307,13 @@ use with Github Pages.</p>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -323,7 +332,7 @@ use with Github Pages.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

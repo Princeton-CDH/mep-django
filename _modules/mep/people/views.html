@@ -1,10 +1,12 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.19.0 documentation</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.20.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,6 +39,7 @@
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span>
 <span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Q</span>
 <span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">JsonResponse</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">get_object_or_404</span>
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">format_html</span>
 <span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="k">import</span> <span class="n">mark_safe</span>
@@ -236,11 +239,45 @@
 
 <div class="viewcode-block" id="MemberDetail.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
-        <span class="c1"># FIXME duplicating get_absolute_url() from MembersList here</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
-            <span class="p">(</span><span class="s1">&#39;Members&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:members-list&#39;</span><span class="p">))),</span>
+            <span class="p">(</span><span class="s1">&#39;Members&#39;</span><span class="p">,</span> <span class="n">MembersList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">short_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+        <span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="MembershipActivities"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities">[docs]</a><span class="k">class</span> <span class="nc">MembershipActivities</span><span class="p">(</span><span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Display a list of membership activities (subscriptions, renewals,</span>
+<span class="sd">    and reimbursements) for an individual member.&#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Event</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/membership_activities.html&#39;</span>
+
+<div class="viewcode-block" id="MembershipActivities.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># filter to requested person, then get membership activities</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span> \
+                      <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account__persons__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;pk&#39;</span><span class="p">])</span> \
+                      <span class="o">.</span><span class="n">membership_activities</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MembershipActivities.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># should 404 if not a person or valid person but not a library member</span>
+        <span class="c1"># store member before calling super so available for breadcrumbs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">member</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">library_members</span><span class="p">(),</span>
+                                        <span class="n">pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;pk&#39;</span><span class="p">])</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;member&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span>
+        <span class="k">return</span> <span class="n">context</span></div>
+
+<div class="viewcode-block" id="MembershipActivities.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the full URI of this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:membership-activities&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MembershipActivities.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;Members&#39;</span><span class="p">,</span> <span class="n">MembersList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">short_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+            <span class="p">(</span><span class="s1">&#39;Membership Activities&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
         <span class="p">]</span></div></div>
 
 
@@ -432,8 +469,7 @@
             <span class="c1"># by default, prefer the first record created</span>
             <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;primary_person&#39;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]}</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span> <span class="o">=</span> <span class="p">[]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">person_ids</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 <div class="viewcode-block" id="PersonMerge.form_valid"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonMerge.form_valid">[docs]</a>    <span class="k">def</span> <span class="nf">form_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
         <span class="c1"># process the valid POSTed form</span>
@@ -548,11 +584,13 @@
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -571,7 +609,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
