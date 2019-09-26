@@ -28,14 +28,6 @@
     }
 },
 {
-    "model": "contenttypes.contenttype",
-    "pk": 2,
-    "fields": {
-        "app_label": "accounts",
-        "model": "event"
-    }
-},
-{
     "model": "footnotes.bibliography",
     "pk": 387,
     "fields": {
