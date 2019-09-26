@@ -21,7 +21,7 @@ class Bibliography(Notable):  # would citation be a better singular?
     source_type = models.ForeignKey(SourceType)
 
     #: digital version as instance of :class:`djiffy.models.Manifest`
-    manifest = models.OneToOneField(
+    manifest = models.ForeignKey(
         Manifest, blank=True, null=True, on_delete=models.SET_NULL,
         help_text='Digitized version of lending card, if locally available')
 

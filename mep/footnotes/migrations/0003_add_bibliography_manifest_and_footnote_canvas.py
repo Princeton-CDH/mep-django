@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='bibliography',
             name='manifest',
-            field=models.OneToOneField(blank=True, help_text='Digitized version of lending card, if locally available', null=True, on_delete=django.db.models.deletion.SET_NULL, to='djiffy.Manifest'),
+            field=models.ForeignKey(blank=True, help_text='Digitized version of lending card, if locally available', null=True, on_delete=django.db.models.deletion.SET_NULL, to='djiffy.Manifest'),
         ),
         migrations.AddField(
             model_name='footnote',
