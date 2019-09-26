@@ -1,4 +1,6 @@
 import csv
+import os.path
+import re
 
 from django.conf import settings
 from django.contrib.admin.models import CHANGE, LogEntry
@@ -13,12 +15,28 @@ from djiffy.models import IIIFPresentation
 from mep.footnotes.models import Bibliography, Footnote
 
 
+class ManifestImportWithRendering(ManifestImporter):
+    '''Extends default importer to add logic to capture
+    rendering link in extra data.'''
+
+    def import_manifest(self, manifest, path):
+        db_manifest = super().import_manifest(manifest, path)
+        # include rendering in extra data
+        if hasattr(manifest, 'rendering'):
+            db_manifest.extra_data['rendering'] = manifest.rendering
+            db_manifest.save()
+
+        return db_manifest
+
+
 class Command(BaseCommand):
     '''Import IIIF manifests for digitized versions of lending cards
     and associate with card bibliographies and footnotes.'''
     help = __doc__
 
+    #: base url for all card image paths
     pudl_basepath = 'https://diglib.princeton.edu/tools/ib/pudl0123/825298/'
+    #: text to use for log entry records
     log_message = 'Migrated from pudl to figgy'
 
     def add_arguments(self, parser):
@@ -32,6 +50,11 @@ class Command(BaseCommand):
         # Read in the CSV to generate a dictionary lookup of PUDL base
         # filename to figgy file site id, scanned resource id, canvas id
 
+        # first clean up known problems in footnote locations
+        self.clean_footnotes()
+        # reassociate footnotes linked to the wrong bibliography
+        self.clean_orphaned_footnotes()
+
         card_bibliographies = Bibliography.objects\
             .filter(notes__contains=self.pudl_basepath)
 
@@ -42,7 +65,7 @@ class Command(BaseCommand):
             return
 
         # initialize manifest importer
-        self.importer = ManifestImporter(
+        self.importer = ManifestImportWithRendering(
             stdout=self.stdout, stderr=self.stderr, style=self.style,
             update=kwargs['update'])
         # initialize user and content types for creating log entries
@@ -91,11 +114,7 @@ class Command(BaseCommand):
                                               image_paths)
         self.migrate_footnotes(card, canvas_map)
 
-        # TODO: clean up abandoned footnotes (?)
-
-        # summarize what was done
-
-        # self.summarize(dmi.stats)
+        # TODO summarize what was done
 
     def migrate_card_bibliography(self, manifest_uri, image_paths):
         # generate a q filter to find a bibliography record that
@@ -143,7 +162,7 @@ class Command(BaseCommand):
             user_id=self.script_user.id,
             content_type_id=self.bib_ctype,
             object_id=card.pk,
-            object_repr=repr(card),
+            object_repr=str(card),
             change_message=self.log_message,
             action_flag=CHANGE)
 
@@ -151,25 +170,115 @@ class Command(BaseCommand):
         return card
 
     def migrate_footnotes(self, card, canvas_map):
+        '''Update footnotes associated with a lending card bibliography.
+        Uses footnote location to map from pudl filepath to new
+        IIIF canvas. Links to Canvas in the database and also
+        stores the canvas id in the location.
+
+        :param card: :class:`~mep.footnotes.models.Bibliography`
+        :param canvas_map: dict mapping pudl image paths to corresponding
+            canvas id
+        '''
         for imgpath, canvas_id in canvas_map.items():
-            footnotes = card.footnote_set.filter(location__contains=imgpath)
+            # search without file extension to match variations
+            imgpath_basename = os.path.splitext(imgpath)[0]
+            footnotes = card.footnote_set \
+                .filter(location__contains=imgpath_basename)
             if footnotes.exists():
                 # get the canvas object
                 canvas = card.manifest.canvases.get(uri=canvas_id)
                 # update all cards at once
+                footnote_ids = [fnote.pk for fnote in footnotes]
                 footnotes.update(
                     location=canvas_id,
                     image=canvas,
                     bibliography=card
                 )
+                # get a fresh copy of the footnotes after update
+                footnotes = card.footnote_set.filter(id__in=footnote_ids)
                 # bulk create log entry records for the updated footnotes
                 LogEntry.objects.bulk_create([
                     LogEntry(user_id=self.script_user.id,
                              content_type_id=self.footnote_ctype,
                              object_id=footnote.id,
-                             object_repr=repr(footnote),
+                             # database limits object repr length
+                             object_repr=str(footnote)[:25],
                              change_message=self.log_message,
                              action_flag=CHANGE
                              )
                     for footnote in footnotes
                 ])
+
+    # footnote location misspellings to correct in bulk
+    location_misspellings = {
+        'beinenfeld': 'bienenfeld',  # 49
+        'lambirault': 'lamirault',  # 43
+        'oerthal': 'oerthel',  # 34
+        'Wigram': 'wiggram',  # 10
+    }
+
+    def clean_footnotes(self):
+        '''Correct known bulk errors in footnotes.'''
+
+        # Fix known bulk errors
+        # - misspellings
+        for error, correction in self.location_misspellings.items():
+            for fnote in Footnote.objects.filter(location__contains=error):
+                fnote.location = fnote.location.replace(error, correction)
+                fnote.save()
+        # special case: dubois footnotes misattributed to dolan in location
+        for fnote in Footnote.objects.filter(
+                location__contains='dolan',
+                bibliography__notes__contains='du_bois'):
+            fnote.location = fnote.location.replace('dolan', 'du_bois')
+            fnote.save()
+
+        # - 285 double slashes in path (other than for http)
+        for fnote in Footnote.objects.filter(location__regex=r'(?<!https:)//'):
+            fnote.location = re.sub(r'(?<!https:)//', '/', fnote.location)
+            fnote.save()
+        # - 147 missing slash between alpha directory and numeric filename
+        for fnote in Footnote.objects.filter(location__contains='pudl',
+                                             location__regex=r'[a-z]000'):
+            fnote.location = re.sub(r'([a-z])(000)', r'\1/\2', fnote.location)
+            fnote.save()
+
+        # - filenames with the wrong number of zeros (should have 8 digits)
+        for fnote in Footnote.objects.filter(location__contains='pudl') \
+                             .filter(location__contains='000') \
+                             .exclude(location__regex=r'\/\d{8}\.'):
+            # split out file base name, cast as integer, and format properly
+            file_basename = os.path.basename(fnote.location)
+            number, ext = os.path.splitext(file_basename)
+            fnote.location = fnote.location.replace(
+                file_basename, '{:08d}{}'.format(int(number), ext))
+            fnote.save()
+
+    def clean_orphaned_footnotes(self):
+        '''Correct footnotes that are not associated with the correct
+        bibliography record.'''
+
+        # find footnote where location does not match list of
+        # paths in associated bibliography record
+        orphans = Footnote.objects.filter(location__contains='pudl') \
+            .exclude(bibliography__notes__contains=models.F('location'))
+
+        for footnote in orphans:
+            # use the end of the path to avoid typos in footnotes and
+            # bibliography notes that have /tools/ib/ instead of /tools/lib/
+            # omit extension to avoid .jp2/jpg variations
+            location_path = os.path.splitext(
+                footnote.location.partition('/pudl0123/')[-1])[0]
+            if location_path in footnote.bibliography.notes:
+                continue
+            bib = Bibliography.objects \
+                .filter(notes__contains=location_path)
+            if bib.count() == 1:
+                footnote.bibliography = bib.first()
+                footnote.save()
+            elif bib.count() > 1:
+                self.stderr.write(
+                    'Found multiple matching bibliography records %s' % bib)
+            else:
+                self.stderr.write(
+                    'No matching bibliography record for %s' % location_path)
