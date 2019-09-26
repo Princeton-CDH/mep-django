@@ -234,7 +234,7 @@ class Command(BaseCommand):
             fnote.save()
 
         # - 285 double slashes in path (other than for http)
-        for fnote in Footnote.objects.filter(location__regex=r'(?<!https:)//'):
+        for fnote in Footnote.objects.filter(location__regex=r'https://.*//'):
             fnote.location = re.sub(r'(?<!https:)//', '/', fnote.location)
             fnote.save()
         # - 147 missing slash between alpha directory and numeric filename
