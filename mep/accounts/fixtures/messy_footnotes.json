@@ -108,14 +108,6 @@
     }
 },
 {
-    "model": "contenttypes.contenttype",
-    "pk": 3,
-    "fields": {
-        "app_label": "accounts",
-        "model": "borrow"
-    }
-},
-{
     "model": "footnotes.bibliography",
     "pk": 22,
     "fields": {
