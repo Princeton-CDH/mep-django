@@ -23,18 +23,10 @@ class FootnoteAdminForm(forms.ModelForm):
         }
 
 
-def figgy_uri_from_manifest(manifest_uri):
-    '''Generate a figgy item url from manifest or canvas id.'''
-    # this logic is figgy-specific
-    return manifest_uri.replace('/concern/scanned_resources/',
-                                '/catalog/') \
-                       .partition('/manifest')[0]
-
-
 class FootnoteAdmin(admin.ModelAdmin):
     form = FootnoteAdminForm
     list_display = ('content_object', 'bibliography', 'location',
-                    'image', 'is_agree')
+                    'image_thumbnail', 'is_agree')
     list_filter = ('bibliography__source_type', 'content_type')
     search_fields = ('bibliography__bibliographic_note', 'location', 'notes')
     CONTENT_LOOKUP_HELP = '''Select the kind of record you want to attach
@@ -62,10 +54,9 @@ class FootnoteAdmin(admin.ModelAdmin):
         '''thumbnail for image location if associated'''
         if obj.image:
             img = obj.image.admin_thumbnail()
-            if 'figgy.princeton' in obj.image.uri:
+            if 'rendering' in obj.image.manifest.extra_data:
                 img = '<a target="_blank" href="%s">%s</a>' % \
-                    (figgy_uri_from_manifest(obj.image.uri),
-                     img)
+                    (obj.image.manifest.extra_data['rendering']['@id'], img)
             return img
     image_thumbnail.allow_tags = True
 
@@ -98,10 +89,9 @@ class BibliographyAdmin(admin.ModelAdmin):
     def manifest_thumbnail(self, obj):
         if obj.manifest:
             img = obj.manifest.admin_thumbnail()
-            if 'figgy.princeton' in obj.manifest.uri:
+            if 'rendering' in obj.image.manifest.extra_data:
                 img = '<a target="_blank" href="%s">%s</a>' % \
-                    (figgy_uri_from_manifest(obj.manifest.uri),
-                     img)
+                    (obj.image.manifest.extra_data['rendering']['@id'], img)
             return img
     manifest_thumbnail.allow_tags = True
 
