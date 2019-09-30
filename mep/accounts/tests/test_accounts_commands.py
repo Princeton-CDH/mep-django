@@ -258,8 +258,11 @@ class TestImportFiggyCards(TestCase):
             .filter(location__contains='/825298/c/cornu/').exists()
 
         # number of digits in filename fixed everywhere
-        assert Footnote.objects.filter(location__regex=r'\/\d{8}(\.|$)') \
-                       .count() == Footnote.objects.all().count()
+        # - OR query because mysql regex doesn't support grouping operator
+        assert Footnote.objects.filter(
+            models.Q(location__regex=r'\/\d{8}.') |
+            models.Q(location__regex=r'\/\d{8}$')) \
+            .count() == Footnote.objects.all().count()
 
     def test_clean_orphaned_footnotes(self):
         # confirm fixture contains orphans
