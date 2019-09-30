@@ -114,7 +114,16 @@ class Command(BaseCommand):
                                               image_paths)
         self.migrate_footnotes(card, canvas_map)
 
-        # TODO summarize what was done
+        # report on current states
+        pudl_bibliographies = Bibliography.objects \
+            .filter(notes__contains=self.pudl_basepath)
+        pudl_footnotes = Footnote.objects \
+            .filter(location__contains=self.pudl_basepath)
+
+        self.stdout.write('Migration complete.')
+        self.stdout.write(
+            'Found %d bibliographies and %d footnotes with pudl paths' %
+            (pudl_bibliographies.count(), pudl_footnotes.count()))
 
     def migrate_card_bibliography(self, manifest_uri, image_paths):
         # generate a q filter to find a bibliography record that

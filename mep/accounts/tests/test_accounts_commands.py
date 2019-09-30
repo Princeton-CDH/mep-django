@@ -322,32 +322,47 @@ class TestImportFiggyCards(TestCase):
         pprice = Bibliography.objects.get(
             bibliographic_note__contains='Phyllis Price')
         pprice.manifest = test_manifest
-        print(pprice.footnote_set.first())
 
         canvas_map = {
             '/p/price/00000006.jp2': test_canvas.uri
         }
         self.cmd.migrate_footnotes(pprice, canvas_map)
         pprice_footnote = pprice.footnote_set.first()
-        print(pprice.footnote_set.first())
         # location should be changed
         assert pprice_footnote.location == test_canvas.uri
         # canvas should be associated
         assert pprice_footnote.image == test_canvas
         # log entry should be created
-        print(LogEntry.objects.filter(object_id=pprice_footnote.pk))
         assert LogEntry.objects.get(
             object_id=pprice_footnote.id, action_flag=CHANGE)
 
-    def test_command_line(self):
+    @patch('mep.accounts.management.commands.import_figgy_cards.Command.migrate_card_bibliography')
+    @patch('mep.accounts.management.commands.import_figgy_cards.Command.migrate_footnotes')
+    def test_command_line(self, mock_migrate_footnotes, mock_migrate_card_bib):
         # test calling via command line with args
         stdout = StringIO()
-        stderr = StringIO()
         csvfile = os.path.join(self.FIXTURE_DIR, 'test-pudl-to-figgy.csv')
-        call_command('import_figgy_cards', csvfile, stdout=stdout,
-                     stderr=stderr)
+        call_command('import_figgy_cards', csvfile, stdout=stdout)
         output = stdout.getvalue()
-        err_output = stderr.getvalue()
         # sanity check output
         assert 'Found 17 bibliographies with pudl image paths' in output
-        assert 'Could not identify card' in err_output
+        assert 'Migration complete' in output
+        # numbers unchanged because actual logic was mocked
+        assert 'Found 17 bibliographies and 12 footnotes with pudl paths' \
+            in output
+        mock_migrate_card_bib.assert_called()
+        mock_migrate_footnotes.assert_called()
+
+        # delete all bibliography records and check that script doesn't do anything
+        Bibliography.objects.all().delete()
+        mock_migrate_footnotes.reset_mock()
+        mock_migrate_card_bib.reset_mock()
+        stdout = StringIO()
+        csvfile = os.path.join(self.FIXTURE_DIR, 'test-pudl-to-figgy.csv')
+        call_command('import_figgy_cards', csvfile, stdout=stdout)
+        output = stdout.getvalue()
+        # should output count but not do anything else
+        assert 'Found 0 bibliographies with pudl image paths' in output
+        assert 'Migration complete' not in output
+        mock_migrate_card_bib.assert_not_called()
+        mock_migrate_footnotes.assert_not_called()
