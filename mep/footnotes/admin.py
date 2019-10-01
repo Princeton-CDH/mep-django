@@ -74,8 +74,8 @@ class FootnoteInline(GenericTabularInline):
     model = Footnote
     form = FootnoteAdminForm
     classes = ('grp-collapse grp-closed', )  # grapelli collapsible
-    fields = ('bibliography', 'location', 'snippet_text', 'is_agree',
-              'notes', 'image_thumbnail')
+    fields = ('bibliography', 'location', 'image', 'image_thumbnail',
+              'snippet_text', 'notes', 'is_agree')
     readonly_fields = ('image_thumbnail',)
     extra = 1
 
