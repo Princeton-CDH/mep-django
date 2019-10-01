@@ -136,7 +136,7 @@ class EventAdmin(admin.ModelAdmin):
                      'start_date', 'end_date', 'notes',
                      'work__title', 'work__notes')
     list_filter = (EventTypeListFilter, )
-    # inlines = [OpenFootnoteInline]
+    inlines = [OpenFootnoteInline]
 
 
 class SubscriptionAdminForm(forms.ModelForm):
