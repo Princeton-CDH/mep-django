@@ -84,3 +84,15 @@ class Footnote(Notable):
     # from mep.footnotes.models import Footnote
     #
     # footnotes = GenericRelation(Footnote)
+
+    def image_thumbnail(self):
+        '''Use admin thumbnail from image if available, but wrap
+        in a link using rendering url from manifest when present'''
+        if self.image:
+            img = self.image.admin_thumbnail()
+            if 'rendering' in self.image.manifest.extra_data:
+                img = '<a target="_blank" href="%s">%s</a>' % \
+                    (self.image.manifest.extra_data['rendering']['@id'], img)
+            return img
+    image_thumbnail.allow_tags = True
+

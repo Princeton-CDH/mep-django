@@ -1,8 +1,8 @@
+from dal import autocomplete
 from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
-
-from dal import autocomplete
+from djiffy.models import Canvas
 
 from mep.common.admin import NamedNotableAdmin
 from mep.footnotes.models import Bibliography, Footnote, SourceType
@@ -21,6 +21,25 @@ class FootnoteAdminForm(forms.ModelForm):
                 }
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # for inline only, for now
+        if 'image' not in self.fields:
+            return
+
+        # if no bibliography with manifest is associated,
+        # don't allow associating a canvas
+        canvas_qs = Canvas.objects.none()
+        # if there is one, restrict canvas objects to those
+        # associated with the manifest for this bibliography record
+        if self.instance and hasattr(self.instance, 'bibliography') and \
+           self.instance.bibliography.manifest:
+            canvas_qs = Canvas.objects.filter(
+                manifest=self.instance.bibliography.manifest)
+
+        self.fields['image'].queryset = canvas_qs
 
 
 class FootnoteAdmin(admin.ModelAdmin):
@@ -50,22 +69,14 @@ class FootnoteAdmin(admin.ModelAdmin):
         'generic': [['content_type', 'object_id']]
     }
 
-    def image_thumbnail(self, obj):
-        '''thumbnail for image location if associated'''
-        if obj.image:
-            img = obj.image.admin_thumbnail()
-            if 'rendering' in obj.image.manifest.extra_data:
-                img = '<a target="_blank" href="%s">%s</a>' % \
-                    (obj.image.manifest.extra_data['rendering']['@id'], img)
-            return img
-    image_thumbnail.allow_tags = True
-
 
 class FootnoteInline(GenericTabularInline):
     model = Footnote
     form = FootnoteAdminForm
     classes = ('grp-collapse grp-closed', )  # grapelli collapsible
-    fields = ('bibliography', 'location', 'snippet_text', 'is_agree', 'notes')
+    fields = ('bibliography', 'location', 'snippet_text', 'is_agree',
+              'notes', 'image_thumbnail')
+    readonly_fields = ('image_thumbnail',)
     extra = 1
 
 
@@ -87,15 +98,17 @@ class BibliographyAdmin(admin.ModelAdmin):
     list_filter = ('source_type',)
 
     def manifest_thumbnail(self, obj):
+        '''Use admin thumbnail from manifest if available, but wrap
+        in a link using rendering url when present'''
         if obj.manifest:
             img = obj.manifest.admin_thumbnail()
-            if 'rendering' in obj.image.manifest.extra_data:
+            if 'rendering' in obj.manifest.extra_data:
                 img = '<a target="_blank" href="%s">%s</a>' % \
-                    (obj.image.manifest.extra_data['rendering']['@id'], img)
+                    (obj.manifest.extra_data['rendering']['@id'], img)
             return img
     manifest_thumbnail.allow_tags = True
 
-# TODO: digital edition autocomplete?
+# TODO: canvas/manifest autocomplete for future editing
 
 admin.site.register(SourceType, SourceTypeAdmin)
 admin.site.register(Bibliography, BibliographyAdmin)
