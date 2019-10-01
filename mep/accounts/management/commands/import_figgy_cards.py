@@ -16,8 +16,8 @@ from mep.footnotes.models import Bibliography, Footnote
 
 
 class ManifestImportWithRendering(ManifestImporter):
-    '''Extends default importer to add logic to capture
-    rendering link in extra data.'''
+    '''Extends default importer to capture rendering information,
+    if present, in extra data.'''
 
     def import_manifest(self, manifest, path):
         db_manifest = super().import_manifest(manifest, path)

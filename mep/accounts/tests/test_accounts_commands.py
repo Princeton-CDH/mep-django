@@ -369,3 +369,24 @@ class TestImportFiggyCards(TestCase):
         assert 'Migration complete' not in output
         assert not mock_migrate_card_bib.call_count
         assert not mock_migrate_footnotes.call_count
+
+
+class TestManifestImportWithRendering:
+
+    @patch('djiffy.importer.ManifestImporter.import_manifest')
+    def test_import_manifest(self, mock_import_manifest):
+        importer = import_figgy_cards.ManifestImportWithRendering()
+        # no rendering - should not error
+        mock_manifest = Mock()
+        path = 'http://example.com/iiif/manifest/1'
+        result = importer.import_manifest(mock_manifest, path)
+        assert result == mock_import_manifest.return_value
+        mock_import_manifest.assert_called_with(mock_manifest, path)
+
+        # if rendering is present, should add to extra data
+        mock_manifest.rendering = {'@id': 'http://ark.co/1/2/3/4'}
+        mock_import_manifest.return_value.extra_data = {}
+        result = importer.import_manifest(mock_manifest, path)
+        assert 'rendering' in result.extra_data
+        assert result.extra_data['rendering'] == mock_manifest.rendering
+
