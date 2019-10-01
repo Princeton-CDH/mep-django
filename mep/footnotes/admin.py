@@ -108,7 +108,9 @@ class BibliographyAdmin(admin.ModelAdmin):
             return img
     manifest_thumbnail.allow_tags = True
 
-# TODO: canvas/manifest autocomplete for future editing
+
+# NOTE: it might be good to add canvas/manifest autocomplete in future
+
 
 admin.site.register(SourceType, SourceTypeAdmin)
 admin.site.register(Bibliography, BibliographyAdmin)

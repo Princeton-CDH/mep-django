@@ -389,4 +389,3 @@ class TestManifestImportWithRendering:
         result = importer.import_manifest(mock_manifest, path)
         assert 'rendering' in result.extra_data
         assert result.extra_data['rendering'] == mock_manifest.rendering
-

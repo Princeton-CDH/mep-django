@@ -1,6 +1,7 @@
-from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
+
 from djiffy.models import Canvas, Manifest
 
 from mep.common.models import Named, Notable
@@ -57,15 +58,16 @@ class Footnote(Notable):
         # TODO: add items here as the application expands
         limit_choices_to=models.Q(app_label='people',
             model__in=['country', 'person', 'address', 'profession']) |
-            models.Q(app_label='accounts',
+            models.Q(
+                app_label='accounts',
                 model__in=['account', 'event', 'subscription', 'borrow',
                            'reimbursement', 'purchase']) |
-            models.Q(app_label='books',
-                model__in=['item'])
-        )
+            models.Q(app_label='books', model__in=['item'])
+    )
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    is_agree = models.BooleanField('Supports', help_text='True if the evidence ' +
+    is_agree = models.BooleanField(
+        'Supports', help_text='True if the evidence ' +
         'supports the information in the system, False if it contradicts.',
         default=True)
 
@@ -95,4 +97,3 @@ class Footnote(Notable):
                     (self.image.manifest.extra_data['rendering']['@id'], img)
             return img
     image_thumbnail.allow_tags = True
-
