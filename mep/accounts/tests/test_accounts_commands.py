@@ -260,8 +260,8 @@ class TestImportFiggyCards(TestCase):
         # number of digits in filename fixed everywhere
         # - OR query because mysql regex doesn't support grouping operator
         assert Footnote.objects.filter(
-            models.Q(location__regex=r'\/\d{8}.') |
-            models.Q(location__regex=r'\/\d{8}$')) \
+            models.Q(location__regex=r'\/[0-9]{8}.') |
+            models.Q(location__regex=r'\/[0-9]{8}$')) \
             .count() == Footnote.objects.all().count()
 
     def test_clean_orphaned_footnotes(self):
@@ -353,8 +353,8 @@ class TestImportFiggyCards(TestCase):
         # numbers unchanged because actual logic was mocked
         assert 'Found 17 bibliographies and 12 footnotes with pudl paths' \
             in output
-        mock_migrate_card_bib.assert_called()
-        mock_migrate_footnotes.assert_called()
+        assert mock_migrate_card_bib.call_count
+        assert mock_migrate_footnotes.call_count
 
         # delete all bibliography records and check that script doesn't do anything
         Bibliography.objects.all().delete()
@@ -367,5 +367,5 @@ class TestImportFiggyCards(TestCase):
         # should output count but not do anything else
         assert 'Found 0 bibliographies with pudl image paths' in output
         assert 'Migration complete' not in output
-        mock_migrate_card_bib.assert_not_called()
-        mock_migrate_footnotes.assert_not_called()
+        assert not mock_migrate_card_bib.call_count
+        assert not mock_migrate_footnotes.call_count

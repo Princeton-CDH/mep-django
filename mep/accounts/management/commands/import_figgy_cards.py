@@ -255,7 +255,7 @@ class Command(BaseCommand):
         # - filenames with the wrong number of zeros (should have 8 digits)
         for fnote in Footnote.objects.filter(location__contains='pudl') \
                              .filter(location__contains='000') \
-                             .exclude(location__regex=r'\/\d{8}\.'):
+                             .exclude(location__regex=r'\/[0-9]{8}\.'):
             # split out file base name, cast as integer, and format properly
             file_basename = os.path.basename(fnote.location)
             number, ext = os.path.splitext(file_basename)
