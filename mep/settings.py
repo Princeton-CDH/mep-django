@@ -76,6 +76,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'wagtail.core.middleware.SiteMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -203,6 +204,30 @@ GRAPPELLI_INDEX_DASHBOARD = 'mep.dashboard.CustomIndexDashboard'
 
 # username for logging activity by local scripts
 SCRIPT_USERNAME = 'script'
+
+# django-csp configuration for content security policy definition and
+# violation reporting - https://github.com/mozilla/django-csp
+
+# fallback for all protocols: block it
+CSP_DEFAULT_SRC = "'none'"
+
+# allow loading js locally and from google (for analytics)
+CSP_SCRIPT_SRC = ("'self'", 'https://www.googletagmanager.com')
+
+# allow loading fonts locally only
+CSP_FONT_SRC = ("'self'",)
+
+# allow loading css locally only
+CSP_STYLE_SRC = ("'self'",)
+
+# allow loading local images and google tracking pixel
+CSP_IMG_SRC = ("'self'", 'https://www.google-analytics.com')
+
+# exclude admin and cms urls from csp directives since they're authenticated
+CSP_EXCLUDE_URL_PREFIXES = ('/admin', '/cms')
+
+# allow usage of nonce for inline js (for analytics)
+CSP_INCLUDE_NONCE_IN = ('script-src',)
 
 
 ##################

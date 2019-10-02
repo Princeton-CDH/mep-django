@@ -92,3 +92,12 @@ LOGGING = {
 
     },
 }
+
+# Content security policy controls - see `settings.py` for policy settings.
+# In development, set REPORT_ONLY to True.
+# In QA, set REPORT_ONLY to True and specify a "report-only" endpoint.
+# In production, set REPORT_ONLY to False and specify an "enforced" endpoint.
+# https://github.com/mozilla/django-csp
+#
+# CSP_REPORT_ONLY = False
+# CSP_REPORT_URI = ''

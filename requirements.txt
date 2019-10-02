@@ -19,3 +19,4 @@ progressbar2
 rdflib
 rdflib-jsonld
 djiffy
+django-csp
