@@ -77,10 +77,8 @@ class Account(models.Model):
         # get value list of all start and end dates
         year_unknown = DatePrecision.month | DatePrecision.day
         date_values = self.event_set \
-            .exclude(borrow__start_date_precision=year_unknown) \
-            .exclude(borrow__end_date_precision=year_unknown) \
-            .exclude(purchase__start_date_precision=year_unknown) \
-            .exclude(purchase__end_date_precision=year_unknown) \
+            .exclude(start_date_precision=year_unknown) \
+            .exclude(end_date_precision=year_unknown) \
             .values_list('start_date', 'end_date')
         # flatten list of tuples into a list, filter out None, and make unique
         uniq_dates = set(filter(None, chain.from_iterable(date_values)))
