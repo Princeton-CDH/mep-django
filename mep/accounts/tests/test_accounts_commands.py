@@ -1,14 +1,26 @@
 import codecs
+import os.path
 from datetime import date, timedelta
 from io import StringIO
 from tempfile import NamedTemporaryFile
+from unittest.mock import Mock, patch
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
-from django.core.management import call_command
 
-from mep.accounts.management.commands import report_timegaps
-from mep.accounts.models import Account, Event, Borrow
+from django.conf import settings
+from django.contrib.admin.models import CHANGE, LogEntry
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.core.management import call_command
+from django.db import models
+from django.test import TestCase
+
+from djiffy.models import Canvas, Manifest
+
+from mep.accounts.management.commands import import_figgy_cards, \
+    report_timegaps
+from mep.accounts.models import Account, Borrow, Event
+from mep.footnotes.models import Bibliography, Footnote
 
 
 class TestReportTimegaps(TestCase):
@@ -205,3 +217,175 @@ class TestReportTimegaps(TestCase):
         borrow.partial_start_date = (event3.start_date + timedelta(days=30)).isoformat()
         max_gap, msg = self.cmd.report_gap_details([(event3, borrow)])
         assert '{}/?? Borrow'.format(borrow.partial_start_date) in msg
+
+
+class TestImportFiggyCards(TestCase):
+    fixtures = ['messy_footnotes']
+
+    FIXTURE_DIR = os.path.join('mep', 'accounts', 'fixtures')
+
+    def setUp(self):
+        self.cmd = import_figgy_cards.Command()
+        self.cmd.stdout = StringIO()
+        self.cmd.script_user = User.objects.get(
+            username=settings.SCRIPT_USERNAME)
+        self.cmd.bib_ctype = ContentType.objects.get_for_model(Bibliography).pk
+        self.cmd.footnote_ctype = ContentType.objects.get_for_model(Footnote).pk
+
+    def test_clean_footnotes(self):
+        self.cmd.clean_footnotes()
+        assert Footnote.objects.filter()
+
+        # misspellings fixed
+        for error, correction in self.cmd.location_misspellings.items():
+            # should be no instance of the error
+            assert not Footnote.objects \
+                               .filter(location__contains=error).exists()
+            # should be at least one insstance of the correction
+            assert Footnote.objects \
+                           .filter(location__contains=correction).exists()
+
+        # missing slash between directory and filename
+        assert not Footnote.objects \
+            .filter(location__contains='/d/deslernes000').exists()
+        assert Footnote.objects \
+            .filter(location__contains='/d/deslernes/000').exists()
+
+        # double slashes in path fixed
+        assert not Footnote.objects \
+            .filter(location__contains='/825298//c/cornu/').exists()
+        assert Footnote.objects \
+            .filter(location__contains='/825298/c/cornu/').exists()
+
+        # number of digits in filename fixed everywhere
+        # - OR query because mysql regex doesn't support grouping operator
+        assert Footnote.objects.filter(
+            models.Q(location__regex=r'\/[0-9]{8}.') |
+            models.Q(location__regex=r'\/[0-9]{8}$')) \
+            .count() == Footnote.objects.all().count()
+
+    def test_clean_orphaned_footnotes(self):
+        # confirm fixture contains orphans
+        assert Footnote.objects.filter(location__contains='pudl') \
+            .exclude(bibliography__notes__contains=models.F('location')) \
+            .count()
+
+        # clean first to avoid errors before fixing orphans
+        self.cmd.clean_footnotes()
+        self.cmd.clean_orphaned_footnotes()
+        assert not Footnote.objects.filter(location__contains='pudl') \
+            .exclude(bibliography__notes__contains=models.F('location')) \
+            .count()
+
+    @patch('mep.accounts.management.commands.import_figgy_cards.IIIFPresentation')
+    def test_migrate_card_bibliography(self, mock_iiifpres):
+        # mock actual iiif import
+        mock_importer = Mock()
+        self.cmd.importer = mock_importer
+        test_manifest = Manifest.objects.create()
+        mock_importer.import_manifest.return_value = test_manifest
+        manifest_uri = 'https://exmaple.com/catalog/foo/manifest'
+        # simple case - one match
+        img_paths = ['r/renaudin/00000001', 'r/renaudin/00000002']
+        self.cmd.migrate_card_bibliography(manifest_uri, img_paths)
+
+        mock_iiifpres.from_url.assert_called_with(manifest_uri)
+        mock_importer.import_manifest \
+            .assert_called_with(mock_iiifpres.from_url.return_value,
+                                manifest_uri)
+
+        # inspect updated bibliography
+        renaudin = Bibliography.objects.get(
+            bibliographic_note__contains='Paul Renaudin')
+        # notes should be empty
+        assert not renaudin.notes
+        # manifest should be set
+        assert renaudin.manifest == test_manifest
+        # check that log entry was created
+        assert LogEntry.objects.get(object_id=renaudin.pk, action_flag=CHANGE)
+
+        # path occurs in multiple records; test we get the best match
+        img_paths = ['p/price/00000006']
+        self.cmd.migrate_card_bibliography(manifest_uri, img_paths)
+        brody = Bibliography.objects.get(
+            bibliographic_note__contains='Rachel Brody')
+        # notes should be empty
+        assert not brody.notes
+        # manifest should be set
+        assert brody.manifest == test_manifest
+        # other record with this image path should be unchanged
+        assert Bibliography.objects.filter(notes__contains=img_paths[0]) \
+            .count() == 1
+
+    def test_migrate_footnotes(self):
+        test_manifest = Manifest.objects.create(uri='http://ex.co/manifest/1')
+        test_canvas = Canvas.objects.create(
+            uri='http://ex.co/manifest/1/canvas/1', manifest=test_manifest,
+            order=1)
+        pprice = Bibliography.objects.get(
+            bibliographic_note__contains='Phyllis Price')
+        pprice.manifest = test_manifest
+
+        canvas_map = {
+            '/p/price/00000006.jp2': test_canvas.uri
+        }
+        self.cmd.migrate_footnotes(pprice, canvas_map)
+        pprice_footnote = pprice.footnote_set.first()
+        # location should be changed
+        assert pprice_footnote.location == test_canvas.uri
+        # canvas should be associated
+        assert pprice_footnote.image == test_canvas
+        # log entry should be created
+        assert LogEntry.objects.get(
+            object_id=pprice_footnote.id, action_flag=CHANGE)
+
+    @patch('mep.accounts.management.commands.import_figgy_cards.Command.migrate_card_bibliography')
+    @patch('mep.accounts.management.commands.import_figgy_cards.Command.migrate_footnotes')
+    def test_command_line(self, mock_migrate_footnotes, mock_migrate_card_bib):
+        # test calling via command line with args
+        stdout = StringIO()
+        csvfile = os.path.join(self.FIXTURE_DIR, 'test-pudl-to-figgy.csv')
+        call_command('import_figgy_cards', csvfile, stdout=stdout)
+        output = stdout.getvalue()
+        # sanity check output
+        assert 'Found 17 bibliographies with pudl image paths' in output
+        assert 'Migration complete' in output
+        # numbers unchanged because actual logic was mocked
+        assert 'Found 17 bibliographies and 12 footnotes with pudl paths' \
+            in output
+        assert mock_migrate_card_bib.call_count
+        assert mock_migrate_footnotes.call_count
+
+        # delete all bibliography records and check that script doesn't do anything
+        Bibliography.objects.all().delete()
+        mock_migrate_footnotes.reset_mock()
+        mock_migrate_card_bib.reset_mock()
+        stdout = StringIO()
+        csvfile = os.path.join(self.FIXTURE_DIR, 'test-pudl-to-figgy.csv')
+        call_command('import_figgy_cards', csvfile, stdout=stdout)
+        output = stdout.getvalue()
+        # should output count but not do anything else
+        assert 'Found 0 bibliographies with pudl image paths' in output
+        assert 'Migration complete' not in output
+        assert not mock_migrate_card_bib.call_count
+        assert not mock_migrate_footnotes.call_count
+
+
+class TestManifestImportWithRendering:
+
+    @patch('djiffy.importer.ManifestImporter.import_manifest')
+    def test_import_manifest(self, mock_import_manifest):
+        importer = import_figgy_cards.ManifestImportWithRendering()
+        # no rendering - should not error
+        mock_manifest = Mock()
+        path = 'http://example.com/iiif/manifest/1'
+        result = importer.import_manifest(mock_manifest, path)
+        assert result == mock_import_manifest.return_value
+        mock_import_manifest.assert_called_with(mock_manifest, path)
+
+        # if rendering is present, should add to extra data
+        mock_manifest.rendering = {'@id': 'http://ark.co/1/2/3/4'}
+        mock_import_manifest.return_value.extra_data = {}
+        result = importer.import_manifest(mock_manifest, path)
+        assert 'rendering' in result.extra_data
+        assert result.extra_data['rendering'] == mock_manifest.rendering

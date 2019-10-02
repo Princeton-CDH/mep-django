@@ -18,3 +18,4 @@ pymarc
 progressbar2
 rdflib
 rdflib-jsonld
+djiffy
