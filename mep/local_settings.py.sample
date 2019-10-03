@@ -114,3 +114,12 @@ LOGGING = {
 # CSP_STYLE_SRC += ("'unsafe-inline'",)
 # CSP_SCRIPT_SRC += ("'unsafe-inline'", "http://localhost:3000")
 # CSP_DEFAULT_SRC = ("http://localhost:3000", "ws://localhost:3000")
+
+# Google Analytics tracking ID
+# GTAGS_ANALYTICS_ID = ''
+
+# Google Analytics custom 'environment' dimension
+# used to separate production from QA sessions
+# use 'test' or 'qa' for QA and 'prod' or 'production' for production
+# https://support.google.com/analytics/answer/2709828
+# GTAGS_ANALYTICS_ENV = ''

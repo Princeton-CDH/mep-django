@@ -3,6 +3,13 @@
 Deploy and Upgrade notes
 ========================
 
+0.22
+----
+
+* You must configure **GTAGS_ANALYTICS_ID** and **GTAGS_ANALYTICS_ENV** in
+  ``local_settings.py`` in order for Google Analytics to function. See the note
+  in ``local_settings.py.sample`` for more information.
+
 0.21
 ----
 
