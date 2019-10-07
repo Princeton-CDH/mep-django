@@ -73,7 +73,7 @@ class Account(models.Model):
     @property
     def event_dates(self):
         '''sorted list of all unique event dates associated with this account;
-        ignores dates with unknown years'''
+        ignores borrow and purchase dates with unknown year'''
         # get value list of all start and end dates
         date_values = self.event_set.known_years() \
             .values_list('start_date', 'end_date')
@@ -81,6 +81,47 @@ class Account(models.Model):
         uniq_dates = set(filter(None, chain.from_iterable(date_values)))
         # return as a sorted list
         return sorted(list(uniq_dates))
+
+    @property
+    def event_date_ranges(self):
+        '''Generate and return a list of date ranges this account
+        was active, based on associated events.'''
+        ranges = []
+        current_range = None
+        for event in self.event_set.known_years():
+            # if no date is set, ignore
+            if not event.start_date and not event.end_date:
+                continue
+
+            # if only one date is known, use for start/end of
+            # range (i.e., borrow event with no end date)
+            if not event.start_date or not event.end_date:
+                date = event.start_date or event.end_date
+                start_date = end_date = date
+
+            # otherwise, use start and end dates for range
+            else:
+                start_date = event.start_date
+                end_date = event.end_date
+
+            # if no current range is set, create one from current event
+            if not current_range:
+                current_range = [start_date, end_date]
+            # if this event starts within the current range, include it
+            # NOTE: includes the following day; if this event is the
+            # next day after the current range, extend the same range
+            elif current_range[0] <= start_date <= \
+                    (current_range[1] + datetime.timedelta(days=1)):
+                current_range[1] = max(end_date, current_range[1])
+            # otherwise, close out the current range and start a new one
+            else:
+                ranges.append(current_range)
+                current_range = [start_date, end_date]
+
+        # store the last range after the loop ends
+        if current_range:
+            ranges.append(current_range)
+        return ranges
 
     def earliest_date(self):
         '''Earliest known date from all events associated with this account'''
@@ -96,7 +137,8 @@ class Account(models.Model):
 
     @property
     def subscription_set(self):
-        '''associated subscription events, as queryset of :class:`Subscription`'''
+        '''associated subscription events, as queryset of
+        :class:`Subscription`'''
         return Subscription.objects.filter(account_id=self.id)
 
     @property

@@ -211,48 +211,31 @@ class MemberDetail(DetailView, RdfViewMixin):
         context = super().get_context_data(**kwargs)
         account = self.object.account_set.first()
         month_counts = defaultdict(int)
-        # count events by month
-        # FIXME doesn't handle partial dates
-        for event in account.event_set.book_activities():
+        # count book events by month; known years only
+        for event in account.event_set.known_years().book_activities():
             if event.start_date:
                 month_counts[event.start_date.strftime('%Y-%m-01')] += 1
             # if end date is different from start date, count that also
             if event.end_date and event.start_date != event.end_date:
                 month_counts[event.end_date.strftime('%Y-%m-01')] += 1
-        # find active date ranges
-        # FIXME doesn't handle partial dates
-        activity_ranges = []
-        current_range = None
-        for event in account.event_set.all():
-            if not event.start_date or not event.end_date:
-                continue
-            if not current_range:
-                current_range = [event.start_date, event.end_date]
-            elif current_range[0] <= event.start_date <= (current_range[1] + timedelta(days=1)):
-                current_range[1] = max(event.end_date, current_range[1])
-            else:
-                activity_ranges.append(current_range)
-                current_range = [event.start_date, event.end_date]
-
-        activity_ranges.append(current_range)
 
         context['timeline'] = {
-            'membership_activities': [
-                {'startDate': event.start_date.isoformat() if event.start_date else '', # FIXME partial dates
-                 'endDate': event.end_date.isoformat() if event.end_date else '', # FIXME partial dates
-                 'type': event.event_type
-                 }
-                for event in account.event_set.membership_activities()
-            ],
-            'book_activities': [
-                {'startDate': start_date, 
-                 'count': count
-                } for start_date, count in month_counts.items()
-            ],
-            'activity_ranges': [
-                {'startDate': start.isoformat(),
-                 'endDate': end.isoformat()
-                 } for start, end in activity_ranges]
+            'membership_activities': [{
+                'startDate': event.start_date.isoformat()
+                if event.start_date else '',
+                'endDate': event.end_date.isoformat()
+                if event.end_date else '',
+                'type': event.event_type
+            } for event in account.event_set.membership_activities()
+                                  .known_years()],
+            'book_activities': [{
+                'startDate': start_date,
+                'count': count
+            } for start_date, count in month_counts.items()],
+            'activity_ranges': [{
+                'startDate': start.isoformat(),
+                'endDate': end.isoformat()
+            } for start, end in account.event_date_ranges]
         }
         return context
 
