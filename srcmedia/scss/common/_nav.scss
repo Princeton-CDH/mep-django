@@ -118,8 +118,14 @@
             }
         }
 
+        .pending * {
+            color: $mid-grey;
+            cursor: default;
+        }
+
         .title,
-        .subtitle {
+        .subtitle,
+        .note {
             display: block;
         }
 
@@ -133,9 +139,22 @@
             }
         }
 
-        .subtitle {
+        .subtitle,
+        .note {
             font-size: 0.7rem;
             line-height: normal;
+        }
+
+        .pending .title::after,
+        .note::before {
+            content: '*';
+        }
+
+        .pending .title::after {
+            position: absolute;
+        }
+
+        .subtitle {
             padding-top: .5rem;
         }
     }

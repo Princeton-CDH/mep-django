@@ -18,29 +18,33 @@
                 <img src="{% static 'img/icons/Delete.svg' %}" alt="Close main menu">
             </a>
         </li>
-        <li>
+        <li class="pending">
             <a href="{% url 'people:members-list' %}">
                 <span class="title">members</span>
                 <span class="subtitle">Explore the lending library membership.</span>
+                <span class="note">Coming in 2019.</span>
             </a>
         </li>
-        <li>
-            <a href="/cards">
-                <span class="title">cards</span>
-                <span class="subtitle">Explore the extant lending library cards.</span>
-            </a>
-        </li>
-        <li>
-            <a href="/books">
+        <li class="pending">
+            <a href="{% url 'books:books-list' %}">
                 <span class="title">books</span>
                 <span class="subtitle">Explore the lending library holdings.</span>
+                <span class="note">Coming in 2019.</span>
             </a>
         </li>
-        <li>
-            <a href="/analysis">
+        <li class="pending">
+            <div>
+                <span class="title">cards</span>
+                <span class="subtitle">Explore the extant lending library cards.</span>
+                <span class="note">Coming in 2019.</span>
+            </div>
+        </li>
+        <li class="pending">
+            <div>
                 <span class="title">analysis</span>
                 <span class="subtitle">Analyze the Shakespeare and Company community.</span>
-            </a>
+                <span class="note">Coming in 2019.</span>
+            </div>
         </li>
         <li>
             <a href="{% slugurl 'sources' %}">
