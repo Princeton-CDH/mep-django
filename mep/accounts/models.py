@@ -73,12 +73,9 @@ class Account(models.Model):
     @property
     def event_dates(self):
         '''sorted list of all unique event dates associated with this account;
-        ignores borrow and purchase dates with unknown year'''
+        ignores dates with unknown years'''
         # get value list of all start and end dates
-        year_unknown = DatePrecision.month | DatePrecision.day
-        date_values = self.event_set \
-            .exclude(start_date_precision=year_unknown) \
-            .exclude(end_date_precision=year_unknown) \
+        date_values = self.event_set.known_years() \
             .values_list('start_date', 'end_date')
         # flatten list of tuples into a list, filter out None, and make unique
         uniq_dates = set(filter(None, chain.from_iterable(date_values)))
@@ -263,6 +260,12 @@ class EventQuerySet(models.QuerySet):
     def book_activities(self):
         '''All events tied to a :class:`~mep.books.models.Work`.'''
         return self.filter(work__isnull=False)
+
+    def known_years(self):
+        '''Filter out any events with unknown years for start or
+        end date.'''
+        return self.exclude(start_date_precision__knownyear=False) \
+                   .exclude(end_date_precision__knownyear=False)
 
 
 class Event(Notable, PartialDateMixin):

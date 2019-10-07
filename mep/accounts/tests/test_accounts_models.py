@@ -484,6 +484,30 @@ class TestEventQuerySet(TestCase):
         assert self.event_types['reimbursement'].event_ptr in \
             Event.objects.membership_activities()
 
+    def test_known_years(self):
+        # all years partial date flag currently unset; should return all
+        assert Event.objects.known_years().count() == \
+            Event.objects.all().count()
+
+        # partial date, known year
+        self.event_types['subscription'].partial_start_date = '1919-11'
+        self.event_types['subscription'].save()
+        # partial date, unknown year for start date
+        self.event_types['reimbursement'].partial_start_date = '--12-01'
+        self.event_types['reimbursement'].save()
+        self.event_types['borrow'].start_date = datetime.date(1942, 5, 1)
+        self.event_types['borrow'].save()
+        # unknown year for end date
+        self.event_types['generic'].partial_end_date = '--02-13'
+        self.event_types['generic'].save()
+
+        known_year_events = Event.objects.known_years()
+        assert self.event_types['subscription'].event_ptr in known_year_events
+        assert self.event_types['reimbursement'].event_ptr not in \
+            known_year_events
+        assert self.event_types['borrow'].event_ptr in known_year_events
+        assert self.event_types['generic'] not in known_year_events
+
 
 class TestSubscription(TestCase):
 
