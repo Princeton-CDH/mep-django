@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from django.apps import apps
@@ -437,20 +438,42 @@ class Person(Notable, DateRange, Indexable):
         })
 
         # conditionally set fields that are not always present
-        # to avoid having None values stored in Solr
+        # to avoid storing 'None' in Solr
+        if self.sex:
+            index_data['sex_s'] = self.get_sex_display()
+
         account_dates = account.event_dates
         if account_dates:
-            # convert dates to just years, use set to uniquify, and
-            # convert back to list for json serialization to Solr
-            account_years = list(set(date.year for date in account.event_dates))
+            # use active date ranges to get a list of all years + months
+            # that this person was an active member
+            # (includes subscription spans without events in that month)
+            date_ranges = account.event_date_ranges
+            months = set()
+            for start_date, end_date in date_ranges:
+                current_date = start_date
+                while current_date <= end_date:
+                    # if date is within range,
+                    # add to set of months in YYYYMM format
+                    months.add(current_date.strftime('%Y%m'))
+                    # get the date for the first of the next month
+                    next_month = current_date.month + 1
+                    year = current_date.year
+                    # handle december to january
+                    if next_month == 13:
+                        year += 1
+                        next_month = 1
+                    current_date = datetime.date(year, next_month, 1)
+
+            # generate list of years based onactive months
+            # use set to uniquify, convert back to list for json serialization
+            account_years = list(set(month[:4] for month in months))
             index_data.update({
                 'account_years_is': account_years,
+                'account_yearmonths_is': list(months),
                 # use min and max because set order is not guaranteed
                 'account_start_i': min(account_years),
                 'account_end_i': max(account_years),
-                })
-        if self.sex:
-            index_data['sex_s'] = self.get_sex_display()
+            })
         return index_data
 
 
