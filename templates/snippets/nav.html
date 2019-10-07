@@ -3,19 +3,19 @@
     <ul class="corners">
         <li class="home square">
             <a href="{% slugurl 'home' %}" aria-label="home">
-                <img src="{% static 'img/logo/SCo_logo_graphic.png' %}" alt="shakespeare & company">
+                <img src="{% static 'img/logo/SCo_logo_graphic.png' %}" alt="Shakespeare & Company">
             </a>
         </li>
         <li class="menu square">
             <a id="open-main-menu" href="#main-menu" role="button">
-                <img src="{% static 'img/icons/Menu.svg' %}" alt="open main menu">
+                <img src="{% static 'img/icons/Menu.svg' %}" alt="Open main menu">
             </a>
         </li>
     </ul>
-    <ul id="main-menu" aria-label="primary navigation">
+    <ul id="main-menu" aria-label="primary navigation" aria-hidden="true">
         <li class="menu square">
             <a id="close-main-menu" href="#" role="button">
-                <img src="{% static 'img/icons/Delete.svg' %}" alt="close main menu">
+                <img src="{% static 'img/icons/Delete.svg' %}" alt="Close main menu">
             </a>
         </li>
         <li>
@@ -26,7 +26,7 @@
         </li>
         <li>
             <a href="/cards">
-                <span class="title">lending library cards</span>
+                <span class="title">cards</span>
                 <span class="subtitle">Explore the extant lending library cards.</span>
             </a>
         </li>
