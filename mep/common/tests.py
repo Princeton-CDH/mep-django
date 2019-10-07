@@ -21,7 +21,7 @@ from mep.common.admin import LocalUserAdmin
 from mep.common.forms import CheckboxFieldset, FacetChoiceField, FacetForm, \
     RangeField, RangeWidget
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
-from mep.common.templatetags.mep_tags import dict_item
+from mep.common.templatetags.mep_tags import dict_item, domain
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
 from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
@@ -348,6 +348,19 @@ class TestTemplateTags(TestCase):
         assert dict_item({13: 'lucky'}, 13) == 'lucky'
         # integer value
         assert dict_item({13: 7}, 13) == 7
+
+
+    def test_domain(self):
+        # works correctly on URLs that have both a domain and //
+        assert domain('https://docs.python.org/3/library/') == 'python'
+        assert domain('//www.cwi.nl:80/%7Eguido/Python.html') == 'cwi'
+        # returns None on local URLs or those missing //
+        assert domain('www.cwi.nl/%7Eguido/Python.html') is None
+        assert domain('help/Python.html') is None
+        # returns None on garbage
+        assert domain('oops') is None
+        assert domain(2) is None
+        assert domain(None) is None
 
 
 class TestCheckboxFieldset(TestCase):

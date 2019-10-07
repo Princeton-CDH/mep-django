@@ -25,7 +25,7 @@
             {% endif %}
             {% if member.urls.count > 0 %}
                 {% for reference in member.urls.all %}
-                <dd><a href="{{ reference }}">more info</a></dd>
+                <dd><a href="{{ reference }}">{{ reference.url|domain|capfirst }}</a></dd>
                 {% endfor %}
             {% endif %}
         </div>
