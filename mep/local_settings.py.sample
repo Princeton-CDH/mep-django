@@ -93,6 +93,28 @@ LOGGING = {
     },
 }
 
+# Content security policy controls - see `settings.py` for policy settings.
+# https://github.com/mozilla/django-csp
+#
+# In development, set REPORT_ONLY to True and leave endpoint as localhost/. This
+# will log CSP violations to the browser console but not block or report them.
+#
+# In QA, set REPORT_ONLY to True and specify a "report-only" endpoint. This will
+# not block CSP violations, but will report them to an endpoint.
+#
+# In production, set REPORT_ONLY to False and specify an "enforced" endpoint.
+# This will both block and report CSP violations.
+#
+# CSP_REPORT_ONLY = True
+# CSP_REPORT_URI = 'localhost/'
+#
+# Uncomment the below lines to allow content to be served from webpack's dev
+# server through CSP controls when developing locally.
+#
+# CSP_STYLE_SRC += ("'unsafe-inline'",)
+# CSP_SCRIPT_SRC += ("'unsafe-inline'", "http://localhost:3000")
+# CSP_DEFAULT_SRC = ("http://localhost:3000", "ws://localhost:3000")
+
 # Google Analytics tracking ID
 # GTAGS_ANALYTICS_ID = ''
 
