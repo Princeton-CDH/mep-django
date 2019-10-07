@@ -118,14 +118,18 @@
             }
         }
 
-        .pending * {
+        .pending *,
+        .note {
             color: $mid-grey;
-            cursor: default;
+        }
+
+        .pending .title::after {
+            content: '*';
+            position: absolute;
         }
 
         .title,
-        .subtitle,
-        .note {
+        .subtitle {
             display: block;
         }
 
@@ -139,23 +143,19 @@
             }
         }
 
-        .subtitle,
+        .subtitle {
+            font-size: 0.7rem;
+            line-height: normal;
+            padding-top: .5rem;
+        }
+
         .note {
             font-size: 0.7rem;
             line-height: normal;
-        }
 
-        .pending .title::after,
-        .note::before {
-            content: '*';
-        }
-
-        .pending .title::after {
-            position: absolute;
-        }
-
-        .subtitle {
-            padding-top: .5rem;
+            &::before {
+                content: '*';
+            }
         }
     }
 }
