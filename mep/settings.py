@@ -220,6 +220,9 @@ CSP_FONT_SRC = ("'self'",)
 # allow loading css locally only
 CSP_STYLE_SRC = ("'self'",)
 
+# allow loading web manifest locally only
+CSP_MANIFEST_SRC = ("'self'",)
+
 # allow loading local images and google tracking pixel
 CSP_IMG_SRC = ("'self'", 'https://www.google-analytics.com')
 
