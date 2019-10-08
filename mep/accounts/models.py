@@ -101,6 +101,13 @@ class Account(models.Model):
             if not event.start_date and not event.end_date:
                 continue
 
+            # if either date is partial with month unknown, skip
+            if (event.start_date and event.start_date_precision and
+               not event.start_date_precision.month) or \
+               (event.end_date and event.end_date_precision and
+               not event.end_date_precision.month):
+                continue
+
             # if only one date is known, use for start/end of
             # range (i.e., borrow event with no end date)
             if not event.start_date or not event.end_date:

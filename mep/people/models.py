@@ -485,19 +485,23 @@ class Person(Notable, DateRange, Indexable):
                         next_month = 1
                     current_date = datetime.date(year, next_month, 1)
 
-            # generate list of years from active months; use set to uniquify
-            account_years = set(month[:4] for month in months)
+            # generate list of years from all event dates (can't use months
+            # since it will skip partial dates where only year is known)
+            account_years = set(date.year for date in account.event_dates)
 
             book_events = account.event_set.known_years().book_activities()
             card_months = set()
             for event in book_events:
-                # skip unset dates and unknown months; add all other
+                # skip unset dates and unknown months (precision unset
+                # or month flag present); add all other
                 # to the set of years & months in YYYYMM format
                 if event.start_date and \
-                   event.start_date_precision | DatePrecision.month:
+                   (not event.start_date_precision or
+                        event.start_date_precision.month):
                     card_months.add(event.start_date.strftime('%Y%m'))
                 if event.end_date and \
-                   event.end_date_precision | DatePrecision.month:
+                   (not event.end_date_precision or
+                        event.end_date_precision.month):
                     card_months.add(event.end_date.strftime('%Y%m'))
 
             # convert sets back to list for json serialization

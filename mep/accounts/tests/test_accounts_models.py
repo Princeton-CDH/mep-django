@@ -304,6 +304,12 @@ class TestAccount(TestCase):
         # range should be unchanged
         assert account.event_date_ranges() == [[start, end]]
 
+        # event date with year but no month should be ignored
+        unknown_month = Subscription(account=account)
+        unknown_month.partial_start_date = '1960'
+        unknown_month.save()
+        assert account.event_date_ranges() == [[start, end]]
+
         # event that starts within range and ends after
         borrow_end = datetime.date(1923, 6, 1)
         Borrow.objects.create(
