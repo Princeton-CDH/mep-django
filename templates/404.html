@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block header %}
+{% include 'snippets/header.html' with title="Not Found" style="error" %}
+{% endblock %}
+
+{% block main-style %}error{% endblock %}
+
+{% block content %}
+<img srcset="{% static 'img/404-error-1x.png' %},
+            {% static 'img/404-error-2x.png' %} 2x"
+    src="{% static 'img/404-error-1x.png' %}"
+    alt="beach notecard reading 'absent on business, will return shortly'"
+    class="e404">
+{% endblock %}

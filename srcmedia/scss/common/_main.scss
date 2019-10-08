@@ -43,3 +43,22 @@ main.tabbed {
         }
     }
 }
+
+// error pages
+main.error {
+    img {
+        margin: 0 auto;
+
+        &.e404 {
+            width: 205px;
+
+            @media (min-width: $breakpoint-s) {
+                width: 513px;
+            }
+
+            @media (min-width: $breakpoint-m) {
+                width: 615px;
+            }
+        }
+    }
+}

@@ -28,6 +28,14 @@
         }
     }
 
+    // hide and selectively display parts of the header
+    .bookmark,
+    .logotype,
+    .chevron,
+    .tagline {
+        display: none;
+    }
+
     .logotype {
         width: 12rem;
         margin: 0 auto;
@@ -248,5 +256,42 @@
 
     @media (min-width: $breakpoint-s) {
         position: relative;
+    }
+}
+
+/* error page header: h1 is moved down, lots of margin */
+#page-header.error {
+
+    .logotype {
+        display: block;
+        margin-top: 2rem;
+        margin-bottom: 6.5rem;
+
+        @media (min-width: $breakpoint-s) {
+            margin-bottom: 7.5rem;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            margin-top: 0;
+            margin-bottom: 14rem;
+        }
+    }
+
+    h1 {
+        text-transform: none;
+        position: absolute;
+        margin: auto;
+        left: 0;
+        right: 0;
+        top: 7rem;
+
+        @media (min-width: $breakpoint-s) {
+            font-size: 1.4rem;
+            top: 10rem;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            font-size: 3rem;
+        }
     }
 }
