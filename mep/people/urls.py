@@ -7,8 +7,11 @@ app_name = 'people'
 
 urlpatterns = [
     url(r'^members/$', views.MembersList.as_view(), name='members-list'),
+    url(r'^members/graphs/$', views.MembershipGraphs.as_view(),
+        name='member-graphs'),
     # TODO use something other than pk as a lookup for members
-    url(r'^members/(?P<pk>\d+)/$', views.MemberDetail.as_view(), name='member-detail'),
+    url(r'^members/(?P<pk>\d+)/$', views.MemberDetail.as_view(),
+        name='member-detail'),
     url(r'^members/(?P<pk>\d+)/activities/$',
         views.MembershipActivities.as_view(), name='membership-activities'),
     url(r'^places/geonames/$', views.GeoNamesLookup.as_view(),

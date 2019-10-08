@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load mep_tags %}
+
+{% block page-subtitle %}Graphs · Library Members · {% endblock %}
+
+{% block js %}
+<script src="https://d3js.org/d3.v5.js"></script>
+{% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title='Membership Graphs' style="detail" %}
+{% endblock %}
+
+{% block main-style %}tabbed white{% endblock %}
+
+{% block content %}
+
+    <div class="timeline">
+    <svg width="1440" height="800"></svg>
+        <script>
+            const totals = {{ data|json }}
+            console.log('timeline data: ', totals)
+
+
+var x = d3.scaleTime()
+    // whole timeline
+    .domain([new Date(1919, 1, 1), new Date(1942, 12, 31)])
+    .range([0, 911]);
+
+var axis = d3.axisTop(x);
+
+d3.select("svg")
+    .attr("width", 1440)
+    .attr("height", 800)
+  .append("g")
+    .attr("transform", "translate(0,30)")
+    .call(axis)
+    .call(g => g.selectAll(".tick line")
+        .attr("stroke", 'black')
+        .attr("y2", 150)
+        .attr("y1", 0))
+
+
+// preliminary bar graph (based on individual member timeline)
+
+var svgheight = 181;
+
+d3.select('svg').append('g')
+    .attr('class', 'borrowing-bars')
+  .selectAll('bar')
+  // .data(totals.members)
+  // .data(totals.logbooks)
+  .data(totals.cards)
+  .join(
+    enter => enter.append("rect")
+                    .attr('class', 'borrowing')
+                    .attr('x', function(d) {
+                      return x(new Date(d.startDate))
+                     })
+                    .attr('y', function (d) {
+                        return svgheight - d.count
+                    })
+                    .attr("fill", "#47C2C2")
+                    .attr("opacity", "0.8")
+                    .attr("width", 5)
+                    .attr("height",function (d) {
+                        return d.count
+                 })
+    )
+        </script>
+    </div>
+
+
+
+    <div class="map"></div>
+</section>
+{% endblock %}
