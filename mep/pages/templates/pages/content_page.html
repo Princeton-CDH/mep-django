@@ -9,5 +9,6 @@
 {% block main-style %}white{% endblock %}
 
 {% block content %}
+{% include 'snippets/breadcrumbs.html' %}
 {% include 'pages/snippets/body.html' with subtitle=page.title %}
 {% endblock %}

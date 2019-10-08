@@ -9,6 +9,9 @@ from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.images.edit_handlers import ImageChooserPanel
 
+from mep.common.utils import absolutize_url
+from mep.common.views import RdfViewMixin
+
 
 class CaptionedImageBlock(StructBlock):
     ''':class:`~wagtail.core.blocks.StructBlock` for an image with
@@ -45,7 +48,27 @@ class HomePage(Page):
         verbose_name = 'homepage'
 
 
-class LandingPage(Page):
+class RdfPageMixin(RdfViewMixin):
+    '''Adapt :class:`mep.common.view.RdfViewMixin` for Wagtail pages'''
+
+    def get_absolute_url(self):
+        return self.url
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        crumbs = [
+            ('Home', absolutize_url('/'))
+        ]
+        # if parent is not the home page, include in breadcrumbs
+        parent = self.get_parent()
+        if not hasattr(parent, 'homepage'):
+            crumbs.append((parent.seo_title or parent.title, parent.url))
+        # add current page to breadcrumbs
+        crumbs.append((self.seo_title or self.title, self.url))
+        return crumbs
+
+
+class LandingPage(RdfPageMixin, Page):
     ''':class:`wagtail.core.models.Page` model for aggregating other pages.'''
     parent_page_types = [HomePage]  # can only be child of HomePage
     tagline = models.CharField(max_length=500)  # shown just below the header
@@ -126,7 +149,7 @@ class PagePreviewDescriptionMixin(models.Model):
         return striptags(self.get_description())
 
 
-class ContentPage(Page, PagePreviewDescriptionMixin):
+class ContentPage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
     '''Basic :class:`wagtail.core.models.Page` model.'''
     parent_page_types = [LandingPage]  # can only be child of LandingPage
     body = StreamField(BodyContentBlock)

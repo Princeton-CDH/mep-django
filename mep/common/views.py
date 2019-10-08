@@ -34,7 +34,7 @@ class LabeledPagesMixin(ContextMixin):
         context = super().get_context_data(**kwargs)
         paginator = context['page_obj'].paginator
         context['page_labels'] = self.get_page_labels(paginator)
-        # store paginator and generated labels for use in custom headers 
+        # store paginator and generated labels for use in custom headers
         # on ajax response
         self._paginator = paginator
         self._page_labels = context['page_labels']
@@ -62,10 +62,22 @@ class RdfViewMixin(ContextMixin):
     def get_context_data(self, *args, **kwargs):
         '''Add generated breadcrumbs and an RDF graph to the view context.'''
         context = super().get_context_data(*args, **kwargs)
-        context['page_jsonld'] = self.as_rdf().serialize(format='json-ld',
-                                                         auto_compact=True,
-                                                         context=self.json_ld_context)
-        context['breadcrumbs'] = self.get_breadcrumbs()
+        return self.add_rdf_to_context(context)
+
+    def get_context(self, request, *args, **kwargs):
+        '''Add generated breadcrumbs and RDF graph to Wagtail page context.'''
+        context = super().get_context(request, *args, **kwargs)
+        return self.add_rdf_to_context(context)
+
+    def add_rdf_to_context(self, context):
+        '''add jsonld and breadcrumb list to context dictionary'''
+        context.update({
+            'page_jsonld': self.as_rdf()
+                               .serialize(format='json-ld',
+                                          auto_compact=True,
+                                          context=self.json_ld_context),
+            'breadcrumbs': self.get_breadcrumbs()
+        })
         return context
 
     def get_absolute_url(self):

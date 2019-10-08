@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+{% include 'snippets/breadcrumbs.html' %}
 {% include 'pages/snippets/body.html' %}
 <section class="subpages">
     {% for subpage in page.get_children %}
