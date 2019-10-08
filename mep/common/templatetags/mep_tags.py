@@ -29,5 +29,5 @@ def domain(url):
     try:
         netloc_parts = urlparse(url).netloc.split('.')
         return netloc_parts[-2] # piece right before the top-level domain
-    except:
+    except (IndexError, ValueError): # parser fail or no domain portion
         return None
