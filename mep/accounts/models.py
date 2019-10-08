@@ -138,6 +138,54 @@ class Account(models.Model):
             ranges.append(current_range)
         return ranges
 
+    def active_months(self, event_type=None):
+        '''Generate and return a list of year/month dates this account
+        was active, based on associated events. Optionally filter
+        to a specific kind of event activity (currently supports
+        "membership" or "books").
+        Months are returned as a set in YYYYMM format.
+        '''
+        months = set()
+
+        # Book activities are handled differently, since they do not
+        # span multiple months; no need to convert to date ranges
+        if event_type == 'books':
+            book_events = self.event_set.known_years().book_activities()
+            for event in book_events:
+                # skip unset dates and unknown months (precision unset
+                # or month flag present); add all other
+                # to the set of years & months in YYYYMM format
+                if event.start_date and \
+                   (not event.start_date_precision or
+                        event.start_date_precision.month):
+                    months.add(event.start_date.strftime('%Y%m'))
+                if event.end_date and \
+                   (not event.end_date_precision or
+                        event.end_date_precision.month):
+                    months.add(event.end_date.strftime('%Y%m'))
+
+            return months
+
+        # For general events or membership activity,
+        # calculate months based on date ranges to track months
+        # when a subscription was active
+        date_ranges = self.event_date_ranges(event_type)
+        for start_date, end_date in date_ranges:
+            current_date = start_date
+            while current_date <= end_date:
+                # if date is within range,
+                # add to set of months in YYYYMM format
+                months.add(current_date.strftime('%Y%m'))
+                # get the date for the first of the next month
+                next_month = current_date.month + 1
+                year = current_date.year
+                # handle december to january
+                if next_month == 13:
+                    year += 1
+                    next_month = 1
+                current_date = datetime.date(year, next_month, 1)
+        return months
+
     def earliest_date(self):
         '''Earliest known date from all events associated with this account'''
         dates = self.event_dates

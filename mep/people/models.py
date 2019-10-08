@@ -449,60 +449,14 @@ class Person(Notable, DateRange, Indexable):
             # that this person was an active member
             # (includes subscription spans without events in that month)
 
-            # TODO: refactor into active_months method with
-            # optional membership filter
+            months = account.active_months()
+            logbook_months = account.active_months('membership')
+            card_months = account.active_months('books')
 
-            date_ranges = account.event_date_ranges()
-            months = set()
-            for start_date, end_date in date_ranges:
-                current_date = start_date
-                while current_date <= end_date:
-                    # if date is within range,
-                    # add to set of months in YYYYMM format
-                    months.add(current_date.strftime('%Y%m'))
-                    # get the date for the first of the next month
-                    next_month = current_date.month + 1
-                    year = current_date.year
-                    # handle december to january
-                    if next_month == 13:
-                        year += 1
-                        next_month = 1
-                    current_date = datetime.date(year, next_month, 1)
-
-            logbook_months = set()
-            for start_date, end_date in account.event_date_ranges('membership'):
-                current_date = start_date
-                while current_date <= end_date:
-                    # if date is within range,
-                    # add to set of months in YYYYMM format
-                    logbook_months.add(current_date.strftime('%Y%m'))
-                    # get the date for the first of the next month
-                    next_month = current_date.month + 1
-                    year = current_date.year
-                    # handle december to january
-                    if next_month == 13:
-                        year += 1
-                        next_month = 1
-                    current_date = datetime.date(year, next_month, 1)
-
-            # generate list of years from all event dates (can't use months
-            # since it will skip partial dates where only year is known)
-            account_years = set(date.year for date in account.event_dates)
-
-            book_events = account.event_set.known_years().book_activities()
-            card_months = set()
-            for event in book_events:
-                # skip unset dates and unknown months (precision unset
-                # or month flag present); add all other
-                # to the set of years & months in YYYYMM format
-                if event.start_date and \
-                   (not event.start_date_precision or
-                        event.start_date_precision.month):
-                    card_months.add(event.start_date.strftime('%Y%m'))
-                if event.end_date and \
-                   (not event.end_date_precision or
-                        event.end_date_precision.month):
-                    card_months.add(event.end_date.strftime('%Y%m'))
+            # generate list of years from all event dates (not based on
+            # active months since that excludes partial dates where only
+            # year is known)
+            account_years = set(date.year for date in account_dates)
 
             # convert sets back to list for json serialization
             index_data.update({

@@ -348,6 +348,31 @@ class TestAccount(TestCase):
             [borrow_start, borrow_start]
         ]
 
+    def test_active_months(self):
+        account = Account.objects.create()
+        # no dates, no error
+        assert account.active_months() == set()
+
+        # add events to test
+        Subscription.objects.create(account=account,
+                                    start_date=datetime.date(1921, 1, 1),
+                                    end_date=datetime.date(1921, 2, 1))
+        book1 = Work.objects.create()
+        Borrow.objects.create(account=account, work=book1,
+                              start_date=datetime.date(1921, 4, 10))
+        # borrow with unknown month should be ignored
+        month_unknown = Borrow.objects.create(account=account, work=book1)
+        month_unknown.partial_start_date = '1930'
+        month_unknown.save()
+        Reimbursement.objects.create(account=account,
+                                     start_date=datetime.date(1922, 1, 1))
+
+        assert account.active_months() == \
+            set(['192101', '192102', '192104', '192201'])
+        assert account.active_months('membership') == \
+            set(['192101', '192102', '192201'])
+        assert account.active_months('books') == set(['192104'])
+
 
 class TestAddress(TestCase):
 
