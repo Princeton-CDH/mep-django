@@ -3,9 +3,6 @@
 {% if page.tagline %}
 <h2 class="tagline">{{ page.tagline }}<hr/></h2>
 {% endif %}
-{% if subtitle %}
-<h2 class="subtitle">{{ subtitle }}</h2>
-{% endif %}
 {% for block in page.body %}
     {% if block.block_type == 'captioned_image' %}
         {% include "pages/snippets/figure.html" with captioned_img=block.value %}
@@ -17,4 +14,15 @@
         </div>
     {% endif %}
 {% endfor %}
+{% if citable %}
+<div class="citation">
+    <h2>Cite this document</h2>
+    <p>
+        <span class="title">"{{ page.title }}," </span>
+        <span class="project">Shakespeare and Company Project. </span>
+        <span class="date">{% now 'Y-m-d' %}. </span>
+        <span class="url">{{ page.get_full_url }}</span>
+    </p>
+</div>
+{% endif %}
 </article>
