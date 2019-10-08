@@ -12,6 +12,7 @@ from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.validators import verify_latlon
+from mep.accounts.partial_date import DatePrecision
 from mep.footnotes.models import Footnote
 
 
@@ -447,7 +448,11 @@ class Person(Notable, DateRange, Indexable):
             # use active date ranges to get a list of all years + months
             # that this person was an active member
             # (includes subscription spans without events in that month)
-            date_ranges = account.event_date_ranges
+
+            # TODO: refactor into active_months method with
+            # optional membership filter
+
+            date_ranges = account.event_date_ranges()
             months = set()
             for start_date, end_date in date_ranges:
                 current_date = start_date
@@ -464,12 +469,43 @@ class Person(Notable, DateRange, Indexable):
                         next_month = 1
                     current_date = datetime.date(year, next_month, 1)
 
-            # generate list of years based onactive months
-            # use set to uniquify, convert back to list for json serialization
-            account_years = list(set(month[:4] for month in months))
+            logbook_months = set()
+            for start_date, end_date in account.event_date_ranges('membership'):
+                current_date = start_date
+                while current_date <= end_date:
+                    # if date is within range,
+                    # add to set of months in YYYYMM format
+                    logbook_months.add(current_date.strftime('%Y%m'))
+                    # get the date for the first of the next month
+                    next_month = current_date.month + 1
+                    year = current_date.year
+                    # handle december to january
+                    if next_month == 13:
+                        year += 1
+                        next_month = 1
+                    current_date = datetime.date(year, next_month, 1)
+
+            # generate list of years from active months; use set to uniquify
+            account_years = set(month[:4] for month in months)
+
+            book_events = account.event_set.known_years().book_activities()
+            card_months = set()
+            for event in book_events:
+                # skip unset dates and unknown months; add all other
+                # to the set of years & months in YYYYMM format
+                if event.start_date and \
+                   event.start_date_precision | DatePrecision.month:
+                    card_months.add(event.start_date.strftime('%Y%m'))
+                if event.end_date and \
+                   event.end_date_precision | DatePrecision.month:
+                    card_months.add(event.end_date.strftime('%Y%m'))
+
+            # convert sets back to list for json serialization
             index_data.update({
-                'account_years_is': account_years,
+                'account_years_is': list(account_years),
                 'account_yearmonths_is': list(months),
+                'logbook_yearmonths_is': list(logbook_months),
+                'card_yearmonths_is': list(card_months),
                 # use min and max because set order is not guaranteed
                 'account_start_i': min(account_years),
                 'account_end_i': max(account_years),

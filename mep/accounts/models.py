@@ -82,13 +82,21 @@ class Account(models.Model):
         # return as a sorted list
         return sorted(list(uniq_dates))
 
-    @property
-    def event_date_ranges(self):
+    def event_date_ranges(self, event_type=None):
         '''Generate and return a list of date ranges this account
-        was active, based on associated events.'''
+        was active, based on associated events. Optionally filter
+        to a specific kind of event activity (currently only
+        supports membership).
+        '''
         ranges = []
         current_range = None
-        for event in self.event_set.known_years():
+
+        events = self.event_set.known_years()
+        # if event type was specified, filter as requested
+        if event_type == 'membership':
+            events = events.membership_activities()
+
+        for event in events:
             # if no date is set, ignore
             if not event.start_date and not event.end_date:
                 continue
@@ -271,9 +279,9 @@ class EventQuerySet(models.QuerySet):
         '''Generic events only (excludes subscriptions, reimbursements,
         borrows, and purchases).'''
         return self.filter(subscription__isnull=True,
-                               reimbursement__isnull=True,
-                               borrow__isnull=True,
-                               purchase__isnull=True)
+                           reimbursement__isnull=True,
+                           borrow__isnull=True,
+                           purchase__isnull=True)
 
     def _subtype(self, event_type):
         return self.filter(**{'%s__isnull' % event_type: False})

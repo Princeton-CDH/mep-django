@@ -284,25 +284,25 @@ class TestAccount(TestCase):
     def test_event_date_ranges(self):
         account = Account.objects.create()
         # no dates, no error
-        assert account.event_date_ranges == []
+        assert account.event_date_ranges() == []
 
         # event with no dates - ignored
         Subscription.objects.create(account=account)
-        assert account.event_date_ranges == []
+        assert account.event_date_ranges() == []
 
         # single range
         start = datetime.date(1923, 1, 1)
         end = datetime.date(1923, 5, 1)
         Subscription.objects.create(account=account, start_date=start,
                                     end_date=end)
-        assert account.event_date_ranges == [[start, end]]
+        assert account.event_date_ranges() == [[start, end]]
 
         # event entirely within first range
         Borrow.objects.create(
             account=account, start_date=datetime.date(1923, 1, 21),
             end_date=datetime.date(1923, 2, 3))
         # range should be unchanged
-        assert account.event_date_ranges == [[start, end]]
+        assert account.event_date_ranges() == [[start, end]]
 
         # event that starts within range and ends after
         borrow_end = datetime.date(1923, 6, 1)
@@ -310,7 +310,9 @@ class TestAccount(TestCase):
             account=account, start_date=datetime.date(1923, 4, 21),
             end_date=borrow_end)
         # should extend the existing range
-        assert account.event_date_ranges == [[start, borrow_end]]
+        assert account.event_date_ranges() == [[start, borrow_end]]
+        # should ignore borrow dates if membership is specified
+        assert account.event_date_ranges('membership') == [[start, end]]
 
         # event that starts the next day after the range ends
         sub2_start = datetime.date(1923, 6, 2)
@@ -318,14 +320,14 @@ class TestAccount(TestCase):
         Subscription.objects.create(account=account, start_date=sub2_start,
                                     end_date=sub2_end)
         # should extend the existing range
-        assert account.event_date_ranges == [[start, sub2_end]]
+        assert account.event_date_ranges() == [[start, sub2_end]]
 
         # non-contiguous range should result in two ranges
         sub3_start = datetime.date(1924, 1, 5)
         sub3_end = datetime.date(1924, 3, 5)
         Subscription.objects.create(account=account, start_date=sub3_start,
                                     end_date=sub3_end)
-        assert account.event_date_ranges == [
+        assert account.event_date_ranges() == [
             [start, sub2_end],
             [sub3_start, sub3_end]
         ]
@@ -334,7 +336,7 @@ class TestAccount(TestCase):
         borrow_start = datetime.date(1924, 6, 1)
         Borrow.objects.create(account=account, start_date=borrow_start,
                               end_date=None)
-        assert account.event_date_ranges == [
+        assert account.event_date_ranges() == [
             [start, sub2_end],
             [sub3_start, sub3_end],
             [borrow_start, borrow_start]
