@@ -20,3 +20,4 @@ rdflib
 rdflib-jsonld
 djiffy
 django-csp
+bleach

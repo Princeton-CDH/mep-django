@@ -1,7 +1,16 @@
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags wagtailimages_tags %}
 <article class="preview">
+    <a href="{% pageurl item %}">
     <h2>{{ item.title }}</h2>
     <hr/>
-    <p>{{ item.description }}</p>
-    <a class="read-more" href="{% pageurl item %}">Read More</a>
+    <p>{{ item.contentpage.description|safe }}</p>
+    {% if item.contentpage.featured_image %}
+
+    {% image item.contentpage.featured_image max-291x438 as 1x_img %}
+    <img src="{{ 1x_img.url }}" {# srcset="{{ 1x_img}}, {{ 2x_img }} 2x" #}
+          alt=""/>
+     </noscript>
+
+    {% endif %}
+    </a>
 </article>
