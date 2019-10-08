@@ -8,6 +8,7 @@ from django.test import RequestFactory, TestCase
 
 from mep.books.models import Work
 from mep.books.views import WorkList
+from mep.common.utils import login_temporarily_required
 
 
 class BooksViews(TestCase):
@@ -71,6 +72,11 @@ class TestWorkListView(TestCase):
         self.factory = RequestFactory()
         self.url = reverse('books:books-list')
 
+    def test_login_required_or_404(self):
+        # 404 if not logged in; TEMPORARY
+        assert self.client.get(self.url).status_code == 404
+
+    @login_temporarily_required
     def test_list(self):
         response = self.client.get(self.url)
 
@@ -88,6 +94,7 @@ class TestWorkListView(TestCase):
 
         # NOTE publishers display is designed but data not yet available
 
+    @login_temporarily_required
     def test_many_authors(self):
         response = self.client.get(self.url)
 
