@@ -21,3 +21,4 @@ rdflib-jsonld
 djiffy
 django-csp
 bleach
+django-fullurl

@@ -13,6 +13,7 @@
         <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}" />
         <link rel="mask-icon" href="{% static 'favicon/safari-pinned-tab.svg' %}" color="#E9E9E9" />
         <meta name="theme-color" content="#ffffff" />
+        {% include 'snippets/head_meta.html' %}
         <!-- analytics -->
         {% if not request.is_preview and GTAGS_ANALYTICS_ID %}
             {% include 'snippets/analytics.html' %}

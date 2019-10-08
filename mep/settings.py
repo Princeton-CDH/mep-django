@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'viapy',
     'parasolr',
     'djiffy',
+    'fullurl',
     'webpack_loader',
     'wagtail.sites',
     'wagtail.users',
