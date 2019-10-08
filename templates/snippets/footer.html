@@ -2,10 +2,10 @@
 <footer id="page-footer">
     <nav aria-label="footer navigation">
         <ul class="primary" aria-label="primary navigation">
-            <li><a href="{% url 'people:members-list' %}">members</a><li>
-            <li><a>lending library cards</a><li>
-            <li><a>books</a><li>
-            <li><a>analysis</a><li>
+            <li><span class="pending">members</span><li>
+            <li><span class="pending">books</span><li>
+            <li><span class="pending">cards</span><li>
+            <li><span class="pending">analysis</span><li>
             <li><a href="{% slugurl 'sources' %}">sources</a><li>
             <li><a href="{% slugurl 'about' %}">about</a><li>
         </ul>
@@ -28,6 +28,7 @@
         </a>
     </div>
     <div class="links">
+        <span class="note">Coming soon.</span>
         <a href="https://accessibility.princeton.edu/" id="a11y">Accessibility</a>
         <a href="https://accessibility.princeton.edu/accessibility-assistance" id="a11y-assist">Accessibility Assistance</a>
         <span id="copyright">&copy;{% now 'Y' %} Trustees of Princeton University</span>
