@@ -268,11 +268,11 @@
         margin-bottom: 6.5rem;
 
         @media (min-width: $breakpoint-s) {
-            margin-bottom: 7.5rem;
+            margin-top: 0;
+            margin-bottom: 9rem;
         }
 
         @media (min-width: $breakpoint-m) {
-            margin-top: 0;
             margin-bottom: 14rem;
         }
     }
