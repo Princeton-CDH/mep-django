@@ -60,5 +60,17 @@ main.error {
                 width: 615px;
             }
         }
+
+        &.e500 {
+            width: 270px;
+
+            @media (min-width: $breakpoint-s) {
+                width: 675px;
+            }
+
+            @media (min-width: $breakpoint-m) {
+                width: 811px;
+            }
+        }
     }
 }
