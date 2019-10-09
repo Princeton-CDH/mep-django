@@ -28,6 +28,14 @@
         }
     }
 
+    // hide and selectively display parts of the header
+    .bookmark,
+    .logotype,
+    .chevron,
+    .tagline {
+        display: none;
+    }
+
     .logotype {
         width: 12rem;
         margin: 0 auto;
@@ -169,17 +177,25 @@
 
     .logotype {
         display: block;
-        width: $breakpoint-xs;
+        width: 100%;
         padding-top: 4rem;
 
+        @media (min-width: 460px) and (max-width: $breakpoint-s) {
+            width: 460px;
+        }
+
         @media (min-width: $breakpoint-s) {
-            padding-top: 8rem;
-            width: 22rem;
+            padding-top: calc(10rem - 5%);
+            width: 65%;
         }
 
         @media (min-width: $breakpoint-l) {
             padding-top: 12rem;
-            width: 41rem;
+            width: 60%;
+        }
+
+        @media (min-width: $breakpoint-xl) {
+            width: 58rem;
         }
     }
 
@@ -190,12 +206,20 @@
         font-style: italic;
         font-size: 0.8rem;
         max-width: 10rem;
-        padding-top: 2rem;
+        padding-top: 1rem;
         padding-bottom: 8.5rem;
+
+        @media (min-width: 460px) and (max-width: $breakpoint-s) {
+            padding-top: 0.5rem;
+        }
 
         @media (min-width: $breakpoint-s) {
             padding-top: 0;
             max-width: none;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            font-size: 1rem;
         }
 
         @media (min-width: $breakpoint-l) {
@@ -211,8 +235,16 @@
             bottom: 10rem;
         }
 
+        @media (min-width: $breakpoint-m) {
+            bottom: 7rem;
+        }
+
         @media (min-width: $breakpoint-l) {
             bottom: 16rem;
+        }
+
+        @media (min-width: $breakpoint-xl) {
+            bottom: 14rem;
         }
     }
 }
@@ -224,5 +256,42 @@
 
     @media (min-width: $breakpoint-s) {
         position: relative;
+    }
+}
+
+/* error page header: h1 is moved down, lots of margin */
+#page-header.error {
+
+    .logotype {
+        display: block;
+        margin-top: 2rem;
+        margin-bottom: 6.5rem;
+
+        @media (min-width: $breakpoint-s) {
+            margin-top: 0;
+            margin-bottom: 9rem;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            margin-bottom: 14rem;
+        }
+    }
+
+    h1 {
+        text-transform: none;
+        position: absolute;
+        margin: auto;
+        left: 0;
+        right: 0;
+        top: 7rem;
+
+        @media (min-width: $breakpoint-s) {
+            font-size: 1.4rem;
+            top: 10rem;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            font-size: 3rem;
+        }
     }
 }

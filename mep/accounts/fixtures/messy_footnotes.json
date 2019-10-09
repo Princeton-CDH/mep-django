@@ -1,0 +1,356 @@
+[
+{
+    "model": "footnotes.sourcetype",
+    "pk": 2,
+    "fields": {
+        "name": "Lending Library Card",
+        "notes": ""
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 37,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/burt/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/burt/00000002.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/burt/00000003.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/burt/00000004.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/burt/00000005.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/burt/00000006.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/burt/00000007.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/burt/00000008.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/burt/00000009.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/burt/00000010.jp2",
+        "bibliographic_note": "Sylvia Beach, Maud Burt Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 376,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000002.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000003.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000004.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000005.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000006.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000007.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000008.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000009.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000010.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000011.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000012.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000013.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000014.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000015.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000016.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000017.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000018.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000019.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000020.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000021.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000022.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000023.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000024.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000025.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000026.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000027.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000028.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000029.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000030.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000031.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000032.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000033.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/00000034.jp2",
+        "bibliographic_note": "Sylvia Beach, Raphael Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 387,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/reynolds/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/reynolds/00000002.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/reynolds/00000003.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/reynolds/00000004.jp2",
+        "bibliographic_note": "Sylvia Beach, A.M. Reynolds Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 516,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/vw/wiggram/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/vw/wiggram/00000002.jp2",
+        "bibliographic_note": "Sylvia Beach, Mrs Wigram Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 314,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/o/oerthel/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/o/oerthel/00000002.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/o/oerthel/00000003.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/o/oerthel/00000004.jp2",
+        "bibliographic_note": "Sylvia Beach, Maurice Oerthel Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 226,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/l/lamirault/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/l/lamirault/00000002.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/l/lamirault/00000003.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/l/lamirault/00000004.jp2",
+        "bibliographic_note": "Sylvia Beach, Raymonde Lamirault Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 111,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/d/du_bois/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/d/du_bois/00000002.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/d/du_bois/00000003.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/d/du_bois/00000004.jp2",
+        "bibliographic_note": "Sylvia Beach, Paul Dubois Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 106,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/d/deslernes/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/d/deslernes/00000002.jp2",
+        "bibliographic_note": "Sylvia Beach, Jean Deslernes Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 81,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000002.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000003.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000004.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000005.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000006.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000007.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000008.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000009.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000010.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000011.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000012.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000013.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000014.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000015.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000016.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000017.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000018.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000019.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000020.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000021.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000022.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000023.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000024.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000025.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000026.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000027.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000028.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000029.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/00000030.jp2",
+        "bibliographic_note": "Sylvia Beach, Henry Church Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 48,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/cornu/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/c/cornu/00000002.jp2",
+        "bibliographic_note": "Sylvia Beach, Odette Cornu Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 22,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/bienenfeld/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/bienenfeld/00000002.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/bienenfeld/00000003.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/b/bienenfeld/00000004.jp2",
+        "bibliographic_note": "Sylvia Beach, Bianca Beinenfeld Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 22014,
+    "fields": {
+        "notes": "",
+        "bibliography": 37,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298/b/burt/00000008",
+        "snippet_text": "",
+        "content_type": 2,
+        "object_id": 12236,
+        "is_agree": true,
+        "image": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 22007,
+    "fields": {
+        "notes": "",
+        "bibliography": 376,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298/r/raphael/000000025",
+        "snippet_text": "",
+        "content_type": 3,
+        "object_id": 33167,
+        "is_agree": true,
+        "image": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 21891,
+    "fields": {
+        "notes": "",
+        "bibliography": 387,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298/r/reynolds/0000003",
+        "snippet_text": "",
+        "content_type": 2,
+        "object_id": 25448,
+        "is_agree": true,
+        "image": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 18406,
+    "fields": {
+        "notes": "",
+        "bibliography": 516,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298/vw/Wigram/00000001.jp2",
+        "snippet_text": "",
+        "content_type": 3,
+        "object_id": 29355,
+        "is_agree": true,
+        "image": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 11713,
+    "fields": {
+        "notes": "",
+        "bibliography": 314,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298/o/oerthal/00000003.jp2",
+        "snippet_text": "",
+        "content_type": 3,
+        "object_id": 22662,
+        "is_agree": true,
+        "image": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 7956,
+    "fields": {
+        "notes": "",
+        "bibliography": 226,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298/l/lambirault/00000003.jp2",
+        "snippet_text": "",
+        "content_type": 3,
+        "object_id": 18905,
+        "is_agree": true,
+        "image": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 3932,
+    "fields": {
+        "notes": "",
+        "bibliography": 111,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298/d/dolan00000004.jp2",
+        "snippet_text": "",
+        "content_type": 3,
+        "object_id": 14881,
+        "is_agree": true,
+        "image": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 3783,
+    "fields": {
+        "notes": "",
+        "bibliography": 106,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298/d/deslernes00000001.jp2",
+        "snippet_text": "",
+        "content_type": 3,
+        "object_id": 14732,
+        "is_agree": true,
+        "image": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 2561,
+    "fields": {
+        "notes": "",
+        "bibliography": 81,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298/c/church/000000014.jp2",
+        "snippet_text": "",
+        "content_type": 3,
+        "object_id": 13510,
+        "is_agree": true,
+        "image": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 1957,
+    "fields": {
+        "notes": "",
+        "bibliography": 48,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298//c/cornu/00000001.jp2",
+        "snippet_text": "",
+        "content_type": 3,
+        "object_id": 12906,
+        "is_agree": true,
+        "image": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 718,
+    "fields": {
+        "notes": "",
+        "bibliography": 22,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298/b/bienenfeld/00000003.jp2",
+        "snippet_text": "",
+        "content_type": 3,
+        "object_id": 11667,
+        "is_agree": true,
+        "image": null
+    }
+},
+{
+    "model": "footnotes.sourcetype",
+    "pk": 2,
+    "fields": {
+        "name": "Lending Library Card",
+        "notes": ""
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 357,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/p/price/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/p/price/00000002.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/p/price/00000005.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/p/price/00000006.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/p/price/00000007.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/p/price/00000008.jp2",
+        "bibliographic_note": "Sylvia Beach, Phyllis Price Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 381,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/renaudin/00000001.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/r/renaudin/00000002.jp2",
+        "bibliographic_note": "Sylvia Beach, Paul Renaudin Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 627,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/p/price/00000006.jp2",
+        "bibliographic_note": "Sylvia Beach, Miss Rachel Brody Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 592,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/g/goodwin/00000004.jp2",
+        "bibliographic_note": "Sylvia Beach, J. Enfield Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 175,
+    "fields": {
+        "notes": "Images:\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/g/goodwin/00000001.jp2\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/g/goodwin/00000002.jp2\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/g/goodwin/00000003.jp2\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/g/goodwin/00000004.jp2",
+        "bibliographic_note": "Sylvia Beach, Goodwin Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 625,
+    "fields": {
+        "notes": "Images:\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/p/price/00000003.jp2\r\nhttps://diglib.princeton.edu/tools/ib/pudl0123/825298/p/price/00000004.jp2",
+        "bibliographic_note": "Sylvia Beach, British Institute Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": null
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 12969,
+    "fields": {
+        "notes": "",
+        "bibliography": 357,
+        "location": "https://diglib.princeton.edu/tools/ib/pudl0123/825298/p/price/00000006.jp2",
+        "snippet_text": "",
+        "content_type": 3,
+        "object_id": 23918,
+        "is_agree": true,
+        "image": null
+    }
+}
+]

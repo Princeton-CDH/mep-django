@@ -5,7 +5,7 @@ cached_property
 pucas>=0.6
 eulxml
 viapy
-wagtail>=2.3,<2.4
+wagtail>=2.3,<2.4 # 2.4+ requires django 2.0
 django-autocomplete-light<3.3
 python-dateutil
 django-apptemplates
@@ -18,3 +18,5 @@ pymarc
 progressbar2
 rdflib
 rdflib-jsonld
+djiffy
+django-csp
