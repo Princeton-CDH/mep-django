@@ -5,8 +5,13 @@
 {% endblock %}
 
 {% block content %}
-{% include 'pages/snippets/body.html' %}
-<section class="subpages">
+<div class="main">
+    {% if page.tagline %}
+    <h2 class="tagline">{{ page.tagline }}<hr/></h2>
+    {% endif %}
+    {% include 'pages/snippets/body.html' %}
+</div>
+<section class="subpages" aria-label="subpages">
     {% for subpage in page.get_children %}
     {% include 'pages/snippets/preview.html' with item=subpage %}
     {% endfor %}
