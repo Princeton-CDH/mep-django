@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% load mep_tags %}
+{% load static mep_tags %}
 
 {% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
 
 {% block js %}
 <script type="application/ld+json">{{ page_jsonld|safe }}</script>
-<script src="https://d3js.org/d3.v5.js"></script>
+<script src="{% static 'js/d3.v5.min.js' %}"></script>
 {% endblock %}
 
 {% block header %}
@@ -34,7 +34,7 @@
 
     <div class="timeline">
     <svg width="1440" height="800"></svg>
-        <script>
+  <script nonce="{{ request.csp_nonce }}">
             const data = {{ timeline|json }}
             console.log('timeline data: ', data)
 
