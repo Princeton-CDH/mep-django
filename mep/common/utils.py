@@ -117,7 +117,7 @@ def alpha_pagelabels(paginator, objects, attr_meth):
 
 
 def login_temporarily_required(func):
-    '''Test decorator for for views that have LoginRequiredOr404
+    '''Test decorator for views that have LoginRequiredOr404
     enabled. Creates a user with no permissions on first run for a given
     class, and logs in as that user before running the decorated test
     method. Intended for use on Django TestCase class methods.
