@@ -14,15 +14,16 @@ from django.views.generic.edit import FormMixin, FormView
 from mep.accounts.models import Event
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, RdfViewMixin)
+from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
+    LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
+class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
+                  FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
@@ -63,7 +64,6 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
             form_data.setdefault(key, val)
 
         kwargs['data'] = form_data
-
 
         # get min/max configuration for range fields
         kwargs['range_minmax'] = self.get_range_stats()
@@ -187,7 +187,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin, Fac
         ]
 
 
-class MemberDetail(DetailView, RdfViewMixin):
+class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -211,7 +211,7 @@ class MemberDetail(DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(ListView, RdfViewMixin):
+class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
     '''Display a list of membership activities (subscriptions, renewals,
     and reimbursements) for an individual member.'''
     model = Event
@@ -461,8 +461,8 @@ class PersonMerge(PermissionRequiredMixin, FormView):
                 primary_person
             )
 
-            if primary_person.has_account(): # calculate events reassociated
-                primary_account = primary_person.account_set.first() # if there wasn't one before
+            if primary_person.has_account():  # calculate events reassociated
+                primary_account = primary_person.account_set.first()  # if there wasn't one before
                 added_events = primary_account.event_set.count() - existing_events
                 message += ' Reassociated %d event%s with <a href="%s">%s</a>.' % (
                     added_events,
@@ -470,16 +470,16 @@ class PersonMerge(PermissionRequiredMixin, FormView):
                     reverse('admin:accounts_account_change', args=[primary_account.id]),
                     primary_account
                 )
-            else: # no accounts merged
+            else:  # no accounts merged
                 message += ' No accounts to reassociate.'
 
-            if primary_person.is_creator(): # calculate creator roles reassociated
+            if primary_person.is_creator():  # calculate creator roles reassociated
                 added_creators = primary_person.creator_set.count() - existing_creators
                 message += ' Reassociated %d creator role%s on items.' % (
                     added_creators,
                     's' if added_creators != 1 else ''
                 )
-            else: # no creators reassociated
+            else:  # no creators reassociated
                 message += ' No creator relationships to reassociate.'
 
             messages.success(self.request, mark_safe(message))
