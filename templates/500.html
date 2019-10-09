@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block header %}
+{% include 'snippets/header.html' with title="Something went wrong" style="error" %}
+{% endblock %}
+
+{% block main-style %}error{% endblock %}
+
+{% block content %}
+<img srcset="{% static 'img/500-error-1x.jpg' %},
+            {% static 'img/500-error-2x.jpg' %} 2x"
+    src="{% static 'img/500-error-1x.jpg' %}"
+    alt="publisher's note asking reader forgiveness for typographical errors"
+    class="e500">
+{% endblock %}
