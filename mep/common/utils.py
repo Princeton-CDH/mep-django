@@ -1,13 +1,10 @@
 from collections import OrderedDict
 from functools import wraps
-import re
 import uuid
-import pytest
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.http import Http404
 
 
 def absolutize_url(local_url, request=None):
