@@ -100,7 +100,8 @@ class PagePreviewDescriptionMixin(models.Model):
     richtext description field, and methods to get description and plain-text
     description, for use in previews on the site and plain-text metadata
     previews.'''
-    # borrowed from PPA
+
+    # adapted from PPA; does not allow <p> tags in description
 
     description = RichTextField(
         blank=True, features=['bold', 'italic'],
