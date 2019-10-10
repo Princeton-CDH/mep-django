@@ -72,7 +72,7 @@ class LandingPage(RdfPageMixin, Page):
     ''':class:`wagtail.core.models.Page` model for aggregating other pages.'''
     parent_page_types = [HomePage]  # can only be child of HomePage
     tagline = models.CharField(max_length=500)  # shown just below the header
-    body = StreamField(BodyContentBlock)
+    body = StreamField(BodyContentBlock, blank=True)
     header_image = models.ForeignKey(  # image that will be used for the header
         'wagtailimages.image',
         null=True,
