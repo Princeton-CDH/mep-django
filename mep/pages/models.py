@@ -101,7 +101,7 @@ class PagePreviewDescriptionMixin(models.Model):
         'not entered.')
 
     #: maximum length for description to be displayed
-    max_length = 250
+    max_length = 225
 
     # ('a' is omitted by subsetting default ALLOWED_TAGS)
     #: allowed tags for bleach html stripping in description
