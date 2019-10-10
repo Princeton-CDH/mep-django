@@ -27,12 +27,16 @@ page_description, and page_meta_image if set in context.
 {% with default_image="img/logo/SCo_logo_vert.png" %}
 {% if page.contentpage.featured_image %}
     {% image page.contentpage.featured_image max-1080x1080 as featured_image %}
-    {# fullurl doesn't allow capturing result via as #}
+{% elif page.landingpage.header_image %}
+    {% image page.landingpage.header_image max-1080x1080 as featured_image %}
+{% endif %}
+{% if featured_image %}
+    {# using fullurl twice because it doesn't support capturing result #}
     <meta property="og:image" content="{% buildfullurl featured_image.url %}" />
     <meta name="twitter:image" content="{% buildfullurl featured_image.url %}" />
 {% else %}
-    <meta property="og:image" content="{% fullstatic preview_image %}" />
-    <meta property="twitter:image" content="{% fullstatic preview_image %}" />
+    <meta property="og:image" content="{% fullstatic default_image %}" />
+    <meta property="twitter:image" content="{% fullstatic default_image %}" />
 {% endif %}
 {% endwith %}
 <meta property="og:url" content="{{ request.build_absolute_uri }}" />
