@@ -23,7 +23,7 @@
             const totals = {{ data|json }}
             console.log('timeline data: ', totals)
 
-
+var svgheight = 280;
 var bookstoreCloseDate = new Date(1942, 12, 31);
 
 var x = d3.scaleTime()
@@ -35,7 +35,7 @@ var xAxis = d3.axisTop(x);
 
 d3.select("svg")
     .attr("width", 1440)
-    .attr("height", 800)
+    .attr("height", svgheight + 20)
   .append("g")
     .attr("transform", "translate(10,30)")
     .call(xAxis)
@@ -72,7 +72,7 @@ d3.select("svg")
 
 // preliminary bar graph (based on individual member timeline)
 
-var svgheight = 280;
+
 
 
 d3.select('svg').append('g')
