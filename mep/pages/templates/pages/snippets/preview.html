@@ -1,16 +1,20 @@
 {% load wagtailcore_tags wagtailimages_tags %}
-<article class="preview">
-    <a href="{% pageurl item %}">
+<a href="{% pageurl item %}" class="preview">
     <h2>{{ item.title }}</h2>
     <hr/>
-    <p>{{ item.contentpage.description|safe }}</p>
+    <p>{{ item.contentpage.get_description|safe }}</p>
     {% if item.contentpage.featured_image %}
-
-    {% image item.contentpage.featured_image max-291x438 as 1x_img %}
-    <img src="{{ 1x_img.url }}" {# srcset="{{ 1x_img}}, {{ 2x_img }} 2x" #}
-          alt=""/>
-     </noscript>
-
+        {% image item.contentpage.featured_image min-320x190 as s %}
+        {% image item.contentpage.featured_image min-500x300 as m %}
+        {% image item.contentpage.featured_image min-355x210 as l %}
+        {% image item.contentpage.featured_image min-640x380 as s_2x %}
+        {% image item.contentpage.featured_image min-1000x600 as m_2x %}
+        {% image item.contentpage.featured_image min-710x420 as l_2x %}
+        <picture>
+            <source srcset="{{ s.url }}, {{ s_2x.url }} 2x">
+            <source media="(min-width: 768px)" srcset="{{ m.url }}, {{ m_2x.url }} 2x">
+            <source media="(min-width: 1024px)" srcset="{{ l.url }}, {{ l_2x.url }} 2x">
+            <img src="{{ l.url }}" alt="">
+        </picture>
     {% endif %}
-    </a>
-</article>
+</a>

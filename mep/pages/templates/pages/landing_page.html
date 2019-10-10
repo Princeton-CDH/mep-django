@@ -12,7 +12,7 @@
     {% endif %}
     {% include 'pages/snippets/body.html' %}
 </div>
-<section class="subpages" aria-label="subpages">
+<section class="subpages" aria-label="sub pages">
     {% for subpage in page.get_children %}
     {% include 'pages/snippets/preview.html' with item=subpage %}
     {% endfor %}
