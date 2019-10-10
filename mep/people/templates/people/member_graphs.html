@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% load mep_tags %}
+{% load static mep_tags %}
 
 {% block page-subtitle %}Graphs · Library Members · {% endblock %}
 
 {% block js %}
-<script src="https://d3js.org/d3.v5.js"></script>
+<script src="{% static 'js/d3.v5.min.js' %}"></script>
 {% endblock %}
 
 {% block header %}
@@ -15,42 +15,71 @@
 
 {% block content %}
 
+<section>
     <div class="timeline">
-    <svg width="1440" height="800"></svg>
-        <script>
+      <svg width="1440" height="800" style="margin-left:50px"></svg>
+    </div>
+  <script nonce="{{ request.csp_nonce }}">
             const totals = {{ data|json }}
             console.log('timeline data: ', totals)
 
 
+var bookstoreCloseDate = new Date(1942, 12, 31);
+
 var x = d3.scaleTime()
     // whole timeline
-    .domain([new Date(1919, 1, 1), new Date(1942, 12, 31)])
+    .domain([new Date(1919, 1, 1), bookstoreCloseDate])
     .range([0, 911]);
 
-var axis = d3.axisTop(x);
+var xAxis = d3.axisTop(x);
 
 d3.select("svg")
     .attr("width", 1440)
     .attr("height", 800)
   .append("g")
-    .attr("transform", "translate(0,30)")
-    .call(axis)
+    .attr("transform", "translate(10,30)")
+    .call(xAxis)
     .call(g => g.selectAll(".tick line")
-        .attr("stroke", 'black')
-        .attr("y2", 150)
+        .attr("stroke", '#231F20')
+        .attr("stroke-width", '0.25')
+        .attr('stroke-dasharray', '2,2')
+        .attr("y2", 250)
         .attr("y1", 0))
+    // remove domain path automatically added by d3 axis
+    .call(g => g.select(".domain").remove())
+
+
+var maxCount = totals.logbooks.map(d => d.count).reduce(function(a, b) {
+    return Math.max(a, b);
+});
+
+console.log(maxCount);
+
+var y = d3.scaleLinear()
+  .domain([maxCount, 0])
+  .range([0, 280]);
+
+var yAxis = d3.axisRight(y)
+  .ticks(5)
+  .tickSize(0);
+
+d3.select("svg")
+  .append("g")
+    .call(yAxis)
+  // remove domain path automatically added by d3 axis
+  .call(g => g.select(".domain").remove())
 
 
 // preliminary bar graph (based on individual member timeline)
 
-var svgheight = 181;
+var svgheight = 280;
+
 
 d3.select('svg').append('g')
+    .attr("transform", "translate(10,0)")
     .attr('class', 'borrowing-bars')
   .selectAll('bar')
-  // .data(totals.members)
-  // .data(totals.logbooks)
-  .data(totals.cards)
+  .data(totals.cards.filter(event => (new Date(event.startDate) < bookstoreCloseDate)))
   .join(
     enter => enter.append("rect")
                     .attr('class', 'borrowing')
@@ -62,7 +91,29 @@ d3.select('svg').append('g')
                     })
                     .attr("fill", "#47C2C2")
                     .attr("opacity", "0.8")
-                    .attr("width", 5)
+                    .attr("width", 2.35)
+                    .attr("height",function (d) {
+                        return d.count
+                 })
+    )
+
+d3.select('svg').append('g')
+    .attr('class', 'subscription-bars')
+    .attr("transform", "translate(10,0)")
+  .selectAll('bar')
+  .data(totals.logbooks)
+  .join(
+    enter => enter.append("rect")
+                    .attr('class', 'subscription')
+                    .attr('x', function(d) {
+                      return x(new Date(d.startDate))
+                     })
+                    .attr('y', function (d) {
+                        return svgheight - d.count
+                    })
+                    .attr("fill", "#231F20")
+                    .attr("opacity", "0.2")
+                    .attr("width", 2.35)
                     .attr("height",function (d) {
                         return d.count
                  })
@@ -70,8 +121,5 @@ d3.select('svg').append('g')
         </script>
     </div>
 
-
-
-    <div class="map"></div>
 </section>
 {% endblock %}
