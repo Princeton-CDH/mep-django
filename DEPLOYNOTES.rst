@@ -3,22 +3,19 @@
 Deploy and Upgrade notes
 ========================
 
-0.22
+0.21
 ----
 
 * You must configure **GTAGS_ANALYTICS_ID** and **GTAGS_ANALYTICS_ENV** in
   ``local_settings.py`` in order for Google Analytics to function. See the note
   in ``local_settings.py.sample`` for more information.
 
-0.21
-----
+* After this version is deployed, you should run ``import_figgy_cards``
+  to migrate old pudl image urls in Bibliography and Footnote records to
+  use the new objects in PUL's Figgy. The CSV file mapping old paths
+  to new Figgy ids is included as a fixture for convenience::
 
-After this version is deployed, you should run ``import_figgy_cards``
-to migrate old pudl image urls in Bibliography and Footnote records to
-use the new objects in PUL's Figgy. The CSV file mapping old paths
-to new Figgy ids is included as a fixture for convenience::
-
-  python manage.py import_figgy_cards mep/accounts/fixtures/pudl-to-figgy-mapping.csv
+    python manage.py import_figgy_cards mep/accounts/fixtures/pudl-to-figgy-mapping.csv
 
 0.17
 ----

@@ -13,24 +13,31 @@ from mep.common.utils import absolutize_url
 from mep.common.views import RdfViewMixin
 
 
-class CaptionedImageBlock(StructBlock):
+class CaptionedImageBlock(blocks.StructBlock):
     ''':class:`~wagtail.core.blocks.StructBlock` for an image with
-    a formatted caption, so caption can be context-specific.'''
+    alternative text and optional formatted caption, so
+    that both caption and alternative text can be context-specific.'''
     image = ImageChooserBlock()
-    caption = RichTextBlock(features=['bold', 'italic', 'link'])
+    alternative_text = blocks.TextBlock(
+        required=True,
+        help_text='Alternative text for visually impaired users to ' +
+                  'briefly communicate the intended message of the '
+                  'image in this context.')
+    caption = blocks.RichTextBlock(features=['bold', 'italic', 'link'],
+                                   required=False)
 
     class Meta:
         icon = 'image'
 
 
-class BodyContentBlock(StreamBlock):
+class BodyContentBlock(blocks.StreamBlock):
     '''Common set of content blocks for content/analysis pages.'''
     paragraph = RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link',
                                         'ol', 'ul', 'blockquote'])
     image = ImageChooserBlock()
     captioned_image = CaptionedImageBlock()
     document = DocumentChooserBlock()
-    footnotes = RichTextBlock(
+    footnotes = blocks.RichTextBlock(
         features=['ol', 'ul', 'bold', 'italic', 'link'],
         classname='footnotes'
     )
