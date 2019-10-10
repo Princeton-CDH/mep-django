@@ -118,7 +118,7 @@ class TestContentPage(WagtailPageTests):
         content_page2 = ContentPage(
             title='What is Prosody?',
             body=[
-                ('captioned_image', '<img src="milton-example.png"/>'),
+                ('image', '<img src="milton-example.png"/>'),
                 ('paragraph', '<p>Prosody today means both the study of '
                               'and <a href="#">pronunciation</a></p>'),
                 ('paragraph', '<p>More content here...</p>'),

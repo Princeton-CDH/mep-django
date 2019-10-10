@@ -2,8 +2,7 @@ import bleach
 from django.db import models
 from django.template.defaultfilters import striptags, truncatechars_html
 from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
-from wagtail.core.blocks import (RichTextBlock, StreamBlock, StructBlock,
-                                 TextBlock)
+from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.documents.blocks import DocumentChooserBlock
@@ -13,32 +12,48 @@ from wagtail.images.edit_handlers import ImageChooserPanel
 from mep.common.utils import absolutize_url
 from mep.common.views import RdfViewMixin
 
+#: help text for image alternative text
+ALT_TEXT_HELP = """Alternative text for visually impaired users to
+briefly communicate the intended message of the image in this context."""
 
-class CaptionedImageBlock(StructBlock):
+
+class CaptionedImageBlock(blocks.StructBlock):
     ''':class:`~wagtail.core.blocks.StructBlock` for an image with
     alternative text and optional formatted caption, so
     that both caption and alternative text can be context-specific.'''
     image = ImageChooserBlock()
-    alternative_text = TextBlock(
-        required=True,
-        help_text='Alternative text for visually impaired users to ' +
-                  'briefly communicate the intended message of the '
-                  'image in this context.')
-    caption = RichTextBlock(features=['bold', 'italic', 'link'],
+    alternative_text = blocks.TextBlock(required=True, help_text=ALT_TEXT_HELP)
+    caption = blocks.RichTextBlock(features=['bold', 'italic', 'link'],
                                    required=False)
 
     class Meta:
         icon = 'image'
 
 
-class BodyContentBlock(StreamBlock):
+class SVGImageBlock(blocks.StructBlock):
+    ''':class:`~wagtail.core.blocks.StructBlock` for an SVG image with
+    alternative text and optional formatted caption. Separate from
+    :class:`CaptionedImageBlock` because Wagtail image handling
+    does not work with SVG.'''
+    image = DocumentChooserBlock()
+    alternative_text = blocks.TextBlock(required=True, help_text=ALT_TEXT_HELP)
+    caption = blocks.RichTextBlock(features=['bold', 'italic', 'link'],
+                                   required=False)
+
+    class Meta:
+        icon = 'image'
+        label = 'SVG'
+
+
+class BodyContentBlock(blocks.StreamBlock):
     '''Common set of content blocks for content/analysis pages.'''
-    paragraph = RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link',
-                                        'ol', 'ul', 'blockquote'])
-    image = ImageChooserBlock()
-    captioned_image = CaptionedImageBlock()
+    paragraph = blocks.RichTextBlock(
+        features=['h3', 'h4', 'bold', 'italic', 'link',
+                  'ol', 'ul', 'blockquote'])
+    image = CaptionedImageBlock()
+    svg_image = SVGImageBlock()
     document = DocumentChooserBlock()
-    footnotes = RichTextBlock(
+    footnotes = blocks.RichTextBlock(
         features=['ol', 'ul', 'bold', 'italic', 'link'],
         classname='footnotes'
     )
