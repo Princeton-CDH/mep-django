@@ -1,4 +1,4 @@
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags mep_page_tags %}
 {% for block in page.body %}
     {% if block.block_type == 'captioned_image' %}
         {% include "pages/snippets/figure.html" with captioned_img=block.value %}
@@ -6,7 +6,7 @@
         {% include "pages/snippets/responsive_image.html" with img=block.value %}
     {% else %}
         <div class="{{ block.block_type }}">
-            {% include_block block %}
+            {% include_block block|format_citation:SW_VERSION %}
         </div>
     {% endif %}
 {% endfor %}
