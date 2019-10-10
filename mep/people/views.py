@@ -17,16 +17,17 @@ from django.views.generic.edit import FormMixin, FormView
 from mep.accounts.models import Event
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, RdfViewMixin)
+from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
+    LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
-                  FacetJSONMixin, RdfViewMixin):
+
+class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
+                  FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
@@ -192,7 +193,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
         ]
 
 
-class MemberDetail(DetailView, RdfViewMixin):
+class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -248,7 +249,7 @@ class MemberDetail(DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(ListView, RdfViewMixin):
+class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
     '''Display a list of membership activities (subscriptions, renewals,
     and reimbursements) for an individual member.'''
     model = Event

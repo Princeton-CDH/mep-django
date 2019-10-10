@@ -44,6 +44,9 @@ urlpatterns = [
     url(r'^sitemap-(?P<section>.+)\.xml$', sitemap_views.sitemap,
         {'sitemaps': SITEMAPS}, name='django.contrib.sitemaps.views.sitemap'),
 
+    # 500 error testing
+    url(r'^500/$', lambda _: 1/0),
+
     # wagtail urls
     url(r'^cms/', include(wagtailadmin_urls)),
     url(r'^documents/', include(wagtaildocs_urls)),

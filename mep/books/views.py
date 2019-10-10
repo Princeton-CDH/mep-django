@@ -9,12 +9,12 @@ from mep.books.models import Work
 from mep.books.queryset import WorkSolrQuerySet
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url
-from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, RdfViewMixin)
+from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
+    LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
 
 
-class WorkList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
-               FacetJSONMixin, RdfViewMixin):
+class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
+               FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library items.'''
     model = Work
     template_name = 'books/work_list.html'
@@ -96,7 +96,7 @@ class WorkList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
         ]
 
 
-class WorkDetail(DetailView):
+class WorkDetail(LoginRequiredOr404Mixin, DetailView):
     '''Detail page for a single library book.'''
     model = Work
     template_name = 'books/work_detail.html'

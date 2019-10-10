@@ -36,7 +36,7 @@
             height: 3rem;
         }
 
-        @media (min-width: $breakpoint-l) {
+        @media (min-width: $breakpoint-m) {
             width: 4rem;
             height: 4rem;
         }
@@ -118,6 +118,16 @@
             }
         }
 
+        .pending *,
+        .note {
+            color: $mid-grey;
+        }
+
+        .pending .title::after {
+            content: '*';
+            position: absolute;
+        }
+
         .title,
         .subtitle {
             display: block;
@@ -137,6 +147,15 @@
             font-size: 0.7rem;
             line-height: normal;
             padding-top: .5rem;
+        }
+
+        .note {
+            font-size: 0.7rem;
+            line-height: normal;
+
+            &::before {
+                content: '*';
+            }
         }
     }
 }

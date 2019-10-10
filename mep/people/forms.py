@@ -66,7 +66,7 @@ class MemberSearchForm(FacetForm):
     }))
     membership_dates = RangeField(label='Membership Dates', required=False,
         widget=RangeWidget(attrs={'size': 4}))
-    birth_year = RangeField(required=False,
+    birth_year = RangeField(label='Birth Year', required=False,
         widget=RangeWidget(attrs={'size': 4}))
 
     def set_range_minmax(self, range_minmax):
