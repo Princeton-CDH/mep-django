@@ -108,12 +108,8 @@ class TestContentPage(WagtailPageTests):
         # (excluding end of content because truncation is inside tags)
 
         # should also be cleaned by bleach to its limited set of tags
-        assert desc[:200] == bleach.clean(
-            str(content_page.body[0]),
-            # omit 'a' from list of allowed tags
-            tags=list((set(bleach.sanitizer.ALLOWED_TAGS) - set(['a']))),
-            strip=True
-        )[:200]
+        assert desc[:200] == 'How to begin?'
+
         # empty tags in description shouldn't be used
         content_page.description = '<p></p>'
         desc = content_page.get_description()
@@ -130,20 +126,15 @@ class TestContentPage(WagtailPageTests):
         )
         # should ignore image block and use first paragraph content
         assert content_page2.get_description()[:200] == \
-            bleach.clean(
-                str(content_page2.body[1]),
-                # omit 'a' from list of allowed tags
-                tags=list((set(bleach.sanitizer.ALLOWED_TAGS) |
-                          set(['p'])) - set(['a'])),
-                strip=True
-        )[:200]
+            'Prosody today means both the study of and pronunciation'
 
         # should remove <a> tags
         assert '<a href="#">' not in content_page2.get_description()
 
         # should use description field when set
-        content_page2.description = '<p>A short intro to prosody.</p>'
-        assert content_page2.get_description() == content_page2.description
+        intro_text = 'A short intro to prosody.'
+        content_page2.description = '<p>%s</p>' % intro_text
+        assert content_page2.get_description() == intro_text
 
         # should truncate if description content is too long
         content_page2.description = content_page.body[0]
