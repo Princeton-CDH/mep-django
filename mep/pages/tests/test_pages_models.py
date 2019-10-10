@@ -1,3 +1,5 @@
+import bleach
+from django.template.defaultfilters import truncatechars_html, striptags
 from wagtail.core.models import Page, Site
 from wagtail.tests.utils import WagtailPageTests
 from wagtail.tests.utils.form_data import (nested_form_data, rich_text,
@@ -88,3 +90,53 @@ class TestContentPage(WagtailPageTests):
         response = self.client.get(content_page.relative_url(site))
         self.assertTemplateUsed(response, 'base.html')
         self.assertTemplateUsed(response, 'pages/content_page.html')
+
+    def test_get_description(self):
+        '''test page preview mixin'''
+        # page with body content and no description
+        content_page = ContentPage(
+            title='Undescribable',
+            body=[
+                ('paragraph', '<p>How to <a>begin</a>?</p>'),
+            ])
+
+        assert not content_page.description
+        desc = content_page.get_description()
+        # length excluding tags should be truncated to max length or less
+        assert len(striptags(desc)) <= content_page.max_length
+        # beginning of text should match exactly the *first* block
+        # (excluding end of content because truncation is inside tags)
+
+        # should also be cleaned by bleach to its limited set of tags
+        assert desc[:200] == 'How to begin?'
+
+        # empty tags in description shouldn't be used
+        content_page.description = '<p></p>'
+        desc = content_page.get_description()
+
+        # test content page with image for first block
+        content_page2 = ContentPage(
+            title='What is Prosody?',
+            body=[
+                ('captioned_image', '<img src="milton-example.png"/>'),
+                ('paragraph', '<p>Prosody today means both the study of '
+                              'and <a href="#">pronunciation</a></p>'),
+                ('paragraph', '<p>More content here...</p>'),
+            ]
+        )
+        # should ignore image block and use first paragraph content
+        assert content_page2.get_description()[:200] == \
+            'Prosody today means both the study of and pronunciation'
+
+        # should remove <a> tags
+        assert '<a href="#">' not in content_page2.get_description()
+
+        # should use description field when set
+        intro_text = 'A short intro to prosody.'
+        content_page2.description = '<p>%s</p>' % intro_text
+        assert content_page2.get_description() == intro_text
+
+        # should truncate if description content is too long
+        content_page2.description = content_page.body[0]
+        assert len(striptags(content_page.get_description())) \
+            <= content_page.max_length

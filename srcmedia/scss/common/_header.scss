@@ -85,6 +85,7 @@
     }
 
     padding: 0;
+    margin-bottom: 1.5rem;
     height: 22.5rem;
     z-index: -2;
     background-position: bottom;
@@ -97,6 +98,7 @@
     }
 
     @media (min-width: $breakpoint-l) {
+        margin-bottom: 4rem;
         height: 30rem;
         background-position: top;
     }
