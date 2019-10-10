@@ -25,7 +25,6 @@ from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-
 class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
                   FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''

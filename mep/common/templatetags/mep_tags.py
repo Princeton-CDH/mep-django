@@ -1,8 +1,7 @@
-
 import json
 from urllib.parse import urlparse
 
-from django.template.defaulttags import register, mark_safe
+from django.template.defaulttags import mark_safe, register
 
 
 @register.filter
@@ -13,7 +12,6 @@ def dict_item(dictionary, key):
         {{ mydict|dict_item:keyvar }}
     '''
     return dictionary.get(key, None)
-
 
 
 @register.filter(name='json')
@@ -37,6 +35,6 @@ def domain(url):
     '''
     try:
         netloc_parts = urlparse(url).netloc.split('.')
-        return netloc_parts[-2] # piece right before the top-level domain
+        return netloc_parts[-2]  # piece right before the top-level domain
     except (TypeError, IndexError, ValueError, AttributeError):
         return None
