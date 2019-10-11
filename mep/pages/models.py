@@ -127,9 +127,10 @@ class PagePreviewDescriptionMixin(models.Model):
     #: maximum length for description to be displayed
     max_length = 225
 
-    # ('a' is omitted by subsetting default ALLOWED_TAGS)
+    # (tags are omitted by subsetting default ALLOWED_TAGS)
     #: allowed tags for bleach html stripping in description
-    allowed_tags = list((set(bleach.sanitizer.ALLOWED_TAGS) - set(['a'])))
+    allowed_tags = list((set(bleach.sanitizer.ALLOWED_TAGS) - \
+        set(['a', 'blockquote']))) # additional tags to remove
 
     class Meta:
         abstract = True

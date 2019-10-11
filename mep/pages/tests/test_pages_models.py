@@ -110,9 +110,15 @@ class TestContentPage(WagtailPageTests):
         # should also be cleaned by bleach to its limited set of tags
         assert desc[:200] == 'How to begin?'
 
-        # empty tags in description shouldn't be used
-        content_page.description = '<p></p>'
+        # empty tag should be stripped
+        content_page.body = [('paragraph', '<p></p>')]
         desc = content_page.get_description()
+        assert desc == ''
+
+        # blockquotes should be stripped
+        content_page.body = [('paragraph', '<p><blockquote>h</blockquote>i</p>')]
+        desc = content_page.get_description()
+        assert desc == 'hi'
 
         # test content page with image for first block
         content_page2 = ContentPage(
