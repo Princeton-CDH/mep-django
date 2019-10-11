@@ -3,5 +3,5 @@ body {
     flex-direction: column;
     height: 100vh;
     background: $white;
-    // overflow-x: hidden;
+    overflow-x: hidden; // prevent horizontal scrollbar
 }
