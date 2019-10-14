@@ -224,14 +224,17 @@ CSP_STYLE_SRC = ("'self'",)
 # allow loading web manifest locally only
 CSP_MANIFEST_SRC = ("'self'",)
 
+# allow XMLHttpRequest or Fetch requests against local URLs only (e.g. searching)
+CSP_CONNECT_SRC = ("'self'",)
+
 # allow loading local images and google tracking pixel
-CSP_IMG_SRC = ("'self'", 'https://www.google-analytics.com')
+CSP_IMG_SRC = ("'self'", 'https://www.googletagmanager.com')
 
 # exclude admin and cms urls from csp directives since they're authenticated
 CSP_EXCLUDE_URL_PREFIXES = ('/admin', '/cms')
 
 # allow usage of nonce for inline js (for analytics)
-CSP_INCLUDE_NONCE_IN = ('script-src',)
+CSP_INCLUDE_NONCE_IN = ('script-src', 'style-src')
 
 
 ##################
