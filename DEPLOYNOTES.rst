@@ -3,15 +3,6 @@
 Deploy and Upgrade notes
 ========================
 
-0.22
-----
-
-* You must configure **CSP_REPORT_ONLY** and **CSP_REPORT_URI** in
-  ``local_settings.py`` in order for Content-Security Policy to function. See
-  the note in ``local_settings.py.sample`` for more information and suggested
-  settings for your environment. Note that the policies themselves are defined
-  in the ``settings.py`` file but can be overridden in ``local_settings.py``,
-  which you may want to do when developing.
 
 0.21
 ----
@@ -20,7 +11,14 @@ Deploy and Upgrade notes
   ``local_settings.py`` in order for Google Analytics to function. See the note
   in ``local_settings.py.sample`` for more information.
 
-* After this version is deployed, you should run ``import_figgy_cards``
+* You must configure **CSP_REPORT_ONLY** and **CSP_REPORT_URI** in
+  ``local_settings.py`` in order for Content-Security Policy to function. See
+  the note in ``local_settings.py.sample`` for more information and suggested
+  settings for your environment. Note that the policies themselves are defined
+  in the ``settings.py`` file but can be overridden in ``local_settings.py``,
+  which you may want to do when developing.
+
+* After this version is deployed, run ``import_figgy_cards``
   to migrate old pudl image urls in Bibliography and Footnote records to
   use the new objects in PUL's Figgy. The CSV file mapping old paths
   to new Figgy ids is included as a fixture for convenience::
