@@ -15,7 +15,7 @@
         <meta name="theme-color" content="#ffffff" />
         {% include 'snippets/head_meta.html' %}
         {% if page_jsonld %}
-        <script type="application/ld+json">{{ page_jsonld|safe }}</script>
+        <script type="application/ld+json" nonce="{{ request.csp_nonce }}">{{ page_jsonld|safe }}</script>
         {% endif %}
         <!-- analytics -->
         {% if not request.is_preview and GTAGS_ANALYTICS_ID %}
