@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.xml_models &#8212; Mapping Expatriate Paris - Django 0.20.0 documentation</title>
+    <meta charset="utf-8" />
+    <title>mep.people.xml_models &#8212; mep-django 0.21.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -137,7 +135,6 @@
         <span class="s2">&quot;Châtenay-Malabry&quot;</span><span class="p">:</span> <span class="s1">&#39;FR&#39;</span><span class="p">,</span>
         <span class="s2">&quot;Saint-Magne-de-Castillon&quot;</span><span class="p">:</span> <span class="s1">&#39;FR&#39;</span><span class="p">,</span>
         <span class="s2">&quot;Arras&quot;</span><span class="p">:</span> <span class="s1">&#39;FR&#39;</span><span class="p">,</span>
-        <span class="s2">&quot;New York&quot;</span><span class="p">:</span> <span class="s1">&#39;US&#39;</span><span class="p">,</span>
         <span class="s2">&quot;Rueil-Malmaison&quot;</span><span class="p">:</span> <span class="s1">&#39;FR&#39;</span><span class="p">,</span>
         <span class="s2">&quot;Berck&quot;</span><span class="p">:</span> <span class="s1">&#39;FR&#39;</span><span class="p">,</span>
         <span class="s2">&quot;Marnes la Coquette&quot;</span><span class="p">:</span> <span class="s1">&#39;FR&#39;</span><span class="p">,</span>
@@ -272,6 +269,7 @@
 
         <span class="k">return</span> <span class="n">addr</span></div></div>
 
+
 <div class="viewcode-block" id="Name"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Name">[docs]</a><span class="k">class</span> <span class="nc">Name</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;person name&#39;&#39;&#39;</span>
     <span class="n">name_type</span> <span class="o">=</span> <span class="n">xmlmap</span><span class="o">.</span><span class="n">StringField</span><span class="p">(</span><span class="s1">&#39;@type&#39;</span><span class="p">)</span>
@@ -350,6 +348,7 @@
         <span class="n">sorted_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_names</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">sort</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">sorted_names</span><span class="p">])</span></div></div>
 
+
 <div class="viewcode-block" id="Note"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Note">[docs]</a><span class="k">class</span> <span class="nc">Note</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;TEI note. Includes logic for extracting ref attributes</span>
 <span class="sd">    for inclusion as note text.&#39;&#39;&#39;</span>
@@ -365,6 +364,7 @@
 
         <span class="c1"># output note text normally, now including ref id</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="s2">&quot;normalize-space(.)&quot;</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="Person"><a class="viewcode-back" href="../../../codedocs.html#mep.people.xml_models.Person">[docs]</a><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">TeiXmlObject</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Person&#39;&#39;&#39;</span>
@@ -516,11 +516,11 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../../index.html">Mapping Expatriate Paris - Django</a></h1>
+<h1 class="logo"><a href="../../../index.html">mep-django</a></h1>
 
 
 
-<p class="blurb">Django web application for "Mapping Expatriate Paris" CDH project</p>
+<p class="blurb">Django web application for Shakespeare & Company Project (Formerly Mapping Expatriate Paris)</p>
 
 
 
@@ -568,13 +568,11 @@
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -593,7 +591,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mep.people.views &#8212; Mapping Expatriate Paris - Django 0.20.0 documentation</title>
+    <meta charset="utf-8" />
+    <title>mep.people.views &#8212; mep-django 0.21.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -49,15 +47,16 @@
 <span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Event</span>
 <span class="kn">from</span> <span class="nn">mep.common</span> <span class="k">import</span> <span class="n">SCHEMA_ORG</span>
 <span class="kn">from</span> <span class="nn">mep.common.utils</span> <span class="k">import</span> <span class="n">absolutize_url</span><span class="p">,</span> <span class="n">alpha_pagelabels</span>
-<span class="kn">from</span> <span class="nn">mep.common.views</span> <span class="k">import</span> <span class="p">(</span><span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span>
-                              <span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mep.common.views</span> <span class="k">import</span> <span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span> \
+    <span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">LoginRequiredOr404Mixin</span><span class="p">,</span> <span class="n">RdfViewMixin</span>
 <span class="kn">from</span> <span class="nn">mep.people.forms</span> <span class="k">import</span> <span class="n">MemberSearchForm</span><span class="p">,</span> <span class="n">PersonMergeForm</span>
 <span class="kn">from</span> <span class="nn">mep.people.geonames</span> <span class="k">import</span> <span class="n">GeoNamesAPI</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Country</span><span class="p">,</span> <span class="n">Location</span><span class="p">,</span> <span class="n">Person</span>
 <span class="kn">from</span> <span class="nn">mep.people.queryset</span> <span class="k">import</span> <span class="n">PersonSolrQuerySet</span>
 
 
-<div class="viewcode-block" id="MembersList"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList">[docs]</a><span class="k">class</span> <span class="nc">MembersList</span><span class="p">(</span><span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">FormMixin</span><span class="p">,</span> <span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="MembersList"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList">[docs]</a><span class="k">class</span> <span class="nc">MembersList</span><span class="p">(</span><span class="n">LoginRequiredOr404Mixin</span><span class="p">,</span> <span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span>
+                  <span class="n">FormMixin</span><span class="p">,</span> <span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;List page for searching and browsing library members.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_list.html&#39;</span>
@@ -98,7 +97,6 @@
             <span class="n">form_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
 
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">form_data</span>
-
 
         <span class="c1"># get min/max configuration for range fields</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;range_minmax&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range_stats</span><span class="p">()</span>
@@ -222,7 +220,7 @@
         <span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="MemberDetail"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail">[docs]</a><span class="k">class</span> <span class="nc">MemberDetail</span><span class="p">(</span><span class="n">DetailView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="MemberDetail"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail">[docs]</a><span class="k">class</span> <span class="nc">MemberDetail</span><span class="p">(</span><span class="n">LoginRequiredOr404Mixin</span><span class="p">,</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Detail page for a single library member.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_detail.html&#39;</span>
@@ -246,7 +244,7 @@
         <span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="MembershipActivities"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities">[docs]</a><span class="k">class</span> <span class="nc">MembershipActivities</span><span class="p">(</span><span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="MembershipActivities"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities">[docs]</a><span class="k">class</span> <span class="nc">MembershipActivities</span><span class="p">(</span><span class="n">LoginRequiredOr404Mixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Display a list of membership activities (subscriptions, renewals,</span>
 <span class="sd">    and reimbursements) for an individual member.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Event</span>
@@ -496,8 +494,8 @@
                 <span class="n">primary_person</span>
             <span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span> <span class="c1"># calculate events reassociated</span>
-                <span class="n">primary_account</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span> <span class="c1"># if there wasn&#39;t one before</span>
+            <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span>  <span class="c1"># calculate events reassociated</span>
+                <span class="n">primary_account</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>  <span class="c1"># if there wasn&#39;t one before</span>
                 <span class="n">added_events</span> <span class="o">=</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">-</span> <span class="n">existing_events</span>
                 <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; Reassociated </span><span class="si">%d</span><span class="s1"> event</span><span class="si">%s</span><span class="s1"> with &lt;a href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt;.&#39;</span> <span class="o">%</span> <span class="p">(</span>
                     <span class="n">added_events</span><span class="p">,</span>
@@ -505,16 +503,16 @@
                     <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:accounts_account_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_account</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
                     <span class="n">primary_account</span>
                 <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span> <span class="c1"># no accounts merged</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># no accounts merged</span>
                 <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; No accounts to reassociate.&#39;</span>
 
-            <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">is_creator</span><span class="p">():</span> <span class="c1"># calculate creator roles reassociated</span>
+            <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">is_creator</span><span class="p">():</span>  <span class="c1"># calculate creator roles reassociated</span>
                 <span class="n">added_creators</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">-</span> <span class="n">existing_creators</span>
                 <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; Reassociated </span><span class="si">%d</span><span class="s1"> creator role</span><span class="si">%s</span><span class="s1"> on items.&#39;</span> <span class="o">%</span> <span class="p">(</span>
                     <span class="n">added_creators</span><span class="p">,</span>
                     <span class="s1">&#39;s&#39;</span> <span class="k">if</span> <span class="n">added_creators</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
                 <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span> <span class="c1"># no creators reassociated</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># no creators reassociated</span>
                 <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; No creator relationships to reassociate.&#39;</span>
 
             <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
@@ -532,11 +530,11 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../../index.html">Mapping Expatriate Paris - Django</a></h1>
+<h1 class="logo"><a href="../../../index.html">mep-django</a></h1>
 
 
 
-<p class="blurb">Django web application for "Mapping Expatriate Paris" CDH project</p>
+<p class="blurb">Django web application for Shakespeare & Company Project (Formerly Mapping Expatriate Paris)</p>
 
 
 
@@ -584,13 +582,11 @@
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -609,7 +605,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

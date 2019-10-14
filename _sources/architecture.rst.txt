@@ -12,13 +12,32 @@ Database Diagrams
 Overview (v0.19)
 ^^^^^^^^^^^^^^^^
 
-Database overview. Book item has now been broken out into Work and Edition.
+Database overview. As of version 0.19, Book items are broken out into Work and Edition.
 
 (Standard Django and Wagtail tables omitted for simplicity.)
 
 .. image:: _static/db-v019-overview.png
     :target: _static/db-v019-overview.png
     :alt: overview of database structure for version 0.19
+
+Footnote details (v0.21)
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Version 0.21 adds `djiffy <https://github.com/Princeton-CDH/djiffy/>`_
+for importing IIIF Manifests and Canvases, in order to link
+digitized versions of lending library cards with database footnotes.
+
+:class:`~mep.footnotes.models.Bibliography` records now have an
+optional foreign key to an associated :class:`djiffy.models.Manifest`,
+and :class:`~mep.footnotes.models.Footnote` records now have an
+optional foreign key to a :class:`djiffy.models.Canvas` that
+belongs to that manifest.
+
+
+.. image:: _static/db-v021-footnotes-djiffy.png
+    :target: _static/db-v021-footnotes-djiffy.png
+    :alt: footnote/djiffy details for version 0.21
+
 
 Book details (v0.19)
 ^^^^^^^^^^^^^^^^^^^^
