@@ -1,18 +1,27 @@
-from collections import OrderedDict
-from django.core.paginator import Paginator
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404, JsonResponse
 from django.utils.cache import patch_vary_headers
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
-from django.http import JsonResponse
 import rdflib
 
 from mep.common import SCHEMA_ORG
-from mep.common.utils import absolutize_url
+
+
+class LoginRequiredOr404Mixin(LoginRequiredMixin):
+    '''Extend :class:`~django.contrib.auth.mixins.LoginRequiredMixin`
+    to return a 404 if access is denied, rather than redirecting
+    to the login form.'''
+
+    def handle_no_permission(self):
+        # if permission is denied, raise a 404
+        raise Http404
+
 
 class LabeledPagesMixin(ContextMixin):
     '''View mixin to add labels for pages to a paginated view's context,
     for use in rendering pagination controls.'''
 
-    def get_page_labels(self: View, paginator: Paginator):
+    def get_page_labels(self, paginator):
         '''Generate labels for pages. Defaults to labeling pages using numeric
         ranges, e.g. `50-100`.'''
         page_labels = []
@@ -29,12 +38,12 @@ class LabeledPagesMixin(ContextMixin):
 
         return page_labels
 
-    def get_context_data(self: View, **kwargs):
+    def get_context_data(self, **kwargs):
         '''Add generated page labels to the view context.'''
         context = super().get_context_data(**kwargs)
         paginator = context['page_obj'].paginator
         context['page_labels'] = self.get_page_labels(paginator)
-        # store paginator and generated labels for use in custom headers 
+        # store paginator and generated labels for use in custom headers
         # on ajax response
         self._paginator = paginator
         self._page_labels = context['page_labels']
@@ -62,10 +71,22 @@ class RdfViewMixin(ContextMixin):
     def get_context_data(self, *args, **kwargs):
         '''Add generated breadcrumbs and an RDF graph to the view context.'''
         context = super().get_context_data(*args, **kwargs)
-        context['page_jsonld'] = self.as_rdf().serialize(format='json-ld',
-                                                         auto_compact=True,
-                                                         context=self.json_ld_context)
-        context['breadcrumbs'] = self.get_breadcrumbs()
+        return self.add_rdf_to_context(context)
+
+    def get_context(self, request, *args, **kwargs):
+        '''Add generated breadcrumbs and RDF graph to Wagtail page context.'''
+        context = super().get_context(request, *args, **kwargs)
+        return self.add_rdf_to_context(context)
+
+    def add_rdf_to_context(self, context):
+        '''add jsonld and breadcrumb list to context dictionary'''
+        context.update({
+            'page_jsonld': self.as_rdf()
+                               .serialize(format='json-ld',
+                                          auto_compact=True,
+                                          context=self.json_ld_context),
+            'breadcrumbs': self.get_breadcrumbs()
+        })
         return context
 
     def get_absolute_url(self):

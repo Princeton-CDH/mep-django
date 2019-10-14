@@ -11,7 +11,7 @@ a.read-more {
     text-decoration: none;
     color: black;
 
-    &:hover {
+    &:hover, &:focus {
         border: 2px solid $black;
         background: $black;
         color: white;

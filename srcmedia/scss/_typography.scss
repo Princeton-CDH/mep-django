@@ -39,12 +39,17 @@ i {
 }
 
 blockquote {
-    margin-left: 2rem;
+    margin-left: 1rem;
     margin-bottom: 1rem;
 
     @media (min-width: $breakpoint-s) {
-        margin-left: 4rem;
+        margin-left: 2rem;
     }
+}
+
+figcaption {
+    font-style: italic;
+    color: $brownish-grey;
 }
 
 .rich-text {
@@ -53,6 +58,57 @@ blockquote {
     .footnotes & {
         font-family: $sans;
         font-size: 0.8rem;
+    }
+
+    ul {
+        padding-left: 1rem;
+
+        @media (min-width: $breakpoint-s) {
+            padding-left: 2rem;
+        }
+    }
+
+    li {
+        position: relative;
+        margin-bottom: 0.5rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        &::before {
+            width: 10px;
+            height: 8px;
+            background-color: $black;
+            position: absolute;
+            content: '';
+            top: .5rem;
+            left: -1rem;
+
+            @media (min-width: $breakpoint-s) {
+                left: -2rem;
+            }
+        }
+    }
+}
+
+.citation {
+    margin-top: 3rem;
+
+    h2 {
+        font-family: $sans;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    p {
+        font-family: $serif;
+        margin-top: .5rem;
+        margin-left: 1rem;
+    }
+
+    .project {
+        font-style: italic;
     }
 }
 

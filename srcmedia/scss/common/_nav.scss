@@ -36,7 +36,7 @@
             height: 3rem;
         }
 
-        @media (min-width: $breakpoint-l) {
+        @media (min-width: $breakpoint-m) {
             width: 4rem;
             height: 4rem;
         }
@@ -81,11 +81,7 @@
         opacity: 0;
         background: $white;
         transition: opacity 0.5s ease;
-        padding-top: 2rem;
-
-        @media (min-width: $breakpoint-s) {
-            padding-top: 2.5rem;
-        }
+        padding-top: 0.5rem;
 
         &:target { // when menu button is clicked
             opacity: 1;
@@ -118,6 +114,16 @@
             }
         }
 
+        .pending *,
+        .note {
+            color: $mid-grey;
+        }
+
+        .pending .title::after {
+            content: '*';
+            position: absolute;
+        }
+
         .title,
         .subtitle {
             display: block;
@@ -137,6 +143,15 @@
             font-size: 0.7rem;
             line-height: normal;
             padding-top: .5rem;
+        }
+
+        .note {
+            font-size: 0.7rem;
+            line-height: normal;
+
+            &::before {
+                content: '*';
+            }
         }
     }
 }

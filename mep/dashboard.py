@@ -75,10 +75,20 @@ class CustomIndexDashboard(Dashboard):
                 'mep.footnotes.models.Footnote',
             ]),
         ))
+        # djiffy
+        self.children.append(modules.ModelList(
+            _('Digitized Content'),
+            column=1,
+            collapsible=False,
+            models=([
+                'djiffy.models.Manifest',
+                'djiffy.models.Canvas'
+            ]),
+        ))
 
         # Administration
         self.children.append(modules.ModelList(
-             _('Administration'),
+            _('Administration'),
             column=1,
             collapsible=False,
             models=('django.contrib.*',),

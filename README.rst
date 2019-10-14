@@ -186,7 +186,7 @@ debug toolbar, so you'll probably want to turn it off.
 Documentation
 -------------
 
-Documentation is generated using `sphinx <http://www.sphinx-doc.org/>`__
+Documentation is generated using `sphinx <http://www.sphinx-doc.org/>`_.
 To generate documentation, first install development requirements::
 
     pip install -r dev-requirements.txt

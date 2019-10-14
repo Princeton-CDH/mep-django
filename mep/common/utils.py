@@ -1,7 +1,9 @@
 from collections import OrderedDict
-import re
+from functools import wraps
+import uuid
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 
 
@@ -100,11 +102,36 @@ def alpha_pagelabels(paginator, objects, attr_meth):
     for i in range(0, len(abbreviated_labels), 2):
         page_index = int((i + 2) / 2)
         try:
-            page_labels[page_index] = '%s - %s' % (abbreviated_labels[i].strip(),
-                                                   abbreviated_labels[i+1].strip())
+            page_labels[page_index] = '%s - %s' % \
+                (abbreviated_labels[i].strip(),
+                 abbreviated_labels[i + 1].strip())
         except IndexError:
             # paginator was not created with orphan protection,
             # it's possible we could get a single item at the end
             page_labels[page_index] = abbreviated_labels[i].strip()
 
     return page_labels
+
+
+def login_temporarily_required(func):
+    '''Test decorator for views that have LoginRequiredOr404
+    enabled. Creates a user with no permissions on first run for a given
+    class, and logs in as that user before running the decorated test
+    method. Intended for use on Django TestCase class methods.
+    '''
+    @wraps(func)
+    def wrapper(testclass, *args, **kwargs):
+        # if no login info is set, create the user
+        if not hasattr(testclass, 'loginrequired_login_info'):
+            # define login required user
+            testclass.loginrequired_login_info = {
+                'username': 'loginrequired',
+                'password': str(uuid.uuid4())
+            }
+            User.objects.create_user(**testclass.loginrequired_login_info)
+
+        # login with test client as the user
+        testclass.client.login(**testclass.loginrequired_login_info)
+        # then call the test method
+        func(testclass, *args, **kwargs)
+    return wrapper

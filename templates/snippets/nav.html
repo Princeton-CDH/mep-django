@@ -3,44 +3,44 @@
     <ul class="corners">
         <li class="home square">
             <a href="{% slugurl 'home' %}" aria-label="home">
-                <img src="{% static 'img/logo/SCo_logo_graphic.png' %}" alt="shakespeare & company">
+                <img src="{% static 'img/logo/SCo_logo_graphic.png' %}" alt="Shakespeare & Company">
             </a>
         </li>
         <li class="menu square">
             <a id="open-main-menu" href="#main-menu" role="button">
-                <img src="{% static 'img/icons/Menu.svg' %}" alt="open main menu">
+                <img src="{% static 'img/icons/Menu.svg' %}" alt="Open main menu">
             </a>
         </li>
     </ul>
-    <ul id="main-menu" aria-label="primary navigation">
+    <ul id="main-menu" aria-label="primary navigation" aria-hidden="true">
         <li class="menu square">
             <a id="close-main-menu" href="#" role="button">
-                <img src="{% static 'img/icons/Delete.svg' %}" alt="close main menu">
+                <img src="{% static 'img/icons/Delete.svg' %}" alt="Close main menu">
             </a>
         </li>
-        <li>
-            <a href="{% url 'people:members-list' %}">
+        <li class="pending">
+            <div>
                 <span class="title">members</span>
                 <span class="subtitle">Explore the lending library membership.</span>
-            </a>
+            </div>
         </li>
-        <li>
-            <a href="/cards">
-                <span class="title">lending library cards</span>
-                <span class="subtitle">Explore the extant lending library cards.</span>
-            </a>
-        </li>
-        <li>
-            <a href="/books">
+        <li class="pending">
+            <div>
                 <span class="title">books</span>
                 <span class="subtitle">Explore the lending library holdings.</span>
-            </a>
+            </div>
         </li>
-        <li>
-            <a href="/analysis">
+        <li class="pending">
+            <div>
+                <span class="title">cards</span>
+                <span class="subtitle">Explore the lending library cards.</span>
+            </div>
+        </li>
+        <li class="pending">
+            <div>
                 <span class="title">analysis</span>
                 <span class="subtitle">Analyze the Shakespeare and Company community.</span>
-            </a>
+            </div>
         </li>
         <li>
             <a href="{% slugurl 'sources' %}">
@@ -53,6 +53,7 @@
                 <span class="title">about</span>
                 <span class="subtitle">Learn about the Shakespeare and Company Project.</span>
             </a>
+            <span class="note">Coming soon.</span>
         </li>
     </ul>
 </nav>

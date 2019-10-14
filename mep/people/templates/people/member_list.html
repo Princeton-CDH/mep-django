@@ -4,7 +4,6 @@
 
 {% block js %}
 {% render_bundle 'memberSearch' 'js' %}
-<script type="application/ld+json">{{ page_jsonld|safe }}</script>
 {% endblock %}
 
 {% block page-subtitle %}Library Members · {% endblock %}
@@ -25,13 +24,13 @@
         <fieldset class="group">
             <legend>Filter by:</legend>
             <div class="inner">
-                <fieldset class="range facet {{ form.membership_dates.css_classes }}" id="id_{{ form.membership_dates.name }}">
-                    <legend>{{ form.membership_dates.label }}</legend>
-                    {{ form.membership_dates }}
-                </fieldset>
                 <fieldset class="range facet {{ form.birth_year.css_classes }}" id="id_{{ form.birth_year.name }}">
                     <legend>{{ form.birth_year.label }}</legend>
                     {{ form.birth_year }}
+                </fieldset>
+                <fieldset class="range facet {{ form.membership_dates.css_classes }}" id="id_{{ form.membership_dates.name }}">
+                    <legend>{{ form.membership_dates.label }}</legend>
+                    {{ form.membership_dates }}
                 </fieldset>
                 {% render_field form.has_card class+="sr-only" tabindex=0 %}
                 <label for="{{ form.has_card.id_for_label }}">

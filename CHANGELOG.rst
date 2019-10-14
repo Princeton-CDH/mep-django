@@ -3,6 +3,21 @@
 CHANGELOG
 =========
 
+0.21
+----
+
+* As a user, I want to see an error page when the content I'm looking for isn't found so that I can choose a different path.
+* As a user, I want to see an error page when the site is malfunctioning so that I can report the issue.
+* As a data editor, I want the card image URLs in footnotes updated to resolve to Figgy after content is migrated so that I can access images in their new location.
+* As data editor, I want to see thumbnails for bibliography and footnote records that have manifests and canvases attached, so I can check against the thumbnail and access the full size images.
+* As a content admin, I want to select a featured image for content pages so I can give an idea of the content on the sources landing page and provide a visual preview for social media.
+* As a content editor, I want to add SVG images to content pages so that I can include data visualizations and other scalable images.
+
+* Temporarily configure public but incomplete urls to be login only
+* Enable Google Analytics
+* Content page text styles and updates
+* Set up Content Security Policy
+
 0.20
 ----
 

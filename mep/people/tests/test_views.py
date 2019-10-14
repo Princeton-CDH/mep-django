@@ -16,6 +16,7 @@ import pytest
 from mep.accounts.models import Account, Address, Event, Subscription, \
     SubscriptionType, Reimbursement
 from mep.books.models import Work, CreatorType, Creator
+from mep.common.utils import login_temporarily_required
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
@@ -569,6 +570,11 @@ class TestMembersListView(TestCase):
         self.factory = RequestFactory()
         self.members_url = reverse('people:members-list')
 
+    def test_login_required_or_404(self):
+        # 404 if not logged in; TEMPORARY
+        assert self.client.get(self.members_url).status_code == 404
+
+    @login_temporarily_required
     def test_list(self):
         # test listview functionality using testclient & response
 
@@ -617,8 +623,10 @@ class TestMembersListView(TestCase):
         # only card member has account dates and card
         self.assertContains(response, account.earliest_date().year)
         self.assertContains(response, account.last_date().year)
+
+        # NOTE: TEMPORARILY DISABLED while view requires login
         # should not display relevance score
-        self.assertNotContains(response, '<dt>relevance</dt>')
+        # self.assertNotContains(response, '<dt>relevance</dt>')
 
         # icon for 'has card' should show up twice, once in the list
         # and once in the filter icon
@@ -641,9 +649,9 @@ class TestMembersListView(TestCase):
         response = self.client.get(self.members_url, {'query': card_member.name})
         assert response.context['members'].count() == 1
         # should not display relevance score
-        self.assertNotContains(response, '<dt>relevance</dt>',
-            msg_prefix='relevance score not displayed to anonymous user')
-
+        # NOTE: TEMPORARILY DISABLED while view requires login
+        # self.assertNotContains(response, '<dt>relevance</dt>',
+            # msg_prefix='relevance score not displayed to anonymous user')
 
         # sanity check date filters -- exclude the member with events
         response = self.client.get(self.members_url, {'membership_dates_0': 1951})
@@ -690,7 +698,7 @@ class TestMembersListView(TestCase):
             response, 'placeholder="1899"',
             msg_prefix='Membership widget sets placeholder for min year.',
         )
-       # There should be two min/max, one for each input
+        # There should be two min/max, one for each input
         self.assertContains(
             response, 'max="1899"', count=2,
             msg_prefix='Response has max set twice for inputs'
@@ -928,6 +936,13 @@ class TestMembersListView(TestCase):
 class TestMemberDetailView(TestCase):
     fixtures = ['sample_people.json']
 
+    def test_login_required_or_404(self):
+        # 404 if not logged in; TEMPORARY
+        gay = Person.objects.get(name='Francisque Gay')
+        url = reverse('people:member-detail', kwargs={'pk': gay.pk})
+        assert self.client.get(url).status_code == 404
+
+    @login_temporarily_required
     def test_get_member(self):
         gay = Person.objects.get(name='Francisque Gay')
         url = reverse('people:member-detail', kwargs={'pk': gay.pk})
@@ -952,6 +967,7 @@ class TestMemberDetailView(TestCase):
         self.assertContains(response, 'France')
         # NOTE currently not including/checking profession
 
+    @login_temporarily_required
     def test_get_non_member(self):
         aeschylus = Person.objects.get(name='Aeschylus')
         url = reverse('people:member-detail', kwargs={'pk': aeschylus.pk})
@@ -984,6 +1000,12 @@ class TestMembershipActivities(TestCase):
                 end_date=date(1920, 5, 5), refund=15, currency='USD'),
             'generic': Event.objects.create(account=acct)
         }
+
+    def test_login_required_or_404(self):
+        # 404 if not logged in; TEMPORARY
+        url = reverse('people:membership-activities',
+                      kwargs={'pk': self.member.pk})
+        assert self.client.get(url).status_code == 404
 
     def test_get_queryset(self):
         events = self.view.get_queryset()
@@ -1026,6 +1048,7 @@ class TestMembershipActivities(TestCase):
         assert crumbs[-2][0] == self.member.short_name
         assert crumbs[-2][1] == self.member.get_absolute_url()
 
+    @login_temporarily_required
     def test_view_template(self):
         response = self.client.get(reverse('people:membership-activities',
                                    kwargs={'pk': self.member.pk}))

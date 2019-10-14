@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
-from django.http import HttpRequest, JsonResponse
+from django.http import Http404, HttpRequest, JsonResponse
 from django.template.loader import get_template
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
@@ -21,11 +21,10 @@ from mep.common.admin import LocalUserAdmin
 from mep.common.forms import CheckboxFieldset, FacetChoiceField, FacetForm, \
     RangeField, RangeWidget
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
-from mep.common.templatetags.mep_tags import dict_item
+from mep.common.templatetags.mep_tags import dict_item, domain
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
-from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
-    LabeledPagesMixin, RdfViewMixin, VaryOnHeadersMixin
+from mep.common import views
 
 
 class TestNamed(TestCase):
@@ -44,8 +43,6 @@ class TestNamed(TestCase):
     def test_str(self):
         named_obj = Named(name='foo')
         assert str(named_obj) == 'foo'
-
-
 
 
 class TestNotable(TestCase):
@@ -193,7 +190,6 @@ class TestLocalUserAdmin(TestCase):
         assert localadmin.group_names(user) == 'Admins, Staff'
 
 
-
 class TestAdminDashboard(TestCase):
 
     def test_dashboard(self):
@@ -252,7 +248,6 @@ def test_absolutize_url():
     current_site.domain = 'https://example.org'
     assert absolutize_url(local_path) == 'https://example.org/sub/foo/bar/'
 
-
     with override_settings(DEBUG=True):
         assert absolutize_url(local_path) == 'https://example.org/sub/foo/bar/'
         mockrqst = Mock(scheme='http')
@@ -260,14 +255,14 @@ def test_absolutize_url():
             'http://example.org/sub/foo/bar/'
 
 
-
 def test_alpha_pagelabels():
     # create minimal object and list of items to generate labels for
-    class item:
+    class Item:
         def __init__(self, title):
             self.title = title
-    titles = ['Abigail', 'Abner', 'Adam', 'Allen', 'Amy', 'Andy', 'Annabelle', 'Anne', 'Azad']
-    items = [item(t) for t in titles]
+    titles = ['Abigail', 'Abner', 'Adam', 'Allen', 'Amy', 'Andy',
+              'Annabelle', 'Anne', 'Azad']
+    items = [Item(t) for t in titles]
     paginator = Paginator(items, per_page=2)
     labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
     assert labels[1] == 'Abi - Abn'
@@ -278,7 +273,7 @@ def test_alpha_pagelabels():
 
     # exact match on labels for page boundary
     titles.insert(1, 'Abner')
-    items = [item(t) for t in titles]
+    items = [Item(t) for t in titles]
     labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
     assert labels[1].endswith('- Abner')
     assert labels[2].startswith('Abner - ')
@@ -299,7 +294,7 @@ class TestLabeledPagesMixin(TestCase):
 
     def test_get_page_labels(self):
 
-        class MyLabeledPagesView(LabeledPagesMixin, ListView):
+        class MyLabeledPagesView(views.LabeledPagesMixin, ListView):
             paginate_by = 5
 
         view = MyLabeledPagesView()
@@ -323,7 +318,7 @@ class TestLabeledPagesMixin(TestCase):
 
     def test_dispatch(self):
 
-        class MyLabeledPagesView(LabeledPagesMixin, ListView):
+        class MyLabeledPagesView(views.LabeledPagesMixin, ListView):
             paginate_by = 5
 
         view = MyLabeledPagesView()
@@ -348,6 +343,18 @@ class TestTemplateTags(TestCase):
         assert dict_item({13: 'lucky'}, 13) == 'lucky'
         # integer value
         assert dict_item({13: 7}, 13) == 7
+
+    def test_domain(self):
+        # works correctly on URLs that have both a domain and //
+        assert domain('https://docs.python.org/3/library/') == 'python'
+        assert domain('//www.cwi.nl:80/%7Eguido/Python.html') == 'cwi'
+        # returns None on local URLs or those missing //
+        assert domain('www.cwi.nl/%7Eguido/Python.html') is None
+        assert domain('help/Python.html') is None
+        # returns None on garbage
+        assert domain('oops') is None
+        assert domain(2) is None
+        assert domain(None) is None
 
 
 class TestCheckboxFieldset(TestCase):
@@ -377,12 +384,12 @@ class TestCheckboxFieldset(TestCase):
                 None,
                 [
                     {
-                            'label': 'A',
-                            # ensure that checked value is respected
-                            # id is set
-                            # and value and label are not synonymous
-                            'attrs': {'checked': True, 'id': 'id_for_0'},
-                            'value': 'a'
+                        'label': 'A',
+                        # ensure that checked value is respected
+                        # id is set
+                        # and value and label are not synonymous
+                        'attrs': {'checked': True, 'id': 'id_for_0'},
+                        'value': 'a'
                     },
                     {
                         'label': 'B',
@@ -489,7 +496,7 @@ class TestVaryOnHeadersMixin(TestCase):
 
         # stub a View that will always return 405 since no methods are defined
         vary_on_view = \
-            VaryOnHeadersMixin(vary_headers=['X-Foobar', 'X-Bazbar'])
+            views.VaryOnHeadersMixin(vary_headers=['X-Foobar', 'X-Bazbar'])
         # mock a request because we don't need its functionality
         request = Mock()
         response = vary_on_view.dispatch(request)
@@ -500,7 +507,7 @@ class TestVaryOnHeadersMixin(TestCase):
 class TestAjaxTemplateMixin(TestCase):
 
     def test_get_templates(self):
-        class MyAjaxyView(AjaxTemplateMixin):
+        class MyAjaxyView(views.AjaxTemplateMixin):
             ajax_template_name = 'my_ajax_template.json'
             template_name = 'my_normal_template.html'
 
@@ -516,7 +523,7 @@ class TestAjaxTemplateMixin(TestCase):
 class TestFacetJSONMixin(TestCase):
 
     def test_render_response(self):
-        class MyViewWithFacets(FacetJSONMixin):
+        class MyViewWithFacets(views.FacetJSONMixin):
             template_name = 'my_normal_template.html'
 
         # create a mock request and queryset
@@ -538,6 +545,13 @@ class TestFacetJSONMixin(TestCase):
         response = view.render_to_response(request)
         assert isinstance(response, JsonResponse)
         assert response.content == b'{"facets": "foo"}'
+
+
+class TestLoginRequiredOr404Mixin(TestCase):
+
+    def test_handle_no_permission(self):
+        with pytest.raises(Http404):
+            views.LoginRequiredOr404Mixin().handle_no_permission()
 
 
 # range widget and field tests copied from derrida via ppa
@@ -576,7 +590,7 @@ def test_range_field():
 class TestRdfViewMixin(TestCase):
 
     def test_get_absolute_url(self):
-        class MyRdfView(RdfViewMixin):
+        class MyRdfView(views.RdfViewMixin):
             pass
         view = MyRdfView()
         # get_absolute_url() not implemented by default
@@ -584,7 +598,7 @@ class TestRdfViewMixin(TestCase):
             view.get_absolute_url()
 
     def test_get_breadcrumbs(self):
-        class MyRdfView(RdfViewMixin):
+        class MyRdfView(views.RdfViewMixin):
             breadcrumbs = [('Home', '/'), ('My Page', '/my-page')]
 
             def get_absolute_url(self):
@@ -597,7 +611,7 @@ class TestRdfViewMixin(TestCase):
                                           ('My Page', '/my-page')]
 
     def test_rdf_graph(self):
-        class MyRdfView(RdfViewMixin):
+        class MyRdfView(views.RdfViewMixin):
             breadcrumbs = [('Home', '/'), ('My Page', '/my-page')]
 
             def get_absolute_url(self):

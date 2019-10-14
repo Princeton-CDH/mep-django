@@ -18,3 +18,7 @@ pymarc
 progressbar2
 rdflib
 rdflib-jsonld
+djiffy
+django-csp
+bleach
+django-fullurl

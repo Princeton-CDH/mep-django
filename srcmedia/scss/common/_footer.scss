@@ -15,10 +15,14 @@
         font-size: .6rem;
     }
 
+    .pending::after {
+        content: '*';
+    }
+
     a {
         transition: color 0.2s;
 
-        &:hover {
+        &:hover, &:focus {
             color: black;
         }
     }
@@ -42,7 +46,8 @@
             padding-bottom: .2rem;
         }
 
-        a {
+        a,
+        span {
             text-transform: uppercase;
         }
     }
@@ -91,6 +96,22 @@
         span {
             display: inline-block;
             flex: auto;
+        }
+
+        .note {
+            flex: none;
+            width: 100%;
+            margin-bottom: 0.5rem;
+
+            &::before {
+                content: '*';
+            }
+
+            @media (min-width: $breakpoint-s) {
+                flex: auto;
+                width: fit-content;
+                margin-bottom: 0;
+            }
         }
 
         #a11y {
