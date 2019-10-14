@@ -3,9 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Mapping Expatriate Paris - Django documentation
-===============================================
-
+mep-django documentation
+=========================
 
 .. toctree::
   :maxdepth: 1
