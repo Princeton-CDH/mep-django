@@ -23,8 +23,8 @@ Database overview. As of version 0.19, Book items are broken out into Work and E
 Footnote details (v0.21)
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Version 0.21 adds [djiffy](https://github.com/Princeton-CDH/djiffy/)
-for importing with IIIF Manifests and Canvases, in order to link
+Version 0.21 adds `djiffy <https://github.com/Princeton-CDH/djiffy/>`_
+for importing IIIF Manifests and Canvases, in order to link
 digitized versions of lending library cards with database footnotes.
 
 :class:`~mep.footnotes.models.Bibliography` records now have an
