@@ -3,6 +3,16 @@
 Deploy and Upgrade notes
 ========================
 
+0.22
+----
+
+* You must configure **CSP_REPORT_ONLY** and **CSP_REPORT_URI** in
+  ``local_settings.py`` in order for Content-Security Policy to function. See
+  the note in ``local_settings.py.sample`` for more information and suggested
+  settings for your environment. Note that the policies themselves are defined
+  in the ``settings.py`` file but can be overridden in ``local_settings.py``,
+  which you may want to do when developing.
+
 0.21
 ----
 
