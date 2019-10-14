@@ -110,7 +110,7 @@ LOGGING = {
 #
 # CSP_STYLE_SRC += ("'unsafe-inline'",)
 # CSP_SCRIPT_SRC += ("'unsafe-inline'", "http://localhost:3000")
-# CSP_DEFAULT_SRC = ("http://localhost:3000", "ws://localhost:3000")
+# CSP_CONNECT_SRC += ("http://localhost:3000", "ws://localhost:3000")
 
 # Google Analytics tracking ID
 # GTAGS_ANALYTICS_ID = ''
