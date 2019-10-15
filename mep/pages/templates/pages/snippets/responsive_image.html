@@ -17,4 +17,4 @@
            (max-width: 735px) {{ tablet_1x.width }}px,
            {{ desktop_1x.width }}px"
     src="{{ desktop_1x.url }}" class="responsive"
-    alt="{{ desktop_1x.alt }}" title="{{ desktop_1x.alt }}"/>
+    alt="{% firstof alt_text desktop_1x.alt %}" title="{{ desktop_1x.alt }}"/>

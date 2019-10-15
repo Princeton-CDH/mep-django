@@ -1,34 +1,87 @@
 .subpages {
-    @include padding-container;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    list-style: none;
+    position: relative;
     display: flex;
-    flex-flow: row wrap;
+    flex-wrap: wrap;
     justify-content: center;
-    background: white;
 
-    @media (min-width: $breakpoint-s) {
-        justify-content: space-between;
+    @media (min-width: $breakpoint-m) {
+        width: $breakpoint-m;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 0.2rem;
+        padding-left: calc((100vw - #{$breakpoint-m}) / 2);
+        padding-right: calc((100vw - #{$breakpoint-m}) / 2);
     }
 }
 
-article.preview {
+.preview {
     width: 100%;
-    max-width: 20rem;
+    height: fit-content;
     text-align: center;
-    padding: 1rem 0;
+    background: white;
+    border: none;
+    display: block;
+    box-sizing: border-box;
+    padding: 1.5rem 0;
+    transition: 0.2s all ease-in-out;
+    margin-bottom: 0.2rem;
+
+    &:hover, &:focus {
+        box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.23);
+        z-index: 1;
+        border: none;
+    }
 
     @media (min-width: $breakpoint-s) {
-        width: 50%;
+        padding: 2rem 0;
+    }
+
+    @media (min-width: $breakpoint-m) {
+        margin-bottom: 0;
     }
 
     hr {
         width: 2.5rem;
         margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
     }
 
     p {
-        font-size: 0.8rem;
+        width: calc(#{$breakpoint-xs} - #{$gutter-xs} * 2);
+        font-family: $serif;
+        text-align: left;
+        margin: 0 auto;
+
+        @media (min-width: $breakpoint-s) {
+            width: 500px;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            width: 355px;
+        }
+    }
+
+    picture {
+        width: 320px;
+        height: 190px;
+        overflow: hidden;
+        display: block;
+        margin: 0 auto;
+
+        @media (min-width: $breakpoint-s) {
+            height: 300px;
+            width: 500px;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            height: 210px;
+            width: 355px;
+        }
+
+        img {
+            width: 100%;
+        }
     }
 }
 

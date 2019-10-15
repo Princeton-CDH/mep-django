@@ -4,8 +4,7 @@
 {% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
 
 {% block js %}
-<script type="application/ld+json">{{ page_jsonld|safe }}</script>
-<script src="{% static 'js/d3.v5.min.js' %}"></script>
+<script src="{% static 'js/d3.v5.min.js' %}" nonce="{{ request.csp_nonce }}"></script>
 {% endblock %}
 
 {% block header %}

@@ -59,9 +59,12 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Mapping Expatriate Paris - Django'
+project = 'mep-django'
 copyright = '2017, Trustees of Princeton University'
-author = 'CDH @ Princeton'
+author = 'The Center for Digital Humanities at Princeton'
+description = 'Django web application for Shakespeare & Company ' + \
+              'Project (Formerly Mapping Expatriate Paris)'
+
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -102,8 +105,9 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
+
 html_theme_options = {
-    'description': 'Django web application for "Mapping Expatriate Paris" CDH project',
+    'description': description,
     'github_user': 'Princeton-CDH',
     'github_repo': 'mep-django',
     'travis_button': True,
@@ -112,7 +116,7 @@ html_theme_options = {
 
 html_sidebars = {
     '**': ['about.html', 'navigation.html',
-          'localtoc.html', 'searchbox.html', 'sidebar_footer.html'],
+           'localtoc.html', 'searchbox.html', 'sidebar_footer.html'],
 }
 
 
@@ -125,7 +129,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'MappingExpatriateParis-Djangodoc'
+htmlhelp_basename = 'mep-djangodoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -152,8 +156,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'MappingExpatriateParis-Django.tex', 'Mapping Expatriate Paris - Django Documentation',
-     'CDH @ Princeton', 'manual'),
+    (master_doc, 'mep-django.tex', 'mep-django Documentation',
+     author, 'manual'),
 ]
 
 
@@ -162,7 +166,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'mappingexpatriateparis-django', 'Mapping Expatriate Paris - Django Documentation',
+    (master_doc, 'mep-django', 'mep-django Documentation',
      [author], 1)
 ]
 
@@ -173,16 +177,16 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'MappingExpatriateParis-Django', 'Mapping Expatriate Paris - Django Documentation',
-     author, 'MappingExpatriateParis-Django', 'One line description of project.',
+    (master_doc, 'mep-django', 'mep-django Documentation',
+     author, 'mep-djang', description,
      'Miscellaneous'),
 ]
 
-
-
-
-# Example configuration for intersphinx: refer to the Python standard library.
+# Configure for intersphinx for Python standard library, Django,
+# and local dependencies with sphinx docs.
 intersphinx_mapping = {
     'https://docs.python.org/': None,
     'django': ('http://django.readthedocs.org/en/latest/', None),
-    }
+    'djiffy': ('https://princeton-cdh.github.io/djiffy/', None),
+    'viapy': ('https://viapy.readthedocs.io/en/latest/', None)
+}

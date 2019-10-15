@@ -3,6 +3,12 @@
 {# Expects ImageWithCaption structblock with image and caption #}
 {# sizes per design spec #}
 <figure>
-    {% include "pages/snippets/responsive_image.html" with img=captioned_img.image %}
+    {% if block_type == 'image' %}
+    {% include "pages/snippets/responsive_image.html" with img=captioned_img.image alt_text=captioned_img.alternative_text %}
+    {% elif block_type == 'svg_image' %}
+    <img src="{{ captioned_img.image.url }}" alt="{{ captioned_img.alternative_text }}" role="img"/>
+    {% endif %}
+    {% if captioned_img.caption %}
     <figcaption>{{ captioned_img.caption }}</figcaption>
+    {% endif %}
 </figure>
