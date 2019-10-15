@@ -2,16 +2,16 @@ import datetime
 from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
-from django.db.models.query import QuerySet
 from django.core.validators import ValidationError
+from django.db.models.query import QuerySet
 from django.test import TestCase
 import pytest
 
-from mep.accounts.models import Account, Address, \
-    Borrow, Event, Purchase, Reimbursement, Subscription, CurrencyMixin
+from mep.accounts.models import Account, Address, Borrow, CurrencyMixin, \
+    Event, Purchase, Reimbursement, Subscription
 from mep.books.models import Work
-from mep.people.models import Person, Location
 from mep.footnotes.models import Bibliography, SourceType
+from mep.people.models import Location, Person
 
 
 class TestAccount(TestCase):
@@ -274,11 +274,71 @@ class TestAccount(TestCase):
         account = Account()
         assert not account.has_card()
 
-        src_type = SourceType.objects.get_or_create(name='Lending Library Card')[0]
-        card = Bibliography.objects.create(bibliographic_note='John\'s library card',
-            source_type=src_type)
+        src_type = SourceType.objects.get_or_create(
+            name='Lending Library Card')[0]
+        card = Bibliography.objects.create(
+            bibliographic_note='John\'s library card', source_type=src_type)
         account.card = card
         assert account.has_card()
+
+    def test_event_date_ranges(self):
+        account = Account.objects.create()
+        # no dates, no error
+        assert account.event_date_ranges == []
+
+        # event with no dates - ignored
+        Subscription.objects.create(account=account)
+        assert account.event_date_ranges == []
+
+        # single range
+        start = datetime.date(1923, 1, 1)
+        end = datetime.date(1923, 5, 1)
+        Subscription.objects.create(account=account, start_date=start,
+                                    end_date=end)
+        assert account.event_date_ranges == [[start, end]]
+
+        # event entirely within first range
+        Borrow.objects.create(
+            account=account, start_date=datetime.date(1923, 1, 21),
+            end_date=datetime.date(1923, 2, 3))
+        # range should be unchanged
+        assert account.event_date_ranges == [[start, end]]
+
+        # event that starts within range and ends after
+        borrow_end = datetime.date(1923, 6, 1)
+        Borrow.objects.create(
+            account=account, start_date=datetime.date(1923, 4, 21),
+            end_date=borrow_end)
+        # should extend the existing range
+        assert account.event_date_ranges == [[start, borrow_end]]
+
+        # event that starts the next day after the range ends
+        sub2_start = datetime.date(1923, 6, 2)
+        sub2_end = datetime.date(1923, 8, 1)
+        Subscription.objects.create(account=account, start_date=sub2_start,
+                                    end_date=sub2_end)
+        # should extend the existing range
+        assert account.event_date_ranges == [[start, sub2_end]]
+
+        # non-contiguous range should result in two ranges
+        sub3_start = datetime.date(1924, 1, 5)
+        sub3_end = datetime.date(1924, 3, 5)
+        Subscription.objects.create(account=account, start_date=sub3_start,
+                                    end_date=sub3_end)
+        assert account.event_date_ranges == [
+            [start, sub2_end],
+            [sub3_start, sub3_end]
+        ]
+
+        # event with only one date should be treated as a range
+        borrow_start = datetime.date(1924, 6, 1)
+        Borrow.objects.create(account=account, start_date=borrow_start,
+                              end_date=None)
+        assert account.event_date_ranges == [
+            [start, sub2_end],
+            [sub3_start, sub3_end],
+            [borrow_start, borrow_start]
+        ]
 
 
 class TestAddress(TestCase):
@@ -433,8 +493,8 @@ class TestEvent(TestCase):
         assert borrow.event_ptr.event_type == 'Borrow'
 
         # purchase
-        purchase = Purchase.objects.create(account=self.account,
-            work=self.work, price=5)
+        purchase = Purchase.objects.create(
+            account=self.account, work=self.work, price=5)
         assert purchase.event_ptr.event_type == 'Purchase'
 
 
@@ -483,6 +543,30 @@ class TestEventQuerySet(TestCase):
             Event.objects.membership_activities()
         assert self.event_types['reimbursement'].event_ptr in \
             Event.objects.membership_activities()
+
+    def test_known_years(self):
+        # all years partial date flag currently unset; should return all
+        assert Event.objects.known_years().count() == \
+            Event.objects.all().count()
+
+        # partial date, known year
+        self.event_types['subscription'].partial_start_date = '1919-11'
+        self.event_types['subscription'].save()
+        # partial date, unknown year for start date
+        self.event_types['reimbursement'].partial_start_date = '--12-01'
+        self.event_types['reimbursement'].save()
+        self.event_types['borrow'].start_date = datetime.date(1942, 5, 1)
+        self.event_types['borrow'].save()
+        # unknown year for end date
+        self.event_types['generic'].partial_end_date = '--02-13'
+        self.event_types['generic'].save()
+
+        known_year_events = Event.objects.known_years()
+        assert self.event_types['subscription'].event_ptr in known_year_events
+        assert self.event_types['reimbursement'].event_ptr not in \
+            known_year_events
+        assert self.event_types['borrow'].event_ptr in known_year_events
+        assert self.event_types['generic'] not in known_year_events
 
 
 class TestSubscription(TestCase):

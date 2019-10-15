@@ -1,0 +1,158 @@
+<script nonce="{{ request.csp_nonce }}">
+
+const data = {{ timeline|json }}
+console.log('timeline data: ', data)
+
+function drawMemberTimeline(data) {
+
+  // if member has no activity, don't draw anything
+  if (! data.activity_ranges.length) {
+    return
+  }
+
+  var x = d3.scaleTime()
+      // timeline of the libarary
+      .domain([new Date(1919, 1, 1), new Date(1942, 12, 31)])
+      // For testing: restrict to member dates
+      // NOTE: needs padding on either end and probably a minimum length
+      // .domain([new Date(data.membership_activities[0].startDate),
+               // new Date(data.membership_activities[data.membership_activities.length - 1].endDate)])
+      .range([0, 911]);
+
+  // draw the axis along the top
+  var axis = d3.axisTop(x);
+
+  d3.select(".timeline")
+    .append('svg')
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('viewBox', '0 0 905 181')
+        .append("g")
+            .attr("transform", "translate(0,30)")
+            .call(axis)
+            .call(g => g.selectAll(".tick line")
+                .attr("stroke", '#231F20')
+                .attr("stroke-width", '0.5')
+                .attr("y2", 150)
+                .attr("y1", 0))
+            // remove domain path automatically added by d3 axis
+            .call(g => g.select(".domain").remove())
+
+  // ** markers for subscription start and end dates **
+
+  // start date; skip any where start date is not set
+  d3.select('.timeline svg').append('g')
+      .attr('class', 'subscription-start')
+    .selectAll('circle')
+    .data(data.membership_activities.filter(event => event.startDate))
+    .join(
+      enter => enter.append("circle")
+        .attr('class', 'start-date')
+        .attr('cx', function(d) {
+          return x(new Date(d.startDate))
+         })
+        .attr('cy', 60)
+        .attr('r', 3)
+        .attr("fill", "black")
+    )
+  // end date; skip any where end date is not set
+  d3.select('.timeline svg').append('g')
+      .attr('class', 'subscription-end')
+    .selectAll('circle')
+    .data(data.membership_activities.filter(event => event.endDate))
+    .join(
+      enter => enter.append("circle")
+        .attr('class', 'end-date')
+        .attr('cx', function(d) {
+          return x(new Date(d.endDate))
+         })
+        .attr('cy', 60)
+        .attr('r', 3)
+        .attr("fill", "black")
+    )
+
+  // line indicating subscription duration
+  d3.select('.timeline svg').append('g')
+      .attr('class', 'subscription-lines')
+    .selectAll('line')
+    .data(data.membership_activities)
+    .join(
+      enter => enter.append("line")
+        .attr('class', 'subscription')
+        .attr('x1', function(d) {
+          return x(new Date(d.startDate))
+         })
+        .attr('x2', function(d) {
+          // handle missing end dates
+          let date;
+          if (d.endDate) {
+            date = new Date(d.endDate);
+          } else {
+            // average subscription duration is 70 days,
+            // but that's very small on full graph
+            date = new Date(d.startDate);
+            date.setDate(new Date(d.startDate).getDate() + 140);
+
+          }
+          return x(date)
+         })
+        .attr('y1', 60)
+        .attr('y2', 60)
+        .attr("stroke", "black")
+        .attr('stroke-dasharray', function(d) {
+          // use dashed stroke for lines with no end date
+          // (gradient might be nicer?)
+          if (! d.endDate) {
+            return '2, 2';
+          }
+        })
+    )
+
+  // horizontal bars indicating any membership activity
+  d3.select('.timeline svg').append('g')
+      .attr('class', 'activityrange-bars')
+    .selectAll('bar')
+    .data(data.activity_ranges)
+    .join(
+      enter => enter.append("rect")
+        .attr('class', 'overallActivities')
+        .attr('x', function(d) {
+          return x(new Date(d.startDate))
+         })
+        .attr('y', 60)
+        .attr("fill", "#231F20")
+        .attr("opacity", "0.2")
+        .attr("width", function (d) {
+            return x(new Date(d.endDate)) - x(new Date(d.startDate))
+        })
+        .attr("height", 121)
+      )
+
+// set borrowing bar width to slightly less than one month on the scale
+var borrowWidth = x(new Date(1919, 1, 25));
+
+  var svgheight = 181;
+  // bar chart indicating monthly book activity
+  d3.select('.timeline svg').append('g')
+      .attr('class', 'borrowing-bars')
+    .selectAll('bar')
+    .data(data.book_activities)
+    .join(
+      enter => enter.append("rect")
+          .attr('class', 'borrowing')
+          .attr('x', function(d) {
+            return x(new Date(d.startDate))
+           })
+          .attr('y', function (d) {
+              return svgheight - d.count
+          })
+          .attr("fill", "#47C2C2")
+          .attr("opacity", "0.6")
+          .attr("width", borrowWidth)
+          .attr("height",function (d) {
+              return d.count
+       })
+    )
+}
+
+drawMemberTimeline(data);
+</script>

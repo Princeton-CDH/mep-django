@@ -1,6 +1,7 @@
+import json
 from urllib.parse import urlparse
 
-from django.template.defaulttags import register
+from django.template.defaulttags import mark_safe, register
 
 
 @register.filter
@@ -12,6 +13,12 @@ def dict_item(dictionary, key):
     '''
     return dictionary.get(key, None)
 
+
+@register.filter(name='json')
+def json_dumps(data):
+    return mark_safe(json.dumps(data))
+
+
 @register.filter
 def domain(url):
     '''Template filter to extract the domain part of a link, for use in creating
@@ -22,7 +29,7 @@ def domain(url):
     which could create something like::
 
         <a href="http://en.wikipedia.org/">wikipedia</a>
-    
+
     Note that this doesn't work on URLs without a // in them, following syntax
     specified in RFC 1808 as implemented in Python's `urlparse`.
     '''
