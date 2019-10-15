@@ -102,7 +102,7 @@ function drawMemberTimeline(data) {
           // use dashed stroke for lines with no end date
           // (gradient might be nicer?)
           if (! d.endDate) {
-            return '5, 5';
+            return '2, 2';
           }
         })
     )
@@ -127,6 +127,9 @@ function drawMemberTimeline(data) {
         .attr("height", 121)
       )
 
+// set borrowing bar width to slightly less than one month on the scale
+var borrowWidth = x(new Date(1919, 1, 25));
+
   var svgheight = 181;
   // bar chart indicating monthly book activity
   d3.select('.timeline svg').append('g')
@@ -143,8 +146,8 @@ function drawMemberTimeline(data) {
               return svgheight - d.count
           })
           .attr("fill", "#47C2C2")
-          .attr("opacity", "0.8")
-          .attr("width", 5)
+          .attr("opacity", "0.6")
+          .attr("width", borrowWidth)
           .attr("height",function (d) {
               return d.count
        })
