@@ -15,13 +15,14 @@
 
 {% block content %}
 
-<section>
-    <div class="timeline">
-      <svg width="1440" height="800" style="margin-left:50px"></svg>
+<section class="biography">
+    <div class="timeline" data-series="subscriptions borrows members">
+      <svg/>
     </div>
   <script nonce="{{ request.csp_nonce }}">
             const totals = {{ data|json }}
             console.log('timeline data: ', totals)
+
 
 var svgheight = 280;
 var bookstoreCloseDate = new Date(1942, 12, 31);
@@ -34,8 +35,8 @@ var x = d3.scaleTime()
 var xAxis = d3.axisTop(x);
 
 d3.select("svg")
-    .attr("width", 1440)
-    .attr("height", svgheight + 20)
+    .attr('preserveAspectRatio', 'xMidYMid meet')
+    .attr('viewBox', '0 0 905 285')
   .append("g")
     .attr("transform", "translate(10,30)")
     .call(xAxis)
@@ -71,8 +72,6 @@ d3.select("svg")
 
 
 // preliminary bar graph (based on individual member timeline)
-
-
 
 
 d3.select('svg').append('g')
@@ -118,6 +117,29 @@ d3.select('svg').append('g')
                         return d.count
                  })
     )
+
+
+// d3.select('svg').append('g')
+//     .attr('class', 'member-bars')
+//     .attr("transform", "translate(10,0)")
+//   .selectAll('bar')
+//   .data(totals.members)
+//   .join(
+//     enter => enter.append("rect")
+//                     .attr('class', 'members')
+//                     .attr('x', function(d) {
+//                       return x(new Date(d.startDate))
+//                      })
+//                     .attr('y', function (d) {
+//                         return svgheight - d.count
+//                     })
+//                     .attr("fill", "#8a8a8a")
+//                     .attr("opacity", "0.2")
+//                     .attr("width", 2.35)
+//                     .attr("height",function (d) {
+//                         return d.count
+//                  })
+//     )
         </script>
     </div>
 
