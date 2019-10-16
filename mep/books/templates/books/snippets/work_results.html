@@ -1,5 +1,5 @@
 {% load static %}
-<ol style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
+<ol style="counter-reset: results {{ page_obj.start_index|add:'-1' }};" nonce="{{ request.csp_nonce }}">
     {% for work in works %}
     <li class="books result">
         <a href="{% url 'books:book-detail' pk=work.pk %}" aria-label="{{ work.title }}">

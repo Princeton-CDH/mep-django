@@ -5,7 +5,6 @@
 {% block page-subtitle %}{{ member.name }} Membership Activity · Library Members · {% endblock %}
 
 {% block js %}
-<script type="application/ld+json">{{ page_jsonld|safe }}</script>
 {% render_bundle 'activities' 'js' %}
 {% endblock %}
 

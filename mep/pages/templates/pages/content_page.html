@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block page-subtitle %}{% firstof page.seo_title page.title %} · {% if page.get_parent %}{% firstof page.get_parent.seo_title page.get_parent.title %} · {%endif %}{% endblock %}
+
 {% block header %}
 {% include 'snippets/header.html' with title=page.title style="content" %}
 {% endblock %}
@@ -7,15 +9,16 @@
 {% block main-style %}white{% endblock %}
 
 {% block content %}
+{% include 'snippets/breadcrumbs.html' %}
 <article class="main">
     {% include 'pages/snippets/body.html' %}
     <div class="citation">
     <h2>Cite this document</h2>
     <p>
-        <span class="title">"{{ page.title }}," </span>
+        <span class="title">"{{ page.title }}". </span>
         <span class="project">Shakespeare and Company Project. </span>
-        <span class="date">{% now 'Y-m-d' %}. </span>
-        <span class="url">{{ page.get_full_url }}</span>
+        <span class="date">Accessed {% now 'F j, Y' %}. </span>
+        <span class="url">{{ page.get_full_url }}.</span>
     </p>
 </div>
 </article>
