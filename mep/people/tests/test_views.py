@@ -651,7 +651,7 @@ class TestMembersListView(TestCase):
         # should not display relevance score
         # NOTE: TEMPORARILY DISABLED while view requires login
         # self.assertNotContains(response, '<dt>relevance</dt>',
-            # msg_prefix='relevance score not displayed to anonymous user')
+        #     msg_prefix='relevance score not displayed to anonymous user')
 
         # sanity check date filters -- exclude the member with events
         response = self.client.get(self.members_url, {'membership_dates_0': 1951})
@@ -825,13 +825,17 @@ class TestMembersListView(TestCase):
         # faceting should be turned on via call to facet_fields twice
         mock_qs.facet_field.assert_any_call('has_card')
         mock_qs.facet_field.assert_any_call('sex', missing=True, exclude='sex')
+        mock_qs.facet_field.assert_any_call('nationality', exclude='nationality',
+                                            sort='value')
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()
         # should sort by solr field corresponding to default sort
-        mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
+        mock_qs.order_by.assert_called_with(
+            view.solr_sort[view.initial['sort']])
 
-        # enable card and sex filter, also test that a blank query doesn't force relevance
+        # enable card and sex filter, also test that a blank query doesn't
+        # force relevance
         view.request = self.factory.get(self.members_url, {
             'has_card': True,
             'query': '',
@@ -842,7 +846,8 @@ class TestMembersListView(TestCase):
         sqs = view.get_queryset()
         assert view.queryset == sqs
         # blank query left default sort in place too
-        mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
+        mock_qs.order_by.assert_called_with(
+            view.solr_sort[view.initial['sort']])
         # faceting should be on for both fields
         # and filtering by has card and sex, which should be tagged for
         # exclusion in calculating facets
@@ -876,6 +881,16 @@ class TestMembersListView(TestCase):
         del view._form
         sqs = view.get_queryset()
         mock_qs.filter.assert_any_call(account_years__range=(1919, 1923))
+
+        # filter on nationality
+        view.request = self.factory.get(self.members_url, {
+            'query': '',
+            'nationality': ['France']
+        })
+        del view._form
+        sqs = view.get_queryset()
+        mock_qs.filter.assert_any_call(nationality__in=['"France"'],
+                                       tag='nationality')
 
     def test_invalid_form(self):
         # make an invalid range request
