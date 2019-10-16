@@ -104,7 +104,8 @@
 
         // 2px vert spacing on mobile, 2px horizontal spacing on tablet & above
         .inner > label,
-        .inner > .facet {
+        .inner > .facet,
+        .inner > .tab {
             margin-bottom: 0.1rem;
 
             @media (min-width: $breakpoint-s) {
@@ -196,6 +197,57 @@
                 margin-left: $gutter-xs;
                 margin-right: $gutter-xs;
             }
+        }
+    }
+
+    // tabs and tabpanels
+    .tab {
+        flex: auto;
+        background: white;
+        position: relative;
+        border: .1rem solid $transparent;
+        box-sizing: border-box;
+        height: 2.2rem;
+        margin-top: 0;
+        display: none;
+        justify-content: left;
+        padding-top: .2rem;
+        padding-left: 0.5rem;
+        align-items: center;
+        cursor: pointer;
+
+        &::after {
+            content: '';
+            width: 0;
+            height: 0;
+            position: absolute;
+            right: 0.5rem;
+            top: calc(50% - 4px);
+            border-style: solid;
+            border-width: 8px 7px 0 7px;
+            border-color: black $transparent $transparent $transparent;
+            transition: all 0.3s ease-in-out;
+        }
+
+        &[aria-selected=true]::after {
+            transform: rotate(180deg);
+        }
+
+        @media (min-width: $breakpoint-s) {
+            display: flex;
+        }
+    }
+
+    .tabpanel {
+        background: white;
+        display: none;
+        width: 100%;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+        padding: 0.5rem;
+
+        .no-js & {
+            display: block;
         }
     }
 

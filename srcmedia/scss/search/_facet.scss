@@ -8,7 +8,7 @@
     box-sizing: border-box;
 
     @media (min-width: $breakpoint-s) {
-        padding: 0.5rem;
+        padding: 0;
     }
 
     > legend {
@@ -19,7 +19,8 @@
         display: block;
 
         @media (min-width: $breakpoint-s) {
-            left: 0.5rem;
+            top: 0;
+            left: 0;
         }
     }
 

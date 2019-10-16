@@ -34,7 +34,8 @@
     // on tablet only, all facets get taller to accommodate wrapped "membership dates" text
     @media (min-width: $breakpoint-s) and (max-width: calc(#{$breakpoint-m} - 1px)) {
         .inner > .range.facet,
-        .inner > label {
+        .inner > label,
+        .inner > .tab {
             height: 3rem;
         }
 
@@ -42,5 +43,27 @@
             line-height: 1.2;
             top: 0.6rem;
         }
+    }
+    
+    // "birth year" is a range facet but it goes inside a tab on large screens
+    #id_birth_year {
+        @media (min-width: $breakpoint-s) {
+            border: 0;
+            margin: 0;
+            padding: 0;
+
+            .inputs,
+            legend {
+                position: relative;
+                right: 0;
+                top: 0;
+            }
+        }
+    }
+
+    // make the tabpanels display when their tabs are aria-selected
+    .demographics.tab[aria-selected=true] ~ #demographics-panel,
+    .books.tab[aria-selected=true] ~ #books-panel {
+        display: block;
     }
 }

@@ -1,4 +1,4 @@
-import { merge } from 'rxjs'
+import { merge, fromEvent } from 'rxjs'
 import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, flatMap, skip, tap } from 'rxjs/operators'
 
 import { arraysAreEqual } from './lib/common'
@@ -25,6 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const $memDateFacet = document.querySelector('#id_membership_dates') as HTMLFieldSetElement
     const $birthDateFacet = document.querySelector('#id_birth_year') as HTMLFieldSetElement
     const $errors = document.querySelector('div[role=alert].errors')
+    const $demographicsTab = document.querySelector('.demographics.tab') as HTMLDivElement
+    const $booksTab = document.querySelector('.books.tab') as HTMLDivElement
+    const $demographicsPanel = document.getElementById('#demographics-panel') as HTMLDivElement
+    const $booksPanel = document.getElementById('#books-panel') as HTMLDivElement
 
     /* COMPONENTS */
     const membersSearchForm = new RxFacetedSearchForm($membersSearchForm)
@@ -212,5 +216,26 @@ document.addEventListener('DOMContentLoaded', () => {
         pageControls.element.removeAttribute('aria-busy')
         resultsOutput.element.removeAttribute('aria-busy')
         resultsOutput.update(results)
+    })
+
+    // Make clicking the tabs toggle their 'active' class
+    fromEvent($demographicsTab, 'click').subscribe(() => {
+        if ($demographicsTab.getAttribute('aria-selected') == 'true') {
+            $demographicsTab.setAttribute('aria-selected', 'false')
+        }
+        else {
+            $demographicsTab.setAttribute('aria-selected', 'true')
+        }
+        $booksTab.setAttribute('aria-selected', 'false')
+    })
+    
+    fromEvent($booksTab, 'click').subscribe(() => {
+        if ($booksTab.getAttribute('aria-selected') == 'true') {
+            $booksTab.setAttribute('aria-selected', 'false')
+        }
+        else {
+            $booksTab.setAttribute('aria-selected', 'true')
+        }
+        $demographicsTab.setAttribute('aria-selected', 'false')
     })
 })
