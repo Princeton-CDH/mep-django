@@ -4,6 +4,14 @@ Deploy and Upgrade notes
 ========================
 
 
+0.22
+----
+
+* Solr schema has been changed and should be updated::
+
+  python manage.py solr_schema
+
+
 0.21
 ----
 
