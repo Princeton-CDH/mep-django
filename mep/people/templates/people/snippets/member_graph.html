@@ -21,11 +21,13 @@ function drawMemberTimeline(data) {
 
   // draw the axis along the top
   var axis = d3.axisTop(x);
-
   d3.select(".timeline")
-    .append('svg')
+    .insert('svg', '.description')
         .attr('preserveAspectRatio', 'xMidYMid meet')
         .attr('viewBox', '0 0 905 181')
+        .attr('aria-label', 'Chart: Member Timeline')
+        .attr('aria-described-by', 'member-timeline-desc')
+        .attr('role', 'img')
         .append("g")
             .attr("transform", "translate(0,30)")
             .call(axis)

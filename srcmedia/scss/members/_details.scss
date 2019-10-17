@@ -37,7 +37,13 @@ dl.member {
             margin: 3rem auto;
         }
     }
+
 }
+
+.timeline .description {
+    @include sr-only;
+}
+
 
 aside  {
     background-color:  $white;
