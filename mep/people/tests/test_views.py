@@ -582,11 +582,14 @@ class TestMembersListView(TestCase):
         # so add some before indexing in Solr
         card_member = Person.objects.filter(account__isnull=False).first()
         account = card_member.account_set.first()
-        Subscription.objects.create(account=account, start_date=date(1942, 3, 4))
-        Subscription.objects.create(account=account, end_date=date(1950, 1, 1))
+        Subscription.objects.create(
+            account=account, start_date=date(1942, 3, 4))
+        Subscription.objects.create(
+            account=account, end_date=date(1950, 1, 1))
 
         # create card and add to account
-        src_type = SourceType.objects.get_or_create(name='Lending Library Card')[0]
+        src_type = SourceType.objects.get_or_create(
+            name='Lending Library Card')[0]
         card = Bibliography.objects.create(bibliographic_note='A Library Card',
                                            source_type=src_type)
         account.card = card
@@ -598,8 +601,9 @@ class TestMembersListView(TestCase):
 
         # filter form should be displayed with filled-in query field one time
         self.assertContains(response, 'Search member', count=1)
-        # it should also have a card filter with a card count (check via card count)
-        self.assertContains(response, '<span class="count">1</span>', count=1)
+        # + card filter with a card count (1)
+        # + counts for nationality filter (2)
+        self.assertContains(response, '<span class="count">1</span>', count=3)
         # the filter should have a card image (counted later with other result
         # card icon) and it should have a tooltip
         self.assertContains(response, 'role="tooltip"', count=1)
