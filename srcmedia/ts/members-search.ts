@@ -7,7 +7,7 @@ import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
 import { RxSelect } from './lib/select'
 import PageControls from './components/PageControls'
-import { RxChoiceFacet, RxBooleanFacet } from './lib/facet'
+import { RxChoiceFacet, RxBooleanFacet, RxTextFacet } from './lib/facet'
 import { RxRangeFilter, rangesAreEqual } from './lib/filter'
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const genderFacet = new RxChoiceFacet($genderFacet)
     const memDateFacet = new RxRangeFilter($memDateFacet)
     const birthDateFacet = new RxRangeFilter($birthDateFacet)
-    const nationalityFacet = new RxChoiceFacet($nationalityFacet)
+    const nationalityFacet = new RxTextFacet($nationalityFacet)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
