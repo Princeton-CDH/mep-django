@@ -1,4 +1,4 @@
-import { Component, arraysAreEqual, getTransitionDuration } from './common'
+import { Component, arraysAreEqual, getTransitionDuration, toggleTab } from './common'
 
 describe('Component', () => {
 
@@ -18,7 +18,7 @@ describe('arraysAreEqual', () => {
         const b = ['a', 1, true]
         expect(arraysAreEqual(a, b)).toBe(true)
     })
-    
+
     it('succeeds if arrays are empty', () => {
         const a = [] as any
         const b = [] as any
@@ -55,17 +55,76 @@ describe('getTransitionDuration', () => {
         let element = document.getElementById('main-menu') as HTMLElement
         expect(getTransitionDuration(element)).toBe(0)
     })
-    
+
     test('parses and stores a css transition-duration in ms units', () => {
         let element = document.getElementById('main-menu') as HTMLElement
         element.style.transitionDuration = '500ms'
         expect(getTransitionDuration(element)).toBe(500)
     })
-    
+
     test('parses and stores a css transition-duration in s units', () => {
         let element = document.getElementById('main-menu') as HTMLElement
         element.style.transitionDuration = '1s'
         expect(getTransitionDuration(element)).toBe(1000)
     })
 
+})
+
+describe('toggleTab', () => {
+
+    beforeEach(() => {
+        document.body.innerHTML = `
+            <div id="tab1" aria-selected="false"/>
+            <div id="tab2" aria-selected="false"/>
+            <div id="tab3"" aria-selected="false"/>`
+    })
+
+    test('does nothing if the tab is disabled', () => {
+        let $tab1 = document.getElementById('tab1') as HTMLDivElement
+        let $tab2 = document.getElementById('tab2') as HTMLDivElement
+        let $tab3 = document.getElementById('tab3') as HTMLDivElement
+        $tab1.toggleAttribute('aria-disabled')
+        toggleTab($tab1, [])
+        expect($tab1.getAttribute('aria-selected')).toBe('false')
+        expect($tab2.getAttribute('aria-selected')).toBe('false')
+        expect($tab3.getAttribute('aria-selected')).toBe('false')
+    })
+
+    test('sets aria-selected to true if it is false', () => {
+        let $tab1 = document.getElementById('tab1') as HTMLDivElement
+        toggleTab($tab1, [])
+        expect($tab1.getAttribute('aria-selected')).toBe('true')
+    })
+
+    test('sets aria-selected to false if it is true', () => {
+        let $tab1 = document.getElementById('tab1') as HTMLDivElement
+        $tab1.setAttribute('aria-selected', 'true')
+        toggleTab($tab1, [])
+        expect($tab1.getAttribute('aria-selected')).toBe('false')
+    })
+
+    test('sets aria-selected to true if it is not set', () => {
+        let $tab1 = document.getElementById('tab1') as HTMLDivElement
+        $tab1.removeAttribute('aria-selected')
+        toggleTab($tab1, [])
+        expect($tab1.getAttribute('aria-selected')).toBe('true')
+    })
+
+    test('sets $others aria-selected to false if $element is selected', () => {
+        let $tab1 = document.getElementById('tab1') as HTMLDivElement
+        let $tab2 = document.getElementById('tab2') as HTMLDivElement
+        let $tab3 = document.getElementById('tab3') as HTMLDivElement
+        toggleTab($tab1, [$tab2, $tab3])
+        expect($tab1.getAttribute('aria-selected')).toBe('true')
+        expect($tab2.getAttribute('aria-selected')).toBe('false')
+        expect($tab3.getAttribute('aria-selected')).toBe('false')
+        toggleTab($tab2, [$tab1, $tab3])
+        expect($tab1.getAttribute('aria-selected')).toBe('false')
+        expect($tab2.getAttribute('aria-selected')).toBe('true')
+        expect($tab3.getAttribute('aria-selected')).toBe('false')
+        toggleTab($tab3, [$tab1, $tab2])
+        expect($tab1.getAttribute('aria-selected')).toBe('false')
+        expect($tab2.getAttribute('aria-selected')).toBe('false')
+        expect($tab3.getAttribute('aria-selected')).toBe('true')
+    })
 })
