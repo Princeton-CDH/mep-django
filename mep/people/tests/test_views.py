@@ -960,7 +960,10 @@ class TestMemberDetailView(TestCase):
         # check dates
         self.assertContains(response, '1885 - 1963', html=True)
         # check membership dates
-        self.assertContains(response, 'March 4, 1934 - Feb. 3, 1941', html=True)
+        self.assertContains(
+            response,
+            'March 4, 1934 - <span class="sr-only">to</span> Feb. 3, 1941',
+            html=True)
         # check VIAF
         self.assertContains(response, 'http://viaf.org/viaf/9857613')
         # check nationalities
