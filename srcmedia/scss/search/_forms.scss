@@ -94,7 +94,7 @@
 
         // chrome doesn't allow fieldsets to use flex, so we have to do this
         // https://bugs.chromium.org/p/chromium/issues/detail?id=262679
-        .inner {
+        > .inner {
             width: 100%;
             display: flex;
             flex-flow: row wrap;
@@ -103,9 +103,9 @@
         }
 
         // 2px vert spacing on mobile, 2px horizontal spacing on tablet & above
-        .inner > label,
-        .inner > .facet,
-        .inner > .tab {
+        > .inner > label,
+        > .inner > .facet,
+        > .inner > .tab {
             margin-bottom: 0.1rem;
 
             @media (min-width: $breakpoint-s) {
@@ -118,7 +118,7 @@
         }
 
         /* boolean facet */
-        .inner > label {
+        > .inner > label {
             height: 2.2rem;
             background: white;
             flex: auto;
@@ -159,16 +159,16 @@
             }
         }
 
-        .inner > input:focus + label {
+        > .inner > input:focus + label {
             border-color: $green;
         }
 
-        .inner > input[type=checkbox] + label {
+        > .inner > input[type=checkbox] + label {
             cursor: pointer;
         }
 
         // uses after so it can stack with tooltip info icon
-        .inner > input[type=checkbox] + label::after {
+        > .inner > input[type=checkbox] + label::after {
             content: '';
             opacity: 0;
             position: absolute;
@@ -183,13 +183,13 @@
             transition: opacity .25s ease;
         }
 
-        .inner > input:checked + label::after {
+        > .inner > input:checked + label::after {
             opacity: 1;
         }
 
         // full-width input styles for mobile only
         @media (max-width: calc(#{$breakpoint-s} - 1px)) {
-            .inner {
+            > .inner {
                 width: 100vw;
             }
 
@@ -214,7 +214,12 @@
         padding-top: .2rem;
         padding-left: 0.5rem;
         align-items: center;
+        outline: none;
         cursor: pointer;
+
+        &:last-of-type {
+            margin-right: 0;
+        }
 
         &::after {
             content: '';
@@ -229,8 +234,25 @@
             transition: all 0.3s ease-in-out;
         }
 
-        &[aria-selected=true]::after {
-            transform: rotate(180deg);
+        &:focus {
+            border-color: $green;
+        }
+
+        &[aria-selected=true] {
+            font-weight: bold;
+
+            &::after {
+                transform: rotate(180deg);
+            }
+        }
+
+        &[aria-disabled] {
+            color: $mid-grey;
+            cursor: auto;
+
+            &::after {
+                border-color: $mid-grey $transparent $transparent $transparent;
+            }
         }
 
         @media (min-width: $breakpoint-s) {
@@ -239,15 +261,37 @@
     }
 
     .tabpanel {
-        background: white;
-        display: none;
         width: 100%;
-        overflow: hidden;
-        transition: all 0.3s ease-in-out;
-        padding: 0.5rem;
+        flex: none;
 
-        .no-js & {
-            display: block;
+        @media (min-width: $breakpoint-s) {
+            background: white;
+            max-height: 0;
+            width: 100%;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+
+            > .inner {
+                width: 100%;
+                display: flex;
+                flex-direction: row nowrap;
+                padding-top: 1rem;
+
+                > .column {
+                    flex: 1;
+                    padding: 0 0.5rem 0.5rem 0.5rem;
+                    box-sizing: border-box;
+                    border-right: 1px solid $white-two;
+
+                    &:last-child {
+                        border-right: 0;
+                    }
+                }
+            }
+
+            .no-js & {
+                max-height: 13.5rem;
+            }
         }
     }
 

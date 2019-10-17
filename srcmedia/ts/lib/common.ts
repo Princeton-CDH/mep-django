@@ -99,7 +99,7 @@ function getTransitionDuration (element: HTMLElement): number {
 
 abstract class Rx<E extends HTMLElement> {
     protected element: E
-    
+
     constructor(element: E) {
         this.element = element
     }
@@ -126,6 +126,27 @@ function fakeToggle ($element: HTMLInputElement) {
     $element.dispatchEvent(new Event('change'))
 }
 
+/**
+ * Switch $element's aria-selected state, and if becomes true, set aria-selected
+ * to false for every element in $others.
+ *
+ * If $element has aria-disabled set, do nothing.
+ *
+ * @param $element tab to activate
+ * @param $others  list of other tabs to deactivate
+ */
+function toggleTab($element: HTMLElement, $others: HTMLElement[]) {
+    if (!$element.hasAttribute('aria-disabled')) {
+        if ($element.getAttribute('aria-selected') == 'true') {
+            $element.setAttribute('aria-selected', 'false')
+        }
+        else {
+            $element.setAttribute('aria-selected', 'true')
+            $others.forEach($e => $e.setAttribute('aria-selected', 'false'))
+        }
+    }
+}
+
 export {
     Reactive,
     Component,
@@ -136,5 +157,6 @@ export {
     animateElementContent,
     getTransitionDuration,
     fakeValueChange,
-    fakeToggle
+    fakeToggle,
+    toggleTab
 }

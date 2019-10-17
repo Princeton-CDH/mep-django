@@ -1,7 +1,7 @@
 import { merge, fromEvent } from 'rxjs'
 import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, flatMap, skip, tap } from 'rxjs/operators'
 
-import { arraysAreEqual } from './lib/common'
+import { arraysAreEqual,toggleTab } from './lib/common'
 import { RxTextInput } from './lib/input'
 import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
@@ -218,24 +218,23 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsOutput.update(results)
     })
 
-    // Make clicking the tabs toggle their 'active' class
-    fromEvent($demographicsTab, 'click').subscribe(() => {
-        if ($demographicsTab.getAttribute('aria-selected') == 'true') {
-            $demographicsTab.setAttribute('aria-selected', 'false')
-        }
-        else {
-            $demographicsTab.setAttribute('aria-selected', 'true')
-        }
-        $booksTab.setAttribute('aria-selected', 'false')
-    })
-    
-    fromEvent($booksTab, 'click').subscribe(() => {
-        if ($booksTab.getAttribute('aria-selected') == 'true') {
-            $booksTab.setAttribute('aria-selected', 'false')
-        }
-        else {
-            $booksTab.setAttribute('aria-selected', 'true')
-        }
-        $demographicsTab.setAttribute('aria-selected', 'false')
-    })
+    // Make clicking or pressing space/enter on the tabs toggle them, and also
+    // untoggle all other tabs
+    merge(
+        fromEvent($demographicsTab, 'click'),
+        fromEvent($demographicsTab, 'keydown').pipe(
+            map(e => (e as KeyboardEvent).code),
+            filter(code => code == 'Space' || code == 'Enter')
+        )
+    )
+    .subscribe(() => toggleTab($demographicsTab, [$booksTab]))
+
+    merge(
+        fromEvent($booksTab, 'click'),
+        fromEvent($booksTab, 'keydown').pipe(
+            map(e => (e as KeyboardEvent).code),
+            filter(code => code == 'Space' || code == 'Enter')
+        )
+    )
+    .subscribe(() => toggleTab($booksTab, [$demographicsTab]))
 })
