@@ -1,7 +1,7 @@
 import { merge } from 'rxjs'
 import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, flatMap, skip, tap } from 'rxjs/operators'
 
-import { arraysAreEqual } from './lib/common'
+import { arraysAreEqual, pluralize } from './lib/common'
 import { RxTextInput } from './lib/input'
 import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // the user types a keyword, which also switches the sort to relevance
     // debounce ensures these are close enough to read as a single event
     const totalResultsText$ = merge(
-        totalResults$.pipe(map(t => `${t.toLocaleString()} total results`)), // when there are results, say how many, with a comma
+        totalResults$.pipe(map(t => `${t.toLocaleString()} total result${pluralize(t)}`)), // when there are results, say how many, with a comma
         reloadResults$.pipe(mapTo('Results are loading')) // when loading, replace with this text
     )
     const sort$ = noKeyword$.pipe( // 'name' if no keyword, 'relevance' otherwise
