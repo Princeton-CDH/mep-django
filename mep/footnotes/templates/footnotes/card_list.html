@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static humanize widget_tweaks mep_tags %}
+{% load render_bundle from webpack_loader %}
+
+{% block js %}
+{% render_bundle 'memberSearch' 'js' %}
+{% endblock %}
+
+{% block page-subtitle %}Cards · {% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title="cards" style="search" %}
+{% endblock %}
+
+{% block main-style %}white{% endblock %}
+
+{% block content %}
+{% include 'snippets/breadcrumbs.html' %}
+
+<section class="cards search-form">
+    <form id="cards-form">
+        {% render_field form.query %}
+        <label for="{{ form.query.id_for_label }}"></label>
+        {% include 'common/form_errors.html' %}
+        {% comment %}
+        <fieldset class="group">
+            <legend>Filter by:</legend>
+            <div class="inner">
+                <fieldset class="range facet {{ form.birth_year.css_classes }}" id="id_{{ form.birth_year.name }}">
+                    <legend>{{ form.birth_year.label }}</legend>
+                    {{ form.birth_year }}
+                </fieldset>
+                <fieldset class="range facet {{ form.membership_dates.css_classes }}" id="id_{{ form.membership_dates.name }}">
+                    <legend>{{ form.membership_dates.label }}</legend>
+                    {{ form.membership_dates }}
+                </fieldset>
+            </div>
+            <input type="submit" value="submit"/>
+        </fieldset>
+        {% end comment %}
+        <output class="total-results" id="total">{{ cards.count|intcomma }} total result{{ cards.count|pluralize }}</output>
+    </form>
+</section>
+<div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
+    <label>Sorted by</label>
+    <label>Displaying</label>
+</div>
+<section class="cards sort-pages">
+    <div class="inner">
+        <label class="sort">
+            <span>Sorted by</span>
+            {% render_field form.sort form="cards-form" %}
+            <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+        </label>
+        <button type="submit" form="cards-form">Go</button>
+        {% include 'snippets/pagination.html' with form_id="members-form" %}
+    </div>
+    <div class="outer">
+        {% include 'snippets/page-controls.html' %}
+    </div>
+</section>
+<output form="card-form" class="results" aria-live="polite" aria-labelledby="total">
+    {% include 'footnotes/snippets/card_results.html' %}
+</output>
+{% endblock %}

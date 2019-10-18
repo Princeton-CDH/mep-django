@@ -1,0 +1,32 @@
+.cards {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+.card.result {
+
+    border-top: 0;
+    width: 27%;
+    margin-right: 8%;
+    margin-bottom: 2.8rem;
+
+    &:nth-child(3n+0) {
+        margin-right: 0;
+    }
+
+    @media (max-width: $breakpoint-s) {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    // hide the account dates and card holder label
+    .card-dates dt, .name dt {
+        @include sr-only;
+    }
+
+    .name dd {
+        font-family: $serif;
+        font-size: 1.2rem;
+    }
+}

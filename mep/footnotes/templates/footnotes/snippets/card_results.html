@@ -1,0 +1,39 @@
+{% load static %}
+<ol class="cards" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};" nonce="{{ request.csp_nonce }}">
+    {% for card in cards %}
+    <li class="card result">
+        {# <a href="{% url 'people:member-detail' pk=person.pk %}" aria-label="{{ person.sort_name.0 }}"> #}
+            {# <div class="container"> #}
+                {# card details #}
+
+                {# {{ card }} #}
+                <img src="{{ card.thumbnail.0 }}"/>
+
+                <div class="name">
+                    <dt>Card Holder</dt>
+                    <dd>{{ card.cardholder|join:'; ' }}</dd>
+                </div>
+
+                {% if card.years %}
+                <div class="card-dates">
+                    <dt>Card Dates</dt>
+                    <dd>
+                        {{ card.start }}
+                        {% if card.start != card.end %}
+                         - <span class="sr-only">to</span>
+                        {{ card.end }}{% endif %}
+                    </dd>
+                </div>
+                {% endif %}
+
+
+                {# {% include 'people/snippets/member_result.html' with member=person %} #}
+                {# link to view detail page #}
+                {# <span class="see-more"> #}
+                    {# See more details #}
+                {# </span> #}
+            {# </div> #}
+        {# </a> #}
+    </li>
+    {% endfor %}
+</ol>
