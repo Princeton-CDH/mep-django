@@ -7,9 +7,11 @@ Deploy and Upgrade notes
 0.22
 ----
 
-* Solr schema has been changed and should be updated::
+* Member search filter on nationality requires a Solr schema update
+  and reindex::
 
   python manage.py solr_schema
+  python manage.py index -i person
 
 
 0.21
