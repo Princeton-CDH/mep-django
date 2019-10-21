@@ -4,7 +4,7 @@ as a list of checkbox inputs, grouped in a fieldset and labeled
 with a legend.
 {% endcomment %}
 {% load mep_tags %}
-<fieldset {% include "django/forms/widgets/attrs.html" %}>
+<fieldset {% include "django/forms/widgets/attrs.html" %} tabindex="0">
 <legend>{{ widget.legend }}</legend>
 <ul class="choices">
 {% with widget.attrs|dict_item:'data-hide-threshold' as hide_threshold %}
