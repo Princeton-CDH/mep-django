@@ -410,6 +410,12 @@ class Person(Notable, DateRange, Indexable):
         return reverse('admin:people_person_change', args=[self.id])
     admin_url.verbose_name = 'Admin Link'
 
+    @classmethod
+    def items_to_index(cls):
+        '''Custom logic for finding items to be indexed when indexing in
+        bulk; only include library members.'''
+        return cls.objects.library_members()
+
     def index_data(self):
         '''data for indexing in Solr'''
 
@@ -429,7 +435,9 @@ class Person(Notable, DateRange, Indexable):
             'name_t': self.name,
             # include pk for now for member detail url
             'pk_i': self.pk,
+            # text version of sort name for search and display
             'sort_name_t': self.sort_name,
+            # string version of sort name for sort/facet
             'sort_name_sort_s': self.sort_name,
             'birth_year_i': self.birth_year,
             'death_year_i': self.death_year,
@@ -448,7 +456,7 @@ class Person(Notable, DateRange, Indexable):
                 # use min and max because set order is not guaranteed
                 'account_start_i': min(account_years),
                 'account_end_i': max(account_years),
-                })
+            })
         if self.sex:
             index_data['sex_s'] = self.get_sex_display()
         return index_data

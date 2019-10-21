@@ -276,6 +276,12 @@ class TestPerson(TestCase):
         assert pers.get_absolute_url() == \
             reverse('people:member-detail', args=[pers.pk])
 
+    def test_items_to_index(self):
+        with patch.object(Person.objects, 'library_members') as \
+                mock_lib_members:
+            Person.items_to_index()
+            mock_lib_members.assert_called()
+
     def test_index_data(self):
         pers = Person.objects.create(
             name='John Smith', sort_name='Smith, John', birth_year=1801,
