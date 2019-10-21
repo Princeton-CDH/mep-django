@@ -87,6 +87,10 @@
     .books.tab[aria-selected=true] ~ #books-panel {
         max-height: 13.5rem;
         border-color: $green;
+
+        > .inner {
+            max-height: 13.5rem;
+        }
     }
 
     .books.tab {
