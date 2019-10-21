@@ -48,9 +48,8 @@ class Bibliography(Notable, Indexable):  # would citation be a better singular?
 
     @classmethod
     def items_to_index(cls):
-        print('%s to index' % cls.objects.filter(account__isnull=False,
-                                  manifest__isnull=False).count())
-
+        '''Custom logic for finding items for bulk indexing; only include
+        records associated with an account and with a IIIF manifest.'''
         return cls.objects.filter(account__isnull=False,
                                   manifest__isnull=False)
 
