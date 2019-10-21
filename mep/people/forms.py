@@ -70,7 +70,7 @@ class MemberSearchForm(FacetForm):
     nationality = FacetChoiceField(
         label='Nationality', hide_threshold=0,
         widget=CheckboxFieldset(attrs={
-            'class': 'choice facet'
+            'class': 'text facet'
         })
     )
 

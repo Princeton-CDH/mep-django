@@ -134,9 +134,36 @@
      * TEXT FACET - used for facets where there can be many options, and those
      * with a count of zero will be hidden, e.g. 'nationality' on members
      */
-    // &.text {
+    &.text {
+        max-height: 0;
+        overflow-y: scroll;
+        transition: max-height 0.5s ease-in-out;
+        border: none;
+        padding: 0;
 
-    // }
+        legend {
+            display: none;
+        }
+
+        .choices {
+            padding: 0.5rem;
+        }
+
+        @media (min-width: $breakpoint-s) {
+            max-height: none;
+            padding: 0;
+            overflow-y: auto;
+            border: initial;
+
+            legend {
+                display: block;
+            }
+
+            .choices {
+                padding: 1.5rem 0;
+            }
+        }
+    }
 
     /**
      * RANGE FACET - two numeric inputs representing a range of values
@@ -188,5 +215,38 @@
             height: 1.4rem;
             clip: auto;
         }
+    }
+}
+
+// used to show/hide text facets
+.search-form .expander {
+    @include expandable;
+
+    display: flex;
+    background: white;
+    border: .1rem solid $transparent;
+    margin-bottom: .1rem;
+    box-sizing: border-box;
+    height: 2.2rem;
+    justify-content: left;
+    align-items: center;
+    padding-left: .75rem;
+    outline: none;
+    cursor: pointer;
+
+    &:focus {
+        border-color: $green;
+    }
+
+    @media (min-width: $breakpoint-s) {
+        display: none;
+    }
+
+    &[aria-expanded=true]::after {
+        transform: rotate(180deg);
+    }
+
+    &[aria-expanded=true] ~ .facet {
+        max-height: 11rem;
     }
 }

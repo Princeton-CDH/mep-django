@@ -51,6 +51,16 @@
         }
     }
 
+    // on mobile only, all facets/filters have a slight break in between them
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+        .group > .inner > .range.facet,
+        .group > .inner > label,
+        .group > .inner > .tab,
+        #id_sex {
+            margin-bottom: 0.1rem;
+        }
+    }
+
     // "birth year" is a range facet but it goes inside a tab on large screens
     #id_birth_year {
         margin-bottom: 0.1rem;
@@ -85,11 +95,15 @@
     // make the tabpanels display when their tabs are aria-selected
     .demographics.tab[aria-selected=true] ~ #demographics-panel,
     .books.tab[aria-selected=true] ~ #books-panel {
-        max-height: 13.5rem;
-        border-color: $green;
 
-        > .inner {
+        @media (min-width: $breakpoint-s) {
+
             max-height: 13.5rem;
+            border-color: $green;
+
+            > .inner {
+                max-height: 13.5rem;
+            }
         }
     }
 

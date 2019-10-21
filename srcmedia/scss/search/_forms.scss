@@ -86,6 +86,10 @@
         font-size: 0.8rem;
 
         > legend {
+            @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+                @include sr-only;
+            }
+
             width: 100%;
             text-align: left;
             font-weight: bold;
@@ -95,11 +99,16 @@
         // chrome doesn't allow fieldsets to use flex, so we have to do this
         // https://bugs.chromium.org/p/chromium/issues/detail?id=262679
         > .inner {
+            margin-top: 3.5rem;
             width: 100%;
             display: flex;
             flex-flow: row wrap;
             justify-content: flex-start;
             align-items: center;
+
+            @media (min-width: $breakpoint-s) {
+                margin-top: 0;
+            }
         }
 
         // 2px vert spacing on mobile, 2px horizontal spacing on tablet & above
@@ -264,6 +273,14 @@
         width: 100%;
         flex: none;
 
+        > label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 2.5rem;
+            width: 100%;
+        }
+
         @media (min-width: $breakpoint-s) {
             border-top: 2px solid $white;
             background: white;
@@ -271,6 +288,10 @@
             width: 100%;
             overflow: hidden;
             transition: all 0.5s ease-in-out;
+
+            > label {
+                display: none;
+            }
 
             > .inner {
                 width: 100%;
@@ -283,6 +304,8 @@
                     padding: 0 0.5rem 0.5rem;
                     box-sizing: border-box;
                     border-right: 1px solid $white-two;
+                    overflow-y: scroll;
+                    scrollbar-color: $white-two white;
 
                     &:last-child {
                         border-right: 0;

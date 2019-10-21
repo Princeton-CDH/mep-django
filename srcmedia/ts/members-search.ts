@@ -28,8 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $errors = document.querySelector('div[role=alert].errors')
     const $demographicsTab = document.querySelector('.demographics.tab') as HTMLDivElement
     const $booksTab = document.querySelector('.books.tab') as HTMLDivElement
-    const $demographicsPanel = document.getElementById('#demographics-panel') as HTMLDivElement
-    const $booksPanel = document.getElementById('#books-panel') as HTMLDivElement
+    const $nationalityExpander = document.querySelector('.expander[aria-controls="id_nationality"]') as HTMLDivElement
 
     /* COMPONENTS */
     const membersSearchForm = new RxFacetedSearchForm($membersSearchForm)
@@ -248,4 +247,22 @@ document.addEventListener('DOMContentLoaded', () => {
         )
     )
     .subscribe(() => toggleTab($booksTab, [$demographicsTab]))
+
+    // Make clicking or pressing space/enter on the expanders for facets on
+    // mobile toggle their aria-expanded attribute
+    merge(
+        fromEvent($nationalityExpander, 'click'),
+        fromEvent($nationalityExpander, 'keydown').pipe(
+            map(e => (e as KeyboardEvent).code),
+            filter(code => code == 'Space' || code == 'Enter')
+        )
+    ).subscribe(() => {
+        const expanded = $nationalityExpander.getAttribute('aria-expanded')
+        if (expanded === 'false') {
+            $nationalityExpander.setAttribute('aria-expanded', 'true')
+        }
+        else {
+            $nationalityExpander.setAttribute('aria-expanded', 'false')
+        }
+    })
 })
