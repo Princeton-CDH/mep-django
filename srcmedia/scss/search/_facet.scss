@@ -135,6 +135,7 @@
      * with a count of zero will be hidden, e.g. 'nationality' on members
      */
     &.text {
+        display: none;
         max-height: 0;
         overflow-y: scroll;
         transition: max-height 0.5s ease-in-out;
@@ -150,6 +151,7 @@
         }
 
         @media (min-width: $breakpoint-s) {
+            display: block;
             max-height: none;
             padding: 0;
             overflow-y: auto;
@@ -247,6 +249,7 @@
     }
 
     &[aria-expanded=true] ~ .facet {
+        display: block;
         max-height: 11rem;
     }
 }
