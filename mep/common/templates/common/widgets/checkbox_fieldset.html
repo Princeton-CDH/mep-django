@@ -3,17 +3,20 @@ Template for CheckboxFieldset widget to render facet choices
 as a list of checkbox inputs, grouped in a fieldset and labeled
 with a legend.
 {% endcomment %}
+{% load mep_tags %}
 <fieldset {% include "django/forms/widgets/attrs.html" %}>
 <legend>{{ widget.legend }}</legend>
 <ul class="choices">
+{% with widget.attrs|dict_item:'data-hide-threshold' as hide_threshold %}
 {% for group, options, index in widget.optgroups %}
     {% for option in options %}
-    <li class="choice">
+    <li class="choice{% if facet_counts|dict_item:option.value <= hide_threshold %} hide{% endif %}">
         {# includes a revised version of Django's attr snippet to remove legend #}
         <input type="checkbox" value="{{ option.value }}" id="{{ option.attrs.id }}" name="{{ widget.name }}" {% if widget.required %}required{% endif %} {% if option.attrs.checked %}checked{% endif %}>
         <label for="{{ option.attrs.id }}"> {{ option.label }} </label>
     </li>
     {% endfor %}
 {% endfor %}
+{% endwith %}
 </ul>
 </fieldset>

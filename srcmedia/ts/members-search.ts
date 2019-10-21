@@ -1,13 +1,13 @@
 import { merge, fromEvent } from 'rxjs'
 import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, flatMap, skip, tap } from 'rxjs/operators'
 
-import { arraysAreEqual,toggleTab } from './lib/common'
+import { arraysAreEqual, toggleTab, pluralize } from './lib/common'
 import { RxTextInput } from './lib/input'
 import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
 import { RxSelect } from './lib/select'
 import PageControls from './components/PageControls'
-import { RxChoiceFacet, RxBooleanFacet } from './lib/facet'
+import { RxChoiceFacet, RxBooleanFacet, RxTextFacet } from './lib/facet'
 import { RxRangeFilter, rangesAreEqual } from './lib/filter'
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $genderFacet = document.querySelector('#id_sex') as HTMLFieldSetElement
     const $memDateFacet = document.querySelector('#id_membership_dates') as HTMLFieldSetElement
     const $birthDateFacet = document.querySelector('#id_birth_year') as HTMLFieldSetElement
+    const $nationalityFacet = document.querySelector('#id_nationality') as HTMLFieldSetElement
     const $errors = document.querySelector('div[role=alert].errors')
     const $demographicsTab = document.querySelector('.demographics.tab') as HTMLDivElement
     const $booksTab = document.querySelector('.books.tab') as HTMLDivElement
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const genderFacet = new RxChoiceFacet($genderFacet)
     const memDateFacet = new RxRangeFilter($memDateFacet)
     const birthDateFacet = new RxRangeFilter($birthDateFacet)
+    const nationalityFacet = new RxTextFacet($nationalityFacet)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
@@ -123,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         birthdateChange$,
         hasCardFacet.checked$.pipe(skip(1)), // ignore initial
         genderFacet.events,
+        nationalityFacet.events,
     )
     const reloadResults$ = merge( // a list of all the things that require fetching new results (jump to page 1)
         reloadFacets$, // anything that changes facets also triggers new results
@@ -132,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // the user types a keyword, which also switches the sort to relevance
     // debounce ensures these are close enough to read as a single event
     const totalResultsText$ = merge(
-        totalResults$.pipe(map(t => `${t.toLocaleString()} total results`)), // when there are results, say how many, with a comma
+        totalResults$.pipe(map(t => `${t.toLocaleString()} total result${pluralize(t)}`)), // when there are results, say how many, with a comma
         reloadResults$.pipe(mapTo('Results are loading')) // when loading, replace with this text
     )
     const sort$ = noKeyword$.pipe( // 'name' if no keyword, 'relevance' otherwise
@@ -147,6 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const genderChoices = membersSearchForm.facets.pipe(
         pluck('facet_fields'),
         pluck('sex'),
+        flatMap(Object.entries),
+    )
+    const nationalityChoices = membersSearchForm.facets.pipe(
+        pluck('facet_fields'),
+        pluck('nationality'),
         flatMap(Object.entries),
     )
 
@@ -184,6 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update the gender facet
     genderChoices.subscribe(genderFacet.counts)
+
+    // Update the nationality facet
+    nationalityChoices.subscribe(nationalityFacet.counts)
 
     // When a user changes the form, get new facets
     reloadFacets$.subscribe(() => membersSearchForm.getFacets())

@@ -147,6 +147,21 @@ function toggleTab($element: HTMLElement, $others: HTMLElement[]) {
     }
 }
 
+/*
+ * Adds a suffix that can be used to pluralize a string based on its argument.
+ * Mimics Django's `pluralize` by accepting a number, string, or array, see:
+ * https://docs.djangoproject.com/en/2.2/ref/templates/builtins/#pluralize
+ *
+ * @param n item to be pluralized
+ */
+function pluralize (n: number|string|Array<any>) {
+    switch(typeof n) {
+        case 'number': return n === 1 ? '' : 's'
+        case 'string': return n === '1' ? '' : 's'
+        case 'object': return n.length == 1 ? '' : 's'
+    }
+}
+
 export {
     Reactive,
     Component,
@@ -158,5 +173,6 @@ export {
     getTransitionDuration,
     fakeValueChange,
     fakeToggle,
-    toggleTab
+    toggleTab,
+    pluralize
 }

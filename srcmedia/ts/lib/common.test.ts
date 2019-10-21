@@ -1,4 +1,4 @@
-import { Component, arraysAreEqual, getTransitionDuration, toggleTab } from './common'
+import { Component, arraysAreEqual, getTransitionDuration, toggleTab, pluralize } from './common'
 
 describe('Component', () => {
 
@@ -126,5 +126,39 @@ describe('toggleTab', () => {
         expect($tab1.getAttribute('aria-selected')).toBe('false')
         expect($tab2.getAttribute('aria-selected')).toBe('false')
         expect($tab3.getAttribute('aria-selected')).toBe('true')
+
+    })
+})
+
+describe('pluralize', () => {
+
+    test('return empty string for string "1"', () => {
+        expect(pluralize('1')).toBe('')
+    })
+
+    test('returns "s" for other strings', () => {
+        expect(pluralize('2')).toBe('s')
+        expect(pluralize('0')).toBe('s')
+        expect(pluralize('-324')).toBe('s')
+        expect(pluralize('foo')).toBe('s')
+    })
+
+    test('return empty string for number 1', () => {
+        expect(pluralize(1)).toBe('')
+    })
+
+    test('returns "s" for other numbers', () => {
+        expect(pluralize(2)).toBe('s')
+        expect(pluralize(0)).toBe('s')
+        expect(pluralize(-324)).toBe('s')
+    })
+
+    test('return empty string for array of length 1', () => {
+        expect(pluralize(['foo'])).toBe('')
+    })
+
+    test('returns "s" for other arrays', () => {
+        expect(pluralize(['foo', 'bar'])).toBe('s')
+        expect(pluralize([])).toBe('s')
     })
 })
