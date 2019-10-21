@@ -280,7 +280,7 @@ class TestPerson(TestCase):
         with patch.object(Person.objects, 'library_members') as \
                 mock_lib_members:
             Person.items_to_index()
-            mock_lib_members.assert_called()
+            assert mock_lib_members.call_count == 1
 
     def test_index_data(self):
         pers = Person.objects.create(
