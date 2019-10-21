@@ -48,11 +48,15 @@ class CheckboxFieldset(forms.CheckboxSelectMultiple):
     '''Override of :class:`~django.forms.CheckboxSelectMultiple`
     that renders as a fieldset with checkbox inputs.'''
     template_name = 'common/widgets/checkbox_fieldset.html'
+    facet_counts = None
 
     def get_context(self, name, value, attrs):
         '''Pass custom legend property into context dictionary for widget.'''
         context = super().get_context(name, value, attrs)
         context['widget']['legend'] = self.legend
+        # add facet counts to context if available
+        # used to conditionally hide facets based on count
+        context['facet_counts'] = self.facet_counts
         return context
 
 
@@ -66,7 +70,7 @@ class FacetChoiceField(forms.MultipleChoiceField):
 
     widget = CheckboxFieldset
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, hide_threshold=None, *args, **kwargs):
         # default required to false
         if 'required' not in kwargs:
             kwargs['required'] = False
@@ -83,6 +87,10 @@ class FacetChoiceField(forms.MultipleChoiceField):
         # if no custom legend, set it from label
         if not self.widget.legend:
             self.widget.legend = self.label
+
+        # if present, set hide threshold as widget data attribute
+        if hide_threshold is not None:
+            self.widget.attrs['data-hide-threshold'] = hide_threshold
 
     def valid_value(self, value):
         return True
@@ -172,6 +180,7 @@ class RangeField(forms.MultiValueField):
             'max': max_val
         })
 
+
 class FacetForm(forms.Form):
     '''Form mixin to support mapping facet fields to
     :class`FacetChoiceField` fields.'''
@@ -194,3 +203,4 @@ class FacetForm(forms.Form):
                                     .format(val if val else 'Unknown', count)))
                     for val, count in counts.items()
                 ]
+                self.fields[formfield].widget.facet_counts = counts
