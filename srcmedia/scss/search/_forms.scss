@@ -106,7 +106,7 @@
         > .inner > label,
         > .inner > .facet,
         > .inner > .tab {
-            margin-bottom: 0.1rem;
+            // margin-bottom: 0.1rem;
 
             @media (min-width: $breakpoint-s) {
                 margin-right: 0.1rem;
@@ -239,11 +239,11 @@
         }
 
         &[aria-selected=true] {
-            font-weight: bold;
+            border-bottom: none;
+        }
 
-            &::after {
-                transform: rotate(180deg);
-            }
+        &[aria-selected=true]::after {
+            transform: rotate(180deg);
         }
 
         &[aria-disabled] {
@@ -265,6 +265,7 @@
         flex: none;
 
         @media (min-width: $breakpoint-s) {
+            border-top: 2px solid $white;
             background: white;
             max-height: 0;
             width: 100%;

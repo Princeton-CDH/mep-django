@@ -86,6 +86,7 @@
     .demographics.tab[aria-selected=true] ~ #demographics-panel,
     .books.tab[aria-selected=true] ~ #books-panel {
         max-height: 13.5rem;
+        border-color: $green;
     }
 
     .books.tab {
