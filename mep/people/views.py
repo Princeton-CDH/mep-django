@@ -206,7 +206,7 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
 
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
-        return self.object.get_absolute_url()
+        return absolutize_url(self.object.get_absolute_url())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -272,7 +272,8 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
 
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
-        return reverse('people:membership-activities', kwargs=self.kwargs)
+        return absolutize_url(reverse('people:membership-activities',
+                                      kwargs=self.kwargs))
 
     def get_breadcrumbs(self):
         '''Get the list of breadcrumbs and links to display for this page.'''

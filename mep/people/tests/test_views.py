@@ -16,7 +16,7 @@ import pytest
 from mep.accounts.models import Account, Address, Event, Subscription, \
     SubscriptionType, Reimbursement
 from mep.books.models import Work, CreatorType, Creator
-from mep.common.utils import login_temporarily_required
+from mep.common.utils import absolutize_url, login_temporarily_required
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
@@ -1035,8 +1035,8 @@ class TestMembershipActivities(TestCase):
 
     def test_get_absolute_url(self):
         assert self.view.get_absolute_url() == \
-            reverse('people:membership-activities',
-                    kwargs={'pk': self.member.pk})
+            absolutize_url(reverse('people:membership-activities',
+                                   kwargs={'pk': self.member.pk}))
 
     def test_get_breadcrumbs(self):
         self.view.object_list = self.view.get_queryset()
