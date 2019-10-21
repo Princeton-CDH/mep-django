@@ -3,7 +3,22 @@
 const data = {{ timeline|json }}
 console.log('timeline data: ', data)
 
-function drawMemberTimeline(data) {
+function drawMemberTimeline(data, mode) {
+
+  var opts = {
+    tickHeight: 150,
+    activityRangeHeight: 121,
+    viewBoxHeight: 350
+  }
+  // for simpler graph:
+  // tick height 70
+  // activity range height 40
+  // don't draw subscription or borrows
+  if (mode == 'simple') {
+    opts.tickHeight = 70;
+    opts.activityRangeHeight = 40;
+    opts.viewBoxHeight = 150;
+  }
 
   // if member has no activity, don't draw anything
   if (! data.activity_ranges.length) {
@@ -21,28 +36,56 @@ function drawMemberTimeline(data) {
 
   // draw the axis along the top
   var axis = d3.axisTop(x);
-  d3.select(".timeline")
-    .insert('svg', '.description')
+  var svg = d3.select(".timeline").insert('svg', '.description')
         .attr('preserveAspectRatio', 'xMidYMid meet')
-        .attr('viewBox', '0 0 905 350')
+        .attr('viewBox', '0 0 905 ' + opts.viewBoxHeight)
         .attr('aria-label', 'Chart: Member Timeline')
         .attr('aria-described-by', 'member-timeline-desc')
         .attr('role', 'img')
-        .append("g")
-            .attr("transform", "translate(0,30)")
-            .call(axis)
-            .call(g => g.selectAll(".tick line")
-                .attr("stroke", '#231F20')
-                .attr("stroke-width", '0.5')
-                .attr("y2", 150)
-                .attr("y1", 0))
-            // remove domain path automatically added by d3 axis
-            .call(g => g.select(".domain").remove())
+        .attr('id', mode + '-timeline');
+
+  svg.append("g")
+        .attr("transform", "translate(0,30)")
+        .call(axis)
+        .call(g => g.selectAll(".tick line")
+            .attr("stroke", '#231F20')
+            .attr("stroke-width", '0.5')
+            .attr("y2", opts.tickHeight)
+            .attr("y1", 0))
+        // remove domain path automatically added by d3 axis
+        .call(g => g.select(".domain").remove())
+
+
+  // horizontal bars indicating any membership activity
+
+  // minimum activity width, so that single-day ranges will be visible
+  var minActivityWidth = 1.2;
+
+  svg.append('g')
+      .attr('class', 'activityrange-bars')
+    .selectAll('bar')
+    .data(data.activity_ranges)
+    .join(
+      enter => enter.append("rect")
+        .attr('class', 'overallActivities')
+        .attr('x', function(d) {
+          return x(new Date(d.startDate))
+         })
+        .attr('y', 60)
+        .attr("fill", "#231F20")
+        .attr("opacity", "0.2")
+        .attr("width", function (d) {
+            return Math.max(x(new Date(d.endDate)) - x(new Date(d.startDate)), minActivityWidth);
+        })
+        .attr("height", opts.activityRangeHeight)
+      )
+
+  // don't draw subscriptions or borrows in simple mode
+  if (mode == 'full') {
 
   // ** markers for subscription start and end dates **
-
   // start date; skip any where start date is not set
-  d3.select('.timeline svg').append('g')
+  svg.append('g')
       .attr('class', 'subscription-start')
     .selectAll('circle')
     .data(data.membership_activities.filter(event => event.startDate))
@@ -57,7 +100,7 @@ function drawMemberTimeline(data) {
         .attr("fill", "black")
     )
   // end date; skip any where end date is not set
-  d3.select('.timeline svg').append('g')
+  svg.append('g')
       .attr('class', 'subscription-end')
     .selectAll('circle')
     .data(data.membership_activities.filter(event => event.endDate))
@@ -73,7 +116,7 @@ function drawMemberTimeline(data) {
     )
 
   // line indicating subscription duration
-  d3.select('.timeline svg').append('g')
+  svg.append('g')
       .attr('class', 'subscription-lines')
     .selectAll('line')
     .data(data.membership_activities)
@@ -109,32 +152,12 @@ function drawMemberTimeline(data) {
         })
     )
 
-  // horizontal bars indicating any membership activity
-  d3.select('.timeline svg').append('g')
-      .attr('class', 'activityrange-bars')
-    .selectAll('bar')
-    .data(data.activity_ranges)
-    .join(
-      enter => enter.append("rect")
-        .attr('class', 'overallActivities')
-        .attr('x', function(d) {
-          return x(new Date(d.startDate))
-         })
-        .attr('y', 60)
-        .attr("fill", "#231F20")
-        .attr("opacity", "0.2")
-        .attr("width", function (d) {
-            return x(new Date(d.endDate)) - x(new Date(d.startDate))
-        })
-        .attr("height", 121)
-      )
-
 // set borrowing bar width to slightly less than one month on the scale
 var borrowWidth = x(new Date(1919, 1, 25));
 
   var svgheight = 181;
   // bar chart indicating monthly book activity
-  d3.select('.timeline svg').append('g')
+  svg.append('g')
       .attr('class', 'borrowing-bars')
     .selectAll('bar')
     .data(data.book_activities)
@@ -154,13 +177,14 @@ var borrowWidth = x(new Date(1919, 1, 25));
               return d.count
        })
     )
+  }
 }
 
 
 
 function drawlegend() {
           // Any Activity
-          var legend = d3.select('svg').append('g')
+          var legend = d3.select('.timeline svg#full-timeline').append('g')
               // default styles for fonts and circles
               .attr('class', 'legend')
               .attr("font-family", "univers Lt Pro")
@@ -262,7 +286,8 @@ function drawlegend() {
 
           }
 
-drawMemberTimeline(data);
+drawMemberTimeline(data, 'simple');
+drawMemberTimeline(data, 'full');
 drawlegend();
 
 </script>
