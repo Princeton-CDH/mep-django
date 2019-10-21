@@ -407,7 +407,7 @@ class TestCheckboxFieldset(TestCase):
         out = checkbox_fieldset.render('sex', 'bar')
         # legend should be upper-cased by default
         expected_output = '''
-        <fieldset id="widget_id">
+        <fieldset id="widget_id" tabindex="0">
             <legend>Foo</legend>
             <ul class="choices">
             <li class="choice">
