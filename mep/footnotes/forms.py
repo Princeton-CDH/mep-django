@@ -15,10 +15,11 @@ class CardSearchForm(FacetForm):
     error_css_class = 'error'
     required_css_class = 'required'
 
-    query = forms.CharField(label='Keyword or Phrase', required=False,
-                            widget=forms.TextInput(attrs={
-                                'placeholder': 'Search member',
-                                'aria-label': 'Keyword or Phrase'
-                            }))
+    query = forms.CharField(
+        label='Keyword or Phrase', required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Search or select lending library member',
+            'aria-label': 'Keyword or Phrase'
+        }))
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False,
                              widget=SelectWithDisabled)

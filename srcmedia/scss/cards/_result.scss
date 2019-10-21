@@ -1,23 +1,35 @@
-.cards {
+ol.cards {
     display: flex;
     flex-wrap: wrap;
+    padding-top: 2.15rem;
+    border-top: 1px solid $white-two;
 }
 
 
 .card.result {
+    /* display card results in a 3-wide flex grid;
+       cards are 27% width with an 8% width margin between. */
 
     border-top: 0;
     width: 27%;
     margin-right: 8%;
     margin-bottom: 2.8rem;
 
+    a:hover, a:hover img {
+        text-decoration: none;
+    }
+
     &:nth-child(3n+0) {
         margin-right: 0;
     }
 
     @media (max-width: $breakpoint-s) {
-        width: 100%;
-        margin-right: 0;
+        width: 225px;
+        margin-right: auto;
+        margin-left: auto;
+        &:nth-child(3n+0) {
+            margin-right: auto;
+        }
     }
 
     // hide the account dates and card holder label
@@ -29,4 +41,13 @@
         font-family: $serif;
         font-size: 1.2rem;
     }
+    .card-dates dd {
+        font-family: $sans;
+        font-size: 0.82rem;
+    }
+    .card-dates.unknown  {
+        color: $mid-grey;
+    }
+
 }
+

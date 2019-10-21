@@ -1,14 +1,17 @@
 from datetime import date
+import time
 from unittest.mock import Mock, patch
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from djiffy.models import Manifest
 
 from mep.accounts.models import Account, Event
+from mep.common.utils import absolutize_url, login_temporarily_required
 from mep.footnotes.admin import BibliographyAdmin
 from mep.footnotes.models import Bibliography, Footnote, SourceType
+from mep.footnotes.views import CardList
 from mep.people.models import Person
 
 
@@ -172,7 +175,7 @@ class TestBibliographyAutocomplete(TestCase):
         assert data['results'][0]['text'] == str(bib2)
 
 
-class TestBibliographyAdmin():
+class TestBibliographyAdmin:
 
     def test_manifest_thumbnail(self):
         bibadmin = BibliographyAdmin(Mock(), Mock())
@@ -197,3 +200,70 @@ class TestBibliographyAdmin():
         assert manifest_thumbnail.startswith(
             '<a target="_blank" href="%s">' % test_rendering_url
         )
+
+
+class TestCardList(TestCase):
+    fixtures = ['sample_people', 'sample_cards']
+
+    def setUp(self):
+        self.view = CardList()
+        self.factory = RequestFactory()
+        self.cards_url = reverse('footnotes:card-list')
+
+    def test_login_required_or_404(self):
+        # 404 if not logged in; TEMPORARY
+        assert self.client.get(self.cards_url).status_code == 404
+
+    def test_get_absolute_url(self):
+        assert self.view.get_absolute_url() == \
+            absolutize_url(reverse('footnotes:card-list'))
+
+    @patch('mep.footnotes.views.CardSolrQuerySet')
+    def test_get_queryset(self, mock_card_solrqueryset):
+        assert self.view.get_queryset() == mock_card_solrqueryset.return_value
+        assert self.view.queryset == mock_card_solrqueryset.return_value
+
+    def test_get_breadcrumbs(self):
+        crumbs = self.view.get_breadcrumbs()
+        assert crumbs[0][0] == 'Home'
+        # last item is this page
+        assert crumbs[1][0] == 'Cards'
+        assert crumbs[1][1] == self.view.get_absolute_url()
+
+    @login_temporarily_required
+    def test_list(self):
+        # test listview functionality using testclient & response
+
+        # index cards in solr
+        Bibliography.index_items(Bibliography.items_to_index())
+        time.sleep(1)
+
+        response = self.client.get(self.cards_url)
+
+        # filter form should be displayed with filled-in query field one time
+        self.assertContains(
+            response, 'Search or select lending library member', count=1)
+
+        # should display all cards in the fixture
+        cards = Bibliography.items_to_index()
+
+        assert response.context['cards'].count() == cards.count()
+        self.assertContains(response, '%d total results' % cards.count())
+        for card in cards:
+            self.assertContains(
+                response, card.account_set.first().persons.first().sort_name)
+            # 1x image appears twice (src + srcset)
+            self.assertContains(
+                response,
+                card.manifest.thumbnail.image.size(width=225), count=2)
+            # 2x image appears once
+            self.assertContains(
+                response,
+                card.manifest.thumbnail.image.size(width=225 * 2), count=1)
+            # one fixture has dates, one does not
+            card_years = card.account_set.first().event_dates
+            if card_years:
+                self.assertContains(response, min(card_years).year)
+                self.assertContains(response, max(card_years).year)
+            else:
+                self.assertContains(response, 'Unknown')

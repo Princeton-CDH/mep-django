@@ -55,14 +55,16 @@ class CardList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     #     form_data = self.request.GET.copy()
 
     def get_queryset(self):
-        sqs = CardSolrQuerySet()
-        print(sqs.all())
-        form = self.get_form()
-        self.queryset = sqs
-        return sqs
+        self.queryset = CardSolrQuerySet()
+        return self.queryset
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            ('Cards', self.get_absolute_url()),
+        ]
 
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
         return absolutize_url(reverse('footnotes:card-list'))
-
-

@@ -2,38 +2,23 @@
 <ol class="cards" style="counter-reset: results {{ page_obj.start_index|add:'-1' }};" nonce="{{ request.csp_nonce }}">
     {% for card in cards %}
     <li class="card result">
-        {# <a href="{% url 'people:member-detail' pk=person.pk %}" aria-label="{{ person.sort_name.0 }}"> #}
-            {# <div class="container"> #}
-                {# card details #}
-
-                {# {{ card }} #}
-                <img src="{{ card.thumbnail.0 }}"/>
-
+        <a href="#" aria-label="Lending card for {{ card.cardholder.0 }}">
+                {# card image and summary details #}
+                <img srcset="{{ card.thumbnail.0 }}, {{ card.thumbnail2x.0 }} 2x"
+                     src="{{ card.thumbnail.0 }}"  alt=""/> {# FIXME: alt text ? #}
                 <div class="name">
                     <dt>Card Holder</dt>
                     <dd>{{ card.cardholder|join:'; ' }}</dd>
                 </div>
 
-                {% if card.years %}
-                <div class="card-dates">
+                <div class="card-dates {% if not card.years %}unknown{% endif %}">
                     <dt>Card Dates</dt>
-                    <dd>
-                        {{ card.start }}
-                        {% if card.start != card.end %}
-                         - <span class="sr-only">to</span>
-                        {{ card.end }}{% endif %}
+                    <dd>{% if card.years %}
+                        {{ card.start }}{% if card.start != card.end %}–<span class="sr-only">to</span>{{ card.end }}{% endif %}
+                        {% else %}Unknown{% endif %}
                     </dd>
                 </div>
-                {% endif %}
-
-
-                {# {% include 'people/snippets/member_result.html' with member=person %} #}
-                {# link to view detail page #}
-                {# <span class="see-more"> #}
-                    {# See more details #}
-                {# </span> #}
-            {# </div> #}
-        {# </a> #}
+        </a>
     </li>
     {% endfor %}
 </ol>
