@@ -48,11 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
         startWith(pageSelect.element.value), // start with the current page
-        map(p => parseInt(p)), // get a number from a string, for math
+        map(p => parseInt(p, 10)), // get a number from a string, for math
         distinctUntilChanged() // only update when changed
     )
     const totalResults$ = membersSearchForm.totalResults.pipe(
-        map(t => parseInt(t)),
+        map(t => parseInt(t, 10)),
     )
     const totalPages$ = membersSearchForm.pageLabels.pipe(
         map(l => l.length), // number of page labels tells us the number of pages

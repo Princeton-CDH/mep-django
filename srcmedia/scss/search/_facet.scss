@@ -76,13 +76,7 @@
 
     input {
         // borrow .sr-only styles to hide it
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
+        @include sr-only;
 
         &:checked + label {
             padding-left: 1.5rem;
@@ -137,6 +131,14 @@
     }
 
     /**
+     * TEXT FACET - used for facets where there can be many options, and those
+     * with a count of zero will be hidden, e.g. 'nationality' on members
+     */
+    // &.text {
+
+    // }
+
+    /**
      * RANGE FACET - two numeric inputs representing a range of values
      */
 
@@ -186,13 +188,5 @@
             height: 1.4rem;
             clip: auto;
         }
-    }
-
-    /**
-     * TEXT FACET - used for facets where there can be many options, and those
-     * with a count of zero will be hidden, e.g. 'nationality' on members
-     */
-     &.text {
-        min-height: 12rem;
     }
 }
