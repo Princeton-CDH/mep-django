@@ -1,7 +1,7 @@
-import { merge } from 'rxjs'
+import { merge, fromEvent } from 'rxjs'
 import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, flatMap, skip, tap } from 'rxjs/operators'
 
-import { arraysAreEqual, pluralize } from './lib/common'
+import { arraysAreEqual, toggleTab, pluralize } from './lib/common'
 import { RxTextInput } from './lib/input'
 import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
@@ -26,6 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const $birthDateFacet = document.querySelector('#id_birth_year') as HTMLFieldSetElement
     const $nationalityFacet = document.querySelector('#id_nationality') as HTMLFieldSetElement
     const $errors = document.querySelector('div[role=alert].errors')
+    const $demographicsTab = document.querySelector('.demographics.tab') as HTMLDivElement
+    const $booksTab = document.querySelector('.books.tab') as HTMLDivElement
+    const $demographicsPanel = document.getElementById('#demographics-panel') as HTMLDivElement
+    const $booksPanel = document.getElementById('#books-panel') as HTMLDivElement
 
     /* COMPONENTS */
     const membersSearchForm = new RxFacetedSearchForm($membersSearchForm)
@@ -44,11 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
         startWith(pageSelect.element.value), // start with the current page
-        map(p => parseInt(p)), // get a number from a string, for math
+        map(p => parseInt(p, 10)), // get a number from a string, for math
         distinctUntilChanged() // only update when changed
     )
     const totalResults$ = membersSearchForm.totalResults.pipe(
-        map(t => parseInt(t)),
+        map(t => parseInt(t, 10)),
     )
     const totalPages$ = membersSearchForm.pageLabels.pipe(
         map(l => l.length), // number of page labels tells us the number of pages
@@ -224,4 +228,24 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsOutput.element.removeAttribute('aria-busy')
         resultsOutput.update(results)
     })
+
+    // Make clicking or pressing space/enter on the tabs toggle them, and also
+    // untoggle all other tabs
+    merge(
+        fromEvent($demographicsTab, 'click'),
+        fromEvent($demographicsTab, 'keydown').pipe(
+            map(e => (e as KeyboardEvent).code),
+            filter(code => code == 'Space' || code == 'Enter')
+        )
+    )
+    .subscribe(() => toggleTab($demographicsTab, [$booksTab]))
+
+    merge(
+        fromEvent($booksTab, 'click'),
+        fromEvent($booksTab, 'keydown').pipe(
+            map(e => (e as KeyboardEvent).code),
+            filter(code => code == 'Space' || code == 'Enter')
+        )
+    )
+    .subscribe(() => toggleTab($booksTab, [$demographicsTab]))
 })

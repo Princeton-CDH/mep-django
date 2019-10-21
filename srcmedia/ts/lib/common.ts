@@ -127,6 +127,27 @@ function fakeToggle ($element: HTMLInputElement) {
 }
 
 /**
+ * Switch $element's aria-selected state, and if becomes true, set aria-selected
+ * to false for every element in $others.
+ *
+ * If $element has aria-disabled set, do nothing.
+ *
+ * @param $element tab to activate
+ * @param $others  list of other tabs to deactivate
+ */
+function toggleTab($element: HTMLElement, $others: HTMLElement[]) {
+    if (!$element.hasAttribute('aria-disabled')) {
+        if ($element.getAttribute('aria-selected') == 'true') {
+            $element.setAttribute('aria-selected', 'false')
+        }
+        else {
+            $element.setAttribute('aria-selected', 'true')
+            $others.forEach($e => $e.setAttribute('aria-selected', 'false'))
+        }
+    }
+}
+
+/*
  * Adds a suffix that can be used to pluralize a string based on its argument.
  * Mimics Django's `pluralize` by accepting a number, string, or array, see:
  * https://docs.djangoproject.com/en/2.2/ref/templates/builtins/#pluralize
@@ -152,5 +173,6 @@ export {
     getTransitionDuration,
     fakeValueChange,
     fakeToggle,
+    toggleTab,
     pluralize
 }
