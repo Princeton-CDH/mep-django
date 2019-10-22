@@ -1,12 +1,13 @@
+
 from dal import autocomplete
+from django.urls import reverse
 from django.views.generic import ListView
 from django.views.generic.edit import FormMixin
-from django.urls import reverse
 
 from mep.common import SCHEMA_ORG
+from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
     LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
-from mep.common.utils import absolutize_url
 from mep.footnotes.forms import CardSearchForm
 from mep.footnotes.models import Bibliography
 from mep.footnotes.queryset import CardSolrQuerySet
@@ -30,8 +31,8 @@ class CardList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     '''List page for searching and browsing lending cards.'''
     model = Bibliography
     template_name = 'footnotes/card_list.html'
-    ajax_template_name = 'footnotes/cards/card_results.html'
-    paginate_by = 50
+    ajax_template_name = 'footnotes/snippets/card_results.html'
+    paginate_by = 30
     context_object_name = 'cards'
     rdf_type = SCHEMA_ORG.SearchResultPage
 
@@ -90,12 +91,31 @@ class CardList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         else:
             search_opts = form.cleaned_data
 
-
         # order based on solr name for search option
         sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
 
         self.queryset = sqs
         return self.queryset
+
+    def get_page_labels(self, paginator):
+        '''generate labels for pagination'''
+
+        # if form is invalid, page labels should show 'N/A'
+        form = self.get_form()
+        if not form.is_valid():
+            return [(1, 'N/A')]
+
+        # no keyword search for now
+        # when sorting by relevance, use default page label logic
+        # if form.cleaned_data['sort'] == 'relevance':
+        #    return super().get_page_labels(paginator)
+
+        # otherwise, when sorting by alpha, generate alpha page labels
+        pagination_qs = self.queryset.only('cardholder_sort')
+        alpha_labels = alpha_pagelabels(paginator, pagination_qs,
+                                        lambda x: x['cardholder_sort'])
+        # alpha labels is a dict; use items to return list of tuples
+        return alpha_labels.items()
 
     def get_breadcrumbs(self):
         '''Get the list of breadcrumbs and links to display for this page.'''

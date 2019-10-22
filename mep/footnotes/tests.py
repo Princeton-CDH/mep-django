@@ -1,8 +1,10 @@
+from types import LambdaType
 from datetime import date
 import time
 from unittest.mock import Mock, patch
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import Paginator
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from djiffy.models import Manifest
@@ -268,3 +270,37 @@ class TestCardList(TestCase):
                 self.assertContains(response, max(card_years).year)
             else:
                 self.assertContains(response, 'Unknown')
+
+    def test_get_page_labels(self):
+        view = CardList()
+        view.request = self.factory.get(self.cards_url)
+        # trigger form valid check to ensure cleaned data is available
+        view.get_form().is_valid()
+        view.queryset = Mock()
+        with patch('mep.footnotes.views.alpha_pagelabels') as \
+                mock_alpha_pglabels:
+            works = range(101)
+            paginator = Paginator(works, per_page=50)
+            result = view.get_page_labels(paginator)
+            view.queryset.only.assert_called_with('cardholder_sort')
+            alpha_pagelabels_args = mock_alpha_pglabels.call_args[0]
+            # first arg is paginator
+            assert alpha_pagelabels_args[0] == paginator
+            # second arg is queryset with revised field list
+            assert alpha_pagelabels_args[1] == view.queryset.only.return_value
+            # third arg is a lambda
+            assert isinstance(alpha_pagelabels_args[2], LambdaType)
+
+            mock_alpha_pglabels.return_value.items.assert_called_with()
+            assert result == mock_alpha_pglabels.return_value \
+                                                .items.return_value
+
+            # No keyword search for now
+            # # when sorting by relevance, use numeric page labels instead
+            # mock_alpha_pglabels.reset_mock()
+            # view.request = self.factory.get(self.cards_url, {'query': 'foo'})
+            # del view._form
+            # # trigger form valid check to ensure cleaned data is available
+            # view.get_form().is_valid()
+            # result = view.get_page_labels(paginator)
+            # mock_alpha_pglabels.assert_not_called()
