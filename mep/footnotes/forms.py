@@ -18,7 +18,7 @@ class CardSearchForm(FacetForm):
     query = forms.CharField(
         label='Keyword or Phrase', required=False,
         widget=forms.TextInput(attrs={
-            'placeholder': 'Search or select lending library member',
+            'placeholder': 'Search by library member',
             'aria-label': 'Keyword or Phrase'
         }))
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False,

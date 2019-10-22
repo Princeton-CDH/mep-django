@@ -3,7 +3,7 @@
 {% load render_bundle from webpack_loader %}
 
 {% block js %}
-{% render_bundle 'memberSearch' 'js' %}
+{% render_bundle 'cardSearch' 'js' %}
 {% endblock %}
 
 {% block page-subtitle %}Cards · {% endblock %}
@@ -19,11 +19,12 @@
 
 <section class="cards search-form">
     <form id="cards-form">
-        {% render_field form.query %}
+        {# keyword search disabled for now #}
+        {# {% render_field form.query %} #}
         <label for="{{ form.query.id_for_label }}"></label>
         {% include 'common/form_errors.html' %}
-        {% comment %}
         <fieldset class="group">
+        {% comment %}
             <legend>Filter by:</legend>
             <div class="inner">
                 <fieldset class="range facet {{ form.birth_year.css_classes }}" id="id_{{ form.birth_year.name }}">
@@ -36,9 +37,9 @@
                 </fieldset>
             </div>
             <input type="submit" value="submit"/>
-        </fieldset>
         {% endcomment %}
-        <output class="total-results" id="total">{{ cards.count|intcomma }} total result{{ cards.count|pluralize }}</output>
+        </fieldset>
+        <output class="total-results" id="total">Displaying {{ cards.count|intcomma }} result{{ cards.count|pluralize }}</output>
     </form>
 </section>
 <div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}

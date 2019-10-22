@@ -227,8 +227,9 @@ CSP_MANIFEST_SRC = ("'self'",)
 # allow XMLHttpRequest or Fetch requests against local URLs only (e.g. searching)
 CSP_CONNECT_SRC = ("'self'",)
 
-# allow loading local images and google tracking pixel
-CSP_IMG_SRC = ("'self'", 'https://www.googletagmanager.com')
+# allow loading local images, google tracking pixel, PUL IIIF images
+CSP_IMG_SRC = ("'self'", 'https://www.googletagmanager.com',
+               'https://iiif.princeton.edu')
 
 # exclude admin and cms urls from csp directives since they're authenticated
 CSP_EXCLUDE_URL_PREFIXES = ('/admin', '/cms')
