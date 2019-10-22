@@ -222,6 +222,13 @@ class TestCardList(TestCase):
 
     @patch('mep.footnotes.views.CardSolrQuerySet')
     def test_get_queryset(self, mock_card_solrqueryset):
+        self.view.request = self.factory.get(self.cards_url)
+        # simulate fluent interface
+        mock_qs = mock_card_solrqueryset.return_value
+        for meth in ['facet_field', 'filter', 'only', 'search', 'also',
+                     'raw_query_parameters', 'order_by']:
+            getattr(mock_qs, meth).return_value = mock_qs
+
         assert self.view.get_queryset() == mock_card_solrqueryset.return_value
         assert self.view.queryset == mock_card_solrqueryset.return_value
 
