@@ -41,7 +41,6 @@ class MemberSearchForm(FacetForm):
         ('name', 'Name A-Z'),
     ]
 
-
     # NOTE these are not set by default!
     error_css_class = 'error'
     required_css_class = 'required'
@@ -65,9 +64,15 @@ class MemberSearchForm(FacetForm):
         'class': 'choice facet'
     }))
     membership_dates = RangeField(label='Membership Dates', required=False,
-        widget=RangeWidget(attrs={'size': 4}))
+                                  widget=RangeWidget(attrs={'size': 4}))
     birth_year = RangeField(label='Birth Year', required=False,
-        widget=RangeWidget(attrs={'size': 4}))
+                            widget=RangeWidget(attrs={'size': 4}))
+    nationality = FacetChoiceField(
+        label='Nationality', hide_threshold=0,
+        widget=CheckboxFieldset(attrs={
+            'class': 'text facet'
+        })
+    )
 
     def set_range_minmax(self, range_minmax):
         '''Set the min, max, and placeholder values for all

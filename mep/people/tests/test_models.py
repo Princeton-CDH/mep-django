@@ -6,8 +6,7 @@ from unittest.mock import patch
 import pytest
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import (MultipleObjectsReturned,
-                                    ObjectDoesNotExist, ValidationError)
+from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.test import TestCase
 from django.urls import resolve
 from django.utils import timezone
@@ -237,13 +236,11 @@ class TestPerson(TestCase):
         subs.delete()
         assert pers.in_logbooks()
 
-
     def test_admin_url(self):
         pers = Person.objects.create(name='John')
         resolved_url = resolve(pers.admin_url())
         assert resolved_url.args[0] == str(pers.id)
         assert resolved_url.view_name == 'admin:people_person_change'
-
 
     def test_has_card(self):
         # create test person & account and associate them
@@ -257,9 +254,10 @@ class TestPerson(TestCase):
         assert not pers.has_card()
 
         # create card and add to account
-        src_type = SourceType.objects.get_or_create(name='Lending Library Card')[0]
-        card = Bibliography.objects.create(bibliographic_note='John\'s Library Card',
-            source_type=src_type)
+        src_type = SourceType.objects.get_or_create(
+            name='Lending Library Card')[0]
+        card = Bibliography.objects.create(
+            bibliographic_note='John\'s Library Card', source_type=src_type)
         acct.card = card
         acct.save()
         assert pers.has_card()
@@ -306,6 +304,8 @@ class TestPerson(TestCase):
         for missing_val in ['account_start_i', 'account_end_i',
                             'account_years_i', 'sex_s']:
             assert missing_val not in index_data
+        # nationality should be empty list
+        assert index_data['nationality'] == []
 
         # add account events for earliest/latest
         Subscription.objects.create(account=acct,
@@ -319,6 +319,19 @@ class TestPerson(TestCase):
         assert index_data['account_end_i'] == 1922
         assert index_data['account_years_is'] == [1921, 1922]
         assert index_data['sex_s'] == 'Male'
+
+        # add nationality
+        uk = Country.objects.create(
+            name='United Kingdom', code='UK',
+            geonames_id='http://sws.geonames.org/2635167/')
+        denmark = Country.objects.create(
+            name='Denmark', code='DK',
+            geonames_id='http://sws.geonames.org/2623032/')
+        pers.nationalities.add(uk)
+        pers.nationalities.add(denmark)
+        index_data = pers.index_data()
+        assert uk.name in index_data['nationality']
+        assert denmark.name in index_data['nationality']
 
 
 class TestPersonQuerySet(TestCase):

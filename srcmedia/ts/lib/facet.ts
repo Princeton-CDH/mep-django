@@ -57,7 +57,7 @@ class RxBooleanFacet extends RxCheckboxInput {
  * @extends {Rx<HTMLFieldSetElement>}
  */
 class RxChoiceFacet extends Rx<HTMLFieldSetElement> {
-    
+
     protected $inputs: Array<HTMLInputElement>
     public counts: Subject<[string, number]> // input from solr
     public events: Observable<Event>
@@ -92,7 +92,62 @@ class RxChoiceFacet extends Rx<HTMLFieldSetElement> {
     }
 }
 
+/**
+ * A text facet consisting of multiple checkboxes where the user will see a
+ * choice if its count is above a provided threshold.
+ *
+ * When new counts are supplied, options will be shown or hidden accordingly.
+ * Note that this means they must all be *rendered* by the backend first!
+ *
+ * @class RxTextFacet
+ * @extends {Rx<HTMLFieldSetElement>}
+ */
+class RxTextFacet extends RxChoiceFacet {
+
+    // choices with counts <= this number will be hidden, if supplied
+    private threshold: Number | undefined
+
+    constructor (element: HTMLFieldSetElement) {
+        super(element)
+        // use a different updateCount() method - see below
+        this.counts.subscribe(this.updateCount)
+        // if a hide threshold was set, store it
+        if (this.element.dataset.hideThreshold) {
+            this.threshold = parseInt(this.element.dataset.hideThreshold, 10)
+        }
+    }
+
+    /**
+     * Finds the relevant count element for each choice input and calls
+     * animateElementContent() to swap out the number displayed in it.
+     *
+     * Assumes the input has exactly one <label> that contains a <span> with
+     * class 'count'.
+     *
+     * @protected
+     * @memberof RxChoiceFacet
+     */
+    protected updateCount = async ([label, count]: [string, number]): Promise<void> => {
+        const value = (label == 'null' ? '' : label) // solr 'null' becomes empty value ""
+        const $input = this.$inputs.find($input => $input.value == value)
+        //@ts-ignore
+        const $count = $input.labels[0].querySelector('.count') as HTMLSpanElement
+        // if the count fell below the threshold, add "hide" to the choice
+        if (this.threshold != undefined) {
+            const $choice = ($input as HTMLElement).parentElement as HTMLLabelElement
+            if (count <= this.threshold) {
+                $choice.classList.add('hide')
+            }
+            else {
+                $choice.classList.remove('hide')
+            }
+        }
+        await animateElementContent($count, count.toLocaleString())
+    }
+}
+
 export {
     RxBooleanFacet,
-    RxChoiceFacet
+    RxChoiceFacet,
+    RxTextFacet
 }

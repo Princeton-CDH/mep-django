@@ -18,7 +18,7 @@
         padding-bottom: 2rem;
         border: none;
         margin: 0 auto;
-    
+
         @media (min-width: $breakpoint-s) {
             flex-flow: row nowrap;
         }
@@ -32,7 +32,11 @@
     // show the result counter/icons in the details
     .counter {
         display: block;
-        position: relative;
+
+        // used to position "has card" icon when on tablet & larger
+        @media (min-width: $breakpoint-s) {
+            position: relative;
+        }
 
         &::after {
             content: counter(results);

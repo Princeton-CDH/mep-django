@@ -119,8 +119,10 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     }
 
     def get_queryset(self):
-        sqs = PersonSolrQuerySet().facet_field('has_card')\
-                                  .facet_field('sex', missing=True, exclude='sex')
+        sqs = PersonSolrQuerySet() \
+            .facet_field('has_card') \
+            .facet_field('sex', missing=True, exclude='sex') \
+            .facet_field('nationality', exclude='nationality', sort='value')
 
         form = self.get_form()
 
@@ -141,6 +143,10 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
                 sqs = sqs.filter(has_card=search_opts['has_card'])
             if search_opts['sex']:
                 sqs = sqs.filter(sex__in=search_opts['sex'], tag='sex')
+            if search_opts['nationality']:
+                sqs = sqs.filter(nationality__in=[
+                    '"%s"' % val for val in search_opts['nationality']
+                ], tag='nationality')
 
             # range filter by membership dates, if set
             if search_opts['membership_dates']:

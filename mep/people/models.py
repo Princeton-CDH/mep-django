@@ -1,7 +1,7 @@
 import logging
 
 from django.apps import apps
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models, transaction
 from django.urls import reverse
@@ -441,7 +441,9 @@ class Person(Notable, DateRange, Indexable):
             'sort_name_sort_s': self.sort_name,
             'birth_year_i': self.birth_year,
             'death_year_i': self.death_year,
-            'has_card_b': self.has_card()
+            'has_card_b': self.has_card(),
+            'nationality': list(self.nationalities.all()
+                                    .values_list('name', flat=True))
         })
 
         # conditionally set fields that are not always present

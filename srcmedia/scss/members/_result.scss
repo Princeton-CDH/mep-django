@@ -1,10 +1,14 @@
 .members.result {
+    .member {
+        flex-flow: row wrap;
+    }
+
     // show the "has card" icon if present
     .card.icon {
         width: 1.5rem;
         position: absolute;
-        bottom: -2.5rem;
-        right: -1.5rem;
+        bottom: 2rem;
+        left: 1.5rem;
         transition: opacity 0.5s;
 
         @media (min-width: $breakpoint-s) {
@@ -14,7 +18,11 @@
     }
 
     .primary {
-        flex: 2;
+        flex: auto;
+
+        @media (min-width: $breakpoint-s) {
+            flex: 2;
+        }
     }
 
     // hide the "birth/death dates" label
@@ -27,7 +35,13 @@
     }
 
     .secondary {
+        flex: none;
+        width: 100%;
         margin-top: 0.5rem;
+
+        @media (min-width: $breakpoint-s) {
+            flex: 1;
+        }
     }
 
     // show the name
