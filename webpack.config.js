@@ -18,6 +18,7 @@ module.exports = env => ({
         memberSearch: './ts/members-search.ts',
         booksSearch: './ts/books-search.ts',
         activities: './ts/activities.ts',
+        cardSearch: './ts/cards-search.ts',
     },
     output: {
         path: path.resolve(__dirname, 'bundles'), // where to output bundles
