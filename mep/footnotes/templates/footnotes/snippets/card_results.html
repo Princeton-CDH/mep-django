@@ -1,0 +1,24 @@
+{% load static %}
+<ol class="card-results">
+    {% for card in cards %}
+    <li class="card result">
+        <a href="#" aria-label="Lending card for {{ card.cardholder.0 }}">
+                {# card image and summary details #}
+                <img srcset="{{ card.thumbnail.0 }}, {{ card.thumbnail2x.0 }} 2x"
+                     src="{{ card.thumbnail.0 }}"  alt=""/> {# FIXME: alt text ? #}
+                <div class="name">
+                    <dt>Card Holder</dt>
+                    <dd>{{ card.cardholder|join:'; ' }}</dd>
+                </div>
+
+                <div class="card-dates {% if not card.years %}unknown{% endif %}">
+                    <dt>Card Dates</dt>
+                    <dd>{% if card.years %}
+                        {{ card.start }}{% if card.start != card.end %}–<span class="sr-only">to</span>{{ card.end }}{% endif %}
+                        {% else %}Unknown{% endif %}
+                    </dd>
+                </div>
+        </a>
+    </li>
+    {% endfor %}
+</ol>

@@ -1,0 +1,279 @@
+[
+{
+    "model": "djiffy.manifest",
+    "pk": 305,
+    "fields": {
+        "label": "Gay, Francisque",
+        "short_id": "760cdef8-4fab-4b7c-abe2-22c9bb039fb0",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/760cdef8-4fab-4b7c-abe2-22c9bb039fb0/manifest",
+        "metadata": "{\"Date Created\":[\"1940-10-01/1941-01-31\"],\"Extent\":[\"1 card\"],\"Identifier\":[\"ark:/88435/9593v0246\"],\"Title\":[\"Gay, Francisque\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3334\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/760cdef8-4fab-4b7c-abe2-22c9bb039fb0.jsonld\":{\"system_updated_at\":\"2019-10-13T23:32:43Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T21:27:10Z\",\"@id\":\"https://figgy.princeton.edu/catalog/760cdef8-4fab-4b7c-abe2-22c9bb039fb0\",\"identifier\":[\"ark:/88435/9593v0246\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Gay, Francisque\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3334.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/9593v0246\"}}"
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 381,
+    "fields": {
+        "label": "Hemingway, Ernest",
+        "short_id": "9af2d811-6084-4967-a4d7-5c0481658011",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/9af2d811-6084-4967-a4d7-5c0481658011/manifest",
+        "metadata": "{\"Date Created\":[\"1925-01-01/1938-11-01\"],\"Extent\":[\"7 cards\"],\"Identifier\":[\"ark:/88435/rx913v02v\"],\"Title\":[\"Hemingway, Ernest\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3368\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/9af2d811-6084-4967-a4d7-5c0481658011.jsonld\":{\"system_updated_at\":\"2019-10-14T13:38:43Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T21:32:26Z\",\"@id\":\"https://figgy.princeton.edu/catalog/9af2d811-6084-4967-a4d7-5c0481658011\",\"identifier\":[\"ark:/88435/rx913v02v\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Hemingway, Ernest\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3368.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/rx913v02v\"}}"
+    }
+},
+{
+    "model": "footnotes.sourcetype",
+    "pk": 2,
+    "fields": {
+        "name": "Lending Library Card",
+        "notes": ""
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 163,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Francoise Gay Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 305
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 192,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Ernest Hemingway Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 381
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 381,
+    "fields": {
+        "label": "Hemingway, Ernest",
+        "short_id": "9af2d811-6084-4967-a4d7-5c0481658011",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/9af2d811-6084-4967-a4d7-5c0481658011/manifest",
+        "metadata": "{\"Date Created\":[\"1925-01-01/1938-11-01\"],\"Extent\":[\"7 cards\"],\"Identifier\":[\"ark:/88435/rx913v02v\"],\"Title\":[\"Hemingway, Ernest\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3368\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/9af2d811-6084-4967-a4d7-5c0481658011.jsonld\":{\"system_updated_at\":\"2019-10-14T13:38:43Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T21:32:26Z\",\"@id\":\"https://figgy.princeton.edu/catalog/9af2d811-6084-4967-a4d7-5c0481658011\",\"identifier\":[\"ark:/88435/rx913v02v\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Hemingway, Ernest\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3368.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/rx913v02v\"}}"
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 305,
+    "fields": {
+        "label": "Gay, Francisque",
+        "short_id": "760cdef8-4fab-4b7c-abe2-22c9bb039fb0",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/760cdef8-4fab-4b7c-abe2-22c9bb039fb0/manifest",
+        "metadata": "{\"Date Created\":[\"1940-10-01/1941-01-31\"],\"Extent\":[\"1 card\"],\"Identifier\":[\"ark:/88435/9593v0246\"],\"Title\":[\"Gay, Francisque\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3334\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/760cdef8-4fab-4b7c-abe2-22c9bb039fb0.jsonld\":{\"system_updated_at\":\"2019-10-13T23:32:43Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T21:27:10Z\",\"@id\":\"https://figgy.princeton.edu/catalog/760cdef8-4fab-4b7c-abe2-22c9bb039fb0\",\"identifier\":[\"ark:/88435/9593v0246\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Gay, Francisque\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3334.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/9593v0246\"}}"
+    }
+},
+{
+    "model": "djiffy.canvas",
+    "pk": 1335,
+    "fields": {
+        "label": "1",
+        "short_id": "7d778042-7b78-42b7-9dcf-a6952b8caee6",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/9af2d811-6084-4967-a4d7-5c0481658011/manifest/canvas/7d778042-7b78-42b7-9dcf-a6952b8caee6",
+        "iiif_image_id": "https://iiif.princeton.edu/loris/figgy_prod/2b%2F02%2F39%2F2b02397d57e1497ca9b48faac7be450e%2Fintermediate_file.jp2",
+        "manifest": 381,
+        "thumbnail": true,
+        "order": 0,
+        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/7d778042-7b78-42b7-9dcf-a6952b8caee6/file/1484c97e-17bd-46c2-ac0c-038e8bbe3a6f\",\"label\":\"Download the original file\"}]}"
+    }
+},
+{
+    "model": "djiffy.canvas",
+    "pk": 1075,
+    "fields": {
+        "label": "1",
+        "short_id": "fcc7a65b-3ef1-4f70-9be0-601265e15acd",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/760cdef8-4fab-4b7c-abe2-22c9bb039fb0/manifest/canvas/fcc7a65b-3ef1-4f70-9be0-601265e15acd",
+        "iiif_image_id": "https://iiif.princeton.edu/loris/figgy_prod/ca%2Ff2%2Fbd%2Fcaf2bdad1b0040749a83f637f5096a33%2Fintermediate_file.jp2",
+        "manifest": 305,
+        "thumbnail": true,
+        "order": 0,
+        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/fcc7a65b-3ef1-4f70-9be0-601265e15acd/file/12d71bbf-bdd2-4c35-be70-575136b1a067\",\"label\":\"Download the original file\"}]}"
+    }
+},
+{
+    "model": "books.format",
+    "pk": 1,
+    "fields": {
+        "name": "Book",
+        "notes": "",
+        "uri": "http://schema.org/Book"
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 163,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Francoise Gay Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 305
+    }
+},
+{
+    "model": "books.format",
+    "pk": 2,
+    "fields": {
+        "name": "Periodical",
+        "notes": "",
+        "uri": "http://schema.org/Periodical"
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 192,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Ernest Hemingway Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 381
+    }
+},
+{
+    "model": "books.work",
+    "pk": 3929,
+    "fields": {
+        "notes": "Variant titles: 3 Black Pennys; Three Black Pennys; Three Black Pennies",
+        "mep_id": "mep:00k25w",
+        "title": "The Three Black Pennys",
+        "year": 1917,
+        "uri": "http://worldcat.org/entity/work/id/196112322",
+        "edition_uri": "http://www.worldcat.org/oclc/284936",
+        "ebook_url": "",
+        "work_format": 1,
+        "updated_at": "2019-06-14T17:23:00Z",
+        "public_notes": "",
+        "genres": [
+            158,
+            2,
+            48
+        ],
+        "subjects": [
+            910,
+            1167,
+            1168,
+            1169
+        ]
+    }
+},
+{
+    "model": "books.work",
+    "pk": 378,
+    "fields": {
+        "notes": "Variant titles: Study Modern Novel Author: Marble\nVariant titles: Study of the Modern Novel.\nMerged on 2019-09-12 with MEP id mep:003v09",
+        "mep_id": "mep:004q97",
+        "title": "A Study of the Modern Novel: British and American, Since 1900",
+        "year": 1928,
+        "uri": "http://worldcat.org/entity/work/id/144166187",
+        "edition_uri": "http://www.worldcat.org/oclc/890491234",
+        "ebook_url": "",
+        "work_format": 1,
+        "updated_at": "2019-09-12T17:32:59Z",
+        "public_notes": "",
+        "genres": [
+            12
+        ],
+        "subjects": []
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 4852,
+    "fields": {
+        "card": 163,
+        "persons": [
+            189
+        ]
+    }
+},
+{
+    "model": "books.work",
+    "pk": 4598,
+    "fields": {
+        "notes": "Date: Dec. 1928Date: January 1929\r\n\r\nPERIODICAL\nPERIODICAL CE\nMerged on 2019-09-12 with MEP id mep:00c75t",
+        "mep_id": "mep:007q5q",
+        "title": "The Dial",
+        "year": null,
+        "uri": "http://worldcat.org/entity/work/id/53956220",
+        "edition_uri": "http://www.worldcat.org/oclc/243873605",
+        "ebook_url": "",
+        "work_format": 2,
+        "updated_at": "2019-09-12T17:33:29Z",
+        "public_notes": "",
+        "genres": [
+            31
+        ],
+        "subjects": [
+            66
+        ]
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 533,
+    "fields": {
+        "card": 192,
+        "persons": [
+            224
+        ]
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 1347,
+    "fields": {
+        "notes": "\"Mr Hemingway\"",
+        "start_date_precision": null,
+        "end_date_precision": null,
+        "account": 533,
+        "start_date": "1922-08-08",
+        "end_date": "1922-11-08",
+        "work": null,
+        "edition": null
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 949,
+    "fields": {
+        "notes": "\"Mr Hemingway\"",
+        "start_date_precision": null,
+        "end_date_precision": null,
+        "account": 533,
+        "start_date": "1921-12-28",
+        "end_date": "1922-01-28",
+        "work": null,
+        "edition": null
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 16221,
+    "fields": {
+        "notes": "",
+        "start_date_precision": null,
+        "end_date_precision": 7,
+        "account": 533,
+        "start_date": null,
+        "end_date": "1928-02-13",
+        "work": 4598,
+        "edition": null
+    }
+}
+]
