@@ -8,5 +8,5 @@ app_name = 'footnotes'
 urlpatterns = [
     url(r'^bibliography/autocomplete/$', BibliographyAutocomplete.as_view(),
         name='bibliography-autocomplete'),
-    url(r'^cards/$', CardList.as_view(), name='card-list'),
+    url(r'^cards/$', CardList.as_view(), name='cards-list'),
 ]

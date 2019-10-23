@@ -210,7 +210,7 @@ class TestCardList(TestCase):
     def setUp(self):
         self.view = CardList()
         self.factory = RequestFactory()
-        self.cards_url = reverse('footnotes:card-list')
+        self.cards_url = reverse('footnotes:cards-list')
 
     def test_login_required_or_404(self):
         # 404 if not logged in; TEMPORARY
@@ -218,7 +218,7 @@ class TestCardList(TestCase):
 
     def test_get_absolute_url(self):
         assert self.view.get_absolute_url() == \
-            absolutize_url(reverse('footnotes:card-list'))
+            absolutize_url(reverse('footnotes:cards-list'))
 
     @patch('mep.footnotes.views.CardSolrQuerySet')
     def test_get_queryset(self, mock_card_solrqueryset):

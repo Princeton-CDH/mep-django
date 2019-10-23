@@ -126,4 +126,4 @@ class CardList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
 
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
-        return absolutize_url(reverse('footnotes:card-list'))
+        return absolutize_url(reverse('footnotes:cards-list'))
