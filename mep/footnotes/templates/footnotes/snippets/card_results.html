@@ -1,9 +1,4 @@
 {% load static %}
-<style nonce="{{ request.csp_nonce }}">
-    .card-results {
-        counter-reset: results {{ page_obj.start_index|add:'-1' }};
-    }
-</style>
 <ol class="card-results">
     {% for card in cards %}
     <li class="card result">
