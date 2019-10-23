@@ -6,7 +6,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
-from parasolr.indexing import Indexable
+from parasolr.django.indexing import ModelIndexable
 from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
@@ -219,7 +219,35 @@ class PersonQuerySet(models.QuerySet):
         person.save()
 
 
-class Person(Notable, DateRange, Indexable):
+class PersonSignalHandlers:
+    '''Signal handlers for indexing :class:`Person` records when
+    related records are saved or deleted.'''
+
+    @staticmethod
+    def nationality_save(sender, instance, **kwargs):
+        if instance.pk:
+            # if any members are associated
+            members = instance.person_set.library_members().all()
+            if members.exists():
+                logger.debug('nationality save, reindexing %d related people',
+                             members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def nationality_delete(sender, instance, **kwargs):
+        logger.debug('nationality delete')
+        # get a list of ids for collected works before clearing them
+        person_ids = instance.person_set.library_members().values_list('id', flat=True)
+        # find the items based on the list of ids to reindex
+        members = Person.objects.filter(id__in=list(person_ids))
+
+        # NOTE: this sends pre/post clear signal, but it's not obvious
+        # how to take advantage of that
+        instance.nationality_set.clear()
+        ModelIndexable.index_items(members)
+
+
+class Person(Notable, DateRange, ModelIndexable):
     '''Model for people in the MEP dataset'''
 
     #: MEP xml id
@@ -409,6 +437,13 @@ class Person(Notable, DateRange, Indexable):
         '''URL to edit this record in the admin site'''
         return reverse('admin:people_person_change', args=[self.id])
     admin_url.verbose_name = 'Admin Link'
+
+    index_depends_on = {
+        'nationalities': {
+            'save': PersonSignalHandlers.nationality_save,
+            'delete': PersonSignalHandlers.nationality_delete,
+        }
+    }
 
     @classmethod
     def items_to_index(cls):

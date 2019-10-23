@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from djiffy.models import Canvas, Manifest
-from parasolr.indexing import Indexable
+from parasolr.django.indexing import ModelIndexable
 
 from mep.common.models import Named, Notable
 
@@ -16,7 +16,8 @@ class SourceType(Named, Notable):
     item_count.short_description = '# items'
 
 
-class Bibliography(Notable, Indexable):  # would citation be a better singular?
+class Bibliography(Notable, ModelIndexable):
+    # Note: citation might be better singular
     bibliographic_note = models.TextField(
         help_text='Full bibliographic citation')
     source_type = models.ForeignKey(SourceType)

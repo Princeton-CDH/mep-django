@@ -4,7 +4,7 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
-from parasolr.indexing import Indexable
+from parasolr.django.indexing import ModelIndexable
 import rdflib
 import requests
 
@@ -127,7 +127,7 @@ class Subject(models.Model):
                        uri, response.status_code)
 
 
-class Work(Notable, Indexable):
+class Work(Notable, ModelIndexable):
     '''Work record for an item that circulated in the library or was
     other referenced in library activities.'''
 
