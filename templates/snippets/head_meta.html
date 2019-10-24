@@ -9,7 +9,23 @@ page_description, and page_meta_image if set in context.
 
 {# keywords for meta not yet implemented in wagtail #}
 {# <meta name="keywords" content="{% block meta_keywords %}{% endblock %}"> #}
-<meta name="description" content="{{ meta_description }}">
+{% if meta_description %}
+<meta name="description" content="{{ meta_description }}"/>
+{% endif %}
+
+{# include citation information for tools like Zotero #}
+<meta name="citation_publisher" content="Center for Digital Humanities, Princeton University"/>
+{% if request %} {# include full url when available #}
+<meta name="citation_public_url" content="{{ request.build_absolute_uri }}" />
+{% endif %}
+{% if page.homepage %} {# project citation on home page #}
+<meta name="citation_title" content="Shakespeare and Company Project"/>
+<meta name="citation_date" content="2019"/>
+{% elif page.contentpage %} {# content page citation details #}
+<meta name="citation_title" content="{{ page.title|escape }}"/>
+{# add multiple citation_author entries as needed, once we have them #}
+<meta name="citation_date" content="{{ page.first_published_at|date:"Y/m/d" }}"/>
+{% endif %}
 
 {# open graph metadata #}
 <meta property="og:title" content="{{ meta_page_title }}" />

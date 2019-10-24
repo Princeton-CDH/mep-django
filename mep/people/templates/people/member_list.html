@@ -16,7 +16,7 @@
 
 {% block content %}
 {% include 'snippets/breadcrumbs.html' %}
-<section class="members search-form">
+<div class="members search-form">
     <form id="members-form">
         {% render_field form.query %}
         <label for="{{ form.query.id_for_label }}"></label>
@@ -24,10 +24,6 @@
         <fieldset class="group">
             <legend>Filter by:</legend>
             <div class="inner">
-                <fieldset class="range facet {{ form.birth_year.css_classes }}" id="id_{{ form.birth_year.name }}">
-                    <legend>{{ form.birth_year.label }}</legend>
-                    {{ form.birth_year }}
-                </fieldset>
                 <fieldset class="range facet {{ form.membership_dates.css_classes }}" id="id_{{ form.membership_dates.name }}">
                     <legend>{{ form.membership_dates.label }}</legend>
                     {{ form.membership_dates }}
@@ -39,13 +35,32 @@
                     <span id="{{ form.has_card.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip"
                         aria-label="{{ form.has_card.help_text }}" tabindex=0 onclick="event.preventDefault()"/>
                 </label>
-            {% render_field form.sex %}
+                <div class="demographics tab" role="tab" aria-setsize="2" aria-posinset="1" aria-selected="false" aria-controls="demographics-panel" tabindex="0">Demographics</div>
+                <div class="books tab" role="tab" aria-setsize="2" aria-posinset="2" aria-selected="false" aria-controls="books-panel" aria-disabled>Books*</div>
+                <div class="tabpanel" id="demographics-panel" role="tabpanel">
+                    <label>Demographics</label>
+                    <div class="inner">
+                        <div class="column">
+                            <fieldset class="range facet {{ form.birth_year.css_classes }}" id="id_{{ form.birth_year.name }}">
+                                <legend>{{ form.birth_year.label }}</legend>
+                                {{ form.birth_year }}
+                            </fieldset>
+                            {% render_field form.sex %}
+                        </div>
+                        <div class="column">
+                            <div class="expander" role="button" aria-controls="id_nationality" tabindex="0" aria-expanded="false">Nationality</div>
+                            {% render_field form.nationality %}
+                        </div>
+                        <div class="column"></div>
+                    </div>
+                </div>
+                <div class="tabpanel" id="books-panel" role="tabpanel"></div>
             </div>
             <input type="submit" value="submit"/>
         </fieldset>
         <output class="total-results" id="total">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
     </form>
-</section>
+</div>
 <div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
     <label>SORTED BY</label>
     <label>DISPLAYING</label>

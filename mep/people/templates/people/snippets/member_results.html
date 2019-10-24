@@ -1,5 +1,10 @@
 {% load static %}
-<ol style="counter-reset: results {{ page_obj.start_index|add:'-1' }};">
+<style nonce="{{ request.csp_nonce }}">
+    .member-results {
+        counter-reset: results {{ page_obj.start_index|add:'-1' }};
+    }
+</style>
+<ol class="member-results">
     {% for person in members %}
     <li class="members result">
         <a href="{% url 'people:member-detail' pk=person.pk %}" aria-label="{{ person.sort_name.0 }}">

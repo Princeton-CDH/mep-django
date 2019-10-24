@@ -362,8 +362,10 @@ class TestCheckboxFieldset(TestCase):
     def test_get_context(self):
         checkbox_fieldset = CheckboxFieldset()
         checkbox_fieldset.legend = 'Test Legend'
+        checkbox_fieldset.facet_counts = {'value': 10}
         context = checkbox_fieldset.get_context('a name', ['a', 'b', 'c'], {})
         assert context['widget']['legend'] == 'Test Legend'
+        assert context['facet_counts'] == checkbox_fieldset.facet_counts
 
     def test_render(self):
 
@@ -405,7 +407,7 @@ class TestCheckboxFieldset(TestCase):
         out = checkbox_fieldset.render('sex', 'bar')
         # legend should be upper-cased by default
         expected_output = '''
-        <fieldset id="widget_id">
+        <fieldset id="widget_id" tabindex="0">
             <legend>Foo</legend>
             <ul class="choices">
             <li class="choice">
@@ -424,6 +426,15 @@ class TestCheckboxFieldset(TestCase):
         checkbox_fieldset.is_required = True
         out = checkbox_fieldset.render('foo', 'bar')
         assert out.count('required') == 2
+
+        checkbox_fieldset.attrs['data-hide-threshold'] = 0
+        checkbox_fieldset.facet_counts = {'a': 0, 'b': 2}
+        output = checkbox_fieldset.render('sex', 'bar')
+        assert 'data-hide-threshold="0"' in output
+        # a choice should be hidden
+        assert '<li class="choice hide">' in output
+        # b choice should not be hidden
+        assert '<li class="choice">' in output
 
 
 class TestFacetField(TestCase):

@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
+{% load static mep_tags %}
 
 {% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
+
+{% block js %}
+<script src="{% static 'js/d3.v5.min.js' %}" nonce="{{ request.csp_nonce }}"></script>
+{% endblock %}
 
 {% block header %}
 {% include 'snippets/header.html' with title=member.name style="detail" %}
@@ -21,10 +26,25 @@
         <a href="#">cards</a>
     </li>
 </nav>
-<section class="biography">
-    <section class="details">
+{% with account_start=member.account_set.first.earliest_date account_end=member.account_set.first.last_date %}
+<section class="biography" aria-label="biography">
+    <div class="details">
         {% include 'people/snippets/member_result.html' %}
-    </section>
-    <section class="map"></section>
+    </div>
+    {% if account_start %}
+    <div class="timeline">
+        <p class="description" id="member-timeline-desc">Member timeline showing activity
+          {% if account_end and account_start != account_end %}
+          from {{ account_start.year }} to {{ account_end.year }}{% else %}
+          for {{ account_start.year }}{% endif %}.
+        See the activities tab for more details.</p>
+    </div>
+    {% endif %}
+
+    <div class="map"></div>
 </section>
+{% if account_start %}
+{% include 'people/snippets/member_graph.html' %}
+{% endif %}
+{% endwith %}
 {% endblock %}

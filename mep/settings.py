@@ -213,7 +213,8 @@ SCRIPT_USERNAME = 'script'
 CSP_DEFAULT_SRC = "'none'"
 
 # allow loading js locally and from google (for analytics)
-CSP_SCRIPT_SRC = ("'self'", 'https://www.googletagmanager.com')
+CSP_SCRIPT_SRC = ("'self'", 'https://www.googletagmanager.com',
+    'https://www.google-analytics.com', 'https://ssl.google-analytics.com')
 
 # allow loading fonts locally only
 CSP_FONT_SRC = ("'self'",)
@@ -224,14 +225,19 @@ CSP_STYLE_SRC = ("'self'",)
 # allow loading web manifest locally only
 CSP_MANIFEST_SRC = ("'self'",)
 
-# allow loading local images and google tracking pixel
-CSP_IMG_SRC = ("'self'", 'https://www.google-analytics.com')
+# allow XMLHttpRequest or Fetch requests locally (for search) and analytics
+CSP_CONNECT_SRC = ("'self'", 'https://google-analytics.com')
+
+# allow loading local images, google tracking pixel(s)?, PUL IIIF images
+CSP_IMG_SRC = ("'self'", 'https://www.googletagmanager.com',
+               'https://www.google-analytics.com',
+               'https://iiif.princeton.edu')
 
 # exclude admin and cms urls from csp directives since they're authenticated
 CSP_EXCLUDE_URL_PREFIXES = ('/admin', '/cms')
 
 # allow usage of nonce for inline js (for analytics)
-CSP_INCLUDE_NONCE_IN = ('script-src',)
+CSP_INCLUDE_NONCE_IN = ('script-src', 'style-src')
 
 
 ##################

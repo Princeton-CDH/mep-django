@@ -8,7 +8,7 @@
     box-sizing: border-box;
 
     @media (min-width: $breakpoint-s) {
-        padding: 0.5rem;
+        padding: 0;
     }
 
     > legend {
@@ -19,7 +19,8 @@
         display: block;
 
         @media (min-width: $breakpoint-s) {
-            left: 0.5rem;
+            top: 0;
+            left: 0;
         }
     }
 
@@ -29,10 +30,11 @@
         list-style: none;
     }
 
-    .choice:hover {
+    .choice:hover,
+    .choice:focus-within {
         background: #f1f1f1;
     }
-    
+
     legend,
     label {
         font-weight: normal;
@@ -74,13 +76,7 @@
 
     input {
         // borrow .sr-only styles to hide it
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
+        @include sr-only;
 
         &:checked + label {
             padding-left: 1.5rem;
@@ -108,28 +104,65 @@
             .choices {
                 display: flex;
             }
-    
+
             .choice {
                 flex: 1;
                 border: 1px solid $light-grey;
                 padding-top: 0.1rem;
             }
-    
+
             label {
                 display: flex;
                 flex-direction: column;
                 padding: 0;
                 color: $black;
-    
+
                 &::before {
                     top: initial;
                     left: 0.2rem;
                     bottom: 0.2rem;
                 }
             }
-    
+
             input:checked + label {
                 padding: 0;
+            }
+        }
+    }
+
+    /**
+     * TEXT FACET - used for facets where there can be many options, and those
+     * with a count of zero will be hidden, e.g. 'nationality' on members
+     */
+    &.text {
+        display: none;
+        max-height: 0;
+        overflow-y: scroll;
+        transition: max-height 0.5s ease-in-out;
+        border: none;
+        padding: 0;
+
+        legend {
+            display: none;
+        }
+
+        .choices {
+            padding: 0.5rem;
+        }
+
+        @media (min-width: $breakpoint-s) {
+            display: block;
+            max-height: none;
+            padding: 0;
+            overflow-y: auto;
+            border: initial;
+
+            legend {
+                display: block;
+            }
+
+            .choices {
+                padding: 1.5rem 0;
             }
         }
     }
@@ -151,7 +184,7 @@
         .inputs {
             position: absolute;
         }
-        
+
         legend {
             top: .55rem;
             left: .7rem;
@@ -185,12 +218,38 @@
             clip: auto;
         }
     }
+}
 
-    /**
-     * TEXT FACET - used for facets where there can be many options, and those
-     * with a count of zero will be hidden, e.g. 'nationality' on members
-     */
-     &.text {
-        min-height: 12rem;
+// used to show/hide text facets
+.search-form .expander {
+    @include expandable;
+
+    display: flex;
+    background: white;
+    border: .1rem solid $transparent;
+    margin-bottom: .1rem;
+    box-sizing: border-box;
+    height: 2.2rem;
+    justify-content: left;
+    align-items: center;
+    padding-left: .75rem;
+    outline: none;
+    cursor: pointer;
+
+    &:focus {
+        border-color: $green;
+    }
+
+    @media (min-width: $breakpoint-s) {
+        display: none;
+    }
+
+    &[aria-expanded=true]::after {
+        transform: rotate(180deg);
+    }
+
+    &[aria-expanded=true] ~ .facet {
+        display: block;
+        max-height: 11rem;
     }
 }

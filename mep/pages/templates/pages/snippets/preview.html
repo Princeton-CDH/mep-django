@@ -4,12 +4,12 @@
     <hr/>
     <p>{{ item.contentpage.get_description|safe }}</p>
     {% if item.contentpage.featured_image %}
-        {% image item.contentpage.featured_image min-320x190 as s %}
-        {% image item.contentpage.featured_image min-500x300 as m %}
-        {% image item.contentpage.featured_image min-355x210 as l %}
-        {% image item.contentpage.featured_image min-640x380 as s_2x %}
-        {% image item.contentpage.featured_image min-1000x600 as m_2x %}
-        {% image item.contentpage.featured_image min-710x420 as l_2x %}
+        {% image item.contentpage.featured_image fill-320x190 as s %}
+        {% image item.contentpage.featured_image fill-500x300 as m %}
+        {% image item.contentpage.featured_image fill-355x210 as l %}
+        {% image item.contentpage.featured_image fill-640x380 as s_2x %}
+        {% image item.contentpage.featured_image fill-1000x600 as m_2x %}
+        {% image item.contentpage.featured_image fill-710x420 as l_2x %}
         <picture>
             <source srcset="{{ s.url }}, {{ s_2x.url }} 2x">
             <source media="(min-width: 768px)" srcset="{{ m.url }}, {{ m_2x.url }} 2x">
