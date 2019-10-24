@@ -608,7 +608,7 @@ class TestMembersListView(TestCase):
         # card icon) and it should have a tooltip
         self.assertContains(response, 'role="tooltip"', count=1)
         # the tooltip should have an aria-label set
-        self.assertContains(response, 'aria-label="This filter will narrow', count=1)
+        self.assertContains(response, 'aria-label="Limit to members', count=1)
         # the input should be aria-describedby the tooltip
         self.assertContains(response, 'aria-describedby="has_card_tip"')
 
