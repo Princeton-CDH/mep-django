@@ -58,8 +58,7 @@ class MemberSearchForm(FacetForm):
             'aria-label': 'Card',
             'aria-describedby': 'has_card_tip'
         }),
-        help_text='This filter will narrow results to show only members whose \
-        library records are available.')
+        help_text='Limit to members with lending library cards.')
     sex = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
         'class': 'choice facet'
     }))
