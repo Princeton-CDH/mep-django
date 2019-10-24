@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
 {% load static mep_tags %}
 
 {% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
@@ -27,6 +28,7 @@
     </li>
 </nav>
 {% with account_start=member.account_set.first.earliest_date account_end=member.account_set.first.last_date %}
+{% with addresses=member.account_set.first.address_set %}
 <section class="biography" aria-label="biography">
     <div class="details">
         {% include 'people/snippets/member_result.html' %}
@@ -40,11 +42,20 @@
         See the activities tab for more details.</p>
     </div>
     {% endif %}
-
-    <div class="map"></div>
 </section>
+{% if addresses.count > 0 %}
+<section class="map">
+    <div class="header">
+        <hr/>
+        <h2>Addresses</h2>
+    </div>
+    <div id="address-map"></div>
+</section>
+{% render_bundle 'memberMap' %}
+{% endif %}
 {% if account_start %}
 {% include 'people/snippets/member_graph.html' %}
 {% endif %}
+{% endwith %}
 {% endwith %}
 {% endblock %}
