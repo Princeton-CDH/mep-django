@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>mep.people.views &#8212; mep-django 0.21.0 documentation</title>
+    <title>mep.people.views &#8212; mep-django 0.22.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -31,7 +31,11 @@
           <div class="body" role="main">
             
   <h1>Source code for mep.people.views</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">dal</span> <span class="k">import</span> <span class="n">autocomplete</span>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
+
+<span class="kn">from</span> <span class="nn">dal</span> <span class="k">import</span> <span class="n">autocomplete</span>
 <span class="kn">from</span> <span class="nn">django.contrib</span> <span class="k">import</span> <span class="n">messages</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth.mixins</span> <span class="k">import</span> <span class="n">PermissionRequiredMixin</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span>
@@ -148,8 +152,10 @@
     <span class="p">}</span>
 
 <div class="viewcode-block" id="MembersList.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">sqs</span> <span class="o">=</span> <span class="n">PersonSolrQuerySet</span><span class="p">()</span><span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;has_card&#39;</span><span class="p">)</span>\
-                                  <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="n">missing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="s1">&#39;sex&#39;</span><span class="p">)</span>
+        <span class="n">sqs</span> <span class="o">=</span> <span class="n">PersonSolrQuerySet</span><span class="p">()</span> \
+            <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;has_card&#39;</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="n">missing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="s1">&#39;sex&#39;</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;nationality&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="s1">&#39;nationality&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
 
         <span class="n">form</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">()</span>
 
@@ -164,16 +170,21 @@
             <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">]:</span>
                 <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search_name_query</span><span class="p">)</span> \
                          <span class="o">.</span><span class="n">raw_query_parameters</span><span class="p">(</span><span class="n">name_query</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">])</span> \
-                         <span class="o">.</span><span class="n">also</span><span class="p">(</span><span class="s1">&#39;score&#39;</span><span class="p">)</span> <span class="c1"># include relevance score in results</span>
+                         <span class="o">.</span><span class="n">also</span><span class="p">(</span><span class="s1">&#39;score&#39;</span><span class="p">)</span>  <span class="c1"># include relevance score in results</span>
 
             <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;has_card&#39;</span><span class="p">]:</span>
                 <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">has_card</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;has_card&#39;</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;sex&#39;</span><span class="p">]:</span>
                 <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">sex__in</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;sex&#39;</span><span class="p">],</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;sex&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;nationality&#39;</span><span class="p">]:</span>
+                <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">nationality__in</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">val</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;nationality&#39;</span><span class="p">]</span>
+                <span class="p">],</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;nationality&#39;</span><span class="p">)</span>
 
             <span class="c1"># range filter by membership dates, if set</span>
             <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;membership_dates&#39;</span><span class="p">]:</span>
-                <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account_years__range</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;membership_dates&#39;</span><span class="p">])</span>
+                <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">account_years__range</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;membership_dates&#39;</span><span class="p">])</span>
             <span class="c1"># range filter by birth year, if set</span>
             <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;birth_year&#39;</span><span class="p">]:</span>
                 <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">birth_year__range</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;birth_year&#39;</span><span class="p">])</span>
@@ -186,7 +197,8 @@
 
 <div class="viewcode-block" id="MembersList.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_form</span><span class="o">.</span><span class="n">set_choices_from_facets</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="o">.</span><span class="n">get_facets</span><span class="p">()[</span><span class="s1">&#39;facet_fields&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_form</span><span class="o">.</span><span class="n">set_choices_from_facets</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="o">.</span><span class="n">get_facets</span><span class="p">()[</span><span class="s1">&#39;facet_fields&#39;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">context</span></div>
 
 <div class="viewcode-block" id="MembersList.get_page_labels"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_page_labels">[docs]</a>    <span class="k">def</span> <span class="nf">get_page_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paginator</span><span class="p">):</span>
@@ -233,7 +245,39 @@
 
 <div class="viewcode-block" id="MemberDetail.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Get the full URI of this page.&#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="MemberDetail.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">account</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="n">month_counts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="c1"># count book events by month; known years only</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">known_years</span><span class="p">()</span><span class="o">.</span><span class="n">book_activities</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span><span class="p">:</span>
+                <span class="n">month_counts</span><span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-01&#39;</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># if end date is different from start date, count that also</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span> <span class="o">!=</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span><span class="p">:</span>
+                <span class="n">month_counts</span><span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-01&#39;</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;timeline&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;membership_activities&#39;</span><span class="p">:</span> <span class="p">[{</span>
+                <span class="s1">&#39;startDate&#39;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;endDate&#39;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">event_type</span>
+            <span class="p">}</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">membership_activities</span><span class="p">()</span>
+                                  <span class="o">.</span><span class="n">known_years</span><span class="p">()],</span>
+            <span class="s1">&#39;book_activities&#39;</span><span class="p">:</span> <span class="p">[{</span>
+                <span class="s1">&#39;startDate&#39;</span><span class="p">:</span> <span class="n">start_date</span><span class="p">,</span>
+                <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="n">count</span>
+            <span class="p">}</span> <span class="k">for</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">month_counts</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span>
+            <span class="s1">&#39;activity_ranges&#39;</span><span class="p">:</span> <span class="p">[{</span>
+                <span class="s1">&#39;startDate&#39;</span><span class="p">:</span> <span class="n">start</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                <span class="s1">&#39;endDate&#39;</span><span class="p">:</span> <span class="n">end</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+            <span class="p">}</span> <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">account</span><span class="o">.</span><span class="n">event_date_ranges</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">context</span></div>
 
 <div class="viewcode-block" id="MemberDetail.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
@@ -267,7 +311,8 @@
 
 <div class="viewcode-block" id="MembershipActivities.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Get the full URI of this page.&#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:membership-activities&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:membership-activities&#39;</span><span class="p">,</span>
+                                      <span class="n">kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="MembershipActivities.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
@@ -300,7 +345,7 @@
             <span class="p">})</span>
 
         <span class="n">results</span> <span class="o">=</span> <span class="n">geo_api</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">max_rows</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">name_start</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">extra_args</span><span class="p">)</span>
+                                 <span class="o">**</span><span class="n">extra_args</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span>
             <span class="s1">&#39;results&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span>
                 <span class="nb">id</span><span class="o">=</span><span class="n">geo_api</span><span class="o">.</span><span class="n">uri_from_id</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;geonameId&#39;</span><span class="p">]),</span>
@@ -327,6 +372,7 @@
 <span class="sd">    Basic person autocomplete lookup, for use with django-autocomplete-light.</span>
 <span class="sd">    Use Q objects to help distinguish people using mepid.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+
 <div class="viewcode-block" id="PersonAutocomplete.get_result_label"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonAutocomplete.get_result_label">[docs]</a>    <span class="k">def</span> <span class="nf">get_result_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">person</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Provide a more detailed result label for the people autocomplete that</span>
@@ -359,8 +405,8 @@
             <span class="c1"># pull the first event</span>
             <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">():</span>
                 <span class="n">event</span> <span class="o">=</span> <span class="n">Event</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                        <span class="n">account</span><span class="o">=</span><span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-                    <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+                    <span class="n">account</span><span class="o">=</span><span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
                 <span class="c1"># if it has a first event (not all do), return that event</span>
                 <span class="k">if</span> <span class="n">event</span><span class="p">:</span>
                     <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span>
@@ -377,17 +423,17 @@
                                <span class="o">**</span><span class="n">labels</span><span class="p">)</span>
         <span class="c1"># we have some of the information, return it in an interpolated string</span>
         <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span>
-                    <span class="s1">&#39;&lt;strong&gt;</span><span class="si">{main_string}{bio_dates}</span><span class="s1">&#39;</span>
-                    <span class="s1">&#39;&lt;/strong&gt;</span><span class="si">{mep_id}</span><span class="s1">&lt;br /&gt; </span><span class="si">{note_string}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
-                    <span class="o">**</span><span class="n">labels</span>
-                <span class="p">)</span></div>
+            <span class="s1">&#39;&lt;strong&gt;</span><span class="si">{main_string}{bio_dates}</span><span class="s1">&#39;</span>
+            <span class="s1">&#39;&lt;/strong&gt;</span><span class="si">{mep_id}</span><span class="s1">&lt;br /&gt; </span><span class="si">{note_string}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+            <span class="o">**</span><span class="n">labels</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="PersonAutocomplete.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.PersonAutocomplete.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;:class:`~mep.people.models.Person` queryset, filtered on</span>
 <span class="sd">        text in name or MEP id (case-insensitive, partial match)&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                <span class="n">Q</span><span class="p">(</span><span class="n">name__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
-                <span class="n">Q</span><span class="p">(</span><span class="n">mep_id__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">name__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">mep_id__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>
         <span class="p">)</span></div></div>
 
 
@@ -477,7 +523,7 @@
         <span class="n">existing_events</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">existing_creators</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span> <span class="c1"># get existing events, if any</span>
+        <span class="k">if</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span>  <span class="c1"># get existing events, if any</span>
             <span class="n">primary_account</span> <span class="o">=</span> <span class="n">primary_person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
             <span class="n">existing_events</span> <span class="o">=</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 
@@ -490,7 +536,8 @@
                           <span class="o">.</span><span class="n">merge_with</span><span class="p">(</span><span class="n">primary_person</span><span class="p">)</span>
 
             <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Merge for &lt;a href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt; complete.&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:people_person_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_person</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
+                <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:people_person_change&#39;</span><span class="p">,</span>
+                        <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_person</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
                 <span class="n">primary_person</span>
             <span class="p">)</span>
 
@@ -500,7 +547,8 @@
                 <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39; Reassociated </span><span class="si">%d</span><span class="s1"> event</span><span class="si">%s</span><span class="s1"> with &lt;a href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt;.&#39;</span> <span class="o">%</span> <span class="p">(</span>
                     <span class="n">added_events</span><span class="p">,</span>
                     <span class="s1">&#39;s&#39;</span> <span class="k">if</span> <span class="n">added_events</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-                    <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:accounts_account_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_account</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
+                    <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:accounts_account_change&#39;</span><span class="p">,</span>
+                            <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">primary_account</span><span class="o">.</span><span class="n">id</span><span class="p">]),</span>
                     <span class="n">primary_account</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>  <span class="c1"># no accounts merged</span>

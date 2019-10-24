@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>mep.footnotes.models &#8212; mep-django 0.21.0 documentation</title>
+    <title>mep.footnotes.models &#8212; mep-django 0.22.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,8 +34,8 @@
 <span></span><span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericForeignKey</span>
 <span class="kn">from</span> <span class="nn">django.contrib.contenttypes.models</span> <span class="k">import</span> <span class="n">ContentType</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
-
 <span class="kn">from</span> <span class="nn">djiffy.models</span> <span class="k">import</span> <span class="n">Canvas</span><span class="p">,</span> <span class="n">Manifest</span>
+<span class="kn">from</span> <span class="nn">parasolr.indexing</span> <span class="k">import</span> <span class="n">Indexable</span>
 
 <span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
 
@@ -49,7 +49,7 @@
     <span class="n">item_count</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;# items&#39;</span></div>
 
 
-<div class="viewcode-block" id="Bibliography"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Bibliography">[docs]</a><span class="k">class</span> <span class="nc">Bibliography</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>  <span class="c1"># would citation be a better singular?</span>
+<div class="viewcode-block" id="Bibliography"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Bibliography">[docs]</a><span class="k">class</span> <span class="nc">Bibliography</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>  <span class="c1"># would citation be a better singular?</span>
     <span class="n">bibliographic_note</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Full bibliographic citation&#39;</span><span class="p">)</span>
     <span class="n">source_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">SourceType</span><span class="p">)</span>
@@ -69,7 +69,62 @@
 <div class="viewcode-block" id="Bibliography.footnote_count"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Bibliography.footnote_count">[docs]</a>    <span class="k">def</span> <span class="nf">footnote_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;number of footnotes this item is referenced in&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">footnote_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></div>
-    <span class="n">footnote_count</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;# footnotes&#39;</span></div>
+    <span class="n">footnote_count</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;# footnotes&#39;</span>
+
+<div class="viewcode-block" id="Bibliography.index_item_type"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Bibliography.index_item_type">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">index_item_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Label for this kind of indexable item.&quot;&quot;&quot;</span>
+        <span class="c1"># override default behavior (using model verbose name)</span>
+        <span class="c1"># since we are only care about indexing cards, and not</span>
+        <span class="c1"># all bibliography records</span>
+        <span class="k">return</span> <span class="s1">&#39;card&#39;</span></div>
+
+<div class="viewcode-block" id="Bibliography.items_to_index"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Bibliography.items_to_index">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">items_to_index</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Custom logic for finding items for bulk indexing; only include</span>
+<span class="sd">        records associated with an account and with a IIIF manifest.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                  <span class="n">manifest__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Bibliography.index_data"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Bibliography.index_data">[docs]</a>    <span class="k">def</span> <span class="nf">index_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;data for indexing in Solr&#39;&#39;&#39;</span>
+        <span class="n">index_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">index_data</span><span class="p">()</span>
+        <span class="c1"># only library lending cards are indexed; if bibliography</span>
+        <span class="c1"># does not have a manifest or is not associated with an account,</span>
+        <span class="c1"># return id only.</span>
+        <span class="c1"># This will blank out any previously indexed values, and item</span>
+        <span class="c1"># will not be findable by any public searchable fields.</span>
+        <span class="n">account</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">del</span> <span class="n">index_data</span><span class="p">[</span><span class="s1">&#39;item_type&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">index_data</span>
+
+        <span class="n">iiif_thumbnail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">thumbnail</span><span class="o">.</span><span class="n">image</span>
+
+        <span class="c1"># for now, store iiif thumbnail urls directly</span>
+        <span class="n">index_data</span><span class="p">[</span><span class="s1">&#39;thumbnail_t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">iiif_thumbnail</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">225</span><span class="p">))</span>
+        <span class="n">index_data</span><span class="p">[</span><span class="s1">&#39;thumbnail2x_t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">iiif_thumbnail</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">225</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">account_years</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">account</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">account</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">sort_name</span><span class="p">)</span>
+            <span class="n">account_years</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">year</span> <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span>
+                                     <span class="n">account</span><span class="o">.</span><span class="n">event_dates</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">index_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s1">&#39;cardholder_t&#39;</span><span class="p">:</span> <span class="n">names</span><span class="p">,</span>
+                <span class="s1">&#39;cardholder_sort_s&#39;</span><span class="p">:</span> <span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">})</span>
+
+        <span class="k">if</span> <span class="n">account_years</span><span class="p">:</span>
+            <span class="n">index_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s1">&#39;years_is&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">account_years</span><span class="p">),</span>
+                <span class="s1">&#39;start_i&#39;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">account_years</span><span class="p">),</span>
+                <span class="s1">&#39;end_i&#39;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">account_years</span><span class="p">),</span>
+            <span class="p">})</span>
+        <span class="k">return</span> <span class="n">index_data</span></div></div>
 
 
 <div class="viewcode-block" id="Footnote"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Footnote">[docs]</a><span class="k">class</span> <span class="nc">Footnote</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>

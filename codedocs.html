@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Code Documentation &#8212; mep-django 0.21.0 documentation</title>
+    <title>Code Documentation &#8212; mep-django 0.22.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -181,6 +181,13 @@ One of <code class="docutils literal notranslate"><span class="pre">borrow</span
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.accounts.models.Account.event_date_ranges">
+<em class="property">property </em><code class="sig-name descname">event_date_ranges</code><a class="headerlink" href="#mep.accounts.models.Account.event_date_ranges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate and return a list of date ranges this account
+was active, based on associated events.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.accounts.models.Account.event_dates">
 <em class="property">property </em><code class="sig-name descname">event_dates</code><a class="headerlink" href="#mep.accounts.models.Account.event_dates" title="Permalink to this definition">¶</a></dt>
 <dd><p>sorted list of all unique event dates associated with this account;
@@ -241,7 +248,8 @@ account.</p>
 <dl class="method">
 <dt id="mep.accounts.models.Account.subscription_set">
 <em class="property">property </em><code class="sig-name descname">subscription_set</code><a class="headerlink" href="#mep.accounts.models.Account.subscription_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>associated subscription events, as queryset of <a class="reference internal" href="#mep.accounts.models.Subscription" title="mep.accounts.models.Subscription"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subscription</span></code></a></p>
+<dd><p>associated subscription events, as queryset of
+<a class="reference internal" href="#mep.accounts.models.Subscription" title="mep.accounts.models.Subscription"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subscription</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -338,6 +346,12 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 <dd><p>Custom <code class="xref py py-class docutils literal notranslate"><span class="pre">Queryset</span></code> for <a class="reference internal" href="#mep.accounts.models.Event" title="mep.accounts.models.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a>
 with filter methods for generic events and each event subtype.</p>
 <dl class="method">
+<dt id="mep.accounts.models.EventQuerySet.book_activities">
+<code class="sig-name descname">book_activities</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#EventQuerySet.book_activities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.EventQuerySet.book_activities" title="Permalink to this definition">¶</a></dt>
+<dd><p>All events tied to a <a class="reference internal" href="#mep.books.models.Work" title="mep.books.models.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.accounts.models.EventQuerySet.borrows">
 <code class="sig-name descname">borrows</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#EventQuerySet.borrows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.EventQuerySet.borrows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Events with associated borrow event only</p>
@@ -348,6 +362,13 @@ with filter methods for generic events and each event subtype.</p>
 <code class="sig-name descname">generic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#EventQuerySet.generic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.EventQuerySet.generic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generic events only (excludes subscriptions, reimbursements,
 borrows, and purchases).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.accounts.models.EventQuerySet.known_years">
+<code class="sig-name descname">known_years</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#EventQuerySet.known_years"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.EventQuerySet.known_years" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter out any events with unknown years for start or
+end date.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1081,6 +1102,13 @@ e.g. Wikipedia page.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.people.models.Person.items_to_index">
+<em class="property">classmethod </em><code class="sig-name descname">items_to_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.items_to_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.items_to_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom logic for finding items to be indexed when indexing in
+bulk; only include library members.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.people.models.Person.list_nationalities">
 <code class="sig-name descname">list_nationalities</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.list_nationalities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.list_nationalities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return comma separated list of nationalities (if any) for <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> list_view.</p>
@@ -1299,11 +1327,11 @@ in the queryset has an account shared with another person</p>
 <code class="xref py py-class docutils literal notranslate"><span class="pre">RangeField</span></code> instances.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>range_minmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – a dictionary with form fields as key names and
+<dd class="field-odd"><p><strong>range_minmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – a dictionary with form fields as key names and
 tuples of min and max integers as values.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1395,6 +1423,12 @@ Use Q objects to search all relevant fields in autocomplete.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.people.views.MemberDetail.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberDetail.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberDetail.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the single object into the context dict.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.people.views.MemberDetail.get_queryset">
 <code class="sig-name descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberDetail.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberDetail.get_queryset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <cite>QuerySet</cite> that will be used to look up the object.</p>
@@ -1476,7 +1510,7 @@ Use Q objects to search all relevant fields in autocomplete.</p>
 the key is not added to a dictionary.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1884,6 +1918,25 @@ anywhere in the project.</p>
 <dt id="mep.footnotes.models.Bibliography.footnote_count">
 <code class="sig-name descname">footnote_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#Bibliography.footnote_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.Bibliography.footnote_count" title="Permalink to this definition">¶</a></dt>
 <dd><p>number of footnotes this item is referenced in</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.Bibliography.index_data">
+<code class="sig-name descname">index_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#Bibliography.index_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.Bibliography.index_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>data for indexing in Solr</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.Bibliography.index_item_type">
+<em class="property">classmethod </em><code class="sig-name descname">index_item_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#Bibliography.index_item_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.Bibliography.index_item_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Label for this kind of indexable item.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.Bibliography.items_to_index">
+<em class="property">classmethod </em><code class="sig-name descname">items_to_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#Bibliography.items_to_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.Bibliography.items_to_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom logic for finding items for bulk indexing; only include
+records associated with an account and with a IIIF manifest.</p>
 </dd></dl>
 
 <dl class="attribute">

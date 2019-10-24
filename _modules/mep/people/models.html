@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>mep.people.models &#8212; mep-django 0.21.0 documentation</title>
+    <title>mep.people.models &#8212; mep-django 0.22.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">django.apps</span> <span class="k">import</span> <span class="n">apps</span>
-<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span><span class="p">,</span> <span class="n">ObjectDoesNotExist</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span>
 <span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericRelation</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">transaction</span>
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
@@ -443,6 +443,12 @@
         <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;admin:people_person_change&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">])</span></div>
     <span class="n">admin_url</span><span class="o">.</span><span class="n">verbose_name</span> <span class="o">=</span> <span class="s1">&#39;Admin Link&#39;</span>
 
+<div class="viewcode-block" id="Person.items_to_index"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.items_to_index">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">items_to_index</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Custom logic for finding items to be indexed when indexing in</span>
+<span class="sd">        bulk; only include library members.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">library_members</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="Person.index_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.index_data">[docs]</a>    <span class="k">def</span> <span class="nf">index_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;data for indexing in Solr&#39;&#39;&#39;</span>
 
@@ -462,11 +468,15 @@
             <span class="s1">&#39;name_t&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="c1"># include pk for now for member detail url</span>
             <span class="s1">&#39;pk_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
+            <span class="c1"># text version of sort name for search and display</span>
             <span class="s1">&#39;sort_name_t&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span><span class="p">,</span>
+            <span class="c1"># string version of sort name for sort/facet</span>
             <span class="s1">&#39;sort_name_sort_s&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span><span class="p">,</span>
             <span class="s1">&#39;birth_year_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">birth_year</span><span class="p">,</span>
             <span class="s1">&#39;death_year_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">death_year</span><span class="p">,</span>
-            <span class="s1">&#39;has_card_b&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_card</span><span class="p">()</span>
+            <span class="s1">&#39;has_card_b&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_card</span><span class="p">(),</span>
+            <span class="s1">&#39;nationality&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nationalities</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                                    <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="p">})</span>
 
         <span class="c1"># conditionally set fields that are not always present</span>
@@ -481,7 +491,7 @@
                 <span class="c1"># use min and max because set order is not guaranteed</span>
                 <span class="s1">&#39;account_start_i&#39;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">account_years</span><span class="p">),</span>
                 <span class="s1">&#39;account_end_i&#39;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">account_years</span><span class="p">),</span>
-                <span class="p">})</span>
+            <span class="p">})</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sex</span><span class="p">:</span>
             <span class="n">index_data</span><span class="p">[</span><span class="s1">&#39;sex_s&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sex_display</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">index_data</span></div></div>
