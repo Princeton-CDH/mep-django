@@ -4,8 +4,10 @@
     <li class="card result">
         <a href="#" aria-label="Lending card for {{ card.cardholder.0 }}">
                 {# card image and summary details #}
-                <img srcset="{{ card.thumbnail.0 }}, {{ card.thumbnail2x.0 }} 2x"
-                     src="{{ card.thumbnail.0 }}"  alt=""/> {# FIXME: alt text ? #}
+                <picture>
+                    <source srcset="{{ card.thumbnail.0 }}, {{ card.thumbnail2x.0 }} 2x">
+                    <img src="{{ card.thumbnail.0 }}" alt="">
+                </picture>
                 <div class="name">
                     <dt>Card Holder</dt>
                     <dd>{{ card.cardholder|join:'; ' }}</dd>
