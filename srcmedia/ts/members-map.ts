@@ -1,4 +1,4 @@
-import { map, latLng, latLngBounds } from 'leaflet'
+import { map, latLng, latLngBounds, icon, marker } from 'leaflet'
 import { TiledMapLayer } from 'esri-leaflet'
 
 const target = document.getElementById('address-map') as HTMLDivElement
@@ -11,9 +11,20 @@ const parisTiles = new TiledMapLayer({
     minZoom: 13,
 })
 
+const bookstoreIcon = icon({
+    iconUrl: '/static/img/icons/bookstore-pin.svg',
+    iconSize: [46, 62],
+    iconAnchor: [23, 62],
+    popupAnchor: [23, 0]
+})
+
+const bookstoreMarker = marker([48.85089, 2.338502], { icon: bookstoreIcon })
+
 parisTiles.addTo(addressMap)
 
-addressMap.setView([48.8589101, 2.3120407], 14)
+bookstoreMarker.addTo(addressMap)
+
+addressMap.setView([48.85089, 2.338502], 14)
 
 addressMap.setMaxBounds(latLngBounds(
     latLng(48.906619, 2.243891),
