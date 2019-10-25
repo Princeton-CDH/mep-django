@@ -127,6 +127,31 @@ class Subject(models.Model):
                        uri, response.status_code)
 
 
+class WorkSignalHandlers:
+    '''Signal handlers for indexing :class:`Work` records when
+    related records are saved or deleted.'''
+
+    @staticmethod
+    def creatortype_save(sender, instance, **kwargs):
+        if instance.pk:
+            # if any members are associated
+            works = Work.objects.filter(creator__creator_type__pk=instance.pk)
+            if works.exists():
+                logger.debug('creator type save, reindexing %d related works',
+                             works.count())
+                ModelIndexable.index_items(works)
+
+    @staticmethod
+    def creatortype_delete(sender, instance, **kwargs):
+        works = Work.objects.filter(creator__creator_type__pk=instance.pk)
+        logger.debug('creator type delete, reindexing %d related works',
+                     works.count())
+        # NOTE: this sends pre/post clear signal, but it's not obvious
+        # how to take advantage of that
+        # instance.nationality_set.clear()
+        ModelIndexable.index_items(works)
+
+
 class Work(Notable, ModelIndexable):
     '''Work record for an item that circulated in the library or was
     other referenced in library activities.'''
@@ -258,6 +283,15 @@ class Work(Notable, ModelIndexable):
     def format(self):
         '''format of this work if known (e.g. book or periodical)'''
         return self.work_format.name if self.work_format else ''
+
+    index_depends_on = {
+        # 'creators': {
+        # },
+        'books.CreatorType': {
+            'save': WorkSignalHandlers.creatortype_save,
+            'delete': WorkSignalHandlers.creatortype_delete,
+        }
+    }
 
     def index_data(self):
         '''data for indexing in Solr'''

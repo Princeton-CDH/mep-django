@@ -224,18 +224,18 @@ class PersonSignalHandlers:
     related records are saved or deleted.'''
 
     @staticmethod
-    def nationality_save(sender, instance, **kwargs):
+    def country_save(sender, instance, **kwargs):
         if instance.pk:
             # if any members are associated
             members = instance.person_set.library_members().all()
             if members.exists():
-                logger.debug('nationality save, reindexing %d related people',
+                logger.debug('country save, reindexing %d related people',
                              members.count())
                 ModelIndexable.index_items(members)
 
     @staticmethod
-    def nationality_delete(sender, instance, **kwargs):
-        logger.debug('nationality delete')
+    def country_delete(sender, instance, **kwargs):
+        logger.debug('country delete')
         # get a list of ids for collected works before clearing them
         person_ids = instance.person_set.library_members().values_list('id', flat=True)
         # find the items based on the list of ids to reindex
@@ -244,6 +244,52 @@ class PersonSignalHandlers:
         # NOTE: this sends pre/post clear signal, but it's not obvious
         # how to take advantage of that
         instance.nationality_set.clear()
+        ModelIndexable.index_items(members)
+
+    @staticmethod
+    def account_save(sender, instance, **kwargs):
+        if instance.pk:
+            # if any members are associated
+            members = instance.persons.library_members().all()
+            if members.exists():
+                logger.debug('account save, reindexing %d related people',
+                             members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def account_delete(sender, instance, **kwargs):
+        logger.debug('account delete')
+        # get a list of ids for collected works before clearing them
+        person_ids = instance.persons.library_members().values_list('id', flat=True)
+        # find the items based on the list of ids to reindex
+        members = Person.objects.filter(id__in=list(person_ids))
+
+        # NOTE: this sends pre/post clear signal, but it's not obvious
+        # how to take advantage of that
+        instance.account_set.clear()
+        ModelIndexable.index_items(members)
+
+    @staticmethod
+    def event_save(sender, instance, **kwargs):
+        if instance.pk:
+            # if any members are associated
+            members = instance.account.persons.library_members().all()
+            if members.exists():
+                logger.debug('event save, reindexing %d related people',
+                             members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def event_delete(sender, instance, **kwargs):
+        logger.debug('event delete')
+        # get a list of ids for collected works before clearing them
+        person_ids = instance.account.persons.library_members().values_list('id', flat=True)
+        # find the items based on the list of ids to reindex
+        members = Person.objects.filter(id__in=list(person_ids))
+
+        # NOTE: this sends pre/post clear signal, but it's not obvious
+        # how to take advantage of that
+        instance.event_set.clear()
         ModelIndexable.index_items(members)
 
 
@@ -440,8 +486,16 @@ class Person(Notable, DateRange, ModelIndexable):
 
     index_depends_on = {
         'nationalities': {
-            'save': PersonSignalHandlers.nationality_save,
-            'delete': PersonSignalHandlers.nationality_delete,
+            'save': PersonSignalHandlers.country_save,
+            'delete': PersonSignalHandlers.country_delete,
+        },
+        'account_set': {
+            'save': PersonSignalHandlers.account_save,
+            'delete': PersonSignalHandlers.account_delete,
+        },
+        'accounts.Event': {
+            'save': PersonSignalHandlers.event_save,
+            'delete': PersonSignalHandlers.event_delete,
         }
     }
 
