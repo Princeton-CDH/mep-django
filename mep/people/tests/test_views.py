@@ -574,6 +574,7 @@ class TestMembersListView(TestCase):
         # 404 if not logged in; TEMPORARY
         assert self.client.get(self.members_url).status_code == 404
 
+    @pytest.mark.usefixtures("empty_solr")
     @login_temporarily_required
     def test_list(self):
         # test listview functionality using testclient & response
