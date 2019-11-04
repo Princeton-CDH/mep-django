@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin, FormView
 
-from mep.accounts.models import Event
+from mep.accounts.models import Event, Address
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
@@ -216,7 +216,11 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # add account to context for convenience
         account = self.object.account_set.first()
+        context['account'] = account
+
         month_counts = defaultdict(int)
         # count book events by month; known years only
         for event in account.event_set.known_years().book_activities():
@@ -226,6 +230,7 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
             if event.end_date and event.start_date != event.end_date:
                 month_counts[event.end_date.strftime('%Y-%m-01')] += 1
 
+        # data for member timeline visualization
         context['timeline'] = {
             'membership_activities': [{
                 'startDate': event.start_date.isoformat()
@@ -244,6 +249,30 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
                 'endDate': end.isoformat()
             } for start, end in account.event_date_ranges]
         }
+
+        # plottable locations for member address map visualization
+        # addresses can be stored on either Person or Account
+        addresses = Address.objects.filter(Q(account__pk=account.pk) |
+            Q(person__pk=self.object.pk)) \
+            .filter(location__latitude__isnull=False) \
+            .filter(location__longitude__isnull=False)
+        context['addresses'] = [
+            {
+                # these fields are taken from Location unchanged
+                'name': address.location.name,
+                'street_address': address.location.street_address,
+                'city': address.location.city,
+                'postal_code': address.location.postal_code,
+                # lat/long aren't JSON serializable so we need to do this
+                'latitude': str(address.location.latitude),
+                'longitude': str(address.location.longitude),
+                # extra fields stored on Address
+                'start_date': address.start_date,
+                'end_date': address.end_date,
+                'care_of_person': address.care_of_person
+            }
+            for address in addresses]
+
         return context
 
     def get_breadcrumbs(self):

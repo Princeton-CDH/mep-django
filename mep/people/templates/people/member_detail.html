@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load render_bundle from webpack_loader %}
 {% load static mep_tags %}
 
 {% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
@@ -15,6 +14,7 @@
 {% block main-style %}tabbed white{% endblock %}
 
 {% block content %}
+{# breadccrumbs & tabs #}
 {% include 'snippets/breadcrumbs.html' %}
 <nav class="tabs" aria-label="sections">
     <li class="tab" aria-selected="true">
@@ -27,8 +27,9 @@
         <a href="#">cards</a>
     </li>
 </nav>
+
+{# biography section & timeline #}
 {% with account_start=member.account_set.first.earliest_date account_end=member.account_set.first.last_date %}
-{% with addresses=member.account_set.first.address_set %}
 <section class="biography" aria-label="biography">
     <div class="details">
         {% include 'people/snippets/member_result.html' %}
@@ -41,21 +42,21 @@
           for {{ account_start.year }}{% endif %}.
         See the activities tab for more details.</p>
     </div>
+    {% include 'people/snippets/member_graph.html' %}
     {% endif %}
 </section>
-{% if addresses.count > 0 %}
+{% endwith %}
+
+{# address map #}
+{% if addresses|length > 0 %}
 <section class="map">
     <div class="header">
         <hr/>
         <h2>Addresses</h2>
     </div>
     <div id="address-map"></div>
+    {% include 'people/snippets/member_map.html' %}
 </section>
-{% render_bundle 'memberMap' %}
 {% endif %}
-{% if account_start %}
-{% include 'people/snippets/member_graph.html' %}
-{% endif %}
-{% endwith %}
-{% endwith %}
+
 {% endblock %}

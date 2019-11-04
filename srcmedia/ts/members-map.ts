@@ -1,6 +1,20 @@
 import { map, latLng, latLngBounds, icon, marker } from 'leaflet'
 import { TiledMapLayer } from 'esri-leaflet'
 
+// defined in the global scope outside this module, in the template
+type Address = {
+    name: string,
+    street_address: string,
+    city: string,
+    postal_code: number,
+    latitude: number,
+    longitude: number,
+    start_date: string,
+    end_date: string,
+    care_of_person: string
+}
+declare const address_data: Array<Address>
+
 const target = document.getElementById('address-map') as HTMLDivElement
 const addressMap = map(target)
 
@@ -18,15 +32,32 @@ const bookstoreIcon = icon({
     popupAnchor: [23, 0]
 })
 
+const addressIcon = icon({
+    iconUrl: '/static/img/icons/inactive-pin.svg',
+    iconSize: [46, 70],
+    iconAnchor: [23, 70],
+    popupAnchor: [23, 0]
+})
+
 const bookstoreMarker = marker([48.85089, 2.338502], { icon: bookstoreIcon })
+
+const addressMarkers = address_data.map(a => {
+    return marker([a.latitude, a.longitude], { icon: addressIcon })
+})
 
 parisTiles.addTo(addressMap)
 
 bookstoreMarker.addTo(addressMap)
 
-addressMap.setView([48.85089, 2.338502], 14)
+addressMarkers.forEach(m => m.addTo(addressMap))
+
+addressMarkers
+
+addressMap.setView([48.85089, 2.338502], 13)
 
 addressMap.setMaxBounds(latLngBounds(
     latLng(48.906619, 2.243891),
     latLng(48.810564, 2.422762)
 ))
+
+

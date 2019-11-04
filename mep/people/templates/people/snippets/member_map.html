@@ -1,0 +1,7 @@
+{% load render_bundle from webpack_loader %}
+<script nonce="{{ request.csp_nonce }}">
+    var address_data = {{ addresses|json }}
+    console.log('address data: ', data)
+</script>
+{# load the map/leaflet code bundle here, since we know we're rendering the map #}
+{% render_bundle 'memberMap' %}
