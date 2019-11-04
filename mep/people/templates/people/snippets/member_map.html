@@ -1,7 +1,7 @@
 {% load render_bundle from webpack_loader %}
+{# this will be accessible in the global scope via `declare` in .ts files #}
 <script nonce="{{ request.csp_nonce }}">
     var address_data = {{ addresses|json }}
-    console.log('address data: ', data)
 </script>
-{# load the map/leaflet code bundle here, since we know we're rendering the map #}
+{# only load the map code bundle here, since we know we're rendering the map #}
 {% render_bundle 'memberMap' %}

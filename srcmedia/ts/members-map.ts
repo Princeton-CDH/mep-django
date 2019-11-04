@@ -29,20 +29,31 @@ const bookstoreIcon = icon({
     iconUrl: '/static/img/icons/bookstore-pin.svg',
     iconSize: [46, 62],
     iconAnchor: [23, 62],
-    popupAnchor: [23, 0]
+    popupAnchor: [0, -60]
 })
 
 const addressIcon = icon({
     iconUrl: '/static/img/icons/inactive-pin.svg',
     iconSize: [46, 70],
     iconAnchor: [23, 70],
-    popupAnchor: [23, 0]
+    popupAnchor: [0, -70]
 })
 
 const bookstoreMarker = marker([48.85089, 2.338502], { icon: bookstoreIcon })
+    .bindPopup(`<p>
+        Shakespeare and Company<br/>
+        12 rue de l’Odéon<br/>
+        Paris<br/>
+    </p>`)
+
+function popupText ({ name, street_address, city, postal_code }: Address): string {
+    const parts = [name, street_address, postal_code, city].filter(p => !!p)
+    return `<p>${parts.join('<br/>')}</p>`
+}
 
 const addressMarkers = address_data.map(a => {
     return marker([a.latitude, a.longitude], { icon: addressIcon })
+        .bindPopup(popupText(a))
 })
 
 parisTiles.addTo(addressMap)
