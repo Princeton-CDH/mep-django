@@ -1,11 +1,6 @@
 section.map  {
-    margin: 2rem 0;
-    width: 100vw;
-    height: 687px;
-
-    .header {
-        @include container;
-    }
+    @include container;
+    margin-bottom: 2rem;
 
     hr {
         width: 100%;
@@ -24,6 +19,14 @@ section.map  {
 
     #address-map {
         width: 100%;
-        height: 100%;
+        height: 215px;
+
+        @media (min-width: $breakpoint-s) {
+            height: 515px;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            height: 687px;
+        }
     }
 }
