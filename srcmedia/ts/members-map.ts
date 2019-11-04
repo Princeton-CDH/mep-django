@@ -1,7 +1,7 @@
-import { map, latLng, latLngBounds, icon, marker } from 'leaflet'
+import { map, icon, marker, tileLayer, control } from 'leaflet'
 import { TiledMapLayer } from 'esri-leaflet'
 
-// defined in the global scope outside this module, in the template
+// map data - defined in the global scope outside this module, in the template
 type Address = {
     name: string,
     street_address: string,
@@ -13,30 +13,46 @@ type Address = {
     end_date: string,
     care_of_person: string
 }
+
 declare const address_data: Array<Address>
 
+/*
+ * map object with custom zoom control in bottom right
+ */
 const target = document.getElementById('address-map') as HTMLDivElement
-const addressMap = map(target)
+const addressMap = map(target, { zoomControl: false })
+const zoomControl = control.zoom({ position: 'bottomright' })
 
-const parisTiles = new TiledMapLayer({
-    url: 'https://tiles.arcgis.com/tiles/4Ko8f1mCWFLyY4NV/arcgis/rest/services/Paris_1943/MapServer',
-    attribution: 'Map <a href="https://maps.princeton.edu/catalog/princeton-2r36tz994">Princeton University Library</a>',
-    maxZoom: 18,
-    minZoom: 13,
+zoomControl.addTo(addressMap)
+
+/*
+* basic tiled basemap from mapbox
+*/
+const mapboxToken = 'pk.eyJ1IjoicHJpbmNldG9uLWNkaCIsImEiOiJjazJrd2lybnEwMHdsM2JvM3UyMHUwbm02In0.4GJpwErZHkJH1DU-E-72OA'
+const basemap = tileLayer(`https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`, {
+    attribution: 'Tiles <a href="https://apps.mapbox.com/feedback/">Mapbox</a>, <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 })
 
+basemap.addTo(addressMap)
+
+/*
+ * historic map of paris overlay
+ */
+const parisTiles = new TiledMapLayer({
+    url: 'https://tiles.arcgis.com/tiles/4Ko8f1mCWFLyY4NV/arcgis/rest/services/Paris_1943/MapServer',
+    attribution: '<a href="https://maps.princeton.edu/catalog/princeton-2r36tz994">Princeton University Library</a>',
+})
+
+parisTiles.addTo(addressMap)
+
+/*
+ * bookstore icon + marker on map
+ */
 const bookstoreIcon = icon({
     iconUrl: '/static/img/icons/bookstore-pin.svg',
     iconSize: [46, 62],
     iconAnchor: [23, 62],
     popupAnchor: [0, -60]
-})
-
-const addressIcon = icon({
-    iconUrl: '/static/img/icons/inactive-pin.svg',
-    iconSize: [46, 70],
-    iconAnchor: [23, 70],
-    popupAnchor: [0, -70]
 })
 
 const bookstoreMarker = marker([48.85089, 2.338502], { icon: bookstoreIcon })
@@ -45,6 +61,18 @@ const bookstoreMarker = marker([48.85089, 2.338502], { icon: bookstoreIcon })
         12 rue de l’Odéon<br/>
         Paris<br/>
     </p>`)
+
+bookstoreMarker.addTo(addressMap)
+
+/*
+ * address icons + markers on map
+ */
+const addressIcon = icon({
+    iconUrl: '/static/img/icons/inactive-pin.svg',
+    iconSize: [46, 70],
+    iconAnchor: [23, 70],
+    popupAnchor: [0, -70]
+})
 
 function popupText ({ name, street_address, city, postal_code }: Address): string {
     const parts = [name, street_address, postal_code, city].filter(p => !!p)
@@ -56,19 +84,9 @@ const addressMarkers = address_data.map(a => {
         .bindPopup(popupText(a))
 })
 
-parisTiles.addTo(addressMap)
-
-bookstoreMarker.addTo(addressMap)
-
 addressMarkers.forEach(m => m.addTo(addressMap))
 
-addressMarkers
-
+/*
+ * set up initial zoom/view
+ */
 addressMap.setView([48.85089, 2.338502], 13)
-
-addressMap.setMaxBounds(latLngBounds(
-    latLng(48.906619, 2.243891),
-    latLng(48.810564, 2.422762)
-))
-
-
