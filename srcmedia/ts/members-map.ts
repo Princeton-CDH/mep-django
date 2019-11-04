@@ -1,4 +1,4 @@
-import { map, icon, marker, tileLayer, control } from 'leaflet'
+import { map, icon, marker, tileLayer, control, PopupEvent } from 'leaflet'
 import { TiledMapLayer } from 'esri-leaflet'
 
 // map data - defined in the global scope outside this module, in the template
@@ -67,24 +67,46 @@ bookstoreMarker.addTo(addressMap)
 /*
  * address icons + markers on map
  */
-const addressIcon = icon({
+const addressIconInactive = icon({
     iconUrl: '/static/img/icons/inactive-pin.svg',
     iconSize: [46, 70],
     iconAnchor: [23, 70],
     popupAnchor: [0, -70]
 })
 
+const addressIconActive = icon({
+    iconUrl: '/static/img/icons/selected-pin.svg',
+    iconSize: [46, 70],
+    iconAnchor: [23, 70],
+    popupAnchor: [0, -70]
+})
+
+// generate a paragraph of text from the parts of the address to go in popup
 function popupText ({ name, street_address, city, postal_code }: Address): string {
     const parts = [name, street_address, postal_code, city].filter(p => !!p)
     return `<p>${parts.join('<br/>')}</p>`
 }
 
+// handlers that switch the icon when popup is active
+function onPopupOpen (event: PopupEvent) {
+    event.target.setIcon(addressIconActive)
+}
+
+function onPopupClose (event: PopupEvent) {
+    event.target.setIcon(addressIconInactive)
+}
+
+// create the actual markers
 const addressMarkers = address_data.map(a => {
-    return marker([a.latitude, a.longitude], { icon: addressIcon })
+    return marker([a.latitude, a.longitude], { icon: addressIconInactive })
         .bindPopup(popupText(a))
 })
 
-addressMarkers.forEach(m => m.addTo(addressMap))
+// bind handlers and add to map
+addressMarkers
+    .map(m => m.on('popupopen', onPopupOpen))
+    .map(m => m.on('popupclose', onPopupClose))
+    .map(m => m.addTo(addressMap))
 
 /*
  * set up initial zoom/view
