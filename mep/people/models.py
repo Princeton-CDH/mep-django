@@ -1,8 +1,8 @@
 import logging
 
 from django.apps import apps
-from django.core.exceptions import MultipleObjectsReturned
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.exceptions import MultipleObjectsReturned
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
@@ -207,10 +207,10 @@ class PersonQuerySet(models.QuerySet):
         iso_date = timezone.now().strftime('%Y-%m-%d')
         notes = [person.notes]
         notes.extend([p.notes for p in merge_people])
-        notes.extend(['Merged MEP id %s on %s' % (person.mep_id, iso_date)
-                      for person in merge_people if person.mep_id])
-        notes.extend(['Merged %s on %s' % (person.name, iso_date)
-                      for person in merge_people if not person.mep_id])
+        notes.extend(['Merged MEP id %s on %s' % (p.mep_id, iso_date)
+                      for p in merge_people if p.mep_id])
+        notes.extend(['Merged %s on %s' % (p.name, iso_date)
+                      for p in merge_people if not p.mep_id])
         person.notes = '\n'.join(note for note in notes if note)
 
         # delete the now-obsolete person records
@@ -235,16 +235,20 @@ class PersonSignalHandlers:
 
     @staticmethod
     def country_delete(sender, instance, **kwargs):
+        if not instance.pk:
+            return
         logger.debug('country delete')
         # get a list of ids for collected works before clearing them
-        person_ids = instance.person_set.library_members().values_list('id', flat=True)
-        # find the items based on the list of ids to reindex
-        members = Person.objects.filter(id__in=list(person_ids))
+        person_ids = instance.person_set.library_members() \
+                             .values_list('id', flat=True)
+        if person_ids:
+            # find the items based on the list of ids to reindex
+            members = Person.objects.filter(id__in=list(person_ids))
 
-        # NOTE: this sends pre/post clear signal, but it's not obvious
-        # how to take advantage of that
-        instance.nationality_set.clear()
-        ModelIndexable.index_items(members)
+            # NOTE: this sends pre/post clear signal, but it's not obvious
+            # how to take advantage of that
+            instance.person_set.clear()
+            ModelIndexable.index_items(members)
 
     @staticmethod
     def account_save(sender, instance, **kwargs):
@@ -260,14 +264,16 @@ class PersonSignalHandlers:
     def account_delete(sender, instance, **kwargs):
         logger.debug('account delete')
         # get a list of ids for collected works before clearing them
-        person_ids = instance.persons.library_members().values_list('id', flat=True)
-        # find the items based on the list of ids to reindex
-        members = Person.objects.filter(id__in=list(person_ids))
+        person_ids = instance.persons.library_members() \
+                             .values_list('id', flat=True)
+        if person_ids:
+            # find the items based on the list of ids to reindex
+            members = Person.objects.filter(id__in=list(person_ids))
 
-        # NOTE: this sends pre/post clear signal, but it's not obvious
-        # how to take advantage of that
-        instance.account_set.clear()
-        ModelIndexable.index_items(members)
+            # NOTE: this sends pre/post clear signal, but it's not obvious
+            # how to take advantage of that
+            instance.persons.clear()
+            ModelIndexable.index_items(members)
 
     @staticmethod
     def event_save(sender, instance, **kwargs):
@@ -283,14 +289,12 @@ class PersonSignalHandlers:
     def event_delete(sender, instance, **kwargs):
         logger.debug('event delete')
         # get a list of ids for collected works before clearing them
-        person_ids = instance.account.persons.library_members().values_list('id', flat=True)
-        # find the items based on the list of ids to reindex
-        members = Person.objects.filter(id__in=list(person_ids))
-
-        # NOTE: this sends pre/post clear signal, but it's not obvious
-        # how to take advantage of that
-        instance.event_set.clear()
-        ModelIndexable.index_items(members)
+        person_ids = instance.account.persons.library_members() \
+            .values_list('id', flat=True)
+        if person_ids:
+            # find the items based on the list of ids to reindex
+            members = Person.objects.filter(id__in=list(person_ids))
+            ModelIndexable.index_items(members)
 
 
 class Person(Notable, DateRange, ModelIndexable):
@@ -471,7 +475,7 @@ class Person(Notable, DateRange, ModelIndexable):
         return self.account_set.filter(
             models.Q(event__subscription__isnull=False) |
             models.Q(event__reimbursement__isnull=False)
-            ).exists()
+        ).exists()
     in_logbooks.boolean = True
 
     def has_card(self):
@@ -556,7 +560,8 @@ class Person(Notable, DateRange, ModelIndexable):
 class InfoURL(Notable):
     '''Informational urls (other than VIAF) associated with a :class:`Person`,
     e.g. Wikipedia page.'''
-    url = models.URLField(verbose_name='URL',
+    url = models.URLField(
+        verbose_name='URL',
         help_text='Additional (non-VIAF) URLs for a person.')
     person = models.ForeignKey(Person, related_name='urls')
 
@@ -595,4 +600,4 @@ class Relationship(Notable):
             self.from_person.name,
             self.relationship_type.name,
             self.to_person.name
-            )
+        )
