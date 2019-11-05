@@ -1,4 +1,4 @@
-import { map, icon, marker, tileLayer, control, PopupEvent } from 'leaflet'
+import { map, icon, marker, tileLayer, control, featureGroup, PopupEvent } from 'leaflet'
 import { TiledMapLayer } from 'esri-leaflet'
 
 // map data - defined in the global scope outside this module, in the template
@@ -11,7 +11,6 @@ type Address = {
     longitude: number,
     start_date: string,
     end_date: string,
-    care_of_person: string
 }
 
 declare const address_data: Array<Address>
@@ -84,6 +83,8 @@ const addressIconActive = icon({
 })
 
 // generate a paragraph of text from the parts of the address to go in popup
+// NOTE not using date information currently, but it should be rendered as:
+// <span class="dates">1921-1941</span><p>...</p>
 function popupText ({ name, street_address, city, postal_code }: Address): string {
     const parts = [name, street_address, postal_code, city].filter(p => !!p)
     return `<p>${parts.join('<br/>')}</p>`
@@ -113,4 +114,6 @@ addressMarkers
 /*
  * set up initial zoom/view
  */
-addressMap.setView([48.85089, 2.338502], 13)
+const allMarkers = featureGroup([bookstoreMarker, ...addressMarkers])
+addressMap.fitBounds(allMarkers.getBounds().pad(0.1))
+addressMarkers[0].openPopup()
