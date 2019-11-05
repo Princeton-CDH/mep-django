@@ -12,11 +12,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name='person',
-            name='sex',
+            old_name='sex',
+            new_name='gender',
         ),
-        migrations.AddField(
+        migrations.AlterField(
             model_name='person',
             name='gender',
             field=models.CharField(blank=True, choices=[('F', 'Female'), ('M', 'Male'), ('N', 'Nonbinary')], max_length=1),
