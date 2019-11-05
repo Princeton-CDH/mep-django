@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
-    const $genderFacet = document.querySelector('#id_sex') as HTMLFieldSetElement
+    const $genderFacet = document.querySelector('#id_gender') as HTMLFieldSetElement
     const $memDateFacet = document.querySelector('#id_membership_dates') as HTMLFieldSetElement
     const $birthDateFacet = document.querySelector('#id_birth_year') as HTMLFieldSetElement
     const $nationalityFacet = document.querySelector('#id_nationality') as HTMLFieldSetElement
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     )
     const genderChoices = membersSearchForm.facets.pipe(
         pluck('facet_fields'),
-        pluck('sex'),
+        pluck('gender'),
         flatMap(Object.entries),
     )
     const nationalityChoices = membersSearchForm.facets.pipe(
