@@ -1,21 +1,10 @@
 from unittest.mock import patch
 
 from parasolr.django.indexing import ModelIndexable
-from parasolr.django.signals import IndexableSignalHandler
 import pytest
 
 from mep.accounts.models import Account, Event
 from mep.people.models import Country, Person, PersonSignalHandlers
-
-
-def setup_module():
-    # connect indexing signal handlers for this test module only
-    IndexableSignalHandler.connect()
-
-
-def teardown_module():
-    # disconnect indexing signal handlers
-    IndexableSignalHandler.disconnect()
 
 
 @pytest.mark.django_db

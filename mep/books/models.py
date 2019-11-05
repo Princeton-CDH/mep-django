@@ -144,12 +144,31 @@ class WorkSignalHandlers:
     @staticmethod
     def creatortype_delete(sender, instance, **kwargs):
         works = Work.objects.filter(creator__creator_type__pk=instance.pk)
-        logger.debug('creator type delete, reindexing %d related works',
-                     works.count())
-        # NOTE: this sends pre/post clear signal, but it's not obvious
-        # how to take advantage of that
-        # instance.nationality_set.clear()
-        ModelIndexable.index_items(works)
+        if works.exists():
+            logger.debug('creator type delete, reindexing %d related works',
+                         works.count())
+            ModelIndexable.index_items(works)
+
+    @staticmethod
+    def person_save(sender, instance, **kwargs):
+        if instance.pk:
+            # if any members are associated
+            works = Work.objects.filter(creator__person__pk=instance.pk)
+            if works.exists():
+                logger.debug('creator save, reindexing %d related works',
+                             works.count())
+                ModelIndexable.index_items(works)
+
+    @staticmethod
+    def person_delete(sender, instance, **kwargs):
+        works = Work.objects.filter(creator__person__pk=instance.pk)
+        if works.exists():
+            logger.debug('creator type delete, reindexing %d related works',
+                         works.count())
+            # NOTE: this sends pre/post clear signal, but it's not obvious
+            # how to take advantage of that
+            # instance.nationality_set.clear()
+            ModelIndexable.index_items(works)
 
 
 class Work(Notable, ModelIndexable):
@@ -285,8 +304,10 @@ class Work(Notable, ModelIndexable):
         return self.work_format.name if self.work_format else ''
 
     index_depends_on = {
-        # 'creators': {
-        # },
+        'creators': {
+            'save': WorkSignalHandlers.person_save,
+            'delete': WorkSignalHandlers.person_delete,
+        },
         'books.CreatorType': {
             'save': WorkSignalHandlers.creatortype_save,
             'delete': WorkSignalHandlers.creatortype_delete,
