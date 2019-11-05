@@ -266,10 +266,9 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
                 # lat/long aren't JSON serializable so we need to do this
                 'latitude': str(address.location.latitude),
                 'longitude': str(address.location.longitude),
-                # extra fields stored on Address
-                'start_date': address.start_date,
-                'end_date': address.end_date,
-                'care_of_person': address.care_of_person
+                # NOTE not currently using dates as they're not entered yet
+                'start_date': None,
+                'end_date': None,
             }
             for address in addresses]
 
