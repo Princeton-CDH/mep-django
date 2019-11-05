@@ -59,7 +59,7 @@ class MemberSearchForm(FacetForm):
             'aria-describedby': 'has_card_tip'
         }),
         help_text='Limit to members with lending library cards.')
-    sex = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
+    gender = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
         'class': 'choice facet'
     }))
     membership_dates = RangeField(label='Membership Dates', required=False,
