@@ -54,14 +54,18 @@ const bookstoreIcon = icon({
     popupAnchor: [0, -60]
 })
 
-const bookstoreMarker = marker([48.85089, 2.338502], { icon: bookstoreIcon })
-    .bindPopup(`
-    <span class="dates">1921-1941</span>
-    <p>
-        Shakespeare and Company<br/>
-        12 rue de l’Odéon<br/>
-        Paris<br/>
-    </p>`)
+const bookstoreMarker = marker([48.85089, 2.338502], {
+    icon: bookstoreIcon,
+    zIndexOffset: 1, // on top of address markers
+})
+
+bookstoreMarker .bindPopup(`
+<span class="dates">1921-1941</span>
+<p>
+    Shakespeare and Company<br/>
+    12 rue de l’Odéon<br/>
+    Paris<br/>
+</p>`)
 
 bookstoreMarker.addTo(addressMap)
 
@@ -114,6 +118,10 @@ addressMarkers
 /*
  * set up initial zoom/view
  */
+// zoom to fit all markers
 const allMarkers = featureGroup([bookstoreMarker, ...addressMarkers])
 addressMap.fitBounds(allMarkers.getBounds().pad(0.1))
-addressMarkers[0].openPopup()
+
+// open the first marker: needs a delay otherwise the text inside will be
+// truncated, leaflet bug?
+setTimeout(() => addressMarkers[0].openPopup(), 100)
