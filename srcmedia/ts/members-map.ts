@@ -56,7 +56,9 @@ const bookstoreIcon = icon({
 })
 
 const bookstoreMarker = marker([48.85089, 2.338502], { icon: bookstoreIcon })
-    .bindPopup(`<p>
+    .bindPopup(`
+    <span class="dates">1921-1941</span>
+    <p>
         Shakespeare and Company<br/>
         12 rue de l’Odéon<br/>
         Paris<br/>

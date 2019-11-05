@@ -1,11 +1,19 @@
 {% extends 'base.html' %}
 {% load static mep_tags %}
+{% load render_bundle from webpack_loader %}
 
 {% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
 
 {% block js %}
 <script src="{% static 'js/d3.v5.min.js' %}" nonce="{{ request.csp_nonce }}"></script>
 {% endblock %}
+
+{# if including map, render leaflet css here, so it can be overridden #}
+{% if addresses|length > 0 %}
+{% block vendorcss %}
+{% render_bundle 'memberMap' 'css' %}
+{% endblock %}
+{% endif %}
 
 {% block header %}
 {% include 'snippets/header.html' with title=member.name style="detail" %}

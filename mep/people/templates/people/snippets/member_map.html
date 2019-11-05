@@ -4,4 +4,4 @@
     var address_data = {{ addresses|json }}
 </script>
 {# only load the map code bundle here, since we know we're rendering the map #}
-{% render_bundle 'memberMap' %}
+{% render_bundle 'memberMap' 'js' %}

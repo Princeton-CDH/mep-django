@@ -25,6 +25,7 @@
         {% if SHOW_TEST_WARNING %}
         <link rel="stylesheet" type="text/css" href="{% static 'css/test-banner.css' %}">
         {% endif %}
+        {% block vendorcss %}{% endblock %}
         {% render_bundle 'main' 'css' %}
         {% block css %}{% endblock %}
         <!-- scripts -->
