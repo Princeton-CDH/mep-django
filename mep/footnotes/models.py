@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -5,6 +7,90 @@ from djiffy.models import Canvas, Manifest
 from parasolr.django.indexing import ModelIndexable
 
 from mep.common.models import Named, Notable
+
+
+logger = logging.getLogger(__name__)
+
+
+class BibliographySignalHandlers:
+    '''Signal handlers for indexing :class:`Bibliography` records when
+    related records are saved or deleted.'''
+
+    @staticmethod
+    def person_save(sender, instance, **kwargs):
+        if not instance.pk:
+            return
+        # find any cards associated via an account
+        cards = Bibliography.objects.filter(account__persons__pk=instance.pk)
+        if cards.exists():
+            logger.debug('person save, reindexing %d related card(s)',
+                         cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def person_delete(sender, instance, **kwargs):
+        card_ids = Bibliography.objects \
+            .filter(account__persons__pk=instance.pk) \
+            .values_list('id', flat=True)
+        if card_ids:
+            # find the items based on the list of ids to reindex
+            cards = Bibliography.objects.filter(id__in=list(card_ids))
+
+            # clear the assocation so items will index without this person
+            instance.account_set.clear()
+            logger.debug('person delete, reindexing %d related card(s)',
+                         cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def account_save(sender, instance, **kwargs):
+        if not instance.pk:
+            return
+        # find any cards associated with this account
+        cards = Bibliography.objects.filter(account__pk=instance.pk)
+        if cards.exists():
+            logger.debug('account save, reindexing %d related card(s)',
+                         cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def account_delete(sender, instance, **kwargs):
+        card_ids = Bibliography.objects.filter(account__pk=instance.pk) \
+            .values_list('id', flat=True)
+
+        if card_ids:
+            # delete the assocation so cards will index without the account
+            instance.card = None
+            instance.save()
+            # find the items based on the list of ids to reindex
+            cards = Bibliography.objects.filter(id__in=list(card_ids))
+            logger.debug('account delete, reindexing %d related card(s)',
+                         cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def manifest_save(sender, instance, **kwargs):
+        if not instance.pk:
+            return
+        # find any cards associated with this account
+        cards = Bibliography.objects.filter(manifest__pk=instance.pk)
+        if cards.exists():
+            logger.debug('manifest save, reindexing %d related cards',
+                         cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def manifest_delete(sender, instance, **kwargs):
+        card_ids = Bibliography.objects.filter(manifest__pk=instance.pk) \
+            .values_list('id', flat=True)
+        if card_ids:
+            # delete the assocation so cards will index without the account
+            instance.bibliography_set.clear()
+            # find the items based on the list of ids to reindex
+            cards = Bibliography.objects.filter(id__in=list(card_ids))
+            logger.debug('manifest delete, reindexing %d related cards',
+                         cards.count())
+            ModelIndexable.index_items(cards)
 
 
 class SourceType(Named, Notable):
@@ -53,6 +139,23 @@ class Bibliography(Notable, ModelIndexable):
         records associated with an account and with a IIIF manifest.'''
         return cls.objects.filter(account__isnull=False,
                                   manifest__isnull=False)
+
+    index_depends_on = {
+        'account_set': {
+            'save': BibliographySignalHandlers.account_save,
+            'delete': BibliographySignalHandlers.account_delete
+        },
+        'account_set__persons': {
+            'save': BibliographySignalHandlers.person_save,
+            'delete': BibliographySignalHandlers.person_delete
+        },
+        # NOTE: using app.Model notation here because
+        # parasolr doesn't currently support foreignkey relation lookup
+        'djiffy.Manifest': {
+            'save': BibliographySignalHandlers.manifest_save,
+            'delete': BibliographySignalHandlers.manifest_delete
+        }
+    }
 
     def index_data(self):
         '''data for indexing in Solr'''

@@ -283,6 +283,7 @@ class PersonSignalHandlers:
             if members.exists():
                 logger.debug('event save, reindexing %d related people',
                              members.count())
+
                 ModelIndexable.index_items(members)
 
     @staticmethod
@@ -294,6 +295,9 @@ class PersonSignalHandlers:
         if person_ids:
             # find the items based on the list of ids to reindex
             members = Person.objects.filter(id__in=list(person_ids))
+            # FIXME: how to delete the assocation so cards will index without this date?
+            # instance.account = None
+            # instance.save()
             ModelIndexable.index_items(members)
 
 
@@ -461,7 +465,7 @@ class Person(Notable, DateRange, ModelIndexable):
             # actual years since presumably all correct years will follow 1900
             # as the value for UNKNOWN_YEAR
             return '; '.join([sub.date_range for sub in
-                                subscriptions.order_by('start_date')])
+                              subscriptions.order_by('start_date')])
         return ''
 
     def is_creator(self):

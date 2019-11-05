@@ -143,10 +143,13 @@ class WorkSignalHandlers:
 
     @staticmethod
     def creatortype_delete(sender, instance, **kwargs):
-        works = Work.objects.filter(creator__creator_type__pk=instance.pk)
-        if works.exists():
+        work_ids = Work.objects.filter(creator__creator_type__pk=instance.pk) \
+                               .values_list('id', flat=True)
+        if work_ids:
             logger.debug('creator type delete, reindexing %d related works',
-                         works.count())
+                         len(work_ids))
+            # find the items based on the list of ids to reindex
+            works = Work.objects.filter(id__in=list(work_ids))
             ModelIndexable.index_items(works)
 
     @staticmethod
@@ -155,19 +158,19 @@ class WorkSignalHandlers:
             # if any members are associated
             works = Work.objects.filter(creator__person__pk=instance.pk)
             if works.exists():
-                logger.debug('creator save, reindexing %d related works',
+                logger.debug('person save, reindexing %d related works',
                              works.count())
                 ModelIndexable.index_items(works)
 
     @staticmethod
     def person_delete(sender, instance, **kwargs):
-        works = Work.objects.filter(creator__person__pk=instance.pk)
-        if works.exists():
-            logger.debug('creator type delete, reindexing %d related works',
-                         works.count())
-            # NOTE: this sends pre/post clear signal, but it's not obvious
-            # how to take advantage of that
-            # instance.nationality_set.clear()
+        work_ids = Work.objects.filter(creator__person__pk=instance.pk) \
+                               .values_list('id', flat=True)
+        if work_ids:
+            logger.debug('person delete, reindexing %d related works',
+                         len(work_ids))
+            # find the items based on the list of ids to reindex
+            works = Work.objects.filter(id__in=list(work_ids))
             ModelIndexable.index_items(works)
 
 
