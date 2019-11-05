@@ -828,7 +828,7 @@ class TestMembersListView(TestCase):
         # because card filtering is not on
         # faceting should be turned on via call to facet_fields twice
         mock_qs.facet_field.assert_any_call('has_card')
-        mock_qs.facet_field.assert_any_call('sex', missing=True, exclude='sex')
+        mock_qs.facet_field.assert_any_call('gender', missing=True, exclude='gender')
         mock_qs.facet_field.assert_any_call('nationality', exclude='nationality',
                                             sort='value')
         # search and raw query not called without keyword search term
@@ -838,12 +838,12 @@ class TestMembersListView(TestCase):
         mock_qs.order_by.assert_called_with(
             view.solr_sort[view.initial['sort']])
 
-        # enable card and sex filter, also test that a blank query doesn't
+        # enable card and gender filter, also test that a blank query doesn't
         # force relevance
         view.request = self.factory.get(self.members_url, {
             'has_card': True,
             'query': '',
-            'sex': ['Female', '']
+            'gender': ['Female', '']
         })
         # remove cached form
         del view._form
@@ -853,12 +853,12 @@ class TestMembersListView(TestCase):
         mock_qs.order_by.assert_called_with(
             view.solr_sort[view.initial['sort']])
         # faceting should be on for both fields
-        # and filtering by has card and sex, which should be tagged for
+        # and filtering by has card and gender, which should be tagged for
         # exclusion in calculating facets
         mock_qs.facet_field.assert_any_call('has_card')
-        mock_qs.facet_field.assert_any_call('sex', missing=True, exclude='sex')
+        mock_qs.facet_field.assert_any_call('gender', missing=True, exclude='gender')
         mock_qs.filter.assert_any_call(has_card=True)
-        mock_qs.filter.assert_any_call(sex__in=['Female', ''], tag='sex')
+        mock_qs.filter.assert_any_call(gender__in=['Female', ''], tag='gender')
 
         # with keyword search term - should call search and query param
         query_term = 'sylvia'
