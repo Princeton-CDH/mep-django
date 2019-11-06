@@ -280,7 +280,7 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
             for address in addresses]
 
         # mapbox token used to request base layer
-        context['mapbox_token'] = settings.MAPBOX_ACCESS_TOKEN
+        context['mapbox_token'] = getattr(settings, 'MAPBOX_ACCESS_TOKEN', None)
 
         return context
 
