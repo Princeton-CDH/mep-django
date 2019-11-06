@@ -60,8 +60,11 @@ class MemberSearchForm(FacetForm):
         }),
         help_text='Limit to members with lending library cards.')
     gender = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
-        'class': 'choice facet'
-    }))
+        'class': 'choice facet',
+        'aria-describedby': 'gender_tip'
+        }),
+        help_text='Learn more about gender and its representation in the Project \
+        in the Analysis section.')
     membership_dates = RangeField(label='Membership Dates', required=False,
                                   widget=RangeWidget(attrs={'size': 4}))
     birth_year = RangeField(label='Birth Year', required=False,

@@ -46,6 +46,8 @@
                                 {{ form.birth_year }}
                             </fieldset>
                             {% render_field form.gender %}
+                            <span id="{{ form.gender.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip"
+                                aria-label="{{ form.gender.help_text }}" tabindex=0/>
                         </div>
                         <div class="column">
                             <div class="expander" role="button" aria-controls="id_nationality" tabindex="0" aria-expanded="false">Nationality</div>
