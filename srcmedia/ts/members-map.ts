@@ -12,8 +12,10 @@ type Address = {
     start_date: string,
     end_date: string,
 }
+declare const addressData: Array<Address>
 
-declare const address_data: Array<Address>
+// defined in local_settings.py and passed in the django view/template
+declare const mapboxToken: string
 
 /*
  * map object with custom zoom control in bottom right
@@ -27,7 +29,6 @@ zoomControl.addTo(addressMap)
 /*
 * basic tiled basemap from mapbox
 */
-const mapboxToken = 'pk.eyJ1IjoicHJpbmNldG9uLWNkaCIsImEiOiJjazJrd2lybnEwMHdsM2JvM3UyMHUwbm02In0.4GJpwErZHkJH1DU-E-72OA'
 const basemap = tileLayer(`https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`, {
     attribution: 'Tiles <a href="https://apps.mapbox.com/feedback/">Mapbox</a>, <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 })
@@ -104,7 +105,7 @@ function onPopupClose (event: PopupEvent) {
 }
 
 // create the actual markers
-const addressMarkers = address_data.map(a => {
+const addressMarkers = addressData.map(a => {
     return marker([a.latitude, a.longitude], { icon: addressIconInactive })
         .bindPopup(popupText(a))
 })

@@ -3,6 +3,7 @@ from datetime import timedelta
 from itertools import chain
 
 from dal import autocomplete
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import MultipleObjectsReturned
@@ -15,11 +16,12 @@ from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin, FormView
 
-from mep.accounts.models import Event, Address
+from mep.accounts.models import Address, Event
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
-    LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, LoginRequiredOr404Mixin,
+                              RdfViewMixin)
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
@@ -250,12 +252,17 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
             } for start, end in account.event_date_ranges]
         }
 
-        # plottable locations for member address map visualization
+        # plottable locations for member address map visualization, which
+        # is a leaflet map that will consume JSON address data
+        # NOTE probably refactor this into a queryset method for use on
+        # members search map
+        #
         # addresses can be stored on either Person or Account
         addresses = Address.objects.filter(Q(account__pk=account.pk) |
             Q(person__pk=self.object.pk)) \
             .filter(location__latitude__isnull=False) \
             .filter(location__longitude__isnull=False)
+
         context['addresses'] = [
             {
                 # these fields are taken from Location unchanged
@@ -271,6 +278,9 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
                 'end_date': None,
             }
             for address in addresses]
+
+        # mapbox token used to request base layer
+        context['mapbox_token'] = settings.MAPBOX_ACCESS_TOKEN
 
         return context
 
