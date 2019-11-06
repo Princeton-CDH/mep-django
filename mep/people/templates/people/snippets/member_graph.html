@@ -47,6 +47,8 @@ function drawMemberTimeline(data, mode) {
   svg.append("g")
         .attr("transform", "translate(0,30)")
         .call(axis)
+        .call(g => g.selectAll(".tick text")
+            .attr("aria-hidden", 'true'))
         .call(g => g.selectAll(".tick line")
             .attr("stroke", '#231F20')
             .attr("stroke-width", '0.5')
@@ -190,6 +192,7 @@ function drawlegend() {
               .attr("font-family", "univers Lt Pro")
               .attr("font-size", 13)
               .attr("fill", "black")
+              .attr("aria-hidden", 'true')
 
           legend.append("rect")
               .attr('x', 30)
@@ -286,8 +289,12 @@ function drawlegend() {
 
           }
 
-drawMemberTimeline(data, 'simple');
+{% if user.is_authenticated %} {# show full graph to logged in users #}
 drawMemberTimeline(data, 'full');
 drawlegend();
+{% else %} {# show simpler version to everyone else #}
+drawMemberTimeline(data, 'simple');
+{% endif %}
+
 
 </script>
