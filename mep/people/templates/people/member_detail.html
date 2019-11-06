@@ -9,7 +9,7 @@
 {% endblock %}
 
 {# if including map, render leaflet css here, so it can be overridden #}
-{% if addresses|length > 0 %}
+{% if addresses %}
 {% block vendorcss %}
 {% render_bundle 'memberMap' 'css' %}
 {% endblock %}
@@ -56,7 +56,7 @@
 {% endwith %}
 
 {# address map #}
-{% if addresses|length > 0 %}
+{% if addresses %}
 <section class="map">
     <div class="header">
         <hr/>
