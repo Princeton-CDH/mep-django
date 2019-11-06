@@ -308,12 +308,12 @@ class Work(Notable, ModelIndexable):
 
     index_depends_on = {
         'creators': {
-            'save': WorkSignalHandlers.person_save,
-            'delete': WorkSignalHandlers.person_delete,
+            'post_save': WorkSignalHandlers.person_save,
+            'pre_delete': WorkSignalHandlers.person_delete,
         },
         'books.CreatorType': {
-            'save': WorkSignalHandlers.creatortype_save,
-            'delete': WorkSignalHandlers.creatortype_delete,
+            'post_save': WorkSignalHandlers.creatortype_save,
+            'pre_delete': WorkSignalHandlers.creatortype_delete,
         }
     }
 

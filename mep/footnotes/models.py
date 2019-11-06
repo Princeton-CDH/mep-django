@@ -142,18 +142,18 @@ class Bibliography(Notable, ModelIndexable):
 
     index_depends_on = {
         'account_set': {
-            'save': BibliographySignalHandlers.account_save,
-            'delete': BibliographySignalHandlers.account_delete
+            'post_save': BibliographySignalHandlers.account_save,
+            'pre_delete': BibliographySignalHandlers.account_delete
         },
         'account_set__persons': {
-            'save': BibliographySignalHandlers.person_save,
-            'delete': BibliographySignalHandlers.person_delete
+            'post_save': BibliographySignalHandlers.person_save,
+            'pre_delete': BibliographySignalHandlers.person_delete
         },
         # NOTE: using app.Model notation here because
         # parasolr doesn't currently support foreignkey relation lookup
         'djiffy.Manifest': {
-            'save': BibliographySignalHandlers.manifest_save,
-            'delete': BibliographySignalHandlers.manifest_delete
+            'post_save': BibliographySignalHandlers.manifest_save,
+            'pre_delete': BibliographySignalHandlers.manifest_delete
         }
     }
 

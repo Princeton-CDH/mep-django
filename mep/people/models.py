@@ -494,16 +494,16 @@ class Person(Notable, DateRange, ModelIndexable):
 
     index_depends_on = {
         'nationalities': {
-            'save': PersonSignalHandlers.country_save,
-            'delete': PersonSignalHandlers.country_delete,
+            'post_save': PersonSignalHandlers.country_save,
+            'pre_delete': PersonSignalHandlers.country_delete,
         },
         'account_set': {
-            'save': PersonSignalHandlers.account_save,
-            'delete': PersonSignalHandlers.account_delete,
+            'post_save': PersonSignalHandlers.account_save,
+            'pre_delete': PersonSignalHandlers.account_delete,
         },
         'accounts.Event': {
-            'save': PersonSignalHandlers.event_save,
-            'delete': PersonSignalHandlers.event_delete,
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
         }
     }
 
