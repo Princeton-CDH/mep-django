@@ -606,7 +606,8 @@ class TestMembersListView(TestCase):
         self.assertContains(response, '<span class="count">1</span>', count=3)
         # the filter should have a card image (counted later with other result
         # card icon) and it should have a tooltip
-        self.assertContains(response, 'role="tooltip"', count=1)
+        # total 2 tooltips on page since gender facet will also have one
+        self.assertContains(response, 'role="tooltip"', count=2)
         # the tooltip should have an aria-label set
         self.assertContains(response, 'aria-label="Limit to members', count=1)
         # the input should be aria-describedby the tooltip
