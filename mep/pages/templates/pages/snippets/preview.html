@@ -1,14 +1,19 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 {% comment %}
 preview "tile" for sub/child pages shown on a landing page.
-if 'desc' is True, will show the page's description (used for Analysis essays).
-will show a preview if the page has a featured image defined.
 {% endcomment %}
 <a href="{% pageurl page %}" class="preview">
     <article>
     <h2>{{ page.title }}</h2>
     <hr/>
-    {% include 'pages/snippets/attribution.html' %}
+    <div class="meta">
+        {% if page.authors %}
+        {% include 'pages/snippets/attribution.html' with creators=page.authors %} /
+        {% endif %}
+        <time datetime="{{ item.first_published_at|date:'Y-m-d' }}">
+            {{ page.first_published_at|date:"F j, Y"}}
+        </time>
+    </div>
     <p>{{ page.contentpage.get_description|safe }}</p>
     {% if page.contentpage.featured_image %}
         {% image page.contentpage.featured_image fill-320x190 as s %}

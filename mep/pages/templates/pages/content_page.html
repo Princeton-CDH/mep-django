@@ -11,6 +11,17 @@
 {% block content %}
 {% include 'snippets/breadcrumbs.html' %}
 <article class="main">
+    <div class="attribution">
+        <span class="authors">
+            {% include 'pages/snippets/attribution.html' with creators=page.authors %}
+        </span>
+        <span class="editors">
+            {% include 'pages/snippets/attribution.html' with creators=page.editors %}
+        </span>
+        <time datetime="{{ item.first_published_at|date:'Y-m-d' }}">
+            {{ page.first_published_at|date:"F j, Y"}}
+        </time>
+    </div>
     {% include 'pages/snippets/body.html' %}
     <div class="citation">
     <h2>Cite this document</h2>

@@ -1,20 +1,17 @@
-{# Snippet to include authors and date attribution to content pages #}
-<div class="meta">
-{% if page.authors %}
+{# Snippet to include author or editor attribution to content pages #}
+{# creators should be either page.authors or page.editors #}
+{# set add_urls to True to generate links from Person snippets #}
+{% if creators %}
     {% if add_urls %}
-        {% for block in page.authors %}
+        {% for block in creators %}
             {% with block.value.url|yesno:"a,span" as tag %}
                 <{{ tag }} {% if tag == "a" %} href="{{ block.value.url }}" target="_blank" {% endif %}>
                      {{ block.value.name }}</{{tag}}>{% if not forloop.last %}, {% endif %}
             {% endwith %}
         {% endfor %}
     {% else %}
-        {% for block in page.authors %}
+        {% for block in creators %}
             {{ block.value.name}}{% if not forloop.last %}, {% endif %}
         {% endfor %}
     {% endif %}
-
-/ {% endif %}<time datetime="{{ item.first_published_at|date:'Y-m-d' }}">
-    {{ page.first_published_at|date:"F j, Y"}}
-    </time>
-</div>
+{% endif %}
