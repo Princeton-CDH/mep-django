@@ -1,8 +1,15 @@
 {% load wagtailcore_tags wagtailimages_tags %}
+{% comment %}
+preview "tile" for pages shown on a landing page.
+if 'desc' is True, will show the page's description (used for Analysis essays).
+will show a preview if the page has a featured image defined.
+{% endcomment %}
 <a href="{% pageurl item %}" class="preview">
     <h2>{{ item.title }}</h2>
     <hr/>
+    {% if desc %}
     <p>{{ item.contentpage.get_description|safe }}</p>
+    {% endif %}
     {% if item.contentpage.featured_image %}
         {% image item.contentpage.featured_image fill-320x190 as s %}
         {% image item.contentpage.featured_image fill-500x300 as m %}
