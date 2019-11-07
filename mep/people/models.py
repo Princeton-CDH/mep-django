@@ -183,7 +183,7 @@ class PersonQuerySet(models.QuerySet):
             # update main person record with optional properties set on
             # the copy if not already present on the main record
             for attr in ['title', 'mep_id', 'birth_year', 'death_year',
-                         'viaf_id', 'sex', 'profession']:
+                         'viaf_id', 'gender', 'profession']:
                 # if not set on main person and set on merge person, copy
                 if not getattr(person, attr) and getattr(merge_person, attr):
                     setattr(person, attr, getattr(merge_person, attr))
@@ -252,12 +252,14 @@ class Person(Notable, DateRange, Indexable):
 
     MALE = 'M'
     FEMALE = 'F'
-    SEX_CHOICES = (
+    NONBINARY = 'N'
+    GENDER_CHOICES = (
         (FEMALE, 'Female'),
         (MALE, 'Male'),
+        (NONBINARY, 'Nonbinary'),
     )
-    #: sex
-    sex = models.CharField(blank=True, max_length=1, choices=SEX_CHOICES)
+    #: gender
+    gender = models.CharField(blank=True, max_length=1, choices=GENDER_CHOICES)
     #: title
     title = models.CharField(blank=True, max_length=255)
     #: :class:`Profession`
@@ -459,8 +461,8 @@ class Person(Notable, DateRange, Indexable):
                 'account_start_i': min(account_years),
                 'account_end_i': max(account_years),
             })
-        if self.sex:
-            index_data['sex_s'] = self.get_sex_display()
+        if self.gender:
+            index_data['gender_s'] = self.get_gender_display()
         return index_data
 
 

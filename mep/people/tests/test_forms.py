@@ -24,7 +24,7 @@ class PersonChoiceFieldTest(TestCase):
 
         # should display details if available
         pers = Person.objects.create(name='Jones', title='Mr',
-            birth_year=1902, mep_id="jone", sex="M",
+            birth_year=1902, mep_id="jone", gender="M",
             viaf_id='http://viaf.org/viaf/1902010101',
             notes='more important details here')
         label = pchoicefield.label_from_instance(pers)
@@ -68,7 +68,7 @@ class PersonMergeFormTest(TestCase):
         Person.objects.bulk_create([
             Person(name='Jones'),
             Person(name='Jones', title='Mr'),
-            Person(name='Jones', title='Mr', sex='M'),
+            Person(name='Jones', title='Mr', gender='M'),
             Person(name='Jones', title='Mrs'),
         ])
         # initialize with ids for all but the last
