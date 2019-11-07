@@ -33,6 +33,16 @@
         margin-bottom: 1.5rem;
     }
 
+    .authors-date {
+        margin-bottom: 0.5rem;
+    }
+
+    .authors,
+    time {
+        font-family: $serif;
+        color: $brownish-grey;
+    }
+
     p {
         font-family: $serif;
         text-align: left;

@@ -5,8 +5,21 @@ if 'desc' is True, will show the page's description (used for Analysis essays).
 will show a preview if the page has a featured image defined.
 {% endcomment %}
 <a href="{% pageurl item %}" class="preview">
+    <article>
     <h2>{{ item.title }}</h2>
     <hr/>
+    <div class="authors-date">
+        {% if item.authors %}
+        <span class="authors">
+            {% for author in item.authors %}
+                {{ author }}
+            {% endfor %} /
+        </span>
+        {% endif %}
+        <time datetime="{{ item.first_published_at|date:'Y-m-d' }}">
+            {{ item.first_published_at|date:'F j, Y' }}
+        </time>
+    </div>
     <p>{{ item.contentpage.get_description|safe }}</p>
     {% if item.contentpage.featured_image %}
         {% image item.contentpage.featured_image fill-320x190 as s %}
@@ -22,4 +35,5 @@ will show a preview if the page has a featured image defined.
             <img src="{{ l.url }}" alt="">
         </picture>
     {% endif %}
+    </article>
 </a>
