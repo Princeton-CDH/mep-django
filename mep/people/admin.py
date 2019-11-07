@@ -182,7 +182,7 @@ class PersonAdmin(admin.ModelAdmin):
     form = PersonAdminForm
     list_display = (
         'name', 'title', 'sort_name', 'list_nationalities',
-        'birth_year', 'death_year', 'sex', 'profession', 'viaf_id',
+        'birth_year', 'death_year', 'gender', 'profession', 'viaf_id',
         'mep_id', 'account_id', 'address_count', 'in_logbooks', 'has_card',
         'verified', 'updated_at', 'note_snippet')
     fields = (
@@ -192,13 +192,13 @@ class PersonAdmin(admin.ModelAdmin):
         ('name', 'sort_name'),
         'viaf_id',
         ('birth_year', 'death_year'),
-        'sex', 'profession', 'nationalities', 'is_organization', 'verified',
+        'gender', 'profession', 'nationalities', 'is_organization', 'verified',
         'notes', 'public_notes')
     readonly_fields = ('mep_id', 'in_logbooks', 'has_account', 'has_card',
                        'is_creator')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'public_notes',
                      'viaf_id')
-    list_filter = (PersonTypeListFilter, 'sex', 'profession', 'nationalities',
+    list_filter = (PersonTypeListFilter, 'gender', 'profession', 'nationalities',
                    'is_organization')
     # Note: moving relationships to last for adjacency to list of relationships
     # *to* this person included in the template
@@ -232,7 +232,7 @@ class PersonAdmin(admin.ModelAdmin):
     #: fields to be included in CSV export
     export_fields = [
         'id', 'name', 'sort_name', 'mep_id', 'account_id', 'birth_year',
-        'death_year', 'sex', 'title', 'profession', 'is_organization',
+        'death_year', 'gender', 'title', 'profession', 'is_organization',
         'is_creator', 'has_account', 'in_logbooks', 'has_card',
         'subscription_dates', 'verified', 'updated_at', 'admin_url'
     ]

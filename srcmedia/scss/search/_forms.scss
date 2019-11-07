@@ -281,6 +281,10 @@
             width: 100%;
         }
 
+        .column {
+            position: relative;
+        }
+
         @media (min-width: $breakpoint-s) {
             border-top: 2px solid $white;
             background: white;
