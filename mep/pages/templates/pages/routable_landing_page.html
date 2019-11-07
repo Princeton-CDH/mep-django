@@ -14,7 +14,7 @@ published ContentPage children ordered by first pubdate
 </div>
 <section class="subpages posts {{ page.title|lower }}" aria-label="posts">
     {% for post in posts %}
-    {% include 'pages/snippets/preview.html' with item=post %}
+    {% include 'pages/snippets/preview.html' with page=post %}
     {% endfor %}
 </section>
 {% endblock %}

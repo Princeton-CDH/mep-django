@@ -17,7 +17,7 @@
 </div>
 <section class="subpages {{ page.title|lower }}" aria-label="sub pages">
     {% for subpage in page.get_children.live %}
-    {% include 'pages/snippets/preview.html' with item=subpage %}
+    {% include 'pages/snippets/preview.html' with page=subpage %}
     {% endfor %}
 </section>
 {% endblock %}
