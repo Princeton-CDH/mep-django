@@ -17,6 +17,37 @@
     }
 },
 {
+    "model": "auth.user",
+    "pk": 10,
+    "fields": {
+        "password": "",
+        "last_login": "2019-11-06T15:06:03Z",
+        "is_superuser": true,
+        "username": "person2",
+        "first_name": "person",
+        "last_name": "2",
+        "email": "person2@school.edu",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2018-04-30T18:59:21Z",
+        "groups": [
+            1,
+            3
+        ],
+        "user_permissions": []
+    }
+},
+{
+    "model": "wagtailcore.collection",
+    "pk": 1,
+    "fields": {
+        "path": "0001",
+        "depth": 1,
+        "numchild": 0,
+        "name": "Root"
+    }
+},
+{
     "model": "wagtailcore.pagerevision",
     "pk": 15,
     "fields": {
@@ -83,6 +114,30 @@
             "user"
         ],
         "content_json": "{\"seo_title\": \"\", \"latest_revision_created_at\": \"2019-02-05T20:42:54.041Z\", \"body\": \"[{\\\"id\\\": \\\"f13ce1bd-c59d-47fd-8521-bca52a5f077d\\\", \\\"value\\\": \\\"<p>In 1919, an American named Sylvia Beach opened an English-language bookshop and lending library in Paris. She called it Shakespeare and Company*, and it soon became the meeting place of a community of expatriates writers and artists that included Gertrude Stein,\\\\u00a0Ernest Hemingway, James Joyce, and Ezra Pound. In 1922, Beach published Joyce\\\\u2019s <i>Ulysses</i> under the Shakespeare and Company imprint\\\\u2014a feat that assured the bookshop and lending library\\\\u2019s iconic status.</p><p>The Shakespeare and Company Project is a digital humanities initiative that recreates world of the bookshop and lending library\\\\u2014the world of the Lost Generation, and high modernism and the avant-garde. Using two sets of records* from Beach\\\\u2019s archives at Princeton University, the Project tracks what members of the bookshop and lending library community read and where\\\\u00a0they lived. The Project also captures how the community changed from the\\\\u00a0end of World War I to the German Occupation of France in 1940, and the community\\\\u2019s connections to French writers and artists\\\\u2014Andr\\\\u00e9 Gide, Simone de Beauvoir, and\\\\u00a0Jacques Lacan, among others\\\\u2014who patronized Shakespeare and Company.</p><p>What did Hemingway read after completing <i>The Sun Also Rises</i>? \\\\u27f6 What books did Stein and Hemingway read in common? \\\\u27f6 Who lived in the 16th arrondissement? \\\\u27f6 How did the bookshop and lending library community change after the publication of <i>Ulysses</i>? After Black Tuesday? Was the community composed solely of writers and artists? The Shakespeare and Company Project answers these questions and many more.</p><p></p>\\\", \\\"type\\\": \\\"paragraph\\\"}, {\\\"id\\\": \\\"690ec572-ca52-4c86-a7a5-90d8417121c0\\\", \\\"value\\\": \\\"<p>* The Shakespeare and Company Project uses two sets of records from Beach&#x27;s archives to recreate the world of the bookshop and lending library. Logbooks capture every book purchase, and\\\\u00a0library\\\\u00a0membership and renewal, day-by-day from 1919 to 1941. Lending library cards capture the addresses and borrowing\\\\u00a0histories of individual library members.</p>\\\", \\\"type\\\": \\\"footnotes\\\"}]\", \"slug\": \"home\", \"first_published_at\": \"2019-02-05T19:42:35.920Z\", \"title\": \"Shakespeare & Company Project\", \"has_unpublished_changes\": false, \"expire_at\": null, \"numchild\": 1, \"live\": true, \"owner\": 21, \"last_published_at\": \"2019-02-05T20:42:54.292Z\", \"go_live_at\": null, \"search_description\": \"The Shakespeare and Company Project is a digital humanities initiative that recreates the world of the bookshop and lending library of the same name\\u2014the world of the Lost Generation, high modernism, and the avant-garde.\", \"expired\": false, \"content_type\": 63, \"draft_title\": \"Shakespeare & Company Project\", \"url_path\": \"/home/\", \"depth\": 2, \"live_revision\": 4, \"pk\": 3, \"locked\": false, \"path\": \"00010002\", \"show_in_menus\": true}",
+        "approved_go_live_at": null
+    }
+},
+{
+    "model": "wagtailcore.pagerevision",
+    "pk": 53,
+    "fields": {
+        "page": 17,
+        "submitted_for_moderation": false,
+        "created_at": "2019-11-07T21:06:13Z",
+        "user": 10,
+        "content_json": "{\"pk\": 17, \"path\": \"000100010003\", \"depth\": 3, \"numchild\": 3, \"title\": \"Analysis\", \"draft_title\": \"Analysis\", \"slug\": \"analysis\", \"content_type\": 72, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/analysis/\", \"owner\": 10, \"seo_title\": \"Analysis\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": \"2019-11-07T20:44:15Z\", \"last_published_at\": \"2019-11-07T20:46:19Z\", \"latest_revision_created_at\": \"2019-11-07T20:46:19Z\", \"live_revision\": 51, \"tagline\": \"Analyze the Shakespeare and Company community.\", \"body\": \"[{\\\"type\\\": \\\"paragraph\\\", \\\"value\\\": \\\"<p>Lorem ipsum dolor sit amet, justo integre et vel. Eam timeam fuisset ne. Et per vidisse mediocrem repudiare, quo labitur denique eu. No vis aliquip oporteat voluptatum, ex civibus probatus pri, veri intellegebat et quo. Lorem ipsum dolor sit amet, justo integre et vel. Eam timeam fuisset ne. Et per vidisse mediocrem repudiare, quo labitur denique eu. No vis aliquip oporteat voluptatum, ex civibus probatus pri, veri intellegebat et quo.</p>\\\", \\\"id\\\": \\\"cc46d795-665d-463f-90d2-22ef2662d676\\\"}]\", \"header_image\": 10}",
+        "approved_go_live_at": null
+    }
+},
+{
+    "model": "wagtailcore.pagerevision",
+    "pk": 54,
+    "fields": {
+        "page": 19,
+        "submitted_for_moderation": false,
+        "created_at": "2019-11-08T15:10:42Z",
+        "user": 10,
+        "content_json": "{\"pk\": 19, \"path\": \"0001000100030004\", \"depth\": 4, \"numchild\": 0, \"title\": \"Test analysis\", \"draft_title\": \"Test analysis\", \"slug\": \"test-analysis\", \"content_type\": 63, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/analysis/2019/11/test-analysis/\", \"owner\": 10, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"description\": \"\", \"body\": \"[{\\\"type\\\": \\\"paragraph\\\", \\\"value\\\": \\\"<p>fs</p>\\\", \\\"id\\\": \\\"fff3fcc1-1db7-4626-9f2b-de23d2e2722c\\\"}]\", \"authors\": \"[]\", \"editors\": \"[]\", \"featured_image\": null}",
         "approved_go_live_at": null
     }
 },
@@ -183,6 +238,68 @@
         "last_published_at": "2019-02-12T14:49:54.611Z",
         "latest_revision_created_at": "2019-02-12T14:49:54.538Z",
         "live_revision": 14
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 17,
+    "fields": {
+        "path": "000100010003",
+        "depth": 3,
+        "numchild": 4,
+        "title": "Analysis",
+        "draft_title": "Analysis",
+        "slug": "analysis",
+        "content_type": [
+            "pages",
+            "routablelandingpage"
+        ],
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/analysis/",
+        "owner": 10,
+        "seo_title": "Analysis",
+        "show_in_menus": false,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": "2019-11-07T20:44:15Z",
+        "last_published_at": "2019-11-07T21:06:13Z",
+        "latest_revision_created_at": "2019-11-07T21:06:13Z",
+        "live_revision": 53
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 19,
+    "fields": {
+        "path": "0001000100030004",
+        "depth": 4,
+        "numchild": 0,
+        "title": "Test analysis",
+        "draft_title": "Test analysis",
+        "slug": "test-analysis",
+        "content_type": [
+            "pages",
+            "contentpage"
+        ],
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/analysis/2019/11/test-analysis/",
+        "owner": 10,
+        "seo_title": "",
+        "show_in_menus": false,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": "2019-11-08T15:10:42Z",
+        "last_published_at": "2019-11-08T15:10:42Z",
+        "latest_revision_created_at": "2019-11-08T15:10:42Z",
+        "live_revision": 54
     }
 },
 {
@@ -461,6 +578,15 @@
     }
 },
 {
+    "model": "pages.landingpage",
+    "pk": 17,
+    "fields": {
+        "tagline": "Analyze the Shakespeare and Company community.",
+        "body": "[{\"type\": \"paragraph\", \"value\": \"<p>Lorem ipsum dolor sit amet, justo integre et vel. Eam timeam fuisset ne. Et per vidisse mediocrem repudiare, quo labitur denique eu. No vis aliquip oporteat voluptatum, ex civibus probatus pri, veri intellegebat et quo. Lorem ipsum dolor sit amet, justo integre et vel. Eam timeam fuisset ne. Et per vidisse mediocrem repudiare, quo labitur denique eu. No vis aliquip oporteat voluptatum, ex civibus probatus pri, veri intellegebat et quo.</p>\", \"id\": \"cc46d795-665d-463f-90d2-22ef2662d676\"}]",
+        "header_image": null
+    }
+},
+{
     "model": "pages.contentpage",
     "pk": 7,
     "fields": {
@@ -507,6 +633,17 @@
     "pk": 9,
     "fields": {
         "body": "[]"
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 19,
+    "fields": {
+        "description": "",
+        "body": "[{\"type\": \"paragraph\", \"value\": \"<p>fs</p>\", \"id\": \"fff3fcc1-1db7-4626-9f2b-de23d2e2722c\"}]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
     }
 },
 {
