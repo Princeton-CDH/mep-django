@@ -1,11 +1,12 @@
 import bleach
-from django.template.defaultfilters import truncatechars_html, striptags
+from django.template.defaultfilters import striptags, truncatechars_html
 from wagtail.core.models import Page, Site
 from wagtail.tests.utils import WagtailPageTests
 from wagtail.tests.utils.form_data import (nested_form_data, rich_text,
                                            streamfield)
 
-from mep.pages.models import ContentPage, HomePage, LandingPage
+from mep.pages.models import (ContentPage, HomePage, LandingPage,
+                              RoutableLandingPage)
 
 
 class TestHomePage(WagtailPageTests):
@@ -55,7 +56,7 @@ class TestLandingPage(WagtailPageTests):
         self.assertAllowedParentPageTypes(LandingPage, [HomePage])
 
     def test_subpages(self):
-        self.assertAllowedSubpageTypes(LandingPage, [ContentPage, Page])
+        self.assertAllowedSubpageTypes(LandingPage, [ContentPage])
 
     def test_template(self):
         site = Site.objects.first()
@@ -64,6 +65,49 @@ class TestLandingPage(WagtailPageTests):
         self.assertTemplateUsed(response, 'base.html')
         self.assertTemplateUsed(response, 'pages/landing_page.html')
 
+
+class TestRoutableLandingPage(WagtailPageTests):
+    fixtures = ['wagtail_pages']
+
+    def test_can_create(self):
+        home = HomePage.objects.first()
+        self.assertCanCreate(home, RoutableLandingPage, nested_form_data({
+            'title': 'Analysis 2',
+            'slug': 'analysis2',
+            'tagline': 'do some more analysis',
+            'body': streamfield([
+                ('paragraph', rich_text('the second analysis landing page')),
+            ]),
+        }))
+
+    def test_parent_pages(self):
+        self.assertAllowedParentPageTypes(RoutableLandingPage, [HomePage])
+
+    def test_subpages(self):
+        self.assertAllowedSubpageTypes(RoutableLandingPage, [ContentPage])
+
+    def test_template(self):
+        site = Site.objects.first()
+        index_page = RoutableLandingPage.objects.first()
+        response = self.client.get(index_page.relative_url(site))
+        self.assertTemplateUsed(response, 'base.html')
+        self.assertTemplateUsed(response, 'pages/landing_page.html')
+        self.assertTemplateUsed(response, 'pages/routable_landing_page.html')
+
+    def test_get_context(self):
+        analysis_index = RoutableLandingPage.objects.first()
+        analysis_essay = ContentPage.objects.get(title='Test analysis')
+        context = analysis_index.get_context({})
+        assert 'posts' in context
+        assert analysis_essay in context['posts']
+
+        # set to not published
+        analysis_essay.live = False
+        analysis_essay.save()
+        context = analysis_index.get_context({})
+        assert analysis_essay not in context['posts']
+
+        # TODO create some newer essays to test ordering by pub date
 
 class TestContentPage(WagtailPageTests):
     fixtures = ['wagtail_pages']
