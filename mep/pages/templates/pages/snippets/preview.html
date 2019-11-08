@@ -2,7 +2,7 @@
 {% comment %}
 preview "tile" for sub/child pages shown on a landing page.
 {% endcomment %}
-<a href="{% pageurl page %}" class="preview">
+<a href="{{ page.url }}" class="preview">
     <article>
     <h2>{{ page.title }}</h2>
     <hr/>

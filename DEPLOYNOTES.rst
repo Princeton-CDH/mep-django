@@ -6,7 +6,16 @@ Deploy and Upgrade notes
 0.23
 ----
 
-* This release requires a reindex to update the gender field for use in faceting.
+* This release requires a reindex to update the gender field for use in faceting
+  on library members::
+
+  python manage.py index -i person
+
+* This release adds the `RoutableLandingPage` model to handle date-based routing
+  for essay content. To take advantage of this, a new `RoutableLandingPage` must
+  be created, and any `ContentPage`s that are to be moved under it in the
+  hierarchy must be recreated so that the `set_url_path()` method can be
+  called to alter their URL to include date information.
 
 * You must set **MAPBOX_ACCESS_TOKEN**, **MAPBOX_BASEMAP**, and **PARIS_OVERLAY**
   in ``local_settings.py`` in order to render the address map shown on member
