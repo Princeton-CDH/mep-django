@@ -2,6 +2,8 @@
 {# this will be accessible in the global scope via `declare` in .ts files #}
 <script nonce="{{ request.csp_nonce }}">
     var mapboxToken = "{{ mapbox_token }}"
+    var mapboxBasemap = "{{ mapbox_basemap }}"
+    var parisOverlay = "{{ paris_overlay }}"
     var addressData = {{ addresses|json }}
 </script>
 {# only load the map code bundle here, since we know we're rendering the map #}

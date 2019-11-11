@@ -16,6 +16,8 @@ declare const addressData: Array<Address>
 
 // defined in local_settings.py and passed in the django view/template
 declare const mapboxToken: string
+declare const mapboxBasemap: string
+declare const parisOverlay: string
 
 /*
  * map object with custom zoom control in bottom right
@@ -29,7 +31,7 @@ zoomControl.addTo(addressMap)
 /*
 * basic tiled basemap from mapbox
 */
-const basemap = tileLayer(`https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`, {
+const basemap = tileLayer(`https://api.mapbox.com/styles/v1/mapbox/${mapboxBasemap}/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`, {
     attribution: 'Tiles <a href="https://apps.mapbox.com/feedback/">Mapbox</a>, <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 })
 
@@ -39,7 +41,7 @@ basemap.addTo(addressMap)
  * historic map of paris overlay
  */
 const parisTiles = new TiledMapLayer({
-    url: 'https://tiles.arcgis.com/tiles/4Ko8f1mCWFLyY4NV/arcgis/rest/services/Paris_1943/MapServer',
+    url: parisOverlay,
     attribution: '<a href="https://maps.princeton.edu/catalog/princeton-2r36tz994">Princeton University Library</a>',
 })
 

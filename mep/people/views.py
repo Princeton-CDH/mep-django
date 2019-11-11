@@ -278,8 +278,10 @@ class MemberDetail(DetailView, RdfViewMixin):
             }
             for address in addresses]
 
-        # mapbox token used to request base layer
-        context['mapbox_token'] = getattr(settings, 'MAPBOX_ACCESS_TOKEN', None)
+        # config settings used to render the map
+        context['mapbox_token'] = getattr(settings, 'MAPBOX_ACCESS_TOKEN', '')
+        context['mapbox_basemap'] = getattr(settings, 'MAPBOX_BASEMAP', '')
+        context['paris_overlay'] = getattr(settings, 'PARIS_OVERLAY', '')
 
         return context
 
