@@ -8,6 +8,10 @@ Deploy and Upgrade notes
 
 * This release requires a reindex to update the gender field for use in faceting.
 
+* You must set **MAPBOX_ACCESS_TOKEN**, **MAPBOX_BASEMAP**, and **PARIS_OVERLAY**
+  in ``local_settings.py`` in order to render the address map shown on member
+  detail pages. See the note in ``local_settings.py.sample`` for more information.
+
 
 0.22
 ----
