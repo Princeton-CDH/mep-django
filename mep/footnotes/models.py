@@ -17,14 +17,20 @@ class BibliographySignalHandlers:
     related records are saved or deleted.'''
 
     @staticmethod
+    def debug_log(name, count, mode='save'):
+        # common method for debug logging with logic for singular people
+        logger.debug('%s %s, reindexing %d related card%s',
+                     mode, count, '' if count == 1 else 's')
+
+    @staticmethod
     def person_save(sender, instance, **kwargs):
+        print('bibliography person save')
         if not instance.pk:
             return
         # find any cards associated via an account
         cards = Bibliography.objects.filter(account__persons__pk=instance.pk)
         if cards.exists():
-            logger.debug('person save, reindexing %d related card(s)',
-                         cards.count())
+            BibliographySignalHandlers.debug_log('person', cards.count())
             ModelIndexable.index_items(cards)
 
     @staticmethod
@@ -38,8 +44,8 @@ class BibliographySignalHandlers:
 
             # clear the assocation so items will index without this person
             instance.account_set.clear()
-            logger.debug('person delete, reindexing %d related card(s)',
-                         cards.count())
+            BibliographySignalHandlers.debug_log('person', cards.count(),
+                                                 mode='delete')
             ModelIndexable.index_items(cards)
 
     @staticmethod
@@ -49,8 +55,7 @@ class BibliographySignalHandlers:
         # find any cards associated with this account
         cards = Bibliography.objects.filter(account__pk=instance.pk)
         if cards.exists():
-            logger.debug('account save, reindexing %d related card(s)',
-                         cards.count())
+            BibliographySignalHandlers.debug_log('account', cards.count())
             ModelIndexable.index_items(cards)
 
     @staticmethod
@@ -64,8 +69,8 @@ class BibliographySignalHandlers:
             instance.save()
             # find the items based on the list of ids to reindex
             cards = Bibliography.objects.filter(id__in=list(card_ids))
-            logger.debug('account delete, reindexing %d related card(s)',
-                         cards.count())
+            BibliographySignalHandlers.debug_log('account', cards.count(),
+                                                 mode='delete')
             ModelIndexable.index_items(cards)
 
     @staticmethod
@@ -75,8 +80,7 @@ class BibliographySignalHandlers:
         # find any cards associated with this account
         cards = Bibliography.objects.filter(manifest__pk=instance.pk)
         if cards.exists():
-            logger.debug('manifest save, reindexing %d related cards',
-                         cards.count())
+            BibliographySignalHandlers.debug_log('manifest', cards.count())
             ModelIndexable.index_items(cards)
 
     @staticmethod
@@ -88,8 +92,44 @@ class BibliographySignalHandlers:
             instance.bibliography_set.clear()
             # find the items based on the list of ids to reindex
             cards = Bibliography.objects.filter(id__in=list(card_ids))
-            logger.debug('manifest delete, reindexing %d related cards',
-                         cards.count())
+            BibliographySignalHandlers.debug_log('manifest', cards.count(),
+                                                 mode='delete')
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def canvas_save(sender, instance, **kwargs):
+        if not instance.pk:
+            return
+        # find any cards associated with this canvas, via manifest
+        cards = Bibliography.objects.filter(manifest__pk=instance.manifest.pk)
+        if cards.exists():
+            BibliographySignalHandlers.debug_log('canvas', cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def canvas_delete(sender, instance, **kwargs):
+        cards = Bibliography.objects.filter(manifest__pk=instance.manifest.pk)
+        if cards.exists():
+            BibliographySignalHandlers.debug_log('canvas', cards.count(),
+                                                 mode='delete')
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def event_save(sender, instance, **kwargs):
+        if not instance.pk:
+            return
+        # find any cards associated with this canvas, via manifest
+        cards = Bibliography.objects.filter(account__pk=instance.account.pk)
+        if cards.exists():
+            BibliographySignalHandlers.debug_log('event', cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def event_delete(sender, instance, **kwargs):
+        cards = Bibliography.objects.filter(account__pk=instance.account.pk)
+        if cards.exists():
+            BibliographySignalHandlers.debug_log('event', cards.count(),
+                                                 mode='delete')
             ModelIndexable.index_items(cards)
 
 
@@ -154,6 +194,32 @@ class Bibliography(Notable, ModelIndexable):
         'djiffy.Manifest': {
             'post_save': BibliographySignalHandlers.manifest_save,
             'pre_delete': BibliographySignalHandlers.manifest_delete
+        },
+        'djiffy.Canvas': {
+            'post_save': BibliographySignalHandlers.canvas_save,
+            'post_delete': BibliographySignalHandlers.canvas_delete
+        },
+        'accounts.Event': {
+            'post_save': BibliographySignalHandlers.event_save,
+            'post_delete': BibliographySignalHandlers.event_delete,
+        },
+        # unfortunately the generic event signals aren't fired
+        # when subclass types are edited directly, so bind the same signal
+        'accounts.Borrow': {
+            'post_save': BibliographySignalHandlers.event_save,
+            'post_delete': BibliographySignalHandlers.event_delete,
+        },
+        'accounts.Purchase': {
+            'post_save': BibliographySignalHandlers.event_save,
+            'post_delete': BibliographySignalHandlers.event_delete,
+        },
+        'accounts.Subscription': {
+            'post_save': BibliographySignalHandlers.event_save,
+            'post_delete': BibliographySignalHandlers.event_delete,
+        },
+        'accounts.Reimbursement': {
+            'post_save': BibliographySignalHandlers.event_save,
+            'post_delete': BibliographySignalHandlers.event_delete,
         }
     }
 
@@ -170,11 +236,13 @@ class Bibliography(Notable, ModelIndexable):
             del index_data['item_type']
             return index_data
 
-        iiif_thumbnail = self.manifest.thumbnail.image
+        # we expect a thumbnail, but possible there is none
+        if self.manifest.thumbnail:
+            iiif_thumbnail = self.manifest.thumbnail.image
 
-        # for now, store iiif thumbnail urls directly
-        index_data['thumbnail_t'] = str(iiif_thumbnail.size(width=225))
-        index_data['thumbnail2x_t'] = str(iiif_thumbnail.size(width=225 * 2))
+            # for now, store iiif thumbnail urls directly
+            index_data['thumbnail_t'] = str(iiif_thumbnail.size(width=225))
+            index_data['thumbnail2x_t'] = str(iiif_thumbnail.size(width=225 * 2))
 
         names = []
         account_years = set()

@@ -224,13 +224,17 @@ class PersonSignalHandlers:
     related records are saved or deleted.'''
 
     @staticmethod
+    def debug_log(name, count):
+        logger.debug('save %s, reindexing %d related %s',
+                     count, 'person' if count == 1 else 'people')
+
+    @staticmethod
     def country_save(sender, instance, **kwargs):
         if instance.pk:
             # if any members are associated
             members = instance.person_set.library_members().all()
             if members.exists():
-                logger.debug('country save, reindexing %d related people',
-                             members.count())
+                PersonSignalHandlers.debug_log('country', members.count())
                 ModelIndexable.index_items(members)
 
     @staticmethod
@@ -256,8 +260,7 @@ class PersonSignalHandlers:
             # if any members are associated
             members = instance.persons.library_members().all()
             if members.exists():
-                logger.debug('account save, reindexing %d related people',
-                             members.count())
+                PersonSignalHandlers.debug_log('account', members.count())
                 ModelIndexable.index_items(members)
 
     @staticmethod
@@ -269,7 +272,6 @@ class PersonSignalHandlers:
         if person_ids:
             # find the items based on the list of ids to reindex
             members = Person.objects.filter(id__in=list(person_ids))
-
             # NOTE: this sends pre/post clear signal, but it's not obvious
             # how to take advantage of that
             instance.persons.clear()
@@ -281,23 +283,14 @@ class PersonSignalHandlers:
             # if any members are associated
             members = instance.account.persons.library_members().all()
             if members.exists():
-                logger.debug('event save, reindexing %d related people',
-                             members.count())
-
+                PersonSignalHandlers.debug_log('event', members.count())
                 ModelIndexable.index_items(members)
 
     @staticmethod
     def event_delete(sender, instance, **kwargs):
-        logger.debug('event delete')
-        # get a list of ids for collected works before clearing them
-        person_ids = instance.account.persons.library_members() \
-            .values_list('id', flat=True)
-        if person_ids:
-            # find the items based on the list of ids to reindex
-            members = Person.objects.filter(id__in=list(person_ids))
-            # FIXME: how to delete the assocation so cards will index without this date?
-            # instance.account = None
-            # instance.save()
+        # get a list of ids for deleted event
+        members = instance.account.persons.library_members()
+        if members.exists():
             ModelIndexable.index_items(members)
 
 
@@ -502,6 +495,24 @@ class Person(Notable, DateRange, ModelIndexable):
             'pre_delete': PersonSignalHandlers.account_delete,
         },
         'accounts.Event': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        # unfortunately the generic event signals aren't fired
+        # when subclass types are edited directly, so bind the same signal
+        'accounts.Borrow': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        'accounts.Purchase': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        'accounts.Subscription': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        'accounts.Reimbursement': {
             'post_save': PersonSignalHandlers.event_save,
             'post_delete': PersonSignalHandlers.event_delete,
         }

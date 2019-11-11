@@ -173,6 +173,14 @@ class WorkSignalHandlers:
             works = Work.objects.filter(id__in=list(work_ids))
             ModelIndexable.index_items(works)
 
+    @staticmethod
+    def creator_change(sender, instance, **kwargs):
+        if instance.pk:
+            logger.debug('creator change, reindexing %s',
+                         instance.work)
+            # delete the assocation so cards will index without the account
+            ModelIndexable.index_items([instance.work])
+
 
 class Work(Notable, ModelIndexable):
     '''Work record for an item that circulated in the library or was
@@ -310,6 +318,10 @@ class Work(Notable, ModelIndexable):
         'creators': {
             'post_save': WorkSignalHandlers.person_save,
             'pre_delete': WorkSignalHandlers.person_delete,
+        },
+        'books.Creator': {
+            'post_save': WorkSignalHandlers.creator_change,
+            'post_delete': WorkSignalHandlers.creator_change,
         },
         'books.CreatorType': {
             'post_save': WorkSignalHandlers.creatortype_save,
