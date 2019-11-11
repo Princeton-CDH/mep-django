@@ -97,3 +97,25 @@ def test_person_delete(mock_indexitems):
     assert mock_indexitems.call_count == 1
     # person should be in the queryset; first arg for the last call
     assert work in mock_indexitems.call_args[0][0]
+
+
+@pytest.mark.django_db
+@patch.object(ModelIndexable, 'index_items')
+def test_creator_change(mock_indexitems):
+    # create person, work, and creator
+    pers = Person.objects.create()
+    author_type = CreatorType.objects.get(name='Author')
+    work = Work.objects.create(title='Poems', year=1916)
+
+    # unsaved - ignore
+    creator = Creator(creator_type=author_type, person=pers, work=work)
+
+    WorkSignalHandlers.creator_change(Creator, creator)
+    mock_indexitems.assert_not_called()
+
+    # saved
+    creator.save()
+    WorkSignalHandlers.creator_change(Creator, creator)
+    assert mock_indexitems.call_count == 1
+    # person should be in the queryset; first arg for the last call
+    assert mock_indexitems.called_with([work])
