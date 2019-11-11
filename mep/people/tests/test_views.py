@@ -990,8 +990,8 @@ class TestMemberDetailView(TestCase):
         assert 'paris_overlay' in response.context
         # Gay's address info should be in context
         assert response.context['addresses'][0]['street_address'] == '3 Rue Garancière'
-        assert response.context['addresses'][0]['latitude'] == 48.85101
-        assert response.context['addresses'][0]['longitude'] == 2.33590
+        assert response.context['addresses'][0]['latitude'] == '48.85101'
+        assert response.context['addresses'][0]['longitude'] == '2.33590'
 
 
     def test_get_non_member(self):
