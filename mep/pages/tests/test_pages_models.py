@@ -60,7 +60,7 @@ class TestLandingPage(WagtailPageTests):
 
     def test_template(self):
         site = Site.objects.first()
-        landing_page = LandingPage.objects.first()
+        landing_page = LandingPage.objects.get(slug="about")
         response = self.client.get(landing_page.relative_url(site))
         self.assertTemplateUsed(response, 'base.html')
         self.assertTemplateUsed(response, 'pages/landing_page.html')
@@ -109,6 +109,7 @@ class TestRoutableLandingPage(WagtailPageTests):
 
         # TODO create some newer essays to test ordering by pub date
 
+
 class TestContentPage(WagtailPageTests):
     fixtures = ['wagtail_pages']
 
@@ -120,6 +121,8 @@ class TestContentPage(WagtailPageTests):
             'body': streamfield([
                 ('paragraph', rich_text('this page lives under sources'))
             ]),
+            'authors-count': 0,
+            'editors-count': 0
         }))
 
     def test_parent_pages(self):
@@ -130,7 +133,8 @@ class TestContentPage(WagtailPageTests):
 
     def test_template(self):
         site = Site.objects.first()
-        content_page = ContentPage.objects.first()
+        # test with a standard page, not an analysis ocntent page
+        content_page = ContentPage.objects.get(slug="contact")
         response = self.client.get(content_page.relative_url(site))
         self.assertTemplateUsed(response, 'base.html')
         self.assertTemplateUsed(response, 'pages/content_page.html')
@@ -142,7 +146,8 @@ class TestContentPage(WagtailPageTests):
             title='Undescribable',
             body=[
                 ('paragraph', '<p>How to <a>begin</a>?</p>'),
-            ])
+            ]
+        )
 
         assert not content_page.description
         desc = content_page.get_description()

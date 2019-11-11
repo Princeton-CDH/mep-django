@@ -101,7 +101,7 @@ class RdfPageMixin(RdfViewMixin):
 class LandingPage(RdfPageMixin, Page):
     ''':class:`wagtail.core.models.Page` model for aggregating other pages.'''
     parent_page_types = ['HomePage']  # can only be child of HomePage
-    subpage_types = ['ContentPage'] # can only have ContentPage children
+    subpage_types = ['ContentPage']  # can only have ContentPage children
     tagline = models.CharField(max_length=500)  # shown just below the header
     body = StreamField(BodyContentBlock, blank=True)
     header_image = models.ForeignKey(  # image that will be used for the header
@@ -117,6 +117,7 @@ class LandingPage(RdfPageMixin, Page):
         StreamFieldPanel('body')
     ]
 
+
 class RoutableLandingPage(LandingPage):
     ''':class:`LandingPage` subclass that can aggregate its child pages by
     publication date using a 'date + slug' routing scheme.'''
@@ -126,7 +127,7 @@ class RoutableLandingPage(LandingPage):
 
         # Add extra variables and return the updated context
         context['posts'] = ContentPage.objects.child_of(self).live() \
-                                        .order_by('-first_published_at')
+                                      .order_by('-first_published_at')
         return context
 
     def route(self, request, path_components):

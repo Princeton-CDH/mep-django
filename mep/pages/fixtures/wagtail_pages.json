@@ -597,42 +597,61 @@
     "model": "pages.contentpage",
     "pk": 6,
     "fields": {
-        "body": "[{\"id\": \"22df46c3-24f3-45ab-860e-5ca5047aeceb\", \"value\": 2, \"type\": \"image\"}, {\"id\": \"8567532d-b385-48ad-a792-d168f833c7a2\", \"value\": \"<p>Sylvia Beach kept logbooks that list, day by day, every financial transaction at Shakespeare and Company, including every lending library membership and renewal. The logbooks vary in size and style. Some are large hardback ledgers that cover a year or more. Others are slim paperback notebooks that cover a few months. Occasionally, two or more logbooks cover the same dates\\u2014a draft version with rough notes and a final, neater version.</p><p>Yet all the logbooks adhere to the same record keeping format. A two-page spread (verso and recto) covers a single day. The verso lists expenditures. The recto lists revenues: memberships sold; invoices paid; books and magazines sold. The recto also includes a special section for revenue related to Joyce\\u2019s Ulysses. Often, the verso and recto both include miscellaneous notes about particular books and transactions, and Shakespeare and Company events.</p><p>The page reproduced above, from Friday, February 8, 1929, is representative. Expenditures are recorded on the verso: an electricity bill; a refunded deposit for a library membership; etc. There is also a note about a meeting with Joyce. Revenues appear on the recto: a membership purchased by a B. Williams; a large check from a Miss Gruening; a note that Beach will \\u201cperhaps buy back\\u201d a copy of Halid\\u00e9 Edib\\u2019s Memoirs; a list of books sold, including two books by Charles Dickens; etc. The non-Ulysses purchases add up to 1504.25 F. The special section for revenue related to Ulysses lists payments for eight copies, totaling 668.75 F.</p><p>Unlike our work with the lending library cards, we are not, at this stage of the project, transcribing the logbooks in their entirety. We are only capturing transactions that pertain to the operation of the lending library: subscriptions; renewals; reimbursements; supplements; and overdue notices. Such transactions almost always include the member\\u2019s name, the duration of the membership, the amount of the deposit, and how many books the member can borrow at a time.</p><p>The first entry on the recto above, for example\\u2014\\u201cSr dep 100 B. Williams 1m 2v 35.00\\u201d\\u2014tells us that B. Williams purchased a one-month membership, which allowed him to borrow two books at a time, for thirty-five francs and a deposit of one hundred francs. We encode the event in this way:</p><p>The encoded logbooks thus constitute a collective database of fielded membership data, keyed by member and date. Eventually, the database will include all the members of the lending library, and will serve a resource for the study of the Lost Generation and interwar Paris.</p>\", \"type\": \"paragraph\"}]"
+        "body": "[{\"id\": \"22df46c3-24f3-45ab-860e-5ca5047aeceb\", \"value\": 2, \"type\": \"image\"}, {\"id\": \"8567532d-b385-48ad-a792-d168f833c7a2\", \"value\": \"<p>Sylvia Beach kept logbooks that list, day by day, every financial transaction at Shakespeare and Company, including every lending library membership and renewal. The logbooks vary in size and style. Some are large hardback ledgers that cover a year or more. Others are slim paperback notebooks that cover a few months. Occasionally, two or more logbooks cover the same dates\\u2014a draft version with rough notes and a final, neater version.</p><p>Yet all the logbooks adhere to the same record keeping format. A two-page spread (verso and recto) covers a single day. The verso lists expenditures. The recto lists revenues: memberships sold; invoices paid; books and magazines sold. The recto also includes a special section for revenue related to Joyce\\u2019s Ulysses. Often, the verso and recto both include miscellaneous notes about particular books and transactions, and Shakespeare and Company events.</p><p>The page reproduced above, from Friday, February 8, 1929, is representative. Expenditures are recorded on the verso: an electricity bill; a refunded deposit for a library membership; etc. There is also a note about a meeting with Joyce. Revenues appear on the recto: a membership purchased by a B. Williams; a large check from a Miss Gruening; a note that Beach will \\u201cperhaps buy back\\u201d a copy of Halid\\u00e9 Edib\\u2019s Memoirs; a list of books sold, including two books by Charles Dickens; etc. The non-Ulysses purchases add up to 1504.25 F. The special section for revenue related to Ulysses lists payments for eight copies, totaling 668.75 F.</p><p>Unlike our work with the lending library cards, we are not, at this stage of the project, transcribing the logbooks in their entirety. We are only capturing transactions that pertain to the operation of the lending library: subscriptions; renewals; reimbursements; supplements; and overdue notices. Such transactions almost always include the member\\u2019s name, the duration of the membership, the amount of the deposit, and how many books the member can borrow at a time.</p><p>The first entry on the recto above, for example\\u2014\\u201cSr dep 100 B. Williams 1m 2v 35.00\\u201d\\u2014tells us that B. Williams purchased a one-month membership, which allowed him to borrow two books at a time, for thirty-five francs and a deposit of one hundred francs. We encode the event in this way:</p><p>The encoded logbooks thus constitute a collective database of fielded membership data, keyed by member and date. Eventually, the database will include all the members of the lending library, and will serve a resource for the study of the Lost Generation and interwar Paris.</p>\", \"type\": \"paragraph\"}]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
+
     }
 },
 {
     "model": "pages.contentpage",
     "pk": 13,
     "fields": {
-        "body": "[]"
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
     }
 },
 {
     "model": "pages.contentpage",
     "pk": 12,
     "fields": {
-        "body": "[]"
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
     }
 },
 {
     "model": "pages.contentpage",
     "pk": 11,
     "fields": {
-        "body": "[]"
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
     }
 },
 {
     "model": "pages.contentpage",
     "pk": 10,
     "fields": {
-        "body": "[]"
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
     }
 },
 {
     "model": "pages.contentpage",
     "pk": 9,
     "fields": {
-        "body": "[]"
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
     }
 },
 {
@@ -645,6 +664,11 @@
         "editors": "[]",
         "featured_image": null
     }
+},
+{
+    "model": "pages.routablelandingpage",
+    "pk": 17,
+    "fields": {}
 },
 {
     "model": "wagtailcore.site",
