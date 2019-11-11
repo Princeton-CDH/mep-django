@@ -40,6 +40,26 @@ dl.member {
 
 }
 
+// timeline graphs & map
+section {
+    @include container;
+
+    hr {
+        width: 100%;
+        margin: 0;
+        border: none;
+        background-color: $white-two;
+        height: 1px;
+    }
+
+    h2 {
+        margin: 2rem 0 1rem;
+        padding-left: 1rem;
+        font-family: $sans;
+        font-size: 0.8rem;
+    }
+}
+
 .timeline .description {
     @include sr-only;
 }

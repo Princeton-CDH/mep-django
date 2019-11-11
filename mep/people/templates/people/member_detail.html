@@ -24,7 +24,7 @@
 {% block content %}
 {# breadcrumbs & tabs #}
 {% include 'snippets/breadcrumbs.html' %}
-<nav class="tabs" aria-label="sections">
+<nav class="tabs" aria-label="tabs">
     <li class="tab" aria-selected="true">
         <a href="{% url 'people:member-detail' pk=member.pk %}">biography</a>
     </li>
@@ -36,23 +36,31 @@
     </li>
 </nav>
 
-{# biography section & timeline #}
+{# biography section #}
 {% with account_start=member.account_set.first.earliest_date account_end=member.account_set.first.last_date %}
 <section class="biography" aria-label="biography">
     <div class="details">
         {% include 'people/snippets/member_result.html' %}
     </div>
-    {% if account_start %}
+</section>
+
+{# membership timeline graph(s) #}
+{% if account_start %}
+<section aria-label="timeline">
+    <div class="header">
+        <hr/>
+        <h2>Membership Timeline</h2>
+    </div>
     <div class="timeline">
         <p class="description" id="member-timeline-desc">Member timeline showing activity
-          {% if account_end and account_start != account_end %}
-          from {{ account_start.year }} to {{ account_end.year }}{% else %}
-          for {{ account_start.year }}{% endif %}.
+            {% if account_end and account_start != account_end %}
+            from {{ account_start.year }} to {{ account_end.year }}{% else %}
+            for {{ account_start.year }}{% endif %}.
         See the activities tab for more details.</p>
     </div>
-    {% include 'people/snippets/member_graph.html' %}
-    {% endif %}
+{% include 'people/snippets/member_graph.html' %}
 </section>
+{% endif %}
 {% endwith %}
 
 {# address map #}
