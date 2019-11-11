@@ -44,6 +44,7 @@ dl.member {
 section[aria-label=timeline],
 section.map {
     @include container;
+    z-index: 0; // strange bug...map will be on top of main menu when it's open unless this is set
 
     hr {
         width: 100%;
