@@ -978,6 +978,22 @@ class TestMemberDetailView(TestCase):
         self.assertContains(response, 'France')
         # NOTE currently not including/checking profession
 
+    def test_member_map(self):
+        gay = Person.objects.get(name='Francisque Gay')
+        url = reverse('people:member-detail', kwargs={'pk': gay.pk})
+        response = self.client.get(url)
+        # check that member map snippet is rendered since Gay has an address
+        self.assertTemplateUsed('member_map.html')
+        # map configs should be in context
+        assert 'mapbox_token' in response.context
+        assert 'mapbox_basemap' in response.context
+        assert 'paris_overlay' in response.context
+        # Gay's address info should be in context
+        assert response.context['addresses'][0]['street_address'] == '3 Rue Garancière'
+        assert response.context['addresses'][0]['latitude'] == 48.85101
+        assert response.context['addresses'][0]['longitude'] == 2.33590
+
+
     def test_get_non_member(self):
         aeschylus = Person.objects.get(name='Aeschylus')
         url = reverse('people:member-detail', kwargs={'pk': aeschylus.pk})
