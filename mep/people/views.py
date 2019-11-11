@@ -3,6 +3,7 @@ from datetime import timedelta
 from itertools import chain
 
 from dal import autocomplete
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import MultipleObjectsReturned
@@ -15,7 +16,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin, FormView
 
-from mep.accounts.models import Event
+from mep.accounts.models import Address, Event
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
@@ -216,7 +217,11 @@ class MemberDetail(DetailView, RdfViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # add account to context for convenience
         account = self.object.account_set.first()
+        context['account'] = account
+
         month_counts = defaultdict(int)
         # count book events by month; known years only
         for event in account.event_set.known_years().book_activities():
@@ -226,6 +231,7 @@ class MemberDetail(DetailView, RdfViewMixin):
             if event.end_date and event.start_date != event.end_date:
                 month_counts[event.end_date.strftime('%Y-%m-01')] += 1
 
+        # data for member timeline visualization
         context['timeline'] = {
             'membership_activities': [{
                 'startDate': event.start_date.isoformat()
@@ -244,6 +250,48 @@ class MemberDetail(DetailView, RdfViewMixin):
                 'endDate': end.isoformat()
             } for start, end in account.event_date_ranges]
         }
+
+        # plottable locations for member address map visualization, which
+        # is a leaflet map that will consume JSON address data
+        # NOTE probably refactor this into a queryset method for use on
+        # members search map
+        #
+        # addresses can be stored on either Person or Account
+        addresses = Address.objects.filter(Q(account__pk=account.pk) |
+            Q(person__pk=self.object.pk)) \
+            .filter(location__latitude__isnull=False) \
+            .filter(location__longitude__isnull=False)
+
+        context['addresses'] = [
+            {
+                # these fields are taken from Location unchanged
+                'name': address.location.name,
+                'street_address': address.location.street_address,
+                'city': address.location.city,
+                'postal_code': address.location.postal_code,
+                # lat/long aren't JSON serializable so we need to do this
+                'latitude': str(address.location.latitude),
+                'longitude': str(address.location.longitude),
+                # NOTE not currently using dates as they're not entered yet
+            }
+            for address in addresses]
+
+        # address of the lending library itself; automatically available from
+        # migration mep/people/migrations/0014_library_location.py
+        library = Location.objects.get(name='Shakespeare & Company')
+        context['library_address'] = {
+            'name': library.name,
+            'street_address': library.street_address,
+            'city': library.city,
+            'latitude': str(library.latitude),
+            'longitude': str(library.longitude),
+        }
+
+        # config settings used to render the map; set in local_settings.py
+        context['mapbox_token'] = getattr(settings, 'MAPBOX_ACCESS_TOKEN', '')
+        context['mapbox_basemap'] = getattr(settings, 'MAPBOX_BASEMAP', '')
+        context['paris_overlay'] = getattr(settings, 'PARIS_OVERLAY', '')
+
         return context
 
     def get_breadcrumbs(self):
