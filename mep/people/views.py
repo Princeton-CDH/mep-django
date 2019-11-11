@@ -273,12 +273,21 @@ class MemberDetail(DetailView, RdfViewMixin):
                 'latitude': str(address.location.latitude),
                 'longitude': str(address.location.longitude),
                 # NOTE not currently using dates as they're not entered yet
-                'start_date': None,
-                'end_date': None,
             }
             for address in addresses]
 
-        # config settings used to render the map
+        # address of the lending library itself; automatically available from
+        # migration mep/people/migrations/0014_library_location.py
+        library = Location.objects.get(name='Shakespeare & Company')
+        context['library_address'] = {
+            'name': library.name,
+            'street_address': library.street_address,
+            'city': library.city,
+            'latitude': str(library.latitude),
+            'longitude': str(library.longitude),
+        }
+
+        # config settings used to render the map; set in local_settings.py
         context['mapbox_token'] = getattr(settings, 'MAPBOX_ACCESS_TOKEN', '')
         context['mapbox_basemap'] = getattr(settings, 'MAPBOX_BASEMAP', '')
         context['paris_overlay'] = getattr(settings, 'PARIS_OVERLAY', '')

@@ -488,7 +488,7 @@ class TestLocationAutocompleteView(TestCase):
         assert len(info['results']) == 2
 
         # auto complete that should get Le Foo
-        res = self.client.get(auto_url, {'q': 'Rue'})
+        res = self.client.get(auto_url, {'q': 'Rue le Bar'})
         info = res.json()
         assert len(info['results']) == 1
         assert 'Hotel Le Foo' in info['results'][0]['text']
@@ -988,6 +988,8 @@ class TestMemberDetailView(TestCase):
         assert 'mapbox_token' in response.context
         assert 'mapbox_basemap' in response.context
         assert 'paris_overlay' in response.context
+        # address of the library itself should be in context
+        assert response.context['library_address']['name'] == 'Shakespeare & Company'
         # Gay's address info should be in context
         assert response.context['addresses'][0]['street_address'] == '3 Rue Garancière'
         assert response.context['addresses'][0]['latitude'] == '48.85101'

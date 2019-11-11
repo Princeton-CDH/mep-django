@@ -3,16 +3,17 @@ import { TiledMapLayer } from 'esri-leaflet'
 
 // map data - defined in the global scope outside this module, in the template
 type Address = {
-    name: string,
+    name?: string,
     street_address: string,
     city: string,
-    postal_code: number,
+    postal_code?: number,
     latitude: number,
     longitude: number,
-    start_date: string,
-    end_date: string,
+    start_date?: string,
+    end_date?: string,
 }
 declare const addressData: Array<Address>
+declare const libraryAddress: Address
 
 // defined in local_settings.py and passed in the django view/template
 declare const mapboxToken: string
@@ -57,18 +58,12 @@ const bookstoreIcon = icon({
     popupAnchor: [0, -60]
 })
 
-const bookstoreMarker = marker([48.85089, 2.338502], {
+const bookstoreMarker = marker([libraryAddress.latitude, libraryAddress.longitude], {
     icon: bookstoreIcon,
     zIndexOffset: 1, // on top of address markers
 })
 
-bookstoreMarker .bindPopup(`
-<span class="dates">1921-1941</span>
-<p>
-    Shakespeare and Company<br/>
-    12 rue de l’Odéon<br/>
-    Paris<br/>
-</p>`)
+bookstoreMarker.bindPopup(popupText(libraryAddress))
 
 bookstoreMarker.addTo(addressMap)
 
