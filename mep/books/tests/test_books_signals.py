@@ -16,7 +16,6 @@ def test_creatortype_save(mock_indexitems):
     mock_indexitems.assert_not_called()
 
     author_type = CreatorType.objects.get(name='Author')
-    # unsaved - ignore
     # saved but no associated books
     WorkSignalHandlers.creatortype_save(CreatorType, author_type)
     mock_indexitems.assert_not_called()
