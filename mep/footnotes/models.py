@@ -1,10 +1,136 @@
+import logging
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from djiffy.models import Canvas, Manifest
-from parasolr.indexing import Indexable
+from parasolr.django.indexing import ModelIndexable
 
 from mep.common.models import Named, Notable
+
+
+logger = logging.getLogger(__name__)
+
+
+class BibliographySignalHandlers:
+    '''Signal handlers for indexing :class:`Bibliography` records when
+    related records are saved or deleted.'''
+
+    @staticmethod
+    def debug_log(name, count, mode='save'):
+        # common method for debug logging with logic for singular people
+        logger.debug('%s %s, reindexing %d related card%s',
+                     mode, name, count, '' if count == 1 else 's')
+
+    @staticmethod
+    def person_save(sender, instance, **kwargs):
+        print('bibliography person save')
+        if not instance.pk:
+            return
+        # find any cards associated via an account
+        cards = Bibliography.objects.filter(account__persons__pk=instance.pk)
+        if cards.exists():
+            BibliographySignalHandlers.debug_log('person', cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def person_delete(sender, instance, **kwargs):
+        card_ids = Bibliography.objects \
+            .filter(account__persons__pk=instance.pk) \
+            .values_list('id', flat=True)
+        if card_ids:
+            # find the items based on the list of ids to reindex
+            cards = Bibliography.objects.filter(id__in=list(card_ids))
+
+            # clear the assocation so items will index without this person
+            instance.account_set.clear()
+            BibliographySignalHandlers.debug_log('person', cards.count(),
+                                                 mode='delete')
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def account_save(sender, instance, **kwargs):
+        if not instance.pk:
+            return
+        # find any cards associated with this account
+        cards = Bibliography.objects.filter(account__pk=instance.pk)
+        if cards.exists():
+            BibliographySignalHandlers.debug_log('account', cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def account_delete(sender, instance, **kwargs):
+        card_ids = Bibliography.objects.filter(account__pk=instance.pk) \
+            .values_list('id', flat=True)
+
+        if card_ids:
+            # delete the assocation so cards will index without the account
+            instance.card = None
+            instance.save()
+            # find the items based on the list of ids to reindex
+            cards = Bibliography.objects.filter(id__in=list(card_ids))
+            BibliographySignalHandlers.debug_log('account', cards.count(),
+                                                 mode='delete')
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def manifest_save(sender, instance, **kwargs):
+        if not instance.pk:
+            return
+        # find any cards associated with this account
+        cards = Bibliography.objects.filter(manifest__pk=instance.pk)
+        if cards.exists():
+            BibliographySignalHandlers.debug_log('manifest', cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def manifest_delete(sender, instance, **kwargs):
+        card_ids = Bibliography.objects.filter(manifest__pk=instance.pk) \
+            .values_list('id', flat=True)
+        if card_ids:
+            # delete the assocation so cards will index without the account
+            instance.bibliography_set.clear()
+            # find the items based on the list of ids to reindex
+            cards = Bibliography.objects.filter(id__in=list(card_ids))
+            BibliographySignalHandlers.debug_log('manifest', cards.count(),
+                                                 mode='delete')
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def canvas_save(sender, instance, **kwargs):
+        if not instance.pk:
+            return
+        # find any cards associated with this canvas, via manifest
+        cards = Bibliography.objects.filter(manifest__pk=instance.manifest.pk)
+        if cards.exists():
+            BibliographySignalHandlers.debug_log('canvas', cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def canvas_delete(sender, instance, **kwargs):
+        cards = Bibliography.objects.filter(manifest__pk=instance.manifest.pk)
+        if cards.exists():
+            BibliographySignalHandlers.debug_log('canvas', cards.count(),
+                                                 mode='delete')
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def event_save(sender, instance, **kwargs):
+        if not instance.pk:
+            return
+        # find any cards associated with this canvas, via manifest
+        cards = Bibliography.objects.filter(account__pk=instance.account.pk)
+        if cards.exists():
+            BibliographySignalHandlers.debug_log('event', cards.count())
+            ModelIndexable.index_items(cards)
+
+    @staticmethod
+    def event_delete(sender, instance, **kwargs):
+        cards = Bibliography.objects.filter(account__pk=instance.account.pk)
+        if cards.exists():
+            BibliographySignalHandlers.debug_log('event', cards.count(),
+                                                 mode='delete')
+            ModelIndexable.index_items(cards)
 
 
 class SourceType(Named, Notable):
@@ -16,7 +142,8 @@ class SourceType(Named, Notable):
     item_count.short_description = '# items'
 
 
-class Bibliography(Notable, Indexable):  # would citation be a better singular?
+class Bibliography(Notable, ModelIndexable):
+    # Note: citation might be better singular
     bibliographic_note = models.TextField(
         help_text='Full bibliographic citation')
     source_type = models.ForeignKey(SourceType)
@@ -53,6 +180,49 @@ class Bibliography(Notable, Indexable):  # would citation be a better singular?
         return cls.objects.filter(account__isnull=False,
                                   manifest__isnull=False)
 
+    index_depends_on = {
+        'account_set': {
+            'post_save': BibliographySignalHandlers.account_save,
+            'pre_delete': BibliographySignalHandlers.account_delete
+        },
+        'account_set__persons': {
+            'post_save': BibliographySignalHandlers.person_save,
+            'pre_delete': BibliographySignalHandlers.person_delete
+        },
+        # NOTE: using app.Model notation here because
+        # parasolr doesn't currently support foreignkey relation lookup
+        'djiffy.Manifest': {
+            'post_save': BibliographySignalHandlers.manifest_save,
+            'pre_delete': BibliographySignalHandlers.manifest_delete
+        },
+        'djiffy.Canvas': {
+            'post_save': BibliographySignalHandlers.canvas_save,
+            'post_delete': BibliographySignalHandlers.canvas_delete
+        },
+        'accounts.Event': {
+            'post_save': BibliographySignalHandlers.event_save,
+            'post_delete': BibliographySignalHandlers.event_delete,
+        },
+        # unfortunately the generic event signals aren't fired
+        # when subclass types are edited directly, so bind the same signal
+        'accounts.Borrow': {
+            'post_save': BibliographySignalHandlers.event_save,
+            'post_delete': BibliographySignalHandlers.event_delete,
+        },
+        'accounts.Purchase': {
+            'post_save': BibliographySignalHandlers.event_save,
+            'post_delete': BibliographySignalHandlers.event_delete,
+        },
+        'accounts.Subscription': {
+            'post_save': BibliographySignalHandlers.event_save,
+            'post_delete': BibliographySignalHandlers.event_delete,
+        },
+        'accounts.Reimbursement': {
+            'post_save': BibliographySignalHandlers.event_save,
+            'post_delete': BibliographySignalHandlers.event_delete,
+        }
+    }
+
     def index_data(self):
         '''data for indexing in Solr'''
         index_data = super().index_data()
@@ -66,11 +236,13 @@ class Bibliography(Notable, Indexable):  # would citation be a better singular?
             del index_data['item_type']
             return index_data
 
-        iiif_thumbnail = self.manifest.thumbnail.image
+        # we expect a thumbnail, but possible there is none
+        if self.manifest.thumbnail:
+            iiif_thumbnail = self.manifest.thumbnail.image
 
-        # for now, store iiif thumbnail urls directly
-        index_data['thumbnail_t'] = str(iiif_thumbnail.size(width=225))
-        index_data['thumbnail2x_t'] = str(iiif_thumbnail.size(width=225 * 2))
+            # for now, store iiif thumbnail urls directly
+            index_data['thumbnail_t'] = str(iiif_thumbnail.size(width=225))
+            index_data['thumbnail2x_t'] = str(iiif_thumbnail.size(width=225 * 2))
 
         names = []
         account_years = set()
