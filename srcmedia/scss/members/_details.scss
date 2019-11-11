@@ -41,7 +41,8 @@ dl.member {
 }
 
 // timeline graphs & map
-section {
+section[aria-label=timeline],
+section.map {
     @include container;
 
     hr {
