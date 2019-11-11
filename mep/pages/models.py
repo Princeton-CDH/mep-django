@@ -293,7 +293,7 @@ class Person(models.Model):
 
 class ContentPage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
     '''Basic :class:`wagtail.core.models.Page` model.'''
-    parent_page_types = ['LandingPage', 'RoutableLandingPage']  # can only be child of LandingPage
+    parent_page_types = ['LandingPage', 'RoutableLandingPage']  # can only be child of LandingPages
     subpage_types = [] # no allowed children
     body = StreamField(BodyContentBlock)
     #: authors - collection of Person snippets

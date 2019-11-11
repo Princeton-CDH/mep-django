@@ -27,7 +27,7 @@ class TestHomePage(WagtailPageTests):
         self.assertAllowedParentPageTypes(HomePage, [Page])
 
     def test_subpages(self):
-        self.assertAllowedSubpageTypes(HomePage, [LandingPage, Page])
+        self.assertAllowedSubpageTypes(HomePage, [LandingPage, RoutableLandingPage])
 
     def test_template(self):
         site = Site.objects.first()
@@ -88,8 +88,8 @@ class TestRoutableLandingPage(WagtailPageTests):
 
     def test_template(self):
         site = Site.objects.first()
-        index_page = RoutableLandingPage.objects.first()
-        response = self.client.get(index_page.relative_url(site))
+        analysis_index = RoutableLandingPage.objects.first()
+        response = self.client.get(analysis_index.relative_url(site))
         self.assertTemplateUsed(response, 'base.html')
         self.assertTemplateUsed(response, 'pages/landing_page.html')
         self.assertTemplateUsed(response, 'pages/routable_landing_page.html')
@@ -123,10 +123,10 @@ class TestContentPage(WagtailPageTests):
         }))
 
     def test_parent_pages(self):
-        self.assertAllowedParentPageTypes(ContentPage, [LandingPage])
+        self.assertAllowedParentPageTypes(ContentPage, [LandingPage, RoutableLandingPage])
 
     def test_subpages(self):
-        self.assertAllowedSubpageTypes(ContentPage, [Page])
+        self.assertAllowedSubpageTypes(ContentPage, [])
 
     def test_template(self):
         site = Site.objects.first()
