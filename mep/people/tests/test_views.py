@@ -16,7 +16,7 @@ import pytest
 from mep.accounts.models import Account, Address, Event, Subscription, \
     SubscriptionType, Reimbursement
 from mep.books.models import Work, CreatorType, Creator
-from mep.common.utils import absolutize_url, login_temporarily_required
+from mep.common.utils import absolutize_url
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
@@ -570,12 +570,6 @@ class TestMembersListView(TestCase):
         self.factory = RequestFactory()
         self.members_url = reverse('people:members-list')
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        assert self.client.get(self.members_url).status_code == 404
-
-    @pytest.mark.usefixtures("empty_solr")
-    @login_temporarily_required
     def test_list(self):
         # test listview functionality using testclient & response
 
@@ -607,9 +601,10 @@ class TestMembersListView(TestCase):
         self.assertContains(response, '<span class="count">1</span>', count=3)
         # the filter should have a card image (counted later with other result
         # card icon) and it should have a tooltip
-        self.assertContains(response, 'role="tooltip"', count=1)
+        # total 2 tooltips on page since gender facet will also have one
+        self.assertContains(response, 'role="tooltip"', count=2)
         # the tooltip should have an aria-label set
-        self.assertContains(response, 'aria-label="This filter will narrow', count=1)
+        self.assertContains(response, 'aria-label="Limit to members', count=1)
         # the input should be aria-describedby the tooltip
         self.assertContains(response, 'aria-describedby="has_card_tip"')
 
@@ -829,7 +824,7 @@ class TestMembersListView(TestCase):
         # because card filtering is not on
         # faceting should be turned on via call to facet_fields twice
         mock_qs.facet_field.assert_any_call('has_card')
-        mock_qs.facet_field.assert_any_call('sex', missing=True, exclude='sex')
+        mock_qs.facet_field.assert_any_call('gender', missing=True, exclude='gender')
         mock_qs.facet_field.assert_any_call('nationality', exclude='nationality',
                                             sort='value')
         # search and raw query not called without keyword search term
@@ -839,12 +834,12 @@ class TestMembersListView(TestCase):
         mock_qs.order_by.assert_called_with(
             view.solr_sort[view.initial['sort']])
 
-        # enable card and sex filter, also test that a blank query doesn't
+        # enable card and gender filter, also test that a blank query doesn't
         # force relevance
         view.request = self.factory.get(self.members_url, {
             'has_card': True,
             'query': '',
-            'sex': ['Female', '']
+            'gender': ['Female', '']
         })
         # remove cached form
         del view._form
@@ -854,12 +849,12 @@ class TestMembersListView(TestCase):
         mock_qs.order_by.assert_called_with(
             view.solr_sort[view.initial['sort']])
         # faceting should be on for both fields
-        # and filtering by has card and sex, which should be tagged for
+        # and filtering by has card and gender, which should be tagged for
         # exclusion in calculating facets
         mock_qs.facet_field.assert_any_call('has_card')
-        mock_qs.facet_field.assert_any_call('sex', missing=True, exclude='sex')
+        mock_qs.facet_field.assert_any_call('gender', missing=True, exclude='gender')
         mock_qs.filter.assert_any_call(has_card=True)
-        mock_qs.filter.assert_any_call(sex__in=['Female', ''], tag='sex')
+        mock_qs.filter.assert_any_call(gender__in=['Female', ''], tag='gender')
 
         # with keyword search term - should call search and query param
         query_term = 'sylvia'
@@ -956,13 +951,6 @@ class TestMembersListView(TestCase):
 class TestMemberDetailView(TestCase):
     fixtures = ['sample_people.json']
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        gay = Person.objects.get(name='Francisque Gay')
-        url = reverse('people:member-detail', kwargs={'pk': gay.pk})
-        assert self.client.get(url).status_code == 404
-
-    @login_temporarily_required
     def test_get_member(self):
         gay = Person.objects.get(name='Francisque Gay')
         url = reverse('people:member-detail', kwargs={'pk': gay.pk})
@@ -990,7 +978,6 @@ class TestMemberDetailView(TestCase):
         self.assertContains(response, 'France')
         # NOTE currently not including/checking profession
 
-    @login_temporarily_required
     def test_get_non_member(self):
         aeschylus = Person.objects.get(name='Aeschylus')
         url = reverse('people:member-detail', kwargs={'pk': aeschylus.pk})
@@ -1023,12 +1010,6 @@ class TestMembershipActivities(TestCase):
                 end_date=date(1920, 5, 5), refund=15, currency='USD'),
             'generic': Event.objects.create(account=acct)
         }
-
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        url = reverse('people:membership-activities',
-                      kwargs={'pk': self.member.pk})
-        assert self.client.get(url).status_code == 404
 
     def test_get_queryset(self):
         events = self.view.get_queryset()
@@ -1071,7 +1052,6 @@ class TestMembershipActivities(TestCase):
         assert crumbs[-2][0] == self.member.short_name
         assert crumbs[-2][1] == self.member.get_absolute_url()
 
-    @login_temporarily_required
     def test_view_template(self):
         response = self.client.get(reverse('people:membership-activities',
                                    kwargs={'pk': self.member.pk}))

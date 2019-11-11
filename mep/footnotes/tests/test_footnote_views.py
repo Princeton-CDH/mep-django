@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
-from mep.common.utils import absolutize_url, login_temporarily_required
+from mep.common.utils import absolutize_url
 from mep.footnotes.models import Bibliography, SourceType
 from mep.footnotes.views import CardList
 
@@ -60,10 +60,6 @@ class TestCardList(TestCase):
         self.factory = RequestFactory()
         self.cards_url = reverse('footnotes:cards-list')
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        assert self.client.get(self.cards_url).status_code == 404
-
     def test_get_absolute_url(self):
         assert self.view.get_absolute_url() == \
             absolutize_url(reverse('footnotes:cards-list'))
@@ -87,7 +83,6 @@ class TestCardList(TestCase):
         assert crumbs[1][0] == 'Cards'
         assert crumbs[1][1] == self.view.get_absolute_url()
 
-    @login_temporarily_required
     def test_list(self):
         # test listview functionality using testclient & response
 

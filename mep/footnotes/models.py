@@ -20,7 +20,7 @@ class BibliographySignalHandlers:
     def debug_log(name, count, mode='save'):
         # common method for debug logging with logic for singular people
         logger.debug('%s %s, reindexing %d related card%s',
-                     mode, count, '' if count == 1 else 's')
+                     mode, name, count, '' if count == 1 else 's')
 
     @staticmethod
     def person_save(sender, instance, **kwargs):

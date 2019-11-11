@@ -18,16 +18,16 @@ from django.views.generic.edit import FormMixin, FormView
 from mep.accounts.models import Event
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
-    LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, RdfViewMixin)
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
-                  FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
+class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
+        FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
@@ -121,7 +121,7 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     def get_queryset(self):
         sqs = PersonSolrQuerySet() \
             .facet_field('has_card') \
-            .facet_field('sex', missing=True, exclude='sex') \
+            .facet_field('gender', missing=True, exclude='gender') \
             .facet_field('nationality', exclude='nationality', sort='value')
 
         form = self.get_form()
@@ -141,8 +141,8 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
 
             if search_opts['has_card']:
                 sqs = sqs.filter(has_card=search_opts['has_card'])
-            if search_opts['sex']:
-                sqs = sqs.filter(sex__in=search_opts['sex'], tag='sex')
+            if search_opts['gender']:
+                sqs = sqs.filter(gender__in=search_opts['gender'], tag='gender')
             if search_opts['nationality']:
                 sqs = sqs.filter(nationality__in=[
                     '"%s"' % val for val in search_opts['nationality']
@@ -199,7 +199,7 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         ]
 
 
-class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
+class MemberDetail(DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -255,7 +255,7 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
+class MembershipActivities(ListView, RdfViewMixin):
     '''Display a list of membership activities (subscriptions, renewals,
     and reimbursements) for an individual member.'''
     model = Event

@@ -86,7 +86,7 @@
 			"sort_name": "Pain, Barry",
 			"viaf_id": "http://viaf.org/viaf/20543259/",
 			"is_organization": false,
-			"sex": "",
+			"gender": "",
 			"title": "",
 			"profession": null,
 			"nationalities": []
@@ -104,7 +104,7 @@
 			"sort_name": "Tolstoy, Leo",
 			"viaf_id": "http://viaf.org/viaf/96987389/",
 			"is_organization": false,
-			"sex": "",
+			"gender": "",
 			"title": "",
 			"profession": null,
 			"nationalities": []
@@ -123,7 +123,7 @@
 			"viaf_id": "http://viaf.org/viaf/9857613",
 			"is_organization": false,
 			"updated_at": "2018-06-22T19:13:53Z",
-			"sex": "M",
+			"gender": "M",
 			"title": "M.",
 			"profession": null,
 			"nationalities": [

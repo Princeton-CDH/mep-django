@@ -35,8 +35,7 @@ def test_person_save(mock_indexitems):
     acct.save()
     mock_indexitems.resetmock()
     BibliographySignalHandlers.person_save(Person, pers)
-    # hits twice, once for person and once for bibliography (?!?)
-    assert mock_indexitems.call_count == 2
+    assert mock_indexitems.call_count == 1
     # person should be in the queryset; first arg for the last call
     assert acct.card in mock_indexitems.call_args[0][0]
 
@@ -66,8 +65,7 @@ def test_person_delete(mock_indexitems):
     acct.save()
     mock_indexitems.resetmock()
     BibliographySignalHandlers.person_delete(Person, pers)
-    # hits twice, once for person and once for bibliography (?!?)
-    assert mock_indexitems.call_count == 2
+    assert mock_indexitems.call_count == 1
     # person should be in the queryset; first arg for the last call
     assert acct.card in mock_indexitems.call_args[0][0]
 

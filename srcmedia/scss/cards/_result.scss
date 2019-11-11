@@ -41,6 +41,18 @@ ol.card-results {
         border: 0;
     }
 
+    @media (min-width: $breakpoint-s + 1) {
+        picture {
+            display: block;
+            height: 315px;
+        }
+    }
+
+    img, source {
+        max-height: 315px;
+        overflow: hidden;
+    }
+
     // hide the account dates and card holder label
     .card-dates dt, .name dt {
         @include sr-only;
