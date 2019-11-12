@@ -306,6 +306,21 @@ class PersonSignalHandlers:
         if members.exists():
             ModelIndexable.index_items(members)
 
+    @staticmethod
+    def address_save(sender, instance, **kwargs):
+        if instance.pk:
+            # if any members are associated through account
+            members = instance.account.persons.library_members()
+            if members.exists():
+                PersonSignalHandlers.debug_log('address', members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def address_delete(sender, instance, **kwargs):
+        members = instance.account.persons.library_members()
+        if members.exists():
+            ModelIndexable.index_items(members)
+
 
 class Person(Notable, DateRange, ModelIndexable):
     '''Model for people in the MEP dataset'''
@@ -533,6 +548,11 @@ class Person(Notable, DateRange, ModelIndexable):
         'accounts.Reimbursement': {
             'post_save': PersonSignalHandlers.event_save,
             'post_delete': PersonSignalHandlers.event_delete,
+        },
+        # address changes can affect arrondissement
+        'accounts.Address': {
+            'post_save': PersonSignalHandlers.account_save,
+            'post_delete': PersonSignalHandlers.account_delete,
         }
     }
 
