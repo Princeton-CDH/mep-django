@@ -33,6 +33,11 @@ const x = d3.scaleTime()
 
 const xAxis = d3.axisTop(x);
 
+const color = {
+    subscriptions: '#231F20',
+    borrows: '#47C2C2',
+    members: '#8a8a8a'
+}
 
 Array.from(targets).forEach((el: HTMLDivElement) => {
     drawMembershipGraph(el);
@@ -76,6 +81,7 @@ function drawMembershipGraph(el: HTMLDivElement) {
       .ticks(5)
       .tickSize(0);
 
+
     svg.append("g")
         .call(yAxis)
       // remove domain path automatically added by d3 axis
@@ -96,7 +102,7 @@ function drawMembershipGraph(el: HTMLDivElement) {
                             .attr('y', function (d) {
                                 return svgheight - d.count
                             })
-                            .attr("fill", "#47C2C2")
+                            .attr("fill", color.borrows)
                             .attr("opacity", "0.8")
                             .attr("width", 2.35)
                             .attr("height",function (d) {
@@ -120,7 +126,7 @@ function drawMembershipGraph(el: HTMLDivElement) {
                     .attr('y', function (d) {
                         return svgheight - d.count
                     })
-                    .attr("fill", "#231F20")
+                    .attr("fill", color.subscriptions)
                     .attr("opacity", "0.2")
                     .attr("width", 2.35)
                     .attr("height",function (d) {
@@ -144,7 +150,7 @@ function drawMembershipGraph(el: HTMLDivElement) {
                     .attr('y', function (d) {
                         return svgheight - d.count
                     })
-                    .attr("fill", "#8a8a8a")
+                    .attr("fill", color.members)
                     .attr("opacity", "0.2")
                     .attr("width", 2.35)
                     .attr("height",function (d) {
@@ -176,7 +182,7 @@ function drawMembershipGraph(el: HTMLDivElement) {
         legend.append("rect")
             .attr('x', 20)
             .attr('y', firstLabelY.rect)
-            .attr("fill", "#231F20")
+            .attr("fill", color.subscriptions)
             .attr("opacity", "0.2")
             .attr("width", 6)
             .attr("height", 25)
@@ -196,7 +202,7 @@ function drawMembershipGraph(el: HTMLDivElement) {
         legend.append("rect")
             .attr('x', 20)
             .attr('y', borrowLabelY.rect)
-            .attr("fill", "#47C2C2")
+            .attr("fill", color.borrows)
             .attr("opacity", "0.8")
             .attr("width", 6)
             .attr("height", 25)
@@ -213,7 +219,7 @@ function drawMembershipGraph(el: HTMLDivElement) {
         legend.append("rect")
             .attr('x', 225)
             .attr('y', firstLabelY.rect)
-            .attr("fill", "#8a8a8a")
+            .attr("fill", color.members)
             .attr("opacity", "0.2")
             .attr("width", 6)
             .attr("height", 25)
