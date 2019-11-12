@@ -255,10 +255,7 @@ class MemberDetail(DetailView, RdfViewMixin):
         # is a leaflet map that will consume JSON address data
         # NOTE probably refactor this into a queryset method for use on
         # members search map
-        #
-        # addresses can be stored on either Person or Account
-        addresses = Address.objects.filter(Q(account__pk=account.pk) |
-            Q(person__pk=self.object.pk)) \
+        addresses = Address.objects.filter(account=account) \
             .filter(location__latitude__isnull=False) \
             .filter(location__longitude__isnull=False)
 
