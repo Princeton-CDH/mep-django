@@ -3,6 +3,16 @@
 CHANGELOG
 =========
 
+0.22
+----
+
+* As a user, I want to browse a list of card images so that I can see digitized lending cards belonging to library members.
+* As a user, I want the card image list paginated so that I don't have to browse through all the cards at once.
+* As a user, I want the card image list page updated as soon as I change search terms, filters, or results page so that I can refine my search without losing my place in the form and have results load more quickly.
+* As a user, I want to filter library members by nationality so that I can find all library members from a particular country.
+* As a user, I want my filter options on the search page to be grouped into collapsible tabs so that I can find relevant filters more quickly.
+* As a user, I want to see a visualization of a person’s library membership timeline so that I can get an overview of when and how they interacted with the library.
+
 0.21
 ----
 

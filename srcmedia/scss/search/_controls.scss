@@ -57,11 +57,15 @@
         pointer-events: none;
 
         @media (min-width: $breakpoint-s) {
-            width: calc(#{$breakpoint-s} - 6rem);
+            width: calc(100vw - 6rem);
         }
 
         @media (min-width: $breakpoint-m) {
             width: calc(#{$breakpoint-m} - 8rem);
+        }
+
+        @media (min-width: calc(#{$breakpoint-m} - 2* #{$gutter} + 8rem)) {
+            width: calc(#{$breakpoint-m} - 2 * #{$gutter});
         }
 
         @media (min-width: $breakpoint-l) {

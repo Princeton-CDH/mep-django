@@ -1,11 +1,14 @@
+from datetime import date
 from unittest.mock import Mock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
-from django.urls import reverse
+from djiffy.models import Manifest
 
+from mep.accounts.models import Account, Event
 from mep.footnotes.admin import BibliographyAdmin
 from mep.footnotes.models import Bibliography, Footnote, SourceType
+from mep.people.models import Person
 
 
 class TestSourceType(TestCase):
@@ -38,6 +41,53 @@ class TestBibliography(TestCase):
         Footnote.objects.create(bibliography=bibl, content_type=content_type,
                                 object_id=1, is_agree=False)
         assert bibl.footnote_count() == 1
+
+    def test_items_to_index(self):
+        with patch.object(Bibliography.objects, 'filter') as \
+                mock_bib_filter:
+            Bibliography.items_to_index()
+            mock_bib_filter.assert_called_with(account__isnull=False,
+                                               manifest__isnull=False)
+
+    def test_index_data(self):
+        src_type = SourceType.objects.create(name='Lending Library Card')
+        bibl = Bibliography.objects.create(bibliographic_note='citation',
+                                           source_type=src_type)
+        # no account or manifest, no index data
+        index_data = bibl.index_data()
+        assert 'item_type' not in index_data
+        assert len(index_data.keys()) == 1
+        # account but no manifest, no index data
+        acct = Account.objects.create(card=bibl)
+        assert 'item_type' not in bibl.index_data()
+
+        bibl.manifest = Manifest()
+        with patch.object(Manifest, 'thumbnail') as mock_thumbnail:
+            test_iiif_img_url = 'iiif.image.url'
+            mock_thumbnail.image.size.return_value = test_iiif_img_url
+            index_data = bibl.index_data()
+            assert index_data['thumbnail_t'] == test_iiif_img_url
+            assert index_data['thumbnail2x_t'] == test_iiif_img_url
+            mock_thumbnail.image.size.assert_any_call(width=225)
+            mock_thumbnail.image.size.assert_any_call(width=225 * 2)
+
+            # add people and events to account
+            leon = Person.objects.create(sort_name='Edel, Leon')
+            bertha = Person.objects.create(sort_name='Edel, Bertha')
+            acct.persons.add(leon)
+            acct.persons.add(bertha)
+            Event.objects.create(account=acct, start_date=date(1919, 11, 17))
+            Event.objects.create(account=acct, start_date=date(1922, 1, 15))
+            Event.objects.create(account=acct, start_date=date(1936, 5, 3))
+            index_data = bibl.index_data()
+
+            assert leon.sort_name in index_data['cardholder_t']
+            assert bertha.sort_name in index_data['cardholder_t']
+            assert index_data['cardholder_sort_s'] == bertha.sort_name
+            for year in (1919, 1922, 1936):
+                assert year in index_data['years_is']
+            assert index_data['start_i'] == 1919
+            assert index_data['end_i'] == 1936
 
 
 class TestFootnote(TestCase):
@@ -80,48 +130,7 @@ class TestFootnote(TestCase):
             )
 
 
-class TestBibliographyAutocomplete(TestCase):
-
-    def test_bibliography_autocomplete(self):
-
-        url = reverse('footnotes:bibliography-autocomplete')
-        res = self.client.get(url)
-
-        # getting the view returns 200
-        assert res.status_code == 200
-        data = res.json()
-        # there is a results list in the JSON
-        assert 'results' in data
-        # it is empty because there are no accounts or query
-        assert not data['results']
-
-        # - test search and sort
-        source_type = SourceType.objects.create(name='card')
-        bib1 = Bibliography.objects.create(
-            source_type=source_type,
-            bibliographic_note='Found in a box with some foobars.'
-        )
-        bib2 = Bibliography.objects.create(
-            source_type=source_type,
-            bibliographic_note='The private collection of Mr. Baz'
-        )
-        # return all
-        res = self.client.get(url)
-        data = res.json()
-        assert res.status_code == 200
-        assert 'results' in data
-        assert len(data['results']) == 2
-        assert data['results'][0]['text'] == str(bib1)
-
-        # return one based on search
-        data = self.client.get(url, {'q': 'baz'}).json()
-        assert res.status_code == 200
-        assert 'results' in data
-        assert len(data['results']) == 1
-        assert data['results'][0]['text'] == str(bib2)
-
-
-class TestBibliographyAdmin():
+class TestBibliographyAdmin:
 
     def test_manifest_thumbnail(self):
         bibadmin = BibliographyAdmin(Mock(), Mock())

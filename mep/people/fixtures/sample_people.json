@@ -30,7 +30,7 @@
             "viaf_id": "http://viaf.org/viaf/9857613",
             "is_organization": false,
             "updated_at": "2018-06-22T19:13:53Z",
-            "sex": "M",
+            "gender": "M",
             "title": "M.",
             "profession": null,
             "nationalities": [
@@ -51,7 +51,7 @@
             "viaf_id": "http://viaf.org/viaf/97006051",
             "is_organization": false,
             "updated_at": "2018-06-22T19:13:53Z",
-            "sex": "M",
+            "gender": "M",
             "title": "",
             "profession": null,
             "nationalities": [
@@ -72,10 +72,24 @@
             "viaf_id": "http://viaf.org/viaf/268526195/",
             "is_organization": false,
             "updated_at": "2018-07-02T00:21:22Z",
-            "sex": "M",
+            "gender": "M",
             "title": "",
             "profession": null,
             "nationalities": []
+        }
+    },
+    {
+        "model": "people.location",
+        "pk": 213,
+        "fields": {
+            "notes": "",
+            "name": "",
+            "street_address": "3 Rue Garanci\u00e8re",
+            "city": "Paris",
+            "postal_code": "75006",
+            "latitude": "48.85101",
+            "longitude": "2.33590",
+            "country": 2
         }
     },
     {
@@ -94,6 +108,21 @@
             "persons": [
                 224
             ]
+        }
+    },
+    {
+        "model": "accounts.address",
+        "pk": 236,
+        "fields": {
+            "notes": "",
+            "start_date_precision": null,
+            "end_date_precision": null,
+            "location": 213,
+            "account": 4852,
+            "person": null,
+            "start_date": null,
+            "end_date": null,
+            "care_of_person": null
         }
     },
     {

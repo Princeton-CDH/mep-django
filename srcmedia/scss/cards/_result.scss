@@ -1,0 +1,74 @@
+ol.card-results {
+    display: flex;
+    flex-wrap: wrap;
+    padding-top: 2.15rem;
+    border-top: 1px solid $white-two;
+}
+
+/* TODO: page nav controls spacing is not quite right.
+   Should align with edges of container on desktop (when there's room).
+.cards.sort-pages .outer {
+    @media (min-width: calc(#{$breakpoint-m} + 8rem)) {
+        width: calc(1024px - 2rem);
+    }
+} */
+
+.card.result {
+    /* display card results in a 3-wide flex grid;
+       cards are 27% width with an 8% width margin between. */
+
+    $card-width: 11.25rem;
+
+    border-top: 0;
+    width: $card-width;
+    /* space between cards: subtract three cards and divide remainder by 2 */;
+    margin-right: calc((100% - (#{$card-width} * 3)) / 2);
+    margin-bottom: 2.8rem;
+
+    &:nth-child(3n+0) {
+        margin-right: 0;
+    }
+
+    @media (max-width: $breakpoint-s) {
+        margin-right: auto;
+        margin-left: auto;
+        &:nth-child(3n+0) {
+            margin-right: auto;
+        }
+    }
+
+    a:hover {
+        border: 0;
+    }
+
+    @media (min-width: $breakpoint-s + 1) {
+        picture {
+            display: block;
+            height: 315px;
+        }
+    }
+
+    img, source {
+        max-height: 315px;
+        overflow: hidden;
+    }
+
+    // hide the account dates and card holder label
+    .card-dates dt, .name dt {
+        @include sr-only;
+    }
+
+    .name dd {
+        font-family: $serif;
+        font-size: 1.2rem;
+    }
+    .card-dates dd {
+        font-family: $sans;
+        font-size: 0.82rem;
+    }
+    .card-dates.unknown  {
+        color: $mid-grey;
+    }
+
+}
+

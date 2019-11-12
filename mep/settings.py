@@ -213,7 +213,8 @@ SCRIPT_USERNAME = 'script'
 CSP_DEFAULT_SRC = "'none'"
 
 # allow loading js locally and from google (for analytics)
-CSP_SCRIPT_SRC = ("'self'", 'https://www.googletagmanager.com')
+CSP_SCRIPT_SRC = ("'self'", 'https://www.googletagmanager.com',
+    'https://www.google-analytics.com', 'https://ssl.google-analytics.com')
 
 # allow loading fonts locally only
 CSP_FONT_SRC = ("'self'",)
@@ -224,11 +225,16 @@ CSP_STYLE_SRC = ("'self'",)
 # allow loading web manifest locally only
 CSP_MANIFEST_SRC = ("'self'",)
 
-# allow XMLHttpRequest or Fetch requests against local URLs only (e.g. searching)
-CSP_CONNECT_SRC = ("'self'",)
+# allow XMLHttpRequest or Fetch requests locally (for search) and analytics
+CSP_CONNECT_SRC = ("'self'", 'https://google-analytics.com', 'https://tiles.arcgis.com/')
 
-# allow loading local images and google tracking pixel
-CSP_IMG_SRC = ("'self'", 'https://www.googletagmanager.com')
+# allow loading local images, google tracking pixel(s)?, PUL IIIF images, arcgis & mapbox maps
+CSP_IMG_SRC = ("'self'", 'https://www.googletagmanager.com',
+               'https://www.google-analytics.com',
+               'https://iiif.princeton.edu', 'https://tiles.arcgis.com',
+               'https://tiles1.arcgis.com', 'https://tiles2.arcgis.com',
+               'https://tiles3.arcgis.com', 'https://tiles4.arcgis.com',
+               'https://api.mapbox.com', 'data:')
 
 # exclude admin and cms urls from csp directives since they're authenticated
 CSP_EXCLUDE_URL_PREFIXES = ('/admin', '/cms')

@@ -235,13 +235,11 @@ class TestPerson(TestCase):
         subs.delete()
         assert pers.in_logbooks()
 
-
     def test_admin_url(self):
         pers = Person.objects.create(name='John')
         resolved_url = resolve(pers.admin_url())
         assert resolved_url.args[0] == str(pers.id)
         assert resolved_url.view_name == 'admin:people_person_change'
-
 
     def test_has_card(self):
         # create test person & account and associate them
@@ -275,6 +273,12 @@ class TestPerson(TestCase):
         assert pers.get_absolute_url() == \
             reverse('people:member-detail', args=[pers.pk])
 
+    def test_items_to_index(self):
+        with patch.object(Person.objects, 'library_members') as \
+                mock_lib_members:
+            Person.items_to_index()
+            assert mock_lib_members.call_count == 1
+
     def test_index_data(self):
         pers = Person.objects.create(
             name='John Smith', sort_name='Smith, John', birth_year=1801,
@@ -295,10 +299,12 @@ class TestPerson(TestCase):
         assert index_data['sort_name_t'] == pers.sort_name
         assert index_data['birth_year_i'] == pers.birth_year
         assert index_data['death_year_i'] == pers.death_year
-        # account dates and sex should not be set
+        # account dates and gender should not be set
         for missing_val in ['account_start_i', 'account_end_i',
-                            'account_years_i', 'sex_s']:
+                            'account_years_i', 'gender_s']:
             assert missing_val not in index_data
+        # nationality should be empty list
+        assert index_data['nationality'] == []
 
         # add account events for earliest/latest
         Subscription.objects.create(account=acct,
@@ -316,11 +322,12 @@ class TestPerson(TestCase):
                                      start_date=datetime.date(1922, 1, 1))
 
         # add sex information
-        pers.sex = Person.MALE
+        # add gender information
+        pers.gender = Person.FEMALE
         index_data = pers.index_data()
         assert index_data['account_start_i'] == 1921
         assert index_data['account_end_i'] == 1930
-        assert index_data['sex_s'] == 'Male'
+        assert index_data['gender_s'] == 'Female'
         # years and months when account was active
         assert set(index_data['account_years_is']) == \
             set([1921, 1922, 1930])
@@ -330,6 +337,19 @@ class TestPerson(TestCase):
             set(['192101', '192102', '192201'])
         assert set(index_data['card_yearmonths_is']) == \
             set(['192104'])
+
+        # add nationality
+        uk = Country.objects.create(
+            name='United Kingdom', code='UK',
+            geonames_id='http://sws.geonames.org/2635167/')
+        denmark = Country.objects.create(
+            name='Denmark', code='DK',
+            geonames_id='http://sws.geonames.org/2623032/')
+        pers.nationalities.add(uk)
+        pers.nationalities.add(denmark)
+        index_data = pers.index_data()
+        assert uk.name in index_data['nationality']
+        assert denmark.name in index_data['nationality']
 
 
 class TestPersonQuerySet(TestCase):
@@ -411,7 +431,7 @@ class TestPersonQuerySet(TestCase):
         full = Person.objects.create(
             name='Jones',
             title='Mr', mep_id="jone.mi", birth_year=1901, death_year=1950,
-            viaf_id='http://viaf.org/viaf/123456', sex='M',
+            viaf_id='http://viaf.org/viaf/123456', gender='M',
             notes='some details', profession=prof)
         acct = Account.objects.create()
         acct.persons.add(main)
@@ -424,7 +444,7 @@ class TestPersonQuerySet(TestCase):
         assert main.mep_id == full.mep_id
         assert main.birth_year == full.birth_year
         assert main.death_year == full.death_year
-        assert main.sex == full.sex
+        assert main.gender == full.gender
         assert main.viaf_id == full.viaf_id
         assert main.profession == full.profession
         assert full.notes in main.notes

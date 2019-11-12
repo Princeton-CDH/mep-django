@@ -16,7 +16,7 @@ import pytest
 from mep.accounts.models import Account, Address, Event, Subscription, \
     SubscriptionType, Reimbursement
 from mep.books.models import Work, CreatorType, Creator
-from mep.common.utils import login_temporarily_required
+from mep.common.utils import absolutize_url
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
@@ -488,7 +488,7 @@ class TestLocationAutocompleteView(TestCase):
         assert len(info['results']) == 2
 
         # auto complete that should get Le Foo
-        res = self.client.get(auto_url, {'q': 'Rue'})
+        res = self.client.get(auto_url, {'q': 'Rue le Bar'})
         info = res.json()
         assert len(info['results']) == 1
         assert 'Hotel Le Foo' in info['results'][0]['text']
@@ -570,11 +570,6 @@ class TestMembersListView(TestCase):
         self.factory = RequestFactory()
         self.members_url = reverse('people:members-list')
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        assert self.client.get(self.members_url).status_code == 404
-
-    @login_temporarily_required
     def test_list(self):
         # test listview functionality using testclient & response
 
@@ -582,11 +577,14 @@ class TestMembersListView(TestCase):
         # so add some before indexing in Solr
         card_member = Person.objects.filter(account__isnull=False).first()
         account = card_member.account_set.first()
-        Subscription.objects.create(account=account, start_date=date(1942, 3, 4))
-        Subscription.objects.create(account=account, end_date=date(1950, 1, 1))
+        Subscription.objects.create(
+            account=account, start_date=date(1942, 3, 4))
+        Subscription.objects.create(
+            account=account, end_date=date(1950, 1, 1))
 
         # create card and add to account
-        src_type = SourceType.objects.get_or_create(name='Lending Library Card')[0]
+        src_type = SourceType.objects.get_or_create(
+            name='Lending Library Card')[0]
         card = Bibliography.objects.create(bibliographic_note='A Library Card',
                                            source_type=src_type)
         account.card = card
@@ -598,13 +596,15 @@ class TestMembersListView(TestCase):
 
         # filter form should be displayed with filled-in query field one time
         self.assertContains(response, 'Search member', count=1)
-        # it should also have a card filter with a card count (check via card count)
-        self.assertContains(response, '<span class="count">1</span>', count=1)
+        # + card filter with a card count (1)
+        # + counts for nationality filter (2)
+        self.assertContains(response, '<span class="count">1</span>', count=3)
         # the filter should have a card image (counted later with other result
         # card icon) and it should have a tooltip
-        self.assertContains(response, 'role="tooltip"', count=1)
+        # total 2 tooltips on page since gender facet will also have one
+        self.assertContains(response, 'role="tooltip"', count=2)
         # the tooltip should have an aria-label set
-        self.assertContains(response, 'aria-label="This filter will narrow', count=1)
+        self.assertContains(response, 'aria-label="Limit to members', count=1)
         # the input should be aria-describedby the tooltip
         self.assertContains(response, 'aria-describedby="has_card_tip"')
 
@@ -651,7 +651,7 @@ class TestMembersListView(TestCase):
         # should not display relevance score
         # NOTE: TEMPORARILY DISABLED while view requires login
         # self.assertNotContains(response, '<dt>relevance</dt>',
-            # msg_prefix='relevance score not displayed to anonymous user')
+        #     msg_prefix='relevance score not displayed to anonymous user')
 
         # sanity check date filters -- exclude the member with events
         response = self.client.get(self.members_url, {'membership_dates_0': 1951})
@@ -824,32 +824,37 @@ class TestMembersListView(TestCase):
         # because card filtering is not on
         # faceting should be turned on via call to facet_fields twice
         mock_qs.facet_field.assert_any_call('has_card')
-        mock_qs.facet_field.assert_any_call('sex', missing=True, exclude='sex')
+        mock_qs.facet_field.assert_any_call('gender', missing=True, exclude='gender')
+        mock_qs.facet_field.assert_any_call('nationality', exclude='nationality',
+                                            sort='value')
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()
         # should sort by solr field corresponding to default sort
-        mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
+        mock_qs.order_by.assert_called_with(
+            view.solr_sort[view.initial['sort']])
 
-        # enable card and sex filter, also test that a blank query doesn't force relevance
+        # enable card and gender filter, also test that a blank query doesn't
+        # force relevance
         view.request = self.factory.get(self.members_url, {
             'has_card': True,
             'query': '',
-            'sex': ['Female', '']
+            'gender': ['Female', '']
         })
         # remove cached form
         del view._form
         sqs = view.get_queryset()
         assert view.queryset == sqs
         # blank query left default sort in place too
-        mock_qs.order_by.assert_called_with(view.solr_sort[view.initial['sort']])
+        mock_qs.order_by.assert_called_with(
+            view.solr_sort[view.initial['sort']])
         # faceting should be on for both fields
-        # and filtering by has card and sex, which should be tagged for
+        # and filtering by has card and gender, which should be tagged for
         # exclusion in calculating facets
         mock_qs.facet_field.assert_any_call('has_card')
-        mock_qs.facet_field.assert_any_call('sex', missing=True, exclude='sex')
+        mock_qs.facet_field.assert_any_call('gender', missing=True, exclude='gender')
         mock_qs.filter.assert_any_call(has_card=True)
-        mock_qs.filter.assert_any_call(sex__in=['Female', ''], tag='sex')
+        mock_qs.filter.assert_any_call(gender__in=['Female', ''], tag='gender')
 
         # with keyword search term - should call search and query param
         query_term = 'sylvia'
@@ -876,6 +881,16 @@ class TestMembersListView(TestCase):
         del view._form
         sqs = view.get_queryset()
         mock_qs.filter.assert_any_call(account_years__range=(1919, 1923))
+
+        # filter on nationality
+        view.request = self.factory.get(self.members_url, {
+            'query': '',
+            'nationality': ['France']
+        })
+        del view._form
+        sqs = view.get_queryset()
+        mock_qs.filter.assert_any_call(nationality__in=['"France"'],
+                                       tag='nationality')
 
     def test_invalid_form(self):
         # make an invalid range request
@@ -936,13 +951,6 @@ class TestMembersListView(TestCase):
 class TestMemberDetailView(TestCase):
     fixtures = ['sample_people.json']
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        gay = Person.objects.get(name='Francisque Gay')
-        url = reverse('people:member-detail', kwargs={'pk': gay.pk})
-        assert self.client.get(url).status_code == 404
-
-    @login_temporarily_required
     def test_get_member(self):
         gay = Person.objects.get(name='Francisque Gay')
         url = reverse('people:member-detail', kwargs={'pk': gay.pk})
@@ -960,14 +968,34 @@ class TestMemberDetailView(TestCase):
         # check dates
         self.assertContains(response, '1885 - 1963', html=True)
         # check membership dates
-        self.assertContains(response, 'March 4, 1934 - Feb. 3, 1941', html=True)
+        self.assertContains(
+            response,
+            'March 4, 1934 - <span class="sr-only">to</span> Feb. 3, 1941',
+            html=True)
         # check VIAF
         self.assertContains(response, 'http://viaf.org/viaf/9857613')
         # check nationalities
         self.assertContains(response, 'France')
         # NOTE currently not including/checking profession
 
-    @login_temporarily_required
+    def test_member_map(self):
+        gay = Person.objects.get(name='Francisque Gay')
+        url = reverse('people:member-detail', kwargs={'pk': gay.pk})
+        response = self.client.get(url)
+        # check that member map snippet is rendered since Gay has an address
+        self.assertTemplateUsed('member_map.html')
+        # map configs should be in context
+        assert 'mapbox_token' in response.context
+        assert 'mapbox_basemap' in response.context
+        assert 'paris_overlay' in response.context
+        # address of the library itself should be in context
+        assert response.context['library_address']['name'] == 'Shakespeare & Company'
+        # Gay's address info should be in context
+        assert response.context['addresses'][0]['street_address'] == '3 Rue Garancière'
+        assert response.context['addresses'][0]['latitude'] == '48.85101'
+        assert response.context['addresses'][0]['longitude'] == '2.33590'
+
+
     def test_get_non_member(self):
         aeschylus = Person.objects.get(name='Aeschylus')
         url = reverse('people:member-detail', kwargs={'pk': aeschylus.pk})
@@ -1001,12 +1029,6 @@ class TestMembershipActivities(TestCase):
             'generic': Event.objects.create(account=acct)
         }
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        url = reverse('people:membership-activities',
-                      kwargs={'pk': self.member.pk})
-        assert self.client.get(url).status_code == 404
-
     def test_get_queryset(self):
         events = self.view.get_queryset()
         # should have two events
@@ -1032,8 +1054,8 @@ class TestMembershipActivities(TestCase):
 
     def test_get_absolute_url(self):
         assert self.view.get_absolute_url() == \
-            reverse('people:membership-activities',
-                    kwargs={'pk': self.member.pk})
+            absolutize_url(reverse('people:membership-activities',
+                                   kwargs={'pk': self.member.pk}))
 
     def test_get_breadcrumbs(self):
         self.view.object_list = self.view.get_queryset()
@@ -1048,7 +1070,6 @@ class TestMembershipActivities(TestCase):
         assert crumbs[-2][0] == self.member.short_name
         assert crumbs[-2][1] == self.member.get_absolute_url()
 
-    @login_temporarily_required
     def test_view_template(self):
         response = self.client.get(reverse('people:membership-activities',
                                    kwargs={'pk': self.member.pk}))

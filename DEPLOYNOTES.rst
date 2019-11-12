@@ -3,6 +3,25 @@
 Deploy and Upgrade notes
 ========================
 
+0.23
+----
+
+* This release requires a reindex to update the gender field for use in faceting.
+
+* You must set **MAPBOX_ACCESS_TOKEN**, **MAPBOX_BASEMAP**, and **PARIS_OVERLAY**
+  in ``local_settings.py`` in order to render the address map shown on member
+  detail pages. See the note in ``local_settings.py.sample`` for more information.
+
+
+0.22
+----
+
+* Member search filter on nationality and the new card browse require
+  a Solr schema update and reindex::
+
+  python manage.py solr_schema
+  python manage.py index -i person
+  python manage.py index -i card
 
 0.21
 ----

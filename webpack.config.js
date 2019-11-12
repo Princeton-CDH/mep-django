@@ -16,8 +16,13 @@ module.exports = env => ({
             './scss/main.scss' // site styles
         ],
         memberSearch: './ts/members-search.ts',
+        memberMap: [
+            path.resolve(__dirname, 'node_modules/leaflet/dist/leaflet.css'),
+            './ts/members-map.ts',
+        ],
         booksSearch: './ts/books-search.ts',
         activities: './ts/activities.ts',
+        cardSearch: './ts/cards-search.ts',
     },
     output: {
         path: path.resolve(__dirname, 'bundles'), // where to output bundles

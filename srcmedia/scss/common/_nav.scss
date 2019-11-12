@@ -36,7 +36,7 @@
             height: 3rem;
         }
 
-        @media (min-width: $breakpoint-m) {
+        @media (min-width: $breakpoint-l) {
             width: 4rem;
             height: 4rem;
         }
@@ -146,8 +146,11 @@
         }
 
         .note {
+            display: block;
             font-size: 0.7rem;
             line-height: normal;
+            text-align: left;
+            margin-top: .5rem;
 
             &::before {
                 content: '*';

@@ -2,12 +2,12 @@ import datetime
 import logging
 
 from django.apps import apps
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.exceptions import MultipleObjectsReturned
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
-from parasolr.indexing import Indexable
+from parasolr.django.indexing import ModelIndexable
 from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
@@ -185,7 +185,7 @@ class PersonQuerySet(models.QuerySet):
             # update main person record with optional properties set on
             # the copy if not already present on the main record
             for attr in ['title', 'mep_id', 'birth_year', 'death_year',
-                         'viaf_id', 'sex', 'profession']:
+                         'viaf_id', 'gender', 'profession']:
                 # if not set on main person and set on merge person, copy
                 if not getattr(person, attr) and getattr(merge_person, attr):
                     setattr(person, attr, getattr(merge_person, attr))
@@ -209,10 +209,10 @@ class PersonQuerySet(models.QuerySet):
         iso_date = timezone.now().strftime('%Y-%m-%d')
         notes = [person.notes]
         notes.extend([p.notes for p in merge_people])
-        notes.extend(['Merged MEP id %s on %s' % (person.mep_id, iso_date)
-                      for person in merge_people if person.mep_id])
-        notes.extend(['Merged %s on %s' % (person.name, iso_date)
-                      for person in merge_people if not person.mep_id])
+        notes.extend(['Merged MEP id %s on %s' % (p.mep_id, iso_date)
+                      for p in merge_people if p.mep_id])
+        notes.extend(['Merged %s on %s' % (p.name, iso_date)
+                      for p in merge_people if not p.mep_id])
         person.notes = '\n'.join(note for note in notes if note)
 
         # delete the now-obsolete person records
@@ -221,7 +221,82 @@ class PersonQuerySet(models.QuerySet):
         person.save()
 
 
-class Person(Notable, DateRange, Indexable):
+class PersonSignalHandlers:
+    '''Signal handlers for indexing :class:`Person` records when
+    related records are saved or deleted.'''
+
+    @staticmethod
+    def debug_log(name, count):
+        logger.debug('save %s, reindexing %d related %s',
+                     count, 'person' if count == 1 else 'people')
+
+    @staticmethod
+    def country_save(sender, instance, **kwargs):
+        if instance.pk:
+            # if any members are associated
+            members = instance.person_set.library_members().all()
+            if members.exists():
+                PersonSignalHandlers.debug_log('country', members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def country_delete(sender, instance, **kwargs):
+        if not instance.pk:
+            return
+        logger.debug('country delete')
+        # get a list of ids for collected works before clearing them
+        person_ids = instance.person_set.library_members() \
+                             .values_list('id', flat=True)
+        if person_ids:
+            # find the items based on the list of ids to reindex
+            members = Person.objects.filter(id__in=list(person_ids))
+
+            # NOTE: this sends pre/post clear signal, but it's not obvious
+            # how to take advantage of that
+            instance.person_set.clear()
+            ModelIndexable.index_items(members)
+
+    @staticmethod
+    def account_save(sender, instance, **kwargs):
+        if instance.pk:
+            # if any members are associated
+            members = instance.persons.library_members().all()
+            if members.exists():
+                PersonSignalHandlers.debug_log('account', members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def account_delete(sender, instance, **kwargs):
+        logger.debug('account delete')
+        # get a list of ids for collected works before clearing them
+        person_ids = instance.persons.library_members() \
+                             .values_list('id', flat=True)
+        if person_ids:
+            # find the items based on the list of ids to reindex
+            members = Person.objects.filter(id__in=list(person_ids))
+            # NOTE: this sends pre/post clear signal, but it's not obvious
+            # how to take advantage of that
+            instance.persons.clear()
+            ModelIndexable.index_items(members)
+
+    @staticmethod
+    def event_save(sender, instance, **kwargs):
+        if instance.pk:
+            # if any members are associated
+            members = instance.account.persons.library_members().all()
+            if members.exists():
+                PersonSignalHandlers.debug_log('event', members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def event_delete(sender, instance, **kwargs):
+        # get a list of ids for deleted event
+        members = instance.account.persons.library_members()
+        if members.exists():
+            ModelIndexable.index_items(members)
+
+
+class Person(Notable, DateRange, ModelIndexable):
     '''Model for people in the MEP dataset'''
 
     #: MEP xml id
@@ -254,12 +329,14 @@ class Person(Notable, DateRange, Indexable):
 
     MALE = 'M'
     FEMALE = 'F'
-    SEX_CHOICES = (
+    NONBINARY = 'N'
+    GENDER_CHOICES = (
         (FEMALE, 'Female'),
         (MALE, 'Male'),
+        (NONBINARY, 'Nonbinary'),
     )
-    #: sex
-    sex = models.CharField(blank=True, max_length=1, choices=SEX_CHOICES)
+    #: gender
+    gender = models.CharField(blank=True, max_length=1, choices=GENDER_CHOICES)
     #: title
     title = models.CharField(blank=True, max_length=255)
     #: :class:`Profession`
@@ -385,7 +462,7 @@ class Person(Notable, DateRange, Indexable):
             # actual years since presumably all correct years will follow 1900
             # as the value for UNKNOWN_YEAR
             return '; '.join([sub.date_range for sub in
-                                subscriptions.order_by('start_date')])
+                              subscriptions.order_by('start_date')])
         return ''
 
     def is_creator(self):
@@ -399,7 +476,7 @@ class Person(Notable, DateRange, Indexable):
         return self.account_set.filter(
             models.Q(event__subscription__isnull=False) |
             models.Q(event__reimbursement__isnull=False)
-            ).exists()
+        ).exists()
     in_logbooks.boolean = True
 
     def has_card(self):
@@ -411,6 +488,45 @@ class Person(Notable, DateRange, Indexable):
         '''URL to edit this record in the admin site'''
         return reverse('admin:people_person_change', args=[self.id])
     admin_url.verbose_name = 'Admin Link'
+
+    index_depends_on = {
+        'nationalities': {
+            'post_save': PersonSignalHandlers.country_save,
+            'pre_delete': PersonSignalHandlers.country_delete,
+        },
+        'account_set': {
+            'post_save': PersonSignalHandlers.account_save,
+            'pre_delete': PersonSignalHandlers.account_delete,
+        },
+        'accounts.Event': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        # unfortunately the generic event signals aren't fired
+        # when subclass types are edited directly, so bind the same signal
+        'accounts.Borrow': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        'accounts.Purchase': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        'accounts.Subscription': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        'accounts.Reimbursement': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        }
+    }
+
+    @classmethod
+    def items_to_index(cls):
+        '''Custom logic for finding items to be indexed when indexing in
+        bulk; only include library members.'''
+        return cls.objects.library_members()
 
     def index_data(self):
         '''data for indexing in Solr'''
@@ -431,17 +547,21 @@ class Person(Notable, DateRange, Indexable):
             'name_t': self.name,
             # include pk for now for member detail url
             'pk_i': self.pk,
+            # text version of sort name for search and display
             'sort_name_t': self.sort_name,
+            # string version of sort name for sort/facet
             'sort_name_sort_s': self.sort_name,
             'birth_year_i': self.birth_year,
             'death_year_i': self.death_year,
-            'has_card_b': self.has_card()
+            'has_card_b': self.has_card(),
+            'nationality': list(self.nationalities.all()
+                                    .values_list('name', flat=True))
         })
 
         # conditionally set fields that are not always present
         # to avoid storing 'None' in Solr
-        if self.sex:
-            index_data['sex_s'] = self.get_sex_display()
+        if self.gender:
+            index_data['gender_s'] = self.get_gender_display()
 
         account_dates = account.event_dates
         if account_dates:
@@ -468,13 +588,15 @@ class Person(Notable, DateRange, Indexable):
                 'account_start_i': min(account_years),
                 'account_end_i': max(account_years),
             })
+
         return index_data
 
 
 class InfoURL(Notable):
     '''Informational urls (other than VIAF) associated with a :class:`Person`,
     e.g. Wikipedia page.'''
-    url = models.URLField(verbose_name='URL',
+    url = models.URLField(
+        verbose_name='URL',
         help_text='Additional (non-VIAF) URLs for a person.')
     person = models.ForeignKey(Person, related_name='urls')
 
@@ -513,4 +635,4 @@ class Relationship(Notable):
             self.from_person.name,
             self.relationship_type.name,
             self.to_person.name
-            )
+        )

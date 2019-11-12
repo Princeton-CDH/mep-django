@@ -37,7 +37,35 @@ dl.member {
             margin: 3rem auto;
         }
     }
+
 }
+
+// timeline graphs & map
+section[aria-label=timeline],
+section.map {
+    @include container;
+    z-index: 0; // strange bug...map will be on top of main menu when it's open unless this is set
+
+    hr {
+        width: 100%;
+        margin: 0;
+        border: none;
+        background-color: $white-two;
+        height: 1px;
+    }
+
+    h2 {
+        margin: 2rem 0 1rem;
+        padding-left: 1rem;
+        font-family: $sans;
+        font-size: 0.8rem;
+    }
+}
+
+.timeline .description {
+    @include sr-only;
+}
+
 
 aside  {
     background-color:  $white;

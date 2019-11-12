@@ -1,11 +1,19 @@
 {% extends 'base.html' %}
 {% load static mep_tags %}
+{% load render_bundle from webpack_loader %}
 
 {% block page-subtitle %}{{ member.name }} · Library Members · {% endblock %}
 
 {% block js %}
 <script src="{% static 'js/d3.v5.min.js' %}" nonce="{{ request.csp_nonce }}"></script>
 {% endblock %}
+
+{# if including map, render leaflet css here, so it can be overridden #}
+{% if addresses %}
+{% block vendorcss %}
+{% render_bundle 'memberMap' 'css' %}
+{% endblock %}
+{% endif %}
 
 {% block header %}
 {% include 'snippets/header.html' with title=member.name style="detail" %}
@@ -14,8 +22,9 @@
 {% block main-style %}tabbed white{% endblock %}
 
 {% block content %}
+{# breadcrumbs & tabs #}
 {% include 'snippets/breadcrumbs.html' %}
-<nav class="tabs" aria-label="sections">
+<nav class="tabs" aria-label="tabs">
     <li class="tab" aria-selected="true">
         <a href="{% url 'people:member-detail' pk=member.pk %}">biography</a>
     </li>
@@ -26,12 +35,44 @@
         <a href="#">cards</a>
     </li>
 </nav>
+
+{# biography section #}
+{% with account_start=member.account_set.first.earliest_date account_end=member.account_set.first.last_date %}
 <section class="biography" aria-label="biography">
     <div class="details">
         {% include 'people/snippets/member_result.html' %}
     </div>
-    <div class="timeline"></div>
-    <div class="map"></div>
 </section>
+
+{# membership timeline graph(s) #}
+{% if account_start %}
+<section aria-label="timeline">
+    <div class="header">
+        <hr/>
+        <h2>Membership Timeline</h2>
+    </div>
+    <div class="timeline">
+        <p class="description" id="member-timeline-desc">Member timeline showing activity
+            {% if account_end and account_start != account_end %}
+            from {{ account_start.year }} to {{ account_end.year }}{% else %}
+            for {{ account_start.year }}{% endif %}.
+        See the activities tab for more details.</p>
+    </div>
 {% include 'people/snippets/member_graph.html' %}
+</section>
+{% endif %}
+{% endwith %}
+
+{# address map #}
+{% if addresses %}
+<section class="map">
+    <div class="header">
+        <hr/>
+        <h2>Addresses</h2>
+    </div>
+    <div id="address-map"></div>
+    {% include 'people/snippets/member_map.html' %}
+</section>
+{% endif %}
+
 {% endblock %}

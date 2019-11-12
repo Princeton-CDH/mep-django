@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from dal import autocomplete
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import MultipleObjectsReturned
@@ -14,19 +15,19 @@ from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormMixin, FormView
 
-from mep.accounts.models import Event
+from mep.accounts.models import Address, Event
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
-    LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, RdfViewMixin)
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
-                  FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
+class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
+        FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
@@ -118,8 +119,10 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     }
 
     def get_queryset(self):
-        sqs = PersonSolrQuerySet().facet_field('has_card')\
-                                  .facet_field('sex', missing=True, exclude='sex')
+        sqs = PersonSolrQuerySet() \
+            .facet_field('has_card') \
+            .facet_field('gender', missing=True, exclude='gender') \
+            .facet_field('nationality', exclude='nationality', sort='value')
 
         form = self.get_form()
 
@@ -138,8 +141,12 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
 
             if search_opts['has_card']:
                 sqs = sqs.filter(has_card=search_opts['has_card'])
-            if search_opts['sex']:
-                sqs = sqs.filter(sex__in=search_opts['sex'], tag='sex')
+            if search_opts['gender']:
+                sqs = sqs.filter(gender__in=search_opts['gender'], tag='gender')
+            if search_opts['nationality']:
+                sqs = sqs.filter(nationality__in=[
+                    '"%s"' % val for val in search_opts['nationality']
+                ], tag='nationality')
 
             # range filter by membership dates, if set
             if search_opts['membership_dates']:
@@ -192,7 +199,7 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         ]
 
 
-class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
+class MemberDetail(DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -205,11 +212,15 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
 
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
-        return self.object.get_absolute_url()
+        return absolutize_url(self.object.get_absolute_url())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # add account to context for convenience
         account = self.object.account_set.first()
+        context['account'] = account
+
         month_counts = defaultdict(int)
         # count book events by month; known years only
         for event in account.event_set.known_years().book_activities():
@@ -219,6 +230,7 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
             if event.end_date and event.start_date != event.end_date:
                 month_counts[event.end_date.strftime('%Y-%m-01')] += 1
 
+        # data for member timeline visualization
         context['timeline'] = {
             'membership_activities': [{
                 'startDate': event.start_date.isoformat()
@@ -237,6 +249,48 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
                 'endDate': end.isoformat()
             } for start, end in account.event_date_ranges()]
         }
+
+        # plottable locations for member address map visualization, which
+        # is a leaflet map that will consume JSON address data
+        # NOTE probably refactor this into a queryset method for use on
+        # members search map
+        #
+        # addresses can be stored on either Person or Account
+        addresses = Address.objects.filter(Q(account__pk=account.pk) |
+            Q(person__pk=self.object.pk)) \
+            .filter(location__latitude__isnull=False) \
+            .filter(location__longitude__isnull=False)
+
+        context['addresses'] = [
+            {
+                # these fields are taken from Location unchanged
+                'name': address.location.name,
+                'street_address': address.location.street_address,
+                'city': address.location.city,
+                'postal_code': address.location.postal_code,
+                # lat/long aren't JSON serializable so we need to do this
+                'latitude': str(address.location.latitude),
+                'longitude': str(address.location.longitude),
+                # NOTE not currently using dates as they're not entered yet
+            }
+            for address in addresses]
+
+        # address of the lending library itself; automatically available from
+        # migration mep/people/migrations/0014_library_location.py
+        library = Location.objects.get(name='Shakespeare & Company')
+        context['library_address'] = {
+            'name': library.name,
+            'street_address': library.street_address,
+            'city': library.city,
+            'latitude': str(library.latitude),
+            'longitude': str(library.longitude),
+        }
+
+        # config settings used to render the map; set in local_settings.py
+        context['mapbox_token'] = getattr(settings, 'MAPBOX_ACCESS_TOKEN', '')
+        context['mapbox_basemap'] = getattr(settings, 'MAPBOX_BASEMAP', '')
+        context['paris_overlay'] = getattr(settings, 'PARIS_OVERLAY', '')
+
         return context
 
     def get_breadcrumbs(self):
@@ -248,7 +302,7 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
+class MembershipActivities(ListView, RdfViewMixin):
     '''Display a list of membership activities (subscriptions, renewals,
     and reimbursements) for an individual member.'''
     model = Event
@@ -271,7 +325,8 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
 
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
-        return reverse('people:membership-activities', kwargs=self.kwargs)
+        return absolutize_url(reverse('people:membership-activities',
+                                      kwargs=self.kwargs))
 
     def get_breadcrumbs(self):
         '''Get the list of breadcrumbs and links to display for this page.'''

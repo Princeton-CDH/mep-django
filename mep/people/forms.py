@@ -41,7 +41,6 @@ class MemberSearchForm(FacetForm):
         ('name', 'Name A-Z'),
     ]
 
-
     # NOTE these are not set by default!
     error_css_class = 'error'
     required_css_class = 'required'
@@ -59,15 +58,23 @@ class MemberSearchForm(FacetForm):
             'aria-label': 'Card',
             'aria-describedby': 'has_card_tip'
         }),
-        help_text='This filter will narrow results to show only members whose \
-        library records are available.')
-    sex = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
-        'class': 'choice facet'
-    }))
+        help_text='Limit to members with lending library cards.')
+    gender = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
+        'class': 'choice facet',
+        'aria-describedby': 'gender_tip'
+        }),
+        help_text='Learn more about gender and its representation in the Project \
+        in the Analysis section.')
     membership_dates = RangeField(label='Membership Dates', required=False,
-        widget=RangeWidget(attrs={'size': 4}))
+                                  widget=RangeWidget(attrs={'size': 4}))
     birth_year = RangeField(label='Birth Year', required=False,
-        widget=RangeWidget(attrs={'size': 4}))
+                            widget=RangeWidget(attrs={'size': 4}))
+    nationality = FacetChoiceField(
+        label='Nationality', hide_threshold=0,
+        widget=CheckboxFieldset(attrs={
+            'class': 'text facet'
+        })
+    )
 
     def set_range_minmax(self, range_minmax):
         '''Set the min, max, and placeholder values for all

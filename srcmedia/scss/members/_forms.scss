@@ -1,9 +1,15 @@
 #members-form {
 
+    // "has card" facet
     label[for=id_has_card] {
 
         @media (min-width: $breakpoint-s) {
             max-width: 7rem;
+            margin-right: 0.1rem;
+        }
+
+        span:first-child {
+            padding-top: .1rem;
         }
 
         span[role=tooltip]::after {
@@ -17,13 +23,14 @@
     }
 
     // sizing for "membership dates" filter
-    .range.facet {
+    #id_membership_dates {
         legend { // "membership dates" text is too long; needs to wrap
             width: 50%;
         }
 
         @media (min-width: $breakpoint-s) {
             max-width: 13rem;
+            margin-right: 0.1rem;
         }
 
         @media (min-width: $breakpoint-m) {
@@ -33,14 +40,119 @@
 
     // on tablet only, all facets get taller to accommodate wrapped "membership dates" text
     @media (min-width: $breakpoint-s) and (max-width: calc(#{$breakpoint-m} - 1px)) {
-        .inner > .range.facet,
-        .inner > label {
+        .group > .inner > .range.facet,
+        .group > .inner > label,
+        .group > .inner > .tab {
             height: 3rem;
         }
 
-        .range.facet legend {
+        .group .range.facet legend {
             line-height: 1.2;
             top: 0.6rem;
         }
+    }
+
+    // on mobile only, all facets/filters have a slight break in between them
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+        .group > .inner > .range.facet,
+        .group > .inner > label,
+        .group > .inner > .tab,
+        #id_gender {
+            margin-bottom: 0.1rem;
+        }
+    }
+
+    // "birth year" is a range facet but it goes inside a tab on large screens
+    #id_birth_year {
+        margin-bottom: 0.1rem;
+
+        @media (min-width: $breakpoint-s) {
+            border: 0;
+            padding: 0;
+            max-width: none;
+            height: fit-content;
+            margin: 0 0 1rem;
+
+            .inputs,
+            legend {
+                position: relative;
+                display: block;
+                width: 100%;
+                text-align: left;
+                right: unset;
+                top: unset;
+            }
+
+            legend {
+                margin-bottom: 0.5rem;
+            }
+
+            .inputs {
+                margin-left: 0.5rem;
+            }
+        }
+    }
+
+    // gender facet tooltip
+    // tooltip text flips to below icon on tablet and back to above on desktop
+    // because it can't exceed the bounds of its parent container (column)
+    #gender_tip {
+        height: fit-content;
+        position: absolute;
+        top: 3rem;
+        right: 0.5rem;
+
+        @media (min-width: $breakpoint-s) {
+            top: 4.25rem;
+            right: 1rem;
+        }
+
+        &::before {
+            bottom: 0.5rem;
+            transform-origin: bottom center;
+
+            @media (min-width: $breakpoint-s) {
+                transform: rotate(180deg);
+            }
+
+            @media (min-width: $breakpoint-m) {
+                transform: none;
+            }
+        }
+
+        &::after {
+            right: 0;
+            bottom: 1.25rem;
+            min-width: 9rem;
+
+            @media (min-width: $breakpoint-s) {
+                bottom: -4.25rem;
+                right: -0.5rem;
+            }
+
+            @media (min-width: $breakpoint-m) {
+                bottom: 1.25rem;
+                min-width: 11rem; // larger on desktop
+            }
+        }
+    }
+
+    // make the tabpanels display when their tabs are aria-selected
+    .demographics.tab[aria-selected=true] ~ #demographics-panel,
+    .books.tab[aria-selected=true] ~ #books-panel {
+
+        @media (min-width: $breakpoint-s) {
+            display: block;
+            max-height: 13.5rem;
+            border-color: $green;
+
+            > .inner {
+                max-height: 13.5rem;
+            }
+        }
+    }
+
+    .books.tab {
+        margin-right: 0;
     }
 }
