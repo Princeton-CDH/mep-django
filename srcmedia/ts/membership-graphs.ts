@@ -47,7 +47,8 @@ function drawMembershipGraph(el: HTMLDivElement) {
 
     const svg = d3.select(el).append('svg')
         .attr('preserveAspectRatio', 'xMidYMid meet')
-        .attr('viewBox', '0 0 905 285')
+        // .attr('viewBox', '0 0 905 285')
+        .attr('viewBox', '0 0 905 400')
         .attr('aria-label', 'Chart: Membership Graph')
         .attr('role', 'img')
 
@@ -151,4 +152,79 @@ function drawMembershipGraph(el: HTMLDivElement) {
                      })
             )
     }
+
+    // draw the legend
+   const legend = svg.append('g')
+      // default styles for fonts and circles
+      .attr('class', 'legend')
+      .attr("font-family", "univers Lt Pro")
+      .attr("font-size", 13)
+      .attr("fill", "black")
+      .attr("aria-hidden", 'true')
+
+    // not sure the logic here or how to derive
+    const firstLabelY = {
+        rect: 320,
+        text: 338
+    }
+    const secondLabelY = {
+        rect: 368,
+        text: 385
+    }
+
+    if (dataSeries && dataSeries.includes('subscriptions')) {
+        legend.append("rect")
+            .attr('x', 20)
+            .attr('y', firstLabelY.rect)
+            .attr("fill", "#231F20")
+            .attr("opacity", "0.2")
+            .attr("width", 6)
+            .attr("height", 25)
+
+        legend.append('text')
+            .attr("x", 35)
+            .attr("y", firstLabelY.text)
+            .attr("width", 100)
+            .attr("height", 100)
+            .text ('Members with subscriptions')
+    }
+
+    if (dataSeries && dataSeries.includes('borrows')) {
+        // y coords for borrows depends on whether subscriptions is shown
+        const borrowLabelY = dataSeries.includes('subscriptions') ? secondLabelY : firstLabelY
+
+        legend.append("rect")
+            .attr('x', 20)
+            .attr('y', borrowLabelY.rect)
+            .attr("fill", "#47C2C2")
+            .attr("opacity", "0.8")
+            .attr("width", 6)
+            .attr("height", 25)
+
+        legend.append('text')
+            .attr("x", 35)
+            .attr("y", borrowLabelY.text)
+            .attr("width", 100)
+            .attr("height", 100)
+            .text ('Members with book activity');
+    }
+
+    if (dataSeries && dataSeries.includes('members')) {
+        legend.append("rect")
+            .attr('x', 225)
+            .attr('y', firstLabelY.rect)
+            .attr("fill", "#8a8a8a")
+            .attr("opacity", "0.2")
+            .attr("width", 6)
+            .attr("height", 25)
+
+        legend.append('text')
+            .attr("x", 235)
+            .attr("y", firstLabelY.text)
+            .attr("width", 100)
+            .attr("height", 100)
+            .text ('Total members')
+    }
+
+
 }
