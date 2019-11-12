@@ -35,6 +35,25 @@ class TestLocation(TestCase):
         paris_hotel = Location.objects.create(name='L\'Hotel', city='Paris')
         assert str(paris_hotel) == '%s, %s' % (paris_hotel.name, paris_hotel.city)
 
+    def test_arrondissement(self):
+        # locations in paris with postcodes ending in 2 numbers should work
+        hotel = Location(name='L\'Hotel', city='Paris', postal_code='75003')
+        rue = Location(name='Rue 2', city='Paris', postal_code='75016')
+        assert hotel.arrondissement() is 3
+        assert rue.arrondissement() is 16
+        # locations outside of paris return None
+        pantheon = Location(name='Pantheon', city='Rome', postal_code='12345')
+        assert pantheon.arrondissement() is None
+        # locations with no postcode return None
+        embassy = Location(name='Embassy', city='Paris')
+        assert embassy.arrondissement() is None
+        # locations with a postcode that is too short return None
+        library = Location(name='Library', city='Paris', postal_code='1')
+        assert library.arrondissement() is None
+        # locations with a postcode that is non-numeric return None
+        store = Location(name='Store', city='Paris', postal_code='abc')
+        assert store.arrondissement() is None
+
 
 class TestPerson(TestCase):
 
@@ -132,20 +151,21 @@ class TestPerson(TestCase):
 
     def test_address_count(self):
 
-        # create a person
+        # create a person & account
         pers = Person.objects.create(name='Foobar')
+        acc = Account.objects.create(person=pers)
         # no addresses
         assert pers.address_count() == 0
         loc = Location.objects.create(name='L\'Hotel', city='Paris')
 
         # add an address
-        Address.objects.create(location=loc, person=pers)
+        Address.objects.create(location=loc, account=acc)
         # should be one
         assert pers.address_count() == 1
 
         # add another, should be 2
         loc2 = Location.objects.create(name='Elysian Fields', city='Paris')
-        Address.objects.create(location=loc2, person=pers)
+        Address.objects.create(location=loc2, account=acc)
         assert pers.address_count() == 2
 
     def test_nationality_list(self):
@@ -332,6 +352,30 @@ class TestPerson(TestCase):
         index_data = pers.index_data()
         assert uk.name in index_data['nationality']
         assert denmark.name in index_data['nationality']
+
+        # add locations in Paris for arrondissements
+        assert 'arrondissements' not in index_data # none available yet
+        pantheon = Location(name='Pantheon', city='Rome', postal_code='12345')
+        hotel = Location(name='Hotel', city='Paris', postal_code='75003')
+        shop = Location(name='Shop', city='Paris', postal_code='75003')
+        rue = Location(name='Rue 2', city='Paris', postal_code='75016')
+        # save them (required to create the m2m)
+        pantheon.save()
+        hotel.save()
+        shop.save()
+        rue.save()
+        # associate them with the person's account & save
+        Address.objects.create(account=acct, location=pantheon).save()
+        Address.objects.create(account=acct, location=hotel).save()
+        Address.objects.create(account=acct, location=shop).save()
+        Address.objects.create(account=acct, location=rue).save()
+        # pantheon ignored because not in paris; hotel/shop are located in the
+        # same arrondissement so we should only have 2 unique values
+        index_data = pers.index_data()
+        assert 'arrondissements' in index_data
+        assert len(index_data['arrondissements']) is 2
+        assert 3 in index_data['arrondissements']
+        assert 16 in index_data['arrondissements']
 
 
 class TestPersonQuerySet(TestCase):

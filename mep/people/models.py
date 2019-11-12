@@ -83,6 +83,19 @@ class Location(Notable):
         str_parts = [self.name, self.street_address, self.city]
         return ', '.join([part for part in str_parts if part])
 
+    def arrondissement(self):
+        '''Get the arrondissement corresponding to a particular postal code in
+        Paris. If the `Location` is not in Paris or doesn't have a postal code,
+        return None.'''
+        # Arrondissement is the last two digits of postal code - see:
+        # # https://en.wikipedia.org/wiki/Arrondissements_of_Paris
+        if self.city != 'Paris' or self.postal_code is None:
+            return None
+        try:
+            return int(self.postal_code[2:])
+        except (ValueError, IndexError):
+            return None
+
 
 class Profession(Named, Notable):
     '''Profession for a :class:`Person`'''
@@ -430,9 +443,12 @@ class Person(Notable, DateRange, ModelIndexable):
     list_nationalities.admin_order_field = 'nationalities__name'
 
     def address_count(self):
-        '''Number of documented addresses for this person'''
+        '''Number of documented addresses for this person, associated through
+        their account.'''
         # used in admin list view
-        return self.address_set.count()
+        if self.has_account():
+            return self.account_set.first().address_set.count()
+        return 0
     address_count.short_description = '# Addresses'
 
     def account_id(self):
@@ -571,6 +587,16 @@ class Person(Notable, DateRange, ModelIndexable):
             })
         if self.gender:
             index_data['gender_s'] = self.get_gender_display()
+
+        # if the Person has associated Addresses through their account, get
+        # the corresponding Paris arrondissements via their postal codes. If
+        # we find any, add the unique ones for searching.
+        if self.address_count() > 0:
+            locs = Location.objects.filter(address__in=account.address_set.all())
+            arrs = list(set(filter(None, [l.arrondissement() for l in locs])))
+            if arrs:
+                index_data['arrondissements'] = arrs
+
         return index_data
 
 
