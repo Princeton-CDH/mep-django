@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static mep_tags %}
+{% load render_bundle from webpack_loader %}
 
 {% block page-subtitle %}Graphs · Library Members · {% endblock %}
 
@@ -14,134 +15,21 @@
 {% block main-style %}tabbed white{% endblock %}
 
 {% block content %}
-
-<section class="biography">
-    <div class="timeline" data-series="subscriptions borrows members">
-      <svg/>
-    </div>
+<article class="main">
+  <h2>Members with active subscriptions</h2>
+    <div class="membership-graph" data-series="subscriptions"> </div>
+  <h2>Members with borrowing activity</h2>
+    <div class="membership-graph" data-series="borrows"> </div>
+  <h2>Subscriptions and borrowing activity together</h2>
+    <div class="membership-graph" data-series="subscriptions borrows"> </div>
+  <h2>Subscriptions, borrowing, and total number of members</h2>
+    <div class="membership-graph" data-series="subscriptions borrows members"> </div>
+</article>
   <script nonce="{{ request.csp_nonce }}">
-            const totals = {{ data|json }}
-            console.log('timeline data: ', totals)
-
-
-var svgheight = 280;
-var bookstoreCloseDate = new Date(1942, 12, 31);
-
-var x = d3.scaleTime()
-    // whole timeline
-    .domain([new Date(1919, 1, 1), bookstoreCloseDate])
-    .range([0, 911]);
-
-var xAxis = d3.axisTop(x);
-
-d3.select("svg")
-    .attr('preserveAspectRatio', 'xMidYMid meet')
-    .attr('viewBox', '0 0 905 285')
-  .append("g")
-    .attr("transform", "translate(10,30)")
-    .call(xAxis)
-    .call(g => g.selectAll(".tick line")
-        .attr("stroke", '#231F20')
-        .attr("stroke-width", '0.25')
-        .attr('stroke-dasharray', '2,2')
-        .attr("y2", 250)
-        .attr("y1", 0))
-    // remove domain path automatically added by d3 axis
-    .call(g => g.select(".domain").remove())
-
-
-var maxCount = totals.logbooks.map(d => d.count).reduce(function(a, b) {
-    return Math.max(a, b);
-});
-
-console.log(maxCount);
-
-var y = d3.scaleLinear()
-  .domain([maxCount, 0])
-  .range([0, 280]);
-
-var yAxis = d3.axisRight(y)
-  .ticks(5)
-  .tickSize(0);
-
-d3.select("svg")
-  .append("g")
-    .call(yAxis)
-  // remove domain path automatically added by d3 axis
-  .call(g => g.select(".domain").remove())
-
-
-// preliminary bar graph (based on individual member timeline)
-
-
-d3.select('svg').append('g')
-    .attr("transform", "translate(10,0)")
-    .attr('class', 'borrowing-bars')
-  .selectAll('bar')
-  .data(totals.cards.filter(event => (new Date(event.startDate) < bookstoreCloseDate)))
-  .join(
-    enter => enter.append("rect")
-                    .attr('class', 'borrowing')
-                    .attr('x', function(d) {
-                      return x(new Date(d.startDate))
-                     })
-                    .attr('y', function (d) {
-                        return svgheight - d.count
-                    })
-                    .attr("fill", "#47C2C2")
-                    .attr("opacity", "0.8")
-                    .attr("width", 2.35)
-                    .attr("height",function (d) {
-                        return d.count
-                 })
-    )
-
-d3.select('svg').append('g')
-    .attr('class', 'subscription-bars')
-    .attr("transform", "translate(10,0)")
-  .selectAll('bar')
-  .data(totals.logbooks)
-  .join(
-    enter => enter.append("rect")
-                    .attr('class', 'subscription')
-                    .attr('x', function(d) {
-                      return x(new Date(d.startDate))
-                     })
-                    .attr('y', function (d) {
-                        return svgheight - d.count
-                    })
-                    .attr("fill", "#231F20")
-                    .attr("opacity", "0.2")
-                    .attr("width", 2.35)
-                    .attr("height",function (d) {
-                        return d.count
-                 })
-    )
-
-
-// d3.select('svg').append('g')
-//     .attr('class', 'member-bars')
-//     .attr("transform", "translate(10,0)")
-//   .selectAll('bar')
-//   .data(totals.members)
-//   .join(
-//     enter => enter.append("rect")
-//                     .attr('class', 'members')
-//                     .attr('x', function(d) {
-//                       return x(new Date(d.startDate))
-//                      })
-//                     .attr('y', function (d) {
-//                         return svgheight - d.count
-//                     })
-//                     .attr("fill", "#8a8a8a")
-//                     .attr("opacity", "0.2")
-//                     .attr("width", 2.35)
-//                     .attr("height",function (d) {
-//                         return d.count
-//                  })
-//     )
-        </script>
-    </div>
+      var membershipData = {{ data|json }};
+  </script>
+{# load the membership graph bundle, which will render based on data-series #}
+{% render_bundle 'membershipGraphs' %}
 
 </section>
 {% endblock %}
