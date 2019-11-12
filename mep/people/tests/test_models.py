@@ -153,14 +153,16 @@ class TestPerson(TestCase):
 
         # create a person & account
         pers = Person.objects.create(name='Foobar')
-        acc = Account.objects.create(person=pers)
+        acc = Account.objects.create()
+        acc.persons.add(pers)
+        acc.save()
+
         # no addresses
         assert pers.address_count() == 0
-        loc = Location.objects.create(name='L\'Hotel', city='Paris')
 
-        # add an address
+        # add an address; should be 1
+        loc = Location.objects.create(name='L\'Hotel', city='Paris')
         Address.objects.create(location=loc, account=acc)
-        # should be one
         assert pers.address_count() == 1
 
         # add another, should be 2
