@@ -320,8 +320,17 @@ class Person(Notable, DateRange, ModelIndexable):
     is_organization = models.BooleanField(default=False,
         help_text='Check to indicate this entity is an organization rather than a person')
     #: verified flag
-    verified = models.BooleanField(default=False,
-        help_text='Check to indicate information in this record has been checked against the relevant archival sources.')
+    verified = models.BooleanField(
+        default=False,
+        help_text='Check to indicate information in this record has been ' +
+        'checked against the relevant archival sources.')
+
+    #: slug for use in urls
+    slug = models.SlugField(
+        max_length=100, unique=True,
+        help_text='Short, durable, unique identifier for use in URLs. ' +
+        'Editing will change the public, citable URL for library members.')
+
     #: update timestamp
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
