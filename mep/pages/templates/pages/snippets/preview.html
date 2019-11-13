@@ -10,7 +10,7 @@ preview "tile" for sub/child pages shown on a landing page.
         {% if page.authors %}
         {% include 'pages/snippets/attribution.html' with creators=page.authors %} /
         {% endif %}
-        <time datetime="{{ item.first_published_at|date:'Y-m-d' }}">
+        <time datetime="{{ page.first_published_at|date:'Y-m-d' }}">
             {{ page.first_published_at|date:"F j, Y"}}
         </time>
     </div>
