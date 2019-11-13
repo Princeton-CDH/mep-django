@@ -403,10 +403,9 @@ class Person(Notable, DateRange, ModelIndexable):
         '''
         Return the public url to view library member's detail page
         '''
-        # NOTE: using pk temporarily until we add slugs
+        # Only people with accounts have member detail pages
         if self.has_account():
-            # Only people with accounts have member detail pages
-            return reverse('people:member-detail', args=[self.pk])
+            return reverse('people:member-detail', args=[self.slug])
         # for now returning no url for person with no account
 
     @property
@@ -552,8 +551,7 @@ class Person(Notable, DateRange, ModelIndexable):
 
         index_data.update({
             'name_t': self.name,
-            # include pk for now for member detail url
-            'pk_i': self.pk,
+            'slug_s': self.slug,
             # text version of sort name for search and display
             'sort_name_t': self.sort_name,
             # string version of sort name for sort/facet

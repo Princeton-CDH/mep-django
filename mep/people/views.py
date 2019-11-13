@@ -312,14 +312,14 @@ class MembershipActivities(ListView, RdfViewMixin):
     def get_queryset(self):
         # filter to requested person, then get membership activities
         return super().get_queryset() \
-                      .filter(account__persons__pk=self.kwargs['pk']) \
+                      .filter(account__persons__slug=self.kwargs['slug']) \
                       .membership_activities()
 
     def get_context_data(self, **kwargs):
         # should 404 if not a person or valid person but not a library member
         # store member before calling super so available for breadcrumbs
         self.member = get_object_or_404(Person.objects.library_members(),
-                                        pk=self.kwargs['pk'])
+                                        slug=self.kwargs['slug'])
         context = super().get_context_data(**kwargs)
         context['member'] = self.member
         return context
