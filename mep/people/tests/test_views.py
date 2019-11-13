@@ -598,7 +598,8 @@ class TestMembersListView(TestCase):
         self.assertContains(response, 'Search member', count=1)
         # + card filter with a card count (1)
         # + counts for nationality filter (2)
-        self.assertContains(response, '<span class="count">1</span>', count=3)
+        # + counts for arrondissement filter (1)
+        self.assertContains(response, '<span class="count">1</span>', count=4)
         # the filter should have a card image (counted later with other result
         # card icon) and it should have a tooltip
         # total 2 tooltips on page since gender facet will also have one

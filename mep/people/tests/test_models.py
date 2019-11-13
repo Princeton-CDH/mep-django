@@ -36,22 +36,22 @@ class TestLocation(TestCase):
         assert str(paris_hotel) == '%s, %s' % (paris_hotel.name, paris_hotel.city)
 
     def test_arrondissement(self):
-        # locations in paris with postcodes ending in 2 numbers should work
-        hotel = Location(name='L\'Hotel', city='Paris', postal_code='75003')
-        rue = Location(name='Rue 2', city='Paris', postal_code='75016')
+        # locations in paris with 750xx postcodes should work
+        hotel = Location(name='L\'Hotel', postal_code='75003')
+        rue = Location(name='Rue 2', postal_code='75016')
         assert hotel.arrondissement() is 3
         assert rue.arrondissement() is 16
-        # locations outside of paris return None
-        pantheon = Location(name='Pantheon', city='Rome', postal_code='12345')
+        # locations outside of paris proper return None
+        pantheon = Location(name='Pantheon', postal_code='12345')
         assert pantheon.arrondissement() is None
         # locations with no postcode return None
-        embassy = Location(name='Embassy', city='Paris')
+        embassy = Location(name='Embassy')
         assert embassy.arrondissement() is None
         # locations with a postcode that is too short return None
-        library = Location(name='Library', city='Paris', postal_code='1')
+        library = Location(name='Library', postal_code='1')
         assert library.arrondissement() is None
         # locations with a postcode that is non-numeric return None
-        store = Location(name='Store', city='Paris', postal_code='abc')
+        store = Location(name='Store', postal_code='abc')
         assert store.arrondissement() is None
 
 

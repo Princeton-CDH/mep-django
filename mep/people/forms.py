@@ -71,9 +71,11 @@ class MemberSearchForm(FacetForm):
                             widget=RangeWidget(attrs={'size': 4}))
     nationality = FacetChoiceField(
         label='Nationality', hide_threshold=0,
-        widget=CheckboxFieldset(attrs={
-            'class': 'text facet'
-        })
+        widget=CheckboxFieldset(attrs={'class': 'text facet'})
+    )
+    arrondissements = FacetChoiceField(
+        label='Arrondissement', hide_threshold=0,
+        widget=CheckboxFieldset(attrs={'class': 'text facet'})
     )
 
     def set_range_minmax(self, range_minmax):

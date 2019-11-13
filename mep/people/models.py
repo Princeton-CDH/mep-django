@@ -88,12 +88,14 @@ class Location(Notable):
         Paris. If the `Location` is not in Paris or doesn't have a postal code,
         return None.'''
         # Arrondissement is the last two digits of postal code - see:
-        # # https://en.wikipedia.org/wiki/Arrondissements_of_Paris
-        if self.city != 'Paris' or self.postal_code is None:
-            return None
+        # https://en.wikipedia.org/wiki/Arrondissements_of_Paris
+        # note that the 16th R is unique in being split into two subsections;
+        # the northern 16th starts with 751. all others start with 750
         try:
-            return int(self.postal_code[2:])
-        except (ValueError, IndexError):
+            prefix = self.postal_code[:3]
+            if prefix == '750' or prefix == '751': # postcode must be in paris proper
+                return int(self.postal_code[-2:]) # use last two digits
+        except (ValueError, IndexError, AttributeError):
             return None
 
 
@@ -238,11 +240,11 @@ class PersonSignalHandlers:
 
     @staticmethod
     def debug_log(name, count):
-        logger.debug('save %s, reindexing %d related %s',
+        logger.debug('save %s, reindexing %d related %s', name,
                      count, 'person' if count == 1 else 'people')
 
     @staticmethod
-    def country_save(sender, instance, **kwargs):
+    def country_save(_sender, instance, **_kwargs):
         if instance.pk:
             # if any members are associated
             members = instance.person_set.library_members().all()
@@ -251,7 +253,7 @@ class PersonSignalHandlers:
                 ModelIndexable.index_items(members)
 
     @staticmethod
-    def country_delete(sender, instance, **kwargs):
+    def country_delete(_sender, instance, **_kwargs):
         if not instance.pk:
             return
         logger.debug('country delete')
@@ -268,7 +270,7 @@ class PersonSignalHandlers:
             ModelIndexable.index_items(members)
 
     @staticmethod
-    def account_save(sender, instance, **kwargs):
+    def account_save(_sender, instance, **_kwargs):
         if instance.pk:
             # if any members are associated
             members = instance.persons.library_members().all()
@@ -277,7 +279,7 @@ class PersonSignalHandlers:
                 ModelIndexable.index_items(members)
 
     @staticmethod
-    def account_delete(sender, instance, **kwargs):
+    def account_delete(_sender, instance, **_kwargs):
         logger.debug('account delete')
         # get a list of ids for collected works before clearing them
         person_ids = instance.persons.library_members() \
@@ -291,7 +293,7 @@ class PersonSignalHandlers:
             ModelIndexable.index_items(members)
 
     @staticmethod
-    def event_save(sender, instance, **kwargs):
+    def event_save(_sender, instance, **_kwargs):
         if instance.pk:
             # if any members are associated
             members = instance.account.persons.library_members().all()
@@ -300,15 +302,17 @@ class PersonSignalHandlers:
                 ModelIndexable.index_items(members)
 
     @staticmethod
-    def event_delete(sender, instance, **kwargs):
+    def event_delete(_sender, instance, **_kwargs):
         # get a list of ids for deleted event
         members = instance.account.persons.library_members()
         if members.exists():
             ModelIndexable.index_items(members)
 
     @staticmethod
-    def address_save(sender, instance, **kwargs):
-        if instance.pk:
+    def address_save(_sender, instance, **_kwargs):
+        # some addresses are associated directly to members - these are no
+        # longer valid so we check that it's associated to account instead
+        if instance.pk and instance.account:
             # if any members are associated through account
             members = instance.account.persons.library_members()
             if members.exists():
@@ -316,10 +320,12 @@ class PersonSignalHandlers:
                 ModelIndexable.index_items(members)
 
     @staticmethod
-    def address_delete(sender, instance, **kwargs):
-        members = instance.account.persons.library_members()
-        if members.exists():
-            ModelIndexable.index_items(members)
+    def address_delete(_sender, instance, **_kwargs):
+        # check that we are associated to a member's account
+        if instance.account:
+            members = instance.account.persons.library_members()
+            if members.exists():
+                ModelIndexable.index_items(members)
 
 
 class Person(Notable, DateRange, ModelIndexable):

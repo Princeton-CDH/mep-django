@@ -3,8 +3,8 @@ from unittest.mock import patch
 from parasolr.django.indexing import ModelIndexable
 import pytest
 
-from mep.accounts.models import Account, Event
-from mep.people.models import Country, Person, PersonSignalHandlers
+from mep.accounts.models import Account, Event, Address
+from mep.people.models import Country, Person, Location, PersonSignalHandlers
 
 
 @pytest.mark.django_db
@@ -139,6 +139,7 @@ def test_event_delete(mock_indexitems):
     evt = Event.objects.create(account=acct)
 
     # saved but no people - ignore
+    evt.save()
     PersonSignalHandlers.event_delete(Event, evt)
     mock_indexitems.assert_not_called()
 
@@ -146,6 +147,63 @@ def test_event_delete(mock_indexitems):
     pers = Person.objects.create()
     acct.persons.add(pers)
     PersonSignalHandlers.event_delete(Event, evt)
+    assert mock_indexitems.call_count == 1
+    # person should be in the queryset; first arg for the last call
+    assert pers in mock_indexitems.call_args[0][0]
+
+
+@pytest.mark.django_db
+@patch.object(ModelIndexable, 'index_items')
+def test_address_save(mock_indexitems):
+    # none saved - ignore
+    pers = Person.objects.create(name='Mr. Foo')
+    loc = Location.objects.create(name='L\'Hotel', city='Paris')
+    addr = Address(location=loc)
+    PersonSignalHandlers.address_save(Address, addr)
+    mock_indexitems.assert_not_called()
+
+    # saved but associated directly to Person instead of their Account; ignore
+    # NOTE this is a legacy pattern; included for completeness but shouldn't
+    # occur in future as of 11/2019
+    addr.person = pers
+    addr.save()
+    PersonSignalHandlers.address_save(Address, addr)
+    mock_indexitems.assert_not_called()
+
+    # associate an account with the address instead
+    acct = Account.objects.create()
+    acct.persons.add(pers)
+    addr.person = None
+    addr.account = acct
+    addr.save()
+    PersonSignalHandlers.address_save(Address, addr)
+    assert mock_indexitems.call_count == 1
+    # person should be in the queryset; first arg for the last call
+    assert pers in mock_indexitems.call_args[0][0]
+
+
+@pytest.mark.django_db
+@patch.object(ModelIndexable, 'index_items')
+def test_address_delete(mock_indexitems):
+    pers = Person.objects.create(name='Mr. Foo')
+    loc = Location.objects.create(name='L\'Hotel', city='Paris')
+    addr = Address(location=loc)
+
+    # associated directly to Person instead of their Account; ignore deletion
+    # NOTE this is a legacy pattern; included for completeness but shouldn't
+    # occur in future as of 11/2019
+    addr.person = pers
+    addr.save()
+    PersonSignalHandlers.address_delete(Address, addr)
+    mock_indexitems.assert_not_called()
+
+    # associate an account with the address instead and delete it
+    acct = Account.objects.create()
+    acct.persons.add(pers)
+    addr.person = None
+    addr.account = acct
+    addr.save()
+    PersonSignalHandlers.address_delete(Address, addr)
     assert mock_indexitems.call_count == 1
     # person should be in the queryset; first arg for the last call
     assert pers in mock_indexitems.call_args[0][0]

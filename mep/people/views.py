@@ -123,7 +123,9 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
         sqs = PersonSolrQuerySet() \
             .facet_field('has_card') \
             .facet_field('gender', missing=True, exclude='gender') \
-            .facet_field('nationality', exclude='nationality', sort='value')
+            .facet_field('nationality', exclude='nationality', sort='value') \
+            .facet_field('arrondissements', exclude='arrondissements',
+                         sort='value')
 
         form = self.get_form()
 
@@ -148,6 +150,10 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
                 sqs = sqs.filter(nationality__in=[
                     '"%s"' % val for val in search_opts['nationality']
                 ], tag='nationality')
+            if search_opts['arrondissements']:
+                sqs = sqs.filter(arrondissements__in=[
+                    '"%s"' % val for val in search_opts['arrondissements']
+                ], tag='arrondissements')
 
             # range filter by membership dates, if set
             if search_opts['membership_dates']:
