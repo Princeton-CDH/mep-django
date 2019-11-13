@@ -625,9 +625,8 @@ class TestMembersListView(TestCase):
         self.assertContains(response, account.earliest_date().year)
         self.assertContains(response, account.last_date().year)
 
-        # NOTE: TEMPORARILY DISABLED while view requires login
         # should not display relevance score
-        # self.assertNotContains(response, '<dt>relevance</dt>')
+        self.assertNotContains(response, '<dt>relevance</dt>')
 
         # icon for 'has card' should show up twice, once in the list
         # and once in the filter icon
@@ -650,9 +649,8 @@ class TestMembersListView(TestCase):
         response = self.client.get(self.members_url, {'query': card_member.name})
         assert response.context['members'].count() == 1
         # should not display relevance score
-        # NOTE: TEMPORARILY DISABLED while view requires login
-        # self.assertNotContains(response, '<dt>relevance</dt>',
-        #     msg_prefix='relevance score not displayed to anonymous user')
+        self.assertNotContains(response, '<dt>relevance</dt>',
+            msg_prefix='relevance score not displayed to anonymous user')
 
         # sanity check date filters -- exclude the member with events
         response = self.client.get(self.members_url, {'membership_dates_0': 1951})
