@@ -2,14 +2,14 @@
 {% load render_bundle from webpack_loader %}
 {% load static %}
 
-{% block page-subtitle %}{{ member.name }} Membership Activity · Library Members · {% endblock %}
+{% block page-subtitle %}{{ member.firstname_last }} Membership Activity · Library Members · {% endblock %}
 
 {% block js %}
 {% render_bundle 'activities' 'js' %}
 {% endblock %}
 
 {% block header %}
-{% include 'snippets/header.html' with title=member.name style="detail" %}
+{% include 'snippets/header.html' with title=member.firstname_last style="detail" %}
 {% endblock %}
 
 {% block main-style %}tabbed white{% endblock %}
