@@ -15,6 +15,7 @@ def group_by_name(queryset):
     # generator to group people by first 3 letters of the last name
     # - use unidecode and lower case to ensure accent and case variants
     #   end up in the same group
+    # inspired by https://stackoverflow.com/a/52783685
 
     # grouping doesn't work properly if not already sorted, and
     # queryset sort doesn't do exactly what we want (can't ignore unicode)

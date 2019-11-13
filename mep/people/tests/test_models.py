@@ -133,7 +133,7 @@ class TestPerson(TestCase):
     def test_address_count(self):
 
         # create a person
-        pers = Person.objects.create(name='Foobar')
+        pers = Person.objects.create(name='Foobar', slug='foobar')
         # no addresses
         assert pers.address_count() == 0
         loc = Location.objects.create(name='L\'Hotel', city='Paris')
@@ -150,7 +150,7 @@ class TestPerson(TestCase):
 
     def test_nationality_list(self):
         # create a person
-        pers = Person.objects.create(name='Foobar')
+        pers = Person.objects.create(name='Foobar', slug='foobar')
         # no nationalities
         assert pers.list_nationalities() == ''
         country = Country.objects.create(name='France', code='FR')
@@ -163,7 +163,7 @@ class TestPerson(TestCase):
 
     def test_account_id(self):
         # create a person
-        pers = Person.objects.create(name='Foobar')
+        pers = Person.objects.create(name='Foobar', slug='foobar')
         # create an account
         acct = Account.objects.create()
         # not associated so person has no account number
@@ -174,7 +174,7 @@ class TestPerson(TestCase):
 
     def test_has_account(self):
         # create a person
-        pers = Person.objects.create(name='Foobar')
+        pers = Person.objects.create(name='Foobar', slug='foobar')
         # create an account
         acct = Account.objects.create()
         # not associated, returns False
@@ -184,7 +184,7 @@ class TestPerson(TestCase):
         assert pers.has_account()
 
     def test_subscription_dates(self):
-        pers = Person.objects.create(name='Foo')
+        pers = Person.objects.create(name='Foo', slug='foobar')
         acc = Account.objects.create()
         acc.persons.add(pers)
         sub1 = Subscription.objects.create(
@@ -201,7 +201,7 @@ class TestPerson(TestCase):
 
     def test_is_creator(self):
         # create a person
-        pers = Person.objects.create(name='Foobar')
+        pers = Person.objects.create(name='Foobar', slug='foobar')
         # create an item and creator type
         work = Work(title='Le foo et le bar', year=1916, mep_id='lfelb')
         work.save()
@@ -215,7 +215,7 @@ class TestPerson(TestCase):
 
     def test_in_logbooks(self):
         # create test person & account and associate them
-        pers = Person.objects.create(name='John')
+        pers = Person.objects.create(name='John', slug='john')
         # no account - not in logbooks
         assert not pers.in_logbooks()
 
@@ -237,14 +237,14 @@ class TestPerson(TestCase):
         assert pers.in_logbooks()
 
     def test_admin_url(self):
-        pers = Person.objects.create(name='John')
+        pers = Person.objects.create(name='John', slug='john')
         resolved_url = resolve(pers.admin_url())
         assert resolved_url.args[0] == str(pers.id)
         assert resolved_url.view_name == 'admin:people_person_change'
 
     def test_has_card(self):
         # create test person & account and associate them
-        pers = Person.objects.create(name='John')
+        pers = Person.objects.create(name='John', slug='john')
         # no account, no card
         assert not pers.has_card()
 
@@ -263,7 +263,7 @@ class TestPerson(TestCase):
         assert pers.has_card()
 
     def test_get_absolute_url(self):
-        pers = Person.objects.create(name='John Smith')
+        pers = Person.objects.create(name='John Smith', slug='smith')
         # none for non-member
         assert pers.get_absolute_url() is None
 
@@ -272,7 +272,7 @@ class TestPerson(TestCase):
         acct.persons.add(pers)
         # uses pk for now
         assert pers.get_absolute_url() == \
-            reverse('people:member-detail', args=[pers.pk])
+            reverse('people:member-detail', args=[pers.slug])
 
     def test_items_to_index(self):
         with patch.object(Person.objects, 'library_members') as \
@@ -283,7 +283,7 @@ class TestPerson(TestCase):
     def test_index_data(self):
         pers = Person.objects.create(
             name='John Smith', sort_name='Smith, John', birth_year=1801,
-            death_year=1847)
+            death_year=1847, slug='smith')
         # no account = minimal index data
         index_data = pers.index_data()
         assert index_data['id'] == pers.index_id()
@@ -337,7 +337,7 @@ class TestPerson(TestCase):
 class TestPersonQuerySet(TestCase):
 
     def test_library_members(self):
-        jones = Person.objects.create(name='Jones')
+        jones = Person.objects.create(name='Jones', slug='jones')
         # person with no account = no members
         assert not Person.objects.library_members().exists()
 
@@ -348,9 +348,9 @@ class TestPersonQuerySet(TestCase):
     def test_merge_with(self):
         # create test records to merge
         Person.objects.bulk_create([
-            Person(name='Jones'),
-            Person(name='Jones', title='Mr'),
-            Person(name='Jonas'),
+            Person(name='Jones', slug='jones'),
+            Person(name='Jones', title='Mr', slug='jones-2'),
+            Person(name='Jonas', slug='jonas'),
         ])
 
         # use Jonas as record to merge others to
@@ -408,10 +408,10 @@ class TestPersonQuerySet(TestCase):
         main_person.delete()
 
         # copy person details when merging
-        main = Person.objects.create(name='Jones')
+        main = Person.objects.create(name='Jones', slug='jones-3')
         prof = Profession.objects.create(name='Professor')
         full = Person.objects.create(
-            name='Jones',
+            name='Jones', slug='jones-4',
             title='Mr', mep_id="jone.mi", birth_year=1901, death_year=1950,
             viaf_id='http://viaf.org/viaf/123456', gender='M',
             notes='some details', profession=prof)
@@ -435,7 +435,7 @@ class TestPersonQuerySet(TestCase):
         # should _not_ copy over existing field values
         full2 = Person.objects.create(
             name='Jones', title='Dr', mep_id="jone.dr", birth_year=1911,
-            notes='more details')
+            notes='more details', slug='jones-5')
         Person.objects.merge_with(main)
         # get fresh copy of main record from db
         main = Person.objects.get(id=main.id)
@@ -449,8 +449,8 @@ class TestPersonQuerySet(TestCase):
             in main.notes
 
         # many-to-many relationships should be shifted to merged person record
-        related = Person.objects.create(name='Jonesy')
-        jones_jr = Person.objects.create(name='Jonesy Jr.')
+        related = Person.objects.create(name='Jonesy', slug='jonesy')
+        jones_jr = Person.objects.create(name='Jonesy Jr.', slug='j-jr')
         france = Country.objects.create(
             name='France', code='fr', geonames_id='http://www.geonames.org/3017382/')
         germany = Country.objects.create(
@@ -487,8 +487,8 @@ class TestPersonQuerySet(TestCase):
         assert fn in main.footnotes.all()
 
         # person with account shared with another person
-        sib1 = Person.objects.create(name='sibling')
-        sib2 = Person.objects.create(name='sibling2')
+        sib1 = Person.objects.create(name='sibling', slug='sib')
+        sib2 = Person.objects.create(name='sibling2', slug='sib-2')
         acct = Account.objects.create()
         acct.persons.add(sib1, sib2)
 
@@ -499,9 +499,9 @@ class TestPersonQuerySet(TestCase):
 
         # merging a person who is a creator should change their items to point
         # to the new person as creator
-        mike = Person.objects.create(name='Mike Mulshine')
-        spencer = Person.objects.create(name='Spencer Hadley')
-        nikitas = Person.objects.create(name='Nikitas Tampakis')
+        mike = Person.objects.create(name='Mike Mulshine', slug='muls')
+        spencer = Person.objects.create(name='Spencer Hadley', slug='hadl')
+        nikitas = Person.objects.create(name='Nikitas Tampakis', slug='tampa')
         book1 = Work.objects.create()
         book2 = Work.objects.create()
         author = CreatorType.objects.get(name='Author')
@@ -524,9 +524,10 @@ class TestPersonQuerySet(TestCase):
 
         # main person with no account data should receive the first merged
         # account & all subsequent events/addresses will merge to that account
-        mike = Person.objects.create(name='Mike Mulshine')
-        spencer = Person.objects.create(name='Spencer Hadley', birth_year=1990)
-        nikitas = Person.objects.create(name='Nikitas Tampakis')
+        mike = Person.objects.create(name='Mike Mulshine', slug='muls-2')
+        spencer = Person.objects.create(name='Spencer Hadley', birth_year=1990,
+                                        slug='hadl-2')
+        nikitas = Person.objects.create(name='Nikitas Tampakis', slug='tamp2')
         spencer_acct = Account.objects.create()
         spencer_acct.persons.add(spencer)
         location = Location.objects.create()
@@ -556,7 +557,7 @@ class TestPersonQuerySet(TestCase):
 
         # merge a record with associated card bibliography to
         # a record without should copy the card
-        nicholas = Person.objects.create(name='Nicholas')
+        nicholas = Person.objects.create(name='Nicholas', slug='nick')
         src_type = SourceType.objects.get_or_create(
             name='Lending Library Card')[0]
         card = Bibliography.objects.create(
@@ -572,7 +573,7 @@ class TestPersonQuerySet(TestCase):
 
         # merging a record with a card to another record with a card
         # should log a warning
-        john = Person.objects.create(name='John')
+        john = Person.objects.create(name='John', slug='jo')
         card = Bibliography.objects.create(
             bibliographic_note='John\'s library card', source_type=src_type)
         john_acct = Account.objects.create(card=card)
@@ -589,8 +590,8 @@ class TestPersonQuerySet(TestCase):
 class TestRelationship(TestCase):
 
     def setUp(self):
-        self.foo = Person.objects.create(name='Foo')
-        self.foo_bro = Person.objects.create(name='Bar')
+        self.foo = Person.objects.create(name='Foo', slug='foo')
+        self.foo_bro = Person.objects.create(name='Bar', slug='bar')
         self.relationshiptype = RelationshipType.objects.create(name='sibling')
         self.relationship = Relationship.objects.create(
             from_person=self.foo,
@@ -612,8 +613,8 @@ class TestRelationship(TestCase):
 class TestRelationshipM2M(TestCase):
 
     def setUp(self):
-        self.foo = Person.objects.create(name='Foo')
-        self.bar = Person.objects.create(name='Bar')
+        self.foo = Person.objects.create(name='Foo', slug='foo')
+        self.bar = Person.objects.create(name='Bar', slug='bar')
         self.parent = RelationshipType.objects.create(name='parent')
         Relationship.objects.create(
             from_person=self.foo,
@@ -621,7 +622,7 @@ class TestRelationshipM2M(TestCase):
             relationship_type=self.parent
         )
 
-        self.baz = Person.objects.create(name='Baz')
+        self.baz = Person.objects.create(name='Baz', slug='baz')
         self.partner = RelationshipType.objects.create(name='business partner')
 
         Relationship.objects.create(
@@ -703,12 +704,12 @@ class TestAddress(TestCase):
 class TestInfoURL(TestCase):
 
     def test_str(self):
-        pers = Person.objects.create(name='Someone')
+        pers = Person.objects.create(name='Someone', slug='some')
         info_url = InfoURL(person=pers, url='http://example.com/')
         assert str(info_url) == info_url.url
 
     def test_repr(self):
-        pers = Person.objects.create(name='Someone')
+        pers = Person.objects.create(name='Someone', slug='one')
         info_url = InfoURL(person=pers, url='http://example.com/')
         # unsaved
         assert repr(info_url) == '<InfoURL pk:?? %s>' % info_url.url

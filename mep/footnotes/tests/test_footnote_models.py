@@ -72,8 +72,9 @@ class TestBibliography(TestCase):
             mock_thumbnail.image.size.assert_any_call(width=225 * 2)
 
             # add people and events to account
-            leon = Person.objects.create(sort_name='Edel, Leon')
-            bertha = Person.objects.create(sort_name='Edel, Bertha')
+            leon = Person.objects.create(sort_name='Edel, Leon', slug='edel-l')
+            bertha = Person.objects.create(sort_name='Edel, Bertha',
+                                           slug='edel-b')
             acct.persons.add(leon)
             acct.persons.add(bertha)
             Event.objects.create(account=acct, start_date=date(1919, 11, 17))
