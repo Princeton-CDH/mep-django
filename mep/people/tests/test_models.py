@@ -295,7 +295,7 @@ class TestPerson(TestCase):
         acct.persons.add(pers)
         index_data = pers.index_data()
         assert 'item_type' in index_data
-        assert index_data['pk_i'] == pers.pk
+        assert index_data['slug_s'] == pers.slug
         assert index_data['name_t'] == pers.name
         assert index_data['sort_name_t'] == pers.sort_name
         assert index_data['birth_year_i'] == pers.birth_year
