@@ -1,5 +1,6 @@
-import json
+from collections import OrderedDict
 from datetime import date
+import json
 import time
 from types import LambdaType
 import uuid
@@ -23,7 +24,7 @@ from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person, Relationship, \
     RelationshipType
 from mep.people.views import GeoNamesLookup, PersonMerge, MembersList, \
-    MembershipActivities
+    MembershipActivities, MembershipGraphs
 from mep.footnotes.models import Bibliography, SourceType
 
 
@@ -1110,3 +1111,45 @@ class TestMembershipActivities(TestCase):
                                    kwargs={'pk': 189}))
         self.assertNotContains(response, '<table')
         self.assertContains(response, 'No documented membership activity')
+
+
+class TestMembershipGraphs(TestCase):
+
+    @patch('mep.people.views.PersonSolrQuerySet')
+    def test_get_context_data(self, mock_solrqueryset):
+        mock_qs = mock_solrqueryset.return_value
+        # simulate fluent interface
+        for meth in ['facet_field', 'filter', 'only', 'search', 'also',
+                     'raw_query_parameters', 'order_by']:
+            getattr(mock_qs, meth).return_value = mock_qs
+
+        mock_qs.get_facets.return_value = {
+            'facet_fields': {
+                "account_yearmonths": OrderedDict([
+                    ("192601", 242),
+                    ("192512", 236),
+                    ("192511", 234),
+                ]),
+                "logbook_yearmonths": OrderedDict([
+                    ("192601", 231),
+                    ("192511", 225),
+                    ("192512", 225),
+                ]),
+                "card_yearmonths": OrderedDict([
+                    ("193805", 61),
+                    ("194002", 57),
+                    ("193806", 53),
+                ])
+            }
+        }
+
+        context = MembershipGraphs().get_context_data()
+
+        assert 'data' in context
+        for series in ['members', 'logbooks', 'cards']:
+            assert series in context['data']
+
+        assert context['data']['members'][0] == {
+            'startDate': '1926-01-01',
+            'count': 242
+        }
