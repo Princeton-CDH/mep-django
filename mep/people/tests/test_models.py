@@ -39,8 +39,8 @@ class TestLocation(TestCase):
         # locations in paris with 750xx postcodes should work
         hotel = Location(name='L\'Hotel', postal_code='75003')
         rue = Location(name='Rue 2', postal_code='75016')
-        assert hotel.arrondissement() is 3
-        assert rue.arrondissement() is 16
+        assert hotel.arrondissement() == '3rd'
+        assert rue.arrondissement() == '16th'
         # locations outside of paris proper return None
         pantheon = Location(name='Pantheon', postal_code='12345')
         assert pantheon.arrondissement() is None

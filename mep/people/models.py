@@ -1,6 +1,7 @@
 import logging
 
 from django.apps import apps
+from django.contrib.humanize.templatetags.humanize import ordinal
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models, transaction
@@ -94,7 +95,7 @@ class Location(Notable):
         try:
             prefix = self.postal_code[:3]
             if prefix == '750' or prefix == '751': # postcode must be in paris proper
-                return int(self.postal_code[-2:]) # use last two digits
+                return ordinal(int(self.postal_code[-2:])) # use last two digits
         except (ValueError, IndexError, AttributeError):
             return None
 

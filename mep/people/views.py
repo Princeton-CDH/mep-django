@@ -125,7 +125,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
             .facet_field('gender', missing=True, exclude='gender') \
             .facet_field('nationality', exclude='nationality', sort='value') \
             .facet_field('arrondissements', exclude='arrondissements',
-                         sort='value')
+                         sort='count')
 
         form = self.get_form()
 
