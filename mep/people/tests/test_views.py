@@ -603,7 +603,8 @@ class TestMembersListView(TestCase):
         self.assertContains(response, 'Search member', count=1)
         # + card filter with a card count (1)
         # + counts for nationality filter (2)
-        self.assertContains(response, '<span class="count">1</span>', count=3)
+        # + counts for arrondissement filter (1)
+        self.assertContains(response, '<span class="count">1</span>', count=4)
         # the filter should have a card image (counted later with other result
         # card icon) and it should have a tooltip
         # total 2 tooltips on page since gender facet will also have one
@@ -629,9 +630,8 @@ class TestMembersListView(TestCase):
         self.assertContains(response, account.earliest_date().year)
         self.assertContains(response, account.last_date().year)
 
-        # NOTE: TEMPORARILY DISABLED while view requires login
         # should not display relevance score
-        # self.assertNotContains(response, '<dt>relevance</dt>')
+        self.assertNotContains(response, '<dt>relevance</dt>')
 
         # icon for 'has card' should show up twice, once in the list
         # and once in the filter icon
@@ -654,9 +654,8 @@ class TestMembersListView(TestCase):
         response = self.client.get(self.members_url, {'query': card_member.name})
         assert response.context['members'].count() == 1
         # should not display relevance score
-        # NOTE: TEMPORARILY DISABLED while view requires login
-        # self.assertNotContains(response, '<dt>relevance</dt>',
-        #     msg_prefix='relevance score not displayed to anonymous user')
+        self.assertNotContains(response, '<dt>relevance</dt>',
+            msg_prefix='relevance score not displayed to anonymous user')
 
         # sanity check date filters -- exclude the member with events
         response = self.client.get(self.members_url, {'membership_dates_0': 1951})
@@ -829,9 +828,12 @@ class TestMembersListView(TestCase):
         # because card filtering is not on
         # faceting should be turned on via call to facet_fields twice
         mock_qs.facet_field.assert_any_call('has_card')
-        mock_qs.facet_field.assert_any_call('gender', missing=True, exclude='gender')
-        mock_qs.facet_field.assert_any_call('nationality', exclude='nationality',
-                                            sort='value')
+        mock_qs.facet_field.assert_any_call(
+            'gender', missing=True, exclude='gender')
+        mock_qs.facet_field.assert_any_call(
+            'nationality', exclude='nationality', sort='value')
+        mock_qs.facet_field.assert_any_call(
+            'arrondissement', exclude='arrondissement', sort='value')
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()
@@ -896,6 +898,16 @@ class TestMembersListView(TestCase):
         sqs = view.get_queryset()
         mock_qs.filter.assert_any_call(nationality__in=['"France"'],
                                        tag='nationality')
+
+        # filter on arrondissement
+        view.request = self.factory.get(self.members_url, {
+            'query': '',
+            'arrondissement': ['6th']
+        })
+        del view._form
+        sqs = view.get_queryset()
+        mock_qs.filter.assert_any_call(arrondissement__in=['6'],
+                                       tag='arrondissement')
 
     def test_invalid_form(self):
         # make an invalid range request

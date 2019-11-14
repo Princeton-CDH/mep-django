@@ -130,21 +130,27 @@ class TestPerson(TestCase):
             mock_setbirthdeath.assert_called_with()
 
     def test_address_count(self):
-
         # create a person
         pers = Person.objects.create(name='Foobar', slug='foobar')
         # no addresses
         assert pers.address_count() == 0
         loc = Location.objects.create(name='L\'Hotel', city='Paris')
 
-        # add an address
+        # no longer counts addresss on person
+        # add an address to an account
         Address.objects.create(location=loc, person=pers)
         # should be one
+        assert pers.address_count() == 0
+
+        # add address to an account
+        acct = Account.objects.create()
+        acct.persons.add(pers)
+        Address.objects.create(location=loc, account=acct)
         assert pers.address_count() == 1
 
         # add another, should be 2
         loc2 = Location.objects.create(name='Elysian Fields', city='Paris')
-        Address.objects.create(location=loc2, person=pers)
+        Address.objects.create(location=loc2, account=acct)
         assert pers.address_count() == 2
 
     def test_nationality_list(self):

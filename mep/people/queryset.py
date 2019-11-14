@@ -23,4 +23,5 @@ class PersonSolrQuerySet(AliasedSolrQuerySet):
         'has_card': 'has_card_b',
         'slug': 'slug_s',
         'gender': 'gender_s',
+        'arrondissement': 'arrondissement_is',
     }

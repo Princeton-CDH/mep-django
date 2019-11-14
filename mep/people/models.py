@@ -2,6 +2,7 @@ import datetime
 import logging
 
 from django.apps import apps
+from django.contrib.humanize.templatetags.humanize import ordinal
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models, transaction
@@ -84,6 +85,22 @@ class Location(Notable):
     def __str__(self):
         str_parts = [self.name, self.street_address, self.city]
         return ', '.join([part for part in str_parts if part])
+
+    def arrondissement(self):
+        '''Get the arrondissement corresponding to a particular postal code in
+        Paris. If the `Location` is not in Paris or doesn't have a postal code,
+        return None.'''
+        # Arrondissement is the last two digits of postal code - see:
+        # https://en.wikipedia.org/wiki/Arrondissements_of_Paris
+        # note that the 16th R is unique in being split into two subsections;
+        # the northern 16th starts with 751. all others start with 750
+        try:
+            prefix = self.postal_code[:3]
+            if prefix == '750' or prefix == '751': # postcode must be in paris proper
+                return int(self.postal_code[-2:]) # use last two digits
+                return ordinal(int(self.postal_code[-2:])) # use last two digits
+        except (ValueError, IndexError, AttributeError):
+            return None
 
 
 class Profession(Named, Notable):
@@ -227,11 +244,14 @@ class PersonSignalHandlers:
 
     @staticmethod
     def debug_log(name, count):
-        logger.debug('save %s, reindexing %d related %s',
+        logger.debug('save %s, reindexing %d related %s', name,
                      count, 'person' if count == 1 else 'people')
 
     @staticmethod
-    def country_save(sender, instance, **kwargs):
+    def country_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
         if instance.pk:
             # if any members are associated
             members = instance.person_set.library_members().all()
@@ -241,10 +261,9 @@ class PersonSignalHandlers:
 
     @staticmethod
     def country_delete(sender, instance, **kwargs):
+        # get a list of ids for collected works before clearing them
         if not instance.pk:
             return
-        logger.debug('country delete')
-        # get a list of ids for collected works before clearing them
         person_ids = instance.person_set.library_members() \
                              .values_list('id', flat=True)
         if person_ids:
@@ -257,7 +276,10 @@ class PersonSignalHandlers:
             ModelIndexable.index_items(members)
 
     @staticmethod
-    def account_save(sender, instance, **kwargs):
+    def account_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
         if instance.pk:
             # if any members are associated
             members = instance.persons.library_members().all()
@@ -267,7 +289,6 @@ class PersonSignalHandlers:
 
     @staticmethod
     def account_delete(sender, instance, **kwargs):
-        logger.debug('account delete')
         # get a list of ids for collected works before clearing them
         person_ids = instance.persons.library_members() \
                              .values_list('id', flat=True)
@@ -280,7 +301,10 @@ class PersonSignalHandlers:
             ModelIndexable.index_items(members)
 
     @staticmethod
-    def event_save(sender, instance, **kwargs):
+    def event_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
         if instance.pk:
             # if any members are associated
             members = instance.account.persons.library_members().all()
@@ -294,6 +318,28 @@ class PersonSignalHandlers:
         members = instance.account.persons.library_members()
         if members.exists():
             ModelIndexable.index_items(members)
+
+    @staticmethod
+    def address_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+        # some addresses are associated directly to members - these are no
+        # longer valid so we check that it's associated to account instead
+        if instance.pk and instance.account:
+            # if any members are associated through account
+            members = instance.account.persons.library_members()
+            if members.exists():
+                PersonSignalHandlers.debug_log('address', members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def address_delete(sender, instance, **kwargs):
+        # check that we are associated to a member's account
+        if instance.account:
+            members = instance.account.persons.library_members()
+            if members.exists():
+                ModelIndexable.index_items(members)
 
 
 class Person(Notable, DateRange, ModelIndexable):
@@ -440,9 +486,12 @@ class Person(Notable, DateRange, ModelIndexable):
     list_nationalities.admin_order_field = 'nationalities__name'
 
     def address_count(self):
-        '''Number of documented addresses for this person'''
+        '''Number of documented addresses for this person, associated through
+        their account.'''
         # used in admin list view
-        return self.address_set.count()
+        if self.has_account():
+            return self.account_set.first().address_set.count()
+        return 0
     address_count.short_description = '# Addresses'
 
     def account_id(self):
@@ -527,6 +576,11 @@ class Person(Notable, DateRange, ModelIndexable):
         'accounts.Reimbursement': {
             'post_save': PersonSignalHandlers.event_save,
             'post_delete': PersonSignalHandlers.event_delete,
+        },
+        # address changes can affect arrondissement
+        'accounts.Address': {
+            'post_save': PersonSignalHandlers.account_save,
+            'post_delete': PersonSignalHandlers.account_delete,
         }
     }
 
@@ -595,6 +649,17 @@ class Person(Notable, DateRange, ModelIndexable):
                 'account_start_i': min(account_years),
                 'account_end_i': max(account_years),
             })
+        if self.gender:
+            index_data['gender_s'] = self.get_gender_display()
+
+        # if the Person has associated Addresses through their account, get
+        # the corresponding Paris arrondissements via their postal codes. If
+        # we find any, add the unique ones for searching.
+        if self.address_count() > 0:
+            locs = Location.objects.filter(address__in=account.address_set.all())
+            arrs = list(set(filter(None, [l.arrondissement() for l in locs])))
+            if arrs:
+                index_data['arrondissement_is'] = arrs
 
         return index_data
 
