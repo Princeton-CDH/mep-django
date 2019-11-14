@@ -1,18 +1,17 @@
 import datetime
-import re
 from datetime import date
 from unittest.mock import patch
 
-import pytest
-from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.test import TestCase
-from django.urls import resolve
+from django.urls import resolve, reverse
 from django.utils import timezone
+import pytest
 from viapy.api import ViafEntity
 
-from mep.accounts.models import Account, Address, Reimbursement, Subscription
+from mep.accounts.models import Account, Address, Borrow, Reimbursement, \
+    Subscription
 from mep.books.models import Creator, CreatorType, Work
 from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.models import (Country, InfoURL, Location, Person, Profession,
@@ -34,25 +33,6 @@ class TestLocation(TestCase):
         assert str(hotel) == hotel.name
         paris_hotel = Location.objects.create(name='L\'Hotel', city='Paris')
         assert str(paris_hotel) == '%s, %s' % (paris_hotel.name, paris_hotel.city)
-
-    def test_arrondissement(self):
-        # locations in paris with 750xx postcodes should work
-        hotel = Location(name='L\'Hotel', postal_code='75003')
-        rue = Location(name='Rue 2', postal_code='75016')
-        assert hotel.arrondissement() == 3
-        assert rue.arrondissement() == 16
-        # locations outside of paris proper return None
-        pantheon = Location(name='Pantheon', postal_code='12345')
-        assert pantheon.arrondissement() is None
-        # locations with no postcode return None
-        embassy = Location(name='Embassy')
-        assert embassy.arrondissement() is None
-        # locations with a postcode that is too short return None
-        library = Location(name='Library', postal_code='1')
-        assert library.arrondissement() is None
-        # locations with a postcode that is non-numeric return None
-        store = Location(name='Store', postal_code='abc')
-        assert store.arrondissement() is None
 
 
 class TestPerson(TestCase):
@@ -151,28 +131,25 @@ class TestPerson(TestCase):
 
     def test_address_count(self):
 
-        # create a person & account
-        pers = Person.objects.create(name='Foobar')
-        acc = Account.objects.create()
-        acc.persons.add(pers)
-        acc.save()
-
+        # create a person
+        pers = Person.objects.create(name='Foobar', slug='foobar')
         # no addresses
         assert pers.address_count() == 0
-
-        # add an address; should be 1
         loc = Location.objects.create(name='L\'Hotel', city='Paris')
-        Address.objects.create(location=loc, account=acc)
+
+        # add an address
+        Address.objects.create(location=loc, person=pers)
+        # should be one
         assert pers.address_count() == 1
 
         # add another, should be 2
         loc2 = Location.objects.create(name='Elysian Fields', city='Paris')
-        Address.objects.create(location=loc2, account=acc)
+        Address.objects.create(location=loc2, person=pers)
         assert pers.address_count() == 2
 
     def test_nationality_list(self):
         # create a person
-        pers = Person.objects.create(name='Foobar')
+        pers = Person.objects.create(name='Foobar', slug='foobar')
         # no nationalities
         assert pers.list_nationalities() == ''
         country = Country.objects.create(name='France', code='FR')
@@ -185,7 +162,7 @@ class TestPerson(TestCase):
 
     def test_account_id(self):
         # create a person
-        pers = Person.objects.create(name='Foobar')
+        pers = Person.objects.create(name='Foobar', slug='foobar')
         # create an account
         acct = Account.objects.create()
         # not associated so person has no account number
@@ -196,7 +173,7 @@ class TestPerson(TestCase):
 
     def test_has_account(self):
         # create a person
-        pers = Person.objects.create(name='Foobar')
+        pers = Person.objects.create(name='Foobar', slug='foobar')
         # create an account
         acct = Account.objects.create()
         # not associated, returns False
@@ -206,7 +183,7 @@ class TestPerson(TestCase):
         assert pers.has_account()
 
     def test_subscription_dates(self):
-        pers = Person.objects.create(name='Foo')
+        pers = Person.objects.create(name='Foo', slug='foobar')
         acc = Account.objects.create()
         acc.persons.add(pers)
         sub1 = Subscription.objects.create(
@@ -223,7 +200,7 @@ class TestPerson(TestCase):
 
     def test_is_creator(self):
         # create a person
-        pers = Person.objects.create(name='Foobar')
+        pers = Person.objects.create(name='Foobar', slug='foobar')
         # create an item and creator type
         work = Work(title='Le foo et le bar', year=1916, mep_id='lfelb')
         work.save()
@@ -237,7 +214,7 @@ class TestPerson(TestCase):
 
     def test_in_logbooks(self):
         # create test person & account and associate them
-        pers = Person.objects.create(name='John')
+        pers = Person.objects.create(name='John', slug='john')
         # no account - not in logbooks
         assert not pers.in_logbooks()
 
@@ -259,14 +236,14 @@ class TestPerson(TestCase):
         assert pers.in_logbooks()
 
     def test_admin_url(self):
-        pers = Person.objects.create(name='John')
+        pers = Person.objects.create(name='John', slug='john')
         resolved_url = resolve(pers.admin_url())
         assert resolved_url.args[0] == str(pers.id)
         assert resolved_url.view_name == 'admin:people_person_change'
 
     def test_has_card(self):
         # create test person & account and associate them
-        pers = Person.objects.create(name='John')
+        pers = Person.objects.create(name='John', slug='john')
         # no account, no card
         assert not pers.has_card()
 
@@ -285,7 +262,7 @@ class TestPerson(TestCase):
         assert pers.has_card()
 
     def test_get_absolute_url(self):
-        pers = Person.objects.create(name='John Smith')
+        pers = Person.objects.create(name='John Smith', slug='smith')
         # none for non-member
         assert pers.get_absolute_url() is None
 
@@ -294,7 +271,7 @@ class TestPerson(TestCase):
         acct.persons.add(pers)
         # uses pk for now
         assert pers.get_absolute_url() == \
-            reverse('people:member-detail', args=[pers.pk])
+            reverse('people:member-detail', args=[pers.slug])
 
     def test_items_to_index(self):
         with patch.object(Person.objects, 'library_members') as \
@@ -305,7 +282,7 @@ class TestPerson(TestCase):
     def test_index_data(self):
         pers = Person.objects.create(
             name='John Smith', sort_name='Smith, John', birth_year=1801,
-            death_year=1847)
+            death_year=1847, slug='smith')
         # no account = minimal index data
         index_data = pers.index_data()
         assert index_data['id'] == pers.index_id()
@@ -317,7 +294,7 @@ class TestPerson(TestCase):
         acct.persons.add(pers)
         index_data = pers.index_data()
         assert 'item_type' in index_data
-        assert index_data['pk_i'] == pers.pk
+        assert index_data['slug_s'] == pers.slug
         assert index_data['name_t'] == pers.name
         assert index_data['sort_name_t'] == pers.sort_name
         assert index_data['birth_year_i'] == pers.birth_year
@@ -331,16 +308,35 @@ class TestPerson(TestCase):
 
         # add account events for earliest/latest
         Subscription.objects.create(account=acct,
-                                    start_date=datetime.date(1921, 1, 1))
+                                    start_date=datetime.date(1921, 1, 1),
+                                    end_date=datetime.date(1921, 2, 1))
+        book1 = Work.objects.create()
+        Borrow.objects.create(account=acct, work=book1,
+                              start_date=datetime.date(1921, 4, 10))
+        # borrow with unknown month should be ignored for month/year
+        # but included in years
+        month_unknown = Borrow.objects.create(account=acct, work=book1)
+        month_unknown.partial_start_date = '1930'
+        month_unknown.save()
         Reimbursement.objects.create(account=acct,
                                      start_date=datetime.date(1922, 1, 1))
+
+        # add sex information
         # add gender information
         pers.gender = Person.FEMALE
         index_data = pers.index_data()
         assert index_data['account_start_i'] == 1921
-        assert index_data['account_end_i'] == 1922
-        assert index_data['account_years_is'] == [1921, 1922]
+        assert index_data['account_end_i'] == 1930
         assert index_data['gender_s'] == 'Female'
+        # years and months when account was active
+        assert set(index_data['account_years_is']) == \
+            set([1921, 1922, 1930])
+        assert set(index_data['account_yearmonths_is']) == \
+            set(['192101', '192102', '192104', '192201'])
+        assert set(index_data['logbook_yearmonths_is']) == \
+            set(['192101', '192102', '192201'])
+        assert set(index_data['card_yearmonths_is']) == \
+            set(['192104'])
 
         # add nationality
         uk = Country.objects.create(
@@ -355,35 +351,11 @@ class TestPerson(TestCase):
         assert uk.name in index_data['nationality']
         assert denmark.name in index_data['nationality']
 
-        # add locations in Paris for arrondissements
-        assert 'arrondissement_is' not in index_data  # none available yet
-        pantheon = Location(name='Pantheon', city='Rome', postal_code='12345')
-        hotel = Location(name='Hotel', city='Paris', postal_code='75003')
-        shop = Location(name='Shop', city='Paris', postal_code='75003')
-        rue = Location(name='Rue 2', city='Paris', postal_code='75016')
-        # save them (required to create the m2m)
-        pantheon.save()
-        hotel.save()
-        shop.save()
-        rue.save()
-        # associate them with the person's account & save
-        Address.objects.create(account=acct, location=pantheon).save()
-        Address.objects.create(account=acct, location=hotel).save()
-        Address.objects.create(account=acct, location=shop).save()
-        Address.objects.create(account=acct, location=rue).save()
-        # pantheon ignored because not in paris; hotel/shop are located in the
-        # same arrondissement so we should only have 2 unique values
-        index_data = pers.index_data()
-        assert 'arrondissement_is' in index_data
-        assert len(index_data['arrondissement_is']) is 2
-        assert 3 in index_data['arrondissement_is']
-        assert 16 in index_data['arrondissement_is']
-
 
 class TestPersonQuerySet(TestCase):
 
     def test_library_members(self):
-        jones = Person.objects.create(name='Jones')
+        jones = Person.objects.create(name='Jones', slug='jones')
         # person with no account = no members
         assert not Person.objects.library_members().exists()
 
@@ -394,9 +366,9 @@ class TestPersonQuerySet(TestCase):
     def test_merge_with(self):
         # create test records to merge
         Person.objects.bulk_create([
-            Person(name='Jones'),
-            Person(name='Jones', title='Mr'),
-            Person(name='Jonas'),
+            Person(name='Jones', slug='jones'),
+            Person(name='Jones', title='Mr', slug='jones-2'),
+            Person(name='Jonas', slug='jonas'),
         ])
 
         # use Jonas as record to merge others to
@@ -454,10 +426,10 @@ class TestPersonQuerySet(TestCase):
         main_person.delete()
 
         # copy person details when merging
-        main = Person.objects.create(name='Jones')
+        main = Person.objects.create(name='Jones', slug='jones-3')
         prof = Profession.objects.create(name='Professor')
         full = Person.objects.create(
-            name='Jones',
+            name='Jones', slug='jones-4',
             title='Mr', mep_id="jone.mi", birth_year=1901, death_year=1950,
             viaf_id='http://viaf.org/viaf/123456', gender='M',
             notes='some details', profession=prof)
@@ -481,7 +453,7 @@ class TestPersonQuerySet(TestCase):
         # should _not_ copy over existing field values
         full2 = Person.objects.create(
             name='Jones', title='Dr', mep_id="jone.dr", birth_year=1911,
-            notes='more details')
+            notes='more details', slug='jones-5')
         Person.objects.merge_with(main)
         # get fresh copy of main record from db
         main = Person.objects.get(id=main.id)
@@ -495,8 +467,8 @@ class TestPersonQuerySet(TestCase):
             in main.notes
 
         # many-to-many relationships should be shifted to merged person record
-        related = Person.objects.create(name='Jonesy')
-        jones_jr = Person.objects.create(name='Jonesy Jr.')
+        related = Person.objects.create(name='Jonesy', slug='jonesy')
+        jones_jr = Person.objects.create(name='Jonesy Jr.', slug='j-jr')
         france = Country.objects.create(
             name='France', code='fr', geonames_id='http://www.geonames.org/3017382/')
         germany = Country.objects.create(
@@ -533,8 +505,8 @@ class TestPersonQuerySet(TestCase):
         assert fn in main.footnotes.all()
 
         # person with account shared with another person
-        sib1 = Person.objects.create(name='sibling')
-        sib2 = Person.objects.create(name='sibling2')
+        sib1 = Person.objects.create(name='sibling', slug='sib')
+        sib2 = Person.objects.create(name='sibling2', slug='sib-2')
         acct = Account.objects.create()
         acct.persons.add(sib1, sib2)
 
@@ -545,9 +517,9 @@ class TestPersonQuerySet(TestCase):
 
         # merging a person who is a creator should change their items to point
         # to the new person as creator
-        mike = Person.objects.create(name='Mike Mulshine')
-        spencer = Person.objects.create(name='Spencer Hadley')
-        nikitas = Person.objects.create(name='Nikitas Tampakis')
+        mike = Person.objects.create(name='Mike Mulshine', slug='muls')
+        spencer = Person.objects.create(name='Spencer Hadley', slug='hadl')
+        nikitas = Person.objects.create(name='Nikitas Tampakis', slug='tampa')
         book1 = Work.objects.create()
         book2 = Work.objects.create()
         author = CreatorType.objects.get(name='Author')
@@ -570,9 +542,10 @@ class TestPersonQuerySet(TestCase):
 
         # main person with no account data should receive the first merged
         # account & all subsequent events/addresses will merge to that account
-        mike = Person.objects.create(name='Mike Mulshine')
-        spencer = Person.objects.create(name='Spencer Hadley', birth_year=1990)
-        nikitas = Person.objects.create(name='Nikitas Tampakis')
+        mike = Person.objects.create(name='Mike Mulshine', slug='muls-2')
+        spencer = Person.objects.create(name='Spencer Hadley', birth_year=1990,
+                                        slug='hadl-2')
+        nikitas = Person.objects.create(name='Nikitas Tampakis', slug='tamp2')
         spencer_acct = Account.objects.create()
         spencer_acct.persons.add(spencer)
         location = Location.objects.create()
@@ -602,7 +575,7 @@ class TestPersonQuerySet(TestCase):
 
         # merge a record with associated card bibliography to
         # a record without should copy the card
-        nicholas = Person.objects.create(name='Nicholas')
+        nicholas = Person.objects.create(name='Nicholas', slug='nick')
         src_type = SourceType.objects.get_or_create(
             name='Lending Library Card')[0]
         card = Bibliography.objects.create(
@@ -618,7 +591,7 @@ class TestPersonQuerySet(TestCase):
 
         # merging a record with a card to another record with a card
         # should log a warning
-        john = Person.objects.create(name='John')
+        john = Person.objects.create(name='John', slug='jo')
         card = Bibliography.objects.create(
             bibliographic_note='John\'s library card', source_type=src_type)
         john_acct = Account.objects.create(card=card)
@@ -635,8 +608,8 @@ class TestPersonQuerySet(TestCase):
 class TestRelationship(TestCase):
 
     def setUp(self):
-        self.foo = Person.objects.create(name='Foo')
-        self.foo_bro = Person.objects.create(name='Bar')
+        self.foo = Person.objects.create(name='Foo', slug='foo')
+        self.foo_bro = Person.objects.create(name='Bar', slug='bar')
         self.relationshiptype = RelationshipType.objects.create(name='sibling')
         self.relationship = Relationship.objects.create(
             from_person=self.foo,
@@ -658,8 +631,8 @@ class TestRelationship(TestCase):
 class TestRelationshipM2M(TestCase):
 
     def setUp(self):
-        self.foo = Person.objects.create(name='Foo')
-        self.bar = Person.objects.create(name='Bar')
+        self.foo = Person.objects.create(name='Foo', slug='foo')
+        self.bar = Person.objects.create(name='Bar', slug='bar')
         self.parent = RelationshipType.objects.create(name='parent')
         Relationship.objects.create(
             from_person=self.foo,
@@ -667,7 +640,7 @@ class TestRelationshipM2M(TestCase):
             relationship_type=self.parent
         )
 
-        self.baz = Person.objects.create(name='Baz')
+        self.baz = Person.objects.create(name='Baz', slug='baz')
         self.partner = RelationshipType.objects.create(name='business partner')
 
         Relationship.objects.create(
@@ -749,12 +722,12 @@ class TestAddress(TestCase):
 class TestInfoURL(TestCase):
 
     def test_str(self):
-        pers = Person.objects.create(name='Someone')
+        pers = Person.objects.create(name='Someone', slug='some')
         info_url = InfoURL(person=pers, url='http://example.com/')
         assert str(info_url) == info_url.url
 
     def test_repr(self):
-        pers = Person.objects.create(name='Someone')
+        pers = Person.objects.create(name='Someone', slug='one')
         info_url = InfoURL(person=pers, url='http://example.com/')
         # unsaved
         assert repr(info_url) == '<InfoURL pk:?? %s>' % info_url.url

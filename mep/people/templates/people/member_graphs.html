@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static mep_tags %}
+{% load render_bundle from webpack_loader %}
+
+{% block page-subtitle %}Graphs · Library Members · {% endblock %}
+
+{% block js %}
+<script src="{% static 'js/d3.v5.min.js' %}"></script>
+{% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title='Membership Graphs' style="detail" %}
+{% endblock %}
+
+{% block main-style %}tabbed white{% endblock %}
+
+{% block content %}
+<article class="main">
+  <h2>Members with subscriptions</h2>
+    <div class="membership-graph" data-series="subscriptions"> </div>
+  <h2>Members with book activity</h2>
+    <div class="membership-graph" data-series="borrows"> </div>
+  <h2>Subscriptions and book activity together</h2>
+    <div class="membership-graph" data-series="subscriptions borrows"> </div>
+  <h2>Subscriptions, book activity, and total number of members</h2>
+    <div class="membership-graph" data-series="subscriptions borrows members"> </div>
+</article>
+  <script nonce="{{ request.csp_nonce }}">
+      var membershipData = {{ data|json }};
+  </script>
+{# load the membership graph bundle, which will render based on data-series #}
+{% render_bundle 'membershipGraphs' %}
+
+</section>
+{% endblock %}

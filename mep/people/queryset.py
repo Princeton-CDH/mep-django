@@ -17,8 +17,11 @@ class PersonSolrQuerySet(AliasedSolrQuerySet):
         'account_start': 'account_start_i',
         'account_end': 'account_end_i',
         'account_years': 'account_years_is',
+        'account_yearmonths': 'account_yearmonths_is',
+        'logbook_yearmonths': 'logbook_yearmonths_is',
+        'card_yearmonths': 'card_yearmonths_is',
         'has_card': 'has_card_b',
-        'pk': 'pk_i',
+        'slug': 'slug_s',
         'gender': 'gender_s',
         'arrondissement': 'arrondissement_is',
     }

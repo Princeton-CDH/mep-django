@@ -7,7 +7,7 @@
 <ol class="member-results">
     {% for person in members %}
     <li class="members result">
-        <a href="{% url 'people:member-detail' pk=person.pk %}" aria-label="{{ person.sort_name.0 }}">
+        <a href="{% url 'people:member-detail' slug=person.slug %}" aria-label="{{ person.sort_name.0 }}">
             <div class="container">
                 {# counter for search results, includes "has card" icon #}
                 <span class="counter">

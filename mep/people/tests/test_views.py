@@ -1,5 +1,6 @@
-import json
+from collections import OrderedDict
 from datetime import date
+import json
 import time
 from types import LambdaType
 import uuid
@@ -23,7 +24,7 @@ from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Location, Country, Person, Relationship, \
     RelationshipType
 from mep.people.views import GeoNamesLookup, PersonMerge, MembersList, \
-    MembershipActivities
+    MembershipActivities, MembershipGraphs
 from mep.footnotes.models import Bibliography, SourceType
 
 
@@ -68,7 +69,8 @@ class TestPeopleViews(TestCase):
 
     def test_person_autocomplete(self):
         # add a person to search for
-        beach = Person.objects.create(name='Sylvia Beach', mep_id='sylv.b')
+        beach = Person.objects.create(name='Sylvia Beach', mep_id='sylv.b',
+                                      slug='beach')
 
         pub_autocomplete_url = reverse('people:autocomplete')
         result = self.client.get(pub_autocomplete_url, {'q': 'beach'})
@@ -85,7 +87,8 @@ class TestPeopleViews(TestCase):
         assert not data['results']
 
         # add a person and a title
-        ms_sylvia = Person.objects.create(name='Sylvia', title='Ms.')
+        ms_sylvia = Person.objects.create(name='Sylvia', title='Ms.',
+                                          slug='sylvia')
 
         # should return both wrapped in <strong>
         result = self.client.get(pub_autocomplete_url, {'q': 'sylvia'})
@@ -170,8 +173,9 @@ class TestPeopleViews(TestCase):
         self.client.login(username=superuser.username, password=su_password)
 
         # create two people and a relationship
-        m_dufour = Person.objects.create(name='Charles Dufour')
-        mlle_dufour = Person.objects.create(name='Dufour', title='Mlle')
+        m_dufour = Person.objects.create(name='Charles Dufour', slug='dufour-c')
+        mlle_dufour = Person.objects.create(name='Dufour', title='Mlle',
+                                            slug='dufour')
         parent = RelationshipType.objects.create(name='parent')
         rel = Relationship.objects.create(from_person=mlle_dufour,
             relationship_type=parent, to_person=m_dufour, notes='relationship uncertain')
@@ -238,8 +242,8 @@ class TestPeopleViews(TestCase):
         self.client.login(username=superuser.username, password=su_password)
 
         # create two people and a relationship
-        Person.objects.create(name='Charles Dufour')
-        Person.objects.create(name='Dufour', title='Mlle')
+        Person.objects.create(name='Charles Dufour', slug='dufour-charles')
+        Person.objects.create(name='Dufour', title='Mlle', slug='dufour')
 
         # get the list url with logged in user
         person_list_url = reverse('admin:people_person_changelist')
@@ -273,9 +277,9 @@ class TestPeopleViews(TestCase):
         perms = Permission.objects.filter(codename__in=['change_person', 'delete_person'])
         staffuser.user_permissions.set(list(perms))
 
-         # create test person records to merge
-        pers = Person.objects.create(name='M. Jones')
-        pers2 = Person.objects.create(name='Mike Jones')
+        # create test person records to merge
+        pers = Person.objects.create(name='M. Jones', slug='jones-m')
+        pers2 = Person.objects.create(name='Mike Jones', slug='jones-mike')
 
         person_ids = [pers.id, pers2.id]
         idstring = ','.join(str(pid) for pid in person_ids)
@@ -346,8 +350,8 @@ class TestPeopleViews(TestCase):
         assert not pers2 in book2.editors
 
         # Test merge for people with no accounts
-        pers3 = Person.objects.create(name='M. Mulshine')
-        pers4 = Person.objects.create(name='Mike Mulshine')
+        pers3 = Person.objects.create(name='M. Mulshine', slug='mulshine')
+        pers4 = Person.objects.create(name='Mike Mulshine', slug='mulshine-m')
         person_ids = [pers3.id, pers4.id]
         idstring = ','.join(str(pid) for pid in person_ids)
 
@@ -360,9 +364,8 @@ class TestPeopleViews(TestCase):
         self.assertContains(response, pers3.name)
         self.assertContains(response, pers4.name)
 
-
         # POST merge should work & report no accounts changed
-        response = self.client.post('%s?ids=%s' % \
+        response = self.client.post('%s?ids=%s' %
                                     (reverse('people:merge'), idstring),
                                     {'primary_person': pers3.id},
                                     follow=True)
@@ -375,20 +378,21 @@ class TestPeopleViews(TestCase):
         assert not Person.objects.filter(id=pers4.id).exists()
 
         # Merging with shared account should fail
-        mike = Person.objects.create(name='Mike Mulshine')
-        spencer = Person.objects.create(name='Spencer Hadley')
-        nikitas = Person.objects.create(name='Nikitas Tampakis')
+        mike = Person.objects.create(name='Mike Mulshine', slug='mulshine-2')
+        spencer = Person.objects.create(name='Spencer Hadley', slug='hadley')
+        nikitas = Person.objects.create(name='Nikitas Tampakis', slug='tampa')
         shared_acct = Account.objects.create()
         shared_acct.persons.add(mike)
         shared_acct.persons.add(spencer)
         idstring = ','.join(str(pid) for pid in [mike.id, spencer.id, nikitas.id])
-        response = self.client.post('%s?ids=%s' % \
+        response = self.client.post('%s?ids=%s' %
                                     (reverse('people:merge'), idstring),
                                     {'primary_person': mike.id},
                                     follow=True)
         message = list(response.context.get('messages'))[0]
         assert message.tags == 'error'
         assert 'shared account' in message.message
+
 
 class TestGeonamesLookup(TestCase):
 
@@ -478,7 +482,8 @@ class TestLocationAutocompleteView(TestCase):
         Location.objects.create(**add_dict2)
 
         # make a person
-        person = Person.objects.create(name='Baz', title='Mr.', sort_name='Baz')
+        person = Person.objects.create(
+            name='Baz', title='Mr.', sort_name='Baz', slug='baz')
 
         # - series of tests for get_queryset Q's and view rendering
         # autocomplete that should get both
@@ -954,8 +959,8 @@ class TestMemberDetailView(TestCase):
     fixtures = ['sample_people.json']
 
     def test_get_member(self):
-        gay = Person.objects.get(name='Francisque Gay')
-        url = reverse('people:member-detail', kwargs={'pk': gay.pk})
+        gay = Person.objects.get(name='Francisque Gay', slug='gay')
+        url = reverse('people:member-detail', kwargs={'slug': gay.slug})
         # create some events to check the account event date display
         account = gay.account_set.first()
         account.add_event('borrow', start_date=date(1934, 3, 4))
@@ -981,8 +986,8 @@ class TestMemberDetailView(TestCase):
         # NOTE currently not including/checking profession
 
     def test_member_map(self):
-        gay = Person.objects.get(name='Francisque Gay')
-        url = reverse('people:member-detail', kwargs={'pk': gay.pk})
+        gay = Person.objects.get(name='Francisque Gay', slug='gay')
+        url = reverse('people:member-detail', kwargs={'slug': gay.slug})
         response = self.client.get(url)
         # check that member map snippet is rendered since Gay has an address
         self.assertTemplateUsed('member_map.html')
@@ -997,10 +1002,9 @@ class TestMemberDetailView(TestCase):
         assert response.context['addresses'][0]['latitude'] == '48.85101'
         assert response.context['addresses'][0]['longitude'] == '2.33590'
 
-
     def test_get_non_member(self):
-        aeschylus = Person.objects.get(name='Aeschylus')
-        url = reverse('people:member-detail', kwargs={'pk': aeschylus.pk})
+        aeschylus = Person.objects.get(name='Aeschylus', slug='aeschylus')
+        url = reverse('people:member-detail', kwargs={'slug': aeschylus.slug})
         response = self.client.get(url)
         assert response.status_code == 404, \
             'non-members should not have a detail page'
@@ -1011,9 +1015,9 @@ class TestMembershipActivities(TestCase):
     # NOTE: might want an event fixture for testing at some point
 
     def setUp(self):
-        self.member = Person.objects.get(pk=224)
+        self.member = Person.objects.get(slug="hemingway")
         self.view = MembershipActivities()
-        self.view.kwargs = {'pk': self.member.pk}
+        self.view.kwargs = {'slug': self.member.slug}
 
         # create account with test events
         acct = Account.objects.create()
@@ -1049,7 +1053,7 @@ class TestMembershipActivities(TestCase):
         assert self.view.member == self.member
 
         # non-member should 404 - try author from fixture
-        self.view.kwargs['pk'] = 7152
+        self.view.kwargs['slug'] = 'aeschylus'
         self.view.object_list = self.view.get_queryset()
         with pytest.raises(Http404):
             self.view.get_context_data()
@@ -1057,7 +1061,7 @@ class TestMembershipActivities(TestCase):
     def test_get_absolute_url(self):
         assert self.view.get_absolute_url() == \
             absolutize_url(reverse('people:membership-activities',
-                                   kwargs={'pk': self.member.pk}))
+                                   kwargs={'slug': self.member.slug}))
 
     def test_get_breadcrumbs(self):
         self.view.object_list = self.view.get_queryset()
@@ -1074,7 +1078,7 @@ class TestMembershipActivities(TestCase):
 
     def test_view_template(self):
         response = self.client.get(reverse('people:membership-activities',
-                                   kwargs={'pk': self.member.pk}))
+                                   kwargs={'slug': self.member.slug}))
         # table headers
         self.assertContains(response, 'Type')
         self.assertContains(response, 'Category')
@@ -1109,6 +1113,48 @@ class TestMembershipActivities(TestCase):
 
         # test member with no membership activity
         response = self.client.get(reverse('people:membership-activities',
-                                   kwargs={'pk': 189}))
+                                   kwargs={'slug': 'gay'}))
         self.assertNotContains(response, '<table')
         self.assertContains(response, 'No documented membership activity')
+
+
+class TestMembershipGraphs(TestCase):
+
+    @patch('mep.people.views.PersonSolrQuerySet')
+    def test_get_context_data(self, mock_solrqueryset):
+        mock_qs = mock_solrqueryset.return_value
+        # simulate fluent interface
+        for meth in ['facet_field', 'filter', 'only', 'search', 'also',
+                     'raw_query_parameters', 'order_by']:
+            getattr(mock_qs, meth).return_value = mock_qs
+
+        mock_qs.get_facets.return_value = {
+            'facet_fields': {
+                "account_yearmonths": OrderedDict([
+                    ("192601", 242),
+                    ("192512", 236),
+                    ("192511", 234),
+                ]),
+                "logbook_yearmonths": OrderedDict([
+                    ("192601", 231),
+                    ("192511", 225),
+                    ("192512", 225),
+                ]),
+                "card_yearmonths": OrderedDict([
+                    ("193805", 61),
+                    ("194002", 57),
+                    ("193806", 53),
+                ])
+            }
+        }
+
+        context = MembershipGraphs().get_context_data()
+
+        assert 'data' in context
+        for series in ['members', 'logbooks', 'cards']:
+            assert series in context['data']
+
+        assert context['data']['members'][0] == {
+            'startDate': '1926-01-01',
+            'count': 242
+        }

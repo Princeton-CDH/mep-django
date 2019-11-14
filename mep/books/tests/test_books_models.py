@@ -95,10 +95,10 @@ class TestWork(TestCase):
 
     def test_authors_editors_translators(self):
         work = Work.objects.create(title='Poems', year=1916)
-        author1 = Person.objects.create(name='Smith')
-        author2 = Person.objects.create(name='Jones')
-        editor = Person.objects.create(name='Ed Mund')
-        translator = Person.objects.create(name='Juan Smythe')
+        author1 = Person.objects.create(name='Smith', slug='s')
+        author2 = Person.objects.create(name='Jones', slug='j')
+        editor = Person.objects.create(name='Ed Mund', slug='m')
+        translator = Person.objects.create(name='Juan Smythe', slug='sm')
         author_type = CreatorType.objects.get(name='Author')
         editor_type = CreatorType.objects.get(name='Editor')
         translator_type = CreatorType.objects.get(name='Translator')
@@ -267,7 +267,7 @@ class TestCreator(TestCase):
 
     def test_str(self):
         ctype = CreatorType.objects.get(name='Author')
-        person = Person.objects.create(name='Joyce')
+        person = Person.objects.create(name='Joyce', slug='joyce')
         work = Work.objects.create(title='Ulysses')
         creator = Creator(creator_type=ctype, person=person, work=work)
         assert str(creator) == ' '.join([str(person), ctype.name, str(work)])
@@ -400,7 +400,7 @@ class TestEditionCreator(TestCase):
 
     def test_str(self):
         ctype = CreatorType.objects.get(name='Editor')
-        person = Person.objects.create(name='Joyce')
+        person = Person.objects.create(name='Joyce', slug='joyce')
         work = Work.objects.create(title='Ulysses')
         edition = Edition.objects.create(work=work)
         creator = EditionCreator(creator_type=ctype, person=person,
