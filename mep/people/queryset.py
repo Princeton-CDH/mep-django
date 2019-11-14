@@ -21,6 +21,6 @@ class PersonSolrQuerySet(AliasedSolrQuerySet):
         'logbook_yearmonths': 'logbook_yearmonths_is',
         'card_yearmonths': 'card_yearmonths_is',
         'has_card': 'has_card_b',
-        'pk': 'pk_i',
+        'slug': 'slug_s',
         'gender': 'gender_s',
     }
