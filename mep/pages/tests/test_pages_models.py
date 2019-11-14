@@ -43,7 +43,8 @@ class TestLandingPage(WagtailPageTests):
 
     # test subclass of abstract LandingPage
     class MyLandingPage(LandingPage):
-        pass
+        class Meta:
+            app_label = 'mep.pages'
 
     def test_can_create(self):
         home = HomePage.objects.first()
@@ -145,9 +146,12 @@ class TestBasePage(WagtailPageTests):
         # no children
         subpage_types = []
 
+        class Meta:
+            app_label = 'mep.pages'
+
     def test_can_create(self):
         home = HomePage.objects.first()
-        self.assertCanCreate(home, MyPage, nested_form_data({
+        self.assertCanCreate(home, self.MyPage, nested_form_data({
             'title': 'My new kinda page',
             'slug': 'new-page',
             'body': streamfield([
@@ -160,7 +164,7 @@ class TestBasePage(WagtailPageTests):
     def test_get_description(self):
         '''test page preview mixin'''
         # page with body content and no description
-        mypage = MyPage(
+        mypage = self.MyPage(
             title='Undescribable',
             body=[
                 ('paragraph', '<p>How to <a>begin</a>?</p>'),
@@ -178,17 +182,17 @@ class TestBasePage(WagtailPageTests):
         assert desc[:200] == 'How to begin?'
 
         # empty tag should be stripped
-        content_page.body = [('paragraph', '<p></p>')]
+        mypage.body = [('paragraph', '<p></p>')]
         desc = mypage.get_description()
         assert desc == ''
 
         # blockquotes should be stripped
-        content_page.body = [('paragraph', '<p><blockquote>h</blockquote>i</p>')]
+        mypage.body = [('paragraph', '<p><blockquote>h</blockquote>i</p>')]
         desc = mypage.get_description()
         assert desc == 'hi'
 
         # test content page with image for first block
-        mypage2 = MyPage(
+        mypage2 = self.MyPage(
             title='What is Prosody?',
             body=[
                 ('image', '<img src="milton-example.png"/>'),
