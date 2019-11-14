@@ -1,6 +1,4 @@
 from collections import defaultdict
-from datetime import timedelta
-from itertools import chain
 
 from dal import autocomplete
 from django.conf import settings
@@ -14,6 +12,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormMixin, FormView
 
 from mep.accounts.models import Address, Event
@@ -248,7 +247,7 @@ class MemberDetail(DetailView, RdfViewMixin):
             'activity_ranges': [{
                 'startDate': start.isoformat(),
                 'endDate': end.isoformat()
-            } for start, end in account.event_date_ranges]
+            } for start, end in account.event_date_ranges()]
         }
 
         # plottable locations for member address map visualization, which
@@ -337,6 +336,43 @@ class MembershipActivities(ListView, RdfViewMixin):
             (self.member.short_name, self.member.get_absolute_url()),
             ('Membership Activities', self.get_absolute_url())
         ]
+
+
+class MembershipGraphs(TemplateView):
+    model = Person
+    template_name = 'people/member_graphs.html'
+
+    def get_context_data(self):
+        context = super().get_context_data()
+
+        # use facets to get member totals by month and year
+        sqs = PersonSolrQuerySet() \
+            .facet_field('account_yearmonths', sort='index', limit=1000) \
+            .facet_field('logbook_yearmonths', sort='index', limit=1000) \
+            .facet_field('card_yearmonths', sort='index', limit=1000)
+
+        facets = sqs.get_facets()['facet_fields']
+
+        context['data'] = {
+            # convert into a format that's easier to use with javascript/d3
+            'members': [{
+                'startDate': '%s-%s-01' % (yearmonth[:4], yearmonth[-2:]),
+                'count': count
+            } for yearmonth, count in facets['account_yearmonths'].items()
+            ],
+            'logbooks': [{
+                'startDate': '%s-%s-01' % (yearmonth[:4], yearmonth[-2:]),
+                'count': count
+            } for yearmonth, count in facets['logbook_yearmonths'].items()
+            ],
+            'cards': [{
+                'startDate': '%s-%s-01' % (yearmonth[:4], yearmonth[-2:]),
+                'count': count
+            } for yearmonth, count in facets['card_yearmonths'].items()
+            ]
+
+        }
+        return context
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):

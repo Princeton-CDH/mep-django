@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from django.apps import apps
@@ -11,6 +12,7 @@ from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.validators import verify_latlon
+from mep.accounts.partial_date import DatePrecision
 from mep.footnotes.models import Footnote
 
 
@@ -564,20 +566,36 @@ class Person(Notable, DateRange, ModelIndexable):
         })
 
         # conditionally set fields that are not always present
-        # to avoid having None values stored in Solr
+        # to avoid storing 'None' in Solr
+        if self.gender:
+            index_data['gender_s'] = self.get_gender_display()
+
         account_dates = account.event_dates
         if account_dates:
-            # convert dates to just years, use set to uniquify, and
-            # convert back to list for json serialization to Solr
-            account_years = list(set(date.year for date in account.event_dates))
+            # use active date ranges to get a list of all years + months
+            # that this person was an active member
+            # (includes subscription spans without events in that month)
+
+            months = account.active_months()
+            logbook_months = account.active_months('membership')
+            card_months = account.active_months('books')
+
+            # generate list of years from all event dates (not based on
+            # active months since that excludes partial dates where only
+            # year is known)
+            account_years = set(date.year for date in account_dates)
+
+            # convert sets back to list for json serialization
             index_data.update({
-                'account_years_is': account_years,
+                'account_years_is': list(account_years),
+                'account_yearmonths_is': list(months),
+                'logbook_yearmonths_is': list(logbook_months),
+                'card_yearmonths_is': list(card_months),
                 # use min and max because set order is not guaranteed
                 'account_start_i': min(account_years),
                 'account_end_i': max(account_years),
             })
-        if self.gender:
-            index_data['gender_s'] = self.get_gender_display()
+
         return index_data
 
 

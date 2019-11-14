@@ -1,18 +1,17 @@
 import datetime
-import re
 from datetime import date
 from unittest.mock import patch
 
-import pytest
-from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.test import TestCase
-from django.urls import resolve
+from django.urls import resolve, reverse
 from django.utils import timezone
+import pytest
 from viapy.api import ViafEntity
 
-from mep.accounts.models import Account, Address, Reimbursement, Subscription
+from mep.accounts.models import Account, Address, Borrow, Reimbursement, \
+    Subscription
 from mep.books.models import Creator, CreatorType, Work
 from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.models import (Country, InfoURL, Location, Person, Profession,
@@ -309,16 +308,35 @@ class TestPerson(TestCase):
 
         # add account events for earliest/latest
         Subscription.objects.create(account=acct,
-                                    start_date=datetime.date(1921, 1, 1))
+                                    start_date=datetime.date(1921, 1, 1),
+                                    end_date=datetime.date(1921, 2, 1))
+        book1 = Work.objects.create()
+        Borrow.objects.create(account=acct, work=book1,
+                              start_date=datetime.date(1921, 4, 10))
+        # borrow with unknown month should be ignored for month/year
+        # but included in years
+        month_unknown = Borrow.objects.create(account=acct, work=book1)
+        month_unknown.partial_start_date = '1930'
+        month_unknown.save()
         Reimbursement.objects.create(account=acct,
                                      start_date=datetime.date(1922, 1, 1))
+
+        # add sex information
         # add gender information
         pers.gender = Person.FEMALE
         index_data = pers.index_data()
         assert index_data['account_start_i'] == 1921
-        assert index_data['account_end_i'] == 1922
-        assert index_data['account_years_is'] == [1921, 1922]
+        assert index_data['account_end_i'] == 1930
         assert index_data['gender_s'] == 'Female'
+        # years and months when account was active
+        assert set(index_data['account_years_is']) == \
+            set([1921, 1922, 1930])
+        assert set(index_data['account_yearmonths_is']) == \
+            set(['192101', '192102', '192104', '192201'])
+        assert set(index_data['logbook_yearmonths_is']) == \
+            set(['192101', '192102', '192201'])
+        assert set(index_data['card_yearmonths_is']) == \
+            set(['192104'])
 
         # add nationality
         uk = Country.objects.create(

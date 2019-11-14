@@ -7,6 +7,8 @@ app_name = 'people'
 
 urlpatterns = [
     url(r'^members/$', views.MembersList.as_view(), name='members-list'),
+    url(r'^members/graphs/$', views.MembershipGraphs.as_view(),
+        name='member-graphs'),
     url(r'^members/(?P<slug>[\w-]+)/$', views.MemberDetail.as_view(),
         name='member-detail'),
     url(r'^members/(?P<slug>[\w-]+)/activities/$',
