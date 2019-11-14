@@ -43,7 +43,6 @@ dl.member {
 // timeline graphs & map
 section[aria-label=timeline],
 section.map {
-    @include container;
     z-index: 0; // strange bug...map will be on top of main menu when it's open unless this is set
 
     hr {
@@ -60,6 +59,10 @@ section.map {
         font-family: $sans;
         font-size: 0.8rem;
     }
+}
+
+section[aria-label=timeline] {
+    @include container;
 }
 
 .timeline .description {
