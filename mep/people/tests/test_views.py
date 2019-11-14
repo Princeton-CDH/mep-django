@@ -899,6 +899,16 @@ class TestMembersListView(TestCase):
         mock_qs.filter.assert_any_call(nationality__in=['"France"'],
                                        tag='nationality')
 
+        # filter on arrondissement
+        view.request = self.factory.get(self.members_url, {
+            'query': '',
+            'arrondissement': ['6th']
+        })
+        del view._form
+        sqs = view.get_queryset()
+        mock_qs.filter.assert_any_call(arrondissement__in=['6'],
+                                       tag='arrondissement')
+
     def test_invalid_form(self):
         # make an invalid range request
         view = MembersList()
