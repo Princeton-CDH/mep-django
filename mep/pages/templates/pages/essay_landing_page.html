@@ -1,8 +1,8 @@
 {% extends 'pages/landing_page.html' %}
 
 {% comment %}
-uses 'posts' added to context by RoutableLandingPage subtype; will get all
-published ContentPage children ordered by first pubdate
+uses 'essays' added to context by EssayLandingPage subtype; will get all
+published EssayPage children ordered by first pubdate
 {% endcomment %}
 {% block content %}
 {% include 'snippets/breadcrumbs.html' %}
@@ -12,9 +12,9 @@ published ContentPage children ordered by first pubdate
     {% endif %}
     {% include 'pages/snippets/body.html' %}
 </div>
-<section class="subpages posts {{ page.title|lower }}" aria-label="posts">
-    {% for post in posts %}
-    {% include 'pages/snippets/preview.html' with page=post %}
+<section class="subpages essays {{ page.title|lower }}" aria-label="essays">
+    {% for essay in essays %}
+    {% include 'pages/snippets/preview.html' with page=essay %}
     {% endfor %}
 </section>
 {% endblock %}

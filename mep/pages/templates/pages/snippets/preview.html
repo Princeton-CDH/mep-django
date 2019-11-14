@@ -6,6 +6,8 @@ preview "tile" for sub/child pages shown on a landing page.
     <article>
     <h2>{{ page.title }}</h2>
     <hr/>
+    {# meta section - shown for essay previews #}
+    {% if meta %}
     <div class="meta">
         {% if page.authors %}
         {% include 'pages/snippets/attribution.html' with creators=page.authors %} /
@@ -14,6 +16,7 @@ preview "tile" for sub/child pages shown on a landing page.
             {{ page.first_published_at|date:"F j, Y"}}
         </time>
     </div>
+    {% endif %}
     <p>{{ page.contentpage.get_description|safe }}</p>
     {% if page.contentpage.featured_image %}
         {% image page.contentpage.featured_image fill-320x190 as s %}

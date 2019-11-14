@@ -67,9 +67,13 @@ class BodyContentBlock(blocks.StreamBlock):
 
 class HomePage(Page):
     ''':class:`wagtail.core.models.Page` model for S&Co. home page.'''
-    parent_page_types = [Page]  # can only be child of Root
-    subpage_types = ['LandingPage', 'RoutableLandingPage'] # only landingpages as children
+    # can only be child of Root
+    parent_page_types = [Page]
+    # only landingpage subtypes as children
+    subpage_types = ['LandingPage']
+    #: main page text
     body = StreamField(BodyContentBlock)
+
     content_panels = Page.content_panels + [
         StreamFieldPanel('body'),
     ]
@@ -99,34 +103,55 @@ class RdfPageMixin(RdfViewMixin):
 
 
 class LandingPage(RdfPageMixin, Page):
-    ''':class:`wagtail.core.models.Page` model for aggregating other pages.'''
-    parent_page_types = ['HomePage']  # can only be child of HomePage
-    subpage_types = ['ContentPage']  # can only have ContentPage children
-    tagline = models.CharField(max_length=500)  # shown just below the header
+    '''Abstract :class:`wagtail.core.models.Page` model for aggregating other
+    pages as its children.'''
+
+    # must be a child of the HomePage directly
+    parent_page_types = ['HomePage']
+    #: short introductory text shown just below the header, before content
+    tagline = models.CharField(max_length=500)
+    #: main page text
     body = StreamField(BodyContentBlock, blank=True)
-    header_image = models.ForeignKey(  # image that will be used for the header
+    #: image that will be used for the header
+    header_image = models.ForeignKey(
         'wagtailimages.image',
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name='+'  # no reverse relationship
     )
+
     content_panels = Page.content_panels + [
         ImageChooserPanel('header_image'),
         FieldPanel('tagline'),
         StreamFieldPanel('body')
     ]
 
+    class Meta:
+        abstract = True
 
-class RoutableLandingPage(LandingPage):
-    ''':class:`LandingPage` subclass that can aggregate its child pages by
-    publication date using a 'date + slug' routing scheme.'''
+
+class ContentLandingPage(LandingPage):
+    ''':class:`LandingPage` subclass that aggregates :class:`ContentPage`s as
+    its children.'''
+
+    # children must be ContentPages
+    subpage_types = ['ContentPage']
+
+
+class EssayLandingPage(LandingPage):
+    ''':class:`LandingPage` subclass that aggregates :class:`EssayPage`s as
+    its children by publication date, using a 'date + slug' routing scheme.'''
+
+    #: children must be EssayPages
+    subpage_types = ['EssayPage']
 
     def get_context(self, request):
+        '''Add child Essays sorted by publication date to the context'''
         context = super().get_context(request)
 
         # Add extra variables and return the updated context
-        context['posts'] = ContentPage.objects.child_of(self).live() \
+        context['essays'] = ContentPage.objects.child_of(self).live() \
                                       .order_by('-first_published_at')
         return context
 
@@ -135,14 +160,14 @@ class RoutableLandingPage(LandingPage):
         by year/month/slug.'''
 
         # NOTE: might be able to use RoutablePageMixin for this,
-        # but could not get that to work
+        # but could not get that to work. Current version adapted from PPA.
 
         if path_components:
 
             # if not enough path components are specified, raise a 404
             if len(path_components) < 3:
                 raise Http404
-                # (could eventually handle year/month to display posts by
+                # (could eventually handle year/month to display essays by
                 # date, but not yet implemented)
 
             # currently only handle year/month/post-slug/
@@ -188,15 +213,14 @@ class PagePreviewDescriptionMixin(models.Model):
     previews.'''
 
     # adapted from PPA; does not allow <p> tags in description
+    #: brief description for preview display
     description = RichTextField(
         blank=True, features=['bold', 'italic'],
         help_text='Optional. Brief description for preview display. Will ' +
         'also be used for search description (without tags), if one is ' +
         'not entered.')
-
     #: maximum length for description to be displayed
     max_length = 225
-
     # (tags are omitted by subsetting default ALLOWED_TAGS)
     #: allowed tags for bleach html stripping in description
     allowed_tags = list((set(bleach.sanitizer.ALLOWED_TAGS) - \
@@ -246,7 +270,7 @@ class PagePreviewDescriptionMixin(models.Model):
 @register_snippet
 class Person(models.Model):
     '''Common model for a person, currently used to document authorship for
-    instances of :class:`ContentPage`. Adapted from PPA.'''
+    instances of :class:`BasePage`. Adapted from PPA.'''
 
     #: the display name of an individual
     name = models.CharField(
@@ -254,31 +278,27 @@ class Person(models.Model):
         help_text='Full name for the person as it should appear in the author '
                   'list.'
     )
-    #: Optional profile image to be associated with a person
-    photo = models.ForeignKey(
-        Image,
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-        help_text='Image to use as a profile photo for a person, '
-                  'displayed on contributor list.'
-    )
     #: identifying URI for a person (VIAF, ORCID iD, personal website, etc.)
     url = models.URLField(
         blank=True,
         default='',
-        help_text='Personal website, profile page, or social media profile page '
+        help_text='Personal website, profile page, or social media profile page'
                   'for this person.'
         )
-    #: description (affiliation, etc.)
-    description = RichTextField(
-        blank=True, features=['bold', 'italic'],
-        help_text='Title & affiliation, or other relevant context.')
-
-    #: project role
-    project_role = models.CharField(
-        max_length=255, blank=True,
-        help_text='Project role, if any, for display on contributor list.')
+    #: twitter creator ID - used for twitter card previews
+    # NOTE this is not a username! you can find your creator ID using a tool:
+    # http://gettwitterid.com or https://tweeterid.com/
+    # it will never change, unlike a username.
+    # this ID form can be used for more preview types than a simple username; see
+    # http://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/markup
+    twitter_id = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        help_text='Twitter user ID. Note that this is NOT a username - you can'
+                   'find yours at http://tweeterid.com/. Will not change if a'
+                   'username changes.'
+    )
 
     panels = [
         FieldPanel('name'),
@@ -292,10 +312,11 @@ class Person(models.Model):
         return self.name
 
 
-class ContentPage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
-    '''Basic :class:`wagtail.core.models.Page` model.'''
-    parent_page_types = ['LandingPage', 'RoutableLandingPage']  # can only be child of LandingPages
-    subpage_types = [] # no allowed children
+class BasePage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
+    '''Abstract :class:`wagtail.core.models.Page` model that contains all
+    functionality to be shared across `Page` subtypes.'''
+
+    #: main page text
     body = StreamField(BodyContentBlock)
     #: authors - collection of Person snippets
     authors = StreamField(
@@ -319,6 +340,7 @@ class ContentPage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
         help_text='Preview image for landing page list (if supported)' +
                   ' and social media.'
     )
+
     content_panels = Page.content_panels + [
         FieldPanel('description'),
         StreamFieldPanel('authors'),
@@ -326,6 +348,30 @@ class ContentPage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
         ImageChooserPanel('featured_image'),
         StreamFieldPanel('body'),
     ]
+
+    class Meta:
+        abstract = True
+
+
+class ContentPage(BasePage):
+    '''A simple :class:`BasePage` type that appears beneath `ContentLandingPage`s
+    in the hierarchy.'''
+
+    # can only be child of ContentLandingPage
+    parent_page_types = ['ContentLandingPage']
+    # no allowed children
+    subpage_types = []
+
+
+class EssayPage(BasePage):
+    '''A :class:`BasePage` type that appears beneath `EssayLandingPage`s
+    in the hierarchy.'''
+
+    # can only be child of EssayLandingPage
+    parent_page_types = ['EssayLandingPage']
+    # no allowed children
+    subpage_types = []
+
 
     # taken from PPA
     def set_url_path(self, parent):

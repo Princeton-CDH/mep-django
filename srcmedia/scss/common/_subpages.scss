@@ -22,14 +22,9 @@
     }
 }
 
-// routable landingpage subtype, subpages are "posts"
+// essay landing page subtype, subpages are essays
 // used for analysis
-.posts.subpages {
-
-    // display publication dates on posts
-    time {
-        display: inline;
-    }
+.essays.subpages {
 
     // masonry layout on desktop
     @media (min-width: $breakpoint-m) {

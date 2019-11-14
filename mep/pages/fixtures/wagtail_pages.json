@@ -219,7 +219,7 @@
         "slug": "sources",
         "content_type": [
             "pages",
-            "landingpage"
+            "contentlandingpage"
         ],
         "live": true,
         "has_unpublished_changes": false,
@@ -252,7 +252,7 @@
         "slug": "analysis",
         "content_type": [
             "pages",
-            "routablelandingpage"
+            "essaylandingpage"
         ],
         "live": true,
         "has_unpublished_changes": false,
@@ -283,7 +283,7 @@
         "slug": "test-analysis",
         "content_type": [
             "pages",
-            "contentpage"
+            "essaypage"
         ],
         "live": true,
         "has_unpublished_changes": false,
@@ -469,7 +469,7 @@
         "slug": "about",
         "content_type": [
             "pages",
-            "landingpage"
+            "contentlandingpage"
         ],
         "live": true,
         "has_unpublished_changes": false,
@@ -560,7 +560,7 @@
     }
 },
 {
-    "model": "pages.landingpage",
+    "model": "pages.contentlandingpage",
     "pk": 5,
     "fields": {
         "tagline": "Learn about the lending library cards and logbooks.",
@@ -569,7 +569,7 @@
     }
 },
 {
-    "model": "pages.landingpage",
+    "model": "pages.contentlandingpage",
     "pk": 8,
     "fields": {
         "tagline": "Learn about the Shakespeare and Company Project.",
@@ -578,7 +578,7 @@
     }
 },
 {
-    "model": "pages.landingpage",
+    "model": "pages.essaylandingpage",
     "pk": 17,
     "fields": {
         "tagline": "Analyze the Shakespeare and Company community.",
@@ -666,7 +666,7 @@
     }
 },
 {
-    "model": "pages.routablelandingpage",
+    "model": "pages.essaylandingpage",
     "pk": 17,
     "fields": {}
 },

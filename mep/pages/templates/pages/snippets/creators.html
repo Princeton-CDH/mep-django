@@ -1,0 +1,16 @@
+{% if page.authors or page.editors %}
+<div class="attribution">
+    <span class="authors">
+        {% include 'pages/snippets/attribution.html' with creators=page.authors %}
+    </span>
+    <span class="editors">
+        {% include 'pages/snippets/attribution.html' with creators=page.editors %}
+    </span>
+    Published <time datetime="{{ page.first_published_at|date:'Y-m-d' }}">
+        {{ page.first_published_at|date:"F j, Y" }}
+    </time>
+    Updated <time datetime="{{ page.latest_revision_created_at|date:'Y-m-d' }}">
+        {{ page.latest_revision_created_at|date:"F j, Y" }}
+    </time>
+</div>
+{% endif %}

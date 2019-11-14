@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'pages/landing_page.html' %}
 
 {% block page-subtitle %}{% firstof page.seo_title page.title %} · {% endblock %}
 
@@ -17,7 +17,7 @@
 </div>
 <section class="subpages {{ page.title|lower }}" aria-label="sub pages">
     {% for subpage in page.get_children.live %}
-    {% include 'pages/snippets/preview.html' with page=subpage meta=True %}
+    {% include 'pages/snippets/preview.html' with page=subpage %}
     {% endfor %}
 </section>
 {% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block page-subtitle %}{% firstof page.seo_title page.title %} · {% if page.get_parent %}{% firstof page.get_parent.seo_title page.get_parent.title %} · {%endif %}{% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title=page.title style="content" %}
+{% endblock %}
+
+{% block main-style %}white{% endblock %}
+
+{% block content %}
+{% include 'snippets/breadcrumbs.html' %}
+<article class="main">
+    {% include 'pages/snippets/body.html' %}
+    {% include 'pages/snippets/creators.html' %}
+    {% include 'pages/snippets/citation.html' %}
+</article>
+{% endblock %}
