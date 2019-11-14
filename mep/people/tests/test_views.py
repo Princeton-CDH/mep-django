@@ -823,11 +823,12 @@ class TestMembersListView(TestCase):
         # because card filtering is not on
         # faceting should be turned on via call to facet_fields twice
         mock_qs.facet_field.assert_any_call('has_card')
-        mock_qs.facet_field.assert_any_call('gender', missing=True, exclude='gender')
-        mock_qs.facet_field.assert_any_call('nationality', exclude='nationality',
-                                            sort='value')
-        mock_qs.facet_field.assert_any_call('nationality', exclude='nationality',
-                                            sort='count')
+        mock_qs.facet_field.assert_any_call(
+            'gender', missing=True, exclude='gender')
+        mock_qs.facet_field.assert_any_call(
+            'nationality', exclude='nationality', sort='value')
+        mock_qs.facet_field.assert_any_call(
+            'arrondissement', exclude='arrondissement', sort='value')
         # search and raw query not called without keyword search term
         mock_qs.search.assert_not_called()
         mock_qs.raw_query_parameters.assert_not_called()

@@ -59,9 +59,11 @@ class MemberSearchForm(FacetForm):
             'aria-describedby': 'has_card_tip'
         }),
         help_text='Limit to members with lending library cards.')
-    gender = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
-        'class': 'choice facet',
-        'aria-describedby': 'gender_tip'
+    gender = FacetChoiceField(
+        label='Gender',
+        widget=CheckboxFieldset(attrs={
+            'class': 'choice facet',
+            'aria-describedby': 'gender_tip'
         }),
         help_text='Learn more about gender and its representation in the Project \
         in the Analysis section.')
@@ -73,7 +75,7 @@ class MemberSearchForm(FacetForm):
         label='Nationality', hide_threshold=0,
         widget=CheckboxFieldset(attrs={'class': 'text facet'})
     )
-    arrondissements = FacetChoiceField(
+    arrondissement = FacetChoiceField(
         label='Arrondissement', hide_threshold=0,
         widget=CheckboxFieldset(attrs={'class': 'text facet'})
     )

@@ -1,11 +1,10 @@
-from collections import defaultdict
-from datetime import timedelta
-from itertools import chain
+from collections import defaultdict, OrderedDict
 
 from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.http import JsonResponse
@@ -28,7 +27,7 @@ from mep.people.queryset import PersonSolrQuerySet
 
 
 class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
-        FacetJSONMixin, RdfViewMixin):
+                  FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
@@ -124,8 +123,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
             .facet_field('has_card') \
             .facet_field('gender', missing=True, exclude='gender') \
             .facet_field('nationality', exclude='nationality', sort='value') \
-            .facet_field('arrondissements', exclude='arrondissements',
-                         sort='count')
+            .facet_field('arrondissement', exclude='arrondissement',
+                         sort='value')
 
         form = self.get_form()
 
@@ -150,10 +149,11 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
                 sqs = sqs.filter(nationality__in=[
                     '"%s"' % val for val in search_opts['nationality']
                 ], tag='nationality')
-            if search_opts['arrondissements']:
-                sqs = sqs.filter(arrondissements__in=[
-                    '"%s"' % val for val in search_opts['arrondissements']
-                ], tag='arrondissements')
+            if search_opts['arrondissement']:
+                # strip off ordinal letters and filter on numeric arrondissement
+                sqs = sqs.filter(arrondissement__in=[
+                    '%s' % val[:-2] for val in search_opts['arrondissement']
+                ], tag='arrondissement')
 
             # range filter by membership dates, if set
             if search_opts['membership_dates']:
@@ -171,8 +171,13 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self._form.set_choices_from_facets(
-            self.object_list.get_facets()['facet_fields'])
+        facets = self.object_list.get_facets()['facet_fields']
+        # convert arrondissement numbers into ordinals for display
+        facets['arrondissement'] = OrderedDict([
+            (ordinal(val), count)
+            for val, count in facets['arrondissement'].items()
+        ])
+        self._form.set_choices_from_facets(facets)
         return context
 
     def get_page_labels(self, paginator):

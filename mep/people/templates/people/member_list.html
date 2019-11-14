@@ -50,12 +50,12 @@
                                 aria-label="{{ form.gender.help_text }}" tabindex=0/>
                         </div>
                         <div class="column">
-                            <div class="expander" role="button" aria-controls="id_nationality" tabindex="0" aria-expanded="false">Nationality</div>
+                            <div class="expander" role="button" aria-controls="id_nationality" tabindex="0" aria-expanded="false">{{ form.nationality.label }}</div>
                             {% render_field form.nationality %}
                         </div>
                         <div class="column">
-                            <div class="expander" role="button" aria-controls="id_arrondissements" tabindex="0" aria-expanded="false">Arrondissement</div>
-                            {% render_field form.arrondissements %}
+                            <div class="expander" role="button" aria-controls="id_arrondissement" tabindex="0" aria-expanded="false">{{ form.arrondissement.label }}</div>
+                            {% render_field form.arrondissement %}
                         </div>
                     </div>
                 </div>

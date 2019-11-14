@@ -25,12 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const $memDateFacet = document.querySelector('#id_membership_dates') as HTMLFieldSetElement
     const $birthDateFacet = document.querySelector('#id_birth_year') as HTMLFieldSetElement
     const $nationalityFacet = document.querySelector('#id_nationality') as HTMLFieldSetElement
-    const $arrondissementFacet = document.querySelector('#id_arrondissements') as HTMLFieldSetElement
+    const $arrondissementFacet = document.querySelector('#id_arrondissement') as HTMLFieldSetElement
     const $errors = document.querySelector('div[role=alert].errors')
     const $demographicsTab = document.querySelector('.demographics.tab') as HTMLDivElement
     const $booksTab = document.querySelector('.books.tab') as HTMLDivElement
     const $nationalityExpander = document.querySelector('.expander[aria-controls="id_nationality"]') as HTMLDivElement
-    const $arrondissementExpander = document.querySelector('.expander[aria-controls="id_arrondissements"]') as HTMLDivElement
+    const $arrondissementExpander = document.querySelector('.expander[aria-controls="id_arrondissement"]') as HTMLDivElement
 
     /* COMPONENTS */
     const membersSearchForm = new RxFacetedSearchForm($membersSearchForm)

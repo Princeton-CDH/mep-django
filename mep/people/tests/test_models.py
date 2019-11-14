@@ -39,8 +39,8 @@ class TestLocation(TestCase):
         # locations in paris with 750xx postcodes should work
         hotel = Location(name='L\'Hotel', postal_code='75003')
         rue = Location(name='Rue 2', postal_code='75016')
-        assert hotel.arrondissement() == '3rd'
-        assert rue.arrondissement() == '16th'
+        assert hotel.arrondissement() == 3
+        assert rue.arrondissement() == 16
         # locations outside of paris proper return None
         pantheon = Location(name='Pantheon', postal_code='12345')
         assert pantheon.arrondissement() is None
@@ -356,7 +356,7 @@ class TestPerson(TestCase):
         assert denmark.name in index_data['nationality']
 
         # add locations in Paris for arrondissements
-        assert 'arrondissements' not in index_data # none available yet
+        assert 'arrondissement_is' not in index_data  # none available yet
         pantheon = Location(name='Pantheon', city='Rome', postal_code='12345')
         hotel = Location(name='Hotel', city='Paris', postal_code='75003')
         shop = Location(name='Shop', city='Paris', postal_code='75003')
@@ -374,10 +374,10 @@ class TestPerson(TestCase):
         # pantheon ignored because not in paris; hotel/shop are located in the
         # same arrondissement so we should only have 2 unique values
         index_data = pers.index_data()
-        assert 'arrondissements' in index_data
-        assert len(index_data['arrondissements']) is 2
-        assert 3 in index_data['arrondissements']
-        assert 16 in index_data['arrondissements']
+        assert 'arrondissement_is' in index_data
+        assert len(index_data['arrondissement_is']) is 2
+        assert 3 in index_data['arrondissement_is']
+        assert 16 in index_data['arrondissement_is']
 
 
 class TestPersonQuerySet(TestCase):

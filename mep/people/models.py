@@ -95,6 +95,7 @@ class Location(Notable):
         try:
             prefix = self.postal_code[:3]
             if prefix == '750' or prefix == '751': # postcode must be in paris proper
+                return int(self.postal_code[-2:]) # use last two digits
                 return ordinal(int(self.postal_code[-2:])) # use last two digits
         except (ValueError, IndexError, AttributeError):
             return None
@@ -632,7 +633,7 @@ class Person(Notable, DateRange, ModelIndexable):
             locs = Location.objects.filter(address__in=account.address_set.all())
             arrs = list(set(filter(None, [l.arrondissement() for l in locs])))
             if arrs:
-                index_data['arrondissements'] = arrs
+                index_data['arrondissement_is'] = arrs
 
         return index_data
 
