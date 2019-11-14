@@ -41,14 +41,9 @@ class TestHomePage(WagtailPageTests):
 class TestLandingPage(WagtailPageTests):
     fixtures = ['wagtail_pages']
 
-    # test subclass of abstract LandingPage
-    class MyLandingPage(LandingPage):
-        class Meta:
-            app_label = 'mep.pages'
-
     def test_can_create(self):
         home = HomePage.objects.first()
-        self.assertCanCreate(home, MyLandingPage, nested_form_data({
+        self.assertCanCreate(home, ContentLandingPage, nested_form_data({
             'title': 'My Kinda Landing Page!',
             'slug': 'mylp',
             'tagline': 'now thats what im talkin about',
@@ -59,7 +54,8 @@ class TestLandingPage(WagtailPageTests):
         }))
 
     def test_parent_pages(self):
-        self.assertAllowedParentPageTypes(MyLandingPage, [HomePage])
+        self.assertAllowedParentPageTypes(
+            ContentLandingPage, [HomePage])
 
 
 class TestContentLandingPage(WagtailPageTests):
@@ -139,19 +135,11 @@ class TestEssayLandingPage(WagtailPageTests):
 class TestBasePage(WagtailPageTests):
     fixtures = ['wagtail_pages']
 
-    # test subclass of abstract BasePage
-    class MyPage(BasePage):
-        # can be direct child of HomePage
-        parent_page_types = [HomePage]
-        # no children
-        subpage_types = []
-
-        class Meta:
-            app_label = 'mep.pages'
-
     def test_can_create(self):
         home = HomePage.objects.first()
-        self.assertCanCreate(home, self.MyPage, nested_form_data({
+        landing = LandingPage.objects.first()
+
+        self.assertCanCreate(landing, ContentPage, nested_form_data({
             'title': 'My new kinda page',
             'slug': 'new-page',
             'body': streamfield([
@@ -164,11 +152,11 @@ class TestBasePage(WagtailPageTests):
     def test_get_description(self):
         '''test page preview mixin'''
         # page with body content and no description
-        mypage = self.MyPage(
+        mypage = ContentPage(
             title='Undescribable',
-            body=[
+            body=(
                 ('paragraph', '<p>How to <a>begin</a>?</p>'),
-            ]
+            )
         )
 
         assert not mypage.description
@@ -192,7 +180,7 @@ class TestBasePage(WagtailPageTests):
         assert desc == 'hi'
 
         # test content page with image for first block
-        mypage2 = self.MyPage(
+        mypage2 = ContentPage(
             title='What is Prosody?',
             body=[
                 ('image', '<img src="milton-example.png"/>'),

@@ -14,7 +14,7 @@ from django.core.management.base import BaseCommand
 from wagtail.core.models import Page
 from wagtail.core.models import Site as WagtailSite
 
-from mep.pages.models import ContentPage, HomePage, LandingPage
+from mep.pages.models import ContentPage, HomePage, ContentLandingPage
 
 
 class Command(BaseCommand):
@@ -73,14 +73,14 @@ class Command(BaseCommand):
         for i, page in enumerate(self.pages):
             landing_page = Page.objects.filter(slug=page['slug']).first()
             if not landing_page:
-                landing_page = LandingPage.objects.create(
+                landing_page = ContentLandingPage.objects.create(
                     title=page['title'],
                     slug=page['slug'],
                     tagline=page['tagline'],
                     depth=3,
                     path='{}{:04d}'.format(home.path, i),
                     show_in_menus=True,
-                    content_type=ContentType.objects.get_for_model(LandingPage)
+                    content_type=ContentType.objects.get_for_model(ContentLandingPage)
                 )
             # Create subpages for each landing page
             for i_, page_ in enumerate(page['pages']):
