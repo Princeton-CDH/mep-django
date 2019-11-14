@@ -24,11 +24,11 @@ class TestAccount(TestCase):
         account.save()
         assert repr(account) == '<Account pk:%s>' % account.pk
         # one name
-        pers1 = Person.objects.create(name='Mlle Foo')
+        pers1 = Person.objects.create(name='Mlle Foo', slug='foo')
         account.persons.add(pers1)
         assert repr(account) == '<Account pk:%s %s>' % (account.pk, str(pers1))
         # multiple names
-        pers2 = Person.objects.create(name='Bazbar')
+        pers2 = Person.objects.create(name='Bazbar', slug='bazbar')
         account.persons.add(pers2)
         assert repr(account) == '<Account pk:%s %s;%s>' % \
             (account.pk, str(pers1), str(pers2))
@@ -44,7 +44,7 @@ class TestAccount(TestCase):
         assert str(account) == "Account #%s: 1 Rue St." % account.pk
 
         # create and add a person, overrides address
-        pers1 = Person.objects.create(name='Mlle Foo')
+        pers1 = Person.objects.create(name='Mlle Foo', slug='foo')
         account.persons.add(pers1)
         assert str(account) == "Account #%s: Mlle Foo" % account.pk
 
@@ -111,8 +111,8 @@ class TestAccount(TestCase):
     def test_list_persons(self):
         # create an account and associate two people with it
         account = Account.objects.create()
-        pers1 = Person.objects.create(name='Foobar')
-        pers2 = Person.objects.create(name='Bazbar')
+        pers1 = Person.objects.create(name='Foobar', slug='foo')
+        pers2 = Person.objects.create(name='Bazbar', slug='bazbar')
         account.persons.add(pers1, pers2)
 
         # comma separated string, by name in alphabetical order
@@ -381,7 +381,8 @@ class TestAddress(TestCase):
             '%s - %s (-%d)' % (self.location, self.account, end_year)
 
         # care of person
-        self.address.care_of_person = Person.objects.create(name='Jones')
+        self.address.care_of_person = Person.objects.create(
+            name='Jones', slug='jones')
         assert str(self.address) == \
             '%s - %s (-%d) c/o %s' % (self.location, self.account, end_year,
                                     self.address.care_of_person)
@@ -393,7 +394,7 @@ class TestAddress(TestCase):
 
         # person, no account
         self.address.account = None
-        self.address.person = Person.objects.create(name='Smith')
+        self.address.person = Person.objects.create(name='Smith', slug='sm')
         assert str(self.address) == \
             '%s - %s c/o %s' % (self.location, self.address.person,
                                 self.address.care_of_person)
@@ -404,7 +405,7 @@ class TestAddress(TestCase):
         with pytest.raises(ValidationError):
             addr.clean()
         addr.account = self.account
-        addr.person = Person.objects.create(name='Lee')
+        addr.person = Person.objects.create(name='Lee', slug='lee')
 
         # both account and person is an error
         with pytest.raises(ValidationError):
