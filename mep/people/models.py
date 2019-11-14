@@ -245,7 +245,10 @@ class PersonSignalHandlers:
                      count, 'person' if count == 1 else 'people')
 
     @staticmethod
-    def country_save(_sender, instance, **_kwargs):
+    def country_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
         if instance.pk:
             # if any members are associated
             members = instance.person_set.library_members().all()
@@ -254,11 +257,10 @@ class PersonSignalHandlers:
                 ModelIndexable.index_items(members)
 
     @staticmethod
-    def country_delete(_sender, instance, **_kwargs):
+    def country_delete(sender, instance, **kwargs):
+        # get a list of ids for collected works before clearing them
         if not instance.pk:
             return
-        logger.debug('country delete')
-        # get a list of ids for collected works before clearing them
         person_ids = instance.person_set.library_members() \
                              .values_list('id', flat=True)
         if person_ids:
@@ -271,7 +273,10 @@ class PersonSignalHandlers:
             ModelIndexable.index_items(members)
 
     @staticmethod
-    def account_save(_sender, instance, **_kwargs):
+    def account_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
         if instance.pk:
             # if any members are associated
             members = instance.persons.library_members().all()
@@ -280,8 +285,7 @@ class PersonSignalHandlers:
                 ModelIndexable.index_items(members)
 
     @staticmethod
-    def account_delete(_sender, instance, **_kwargs):
-        logger.debug('account delete')
+    def account_delete(sender, instance, **kwargs):
         # get a list of ids for collected works before clearing them
         person_ids = instance.persons.library_members() \
                              .values_list('id', flat=True)
@@ -294,7 +298,10 @@ class PersonSignalHandlers:
             ModelIndexable.index_items(members)
 
     @staticmethod
-    def event_save(_sender, instance, **_kwargs):
+    def event_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
         if instance.pk:
             # if any members are associated
             members = instance.account.persons.library_members().all()
@@ -303,14 +310,17 @@ class PersonSignalHandlers:
                 ModelIndexable.index_items(members)
 
     @staticmethod
-    def event_delete(_sender, instance, **_kwargs):
+    def event_delete(sender, instance, **kwargs):
         # get a list of ids for deleted event
         members = instance.account.persons.library_members()
         if members.exists():
             ModelIndexable.index_items(members)
 
     @staticmethod
-    def address_save(_sender, instance, **_kwargs):
+    def address_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
         # some addresses are associated directly to members - these are no
         # longer valid so we check that it's associated to account instead
         if instance.pk and instance.account:
@@ -321,7 +331,7 @@ class PersonSignalHandlers:
                 ModelIndexable.index_items(members)
 
     @staticmethod
-    def address_delete(_sender, instance, **_kwargs):
+    def address_delete(sender, instance, **kwargs):
         # check that we are associated to a member's account
         if instance.account:
             members = instance.account.persons.library_members()
