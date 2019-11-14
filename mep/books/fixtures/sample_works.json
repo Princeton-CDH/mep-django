@@ -89,6 +89,7 @@
 			"gender": "",
 			"title": "",
 			"profession": null,
+			"slug": "pain",
 			"nationalities": []
 		}
 	},
@@ -107,6 +108,7 @@
 			"gender": "",
 			"title": "",
 			"profession": null,
+			"slug": "tolstoy",
 			"nationalities": []
 		}
 	},
@@ -126,6 +128,7 @@
 			"gender": "M",
 			"title": "M.",
 			"profession": null,
+			"slug": "gay",
 			"nationalities": [
 				2
 			]

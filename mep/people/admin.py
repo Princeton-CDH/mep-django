@@ -186,7 +186,7 @@ class PersonAdmin(admin.ModelAdmin):
         'mep_id', 'account_id', 'address_count', 'in_logbooks', 'has_card',
         'verified', 'updated_at', 'note_snippet')
     fields = (
-        'mep_id',
+        ('slug', 'mep_id'),
         ('has_account', 'in_logbooks', 'has_card', 'is_creator'),
         'title',
         ('name', 'sort_name'),
@@ -197,7 +197,7 @@ class PersonAdmin(admin.ModelAdmin):
     readonly_fields = ('mep_id', 'in_logbooks', 'has_account', 'has_card',
                        'is_creator')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'public_notes',
-                     'viaf_id')
+                     'viaf_id', 'slug')
     list_filter = (PersonTypeListFilter, 'gender', 'profession', 'nationalities',
                    'is_organization')
     # Note: moving relationships to last for adjacency to list of relationships
@@ -206,7 +206,10 @@ class PersonAdmin(admin.ModelAdmin):
 
     # by default, set sort name from name for those cases where
     # only one name is known and they are the same
-    prepopulated_fields = {"sort_name": ("name",)}
+    prepopulated_fields = {
+        "sort_name": ("name",),
+        "slug": ("sort_name",)
+    }
     # NOTE: using a locally customized version of django's prepopulate.js
     # to allow using the prepopulate behavior without slugifying the value
 

@@ -132,7 +132,11 @@ class WorkSignalHandlers:
     related records are saved or deleted.'''
 
     @staticmethod
-    def creatortype_save(sender, instance, **kwargs):
+    def creatortype_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+
         if instance.pk:
             # if any members are associated
             works = Work.objects.filter(creator__creator_type__pk=instance.pk)
@@ -153,7 +157,11 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def person_save(sender, instance, **kwargs):
+    def person_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+
         if instance.pk:
             # if any members are associated
             works = Work.objects.filter(creator__person__pk=instance.pk)
@@ -174,7 +182,10 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def creator_change(sender, instance, **kwargs):
+    def creator_change(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
         if instance.pk:
             logger.debug('creator change, reindexing %s',
                          instance.work)

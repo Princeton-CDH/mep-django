@@ -1,11 +1,10 @@
-from collections import defaultdict
-from datetime import timedelta
-from itertools import chain
+from collections import defaultdict, OrderedDict
 
 from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.http import JsonResponse
@@ -14,6 +13,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormMixin, FormView
 
 from mep.accounts.models import Address, Event
@@ -28,7 +28,7 @@ from mep.people.queryset import PersonSolrQuerySet
 
 
 class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
-        FacetJSONMixin, RdfViewMixin):
+                  FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     template_name = 'people/member_list.html'
@@ -123,7 +123,9 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
         sqs = PersonSolrQuerySet() \
             .facet_field('has_card') \
             .facet_field('gender', missing=True, exclude='gender') \
-            .facet_field('nationality', exclude='nationality', sort='value')
+            .facet_field('nationality', exclude='nationality', sort='value') \
+            .facet_field('arrondissement', exclude='arrondissement',
+                         sort='value')
 
         form = self.get_form()
 
@@ -148,6 +150,11 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
                 sqs = sqs.filter(nationality__in=[
                     '"%s"' % val for val in search_opts['nationality']
                 ], tag='nationality')
+            if search_opts['arrondissement']:
+                # strip off ordinal letters and filter on numeric arrondissement
+                sqs = sqs.filter(arrondissement__in=[
+                    '%s' % val[:-2] for val in search_opts['arrondissement']
+                ], tag='arrondissement')
 
             # range filter by membership dates, if set
             if search_opts['membership_dates']:
@@ -165,8 +172,13 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self._form.set_choices_from_facets(
-            self.object_list.get_facets()['facet_fields'])
+        facets = self.object_list.get_facets()['facet_fields']
+        # convert arrondissement numbers into ordinals for display
+        facets['arrondissement'] = OrderedDict([
+            (ordinal(val), count)
+            for val, count in facets['arrondissement'].items()
+        ])
+        self._form.set_choices_from_facets(facets)
         return context
 
     def get_page_labels(self, paginator):
@@ -248,17 +260,14 @@ class MemberDetail(DetailView, RdfViewMixin):
             'activity_ranges': [{
                 'startDate': start.isoformat(),
                 'endDate': end.isoformat()
-            } for start, end in account.event_date_ranges]
+            } for start, end in account.event_date_ranges()]
         }
 
         # plottable locations for member address map visualization, which
         # is a leaflet map that will consume JSON address data
         # NOTE probably refactor this into a queryset method for use on
         # members search map
-        #
-        # addresses can be stored on either Person or Account
-        addresses = Address.objects.filter(Q(account__pk=account.pk) |
-            Q(person__pk=self.object.pk)) \
+        addresses = Address.objects.filter(account=account) \
             .filter(location__latitude__isnull=False) \
             .filter(location__longitude__isnull=False)
 
@@ -312,14 +321,14 @@ class MembershipActivities(ListView, RdfViewMixin):
     def get_queryset(self):
         # filter to requested person, then get membership activities
         return super().get_queryset() \
-                      .filter(account__persons__pk=self.kwargs['pk']) \
+                      .filter(account__persons__slug=self.kwargs['slug']) \
                       .membership_activities()
 
     def get_context_data(self, **kwargs):
         # should 404 if not a person or valid person but not a library member
         # store member before calling super so available for breadcrumbs
         self.member = get_object_or_404(Person.objects.library_members(),
-                                        pk=self.kwargs['pk'])
+                                        slug=self.kwargs['slug'])
         context = super().get_context_data(**kwargs)
         context['member'] = self.member
         return context
@@ -337,6 +346,43 @@ class MembershipActivities(ListView, RdfViewMixin):
             (self.member.short_name, self.member.get_absolute_url()),
             ('Membership Activities', self.get_absolute_url())
         ]
+
+
+class MembershipGraphs(TemplateView):
+    model = Person
+    template_name = 'people/member_graphs.html'
+
+    def get_context_data(self):
+        context = super().get_context_data()
+
+        # use facets to get member totals by month and year
+        sqs = PersonSolrQuerySet() \
+            .facet_field('account_yearmonths', sort='index', limit=1000) \
+            .facet_field('logbook_yearmonths', sort='index', limit=1000) \
+            .facet_field('card_yearmonths', sort='index', limit=1000)
+
+        facets = sqs.get_facets()['facet_fields']
+
+        context['data'] = {
+            # convert into a format that's easier to use with javascript/d3
+            'members': [{
+                'startDate': '%s-%s-01' % (yearmonth[:4], yearmonth[-2:]),
+                'count': count
+            } for yearmonth, count in facets['account_yearmonths'].items()
+            ],
+            'logbooks': [{
+                'startDate': '%s-%s-01' % (yearmonth[:4], yearmonth[-2:]),
+                'count': count
+            } for yearmonth, count in facets['logbook_yearmonths'].items()
+            ],
+            'cards': [{
+                'startDate': '%s-%s-01' % (yearmonth[:4], yearmonth[-2:]),
+                'count': count
+            } for yearmonth, count in facets['card_yearmonths'].items()
+            ]
+
+        }
+        return context
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):

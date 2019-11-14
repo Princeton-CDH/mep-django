@@ -18,12 +18,12 @@ class PersonChoiceFieldTest(TestCase):
         pchoicefield = PersonChoiceField(Mock())
 
         # should not error on record with minimal information
-        pers = Person.objects.create(name='Jones')
+        pers = Person.objects.create(name='Jones', slug='jones')
         label = pchoicefield.label_from_instance(pers)
         assert pers.name in label
 
         # should display details if available
-        pers = Person.objects.create(name='Jones', title='Mr',
+        pers = Person.objects.create(name='Jones', title='Mr', slug='jones-2',
             birth_year=1902, mep_id="jone", gender="M",
             viaf_id='http://viaf.org/viaf/1902010101',
             notes='more important details here')
@@ -66,10 +66,10 @@ class PersonMergeFormTest(TestCase):
 
         # create test person records
         Person.objects.bulk_create([
-            Person(name='Jones'),
-            Person(name='Jones', title='Mr'),
-            Person(name='Jones', title='Mr', gender='M'),
-            Person(name='Jones', title='Mrs'),
+            Person(name='Jones', slug='jones'),
+            Person(name='Jones', title='Mr', slug='jones-2'),
+            Person(name='Jones', title='Mr', gender='M', slug='jones-3'),
+            Person(name='Jones', title='Mrs', slug='jones-4'),
         ])
         # initialize with ids for all but the last
         peeps = Person.objects.all().order_by('pk')

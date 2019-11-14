@@ -26,10 +26,10 @@
 {% include 'snippets/breadcrumbs.html' %}
 <nav class="tabs" aria-label="tabs">
     <li class="tab" aria-selected="true">
-        <a href="{% url 'people:member-detail' pk=member.pk %}">biography</a>
+        <a href="{% url 'people:member-detail' slug=member.slug %}">biography</a>
     </li>
     <li class="tab">
-        <a href="{% url 'people:membership-activities' pk=member.pk %}">activities</a>
+        <a href="{% url 'people:membership-activities' slug=member.slug %}">activities</a>
     </li>
     <li class="tab">
         <a href="#">cards</a>

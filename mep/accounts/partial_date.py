@@ -19,7 +19,13 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
     description = 'Integer representation of DatePrecision flags.'
 
     def to_python(self, value):
+        '''Convert integer to :class`DatePrecision` if set'''
         return DatePrecision(value) if value else None
+
+    def from_db_value(self, value, expression, connection, context):
+        '''Convert values returned from database to :class:`DatePrecision`
+        using :meth:`to_python`'''
+        return self.to_python(value)
 
 
 class PartialDate:

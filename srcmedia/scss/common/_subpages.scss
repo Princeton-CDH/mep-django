@@ -19,7 +19,8 @@
 }
 
 // about landing page
-.about.subpages {
+// temporarily suppress descriptions for sources landing page
+.about.subpages, .sources.subpages {
 
     // hide descriptions
     .preview p {

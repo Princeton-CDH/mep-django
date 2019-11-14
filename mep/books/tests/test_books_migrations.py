@@ -66,7 +66,7 @@ def test_ok_to_merge():
 
     # add an author to one
     author = CreatorType.objects.get(name='Author')
-    person = Person.objects.create(name='John Foo')
+    person = Person.objects.create(name='John Foo', slug='foo')
     Creator.objects.create(person=person, creator_type=author, work=work1)
     assert not merge_utils.ok_to_merge(Work.objects.all())
 
@@ -146,14 +146,14 @@ class TestMergeWorks(TestCase):
         work = Work.objects.get(mep_id='exite')
         work2 = Work.objects.create(title=work.title, uri=work.uri)
         author = CreatorType.objects.get(name='Author')
-        auth2 = Person.objects.create(name='Jean Foo')
+        auth2 = Person.objects.create(name='Jean Foo', slug='foo')
         # put on both works to test cleanup
         creator_w1 = Creator.objects.create(
             person=auth2, creator_type=author, work=work)
         creator_w2 = Creator.objects.create(
             person=auth2, creator_type=author, work=work2)
         translator = CreatorType.objects.get(name='Translator')
-        translat2 = Person.objects.create(name='Jean LeNoir')
+        translat2 = Person.objects.create(name='Jean LeNoir', slug='lenoir')
         Creator.objects.create(person=translat2, creator_type=translator,
                                work=work2)
 
