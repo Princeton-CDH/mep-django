@@ -70,7 +70,7 @@ class HomePage(Page):
     # can only be child of Root
     parent_page_types = [Page]
     # only landingpage subtypes as children
-    subpage_types = ['LandingPage']
+    subpage_types = ['ContentLandingPage', 'EssayLandingPage']
     #: main page text
     body = StreamField(BodyContentBlock)
 
