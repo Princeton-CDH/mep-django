@@ -20,9 +20,7 @@ module.exports = env => ({
             path.resolve(__dirname, 'node_modules/leaflet/dist/leaflet.css'),
             './ts/members-map.ts',
         ],
-        membershipGraphs: [
-            './ts/membership-graphs.ts',
-        ],
+        membershipGraphs: './ts/membership-graphs.ts',
         booksSearch: './ts/books-search.ts',
         activities: './ts/activities.ts',
         cardSearch: './ts/cards-search.ts',

@@ -6,12 +6,11 @@ type MembershipCount = {
     count: number,
     startDate: string,
 }
-type MembershipCountArray = Array<MembershipCount>
 
 type MembershipTotals = {
-    cards: MembershipCountArray,
-    logbooks: MembershipCountArray,
-    members: MembershipCountArray,
+    cards: Array<MembershipCount>,
+    logbooks: Array<MembershipCount>,
+    members: Array<MembershipCount>,
 }
 
 declare const membershipData: MembershipTotals
