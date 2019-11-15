@@ -497,17 +497,17 @@
     {
         "fields": {
             "date_joined": "2019-11-15T15:38:14.023Z",
-            "email": "nbudak@princeton.edu",
+            "email": "nick@princeton.edu",
             "first_name": "Nick",
             "groups": [],
             "is_active": true,
             "is_staff": true,
             "is_superuser": true,
             "last_login": "2019-11-15T15:38:33.150Z",
-            "last_name": "Budak",
+            "last_name": "B",
             "password": "",
             "user_permissions": [],
-            "username": "nbudak"
+            "username": "nick"
         },
         "model": "auth.user",
         "pk": 2
@@ -522,5 +522,15 @@
         },
         "model": "pages.essaypage",
         "pk": 14
+    },
+    {
+        "model": "wagtailcore.site",
+        "fields": {
+            "hostname": "localhost",
+            "port": 8000,
+            "site_name": "dev",
+            "root_page": 2,
+            "is_default_site": true
+        }
     }
 ]
