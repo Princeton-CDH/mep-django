@@ -1,6 +1,7 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 {% comment %}
 preview "tile" for sub/child pages shown on a landing page.
+Expects either a ContentPage or an EssayPage
 {% endcomment %}
 <a href="{{ page.url }}" class="preview">
     <article>
@@ -12,19 +13,19 @@ preview "tile" for sub/child pages shown on a landing page.
         {% if page.authors %}
         {% include 'pages/snippets/attribution.html' with creators=page.authors %} /
         {% endif %}
-        <time datetime="{{ page.first_published_at|date:'Y-m-d' }}">
-            {{ page.first_published_at|date:"F j, Y"}}
+        <time datetime="{{ page.page_ptr.first_published_at|date:'Y-m-d' }}">
+            {{ page.page_ptr.first_published_at|date:"F j, Y"}}
         </time>
     </div>
     {% endif %}
-    <p>{{ page.contentpage.get_description|safe }}</p>
-    {% if page.contentpage.featured_image %}
-        {% image page.contentpage.featured_image fill-320x190 as s %}
-        {% image page.contentpage.featured_image fill-500x300 as m %}
-        {% image page.contentpage.featured_image fill-355x210 as l %}
-        {% image page.contentpage.featured_image fill-640x380 as s_2x %}
-        {% image page.contentpage.featured_image fill-1000x600 as m_2x %}
-        {% image page.contentpage.featured_image fill-710x420 as l_2x %}
+    <p>{{ page.get_description|safe }}</p>
+    {% if page.featured_image %}
+        {% image page.featured_image fill-320x190 as s %}
+        {% image page.featured_image fill-500x300 as m %}
+        {% image page.featured_image fill-355x210 as l %}
+        {% image page.featured_image fill-640x380 as s_2x %}
+        {% image page.featured_image fill-1000x600 as m_2x %}
+        {% image page.featured_image fill-710x420 as l_2x %}
         <picture>
             <source srcset="{{ s.url }}, {{ s_2x.url }} 2x">
             <source media="(min-width: 768px)" srcset="{{ m.url }}, {{ m_2x.url }} 2x">
