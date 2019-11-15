@@ -28,15 +28,23 @@ page_description, and page_meta_image if set in context.
 {% endif %}
 
 {# open graph metadata #}
+{% if meta_page_title %}
 <meta property="og:title" content="{{ meta_page_title }}" />
+{% endif %}
 <meta property="og:type" content="website" />
+{% if meta_description %}
 <meta property="og:description" content="{{ meta_description }}"/>
+{% endif %}
 <meta property="og:site_name" content="Shakespeare and Company Project"/>
 {# twitter card #}
 
 <meta name="twitter:card" content="summary{% if page.contentpage.featured_image %}_large_image{% endif %}" />
+{% if meta_page_title %}
 <meta name="twitter:title" content="{{ meta_page_title }}"/>
+{% endif %}
+{% if meta_description %}
 <meta name="twitter:description" content="{{ meta_description }}" />
+{% endif %}
 {# <meta name="twitter:site" content="" /> add if/when S&co project has a twitter account#}
 
 {% if request %} {# full urls required for image, dependent on request in context #}
