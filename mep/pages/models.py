@@ -286,7 +286,7 @@ class Person(models.Model):
         default='',
         help_text='Personal website, profile page, or social media profile page'
                   'for this person.'
-        )
+    )
     #: twitter creator ID - used for twitter card previews
     # NOTE this is not a username! you can find your creator ID using a tool:
     # http://gettwitterid.com or https://tweeterid.com/
@@ -298,16 +298,14 @@ class Person(models.Model):
         blank=True,
         default='',
         help_text='Twitter user ID. Note that this is NOT a username - you can'
-                   'find yours at http://tweeterid.com/. Will not change if a'
-                   'username changes.'
+                  'find yours at http://tweeterid.com/. Will not change if a'
+                  'username changes.'
     )
 
     panels = [
         FieldPanel('name'),
-        ImageChooserPanel('photo'),
         FieldPanel('url'),
-        FieldPanel('description'),
-        FieldPanel('project_role'),
+        FieldPanel('twitter_id'),
     ]
 
     def __str__(self):
