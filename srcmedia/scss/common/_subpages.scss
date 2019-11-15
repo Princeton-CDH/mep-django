@@ -2,11 +2,15 @@
 // name of landing page will be added as a class in template to control styling
 
 .subpages {
-    list-style: none;
     position: relative;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+
+    // don't display publication date by default
+    time {
+        display: none;
+    }
 
     @media (min-width: $breakpoint-m) {
         width: $breakpoint-m;
@@ -18,18 +22,14 @@
     }
 }
 
-// about landing page
-// temporarily suppress descriptions for sources landing page
-.about.subpages, .sources.subpages {
+// essay landing page subtype, subpages are essays
+// used for analysis
+.essays.subpages {
 
-    // hide descriptions
-    .preview p {
-        display: none;
+    // display publication date
+    time {
+        display: inline;
     }
-}
-
-// analysis landing page
-.analysis.subpages {
 
     // masonry layout on desktop
     @media (min-width: $breakpoint-m) {
@@ -41,5 +41,14 @@
             margin-top: 0.2rem;
             display: inline-block;
         }
+    }
+}
+
+// about landing page
+.about.subpages {
+
+    // hide descriptions
+    .preview p {
+        display: none;
     }
 }

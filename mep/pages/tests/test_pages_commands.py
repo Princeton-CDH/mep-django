@@ -3,7 +3,8 @@ from django.test import TestCase
 from wagtail.core.models import Page
 
 from mep.pages.management.commands import setup_site_pages
-from mep.pages.models import ContentPage, HomePage, LandingPage
+from mep.pages.models import (ContentLandingPage, ContentPage,
+                              EssayLandingPage, HomePage)
 
 
 class TestSetupSitePagesCommand(TestCase):
@@ -40,7 +41,9 @@ class TestSetupSitePagesCommand(TestCase):
 
         assert HomePage.objects.count() == 1, 'should create 1 homepage'
 
-        assert LandingPage.objects.count() == 2, 'should create 2 landing pages'
+        assert ContentLandingPage.objects.count() == 2, 'should create sources and about landing page'
+
+        assert EssayLandingPage.objects.count() == 1, 'should create analysis landing page'
 
         assert ContentPage.objects.count() == 7, 'should create 7 content pages'
 
@@ -49,7 +52,10 @@ class TestSetupSitePagesCommand(TestCase):
         assert HomePage.objects.count() == 1, \
             'running twice shouldn\'t duplicate homepage'
 
-        assert LandingPage.objects.count() == 2, \
+        assert ContentLandingPage.objects.count() == 2, \
+            'running twice shouldn\'t create duplicate landing pages'
+
+        assert EssayLandingPage.objects.count() == 1, \
             'running twice shouldn\'t create duplicate landing pages'
 
         assert ContentPage.objects.count() == 7, 'running twice shouldn\'t \

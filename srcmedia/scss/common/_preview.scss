@@ -1,6 +1,5 @@
 .preview {
     width: 100%;
-    height: fit-content;
     text-align: center;
     background: white;
     border: none;
@@ -31,6 +30,12 @@
         width: 2.5rem;
         margin-top: 1.5rem;
         margin-bottom: 1.5rem;
+    }
+
+    .meta {
+        font-family: $serif;
+        color: $brownish-grey;
+        margin-bottom: 0.5rem;
     }
 
     p {

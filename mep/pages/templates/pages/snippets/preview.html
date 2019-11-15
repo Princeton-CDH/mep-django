@@ -1,20 +1,31 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 {% comment %}
 preview "tile" for sub/child pages shown on a landing page.
-if 'desc' is True, will show the page's description (used for Analysis essays).
-will show a preview if the page has a featured image defined.
+Expects either a ContentPage or an EssayPage
 {% endcomment %}
-<a href="{% pageurl item %}" class="preview">
-    <h2>{{ item.title }}</h2>
+<a href="{{ page.url }}" class="preview">
+    <article>
+    <h2>{{ page.title }}</h2>
     <hr/>
-    <p>{{ item.contentpage.get_description|safe }}</p>
-    {% if item.contentpage.featured_image %}
-        {% image item.contentpage.featured_image fill-320x190 as s %}
-        {% image item.contentpage.featured_image fill-500x300 as m %}
-        {% image item.contentpage.featured_image fill-355x210 as l %}
-        {% image item.contentpage.featured_image fill-640x380 as s_2x %}
-        {% image item.contentpage.featured_image fill-1000x600 as m_2x %}
-        {% image item.contentpage.featured_image fill-710x420 as l_2x %}
+    {# meta section - shown for essay previews #}
+    {% if meta %}
+    <div class="meta">
+        {% if page.authors %}
+        {% include 'pages/snippets/attribution.html' with creators=page.authors %} /
+        {% endif %}
+        <time datetime="{{ page.page_ptr.first_published_at|date:'Y-m-d' }}">
+            {{ page.page_ptr.first_published_at|date:"F j, Y"}}
+        </time>
+    </div>
+    {% endif %}
+    <p>{{ page.get_description|safe }}</p>
+    {% if page.featured_image %}
+        {% image page.featured_image fill-320x190 as s %}
+        {% image page.featured_image fill-500x300 as m %}
+        {% image page.featured_image fill-355x210 as l %}
+        {% image page.featured_image fill-640x380 as s_2x %}
+        {% image page.featured_image fill-1000x600 as m_2x %}
+        {% image page.featured_image fill-710x420 as l_2x %}
         <picture>
             <source srcset="{{ s.url }}, {{ s_2x.url }} 2x">
             <source media="(min-width: 768px)" srcset="{{ m.url }}, {{ m_2x.url }} 2x">
@@ -22,4 +33,5 @@ will show a preview if the page has a featured image defined.
             <img src="{{ l.url }}" alt="">
         </picture>
     {% endif %}
+    </article>
 </a>

@@ -14,7 +14,8 @@ from django.core.management.base import BaseCommand
 from wagtail.core.models import Page
 from wagtail.core.models import Site as WagtailSite
 
-from mep.pages.models import ContentPage, HomePage, LandingPage
+from mep.pages.models import (ContentLandingPage, ContentPage,
+                              EssayLandingPage, HomePage)
 
 
 class Command(BaseCommand):
@@ -30,6 +31,7 @@ class Command(BaseCommand):
             'slug': 'about',
             'title': 'About',
             'tagline': 'Learn about the Shakespeare and Company Project.',
+            'type': ContentLandingPage,
             'pages': [
                 {'slug': 'contact', 'title': 'Contact Us'},
                 {'slug': 'data', 'title': 'Data Export'},
@@ -42,10 +44,18 @@ class Command(BaseCommand):
             'slug': 'sources',
             'title': 'Sources',
             'tagline': 'Learn about the lending library cards and logbooks.',
+            'type': ContentLandingPage,
             'pages': [
                 {'slug': 'cards', 'title': 'Lending Library Cards'},
                 {'slug': 'logbooks', 'title': 'Logbooks'},
             ]
+        },
+        {
+            'slug': 'analysis',
+            'title': 'Analysis',
+            'tagline': 'Analyze the Shakespeare and Company community.',
+            'type': EssayLandingPage,
+            'pages': []
         }
     ]
 
@@ -73,14 +83,14 @@ class Command(BaseCommand):
         for i, page in enumerate(self.pages):
             landing_page = Page.objects.filter(slug=page['slug']).first()
             if not landing_page:
-                landing_page = LandingPage.objects.create(
+                landing_page = page['type'].objects.create(
                     title=page['title'],
                     slug=page['slug'],
                     tagline=page['tagline'],
                     depth=3,
                     path='{}{:04d}'.format(home.path, i),
                     show_in_menus=True,
-                    content_type=ContentType.objects.get_for_model(LandingPage)
+                    content_type=ContentType.objects.get_for_model(page['type'])
                 )
             # Create subpages for each landing page
             for i_, page_ in enumerate(page['pages']):

@@ -10,4 +10,16 @@ article.main {
     @media (min-width: $breakpoint-l) {
         padding: 2.5rem 0;
     }
+
+    .attribution {
+        margin-bottom: 2rem;
+
+        .authors,
+        .editors,
+        .pubdate,
+        .update {
+            font-size: 0.8rem;
+            display: block;
+        }
+    }
 }
