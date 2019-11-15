@@ -20,6 +20,15 @@ nav.tabs {
                 }
             }
         }
+
+        &.pending {
+            color: $mid-grey;
+
+            > *::after {
+                content: '*';
+                // position: absolute;
+            }
+        }
     }
 
     &.subsection {

@@ -23,14 +23,14 @@
     <li class="tab" aria-selected="true">
         <a href="{% url 'people:membership-activities' slug=member.slug %}">activities</a>
     </li>
-    <li class="tab">
-        <a href="#">cards</a>
+    <li class="tab pending">
+        <span>cards</span>
     </li>
 </nav>
 
 <nav class="tabs subsection" aria-label="Activities">
-    <li class="tab">
-        <a href="#">Borrowing</a>
+    <li class="tab pending">
+        <span>Borrowing</span>
     </li>
     <li class="tab" aria-selected="true">
         <a href="{% url 'people:membership-activities' slug=member.slug %}">Membership</a>
