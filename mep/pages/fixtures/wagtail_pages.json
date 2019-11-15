@@ -25,7 +25,7 @@
             "url_path": "/home/"
         },
         "model": "wagtailcore.page",
-        "pk": 3
+        "pk": 2
     },
     {
         "fields": {
@@ -40,7 +40,7 @@
             "body": "[]"
         },
         "model": "pages.homepage",
-        "pk": 3
+        "pk": 2
     },
     {
         "fields": {
