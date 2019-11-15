@@ -470,6 +470,12 @@ class Person(Notable, DateRange, ModelIndexable):
         # return the initial portion, before parenthesis or a comma
         return self.sort_name.split(',')[0].split('(')[0].strip()
 
+    @property
+    def firstname_last(self):
+        '''Primary name in 'firstname lastname' format for display'''
+        names = self.sort_name.split(', ', 1)
+        return ' '.join(reversed(names))
+
     def set_birth_death_years(self):
         '''Set local birth and death dates based on information from VIAF'''
         if self.viaf_id:

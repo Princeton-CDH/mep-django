@@ -1,16 +1,18 @@
 // member-specific dl fields
 dl.member {
-    .name {
-        display: none;
 
-        dt {
-            @include sr-only;
-        }
+    // specialized name display in search results
+    .member-results & {
+        .name {
+            dt {
+                @include sr-only;
+            }
 
-        dd {
-            line-height: 1.4rem;
-            font-size: 1rem;
-            font-family: $serif;
+            dd {
+                line-height: 1.4rem;
+                font-size: 1rem;
+                font-family: $serif;
+            }
         }
     }
 

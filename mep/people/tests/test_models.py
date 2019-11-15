@@ -90,6 +90,14 @@ class TestPerson(TestCase):
         pers.sort_name = 'Jim Casey'
         assert pers.short_name == 'Jim Casey'
 
+    def test_firstname_last(self):
+        # convert authorized name to firstname last
+        pers = Person(sort_name='Cahun, Claude')
+        assert pers.firstname_last == 'Claude Cahun'
+        # single name
+        pers.sort_name = 'Bryher'
+        assert pers.firstname_last == pers.sort_name
+
     def test_set_birth_death_years(self):
         pers = Person(name='Humperdinck')
         # no viaf id
