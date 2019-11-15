@@ -31,6 +31,9 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
                   FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
+    page_title = "Members"
+    page_description = "Search and browse members by name and filter " + \
+        "by date and demographics."
     template_name = 'people/member_list.html'
     ajax_template_name = 'people/snippets/member_results.html'
     paginate_by = 100
@@ -179,6 +182,10 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
             for val, count in facets['arrondissement'].items()
         ])
         self._form.set_choices_from_facets(facets)
+        context.update({
+            'page_title': self.page_title,
+            'page_description': self.page_description
+        })
         return context
 
     def get_page_labels(self, paginator):
@@ -208,7 +215,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
         '''Get the list of breadcrumbs and links to display for this page.'''
         return [
             ('Home', absolutize_url('/')),
-            ('Members', self.get_absolute_url()),
+            (self.page_title, self.get_absolute_url()),
         ]
 
 
@@ -297,9 +304,13 @@ class MemberDetail(DetailView, RdfViewMixin):
         }
 
         # config settings used to render the map; set in local_settings.py
-        context['mapbox_token'] = getattr(settings, 'MAPBOX_ACCESS_TOKEN', '')
-        context['mapbox_basemap'] = getattr(settings, 'MAPBOX_BASEMAP', '')
-        context['paris_overlay'] = getattr(settings, 'PARIS_OVERLAY', '')
+        context.update({
+            'mapbox_token': getattr(settings, 'MAPBOX_ACCESS_TOKEN', ''),
+            'mapbox_basemap': getattr(settings, 'MAPBOX_BASEMAP', ''),
+            'paris_overlay': getattr(settings, 'PARIS_OVERLAY', ''),
+            # metadata for social preview
+            'page_title': self.object.firstname_last
+        })
 
         return context
 
@@ -307,7 +318,7 @@ class MemberDetail(DetailView, RdfViewMixin):
         '''Get the list of breadcrumbs and links to display for this page.'''
         return [
             ('Home', absolutize_url('/')),
-            ('Members', MembersList().get_absolute_url()),
+            (MembersList.page_title, MembersList().get_absolute_url()),
             (self.object.short_name, self.get_absolute_url())
         ]
 
@@ -332,8 +343,11 @@ class MembershipActivities(ListView, RdfViewMixin):
         self.member = get_object_or_404(Person.objects.library_members(),
                                         slug=self.kwargs['slug'])
         context = super().get_context_data(**kwargs)
-        context['member'] = self.member
-        context['category_tooltip'] = self.CATEGORY_TOOLTIP
+        context.update({
+            'member': self.member,
+            'category_tooltip': self.CATEGORY_TOOLTIP,
+            'page_title': '%s Membership Activity' % self.member.firstname_last
+        })
         return context
 
     def get_absolute_url(self):
@@ -345,7 +359,7 @@ class MembershipActivities(ListView, RdfViewMixin):
         '''Get the list of breadcrumbs and links to display for this page.'''
         return [
             ('Home', absolutize_url('/')),
-            ('Members', MembersList().get_absolute_url()),
+            (MembersList.page_title, MembersList().get_absolute_url()),
             (self.member.short_name, self.member.get_absolute_url()),
             ('Membership Activities', self.get_absolute_url())
         ]

@@ -31,6 +31,8 @@ class CardList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView, FormMixin,
                 AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing lending cards.'''
     model = Bibliography
+    page_title = "Cards"
+    page_desription = "Browse digitized lending library cards"
     template_name = 'footnotes/card_list.html'
     ajax_template_name = 'footnotes/snippets/card_results.html'
     paginate_by = 30
@@ -122,9 +124,16 @@ class CardList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView, FormMixin,
         '''Get the list of breadcrumbs and links to display for this page.'''
         return [
             ('Home', absolutize_url('/')),
-            ('Cards', self.get_absolute_url()),
+            (self.page_title, self.get_absolute_url()),
         ]
 
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
         return absolutize_url(reverse('footnotes:cards-list'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'page_title': self.page_title,
+        })
+        return context
