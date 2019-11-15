@@ -96,9 +96,10 @@ class RdfPageMixin(RdfViewMixin):
         # if parent is not the home page, include in breadcrumbs
         parent = self.get_parent()
         if not hasattr(parent, 'homepage'):
-            crumbs.append((parent.seo_title or parent.title, parent.url))
+            crumbs.append((parent.seo_title or parent.title,
+                           absolutize_url(parent.url)))
         # add current page to breadcrumbs
-        crumbs.append((self.seo_title or self.title, self.url))
+        crumbs.append((self.seo_title or self.title, absolutize_url(self.url)))
         return crumbs
 
 
