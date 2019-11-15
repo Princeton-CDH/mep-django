@@ -35,7 +35,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
     ajax_template_name = 'people/snippets/member_results.html'
     paginate_by = 100
     context_object_name = 'members'
-    rdf_type = SCHEMA_ORG.SearchResultPage
+    rdf_type = SCHEMA_ORG.SearchResultsPage
 
     form_class = MemberSearchForm
     # cached form instance for current request

@@ -27,14 +27,14 @@ class BibliographyAutocomplete(autocomplete.Select2QuerySetView):
 
 
 class CardList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
-        FacetJSONMixin, RdfViewMixin):
+               FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing lending cards.'''
     model = Bibliography
     template_name = 'footnotes/card_list.html'
     ajax_template_name = 'footnotes/snippets/card_results.html'
     paginate_by = 30
     context_object_name = 'cards'
-    rdf_type = SCHEMA_ORG.SearchResultPage
+    rdf_type = SCHEMA_ORG.SearchResultsPage
 
     form_class = CardSearchForm
     # cached form instance for current request
