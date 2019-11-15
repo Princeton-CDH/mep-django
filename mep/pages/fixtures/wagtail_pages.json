@@ -1,7 +1,10 @@
 [
     {
         "fields": {
-            "content_type": 58,
+            "content_type": [
+                "pages",
+                "homepage"
+            ],
             "depth": 2,
             "draft_title": "Shakespeare & Company Project",
             "expire_at": null,
@@ -29,14 +32,6 @@
     },
     {
         "fields": {
-            "app_label": "pages",
-            "model": "homepage"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 58
-    },
-    {
-        "fields": {
             "body": "[]"
         },
         "model": "pages.homepage",
@@ -44,7 +39,10 @@
     },
     {
         "fields": {
-            "content_type": 62,
+            "content_type": [
+                "pages",
+                "contentlandingpage"
+            ],
             "depth": 3,
             "draft_title": "Sources",
             "expire_at": null,
@@ -72,7 +70,10 @@
     },
     {
         "fields": {
-            "content_type": 62,
+            "content_type": [
+                "pages",
+                "contentlandingpage"
+            ],
             "depth": 3,
             "draft_title": "About",
             "expire_at": null,
@@ -100,14 +101,6 @@
     },
     {
         "fields": {
-            "app_label": "pages",
-            "model": "contentlandingpage"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 62
-    },
-    {
-        "fields": {
             "body": "[]",
             "header_image": null,
             "tagline": "Learn about the lending library cards and logbooks."
@@ -126,7 +119,10 @@
     },
     {
         "fields": {
-            "content_type": 59,
+            "content_type": [
+                "pages",
+                "essaylandingpage"
+            ],
             "depth": 3,
             "draft_title": "Analysis",
             "expire_at": null,
@@ -154,14 +150,6 @@
     },
     {
         "fields": {
-            "app_label": "pages",
-            "model": "essaylandingpage"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 59
-    },
-    {
-        "fields": {
             "body": "[]",
             "header_image": null,
             "tagline": "Analyze the Shakespeare and Company community."
@@ -171,7 +159,10 @@
     },
     {
         "fields": {
-            "content_type": 57,
+            "content_type": [
+                "pages",
+                "contentpage"
+            ],
             "depth": 4,
             "draft_title": "Logbooks",
             "expire_at": null,
@@ -199,7 +190,10 @@
     },
     {
         "fields": {
-            "content_type": 57,
+            "content_type": [
+                "pages",
+                "contentpage"
+            ],
             "depth": 4,
             "draft_title": "Lending Library Cards",
             "expire_at": null,
@@ -227,7 +221,10 @@
     },
     {
         "fields": {
-            "content_type": 57,
+            "content_type": [
+                "pages",
+                "contentpage"
+            ],
             "depth": 4,
             "draft_title": "Technical",
             "expire_at": null,
@@ -255,7 +252,10 @@
     },
     {
         "fields": {
-            "content_type": 57,
+            "content_type": [
+                "pages",
+                "contentpage"
+            ],
             "depth": 4,
             "draft_title": "Credits",
             "expire_at": null,
@@ -283,7 +283,10 @@
     },
     {
         "fields": {
-            "content_type": 57,
+            "content_type": [
+                "pages",
+                "contentpage"
+            ],
             "depth": 4,
             "draft_title": "How to Cite",
             "expire_at": null,
@@ -311,7 +314,10 @@
     },
     {
         "fields": {
-            "content_type": 57,
+            "content_type": [
+                "pages",
+                "contentpage"
+            ],
             "depth": 4,
             "draft_title": "Data Export",
             "expire_at": null,
@@ -339,7 +345,10 @@
     },
     {
         "fields": {
-            "content_type": 57,
+            "content_type": [
+                "pages",
+                "contentpage"
+            ],
             "depth": 4,
             "draft_title": "Contact Us",
             "expire_at": null,
@@ -364,14 +373,6 @@
         },
         "model": "wagtailcore.page",
         "pk": 5
-    },
-    {
-        "fields": {
-            "app_label": "pages",
-            "model": "contentpage"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 57
     },
     {
         "fields": {
@@ -452,7 +453,10 @@
     },
     {
         "fields": {
-            "content_type": 60,
+            "content_type": [
+                "pages",
+                "essaypage"
+            ],
             "depth": 4,
             "draft_title": "Test Analysis",
             "expire_at": null,
@@ -507,14 +511,6 @@
         },
         "model": "auth.user",
         "pk": 2
-    },
-    {
-        "fields": {
-            "app_label": "pages",
-            "model": "essaypage"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 60
     },
     {
         "fields": {
