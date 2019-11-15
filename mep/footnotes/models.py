@@ -23,7 +23,10 @@ class BibliographySignalHandlers:
                      mode, name, count, '' if count == 1 else 's')
 
     @staticmethod
-    def person_save(sender, instance, **kwargs):
+    def person_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
         print('bibliography person save')
         if not instance.pk:
             return
@@ -49,7 +52,11 @@ class BibliographySignalHandlers:
             ModelIndexable.index_items(cards)
 
     @staticmethod
-    def account_save(sender, instance, **kwargs):
+    def account_save(sender=None, instance=None, raw=False, **_kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+
         if not instance.pk:
             return
         # find any cards associated with this account
@@ -74,7 +81,11 @@ class BibliographySignalHandlers:
             ModelIndexable.index_items(cards)
 
     @staticmethod
-    def manifest_save(sender, instance, **kwargs):
+    def manifest_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+
         if not instance.pk:
             return
         # find any cards associated with this account
@@ -97,7 +108,11 @@ class BibliographySignalHandlers:
             ModelIndexable.index_items(cards)
 
     @staticmethod
-    def canvas_save(sender, instance, **kwargs):
+    def canvas_save(_sender, instance, raw=False, **_kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+
         if not instance.pk:
             return
         # find any cards associated with this canvas, via manifest
@@ -115,7 +130,11 @@ class BibliographySignalHandlers:
             ModelIndexable.index_items(cards)
 
     @staticmethod
-    def event_save(sender, instance, **kwargs):
+    def event_save(_sender, instance, raw=False, **_kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+
         if not instance.pk:
             return
         # find any cards associated with this canvas, via manifest

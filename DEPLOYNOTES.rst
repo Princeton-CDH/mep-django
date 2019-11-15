@@ -6,8 +6,8 @@ Deploy and Upgrade notes
 0.23
 ----
 
-* This release requires a reindex to update the gender field for use in faceting
-  on library members::
+* This release requires a reindex of library members to update the gender field
+  and add the new arrondissement field for use in faceting::
 
   python manage.py index -i person
 
