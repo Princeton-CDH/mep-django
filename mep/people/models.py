@@ -96,9 +96,8 @@ class Location(Notable):
         # the northern 16th starts with 751. all others start with 750
         try:
             prefix = self.postal_code[:3]
-            if prefix == '750' or prefix == '751': # postcode must be in paris proper
-                return int(self.postal_code[-2:]) # use last two digits
-                return ordinal(int(self.postal_code[-2:])) # use last two digits
+            if prefix == '750' or prefix == '751':  # postcode n paris proper
+                return int(self.postal_code[-2:])  # use last two digits
         except (ValueError, IndexError, AttributeError):
             return None
 
