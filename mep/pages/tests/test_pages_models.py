@@ -119,7 +119,7 @@ class TestEssayLandingPage(WagtailPageTests):
 
     def test_get_context(self):
         analysis_index = EssayLandingPage.objects.first()
-        analysis_essay = ContentPage.objects.get(title='Test analysis')
+        analysis_essay = EssayPage.objects.get(slug='test-analysis')
         context = analysis_index.get_context({})
         assert 'essays' in context
         assert analysis_essay in context['essays']

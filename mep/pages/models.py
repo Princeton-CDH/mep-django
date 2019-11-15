@@ -153,8 +153,8 @@ class EssayLandingPage(LandingPage):
         context = super().get_context(request)
 
         # Add extra variables and return the updated context
-        context['essays'] = ContentPage.objects.child_of(self).live() \
-                                      .order_by('-first_published_at')
+        context['essays'] = EssayPage.objects.child_of(self).live() \
+                                     .order_by('-first_published_at')
         return context
 
     def route(self, request, path_components):
