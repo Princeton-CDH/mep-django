@@ -145,6 +145,8 @@ class EssayLandingPage(LandingPage):
 
     #: children must be EssayPages
     subpage_types = ['EssayPage']
+    # template
+    # template = 'pages/essay_landing_page.html'
 
     def get_context(self, request):
         '''Add child Essays sorted by publication date to the context'''

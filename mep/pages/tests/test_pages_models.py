@@ -28,7 +28,7 @@ class TestHomePage(WagtailPageTests):
         self.assertAllowedParentPageTypes(HomePage, [Page])
 
     def test_subpages(self):
-        self.assertAllowedSubpageTypes(HomePage, [LandingPage])
+        self.assertAllowedSubpageTypes(HomePage, [ContentLandingPage, EssayLandingPage])
 
     def test_template(self):
         site = Site.objects.first()
@@ -42,6 +42,7 @@ class TestLandingPage(WagtailPageTests):
     fixtures = ['wagtail_pages']
 
     def test_can_create(self):
+        # test by instantiating a non-abstract model that inherits from it
         home = HomePage.objects.first()
         self.assertCanCreate(home, ContentLandingPage, nested_form_data({
             'title': 'My Kinda Landing Page!',
@@ -134,20 +135,6 @@ class TestEssayLandingPage(WagtailPageTests):
 
 class TestBasePage(WagtailPageTests):
     fixtures = ['wagtail_pages']
-
-    def test_can_create(self):
-        home = HomePage.objects.first()
-        landing = LandingPage.objects.first()
-
-        self.assertCanCreate(landing, ContentPage, nested_form_data({
-            'title': 'My new kinda page',
-            'slug': 'new-page',
-            'body': streamfield([
-                ('paragraph', rich_text('this page lives right under home'))
-            ]),
-            'authors-count': 0,
-            'editors-count': 0
-        }))
 
     def test_get_description(self):
         '''test page preview mixin'''
