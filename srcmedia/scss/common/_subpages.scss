@@ -26,6 +26,11 @@
 // used for analysis
 .essays.subpages {
 
+    // display publication date
+    time {
+        display: inline;
+    }
+
     // masonry layout on desktop
     @media (min-width: $breakpoint-m) {
         display: block;
