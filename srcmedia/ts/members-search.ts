@@ -277,4 +277,21 @@ document.addEventListener('DOMContentLoaded', () => {
             $nationalityExpander.setAttribute('aria-expanded', 'false')
         }
     })
+
+    merge(
+        fromEvent($arrondissementExpander, 'click'),
+        fromEvent($arrondissementExpander, 'keydown').pipe(
+            map(e => (e as KeyboardEvent).code),
+            filter(code => code == 'Space' || code == 'Enter')
+        )
+    ).subscribe(() => {
+        const expanded = $arrondissementExpander.getAttribute('aria-expanded')
+        if (expanded === 'false') {
+            $arrondissementExpander.setAttribute('aria-expanded', 'true')
+        }
+        else {
+            $arrondissementExpander.setAttribute('aria-expanded', 'false')
+        }
+    })
+
 })
