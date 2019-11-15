@@ -7,7 +7,8 @@ from django.views.generic.edit import FormMixin
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, RdfViewMixin)
+                              LabeledPagesMixin, LoginRequiredOr404Mixin,
+                              RdfViewMixin)
 from mep.footnotes.forms import CardSearchForm
 from mep.footnotes.models import Bibliography
 from mep.footnotes.queryset import CardSolrQuerySet
@@ -26,8 +27,8 @@ class BibliographyAutocomplete(autocomplete.Select2QuerySetView):
             .filter(bibliographic_note__icontains=self.q)
 
 
-class CardList(LabeledPagesMixin, ListView, FormMixin, AjaxTemplateMixin,
-               FacetJSONMixin, RdfViewMixin):
+class CardList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView, FormMixin,
+                AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing lending cards.'''
     model = Bibliography
     template_name = 'footnotes/card_list.html'
