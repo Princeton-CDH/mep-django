@@ -64,9 +64,10 @@
         <thead>
             <tr>
                 <th>Type</th>
-                <th>Category
-                    <span role="tooltip" class="question"
-                        aria-label="TBD" tabindex=0 onclick="event.preventDefault()"/>
+                <th aria-describedby="category-tip">Category
+                    <span id="category-tip" role="tooltip" class="question"
+                        aria-label="{{ category_tooltip }}" tabindex=0
+                        onclick="event.preventDefault()"/>
                 </th>
                 <th data-sort-method="number">Duration</th>
                 <th data-sort-default>Start Date</th>

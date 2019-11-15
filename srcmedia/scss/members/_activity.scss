@@ -15,6 +15,25 @@
         }
     }
 
+    // "category" tooltip
+    #category-tip {
+        font-weight: normal;
+        vertical-align: bottom;
+        min-height: 1.35rem;
+
+        &::before {
+            right: 2.85rem;
+            top: .7rem;
+        }
+
+        &::after {
+            left: -1.5rem;
+            right: 1rem;
+            top: -1.4rem;
+            bottom: unset;
+        }
+    }
+
     table {
         font-family: $sans;
         font-size: 0.8rem;

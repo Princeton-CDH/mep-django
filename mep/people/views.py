@@ -317,6 +317,8 @@ class MembershipActivities(ListView, RdfViewMixin):
     and reimbursements) for an individual member.'''
     model = Event
     template_name = 'people/membership_activities.html'
+    # tooltip text shown to explain the 'category' column in the table
+    CATEGORY_TOOLTIP = 'More information coming soon.'
 
     def get_queryset(self):
         # filter to requested person, then get membership activities
@@ -331,6 +333,7 @@ class MembershipActivities(ListView, RdfViewMixin):
                                         slug=self.kwargs['slug'])
         context = super().get_context_data(**kwargs)
         context['member'] = self.member
+        context['category_tooltip'] = self.CATEGORY_TOOLTIP
         return context
 
     def get_absolute_url(self):
