@@ -1,31 +1,31 @@
-from collections import OrderedDict
-from datetime import date
 import json
 import time
-from types import LambdaType
 import uuid
-from unittest.mock import patch, Mock
+from collections import OrderedDict
+from datetime import date
+from types import LambdaType
+from unittest.mock import Mock, patch
 
-from django.contrib.auth.models import User, Permission
-from django.core.paginator import Paginator
-from django.http import JsonResponse, Http404
-from django.template.defaultfilters import date as format_date
-from django.test import TestCase, RequestFactory
-from django.urls import reverse, resolve
 import pytest
+from django.contrib.auth.models import Permission, User
+from django.core.paginator import Paginator
+from django.http import Http404, JsonResponse
+from django.template.defaultfilters import date as format_date
+from django.test import RequestFactory, TestCase
+from django.urls import resolve, reverse
 
-from mep.accounts.models import Account, Address, Event, Subscription, \
-    SubscriptionType, Reimbursement
-from mep.books.models import Work, CreatorType, Creator
-from mep.common.utils import absolutize_url
+from mep.accounts.models import (Account, Address, Event, Reimbursement,
+                                 Subscription, SubscriptionType)
+from mep.books.models import Creator, CreatorType, Work
+from mep.common.utils import absolutize_url, login_temporarily_required
+from mep.footnotes.models import Bibliography, SourceType
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import Location, Country, Person, Relationship, \
-    RelationshipType
-from mep.people.views import GeoNamesLookup, PersonMerge, MembersList, \
-    MembershipActivities, MembershipGraphs
-from mep.footnotes.models import Bibliography, SourceType
+from mep.people.models import (Country, Location, Person, Relationship,
+                               RelationshipType)
+from mep.people.views import (GeoNamesLookup, MembershipActivities,
+                              MembershipGraphs, MembersList, PersonMerge)
 
 
 class TestPeopleViews(TestCase):
@@ -575,6 +575,11 @@ class TestMembersListView(TestCase):
         self.factory = RequestFactory()
         self.members_url = reverse('people:members-list')
 
+    def test_login_required_or_404(self):
+        # 404 if not logged in; TEMPORARY
+        assert self.client.get(self.members_url).status_code == 404
+
+    @login_temporarily_required
     def test_list(self):
         # test listview functionality using testclient & response
 
@@ -654,8 +659,10 @@ class TestMembersListView(TestCase):
         response = self.client.get(self.members_url, {'query': card_member.name})
         assert response.context['members'].count() == 1
         # should not display relevance score
-        self.assertNotContains(response, '<dt>relevance</dt>',
-            msg_prefix='relevance score not displayed to anonymous user')
+        # NOTE disabled because user will be logged in to avoid 404, so
+        # relevance will display
+        # self.assertNotContains(response, '<dt>relevance</dt>',
+        #     msg_prefix='relevance score not displayed to anonymous user')
 
         # sanity check date filters -- exclude the member with events
         response = self.client.get(self.members_url, {'membership_dates_0': 1951})
@@ -723,6 +730,7 @@ class TestMembersListView(TestCase):
             msg_prefix='relevance score displayed for logged in users')
 
         # TODO: not sure how to test pagination/multiple pages
+
     def test_get_page_labels(self):
         view = MembersList()
         # patch out get_form
@@ -968,6 +976,7 @@ class TestMembersListView(TestCase):
 class TestMemberDetailView(TestCase):
     fixtures = ['sample_people.json']
 
+    @login_temporarily_required
     def test_get_member(self):
         gay = Person.objects.get(name='Francisque Gay', slug='gay')
         url = reverse('people:member-detail', kwargs={'slug': gay.slug})
@@ -995,6 +1004,7 @@ class TestMemberDetailView(TestCase):
         self.assertContains(response, 'France')
         # NOTE currently not including/checking profession
 
+    @login_temporarily_required
     def test_member_map(self):
         gay = Person.objects.get(name='Francisque Gay', slug='gay')
         url = reverse('people:member-detail', kwargs={'slug': gay.slug})
@@ -1086,6 +1096,7 @@ class TestMembershipActivities(TestCase):
         assert crumbs[-2][0] == self.member.short_name
         assert crumbs[-2][1] == self.member.get_absolute_url()
 
+    @login_temporarily_required
     def test_view_template(self):
         response = self.client.get(reverse('people:membership-activities',
                                    kwargs={'slug': self.member.slug}))
