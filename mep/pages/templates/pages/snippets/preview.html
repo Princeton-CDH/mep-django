@@ -14,7 +14,7 @@ Expects either a ContentPage or an EssayPage
         {% include 'pages/snippets/attribution.html' with creators=page.authors %} /
         {% endif %}
         <time datetime="{{ page.page_ptr.first_published_at|date:'Y-m-d' }}">
-            {{ page.page_ptr.first_published_at|date:"F j, Y"}}
+            {{ page.page_ptr.first_published_at|date:"N j, Y"}}
         </time>
     </div>
     {% endif %}

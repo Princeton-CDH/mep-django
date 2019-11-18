@@ -1,4 +1,3 @@
-{# {% if page.authors or page.editors %} #}
 <div class="attribution">
     {% if page.authors %}
     <span class="authors">
@@ -12,10 +11,9 @@
     {% endif %}
     <span class="pubdate">
     <time datetime="{{ page.first_published_at|date:'Y-m-d' }}">
-        {{ page.first_published_at|date:"F j, Y" }}
+        {{ page.first_published_at|date:"N j, Y" }}
         {% if page.latest_revision_created_at|date:'Y-m-d' != page.first_published_at|date:'Y-m-d' %}
-        (updated <time datetime="{{ page.latest_revision_created_at|date:'Y-m-d' }}">{{ page.latest_revision_created_at|date:"F j, Y" }}</time>)
+        (updated <time datetime="{{ page.latest_revision_created_at|date:'Y-m-d' }}">{{ page.latest_revision_created_at|date:"N j, Y" }}</time>)
         {% endif %}
     </time>
 </div>
-{# {% endif %} #}
