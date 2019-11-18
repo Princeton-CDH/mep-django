@@ -59,42 +59,37 @@ figcaption {
 .rich-text {
     font-family: $serif;
 
-    .footnotes & {
-        font-family: $sans;
-        font-size: 0.8rem;
-    }
+    // ul {
+    //     padding-left: 1rem;
+    //     margin-bottom: 2rem;
 
-    ul {
-        padding-left: 1rem;
-        margin-bottom: 2rem;
+    //     @media (min-width: $breakpoint-s) {
+    //         padding-left: 2rem;
+    //     }
+    // }
 
-        @media (min-width: $breakpoint-s) {
-            padding-left: 2rem;
-        }
-    }
+    // li {
+    //     position: relative;
+    //     margin-bottom: 0.5rem;
 
-    li {
-        position: relative;
-        margin-bottom: 0.5rem;
+    //     &:last-child {
+    //         margin-bottom: 0;
+    //     }
 
-        &:last-child {
-            margin-bottom: 0;
-        }
+    //     &::before {
+    //         width: 10px;
+    //         height: 8px;
+    //         background-color: $black;
+    //         position: absolute;
+    //         content: '';
+    //         top: .5rem;
+    //         left: -1rem;
 
-        &::before {
-            width: 10px;
-            height: 8px;
-            background-color: $black;
-            position: absolute;
-            content: '';
-            top: .5rem;
-            left: -1rem;
-
-            @media (min-width: $breakpoint-s) {
-                left: -2rem;
-            }
-        }
-    }
+    //         @media (min-width: $breakpoint-s) {
+    //             left: -2rem;
+    //         }
+    //     }
+    // }
 }
 
 .citation {

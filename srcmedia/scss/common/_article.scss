@@ -22,4 +22,51 @@ article.main {
             display: block;
         }
     }
+
+    ol,
+    ul {
+        margin: 2rem 0;
+
+        li {
+            margin-bottom: 1rem;
+        }
+
+        // pad distance between number/bullet and text
+        li::before {
+            content: "\200B";
+            display: inline-block;
+            width: 1rem;
+        }
+    }
+
+    ul {
+        list-style: square inside;
+    }
+
+    ol {
+        list-style: decimal inside;
+    }
+
+    .footnotes {
+        border-top: 1px solid $light-grey;
+        padding-top: 1rem;
+        margin-top: 2rem;
+
+        ol {
+            padding: 0;
+        }
+
+        li {
+            margin: 0;
+        }
+
+        li::before {
+            display: none;
+        }
+
+        .rich-text {
+            font-family: $sans;
+            font-size: 0.8rem;
+        }
+    }
 }
