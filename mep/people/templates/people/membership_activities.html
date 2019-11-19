@@ -23,8 +23,8 @@
     <li class="tab" aria-selected="true">
         <a href="{% url 'people:membership-activities' slug=member.slug %}">activities</a>
     </li>
-    <li class="tab pending">
-        <span>cards</span>
+    <li class="tab">
+        <a href="{% url 'people:member-cardlist' slug=member.slug %}">cards</a>
     </li>
 </nav>
 
