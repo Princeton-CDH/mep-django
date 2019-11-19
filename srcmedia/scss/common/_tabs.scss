@@ -26,7 +26,6 @@ nav.tabs {
 
             > *::after {
                 content: '*';
-                // position: absolute;
             }
         }
     }
@@ -36,8 +35,15 @@ nav.tabs {
         box-shadow: 0 5px 4px 0 rgba(0, 0, 0, 0.19);
         margin-bottom: 2.5rem;
 
-        .tab:first-child {
-            border-right: 1px solid $white-two;
+        .tab {
+
+            &:first-child {
+                border-right: 1px solid $white-two;
+            }
+
+            a, span {
+                text-transform: capitalize;
+            }
         }
     }
 

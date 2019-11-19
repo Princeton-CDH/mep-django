@@ -598,6 +598,15 @@ class Borrow(Event):
             self.item_status = self.ITEM_RETURNED
         super(Borrow, self).save(*args, **kwargs)
 
+    def status(self):
+        if self.item_status == self.ITEM_RETURNED:
+            return self.STATUS_CHOICES[1][1]
+        elif self.item_status == self.ITEM_BOUGHT:
+            return self.STATUS_CHOICES[2][1]
+        elif self.item_status == self.ITEM_MISSING:
+            return self.STATUS_CHOICES[3][1]
+        return self.STATUS_CHOICES[0][1]
+
 
 class Purchase(CurrencyMixin, Event):
     '''Inherited table indicating purchase events; extends :class:`Event`'''

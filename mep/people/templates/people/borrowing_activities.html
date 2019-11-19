@@ -29,10 +29,10 @@
 </nav>
 
 <nav class="tabs subsection" aria-label="Activities">
-    <li class="tab">
+    <li class="tab" aria-selected="true">
         <a href="{% url 'people:borrowing-activities' slug=member.slug %}">Borrowing</a>
     </li>
-    <li class="tab" aria-selected="true">
+    <li class="tab">
         <a href="{% url 'people:membership-activities' slug=member.slug %}">Membership</a>
     </li>
 </nav>
@@ -58,38 +58,33 @@
     {% endcomment %}
 
     {% if not event_list.count %}
-    <p>No documented membership activity.</p>
+    <p>No documented borrowing activity.</p>
     {% else %}
     <table id="activity-table">
         <thead>
             <tr>
-                <th>Type</th>
-                <th aria-describedby="category-tip">Category
-                    <span id="category-tip" role="tooltip" class="question"
-                        aria-label="{{ category_tooltip }}" tabindex=0
-                        onclick="event.preventDefault()"/>
-                </th>
-                <th data-sort-method="number">Duration</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publication Date</th>
+                <th>Status</th>
                 <th data-sort-default>Start Date</th>
                 <th>End Date</th>
-                <th data-sort-method="number">Amount</th>
             </tr>
         </thead>
         {% for event in event_list %}
         <tr>
-            <td class="type">{{ event.event_type }}</td>
-            <td class="category">{{ event.subscription.category|default:'-' }}</td>
-            <td class="duration" data-sort="{{ event.subscription.duration|default:0 }}">{{ event.subscription.readable_duration|default:'-' }}</td>
-            <td class="start" data-sort="{{ event.start_date|date:"Ymd" }}">{{ event.start_date|default:'-' }}</td>
-            <td class="end" data-sort="{{ event.end_date|date:"Ymd" }}">
-                {% if event.reimbursement %} - {% else %}{{ event.end_date|default:'-' }}{% endif %}
+            <td class="title">{{ event.work.title }}</td>
+            <td class="author">{{ event.work.author_list }}</td>
+            <td class="pubdate">{{ event.work.year }}</td>
+            <td class="status">
+                {% if event.borrow %}{{ event.borrow.status }}
+                {% elif event.purchase %}Purchased{% endif %}
             </td>
-            {# amount is either subscription price or refund amount; refund is negative #}
-            {% with subscription_price=event.subscription.price_paid refund=event.reimbursement.refund %}
-            <td class="amount" data-sort="{% if refund %}-{% endif %}{% firstof subscription_price refund 0 %}">
-                {# only display currency if there is a value #}
-                {% if refund %}-{% endif %}{% firstof subscription_price|floatformat refund|floatformat '-' %}{% if subscription_price or refund %} {% firstof event.subscription.currency_symbol event.reimbursement.currency_symbol '' %}{% endif %}
-            {% endwith %}
+            <td class="start" data-sort="{{ event.start_date|date:"Ymd" }}">
+                {{ event.start_date|default:'-' }}
+            </td>
+            <td class="end" data-sort="{{ event.end_date|date:"Ymd" }}">
+                {{ event.end_date|default:'-' }}
             </td>
         </tr>
         {% endfor %}

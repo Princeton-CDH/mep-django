@@ -2,7 +2,7 @@
     @include padding-container;
 
     /* no margins around the table on mobile */
-    @media (max-width: $breakpoint-s) {
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
         padding: 0;
     }
 
@@ -10,7 +10,7 @@
     form {
         display: none;
 
-        @media (max-width: $breakpoint-s) {
+        @media (max-width: calc(#{$breakpoint-s} - 1px)) {
             display: block;
         }
     }
@@ -111,7 +111,7 @@
 
         /* for mobile, display each row as a card and use flex
            to arrange table cells within the card */
-        @media (max-width: $breakpoint-s) {
+        @media (max-width: calc(#{$breakpoint-s} - 1px)) {
 
             thead {
                 display: none;

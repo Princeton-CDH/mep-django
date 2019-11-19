@@ -362,7 +362,46 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
             ('Home', absolutize_url('/')),
             (MembersList.page_title, MembersList().get_absolute_url()),
             (self.member.short_name, self.member.get_absolute_url()),
-            ('Membership Activities', self.get_absolute_url())
+            ('Membership', self.get_absolute_url())
+        ]
+
+
+class BorrowingActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
+    '''Display a list of book-related activities (borrows, purchases, gifts)
+    for an individual member.'''
+    model = Event
+    template_name = 'people/borrowing_activities.html'
+
+    def get_queryset(self):
+        # filter to requested person, then get book activities
+        return super().get_queryset() \
+                      .filter(account__persons__slug=self.kwargs['slug']) \
+                      .book_activities()
+
+    def get_context_data(self, **kwargs):
+        # should 404 if not a person or valid person but not a library member
+        # store member before calling super so available for breadcrumbs
+        self.member = get_object_or_404(Person.objects.library_members(),
+                                        slug=self.kwargs['slug'])
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'member': self.member,
+            'page_title': '%s Borrowing Activity' % self.member.firstname_last
+        })
+        return context
+
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
+        return absolutize_url(reverse('people:borrowing-activities',
+                                      kwargs=self.kwargs))
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            (MembersList.page_title, MembersList().get_absolute_url()),
+            (self.member.short_name, self.member.get_absolute_url()),
+            ('Borrowing', self.get_absolute_url())
         ]
 
 
