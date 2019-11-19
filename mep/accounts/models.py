@@ -387,7 +387,7 @@ class Event(Notable, PartialDateMixin):
         help_text='Edition of the work, if known.',
         on_delete=models.deletion.SET_NULL)
 
-    event_footnotes = GenericRelation(Footnote)
+    event_footnotes = GenericRelation(Footnote, related_query_name='events')
 
     objects = EventQuerySet.as_manager()
 
@@ -586,10 +586,11 @@ class Borrow(Event):
         (ITEM_BOUGHT, 'Bought'),
         (ITEM_MISSING, 'Missing'),
     )
-    item_status = models.CharField(max_length=2, blank=True,
+    item_status = models.CharField(
+        max_length=2, blank=True,
         help_text='Status of borrowed item (bought, missing, returned)',
         choices=STATUS_CHOICES)
-    footnotes = GenericRelation(Footnote)
+    footnotes = GenericRelation(Footnote, related_query_name='borrows')
 
     def save(self, *args, **kwargs):
         # if end date is set and item status is not, automatically set
@@ -602,8 +603,8 @@ class Borrow(Event):
 class Purchase(CurrencyMixin, Event):
     '''Inherited table indicating purchase events; extends :class:`Event`'''
     price = models.DecimalField(max_digits=8, decimal_places=2,
-        blank=True, null=True)
-    footnotes = GenericRelation(Footnote)
+                                blank=True, null=True)
+    footnotes = GenericRelation(Footnote, related_query_name='purchases')
 
     def date(self):
         '''alias of :attr:`date_range` for display; since reimbersument

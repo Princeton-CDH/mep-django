@@ -3,6 +3,7 @@ import logging
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models.functions import Coalesce
 from djiffy.models import Canvas, Manifest
 from parasolr.django.indexing import ModelIndexable
 
@@ -285,6 +286,32 @@ class Bibliography(Notable, ModelIndexable):
         return index_data
 
 
+class FootnoteQuerySet(models.QuerySet):
+    '''Custom :class:`models.QuerySet` for :class:`Footnote`'''
+
+    def event_date_range(self):
+        '''Find earliest and latest dates for any events associated
+        with footnotes in this queryset. Returns a tuple of earliest
+        and latest dates, or None if no dates are found.'''
+
+        # all related fields that could hold event dates
+        date_fields = [
+            'events__start_date', 'events__end_date',
+            'borrows__start_date', 'borrows__end_date',
+            'purchases__start_date', 'purchases__end_date'
+        ]
+
+        ## TODO exclude unknown years!
+        values = self.annotate(
+            start_dates=Coalesce(*date_fields),
+            end_dates=Coalesce(*date_fields)) \
+            .aggregate(first_date=models.Min('start_dates'),
+                       last_date=models.Max('end_dates'))
+        # return earliest and latest dates, unless result is None
+        if values['first_date']:
+            return values['first_date'], values['last_date']
+
+
 class Footnote(Notable):
     '''Footnote that can be associated with any other model via
     generic relationship.  Used to provide supporting documentation
@@ -321,6 +348,9 @@ class Footnote(Notable):
         Canvas, blank=True, null=True,
         help_text='''Image location from an imported manifest, if available.''')
 
+    # override default manager with customized version
+    objects = FootnoteQuerySet.as_manager()
+
     def __str__(self):
         return 'Footnote on %s (%s)' % (self.content_object,
             ' '.join([str(i) for i in [self.bibliography, self.location] if i]))
@@ -343,3 +373,6 @@ class Footnote(Notable):
                     (self.image.manifest.extra_data['rendering']['@id'], img)
             return img
     image_thumbnail.allow_tags = True
+
+
+
