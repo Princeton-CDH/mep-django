@@ -4,7 +4,7 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
-from parasolr.indexing import Indexable
+from parasolr.django.indexing import ModelIndexable
 import rdflib
 import requests
 
@@ -127,7 +127,73 @@ class Subject(models.Model):
                        uri, response.status_code)
 
 
-class Work(Notable, Indexable):
+class WorkSignalHandlers:
+    '''Signal handlers for indexing :class:`Work` records when
+    related records are saved or deleted.'''
+
+    @staticmethod
+    def creatortype_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+
+        if instance.pk:
+            # if any members are associated
+            works = Work.objects.filter(creator__creator_type__pk=instance.pk)
+            if works.exists():
+                logger.debug('creator type save, reindexing %d related works',
+                             works.count())
+                ModelIndexable.index_items(works)
+
+    @staticmethod
+    def creatortype_delete(sender, instance, **kwargs):
+        work_ids = Work.objects.filter(creator__creator_type__pk=instance.pk) \
+                               .values_list('id', flat=True)
+        if work_ids:
+            logger.debug('creator type delete, reindexing %d related works',
+                         len(work_ids))
+            # find the items based on the list of ids to reindex
+            works = Work.objects.filter(id__in=list(work_ids))
+            ModelIndexable.index_items(works)
+
+    @staticmethod
+    def person_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+
+        if instance.pk:
+            # if any members are associated
+            works = Work.objects.filter(creator__person__pk=instance.pk)
+            if works.exists():
+                logger.debug('person save, reindexing %d related works',
+                             works.count())
+                ModelIndexable.index_items(works)
+
+    @staticmethod
+    def person_delete(sender, instance, **kwargs):
+        work_ids = Work.objects.filter(creator__person__pk=instance.pk) \
+                               .values_list('id', flat=True)
+        if work_ids:
+            logger.debug('person delete, reindexing %d related works',
+                         len(work_ids))
+            # find the items based on the list of ids to reindex
+            works = Work.objects.filter(id__in=list(work_ids))
+            ModelIndexable.index_items(works)
+
+    @staticmethod
+    def creator_change(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+        if instance.pk:
+            logger.debug('creator change, reindexing %s',
+                         instance.work)
+            # delete the assocation so cards will index without the account
+            ModelIndexable.index_items([instance.work])
+
+
+class Work(Notable, ModelIndexable):
     '''Work record for an item that circulated in the library or was
     other referenced in library activities.'''
 
@@ -258,6 +324,21 @@ class Work(Notable, Indexable):
     def format(self):
         '''format of this work if known (e.g. book or periodical)'''
         return self.work_format.name if self.work_format else ''
+
+    index_depends_on = {
+        'creators': {
+            'post_save': WorkSignalHandlers.person_save,
+            'pre_delete': WorkSignalHandlers.person_delete,
+        },
+        'books.Creator': {
+            'post_save': WorkSignalHandlers.creator_change,
+            'post_delete': WorkSignalHandlers.creator_change,
+        },
+        'books.CreatorType': {
+            'post_save': WorkSignalHandlers.creatortype_save,
+            'pre_delete': WorkSignalHandlers.creatortype_delete,
+        }
+    }
 
     def index_data(self):
         '''data for indexing in Solr'''

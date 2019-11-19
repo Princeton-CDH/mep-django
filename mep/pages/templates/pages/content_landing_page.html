@@ -1,0 +1,23 @@
+{% extends 'pages/landing_page.html' %}
+
+{% block page-subtitle %}{% firstof page.seo_title page.title %} · {% endblock %}
+
+
+{% block header %}
+{% include 'snippets/header.html' with title=page.title style=page.title|lower|add:' banner' %}
+{% endblock %}
+
+{% block content %}
+{% include 'snippets/breadcrumbs.html' %}
+<div class="main">
+    {% if page.tagline %}
+    <h2 class="tagline">{{ page.tagline }}<hr/></h2>
+    {% endif %}
+    {% include 'pages/snippets/body.html' %}
+</div>
+<section class="subpages {{ page.title|lower }}" aria-label="sub pages">
+    {% for subpage in page.get_children.live %}
+    {% include 'pages/snippets/preview.html' with page=subpage.contentpage %}
+    {% endfor %}
+</section>
+{% endblock %}

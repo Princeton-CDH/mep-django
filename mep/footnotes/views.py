@@ -6,8 +6,9 @@ from django.views.generic.edit import FormMixin
 
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
-    LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, LoginRequiredOr404Mixin,
+                              RdfViewMixin)
 from mep.footnotes.forms import CardSearchForm
 from mep.footnotes.models import Bibliography
 from mep.footnotes.queryset import CardSolrQuerySet
@@ -26,15 +27,17 @@ class BibliographyAutocomplete(autocomplete.Select2QuerySetView):
             .filter(bibliographic_note__icontains=self.q)
 
 
-class CardList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
-               FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
+class CardList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView, FormMixin,
+                AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing lending cards.'''
     model = Bibliography
+    page_title = "Cards"
+    page_desription = "Browse digitized lending library cards"
     template_name = 'footnotes/card_list.html'
     ajax_template_name = 'footnotes/snippets/card_results.html'
     paginate_by = 30
     context_object_name = 'cards'
-    rdf_type = SCHEMA_ORG.SearchResultPage
+    rdf_type = SCHEMA_ORG.SearchResultsPage
 
     form_class = CardSearchForm
     # cached form instance for current request
@@ -121,9 +124,16 @@ class CardList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         '''Get the list of breadcrumbs and links to display for this page.'''
         return [
             ('Home', absolutize_url('/')),
-            ('Cards', self.get_absolute_url()),
+            (self.page_title, self.get_absolute_url()),
         ]
 
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
         return absolutize_url(reverse('footnotes:cards-list'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'page_title': self.page_title,
+        })
+        return context

@@ -404,18 +404,18 @@ class TestCheckboxFieldset(TestCase):
         ]
         # first arg sets the name attribute, other is unused after optgroup
         # override
-        out = checkbox_fieldset.render('sex', 'bar')
+        out = checkbox_fieldset.render('gender', 'bar')
         # legend should be upper-cased by default
         expected_output = '''
         <fieldset id="widget_id" tabindex="0">
             <legend>Foo</legend>
             <ul class="choices">
             <li class="choice">
-            <input type="checkbox" value="a" id="id_for_0" name="sex" checked />
+            <input type="checkbox" value="a" id="id_for_0" name="gender" checked />
            <label for="id_for_0"> A </label>
            </li>
            <li class="choice">
-           <input type="checkbox" value="b" id="id_for_1" name="sex" />
+           <input type="checkbox" value="b" id="id_for_1" name="gender" />
            <label for="id_for_1"> B </label>
            </li>
            </ul>
@@ -429,7 +429,7 @@ class TestCheckboxFieldset(TestCase):
 
         checkbox_fieldset.attrs['data-hide-threshold'] = 0
         checkbox_fieldset.facet_counts = {'a': 0, 'b': 2}
-        output = checkbox_fieldset.render('sex', 'bar')
+        output = checkbox_fieldset.render('gender', 'bar')
         assert 'data-hide-threshold="0"' in output
         # a choice should be hidden
         assert '<li class="choice hide">' in output

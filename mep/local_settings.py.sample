@@ -50,8 +50,19 @@ PUCAS_LDAP.update({
 # username for accessing GeoNames API
 GEONAMES_USERNAME = ''
 
-# mapbox access token
-MAPBOX_ACCESS_TOKEN = ''
+# Access token for mapbox.com APIs; used for GeoNames on the admin side and
+# rendering a base layer in Leaflet maps on the user side. Recommended to create
+# a new access token in mapbox. Note that viewing the map consumes the API
+# access balance; consider disabling or creating a different token for dev.
+# MAPBOX_ACCESS_TOKEN = ''
+
+# Name of mapbox style used as a basemap for areas of the world not covered by
+# PARIS_OVERLAY. See: https://docs.mapbox.com/api/maps/#mapbox-styles
+# MAPBOX_BASEMAP = 'light-v10'
+
+# ArcGIS map layer used as an overlay for a historic map of Paris. Must be a
+# tiles.arcgis.com URL ending in /MapServer.
+# PARIS_OVERLAY = ''
 
 # OCLC API key
 OCLC_WSKEY = ''

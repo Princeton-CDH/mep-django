@@ -105,9 +105,12 @@ class TestPersonTypeListFilter(TestCase):
 
     def test_queryset(self):
         # create some test people
-        humperdinck = Person(name='Humperdinck') # has an account
-        engelbert = Person(name='Engelbert') # is a creator and has an account
-        foo = Person(name='Foo') # uncategorized (not creator or member)
+        # - has an account
+        humperdinck = Person(name='Humperdinck', slug='humperdinck')
+        # - is a creator and has an account
+        engelbert = Person(name='Engelbert', slug='engelbert')
+        # uncategorized (not creator or member)
+        foo = Person(name='Foo', slug='foo')
         humperdinck.save()
         engelbert.save()
         foo.save()

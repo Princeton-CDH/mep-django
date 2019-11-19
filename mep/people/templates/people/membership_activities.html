@@ -2,14 +2,14 @@
 {% load render_bundle from webpack_loader %}
 {% load static %}
 
-{% block page-subtitle %}{{ member.name }} Membership Activity · Library Members · {% endblock %}
+{% block page-subtitle %}{{ member.firstname_last }} Membership Activity · Library Members · {% endblock %}
 
 {% block js %}
 {% render_bundle 'activities' 'js' %}
 {% endblock %}
 
 {% block header %}
-{% include 'snippets/header.html' with title=member.name style="detail" %}
+{% include 'snippets/header.html' with title=member.firstname_last style="detail" %}
 {% endblock %}
 
 {% block main-style %}tabbed white{% endblock %}
@@ -18,22 +18,22 @@
 {% include 'snippets/breadcrumbs.html' %}
 <nav class="tabs" aria-label="sections">
     <li class="tab">
-        <a href="{% url 'people:member-detail' pk=member.pk %}">biography</a>
+        <a href="{% url 'people:member-detail' slug=member.slug %}">biography</a>
     </li>
     <li class="tab" aria-selected="true">
-        <a href="{% url 'people:membership-activities' pk=member.pk %}">activities</a>
+        <a href="{% url 'people:membership-activities' slug=member.slug %}">activities</a>
     </li>
-    <li class="tab">
-        <a href="#">cards</a>
+    <li class="tab pending">
+        <span>cards</span>
     </li>
 </nav>
 
 <nav class="tabs subsection" aria-label="Activities">
-    <li class="tab">
-        <a href="#">Borrowing</a>
+    <li class="tab pending">
+        <span>Borrowing</span>
     </li>
     <li class="tab" aria-selected="true">
-        <a href="{% url 'people:membership-activities' pk=member.pk %}">Membership</a>
+        <a href="{% url 'people:membership-activities' slug=member.slug %}">Membership</a>
     </li>
 </nav>
 
@@ -64,9 +64,10 @@
         <thead>
             <tr>
                 <th>Type</th>
-                <th>Category
-                    <span role="tooltip" class="question"
-                        aria-label="TBD" tabindex=0 onclick="event.preventDefault()"/>
+                <th aria-describedby="category-tip">Category
+                    <span id="category-tip" role="tooltip" class="question"
+                        aria-label="{{ category_tooltip }}" tabindex=0
+                        onclick="event.preventDefault()"/>
                 </th>
                 <th data-sort-method="number">Duration</th>
                 <th data-sort-default>Start Date</th>

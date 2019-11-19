@@ -3,6 +3,22 @@
 Deploy and Upgrade notes
 ========================
 
+0.23
+----
+
+* This release requires a reindex of library members to update the gender field
+  and add the new arrondissement field for use in faceting::
+
+  python manage.py index -i person
+
+* This release adds new Page content types for blog-style essay content and a
+  landing page for blog entries. If content exists that should be migrated to
+  these pages, new pages with the correct content type must be created.
+
+* You must set **MAPBOX_ACCESS_TOKEN**, **MAPBOX_BASEMAP**, and **PARIS_OVERLAY**
+  in ``local_settings.py`` in order to render the address map shown on member
+  detail pages. See the note in ``local_settings.py.sample`` for more information.
+
 
 0.22
 ----

@@ -1,10 +1,10 @@
-from collections import defaultdict
-from datetime import timedelta
-from itertools import chain
+from collections import OrderedDict, defaultdict
 
 from dal import autocomplete
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.http import JsonResponse
@@ -13,13 +13,15 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormMixin, FormView
 
-from mep.accounts.models import Event
+from mep.accounts.models import Address, Event
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
-    LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, LoginRequiredOr404Mixin,
+                              RdfViewMixin)
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
@@ -30,11 +32,14 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
                   FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
+    page_title = "Members"
+    page_description = "Search and browse members by name and filter " + \
+        "by date and demographics."
     template_name = 'people/member_list.html'
     ajax_template_name = 'people/snippets/member_results.html'
     paginate_by = 100
     context_object_name = 'members'
-    rdf_type = SCHEMA_ORG.SearchResultPage
+    rdf_type = SCHEMA_ORG.SearchResultsPage
 
     form_class = MemberSearchForm
     # cached form instance for current request
@@ -121,8 +126,10 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     def get_queryset(self):
         sqs = PersonSolrQuerySet() \
             .facet_field('has_card') \
-            .facet_field('sex', missing=True, exclude='sex') \
-            .facet_field('nationality', exclude='nationality', sort='value')
+            .facet_field('gender', missing=True, exclude='gender') \
+            .facet_field('nationality', exclude='nationality', sort='value') \
+            .facet_field('arrondissement', exclude='arrondissement',
+                         sort='value')
 
         form = self.get_form()
 
@@ -141,12 +148,17 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
 
             if search_opts['has_card']:
                 sqs = sqs.filter(has_card=search_opts['has_card'])
-            if search_opts['sex']:
-                sqs = sqs.filter(sex__in=search_opts['sex'], tag='sex')
+            if search_opts['gender']:
+                sqs = sqs.filter(gender__in=search_opts['gender'], tag='gender')
             if search_opts['nationality']:
                 sqs = sqs.filter(nationality__in=[
                     '"%s"' % val for val in search_opts['nationality']
                 ], tag='nationality')
+            if search_opts['arrondissement']:
+                # strip off ordinal letters and filter on numeric arrondissement
+                sqs = sqs.filter(arrondissement__in=[
+                    '%s' % val[:-2] for val in search_opts['arrondissement']
+                ], tag='arrondissement')
 
             # range filter by membership dates, if set
             if search_opts['membership_dates']:
@@ -164,8 +176,17 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self._form.set_choices_from_facets(
-            self.object_list.get_facets()['facet_fields'])
+        facets = self.object_list.get_facets()['facet_fields']
+        # convert arrondissement numbers into ordinals for display
+        facets['arrondissement'] = OrderedDict([
+            (ordinal(val), count)
+            for val, count in facets['arrondissement'].items()
+        ])
+        self._form.set_choices_from_facets(facets)
+        context.update({
+            'page_title': self.page_title,
+            'page_description': self.page_description
+        })
         return context
 
     def get_page_labels(self, paginator):
@@ -195,7 +216,7 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         '''Get the list of breadcrumbs and links to display for this page.'''
         return [
             ('Home', absolutize_url('/')),
-            ('Members', self.get_absolute_url()),
+            (self.page_title, self.get_absolute_url()),
         ]
 
 
@@ -216,7 +237,11 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # add account to context for convenience
         account = self.object.account_set.first()
+        context['account'] = account
+
         month_counts = defaultdict(int)
         # count book events by month; known years only
         for event in account.event_set.known_years().book_activities():
@@ -226,6 +251,7 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
             if event.end_date and event.start_date != event.end_date:
                 month_counts[event.end_date.strftime('%Y-%m-01')] += 1
 
+        # data for member timeline visualization
         context['timeline'] = {
             'membership_activities': [{
                 'startDate': event.start_date.isoformat()
@@ -242,15 +268,58 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
             'activity_ranges': [{
                 'startDate': start.isoformat(),
                 'endDate': end.isoformat()
-            } for start, end in account.event_date_ranges]
+            } for start, end in account.event_date_ranges()]
         }
+
+        # plottable locations for member address map visualization, which
+        # is a leaflet map that will consume JSON address data
+        # NOTE probably refactor this into a queryset method for use on
+        # members search map
+        addresses = Address.objects.filter(account=account) \
+            .filter(location__latitude__isnull=False) \
+            .filter(location__longitude__isnull=False)
+
+        context['addresses'] = [
+            {
+                # these fields are taken from Location unchanged
+                'name': address.location.name,
+                'street_address': address.location.street_address,
+                'city': address.location.city,
+                'postal_code': address.location.postal_code,
+                # lat/long aren't JSON serializable so we need to do this
+                'latitude': str(address.location.latitude),
+                'longitude': str(address.location.longitude),
+                # NOTE not currently using dates as they're not entered yet
+            }
+            for address in addresses]
+
+        # address of the lending library itself; automatically available from
+        # migration mep/people/migrations/0014_library_location.py
+        library = Location.objects.get(name='Shakespeare & Company')
+        context['library_address'] = {
+            'name': library.name,
+            'street_address': library.street_address,
+            'city': library.city,
+            'latitude': str(library.latitude),
+            'longitude': str(library.longitude),
+        }
+
+        # config settings used to render the map; set in local_settings.py
+        context.update({
+            'mapbox_token': getattr(settings, 'MAPBOX_ACCESS_TOKEN', ''),
+            'mapbox_basemap': getattr(settings, 'MAPBOX_BASEMAP', ''),
+            'paris_overlay': getattr(settings, 'PARIS_OVERLAY', ''),
+            # metadata for social preview
+            'page_title': self.object.firstname_last
+        })
+
         return context
 
     def get_breadcrumbs(self):
         '''Get the list of breadcrumbs and links to display for this page.'''
         return [
             ('Home', absolutize_url('/')),
-            ('Members', MembersList().get_absolute_url()),
+            (MembersList.page_title, MembersList().get_absolute_url()),
             (self.object.short_name, self.get_absolute_url())
         ]
 
@@ -260,20 +329,26 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
     and reimbursements) for an individual member.'''
     model = Event
     template_name = 'people/membership_activities.html'
+    # tooltip text shown to explain the 'category' column in the table
+    CATEGORY_TOOLTIP = 'More information coming soon.'
 
     def get_queryset(self):
         # filter to requested person, then get membership activities
         return super().get_queryset() \
-                      .filter(account__persons__pk=self.kwargs['pk']) \
+                      .filter(account__persons__slug=self.kwargs['slug']) \
                       .membership_activities()
 
     def get_context_data(self, **kwargs):
         # should 404 if not a person or valid person but not a library member
         # store member before calling super so available for breadcrumbs
         self.member = get_object_or_404(Person.objects.library_members(),
-                                        pk=self.kwargs['pk'])
+                                        slug=self.kwargs['slug'])
         context = super().get_context_data(**kwargs)
-        context['member'] = self.member
+        context.update({
+            'member': self.member,
+            'category_tooltip': self.CATEGORY_TOOLTIP,
+            'page_title': '%s Membership Activity' % self.member.firstname_last
+        })
         return context
 
     def get_absolute_url(self):
@@ -285,10 +360,47 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         '''Get the list of breadcrumbs and links to display for this page.'''
         return [
             ('Home', absolutize_url('/')),
-            ('Members', MembersList().get_absolute_url()),
+            (MembersList.page_title, MembersList().get_absolute_url()),
             (self.member.short_name, self.member.get_absolute_url()),
             ('Membership Activities', self.get_absolute_url())
         ]
+
+
+class MembershipGraphs(LoginRequiredOr404Mixin, TemplateView):
+    model = Person
+    template_name = 'people/member_graphs.html'
+
+    def get_context_data(self):
+        context = super().get_context_data()
+
+        # use facets to get member totals by month and year
+        sqs = PersonSolrQuerySet() \
+            .facet_field('account_yearmonths', sort='index', limit=1000) \
+            .facet_field('logbook_yearmonths', sort='index', limit=1000) \
+            .facet_field('card_yearmonths', sort='index', limit=1000)
+
+        facets = sqs.get_facets()['facet_fields']
+
+        context['data'] = {
+            # convert into a format that's easier to use with javascript/d3
+            'members': [{
+                'startDate': '%s-%s-01' % (yearmonth[:4], yearmonth[-2:]),
+                'count': count
+            } for yearmonth, count in facets['account_yearmonths'].items()
+            ],
+            'logbooks': [{
+                'startDate': '%s-%s-01' % (yearmonth[:4], yearmonth[-2:]),
+                'count': count
+            } for yearmonth, count in facets['logbook_yearmonths'].items()
+            ],
+            'cards': [{
+                'startDate': '%s-%s-01' % (yearmonth[:4], yearmonth[-2:]),
+                'count': count
+            } for yearmonth, count in facets['card_yearmonths'].items()
+            ]
+
+        }
+        return context
 
 
 class GeoNamesLookup(autocomplete.Select2ListView):

@@ -1,0 +1,17 @@
+{# Snippet to include author or editor attribution to content pages #}
+{# creators should be either page.authors or page.editors #}
+{# set add_urls to True to generate links from Person snippets #}
+{% if creators %}
+    {% if add_urls %}
+        {% for block in creators %}
+            {% with block.value.url|yesno:"a,span" as tag %}
+                <{{ tag }} {% if tag == "a" %} href="{{ block.value.url }}" target="_blank" {% endif %}>
+                     {{ block.value.name }}</{{tag}}>{% if not forloop.last %}, {% endif %}
+            {% endwith %}
+        {% endfor %}
+    {% else %}
+        {% for block in creators %}
+            {{ block.value.name}}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endif %}

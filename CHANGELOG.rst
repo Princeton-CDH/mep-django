@@ -3,6 +3,24 @@
 CHANGELOG
 =========
 
+0.23
+----
+
+* As a user, I want to see a map of all of a member's known addresses so I can see where in Paris members lived.
+* As a user, I want to browse a list of published editorial content so that I can see what analytical and scholarly content is available to read.
+* As a user, I want to filter library members by arrondissement so I can find library members who lived in a particular part of Paris.
+* As a user, I want to see a member's primary or best name prominently and also see other known names or so that I can recognize them and see how they were listed in the archival materials.
+* As an admin, I want library members to have unique identifiers that can be used for URLs in the public site.
+* As an admin, I want changes made to people and events in the admin interface to automatically update the member search, so that content in the search and admin interface stay in sync.
+* As an admin, I want changes made to authors and books in the admin interface to automatically update the book search, so that content in the search and admin interface stay in sync.
+* As an admin, I want changes made to card holders, card events, and thumbnails in the admin interface to automatically update the card search, so that content in the search and admin interface stay in sync.
+* As a content admin, I want to view graphs showing an overview of library membership over time so that I can see how card and logbook data compares and so I can download an SVG to include in an essay.
+* As a content admin, I want to add authors, publication date, and editors for essay pages so I can document the provenance of the content.
+* As a content editor, I want to add new or edit existing editorial content so that I can publish and promote scholarly work related to the project.
+
+* Rename 'sex' to 'gender' project-wide
+* Update About and Sources landing pages so that tiles do not display any text description
+
 0.22
 ----
 

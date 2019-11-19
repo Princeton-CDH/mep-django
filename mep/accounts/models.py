@@ -82,15 +82,30 @@ class Account(models.Model):
         # return as a sorted list
         return sorted(list(uniq_dates))
 
-    @property
-    def event_date_ranges(self):
+    def event_date_ranges(self, event_type=None):
         '''Generate and return a list of date ranges this account
-        was active, based on associated events.'''
+        was active, based on associated events. Optionally filter
+        to a specific kind of event activity (currently only
+        supports membership).
+        '''
         ranges = []
         current_range = None
-        for event in self.event_set.known_years():
+
+        events = self.event_set.known_years()
+        # if event type was specified, filter as requested
+        if event_type == 'membership':
+            events = events.membership_activities()
+
+        for event in events:
             # if no date is set, ignore
             if not event.start_date and not event.end_date:
+                continue
+
+            # if either date is partial with month unknown, skip
+            if (event.start_date and event.start_date_precision and
+               not event.start_date_precision.month) or \
+               (event.end_date and event.end_date_precision and
+               not event.end_date_precision.month):
                 continue
 
             # if only one date is known, use for start/end of
@@ -122,6 +137,54 @@ class Account(models.Model):
         if current_range:
             ranges.append(current_range)
         return ranges
+
+    def active_months(self, event_type=None):
+        '''Generate and return a list of year/month dates this account
+        was active, based on associated events. Optionally filter
+        to a specific kind of event activity (currently supports
+        "membership" or "books").
+        Months are returned as a set in YYYYMM format.
+        '''
+        months = set()
+
+        # Book activities are handled differently, since they do not
+        # span multiple months; no need to convert to date ranges
+        if event_type == 'books':
+            book_events = self.event_set.known_years().book_activities()
+            for event in book_events:
+                # skip unset dates and unknown months (precision unset
+                # or month flag present); add all other
+                # to the set of years & months in YYYYMM format
+                if event.start_date and \
+                   (not event.start_date_precision or
+                        event.start_date_precision.month):
+                    months.add(event.start_date.strftime('%Y%m'))
+                if event.end_date and \
+                   (not event.end_date_precision or
+                        event.end_date_precision.month):
+                    months.add(event.end_date.strftime('%Y%m'))
+
+            return months
+
+        # For general events or membership activity,
+        # calculate months based on date ranges to track months
+        # when a subscription was active
+        date_ranges = self.event_date_ranges(event_type)
+        for start_date, end_date in date_ranges:
+            current_date = start_date
+            while current_date <= end_date:
+                # if date is within range,
+                # add to set of months in YYYYMM format
+                months.add(current_date.strftime('%Y%m'))
+                # get the date for the first of the next month
+                next_month = current_date.month + 1
+                year = current_date.year
+                # handle december to january
+                if next_month == 13:
+                    year += 1
+                    next_month = 1
+                current_date = datetime.date(year, next_month, 1)
+        return months
 
     def earliest_date(self):
         '''Earliest known date from all events associated with this account'''
@@ -271,9 +334,9 @@ class EventQuerySet(models.QuerySet):
         '''Generic events only (excludes subscriptions, reimbursements,
         borrows, and purchases).'''
         return self.filter(subscription__isnull=True,
-                               reimbursement__isnull=True,
-                               borrow__isnull=True,
-                               purchase__isnull=True)
+                           reimbursement__isnull=True,
+                           borrow__isnull=True,
+                           purchase__isnull=True)
 
     def _subtype(self, event_type):
         return self.filter(**{'%s__isnull' % event_type: False})

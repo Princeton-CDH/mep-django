@@ -5,7 +5,7 @@
   {% if person.birth_year or person.death_year %}
     {{ person.birth_year|default:'' }}–{{ person.death_year|default:'' }}
   {% endif %}
-  {% if person.sex %}{{ person.display_sex_label }}{% endif %}
+  {% if person.gender %}{{ person.display_gender_label }}{% endif %}
   {% if person.mep_id %}<p>MEP id {{ person.mep_id }}</p>{% endif %}
   {% if person.viaf %}<p>{{ person.viaf_id|urlize }}</p>{% endif %}
   {% if person.notes %}<p class="notes">{{ person.notes }}</p>{% endif %}

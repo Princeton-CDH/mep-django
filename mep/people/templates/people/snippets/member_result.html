@@ -1,10 +1,16 @@
 <dl class="member">
     <div class="primary">
-        {# name - solr only #}
+        {# name - sort name from solr; full name for member details page #}
         <div class="name">
             <dt>name</dt>
+            {#  using firstname_last to check if we're on member details page... #}
+            {% if member.firstname_last %}
+            <dd>{{ member.name }}</dd>
+            {% else %}
             <dd>{{ member.sort_name.0 }}</dd>
+            {% endif %}
         </div>
+
         {# birth & death dates - solr & db #}
         {% if member.birth_year or member.death_year %}
         <div class="birth-death">

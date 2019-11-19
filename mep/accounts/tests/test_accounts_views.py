@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from mep.accounts.models import Account, Address
-from mep.people.models import Person, Location
+from mep.people.models import Location, Person
 
 
 class TestAccountsViews(TestCase):
@@ -32,8 +32,8 @@ class TestAccountsViews(TestCase):
         assert data['results'][0]['text'] == 'Account #%s' % acc1.pk
 
         # search by persons
-        pers1 = Person.objects.create(name='Mlle Foo')
-        pers2 = Person.objects.create(name='Msr Foo')
+        pers1 = Person.objects.create(name='Mlle Foo', slug='foo')
+        pers2 = Person.objects.create(name='Msr Foo', slug='foo-2')
         acc2.persons.add(pers1, pers2)
         res = self.client.get(url, {'q': 'Mlle'})
         data = res.json()
@@ -56,7 +56,8 @@ class TestAccountsViews(TestCase):
         # query can end up listing account more than once
         # note: couldn't actually duplicate the problem here that
         # was happening on the site before adding distinct()
-        hemier = Person.objects.create(name='hemingway', mep_id="hemi.er")
+        hemier = Person.objects.create(name='hemingway', mep_id="hemi.er",
+                                       slug='hemingway')
         acc3 = Account.objects.create()
         acc3.persons.add(hemier)
         loc2 = Location.objects.create(name='hemingway\'s place')

@@ -32,7 +32,7 @@
                 <label for="{{ form.has_card.id_for_label }}">
                     <span>Card <span class="count">{{ members.get_facets.facet_fields.has_card.true }}</span></span>
                     <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="">
-                    <span id="{{ form.has_card.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip"
+                    <span id="{{ form.has_card.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip" class="question"
                         aria-label="{{ form.has_card.help_text }}" tabindex=0 onclick="event.preventDefault()"/>
                 </label>
                 <div class="demographics tab" role="tab" aria-setsize="2" aria-posinset="1" aria-selected="false" aria-controls="demographics-panel" tabindex="0">Demographics</div>
@@ -45,13 +45,18 @@
                                 <legend>{{ form.birth_year.label }}</legend>
                                 {{ form.birth_year }}
                             </fieldset>
-                            {% render_field form.sex %}
+                            {% render_field form.gender %}
+                            <span id="{{ form.gender.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip"
+                                aria-label="{{ form.gender.help_text }}" tabindex=0/>
                         </div>
                         <div class="column">
-                            <div class="expander" role="button" aria-controls="id_nationality" tabindex="0" aria-expanded="false">Nationality</div>
+                            <div class="expander" role="button" aria-controls="id_nationality" tabindex="0" aria-expanded="false">{{ form.nationality.label }}</div>
                             {% render_field form.nationality %}
                         </div>
-                        <div class="column"></div>
+                        <div class="column">
+                            <div class="expander" role="button" aria-controls="id_arrondissement" tabindex="0" aria-expanded="false">{{ form.arrondissement.label }}</div>
+                            {% render_field form.arrondissement %}
+                        </div>
                     </div>
                 </div>
                 <div class="tabpanel" id="books-panel" role="tabpanel"></div>

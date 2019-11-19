@@ -5,9 +5,9 @@ from django.db import models
 from django.test import TestCase
 import pytest
 
-from mep.accounts.partial_date import PartialDate, DatePrecision, \
-    DatePrecisionField, PartialDateMixin
 from mep.accounts.models import Account, Borrow
+from mep.accounts.partial_date import DatePrecision, DatePrecisionField, \
+    PartialDate, PartialDateMixin
 
 
 class TestPartialDateField(TestCase):
@@ -18,6 +18,14 @@ class TestPartialDateField(TestCase):
         assert isinstance(dpf.to_python(1), DatePrecision)
         # handle None
         assert dpf.to_python(None) is None
+
+    def test_from_db_value(self):
+        dpf = DatePrecisionField()
+        # cast value to date precision
+        assert isinstance(dpf.from_db_value(1, None, None, None),
+                          DatePrecision)
+        # handle None
+        assert dpf.from_db_value(None, None, None, None) is None
 
 
 class TestPartialDate(TestCase):

@@ -1,0 +1,54 @@
+// list of sub-pages that displays on landing pages: about, sources, analysis
+// name of landing page will be added as a class in template to control styling
+
+.subpages {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    // don't display publication date by default
+    time {
+        display: none;
+    }
+
+    @media (min-width: $breakpoint-m) {
+        width: $breakpoint-m;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 0.2rem;
+        padding-left: calc((100vw - #{$breakpoint-m}) / 2);
+        padding-right: calc((100vw - #{$breakpoint-m}) / 2);
+    }
+}
+
+// essay landing page subtype, subpages are essays
+// used for analysis
+.essays.subpages {
+
+    // display publication date
+    time {
+        display: inline;
+    }
+
+    // masonry layout on desktop
+    @media (min-width: $breakpoint-m) {
+        display: block;
+        column-count: 2;
+        column-gap: 0.2rem;
+
+        > .preview {
+            margin-top: 0.2rem;
+            display: inline-block;
+        }
+    }
+}
+
+// about landing page
+.about.subpages {
+
+    // hide descriptions
+    .preview p {
+        display: none;
+    }
+}

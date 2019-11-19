@@ -1,0 +1,11 @@
+{% extends 'pages/base_page.html' %}
+
+{% block content %}
+{% include 'snippets/breadcrumbs.html' %}
+{# reorder so that creator attribution is at the top #}
+<article class="main">
+    {% include 'pages/snippets/creators.html' %}
+    {% include 'pages/snippets/body.html' %}
+    {% include 'pages/snippets/citation.html' %}
+</article>
+{% endblock %}

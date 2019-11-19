@@ -37,7 +37,7 @@
             }
         }
     }
-    
+
     a,
     span {
         height: 1.5rem;
@@ -88,10 +88,16 @@
     li:nth-last-of-type(2) a::before {
         border-left-color: $green;
     }
-    
+
     // remove default hover styles for links
-    a:hover {
+    a:hover,
+    a:focus {
         border-color: $white-two;
+    }
+
+    // focused links get bold text for visibility for kbd users
+    a:focus {
+        font-weight: bold;
     }
 
     // last item is the active one, green border

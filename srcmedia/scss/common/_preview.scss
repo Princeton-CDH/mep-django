@@ -1,29 +1,11 @@
-.subpages {
-    list-style: none;
-    position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    @media (min-width: $breakpoint-m) {
-        width: $breakpoint-m;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-gap: 0.2rem;
-        padding-left: calc((100vw - #{$breakpoint-m}) / 2);
-        padding-right: calc((100vw - #{$breakpoint-m}) / 2);
-    }
-}
-
 .preview {
     width: 100%;
-    height: fit-content;
     text-align: center;
     background: white;
     border: none;
     display: block;
     box-sizing: border-box;
-    padding: 1.5rem 0;
+    padding: 1.5rem $gutter-xs; // content + tile scales on mobile
     transition: 0.2s all ease-in-out;
     margin-bottom: 0.2rem;
 
@@ -33,11 +15,14 @@
         border: none;
     }
 
+    // content fixed to 500px but tile scales on tablet
     @media (min-width: $breakpoint-s) {
-        padding: 2rem 0;
+        padding: 2rem calc((100vw - 500px) / 2);
     }
 
+    // tile + content fixed on desktop
     @media (min-width: $breakpoint-m) {
+        padding: 2rem 4rem;
         margin-bottom: 0;
     }
 
@@ -47,19 +32,16 @@
         margin-bottom: 1.5rem;
     }
 
+    .meta {
+        font-family: $serif;
+        color: $brownish-grey;
+        margin-bottom: 0.5rem;
+    }
+
     p {
-        width: calc(#{$breakpoint-xs} - #{$gutter-xs} * 2);
         font-family: $serif;
         text-align: left;
         margin: 0 auto;
-
-        @media (min-width: $breakpoint-s) {
-            width: 500px;
-        }
-
-        @media (min-width: $breakpoint-m) {
-            width: 355px;
-        }
     }
 
     picture {
@@ -67,7 +49,14 @@
         height: 190px;
         overflow: hidden;
         display: block;
-        margin: 0 auto;
+        margin-top: 1.5rem;
+        margin-left: auto;
+        margin-right: auto;
+
+        @media (max-width: calc(#{$breakpoint-xs} + #{$gutter-xs} * 2)) {
+            margin-left: -$gutter-xs;
+            margin-right: -$gutter-xs;
+        }
 
         @media (min-width: $breakpoint-s) {
             height: 300px;

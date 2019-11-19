@@ -1,16 +1,19 @@
+import datetime
 import logging
 
 from django.apps import apps
-from django.core.exceptions import MultipleObjectsReturned
+from django.contrib.humanize.templatetags.humanize import ordinal
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.exceptions import MultipleObjectsReturned
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
-from parasolr.indexing import Indexable
+from parasolr.django.indexing import ModelIndexable
 from viapy.api import ViafEntity
 
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
 from mep.common.validators import verify_latlon
+from mep.accounts.partial_date import DatePrecision
 from mep.footnotes.models import Footnote
 
 
@@ -82,6 +85,21 @@ class Location(Notable):
     def __str__(self):
         str_parts = [self.name, self.street_address, self.city]
         return ', '.join([part for part in str_parts if part])
+
+    def arrondissement(self):
+        '''Get the arrondissement corresponding to a particular postal code in
+        Paris. If the `Location` is not in Paris or doesn't have a postal code,
+        return None.'''
+        # Arrondissement is the last two digits of postal code - see:
+        # https://en.wikipedia.org/wiki/Arrondissements_of_Paris
+        # note that the 16th R is unique in being split into two subsections;
+        # the northern 16th starts with 751. all others start with 750
+        try:
+            prefix = self.postal_code[:3]
+            if prefix == '750' or prefix == '751':  # postcode n paris proper
+                return int(self.postal_code[-2:])  # use last two digits
+        except (ValueError, IndexError, AttributeError):
+            return None
 
 
 class Profession(Named, Notable):
@@ -183,7 +201,7 @@ class PersonQuerySet(models.QuerySet):
             # update main person record with optional properties set on
             # the copy if not already present on the main record
             for attr in ['title', 'mep_id', 'birth_year', 'death_year',
-                         'viaf_id', 'sex', 'profession']:
+                         'viaf_id', 'gender', 'profession']:
                 # if not set on main person and set on merge person, copy
                 if not getattr(person, attr) and getattr(merge_person, attr):
                     setattr(person, attr, getattr(merge_person, attr))
@@ -207,10 +225,10 @@ class PersonQuerySet(models.QuerySet):
         iso_date = timezone.now().strftime('%Y-%m-%d')
         notes = [person.notes]
         notes.extend([p.notes for p in merge_people])
-        notes.extend(['Merged MEP id %s on %s' % (person.mep_id, iso_date)
-                      for person in merge_people if person.mep_id])
-        notes.extend(['Merged %s on %s' % (person.name, iso_date)
-                      for person in merge_people if not person.mep_id])
+        notes.extend(['Merged MEP id %s on %s' % (p.mep_id, iso_date)
+                      for p in merge_people if p.mep_id])
+        notes.extend(['Merged %s on %s' % (p.name, iso_date)
+                      for p in merge_people if not p.mep_id])
         person.notes = '\n'.join(note for note in notes if note)
 
         # delete the now-obsolete person records
@@ -219,7 +237,111 @@ class PersonQuerySet(models.QuerySet):
         person.save()
 
 
-class Person(Notable, DateRange, Indexable):
+class PersonSignalHandlers:
+    '''Signal handlers for indexing :class:`Person` records when
+    related records are saved or deleted.'''
+
+    @staticmethod
+    def debug_log(name, count):
+        logger.debug('save %s, reindexing %d related %s', name,
+                     count, 'person' if count == 1 else 'people')
+
+    @staticmethod
+    def country_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+        if instance.pk:
+            # if any members are associated
+            members = instance.person_set.library_members().all()
+            if members.exists():
+                PersonSignalHandlers.debug_log('country', members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def country_delete(sender, instance, **kwargs):
+        # get a list of ids for collected works before clearing them
+        if not instance.pk:
+            return
+        person_ids = instance.person_set.library_members() \
+                             .values_list('id', flat=True)
+        if person_ids:
+            # find the items based on the list of ids to reindex
+            members = Person.objects.filter(id__in=list(person_ids))
+
+            # NOTE: this sends pre/post clear signal, but it's not obvious
+            # how to take advantage of that
+            instance.person_set.clear()
+            ModelIndexable.index_items(members)
+
+    @staticmethod
+    def account_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+        if instance.pk:
+            # if any members are associated
+            members = instance.persons.library_members().all()
+            if members.exists():
+                PersonSignalHandlers.debug_log('account', members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def account_delete(sender, instance, **kwargs):
+        # get a list of ids for collected works before clearing them
+        person_ids = instance.persons.library_members() \
+                             .values_list('id', flat=True)
+        if person_ids:
+            # find the items based on the list of ids to reindex
+            members = Person.objects.filter(id__in=list(person_ids))
+            # NOTE: this sends pre/post clear signal, but it's not obvious
+            # how to take advantage of that
+            instance.persons.clear()
+            ModelIndexable.index_items(members)
+
+    @staticmethod
+    def event_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+        if instance.pk:
+            # if any members are associated
+            members = instance.account.persons.library_members().all()
+            if members.exists():
+                PersonSignalHandlers.debug_log('event', members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def event_delete(sender, instance, **kwargs):
+        # get a list of ids for deleted event
+        members = instance.account.persons.library_members()
+        if members.exists():
+            ModelIndexable.index_items(members)
+
+    @staticmethod
+    def address_save(sender=None, instance=None, raw=False, **kwargs):
+        # raw = saved as presented; don't query the database
+        if raw:
+            return
+        # some addresses are associated directly to members - these are no
+        # longer valid so we check that it's associated to account instead
+        if instance.pk and instance.account:
+            # if any members are associated through account
+            members = instance.account.persons.library_members()
+            if members.exists():
+                PersonSignalHandlers.debug_log('address', members.count())
+                ModelIndexable.index_items(members)
+
+    @staticmethod
+    def address_delete(sender, instance, **kwargs):
+        # check that we are associated to a member's account
+        if instance.account:
+            members = instance.account.persons.library_members()
+            if members.exists():
+                ModelIndexable.index_items(members)
+
+
+class Person(Notable, DateRange, ModelIndexable):
     '''Model for people in the MEP dataset'''
 
     #: MEP xml id
@@ -245,19 +367,30 @@ class Person(Notable, DateRange, Indexable):
     is_organization = models.BooleanField(default=False,
         help_text='Check to indicate this entity is an organization rather than a person')
     #: verified flag
-    verified = models.BooleanField(default=False,
-        help_text='Check to indicate information in this record has been checked against the relevant archival sources.')
+    verified = models.BooleanField(
+        default=False,
+        help_text='Check to indicate information in this record has been ' +
+        'checked against the relevant archival sources.')
+
+    #: slug for use in urls
+    slug = models.SlugField(
+        max_length=100, unique=True,
+        help_text='Short, durable, unique identifier for use in URLs. ' +
+        'Editing will change the public, citable URL for library members.')
+
     #: update timestamp
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
     MALE = 'M'
     FEMALE = 'F'
-    SEX_CHOICES = (
+    NONBINARY = 'N'
+    GENDER_CHOICES = (
         (FEMALE, 'Female'),
         (MALE, 'Male'),
+        (NONBINARY, 'Nonbinary'),
     )
-    #: sex
-    sex = models.CharField(blank=True, max_length=1, choices=SEX_CHOICES)
+    #: gender
+    gender = models.CharField(blank=True, max_length=1, choices=GENDER_CHOICES)
     #: title
     title = models.CharField(blank=True, max_length=255)
     #: :class:`Profession`
@@ -317,10 +450,9 @@ class Person(Notable, DateRange, Indexable):
         '''
         Return the public url to view library member's detail page
         '''
-        # NOTE: using pk temporarily until we add slugs
+        # Only people with accounts have member detail pages
         if self.has_account():
-            # Only people with accounts have member detail pages
-            return reverse('people:member-detail', args=[self.pk])
+            return reverse('people:member-detail', args=[self.slug])
         # for now returning no url for person with no account
 
     @property
@@ -336,6 +468,12 @@ class Person(Notable, DateRange, Indexable):
         e.g. breadcrumb navigation'''
         # return the initial portion, before parenthesis or a comma
         return self.sort_name.split(',')[0].split('(')[0].strip()
+
+    @property
+    def firstname_last(self):
+        '''Primary name in 'firstname lastname' format for display'''
+        names = self.sort_name.split(', ', 1)
+        return ' '.join(reversed(names))
 
     def set_birth_death_years(self):
         '''Set local birth and death dates based on information from VIAF'''
@@ -353,9 +491,12 @@ class Person(Notable, DateRange, Indexable):
     list_nationalities.admin_order_field = 'nationalities__name'
 
     def address_count(self):
-        '''Number of documented addresses for this person'''
+        '''Number of documented addresses for this person, associated through
+        their account.'''
         # used in admin list view
-        return self.address_set.count()
+        if self.has_account():
+            return self.account_set.first().address_set.count()
+        return 0
     address_count.short_description = '# Addresses'
 
     def account_id(self):
@@ -383,7 +524,7 @@ class Person(Notable, DateRange, Indexable):
             # actual years since presumably all correct years will follow 1900
             # as the value for UNKNOWN_YEAR
             return '; '.join([sub.date_range for sub in
-                                subscriptions.order_by('start_date')])
+                              subscriptions.order_by('start_date')])
         return ''
 
     def is_creator(self):
@@ -397,7 +538,7 @@ class Person(Notable, DateRange, Indexable):
         return self.account_set.filter(
             models.Q(event__subscription__isnull=False) |
             models.Q(event__reimbursement__isnull=False)
-            ).exists()
+        ).exists()
     in_logbooks.boolean = True
 
     def has_card(self):
@@ -409,6 +550,44 @@ class Person(Notable, DateRange, Indexable):
         '''URL to edit this record in the admin site'''
         return reverse('admin:people_person_change', args=[self.id])
     admin_url.verbose_name = 'Admin Link'
+
+    index_depends_on = {
+        'nationalities': {
+            'post_save': PersonSignalHandlers.country_save,
+            'pre_delete': PersonSignalHandlers.country_delete,
+        },
+        'account_set': {
+            'post_save': PersonSignalHandlers.account_save,
+            'pre_delete': PersonSignalHandlers.account_delete,
+        },
+        'accounts.Event': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        # unfortunately the generic event signals aren't fired
+        # when subclass types are edited directly, so bind the same signal
+        'accounts.Borrow': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        'accounts.Purchase': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        'accounts.Subscription': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        'accounts.Reimbursement': {
+            'post_save': PersonSignalHandlers.event_save,
+            'post_delete': PersonSignalHandlers.event_delete,
+        },
+        # address changes can affect arrondissement
+        'accounts.Address': {
+            'post_save': PersonSignalHandlers.account_save,
+            'post_delete': PersonSignalHandlers.account_delete,
+        }
+    }
 
     @classmethod
     def items_to_index(cls):
@@ -433,8 +612,7 @@ class Person(Notable, DateRange, Indexable):
 
         index_data.update({
             'name_t': self.name,
-            # include pk for now for member detail url
-            'pk_i': self.pk,
+            'slug_s': self.slug,
             # text version of sort name for search and display
             'sort_name_t': self.sort_name,
             # string version of sort name for sort/facet
@@ -447,27 +625,55 @@ class Person(Notable, DateRange, Indexable):
         })
 
         # conditionally set fields that are not always present
-        # to avoid having None values stored in Solr
+        # to avoid storing 'None' in Solr
+        if self.gender:
+            index_data['gender_s'] = self.get_gender_display()
+
         account_dates = account.event_dates
         if account_dates:
-            # convert dates to just years, use set to uniquify, and
-            # convert back to list for json serialization to Solr
-            account_years = list(set(date.year for date in account.event_dates))
+            # use active date ranges to get a list of all years + months
+            # that this person was an active member
+            # (includes subscription spans without events in that month)
+
+            months = account.active_months()
+            logbook_months = account.active_months('membership')
+            card_months = account.active_months('books')
+
+            # generate list of years from all event dates (not based on
+            # active months since that excludes partial dates where only
+            # year is known)
+            account_years = set(date.year for date in account_dates)
+
+            # convert sets back to list for json serialization
             index_data.update({
-                'account_years_is': account_years,
+                'account_years_is': list(account_years),
+                'account_yearmonths_is': list(months),
+                'logbook_yearmonths_is': list(logbook_months),
+                'card_yearmonths_is': list(card_months),
                 # use min and max because set order is not guaranteed
                 'account_start_i': min(account_years),
                 'account_end_i': max(account_years),
             })
-        if self.sex:
-            index_data['sex_s'] = self.get_sex_display()
+        if self.gender:
+            index_data['gender_s'] = self.get_gender_display()
+
+        # if the Person has associated Addresses through their account, get
+        # the corresponding Paris arrondissements via their postal codes. If
+        # we find any, add the unique ones for searching.
+        if self.address_count() > 0:
+            locs = Location.objects.filter(address__in=account.address_set.all())
+            arrs = list(set(filter(None, [l.arrondissement() for l in locs])))
+            if arrs:
+                index_data['arrondissement_is'] = arrs
+
         return index_data
 
 
 class InfoURL(Notable):
     '''Informational urls (other than VIAF) associated with a :class:`Person`,
     e.g. Wikipedia page.'''
-    url = models.URLField(verbose_name='URL',
+    url = models.URLField(
+        verbose_name='URL',
         help_text='Additional (non-VIAF) URLs for a person.')
     person = models.ForeignKey(Person, related_name='urls')
 
@@ -506,4 +712,4 @@ class Relationship(Notable):
             self.from_person.name,
             self.relationship_type.name,
             self.to_person.name
-            )
+        )

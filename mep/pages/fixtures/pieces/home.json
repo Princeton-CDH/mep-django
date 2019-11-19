@@ -1,0 +1,45 @@
+[
+{
+    "model": "wagtailcore.page",
+    "pk": 3,
+    "fields": {
+        "path": "00010001",
+        "depth": 2,
+        "numchild": 3,
+        "title": "Shakespeare & Company Project",
+        "draft_title": "Shakespeare & Company Project",
+        "slug": "home",
+        "content_type": 58,
+        "live": true,
+        "has_unpublished_changes": false,
+        "url_path": "/home/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "latest_revision_created_at": null,
+        "live_revision": null
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 58,
+    "fields": {
+        "app_label": "pages",
+        "model": "homepage"
+    }
+},
+{
+    "model": "pages.homepage",
+    "pk": 3,
+    "fields": {
+        "body": "[]"
+    }
+}
+]

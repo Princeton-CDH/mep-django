@@ -1,6 +1,6 @@
 <script nonce="{{ request.csp_nonce }}">
 
-const data = {{ timeline|json }}
+var data = {{ timeline|json }}
 console.log('timeline data: ', data)
 
 function drawMemberTimeline(data, mode) {

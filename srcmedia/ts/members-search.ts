@@ -21,14 +21,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
-    const $genderFacet = document.querySelector('#id_sex') as HTMLFieldSetElement
+    const $genderFacet = document.querySelector('#id_gender') as HTMLFieldSetElement
     const $memDateFacet = document.querySelector('#id_membership_dates') as HTMLFieldSetElement
     const $birthDateFacet = document.querySelector('#id_birth_year') as HTMLFieldSetElement
     const $nationalityFacet = document.querySelector('#id_nationality') as HTMLFieldSetElement
+    const $arrondissementFacet = document.querySelector('#id_arrondissement') as HTMLFieldSetElement
     const $errors = document.querySelector('div[role=alert].errors')
     const $demographicsTab = document.querySelector('.demographics.tab') as HTMLDivElement
     const $booksTab = document.querySelector('.books.tab') as HTMLDivElement
     const $nationalityExpander = document.querySelector('.expander[aria-controls="id_nationality"]') as HTMLDivElement
+    const $arrondissementExpander = document.querySelector('.expander[aria-controls="id_arrondissement"]') as HTMLDivElement
 
     /* COMPONENTS */
     const membersSearchForm = new RxFacetedSearchForm($membersSearchForm)
@@ -43,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const memDateFacet = new RxRangeFilter($memDateFacet)
     const birthDateFacet = new RxRangeFilter($birthDateFacet)
     const nationalityFacet = new RxTextFacet($nationalityFacet)
+    const arrondissementFacet = new RxTextFacet($arrondissementFacet)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
@@ -125,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hasCardFacet.checked$.pipe(skip(1)), // ignore initial
         genderFacet.events,
         nationalityFacet.events,
+        arrondissementFacet.events,
     )
     const reloadResults$ = merge( // a list of all the things that require fetching new results (jump to page 1)
         reloadFacets$, // anything that changes facets also triggers new results
@@ -148,12 +152,17 @@ document.addEventListener('DOMContentLoaded', () => {
     )
     const genderChoices = membersSearchForm.facets.pipe(
         pluck('facet_fields'),
-        pluck('sex'),
+        pluck('gender'),
         flatMap(Object.entries),
     )
     const nationalityChoices = membersSearchForm.facets.pipe(
         pluck('facet_fields'),
         pluck('nationality'),
+        flatMap(Object.entries),
+    )
+    const arrondissementChoices = membersSearchForm.facets.pipe(
+        pluck('facet_fields'),
+        pluck('arrondissements'),
         flatMap(Object.entries),
     )
 
@@ -194,6 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update the nationality facet
     nationalityChoices.subscribe(nationalityFacet.counts)
+
+    // Update the arrondissement facet
+    arrondissementChoices.subscribe(arrondissementFacet.counts)
 
     // When a user changes the form, get new facets
     reloadFacets$.subscribe(() => membersSearchForm.getFacets())
@@ -265,4 +277,21 @@ document.addEventListener('DOMContentLoaded', () => {
             $nationalityExpander.setAttribute('aria-expanded', 'false')
         }
     })
+
+    merge(
+        fromEvent($arrondissementExpander, 'click'),
+        fromEvent($arrondissementExpander, 'keydown').pipe(
+            map(e => (e as KeyboardEvent).code),
+            filter(code => code == 'Space' || code == 'Enter')
+        )
+    ).subscribe(() => {
+        const expanded = $arrondissementExpander.getAttribute('aria-expanded')
+        if (expanded === 'false') {
+            $arrondissementExpander.setAttribute('aria-expanded', 'true')
+        }
+        else {
+            $arrondissementExpander.setAttribute('aria-expanded', 'false')
+        }
+    })
+
 })

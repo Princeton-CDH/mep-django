@@ -59,18 +59,25 @@ class MemberSearchForm(FacetForm):
             'aria-describedby': 'has_card_tip'
         }),
         help_text='Limit to members with lending library cards.')
-    sex = FacetChoiceField(label='Gender', widget=CheckboxFieldset(attrs={
-        'class': 'choice facet'
-    }))
+    gender = FacetChoiceField(
+        label='Gender',
+        widget=CheckboxFieldset(attrs={
+            'class': 'choice facet',
+            'aria-describedby': 'gender_tip'
+        }),
+        help_text='Learn more about gender and its representation in the Project \
+        in the Analysis section.')
     membership_dates = RangeField(label='Membership Dates', required=False,
                                   widget=RangeWidget(attrs={'size': 4}))
     birth_year = RangeField(label='Birth Year', required=False,
                             widget=RangeWidget(attrs={'size': 4}))
     nationality = FacetChoiceField(
         label='Nationality', hide_threshold=0,
-        widget=CheckboxFieldset(attrs={
-            'class': 'text facet'
-        })
+        widget=CheckboxFieldset(attrs={'class': 'text facet'})
+    )
+    arrondissement = FacetChoiceField(
+        label='Arrondissement', hide_threshold=0,
+        widget=CheckboxFieldset(attrs={'class': 'text facet'})
     )
 
     def set_range_minmax(self, range_minmax):

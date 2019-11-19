@@ -1,0 +1,20 @@
+{% extends 'pages/landing_page.html' %}
+
+{% comment %}
+uses 'essays' added to context by EssayLandingPage subtype; will get all
+published EssayPage children ordered by first pubdate
+{% endcomment %}
+{% block content %}
+{% include 'snippets/breadcrumbs.html' %}
+<div class="main">
+    {% if page.tagline %}
+    <h2 class="tagline">{{ page.tagline }}<hr/></h2>
+    {% endif %}
+    {% include 'pages/snippets/body.html' %}
+</div>
+<section class="subpages essays {{ page.title|lower }}" aria-label="essays">
+    {% for essay in essays %}
+    {% include 'pages/snippets/preview.html' with page=essay meta=1 %}
+    {% endfor %}
+</section>
+{% endblock %}
