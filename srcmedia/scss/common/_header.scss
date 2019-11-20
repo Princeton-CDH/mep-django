@@ -19,6 +19,7 @@
         align-items: center;
         height: 2.5rem;
         font-size: 1.4rem;
+        font-family: $display;
 
         @media (min-width: $breakpoint-s) {
             display: block;
@@ -62,6 +63,7 @@
             height: inherit;
             padding-top: 3rem;
             padding-bottom: 0.5rem;
+            text-transform: none;
 
             @media (min-width: $breakpoint-s) {
                 padding: 0;
@@ -105,7 +107,7 @@
 
     h1 {
         font-size: 1.4rem;
-        
+
         @media (min-width: $breakpoint-s) {
             display: block;
             height: fit-content;
@@ -164,7 +166,7 @@
     height: 20rem;
     background-position: center;
     background-size: cover;
-    
+
     @media (min-width: $breakpoint-s) {
         height: 27rem;
     }

@@ -30,7 +30,7 @@ $gutter: 30px;
 
 $sans: 'Univers', 'Helvetica', 'Segoe UI', sans-serif;
 $serif: 'Louize', 'Didot', 'Perpetua', serif;
-$displayFont: 'Louize Display', 'Louize', 'Didot', 'Perpetua', serif;
+$display: 'Louize Display', 'Louize', 'Didot', 'Perpetua', serif;
 
 /* misc */
 
@@ -81,4 +81,18 @@ $result-width: 500px;
         url('/static/fonts/Louize/Louize - Italic-205TF.otf') format('opentype'),
         url('/static/fonts/Louize/Louize - Italic-205TF.ttf') format('truetype'),
         url('/static/fonts/Louize/Louize - Italic-205TF.svg') format('svg'),
+}
+
+@font-face {
+    font-family: 'Louize Display';
+    font-style: normal;
+    font-weight: normal;
+    src: url('/static/fonts/Louize Display/Louize Display - Regular-205TF.otf') format('opentype'),
+}
+
+@font-face {
+    font-family: 'Louize Display';
+    font-style: italic;
+    font-weight: normal;
+    src: url('/static/fonts/Louize Display/Louize Display - Italic-205TF.otf') format('opentype'),
 }
