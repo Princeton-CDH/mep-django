@@ -1090,7 +1090,7 @@ class TestMembershipActivities(TestCase):
         crumbs = self.view.get_breadcrumbs()
         assert crumbs[0][0] == 'Home'
         # last item is this page
-        assert crumbs[-1][0] == 'Membership Activities'
+        assert crumbs[-1][0] == 'Membership'
         assert crumbs[-1][1] == self.view.get_absolute_url()
         # second to last is member page
         assert crumbs[-2][0] == self.member.short_name
