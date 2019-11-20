@@ -3,6 +3,15 @@ ol.card-results {
     flex-wrap: wrap;
     padding-top: 2.15rem;
     border-top: 1px solid $white-two;
+
+    .member-cards & {
+        border-top: 0;
+
+        @media (min-width: $breakpoint-m + 1) {
+            padding-top: 3.8rem;
+        }
+    }
+
 }
 
 /* TODO: page nav controls spacing is not quite right.
@@ -21,19 +30,22 @@ ol.card-results {
 
     border-top: 0;
     width: $card-width;
-    /* space between cards: subtract three cards and divide remainder by 2 */;
-    margin-right: calc((100% - (#{$card-width} * 3)) / 2);
+
+    // on mobile, centered with one card per line
+    margin-right: auto;
+    margin-left: auto;
     margin-bottom: 2.8rem;
 
-    &:nth-child(3n+0) {
-        margin-right: 0;
-    }
+    // on tablet and desktop, three cards per line
+    @media (min-width: $breakpoint-s) {
+        & {
+            /* space between cards: subtract three cards and divide remainder by 2 */;
+            margin-left: 0;
+            margin-right: calc((100% - (#{$card-width} * 3)) / 2);
+        }
 
-    @media (max-width: $breakpoint-s) {
-        margin-right: auto;
-        margin-left: auto;
         &:nth-child(3n+0) {
-            margin-right: auto;
+            margin-right: 0;
         }
     }
 
@@ -42,8 +54,8 @@ ol.card-results {
     }
 
     @media (min-width: $breakpoint-s + 1) {
-        picture {
-            display: block;
+        img, source {
+            display: inline;
             height: 315px;
         }
     }
@@ -62,6 +74,7 @@ ol.card-results {
         font-family: $serif;
         font-size: 1.2rem;
     }
+
     .card-dates dd {
         font-family: $sans;
         font-size: 0.82rem;
@@ -69,6 +82,21 @@ ol.card-results {
     .card-dates.unknown  {
         color: $mid-grey;
     }
+
+
+    // adjust for individual member card thumbnails
+    .member-cards & {
+        margin-bottom: 1.75rem;
+
+        .card-dates {
+            // NOTE: picture element is taking up some space so this
+            // looks too big; not sure how to adjust
+            // padding-top: 0.95rem;
+        }
+
+    }
+
+
 
 }
 

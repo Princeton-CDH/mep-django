@@ -2,7 +2,7 @@
 {% load render_bundle from webpack_loader %}
 {% load static mep_tags %}
 
-{% block page-subtitle %}{{ member.firstname_last }} Membership Activity · Library Members · {% endblock %}
+{% block page-subtitle %}{{ member.firstname_last }} Cards · Library Members · {% endblock %}
 
 {% block js %}
 {% render_bundle 'activities' 'js' %}
@@ -28,8 +28,8 @@
     </li>
 </nav>
 
-<section class="cards">
-    <ul class="card-results">
+<section class="member-cards">
+    <ol class="card-results">
     {% for card in cards %}
     <li class="card result">
         {# <a href="#" aria-label=""> #}
@@ -52,7 +52,7 @@
         {# </a> #}
     </li>
     {% endfor %}
-</ul>
+    </ol>
 
 </section>
 {% endblock %}
