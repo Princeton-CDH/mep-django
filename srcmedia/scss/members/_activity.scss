@@ -22,7 +22,7 @@
         min-height: 1.35rem;
 
         &::before {
-            right: 2.85rem;
+            right: 1.55rem;
             top: .7rem;
         }
 
@@ -81,7 +81,7 @@
         }
 
         /* styles adapted from tablesort */
-        th[role=columnheader]:not(.no-sort) {
+        th[role=columnheader]:not([data-sort-method=none]) {
             cursor: pointer;
 
             /* display icon to indicate sortable and current sort status */
