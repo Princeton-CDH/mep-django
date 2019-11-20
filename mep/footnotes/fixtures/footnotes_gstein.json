@@ -200,6 +200,28 @@
     }
 },
 {
+    "model": "people.person",
+    "pk": 517,
+    "fields": {
+        "notes": "[ID 10.18]: re the 16 March 1920 sub event: I think that, in the logbook, the straight line next to Stein's name indicates that she took the same sub pattern as the person above her in the book: 1 year 2 vols. This is borne out by her subsequent sub events.",
+        "start_year": 1874,
+        "end_year": 1946,
+        "mep_id": "stei.ge",
+        "name": "Gertrude Stein",
+        "sort_name": "Stein, Gertrude",
+        "viaf_id": "http://viaf.org/viaf/22149082",
+        "is_organization": false,
+        "verified": false,
+        "slug": "stein-gertrude",
+        "updated_at": "2019-11-15T16:55:41Z",
+        "gender": "F",
+        "title": "",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
     "model": "accounts.account",
     "pk": 108,
     "fields": {

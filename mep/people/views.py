@@ -362,26 +362,30 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         return [
             ('Home', absolutize_url('/')),
             (MembersList.page_title, MembersList().get_absolute_url()),
-            (self.member.short_name, self.member.get_absolute_url()),
+            (self.member.short_name,
+             absolutize_url(self.member.get_absolute_url())),
             ('Membership Activities', self.get_absolute_url())
         ]
 
 
 class MemberCardList(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
-    '''Card thumbnails for a single library member.'''
+    '''Card thumbnails for lending card associated with a single library
+    member.'''
     model = Canvas
     template_name = 'people/member_cardlist.html'
     context_object_name = 'cards'
-    # rdf_type = SCHEMA_ORG.ProfilePage
 
     def get_queryset(self):
+        # find the associated member; 404 if not found or not a library member
         self.member = get_object_or_404(Person.objects.library_members(),
                                         slug=self.kwargs['slug'])
+        # find all canvas objects for this person, via manifest
+        # associated with lending card bibliography
         return super().get_queryset() \
                       .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug'])
 
     def get_absolute_url(self):
-        '''Get the full URI of this page.'''
+        '''Full URI for member card list page.'''
         return absolutize_url(reverse('people:member-cardlist',
                                       kwargs=self.kwargs))
 
@@ -390,7 +394,8 @@ class MemberCardList(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         return [
             ('Home', absolutize_url('/')),
             (MembersList.page_title, MembersList().get_absolute_url()),
-            (self.member.short_name, absolutize_url(self.member.get_absolute_url())),
+            (self.member.short_name,
+             absolutize_url(self.member.get_absolute_url())),
             ('Cards', self.get_absolute_url())
         ]
 
