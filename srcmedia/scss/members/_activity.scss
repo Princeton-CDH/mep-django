@@ -1,9 +1,51 @@
 .activities {
-    @include padding-container;
+    /* on tablet, table area is scrollable horizontally */
+    @media (min-width: $breakpoint-s) and (max-width: calc(#{$breakpoint-m} - 1px)) {
+        overflow: auto;
 
-    /* no margins around the table on mobile */
-    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
-        padding: 0;
+        .wrapper {
+            width: $breakpoint-m;
+        }
+
+        th:first-child {
+            width: 10rem;
+            padding-left: 1rem;
+            left: 0;
+            z-index: 11;
+            box-shadow: 5px 0 5px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        th:last-child,
+        tr td:last-child {
+            padding-right: 1rem;
+        }
+
+        tr td:first-child {
+            position: absolute;
+            margin-top: -36px;
+            background: white;
+            padding: 1rem;
+            border-top: solid 0.1rem $transparent;
+            width: 10rem;
+            box-shadow: 5px 0 5px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        tr:first-child td {
+            border-top-width: 0;
+        }
+
+        tr:last-child td:first-child {
+            border-bottom: 0;
+        }
+    }
+
+    /* fixed width with padding on desktop */
+    @media (min-width: $breakpoint-m) {
+        @include padding-container;
+
+        .wrapper {
+            width: 100%;
+        }
     }
 
     /* form controls are mobile only */
@@ -52,25 +94,31 @@
             height: 100%;
             box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2)
         }
+
         th {
             font-weight: bold;
             position: sticky;
             top: 0;
             z-index: 10;
             background: white;
+
+            @media (min-width: $breakpoint-m) {
+                height: 4rem;
+            }
         }
 
         tr {
             border-top: solid 0.1rem $white-two;
-            &:first-child {
-                border-top: none;
-            }
+        }
+
+        thead tr {
+            border-top: none;
         }
 
         td, th {
+            box-sizing: border-box;
             text-align: center;
-            padding-top: 1rem;
-            padding-bottom: 2rem;
+            padding: 1rem 0;
 
             &:first-child {
                 text-align: left;
@@ -78,6 +126,14 @@
             &:last-child {
                 text-align: right;
             }
+        }
+
+        td.title {
+            max-width: 12rem;
+        }
+
+        td.author {
+            max-width: 8rem;
         }
 
         /* styles adapted from tablesort */
@@ -108,6 +164,7 @@
             }
 
         }
+
 
         /* for mobile, display each row as a card and use flex
            to arrange table cells within the card */
@@ -212,5 +269,4 @@
 
         }
     }
-
 }

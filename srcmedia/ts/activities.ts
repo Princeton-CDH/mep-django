@@ -1,5 +1,6 @@
 import Tablesort from 'tablesort'
 import { sortItem, compareItem } from './lib/sort'
+import { setAllHeights } from './lib/common'
 
 import StickyControls from './components/StickyControls'
 
@@ -23,4 +24,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const stickyControls = new StickyControls($tableHeaderElement)
 
     Tablesort($table)
+
+    /* BINDINGS */
+    // on tablet only, we need to manually set row heights so that the leftmost
+    // table column can be sticky
+    if (window.matchMedia('(min-width: 768px) and (max-width: 1023px)').matches) {
+        const firsts = document.querySelectorAll('td.title') as NodeListOf<HTMLTableCellElement>
+        firsts.forEach(e => {
+            const start = e.nextElementSibling as HTMLElement
+            setAllHeights(start, getComputedStyle(e).getPropertyValue('height'))
+        })
+    }
 })
