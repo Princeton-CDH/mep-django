@@ -249,14 +249,13 @@ class PersonSignalHandlers:
     @staticmethod
     def country_save(sender=None, instance=None, raw=False, **kwargs):
         # raw = saved as presented; don't query the database
-        if raw:
+        if raw or not instance.pk:
             return
-        if instance.pk:
-            # if any members are associated
-            members = instance.person_set.library_members().all()
-            if members.exists():
-                PersonSignalHandlers.debug_log('country', members.count())
-                ModelIndexable.index_items(members)
+        # if any members are associated
+        members = instance.person_set.library_members().all()
+        if members.exists():
+            PersonSignalHandlers.debug_log('country', members.count())
+            ModelIndexable.index_items(members)
 
     @staticmethod
     def country_delete(sender, instance, **kwargs):
@@ -277,14 +276,14 @@ class PersonSignalHandlers:
     @staticmethod
     def account_save(sender=None, instance=None, raw=False, **kwargs):
         # raw = saved as presented; don't query the database
-        if raw:
+        if raw or not instance.pk:
             return
-        if instance.pk:
-            # if any members are associated
-            members = instance.persons.library_members().all()
-            if members.exists():
-                PersonSignalHandlers.debug_log('account', members.count())
-                ModelIndexable.index_items(members)
+
+        # if any members are associated
+        members = instance.persons.library_members().all()
+        if members.exists():
+            PersonSignalHandlers.debug_log('account', members.count())
+            ModelIndexable.index_items(members)
 
     @staticmethod
     def account_delete(sender, instance, **kwargs):
@@ -302,14 +301,13 @@ class PersonSignalHandlers:
     @staticmethod
     def event_save(sender=None, instance=None, raw=False, **kwargs):
         # raw = saved as presented; don't query the database
-        if raw:
+        if raw or not instance.pk:
             return
-        if instance.pk:
-            # if any members are associated
-            members = instance.account.persons.library_members().all()
-            if members.exists():
-                PersonSignalHandlers.debug_log('event', members.count())
-                ModelIndexable.index_items(members)
+        # if any members are associated
+        members = instance.account.persons.library_members().all()
+        if members.exists():
+            PersonSignalHandlers.debug_log('event', members.count())
+            ModelIndexable.index_items(members)
 
     @staticmethod
     def event_delete(sender, instance, **kwargs):

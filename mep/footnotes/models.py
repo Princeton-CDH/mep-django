@@ -25,10 +25,7 @@ class BibliographySignalHandlers:
     @staticmethod
     def person_save(sender=None, instance=None, raw=False, **kwargs):
         # raw = saved as presented; don't query the database
-        if raw:
-            return
-        print('bibliography person save')
-        if not instance.pk:
+        if raw or not instance.pk:
             return
         # find any cards associated via an account
         cards = Bibliography.objects.filter(account__persons__pk=instance.pk)
@@ -54,10 +51,7 @@ class BibliographySignalHandlers:
     @staticmethod
     def account_save(sender=None, instance=None, raw=False, **_kwargs):
         # raw = saved as presented; don't query the database
-        if raw:
-            return
-
-        if not instance.pk:
+        if raw or not instance.pk:
             return
         # find any cards associated with this account
         cards = Bibliography.objects.filter(account__pk=instance.pk)
@@ -83,10 +77,7 @@ class BibliographySignalHandlers:
     @staticmethod
     def manifest_save(sender=None, instance=None, raw=False, **kwargs):
         # raw = saved as presented; don't query the database
-        if raw:
-            return
-
-        if not instance.pk:
+        if raw or not instance.pk:
             return
         # find any cards associated with this account
         cards = Bibliography.objects.filter(manifest__pk=instance.pk)
@@ -108,12 +99,9 @@ class BibliographySignalHandlers:
             ModelIndexable.index_items(cards)
 
     @staticmethod
-    def canvas_save(_sender, instance, raw=False, **_kwargs):
+    def canvas_save(sender=None, instance=None, raw=False, **kwargs):
         # raw = saved as presented; don't query the database
-        if raw:
-            return
-
-        if not instance.pk:
+        if raw or not instance.pk:
             return
         # find any cards associated with this canvas, via manifest
         cards = Bibliography.objects.filter(manifest__pk=instance.manifest.pk)
@@ -130,12 +118,9 @@ class BibliographySignalHandlers:
             ModelIndexable.index_items(cards)
 
     @staticmethod
-    def event_save(_sender, instance, raw=False, **_kwargs):
+    def event_save(sender=None, instance=None, raw=False, **_kwargs):
         # raw = saved as presented; don't query the database
-        if raw:
-            return
-
-        if not instance.pk:
+        if raw or not instance.pk:
             return
         # find any cards associated with this canvas, via manifest
         cards = Bibliography.objects.filter(account__pk=instance.account.pk)
