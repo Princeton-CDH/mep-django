@@ -6,10 +6,11 @@ Deploy and Upgrade notes
 0.23
 ----
 
-* This release requires a reindex of library members to update the gender field
-  and add the new arrondissement field for use in faceting::
+* This release requires library members be cleared and reindexed in order
+  to update the gender field, add the new arrondissement field for use in
+  faceting, and ensure all members have slugs for urls::
 
-  python manage.py index -i person
+  python manage.py index -c person -i person
 
 * This release adds new Page content types for blog-style essay content and a
   landing page for blog entries. If content exists that should be migrated to
