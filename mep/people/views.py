@@ -382,7 +382,8 @@ class MemberCardList(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         # find all canvas objects for this person, via manifest
         # associated with lending card bibliography
         return super().get_queryset() \
-                      .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug'])
+                      .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
+                      .order_by('order')
 
     def get_absolute_url(self):
         '''Full URI for member card list page.'''
