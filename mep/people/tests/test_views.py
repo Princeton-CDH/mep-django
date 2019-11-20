@@ -1184,7 +1184,7 @@ class TestMembershipGraphs(TestCase):
 
 
 class TestMemberCardList(TestCase):
-    fixtures = ['footnotes_gstein']
+    fixtures = ['footnotes_gstein', 'sample_people']
 
     def test_get_queryset(self):
         view = MemberCardList()
@@ -1258,3 +1258,8 @@ class TestMemberCardList(TestCase):
                     self.assertContains(response, end.year)
             else:
                 self.assertContains(response, 'Unknown')
+
+        # library member wih no cards
+        response = self.client.get(reverse('people:member-cardlist',
+                                   kwargs={'slug': 'gay'}))
+        self.assertContains(response, 'No cards available')
