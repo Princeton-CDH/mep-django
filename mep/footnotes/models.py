@@ -334,7 +334,7 @@ class FootnoteQuerySet(models.QuerySet):
             .annotate(
             start_year_known=models.Case(
                 models.When(
-                    start_precision=DatePrecision.month | DatePrecision.day,
+                    start_precision=int(DatePrecision.month | DatePrecision.day),
                     then=models.Value(False),
                 ),
                 default=models.Value(True),
@@ -342,7 +342,7 @@ class FootnoteQuerySet(models.QuerySet):
             ),
             end_year_known=models.Case(
                 models.When(
-                    end_precision=DatePrecision.month | DatePrecision.day,
+                    end_precision=int(DatePrecision.month | DatePrecision.day),
                     then=models.Value(False),
                 ),
                 default=models.Value(True),
