@@ -268,7 +268,7 @@ class Work(Notable, ModelIndexable):
 
     def author_list(self):
         '''semicolon separated list of author names'''
-        return '; '.join([str(auth) for auth in self.authors])
+        return '; '.join([auth.name for auth in self.authors])
     author_list.verbose_name = 'Authors'
 
     @property
