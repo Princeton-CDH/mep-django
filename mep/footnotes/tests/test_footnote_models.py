@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from djiffy.models import Manifest
 
-from mep.accounts.models import Account, Event
+from mep.accounts.models import Account, Event, Borrow, Purchase
 from mep.footnotes.admin import BibliographyAdmin
 from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.models import Person
@@ -129,6 +129,33 @@ class TestFootnote(TestCase):
             assert image_thumbnail.startswith(
                 '<a target="_blank" href="%s">' % test_rendering_url
             )
+
+
+class TestFootnoteQuerySet(TestCase):
+    fixtures = ['footnotes_gstein']
+
+    def test_event_date_range(self):
+        # other than stein fixture, should be no event dates - return nothing
+        gstein_filter = {
+            'bibliography__bibliographic_note__contains': 'Gertrude Stein'
+        }
+        assert not Footnote.objects.exclude(**gstein_filter) \
+            .event_date_range()
+
+        # first test footnote for one event with known years and start/end
+        evt = Event.objects.known_years() \
+                   .filter(start_date__isnull=False, end_date__isnull=False) \
+                   .first()
+        assert Footnote.objects.filter(object_id=evt.id).event_date_range() \
+            == (evt.start_date, evt.end_date)
+
+        # full date range should be min/max of all events from the account
+        acct = Account.objects.first()  # currently only g. stein in fixture
+        event_dates = acct.event_dates
+        footnote_dates = Footnote.objects.filter(**gstein_filter) \
+                                 .event_date_range()
+        assert footnote_dates[0] == event_dates[0]
+        assert footnote_dates[1] == event_dates[-1]
 
 
 class TestBibliographyAdmin:

@@ -8,6 +8,7 @@ from djiffy.models import Canvas, Manifest
 from parasolr.django.indexing import ModelIndexable
 
 from mep.common.models import Named, Notable
+from mep.accounts.partial_date import DatePrecision
 
 
 logger = logging.getLogger(__name__)
@@ -294,19 +295,69 @@ class FootnoteQuerySet(models.QuerySet):
         with footnotes in this queryset. Returns a tuple of earliest
         and latest dates, or None if no dates are found.'''
 
-        # all related fields that could hold event dates
-        date_fields = [
+        # list of all related fields that could hold event dates
+        # - for start, coalese start and end but use start if present
+        start_date_fields = [
             'events__start_date', 'events__end_date',
             'borrows__start_date', 'borrows__end_date',
             'purchases__start_date', 'purchases__end_date'
         ]
+        # - for end, coalesce start and end but use end if present
+        end_date_fields = [
+            'events__end_date', 'events__start_date',
+            'borrows__end_date', 'borrows__start_date',
+            'purchases__end_date', 'purchases__start_date'
+        ]
 
-        ## TODO exclude unknown years!
-        values = self.annotate(
-            start_dates=Coalesce(*date_fields),
-            end_dates=Coalesce(*date_fields)) \
+        # exclude events with unknown years
+        # NOTE: exclude doesn't currently work with generic relations;
+        # see https://code.djangoproject.com/ticket/26261
+        # qs = self.exclude(
+        #     events__start_date_precision__knownyear=False,
+        #     events__end_date_precision__knownyear=False,
+        #     borrows__start_date_precision__knownyear=False,
+        #     borrows__end_date_precision__knownyear=False,
+        #     purchases__start_date_precision__knownyear=False,
+        #     purchases__end_date_precision__knownyear=False)
+
+        # using approach in above ticket to filter out any events with
+        # unknown year via start or end date precision set to month+day only
+        qs = self.annotate(
+            start_precision=Coalesce(
+                'events__start_date_precision',
+                'borrows__start_date_precision',
+                'purchases__start_date_precision'),
+            end_precision=Coalesce(
+                'events__end_date_precision',
+                'borrows__end_date_precision',
+                'purchases__end_date_precision')) \
+            .annotate(
+            start_year_known=models.Case(
+                models.When(
+                    start_precision=DatePrecision.month | DatePrecision.day,
+                    then=models.Value(False),
+                ),
+                default=models.Value(True),
+                output_field=models.BooleanField(),
+            ),
+            end_year_known=models.Case(
+                models.When(
+                    end_precision=DatePrecision.month | DatePrecision.day,
+                    then=models.Value(False),
+                ),
+                default=models.Value(True),
+                output_field=models.BooleanField(),
+            )
+        ).filter(start_year_known=True, end_year_known=True)
+
+        # annotate with coalese to get start/end dates for each event
+        # aggregate min/max start and end dates
+        values = qs.annotate(
+            start_dates=Coalesce(*start_date_fields),
+            end_dates=Coalesce(*end_date_fields)) \
             .aggregate(first_date=models.Min('start_dates'),
                        last_date=models.Max('end_dates'))
+
         # return earliest and latest dates, unless result is None
         if values['first_date']:
             return values['first_date'], values['last_date']
