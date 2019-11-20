@@ -3,6 +3,12 @@
 CHANGELOG
 =========
 
+0.23.1
+------
+
+* bugfix: event signal handler causing an error on admin edits
+
+
 0.23
 ----
 
