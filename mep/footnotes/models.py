@@ -1,5 +1,6 @@
 import logging
 
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -295,69 +296,23 @@ class FootnoteQuerySet(models.QuerySet):
         with footnotes in this queryset. Returns a tuple of earliest
         and latest dates, or None if no dates are found.'''
 
-        # list of all related fields that could hold event dates
-        # - for start, coalese start and end but use start if present
-        start_date_fields = [
-            'events__start_date', 'events__end_date',
-            'borrows__start_date', 'borrows__end_date',
-            'purchases__start_date', 'purchases__end_date'
-        ]
-        # - for end, coalesce start and end but use end if present
-        end_date_fields = [
-            'events__end_date', 'events__start_date',
-            'borrows__end_date', 'borrows__start_date',
-            'purchases__end_date', 'purchases__start_date'
-        ]
+        # use get model to avoid circular import
+        Event = apps.get_model('accounts', 'Event')
+        event_content_types = ContentType.objects.filter(
+            app_label='accounts',
+            model__in=['Event', 'Borrow', 'Purchase'])
 
-        # exclude events with unknown years
-        # NOTE: exclude doesn't currently work with generic relations;
-        # see https://code.djangoproject.com/ticket/26261
-        # qs = self.exclude(
-        #     events__start_date_precision__knownyear=False,
-        #     events__end_date_precision__knownyear=False,
-        #     borrows__start_date_precision__knownyear=False,
-        #     borrows__end_date_precision__knownyear=False,
-        #     purchases__start_date_precision__knownyear=False,
-        #     purchases__end_date_precision__knownyear=False)
-
-        # using approach in above ticket to filter out any events with
-        # unknown year via start or end date precision set to month+day only
-        qs = self.annotate(
-            start_precision=Coalesce(
-                'events__start_date_precision',
-                'borrows__start_date_precision',
-                'purchases__start_date_precision'),
-            end_precision=Coalesce(
-                'events__end_date_precision',
-                'borrows__end_date_precision',
-                'purchases__end_date_precision')) \
+        # get a list of event ids from the current footnote queryset
+        event_ids = self.filter(content_type__in=event_content_types) \
+                        .values_list('object_id', flat=True)
+        # find corresponding events, filter out unknown years,
+        # and aggregrate dates to get earliest and latest from this set
+        values = Event.objects.filter(pk__in=event_ids).known_years() \
             .annotate(
-            start_year_known=models.Case(
-                models.When(
-                    start_precision=int(DatePrecision.month | DatePrecision.day),
-                    then=models.Value(False),
-                ),
-                default=models.Value(True),
-                output_field=models.BooleanField(),
-            ),
-            end_year_known=models.Case(
-                models.When(
-                    end_precision=int(DatePrecision.month | DatePrecision.day),
-                    then=models.Value(False),
-                ),
-                default=models.Value(True),
-                output_field=models.BooleanField(),
-            )
-        ).filter(start_year_known=True, end_year_known=True)
-
-        # annotate with coalese to get start/end dates for each event
-        # aggregate min/max start and end dates
-        values = qs.annotate(
-            start_dates=Coalesce(*start_date_fields),
-            end_dates=Coalesce(*end_date_fields)) \
+                start_dates=Coalesce('start_date', 'end_date'),
+                end_dates=Coalesce('end_date', 'start_date')) \
             .aggregate(first_date=models.Min('start_dates'),
                        last_date=models.Max('end_dates'))
-
         # return earliest and latest dates, unless result is None
         if values['first_date']:
             return values['first_date'], values['last_date']
@@ -424,6 +379,3 @@ class Footnote(Notable):
                     (self.image.manifest.extra_data['rendering']['@id'], img)
             return img
     image_thumbnail.allow_tags = True
-
-
-
