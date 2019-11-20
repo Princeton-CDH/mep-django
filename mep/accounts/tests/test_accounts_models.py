@@ -328,6 +328,12 @@ class TestAccount(TestCase):
         # should extend the existing range
         assert account.event_date_ranges() == [[start, sub2_end]]
 
+        # range with end but no start should be grouped within the range
+        # and not sorted first in its own range because of no start date
+        Subscription.objects.create(account=account,
+                                    end_date=datetime.date(1923, 7, 1))
+        assert account.event_date_ranges() == [[start, sub2_end]]
+
         # non-contiguous range should result in two ranges
         sub3_start = datetime.date(1924, 1, 5)
         sub3_end = datetime.date(1924, 3, 5)

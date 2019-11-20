@@ -8,6 +8,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
 from django.db import models
+from django.db.models.functions import Coalesce
 from django.template.defaultfilters import pluralize
 
 from mep.accounts.partial_date import PartialDateMixin, DatePrecision,\
@@ -91,7 +92,11 @@ class Account(models.Model):
         ranges = []
         current_range = None
 
-        events = self.event_set.known_years()
+        events = self.event_set.known_years() \
+                               .annotate(
+            first_date=Coalesce('start_date', 'end_date')
+        ).order_by('first_date')
+
         # if event type was specified, filter as requested
         if event_type == 'membership':
             events = events.membership_activities()
