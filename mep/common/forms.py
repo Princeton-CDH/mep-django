@@ -69,8 +69,9 @@ class FacetChoiceField(forms.MultipleChoiceField):
     # - use CheckboxFieldset widget for rendering facet
 
     widget = CheckboxFieldset
+    none_val = None
 
-    def __init__(self, hide_threshold=None, *args, **kwargs):
+    def __init__(self, hide_threshold=None, none_val='Unknown', *args, **kwargs):
         # default required to false
         if 'required' not in kwargs:
             kwargs['required'] = False
@@ -91,6 +92,10 @@ class FacetChoiceField(forms.MultipleChoiceField):
         # if present, set hide threshold as widget data attribute
         if hide_threshold is not None:
             self.widget.attrs['data-hide-threshold'] = hide_threshold
+
+        # if present, use none_val as display text for None option - will be
+        # the value of choices that represent "Other" or a lack of data
+        self.none_val = none_val
 
     def valid_value(self, value):
         return True
@@ -200,7 +205,7 @@ class FacetForm(forms.Form):
                     # iterate over val and counts in counts dictionary
                     # and format as a lable and comma separated integer
                     (val, mark_safe('{}<span class="count">{:,}</span>'\
-                                    .format(val if val else 'Unknown', count)))
+                                    .format(val if val else self.fields[formfield].none_val, count)))
                     for val, count in counts.items()
                 ]
                 self.fields[formfield].widget.facet_counts = counts

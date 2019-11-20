@@ -61,6 +61,7 @@ class MemberSearchForm(FacetForm):
         help_text='Limit to members with lending library cards.')
     gender = FacetChoiceField(
         label='Gender',
+        none_val='Unidentified',
         widget=CheckboxFieldset(attrs={
             'class': 'choice facet',
             'aria-describedby': 'gender_tip'
