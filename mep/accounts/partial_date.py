@@ -1,9 +1,9 @@
-import re
 import datetime
+import re
 
 from django import forms
-from django.db import models
 from django.core.validators import RegexValidator, ValidationError
+from django.db import models
 from flags import Flags
 
 
@@ -26,6 +26,12 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
         '''Convert values returned from database to :class:`DatePrecision`
         using :meth:`to_python`'''
         return self.to_python(value)
+
+    def value_to_string(self, obj):
+        '''Customize string value for JSON serialization will'''
+        value = self.value_from_object(obj)
+        # return as integer rather than string representation of the flags
+        return self.get_prep_value(value)
 
 
 class PartialDate:
