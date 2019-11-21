@@ -142,12 +142,11 @@ class TestFootnoteQuerySet(TestCase):
         assert not Footnote.objects.exclude(**gstein_filter) \
             .event_date_range()
 
-        # first test footnote for one event with known years and start/end
-        evt = Event.objects.known_years() \
-                   .filter(start_date__isnull=False, end_date__isnull=False) \
-                   .first()
-        footnote_dates = Footnote.objects.filter(object_id=evt.id) \
-                                 .event_date_range()
+        # get a known date from the fixture with start and end date fully known
+        evt = Borrow.objects.get(pk=26344)
+        footnote_dates = evt.event_footnotes.event_date_range()
+        # should not be null
+        assert footnote_dates
         assert footnote_dates[0] == evt.start_date
         assert footnote_dates[1] == evt.end_date
 

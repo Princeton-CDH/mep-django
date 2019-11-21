@@ -303,19 +303,21 @@ class FootnoteQuerySet(models.QuerySet):
             model__in=['Event', 'Borrow', 'Purchase'])
 
         # get a list of event ids from the current footnote queryset
+        # NOTE: relying on multi-table inheritance giving event instances
+        # the same pk for event and subclass; is that reliable?
         event_ids = self.filter(content_type__in=event_content_types) \
                         .values_list('object_id', flat=True)
         # find corresponding events, filter out unknown years,
         # and aggregrate dates to get earliest and latest from this set
-        values = Event.objects.filter(pk__in=event_ids).known_years() \
+        date_values = Event.objects.filter(pk__in=event_ids).known_years() \
             .annotate(
                 start_dates=Coalesce('start_date', 'end_date'),
                 end_dates=Coalesce('end_date', 'start_date')) \
-            .aggregate(first_date=models.Min('start_dates'),
-                       last_date=models.Max('end_dates'))
+            .aggregate(first=models.Min('start_dates'),
+                       last=models.Max('end_dates'))
         # return earliest and latest dates, unless result is None
-        if values['first_date']:
-            return values['first_date'], values['last_date']
+        if date_values['first']:
+            return date_values['first'], date_values['last']
 
 
 class Footnote(Notable):
