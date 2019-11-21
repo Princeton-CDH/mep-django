@@ -44,8 +44,8 @@
     "pk": 26344,
     "fields": {
         "notes": "Year added per JK's research [EG 7/9/18]",
-        "start_date_precision": "DatePrecision(year|month|day)",
-        "end_date_precision": "DatePrecision(year|month|day)",
+        "start_date_precision": 7,
+        "end_date_precision": 7,
         "account": 108,
         "start_date": "1922-04-03",
         "end_date": "1922-04-13",
@@ -76,7 +76,7 @@
     "pk": 26318,
     "fields": {
         "notes": "Year updated per JK's research [EG 7/9/18]",
-        "start_date_precision": "DatePrecision(year|month|day)",
+        "start_date_precision": 7,
         "end_date_precision": null,
         "account": 108,
         "start_date": "1921-01-05",
@@ -108,7 +108,7 @@
     "pk": 26296,
     "fields": {
         "notes": "Checked card, no return date given [EG 6/11/18]\r\n\r\nYear updated per JK's research [EG 7/9/18]",
-        "start_date_precision": "DatePrecision(year|month|day)",
+        "start_date_precision": 7,
         "end_date_precision": null,
         "account": 108,
         "start_date": "1920-03-18",
@@ -140,8 +140,8 @@
     "pk": 26346,
     "fields": {
         "notes": "",
-        "start_date_precision": "DatePrecision(month|day)",
-        "end_date_precision": "DatePrecision(month|day)",
+        "start_date_precision": 6,
+        "end_date_precision": 6,
         "account": 108,
         "start_date": "1900-01-19",
         "end_date": "1900-01-24",
@@ -173,7 +173,7 @@
     "fields": {
         "notes": "volume 2 vols\r\n[EG 6/11/18]\r\n\r\nYear updated per JK's research [EG 7/9/18]",
         "start_date_precision": null,
-        "end_date_precision": "DatePrecision(year|month|day)",
+        "end_date_precision": 7,
         "account": 108,
         "start_date": null,
         "end_date": "1920-06-03",
