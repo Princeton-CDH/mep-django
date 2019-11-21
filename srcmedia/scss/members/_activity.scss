@@ -165,7 +165,6 @@
 
         }
 
-
         /* for mobile, display each row as a card and use flex
            to arrange table cells within the card */
         @media (max-width: calc(#{$breakpoint-s} - 1px)) {
@@ -188,23 +187,18 @@
                     border-bottom: solid 0.025rem $light-grey;
                 }
 
-                /* use full-width pseudo-element with order to force line break */
-                &::before {
-                  content: '';
-                  width: 100%;
-                  height: 22px;
-                  order: 4;
-                }
 
+                /*  hide down arrow until we support expand/collapse on mobile */
                 &::after {
                     content: '';
                     order: 6;
                     width: 100%;
                     height: 1rem;
+                    /*
                     background-image: url('/static/img/icons/blackChevron_down.svg');
                     background-repeat: no-repeat;
                     background-position: center;
-                    background-size: 0.5rem 0.25rem;
+                    background-size: 0.5rem 0.25rem; */
                     margin-bottom: 0.5rem;
                 }
 
@@ -221,12 +215,22 @@
                 }
 
             }
-            td {
+
+            // membership activities
+            &.membership td {
                 display: block;
                 padding: 0;
                 text-align: left;
                 order: 5;
                 width: 30%;
+
+                /* use full-width pseudo-element with order to force line break */
+                &::before {
+                  content: '';
+                  width: 100%;
+                  height: 22px;
+                  order: 4;
+                }
 
                 &.type {
                     order: 1;
@@ -263,6 +267,61 @@
                 }
                 &.category::before {
                     content: "Category";
+                }
+
+            }
+
+
+            // book activities
+            &.borrowing td {
+                display: block;
+                padding: 0;
+                text-align: left;
+
+                &.title {
+                    order: 1;
+                    width: 60%;
+                    font-style: italic;
+                }
+                &.author {
+                    order: 2;
+                    width: 40%;
+                    text-align: right;
+                    padding-left: 1.1rem;  // minimum space between 22px
+                }
+                &.status {
+                    order: 3;
+                    width: 100%;
+                    text-transform: lowercase;
+                }
+
+                &.start {
+                    order: 4;
+                    padding-right: 3px;
+                    &::after {
+                        content:" — ";
+                    }
+                    width: auto;
+                }
+                &.end {
+                    order: 5;
+                    width: auto;
+                }
+
+                /* secondary fields are hidden by default and get labels */
+                &.pubdate {
+                    display: none;
+                    order: 6;
+                    width: 100%;
+                    padding-top: 0.2rem;
+
+                    &::before {
+                        content: "Publication Date";
+                        font-weight: bold;
+                        display: block;
+                        font-size: 0.7rem;
+
+                    }
                 }
 
             }

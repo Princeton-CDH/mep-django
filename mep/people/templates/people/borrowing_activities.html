@@ -60,7 +60,7 @@
     <p>No documented borrowing activity.</p>
     {% else %}
     <div class="wrapper">
-    <table id="activity-table">
+    <table id="activity-table" class="borrowing">
         <thead>
             <tr>
                 <th>Title</th>
@@ -77,7 +77,7 @@
             <td class="author">{{ event.work.author_list }}</td>
             <td class="pubdate">{{ event.work.year }}</td>
             <td class="status">
-                {% if event.borrow %}{{ event.borrow.status }}
+                {% if event.borrow %}Borrowed {# {{ event.borrow.status }} #}
                 {% elif event.purchase %}Purchased{% endif %}
             </td>
             <td class="start" data-sort="{{ event.start_date|date:"Ymd" }}">
