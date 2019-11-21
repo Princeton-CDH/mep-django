@@ -1,3 +1,4 @@
+from collections import defaultdict
 import logging
 
 from django.apps import apps
@@ -9,7 +10,6 @@ from djiffy.models import Canvas, Manifest
 from parasolr.django.indexing import ModelIndexable
 
 from mep.common.models import Named, Notable
-from mep.accounts.partial_date import DatePrecision
 
 
 logger = logging.getLogger(__name__)
@@ -298,18 +298,34 @@ class FootnoteQuerySet(models.QuerySet):
 
         # use get model to avoid circular import
         Event = apps.get_model('accounts', 'Event')
+        # get a list of the event content types we care about
         event_content_types = ContentType.objects.filter(
             app_label='accounts',
             model__in=['Event', 'Borrow', 'Purchase'])
+        # lookup dict: content type pk and model name
+        ctype_lookup = {ctype.pk: ctype.name for ctype in event_content_types}
 
-        # get a list of event ids from the current footnote queryset
-        # NOTE: relying on multi-table inheritance giving event instances
-        # the same pk for event and subclass; is that reliable?
-        event_ids = self.filter(content_type__in=event_content_types) \
-                        .values_list('object_id', flat=True)
+        # get event ids and content types from the current footnote queryset
+        event_refs = self.filter(content_type__in=event_content_types) \
+                         .values('object_id', 'content_type')
+        # group event ids by content type
+        event_ids_by_type = defaultdict(list)
+        for ref in event_refs:
+            event_ids_by_type[ref['content_type']].append(ref['object_id'])
+
+        # construct an OR filter query for each content type and list of ids
+        filter_q = models.Q()
+        for ctype, pk_list in event_ids_by_type.items():
+            if ctype_lookup[ctype] == 'borrow':
+                filter_q |= models.Q(borrow__pk__in=pk_list)
+            elif ctype_lookup[ctype] == 'purchase':
+                filter_q |= models.Q(purchase__pk__in=pk_list)
+            elif ctype_lookup[ctype] == 'event':
+                filter_q |= models.Q(pk__in=pk_list)
+
         # find corresponding events, filter out unknown years,
         # and aggregrate dates to get earliest and latest from this set
-        date_values = Event.objects.filter(pk__in=event_ids).known_years() \
+        date_values = Event.objects.filter(filter_q).known_years() \
             .annotate(
                 start_dates=Coalesce('start_date', 'end_date'),
                 end_dates=Coalesce('end_date', 'start_date')) \
