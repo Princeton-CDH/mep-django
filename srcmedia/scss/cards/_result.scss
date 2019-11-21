@@ -1,8 +1,12 @@
 ol.card-results {
-    display: flex;
-    flex-wrap: wrap;
     padding-top: 2.15rem;
     border-top: 1px solid $white-two;
+
+    // on tablet and desktop, three cards per line
+    @media (min-width: $breakpoint-s) {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
 
     .member-cards & {
         border-top: 0;
@@ -30,24 +34,28 @@ ol.card-results {
 
     border-top: 0;
     width: $card-width;
-
-    // on mobile, centered with one card per line
-    margin-right: auto;
-    margin-left: auto;
     margin-bottom: 2.8rem;
 
     // on tablet and desktop, three cards per line
-    @media (min-width: $breakpoint-s) {
-        & {
-            /* space between cards: subtract three cards and divide remainder by 2 */;
-            margin-left: 0;
-            margin-right: calc((100% - (#{$card-width} * 3)) / 2);
+    @media (min-width: $breakpoint-s + 1) {
+        &:nth-child(3n+1) {
+            justify-self: start;
         }
-
+        &:nth-child(3n+2) {
+            justify-self: center;
+        }
         &:nth-child(3n+0) {
-            margin-right: 0;
+            justify-self: end;
         }
     }
+
+    @media (max-width: $breakpoint-s) {
+        // on mobile, centered with one card per line
+        margin-right: auto;
+        margin-left: auto;
+
+    }
+
 
     a:hover {
         border: 0;
@@ -87,6 +95,10 @@ ol.card-results {
     // adjust for individual member card thumbnails
     .member-cards & {
         margin-bottom: 1.75rem;
+
+        span.label {
+            @include sr-only;
+        }
 
         .card-dates {
             // NOTE: picture element is taking up some space so this
