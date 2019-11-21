@@ -30,7 +30,6 @@ class BibliographySignalHandlers:
         # raw = saved as presented; don't query the database
         if raw:
             return
-        print('bibliography person save')
         if not instance.pk:
             return
         # find any cards associated via an account
@@ -314,7 +313,8 @@ class FootnoteQuerySet(models.QuerySet):
             event_ids_by_type[ref['content_type']].append(ref['object_id'])
 
         # construct an OR filter query for each content type and list of ids
-        filter_q = models.Q()
+        # - look for nothing OR for events and event subtypes by id
+        filter_q = models.Q(pk__in=[])
         for ctype, pk_list in event_ids_by_type.items():
             if ctype_lookup[ctype] == 'borrow':
                 filter_q |= models.Q(borrow__pk__in=pk_list)
