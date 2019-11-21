@@ -28,7 +28,7 @@ class DatePrecisionField(models.PositiveSmallIntegerField):
         return self.to_python(value)
 
     def value_to_string(self, obj):
-        '''Customize string value for JSON serialization will'''
+        '''Customize string value for JSON serialization'''
         value = self.value_from_object(obj)
         # return as integer rather than string representation of the flags
         return self.get_prep_value(value)
