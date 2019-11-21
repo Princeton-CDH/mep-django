@@ -146,8 +146,10 @@ class TestFootnoteQuerySet(TestCase):
         evt = Event.objects.known_years() \
                    .filter(start_date__isnull=False, end_date__isnull=False) \
                    .first()
-        assert Footnote.objects.filter(object_id=evt.id).event_date_range() \
-            == (evt.start_date, evt.end_date)
+        footnote_dates = Footnote.objects.filter(object_id=evt.id) \
+                                 .event_date_range()
+        assert footnote_dates[0] == evt.start_date
+        assert footnote_dates[1] == evt.end_date
 
         # full date range should be min/max of all events from the account
         acct = Account.objects.first()  # currently only g. stein in fixture
