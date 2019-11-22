@@ -29,6 +29,7 @@
 </nav>
 
 <section class="member-cards">
+    {% if  cards %}
     <ol class="card-results">
     {% for card in cards %}
     <li class="card result">
@@ -51,10 +52,11 @@
                 {% endwith %}
         {# </a> #}
     </li>
-    {% empty %}
-    <li>No cards available.</li>
     {% endfor %}
     </ol>
+    {% else %}
+    <div>No cards available.</div>
+    {% endif %}
 
 </section>
 {% endblock %}
