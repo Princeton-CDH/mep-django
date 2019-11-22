@@ -15,6 +15,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormMixin, FormView
+from djiffy.models import Canvas
 
 from mep.accounts.models import Address, Event
 from mep.common import SCHEMA_ORG
@@ -361,9 +362,48 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         return [
             ('Home', absolutize_url('/')),
             (MembersList.page_title, MembersList().get_absolute_url()),
-            (self.member.short_name, self.member.get_absolute_url()),
+            (self.member.short_name,
+             absolutize_url(self.member.get_absolute_url())),
             ('Membership Activities', self.get_absolute_url())
         ]
+
+
+class MemberCardList(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
+    '''Card thumbnails for lending card associated with a single library
+    member.'''
+    model = Canvas
+    template_name = 'people/member_cardlist.html'
+    context_object_name = 'cards'
+
+    def get_queryset(self):
+        # find the associated member; 404 if not found or not a library member
+        self.member = get_object_or_404(Person.objects.library_members(),
+                                        slug=self.kwargs['slug'])
+        # find all canvas objects for this person, via manifest
+        # associated with lending card bibliography
+        return super().get_queryset() \
+                      .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
+                      .order_by('order')
+
+    def get_absolute_url(self):
+        '''Full URI for member card list page.'''
+        return absolutize_url(reverse('people:member-cardlist',
+                                      kwargs=self.kwargs))
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            (MembersList.page_title, MembersList().get_absolute_url()),
+            (self.member.short_name,
+             absolutize_url(self.member.get_absolute_url())),
+            ('Cards', self.get_absolute_url())
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['member'] = self.member
+        return context
 
 
 class MembershipGraphs(LoginRequiredOr404Mixin, TemplateView):

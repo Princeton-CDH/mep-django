@@ -1,4 +1,5 @@
 import datetime
+from unittest.mock import patch
 
 from django.core.validators import ValidationError
 from django.db import models
@@ -26,6 +27,25 @@ class TestPartialDateField(TestCase):
                           DatePrecision)
         # handle None
         assert dpf.from_db_value(None, None, None, None) is None
+
+    def test_value_to_string(self):
+        class Imprecise:
+            date_precision = DatePrecisionField()
+
+        imp = Imprecise()
+        # couldn't figure out how to set the field descriptor properly
+        # on a test model, so just mock value_from_object
+        with patch.object(imp.date_precision,
+                          'value_from_object') as mock_value_from_object:
+            # null
+            mock_value_from_object.return_value = None
+            assert Imprecise.date_precision.value_to_string(imp) is None
+
+            # value set
+            yearmonth = DatePrecision.year | DatePrecision.month
+            mock_value_from_object.return_value = yearmonth
+            assert Imprecise.date_precision.value_to_string(imp) == \
+                int(yearmonth)
 
 
 class TestPartialDate(TestCase):

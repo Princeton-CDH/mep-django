@@ -1,8 +1,11 @@
+from collections import defaultdict
 import logging
 
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models.functions import Coalesce
 from djiffy.models import Canvas, Manifest
 from parasolr.django.indexing import ModelIndexable
 
@@ -270,6 +273,54 @@ class Bibliography(Notable, ModelIndexable):
         return index_data
 
 
+class FootnoteQuerySet(models.QuerySet):
+    '''Custom :class:`models.QuerySet` for :class:`Footnote`'''
+
+    def event_date_range(self):
+        '''Find earliest and latest dates for any events associated
+        with footnotes in this queryset. Returns a tuple of earliest
+        and latest dates, or None if no dates are found.'''
+
+        # use get model to avoid circular import
+        Event = apps.get_model('accounts', 'Event')
+        # get a list of the event content types we care about
+        event_content_types = ContentType.objects.filter(
+            app_label='accounts',
+            model__in=['event', 'borrow', 'purchase'])
+        # lookup dict: content type pk and model name
+        ctype_lookup = {ctype.pk: ctype.name for ctype in event_content_types}
+
+        # get event ids and content types from the current footnote queryset
+        event_refs = self.filter(content_type__in=event_content_types) \
+                         .values('object_id', 'content_type')
+        # group event ids by content type
+        event_ids_by_type = defaultdict(list)
+        for ref in event_refs:
+            event_ids_by_type[ref['content_type']].append(ref['object_id'])
+        # construct an OR filter query for each content type and list of ids
+        # - look for nothing OR for events and event subtypes by id
+        filter_q = models.Q(pk__in=[])
+        for ctype, pk_list in event_ids_by_type.items():
+            if ctype_lookup[ctype] == 'borrow':
+                filter_q |= models.Q(borrow__pk__in=pk_list)
+            elif ctype_lookup[ctype] == 'purchase':
+                filter_q |= models.Q(purchase__pk__in=pk_list)
+            elif ctype_lookup[ctype] == 'event':
+                filter_q |= models.Q(pk__in=pk_list)
+
+        # find corresponding events, filter out unknown years,
+        # and aggregrate dates to get earliest and latest from this set
+        date_values = Event.objects.filter(filter_q).known_years() \
+            .annotate(
+                start_dates=Coalesce('start_date', 'end_date'),
+                end_dates=Coalesce('end_date', 'start_date')) \
+            .aggregate(first=models.Min('start_dates'),
+                       last=models.Max('end_dates'))
+        # return earliest and latest dates, unless result is None
+        if date_values['first']:
+            return date_values['first'], date_values['last']
+
+
 class Footnote(Notable):
     '''Footnote that can be associated with any other model via
     generic relationship.  Used to provide supporting documentation
@@ -305,6 +356,9 @@ class Footnote(Notable):
     image = models.ForeignKey(
         Canvas, blank=True, null=True,
         help_text='''Image location from an imported manifest, if available.''')
+
+    # override default manager with customized version
+    objects = FootnoteQuerySet.as_manager()
 
     def __str__(self):
         return 'Footnote on %s (%s)' % (self.content_object,

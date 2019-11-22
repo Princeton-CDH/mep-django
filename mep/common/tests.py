@@ -15,13 +15,14 @@ from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
 from django.views.generic.list import ListView
+from piffle.iiif import IIIFImageClient
 
 from mep.common import SCHEMA_ORG
 from mep.common.admin import LocalUserAdmin
 from mep.common.forms import CheckboxFieldset, FacetChoiceField, FacetForm, \
     RangeField, RangeWidget
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
-from mep.common.templatetags.mep_tags import dict_item, domain
+from mep.common.templatetags.mep_tags import dict_item, domain, iiif_image
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
 from mep.common import views
@@ -355,6 +356,20 @@ class TestTemplateTags(TestCase):
         assert domain('oops') is None
         assert domain(2) is None
         assert domain(None) is None
+
+    def test_iiif_image(self):
+        myimg = IIIFImageClient('http://image.server/path/', 'myimgid')
+        # check expected behavior
+        assert str(iiif_image(myimg, 'size:width=250')) == \
+            str(myimg.size(width=250))
+        assert str(iiif_image(myimg, 'size:width=250,height=300')) == \
+            str(myimg.size(width=250, height=300))
+        assert str(iiif_image(myimg, 'format:png')) == str(myimg.format('png'))
+
+        # check that errors don't raise exceptions
+        assert iiif_image(myimg, 'bogus') == ''
+        assert iiif_image(myimg, 'size:bogus') == ''
+        assert iiif_image(myimg, 'size:bogus=1') == ''
 
 
 class TestCheckboxFieldset(TestCase):
