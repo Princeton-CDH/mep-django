@@ -28,9 +28,7 @@ class BibliographySignalHandlers:
     @staticmethod
     def person_save(sender=None, instance=None, raw=False, **kwargs):
         # raw = saved as presented; don't query the database
-        if raw:
-            return
-        if not instance.pk:
+        if raw or not instance.pk:
             return
         # find any cards associated via an account
         cards = Bibliography.objects.filter(account__persons__pk=instance.pk)
@@ -300,7 +298,7 @@ class FootnoteQuerySet(models.QuerySet):
         # get a list of the event content types we care about
         event_content_types = ContentType.objects.filter(
             app_label='accounts',
-            model__in=['Event', 'Borrow', 'Purchase'])
+            model__in=['event', 'borrow', 'purchase'])
         # lookup dict: content type pk and model name
         ctype_lookup = {ctype.pk: ctype.name for ctype in event_content_types}
 
@@ -311,7 +309,6 @@ class FootnoteQuerySet(models.QuerySet):
         event_ids_by_type = defaultdict(list)
         for ref in event_refs:
             event_ids_by_type[ref['content_type']].append(ref['object_id'])
-
         # construct an OR filter query for each content type and list of ids
         # - look for nothing OR for events and event subtypes by id
         filter_q = models.Q(pk__in=[])

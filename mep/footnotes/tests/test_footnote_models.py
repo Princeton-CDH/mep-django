@@ -144,7 +144,8 @@ class TestFootnoteQuerySet(TestCase):
 
         # get a known date from the fixture with start and end date fully known
         evt = Borrow.objects.get(pk=26344)
-        footnote_dates = evt.event_footnotes.event_date_range()
+        footnote_dates = evt.footnotes.all().event_date_range()
+
         # should not be null
         assert footnote_dates
         assert footnote_dates[0] == evt.start_date
