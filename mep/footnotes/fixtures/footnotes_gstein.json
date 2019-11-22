@@ -380,7 +380,10 @@
         "bibliography": 468,
         "location": "https://figgy.princeton.edu/concern/scanned_resources/8493520c-be69-47f1-b159-262f4b8c0e04/manifest/canvas/9242203d-d33e-416a-8658-59ec52b46736",
         "snippet_text": "",
-        "content_type": 2,
+         "content_type": [
+            "accounts",
+            "borrow"
+        ],
         "object_id": 32559,
         "is_agree": true,
         "image": 1191
@@ -394,7 +397,10 @@
         "bibliography": 420,
         "location": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/9d839618-9d3e-4e8e-9d6c-28b46d337b11",
         "snippet_text": "",
-        "content_type": 3,
+        "content_type": [
+            "accounts",
+            "borrow"
+        ],
         "object_id": 26346,
         "is_agree": true,
         "image": 1411
@@ -408,7 +414,10 @@
         "bibliography": 420,
         "location": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/d3182e87-bc20-44f9-a92b-ff978de18d37",
         "snippet_text": "",
-        "content_type": 3,
+         "content_type": [
+            "accounts",
+            "borrow"
+        ],
         "object_id": 26344,
         "is_agree": true,
         "image": 1409
@@ -422,7 +431,10 @@
         "bibliography": 420,
         "location": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/68fd36f1-a463-441e-9f13-dfc4a6cd4114",
         "snippet_text": "",
-        "content_type": 3,
+         "content_type": [
+            "accounts",
+            "borrow"
+        ],
         "object_id": 26318,
         "is_agree": true,
         "image": 1408
@@ -436,7 +448,10 @@
         "bibliography": 420,
         "location": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/31f9c24e-6f97-4149-afb2-e9d2f7ba6cbe",
         "snippet_text": "",
-        "content_type": 3,
+         "content_type": [
+            "accounts",
+            "borrow"
+        ],
         "object_id": 26301,
         "is_agree": true,
         "image": 1407
@@ -450,7 +465,10 @@
         "bibliography": 420,
         "location": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/31f9c24e-6f97-4149-afb2-e9d2f7ba6cbe",
         "snippet_text": "",
-        "content_type": 3,
+         "content_type": [
+            "accounts",
+            "borrow"
+        ],
         "object_id": 26296,
         "is_agree": true,
         "image": 1407
