@@ -159,6 +159,26 @@ class TestFootnoteQuerySet(TestCase):
         assert footnote_dates[0] == event_dates[0]
         assert footnote_dates[1] == event_dates[-1]
 
+        # add new purchase and generic events with footnotes
+        generic_event = Event.objects.create(
+            account=evt.account, start_date=date(1919, 11, 17))
+        evt_ctype = ContentType.objects.get_for_model(Event)
+        bib = evt.footnotes.first().bibliography
+        Footnote.objects.create(object_id=generic_event.pk,
+                                content_type=evt_ctype, bibliography=bib)
+        footnote_dates = Footnote.objects.filter(**gstein_filter) \
+            .event_date_range()
+        assert footnote_dates[0] == generic_event.start_date
+
+        purchase_evt = Purchase.objects.create(
+            account=evt.account, start_date=date(1962, 3, 5))
+        evt_ctype = ContentType.objects.get_for_model(Purchase)
+        Footnote.objects.create(object_id=purchase_evt.pk,
+                                content_type=evt_ctype, bibliography=bib)
+        footnote_dates = Footnote.objects.filter(**gstein_filter) \
+            .event_date_range()
+        assert footnote_dates[1] == purchase_evt.start_date
+
 
 class TestBibliographyAdmin:
 
