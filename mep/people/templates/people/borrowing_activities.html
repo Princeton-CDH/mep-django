@@ -2,7 +2,7 @@
 {% load render_bundle from webpack_loader %}
 {% load static %}
 
-{% block page-subtitle %}{{ member.firstname_last }} Membership Activity · Library Members · {% endblock %}
+{% block page-subtitle %}{{ member.firstname_last }} Borrowing Activity · Library Members · {% endblock %}
 
 {% block js %}
 {% render_bundle 'activities' 'js' %}
@@ -66,25 +66,25 @@
                 <th>Title</th>
                 <th>Author</th>
                 <th>Publication Date</th>
-                <th>Status</th>
+                <th>Type</th>
                 <th data-sort-default>Start Date</th>
                 <th>End Date</th>
             </tr>
         </thead>
         {% for event in event_list %}
         <tr>
-            <td class="title">{{ event.work.title }}</td>
-            <td class="author">{{ event.work.author_list }}</td>
-            <td class="pubdate">{{ event.work.year }}</td>
-            <td class="status">
-                {% if event.borrow %}Borrowed {# {{ event.borrow.status }} #}
-                {% elif event.purchase %}Purchased{% endif %}
+            <td class="title">{{ event.work.title|default:'-' }}</td>
+            <td class="author">{{ event.work.author_list|default:'-' }}</td>
+            <td class="pubdate">{{ event.work.year|default:'-' }}</td>
+            <td class="type">
+                {% if event.event_type == 'Generic' %} -
+                {% else %}{{ event.event_type }}{% endif %}
             </td>
-            <td class="start" data-sort="{{ event.start_date|date:"Ymd" }}">
-                {{ event.start_date|default:'-' }}
+            <td class="start" data-sort="{{ event.partial_start_date|default:'' }}">
+                {{ event.partial_start_date|ap_format|default:'-' }}
             </td>
-            <td class="end" data-sort="{{ event.end_date|date:"Ymd" }}">
-                {{ event.end_date|default:'-' }}
+            <td class="end" data-sort="{{ event.partial_end_date|default:'' }}">
+                {{ event.partial_end_date|ap_format|default:'-' }}
             </td>
         </tr>
         {% endfor %}
