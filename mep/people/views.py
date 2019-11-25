@@ -402,7 +402,8 @@ class BorrowingActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         return [
             ('Home', absolutize_url('/')),
             (MembersList.page_title, MembersList().get_absolute_url()),
-            (self.member.short_name, self.member.get_absolute_url()),
+            (self.member.short_name,
+                absolutize_url(self.member.get_absolute_url())),
             ('Borrowing', self.get_absolute_url())
         ]
 
