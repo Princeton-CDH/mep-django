@@ -1,54 +1,69 @@
 // list of sub-pages that displays on landing pages: about, sources, analysis
 // name of landing page will be added as a class in template to control styling
 
+$subpages-gutter: 4px;
+
 .subpages {
     position: relative;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
 
+    > * {
+        box-sizing: border-box;
+    }
+
+    // used only on desktop for masonry
+    .grid-sizer,
+    .gutter-sizer {
+        display: none;
+        flex: none;
+    }
+
     // don't display publication date by default
     time {
         display: none;
     }
 
-    @media (min-width: $breakpoint-m) {
-        width: $breakpoint-m;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-gap: 0.2rem;
-        padding-left: calc((100vw - #{$breakpoint-m}) / 2);
-        padding-right: calc((100vw - #{$breakpoint-m}) / 2);
-    }
-}
-
-// essay landing page subtype, subpages are essays
-// used for analysis
-.essays.subpages {
-
-    // display publication date
-    time {
-        display: inline;
-    }
-
-    // masonry layout on desktop
+    // layout is managed by masonry js on desktop
     @media (min-width: $breakpoint-m) {
         display: block;
-        column-count: 2;
-        column-gap: 0.2rem;
+        width: $breakpoint-m;
+        margin: 0 auto;
 
-        > .preview {
-            margin-top: 0.2rem;
-            display: inline-block;
+        .grid-sizer,
+        .gutter-sizer {
+            display: block;
+        }
+
+        .grid-sizer {
+            width: calc(50% - #{$subpages-gutter} / 2);
+        }
+
+        .gutter-sizer {
+            width: $subpages-gutter;
+        }
+
+        .preview {
+            width: calc(50% - #{$subpages-gutter} / 2);
+            margin-bottom: $subpages-gutter;
         }
     }
-}
 
-// about landing page
-.about.subpages {
+    // essay landing page subtype, subpages are essays
+    // used for analysis
+    &.essays {
+        // display publication date
+        time {
+            display: inline;
+        }
+    }
 
-    // hide descriptions
-    .preview p {
-        display: none;
+    // about landing page
+    &.about {
+        // hide descriptions
+        .preview p {
+            display: none;
+        }
     }
 }

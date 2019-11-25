@@ -23,8 +23,8 @@
     <li class="tab" aria-selected="true">
         <a href="{% url 'people:membership-activities' slug=member.slug %}">activities</a>
     </li>
-    <li class="tab pending">
-        <span>cards</span>
+    <li class="tab">
+        <a href="{% url 'people:member-cardlist' slug=member.slug %}">cards</a>
     </li>
 </nav>
 
@@ -64,7 +64,7 @@
         <thead>
             <tr>
                 <th>Type</th>
-                <th aria-describedby="category-tip">Category
+                <th aria-describedby="category-tip" data-sort-method="none">Category
                     <span id="category-tip" role="tooltip" class="question"
                         aria-label="{{ category_tooltip }}" tabindex=0
                         onclick="event.preventDefault()"/>

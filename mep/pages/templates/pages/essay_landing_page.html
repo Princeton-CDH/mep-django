@@ -13,6 +13,8 @@ published EssayPage children ordered by first pubdate
     {% include 'pages/snippets/body.html' %}
 </div>
 <section class="subpages essays {{ page.title|lower }}" aria-label="essays">
+    <div class="grid-sizer"></div>
+    <div class="gutter-sizer"></div>
     {% for essay in essays %}
     {% include 'pages/snippets/preview.html' with page=essay meta=1 %}
     {% endfor %}

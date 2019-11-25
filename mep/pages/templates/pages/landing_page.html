@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
 
 {% block page-subtitle %}{% firstof page.seo_title page.title %} · {% endblock %}
 
+{% block js %}
+{% render_bundle 'landing' %}
+{% endblock %}
 
 {% block header %}
 {% include 'snippets/header.html' with title=page.title style=page.title|lower|add:' banner' %}
@@ -16,6 +20,8 @@
     {% include 'pages/snippets/body.html' %}
 </div>
 <section class="subpages {{ page.title|lower }}" aria-label="sub pages">
+    <div class="grid-sizer"></div>
+    <div class="gutter-sizer"></div>
     {% for subpage in page.get_children.live %}
     {% include 'pages/snippets/preview.html' with page=subpage meta=True %}
     {% endfor %}

@@ -5,13 +5,13 @@
 
     // show the "has card" icon if present
     .card.icon {
-        width: 1.5rem;
         position: absolute;
-        bottom: 2rem;
-        left: 1.5rem;
         transition: opacity 0.5s;
+        width: 1rem;
+        top: 2.5rem;
 
         @media (min-width: $breakpoint-s) {
+            width: 1.5rem;
             left: -2.5rem;
             top: 0;
         }

@@ -13,19 +13,21 @@ from django.http import Http404, JsonResponse
 from django.template.defaultfilters import date as format_date
 from django.test import RequestFactory, TestCase
 from django.urls import resolve, reverse
+from djiffy.models import Canvas
 
 from mep.accounts.models import (Account, Address, Event, Reimbursement,
                                  Subscription, SubscriptionType)
 from mep.books.models import Creator, CreatorType, Work
 from mep.common.utils import absolutize_url, login_temporarily_required
-from mep.footnotes.models import Bibliography, SourceType
+from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import (Country, Location, Person, Relationship,
                                RelationshipType)
 from mep.people.views import (GeoNamesLookup, MembershipActivities,
-                              MembershipGraphs, MembersList, PersonMerge)
+                              MembershipGraphs, MembersList, PersonMerge,
+                              MemberCardList)
 
 
 class TestPeopleViews(TestCase):
@@ -1094,7 +1096,7 @@ class TestMembershipActivities(TestCase):
         assert crumbs[-1][1] == self.view.get_absolute_url()
         # second to last is member page
         assert crumbs[-2][0] == self.member.short_name
-        assert crumbs[-2][1] == self.member.get_absolute_url()
+        assert crumbs[-2][1] == absolutize_url(self.member.get_absolute_url())
 
     @login_temporarily_required
     def test_view_template(self):
@@ -1179,3 +1181,85 @@ class TestMembershipGraphs(TestCase):
             'startDate': '1926-01-01',
             'count': 242
         }
+
+
+class TestMemberCardList(TestCase):
+    fixtures = ['footnotes_gstein', 'sample_people']
+
+    def test_get_queryset(self):
+        view = MemberCardList()
+        # invalid slug should result in a 404
+        view.kwargs = {'slug': 'bogus'}
+        with pytest.raises(Http404):
+            view.get_queryset()
+
+        view.kwargs = {'slug': 'stein-gertrude'}
+        canvas_ids = list(view.get_queryset().values_list('pk', flat=True))
+        # member should be stored on the view
+        assert view.member == Person.objects.get(slug='stein-gertrude')
+        # queryset should be canvas ids for footnotes associated with Stein
+        assert canvas_ids == list(Footnote.objects.filter(
+            bibliography__bibliographic_note__contains='Gertrude Stein'
+        ).values_list('image__pk', flat=True).distinct())
+
+    def test_get_absolute_url(self):
+        view = MemberCardList()
+        view.kwargs = {'slug': 'stein'}
+        assert view.get_absolute_url() == \
+            absolutize_url(reverse('people:member-cardlist',
+                                   kwargs=view.kwargs))
+
+    def test_get_breadcrumbs(self):
+        view = MemberCardList()
+        view.kwargs = {'slug': 'stein-gertrude'}
+        # get queryset to populate member & object
+        view.get_queryset()
+        crumbs = view.get_breadcrumbs()
+        assert crumbs[0][0] == 'Home'
+        # last item is this page
+        assert crumbs[-1][0] == 'Cards'
+        assert crumbs[-1][1] == view.get_absolute_url()
+        # second to last is member page
+        assert crumbs[-2][0] == view.member.short_name
+        assert crumbs[-2][1] == absolutize_url(view.member.get_absolute_url())
+
+    def test_get_context_data(self):
+        view = MemberCardList()
+        view.kwargs = {'slug': 'stein-gertrude'}
+        view.object_list = view.get_queryset()
+        context = view.get_context_data()
+        assert context['member'] == view.member
+
+    @login_temporarily_required
+    def test_view_template(self):
+        member = Person.objects.get(slug='stein-gertrude')
+        response = self.client.get(reverse('people:member-cardlist',
+                                   kwargs={'slug': 'stein-gertrude'}))
+        self.assertTemplateUsed('people/member_cardlist.html')
+        self.assertTemplateUsed('snippets/breadcrumbs.html')
+        # first name used for page title
+        self.assertContains(response, member.firstname_last)
+        # links to main member page
+        self.assertContains(response, member.get_absolute_url())
+        cards = Canvas.objects.filter(
+            manifest__bibliography__account__persons__slug=member.slug)
+
+        for card in cards:
+            # include iiif images in src (1x twice for img and source)
+            self.assertContains(response, card.image.size(width=225), count=2)
+            self.assertContains(response, card.image.size(width=450), count=1)
+            dates = card.footnote_set.all().event_date_range()
+            if dates:
+                start, end = dates
+                # always show start year if set
+                self.assertContains(response, start.year)
+                # show end year if different
+                if start.year != end.year:
+                    self.assertContains(response, end.year)
+            else:
+                self.assertContains(response, 'Unknown')
+
+        # library member wih no cards
+        response = self.client.get(reverse('people:member-cardlist',
+                                   kwargs={'slug': 'gay'}))
+        self.assertContains(response, 'No cards available')

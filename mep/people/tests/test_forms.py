@@ -123,7 +123,7 @@ class TestMemberForm(TestCase):
         form = MemberSearchForm(data)
         assert form.fields['sort'].widget.choices[0] == form.SORT_CHOICES[0]
         assert form.fields['sort'].widget.choices[1] == \
-            ('name', {'label': 'Name A-Z', 'disabled': True})
+            ('name', {'label': 'Name A - Z', 'disabled': True})
 
         # empty query, relevance disabled
         data['query'] = ''

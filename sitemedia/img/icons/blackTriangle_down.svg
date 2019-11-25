@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14 8" style="enable-background:new 0 0 14 8;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#07AE79;}
+	.st1{fill:#FFFFFF;}
+	.st2{fill-rule:evenodd;clip-rule:evenodd;fill:#0788FC;}
+	.st3{fill-rule:evenodd;clip-rule:evenodd;fill:#737373;}
+	.st4{clip-path:url(#SVGID_2_);fill:#231F20;}
+	.st5{clip-path:url(#SVGID_4_);enable-background:new    ;}
+	.st6{clip-path:url(#SVGID_6_);}
+	.st7{clip-path:url(#SVGID_8_);}
+	.st8{clip-path:url(#SVGID_10_);fill:#231F20;}
+	.st9{clip-path:url(#SVGID_12_);fill:#231F20;}
+	.st10{clip-path:url(#SVGID_14_);enable-background:new    ;}
+	.st11{clip-path:url(#SVGID_16_);}
+	.st12{clip-path:url(#SVGID_18_);}
+	.st13{clip-path:url(#SVGID_20_);fill:#231F20;}
+	.st14{clip-path:url(#SVGID_22_);fill:none;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st15{clip-path:url(#SVGID_24_);}
+	.st16{clip-path:url(#SVGID_26_);}
+	.st17{clip-path:url(#SVGID_28_);fill:#363636;}
+	.st18{fill-rule:evenodd;clip-rule:evenodd;}
+</style>
+<g>
+	<defs>
+		<rect id="SVGID_23_" x="20.38" y="106.09" width="12" height="7"/>
+	</defs>
+	<clipPath id="SVGID_2_">
+		<use xlink:href="#SVGID_23_"  style="overflow:visible;"/>
+	</clipPath>
+	<g style="clip-path:url(#SVGID_2_);">
+		<defs>
+			<polygon id="SVGID_25_" points="31.32,106.09 26.72,110.69 22.12,106.09 21.06,107.15 26.72,112.81 27.78,111.75 32.38,107.15 
+							"/>
+		</defs>
+		<clipPath id="SVGID_4_">
+			<use xlink:href="#SVGID_25_"  style="overflow:visible;"/>
+		</clipPath>
+		<g style="clip-path:url(#SVGID_4_);">
+			<defs>
+				<rect id="SVGID_27_" x="-259.12" y="-541.41" width="320" height="3190"/>
+			</defs>
+			<clipPath id="SVGID_6_">
+				<use xlink:href="#SVGID_27_"  style="overflow:visible;"/>
+			</clipPath>
+		</g>
+	</g>
+</g>
+<polygon class="st18" points="7,8 0,0 14,0 "/>
+</svg>
