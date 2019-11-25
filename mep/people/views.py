@@ -364,7 +364,7 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
             (MembersList.page_title, MembersList().get_absolute_url()),
             (self.member.short_name,
              absolutize_url(self.member.get_absolute_url())),
-            ('Membership Activities', self.get_absolute_url())
+            ('Membership', self.get_absolute_url())
         ]
 
 
