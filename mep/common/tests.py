@@ -1,7 +1,7 @@
 import re
+import uuid
 from collections import OrderedDict
 from unittest.mock import Mock
-import uuid
 
 import pytest
 import rdflib
@@ -17,15 +17,16 @@ from django.urls import reverse
 from django.views.generic.list import ListView
 from piffle.iiif import IIIFImageClient
 
-from mep.common import SCHEMA_ORG
+from mep.accounts.models import Account, Event
+from mep.common import SCHEMA_ORG, views
 from mep.common.admin import LocalUserAdmin
-from mep.common.forms import CheckboxFieldset, FacetChoiceField, FacetForm, \
-    RangeField, RangeWidget
+from mep.common.forms import (CheckboxFieldset, FacetChoiceField, FacetForm,
+                              RangeField, RangeWidget)
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
-from mep.common.templatetags.mep_tags import dict_item, domain, iiif_image
+from mep.common.templatetags.mep_tags import (ap_format, dict_item, domain,
+                                              iiif_image)
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
-from mep.common import views
 
 
 class TestNamed(TestCase):
@@ -370,6 +371,27 @@ class TestTemplateTags(TestCase):
         assert iiif_image(myimg, 'bogus') == ''
         assert iiif_image(myimg, 'size:bogus') == ''
         assert iiif_image(myimg, 'size:bogus=1') == ''
+
+
+    def test_ap_format(self):
+        # None should return None
+        assert ap_format(None) is None
+        # empty date w/ unset precision should return None
+        acct = Account.objects.create()
+        evt = Event.objects.create(account=acct)
+        assert ap_format(evt.partial_start_date) is None
+        # year only
+        evt.partial_start_date = '1934'
+        assert ap_format(evt.partial_start_date) == '1934'
+        # year and month
+        evt.partial_start_date = '1934-01'
+        assert ap_format(evt.partial_start_date) == 'Jan. 1934'
+        # month and day
+        evt.partial_start_date = '--01-06'
+        assert ap_format(evt.partial_start_date) == 'Jan. 6'
+        # full precision
+        evt.partial_start_date = '1934-01-06'
+        assert ap_format(evt.partial_start_date) == 'Jan. 6, 1934'
 
 
 class TestCheckboxFieldset(TestCase):

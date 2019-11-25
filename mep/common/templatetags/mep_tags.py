@@ -2,7 +2,11 @@ import json
 from urllib.parse import urlparse
 
 from django.template.defaulttags import mark_safe, register
+from django.template.defaultfilters import date
 from piffle.iiif import IIIFImageClientException
+
+from mep.accounts.models import Event
+from mep.accounts.partial_date import DatePrecision
 
 
 @register.filter
@@ -65,3 +69,43 @@ def iiif_image(img, args):
     except (IIIFImageClientException, TypeError):
         # return an empty string if anything goes wrong
         return ''
+
+
+@register.filter
+def ap_format(partial_date):
+    '''Formats a partial date using the AP style for abbreviated month and
+    showing only the available parts of the date, e.g. "Jan. 1934".'''
+    # Return None if passed to preserve filter chaining
+    if partial_date is None:
+        return None
+
+    # NOTE logic adapted from PartialDate.date_format
+
+    # get the datetime and precision from the partial
+    (dt, precision) = Event.partial_start_date.parse_date(str(partial_date))
+
+    parts = []
+    # Handle None as indicating full date precision
+    if precision is None:
+        parts = ['N ', 'j, ', 'Y']
+
+    # cast integer to date precision to check flags
+    precision = DatePrecision(precision)
+
+    # If the date was not set, this value will be defaulted to no flags,
+    # which is a boolean falsy, i.e. 0., so return no date.
+    if not precision:
+        return None
+
+    # if values are missing, don't use them at all
+    if precision.month:
+        parts.append('N ')
+    if precision.day and precision.year:
+        parts.append('j, Y')
+    elif precision.day:
+        parts.append('j')
+    elif precision.year:
+        parts.append('Y')
+
+    # format the date value using the generated string
+    return date(dt, ''.join(parts))
