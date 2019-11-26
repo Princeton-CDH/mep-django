@@ -387,7 +387,7 @@ class MemberCardList(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
 
     def get_absolute_url(self):
         '''Full URI for member card list page.'''
-        return absolutize_url(reverse('people:member-cardlist',
+        return absolutize_url(reverse('people:member-card-list',
                                       kwargs=self.kwargs))
 
     def get_breadcrumbs(self):
@@ -403,6 +403,70 @@ class MemberCardList(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['member'] = self.member
+        return context
+
+
+class MemberCardDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
+    '''Card image viewer for image of a single lending card page
+    associated with a single library member.'''
+    model = Canvas
+    template_name = 'people/member_card_detail.html'
+    context_object_name = 'card'
+
+    def get_object(self):
+        # find the associated member; 404 if not found or not a library member
+        self.member = get_object_or_404(Person.objects.library_members(),
+                                        slug=self.kwargs['slug'])
+        # find requested canvas objects for this person, via manifest
+        # associated with lending card bibliography
+        filters = {
+            'short_id': self.kwargs['short_id'],
+            'manifest__bibliography__account__persons__slug':
+            self.kwargs['slug']
+        }
+        # return super().get_queryset().filter(**filters)
+        card = get_object_or_404(Canvas.objects.all(), **filters)
+        # use card dates for label
+        card_dates = card.footnote_set.event_date_range()
+        label = 'Unknown'
+        if card_dates:
+            label = card_dates[0].year
+            if card_dates[1].year != card_dates[0].year:
+                label = '%s – %s' % (label, card_dates[1].year)
+
+        self.label = label
+        return card
+
+    def get_absolute_url(self):
+        '''Full URI for member card list page.'''
+        return absolutize_url(reverse('people:member-card-detail',
+                                      kwargs=self.kwargs))
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            (MembersList.page_title, MembersList().get_absolute_url()),
+            (self.member.short_name,
+             absolutize_url(self.member.get_absolute_url())),
+            ('Cards', absolutize_url(reverse('people:member-card-list',
+                                     kwargs={'slug': self.member.slug}))),
+            (self.label, self.get_absolute_url())
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # use order within manifest to get next/prev links
+        sibling_cards = self.object.manifest.canvases
+        next_card = sibling_cards.filter(order=self.object.order + 1).first()
+        prev_card = sibling_cards.filter(order=self.object.order - 1).first()
+        context.update({
+            'member': self.member,
+            'label': self.label,
+            'events': self.object.footnote_set.events(),
+            'next_card': next_card,
+            'prev_card': prev_card
+        })
         return context
 
 

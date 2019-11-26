@@ -1,0 +1,106 @@
+.card-image-viewer {
+
+    .viewer {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 1.3rem;
+        padding-bottom: 2.25rem;
+        background: $white;
+
+        picture {
+            text-align: center;
+            min-width: 21.5rem;
+            min-height: 30.5rem;
+        }
+
+        a > span {
+            @include sr-only;
+        }
+
+        a {
+            border-bottom: 0;
+            position: relative;
+            flex-grow: 1;
+            display: block;
+
+
+            &::before {
+                content: " ";
+                background-image: url('/static/img/icons/blackChevron_down.svg');
+                background-repeat: no-repeat;
+                background-size: contain;
+                /* swap height and width since it will be rotated */
+                height: 0.7rem;
+                width: 1.35rem;
+                position: absolute;
+                // background-position: 88% 50%;
+                // height: 100%;
+                display: block;
+                top: 50%;
+            }
+
+            &[aria-hidden] {
+                pointer-events: none;
+                cursor: default;
+                color: #cccccc;
+
+                &:before {
+                    /* use opacity to make black image match #ccccc */
+                    opacity: 0.2;
+                }
+            }
+
+        }
+
+        a[rel=next] {
+            text-align: left;
+            &::before {
+                transform: rotate(-90deg);
+                left: 12%;
+            }
+        }
+        a[rel=prev] {
+            text-align: right;
+            &::before {
+                right: 12%;
+                transform: rotate(90deg);
+            }
+        }
+
+    }
+
+    table {
+        @include container;
+
+        table-layout: fixed;
+        margin-bottom: 2rem;
+    }
+    th {
+        font-size: 0.7rem;
+    }
+
+    th, td {
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+    }
+    /* set column widths based on zeplin (use percentages instead?)
+    /* start and end dates */
+    th.date  {
+        width: 5.35rem;
+        // desktop: 107 for start; 107 for end
+        // 102px on tablet for end; 106 for start
+        @media (max-width: $breakpoint-m) {
+            width: 5rem;
+        }
+    }
+    th.title {
+        width: 11.45rem; // 229 on tablet, desktop
+    }
+    th.type {
+        width: 6.75rem;
+        // 137 on tablet, 136 on desktop 
+    }
+
+
+}
+

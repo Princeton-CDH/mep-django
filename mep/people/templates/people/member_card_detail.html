@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+{% load static mep_tags %}
+
+{% block page-subtitle %}{{ member.firstname_last }} {{ label }} Card · Library Members · {% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title=member.firstname_last style="detail" %}
+{% endblock %}
+
+{% block main-style %}white{% endblock %}
+
+{% block content %}
+{% include 'snippets/breadcrumbs.html' %}
+
+<section class="card-image-viewer">
+    <div class="viewer">
+    <a rel="prev" {% if prev_card %}href="{% url 'people:member-card-detail' member.slug prev_card.short_id %}"{% else %} aria-hidden{% endif %}>
+        <span>Previous</span></a>
+    <picture>
+      {% with card.image|iiif_image:"size:width=430" as 1xthumbnail %}
+        <source srcset="{{ 1xthumbnail }}, {{ card.image|iiif_image:"size:width=860" }} 2x">
+        <img src="{{ 1xthumbnail }}" alt="">
+      {% endwith %}
+    </picture>
+
+    <a rel="next" {% if next_card %}href="{% url 'people:member-card-detail' member.slug next_card.short_id %}"{% else %}aria-hidden{% endif %}>
+            <span>Next</span></a>
+    </div>
+
+    {% if events %}
+    <table>
+        <thead>
+            <tr>
+                <th class="date">Start Date</th>
+                <th class="title">Title</th>
+                <th class="type">Type</th>
+                <th class="date">End Date</th>
+            </tr>
+        </thead>
+        {% for event in events %}
+        <tr>
+            <td>{{ event.partial_start_date|default:'-' }}</td>
+            <td>{{ event.work.title|default:'-' }}</td>
+            <td>{{ event.event_type }}</td>
+            <td>{{ event.partial_end_date|default:'-' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+</section>
+{% endblock %}

@@ -15,8 +15,9 @@ urlpatterns = [
     url(r'^members/(?P<slug>[\w-]+)/activities/$',
         views.MembershipActivities.as_view(), name='membership-activities'),
     url(r'^members/(?P<slug>[\w-]+)/cards/$',
-        views.MemberCardList.as_view(), name='member-cardlist'),
-
+        views.MemberCardList.as_view(), name='member-card-list'),
+    url(r'^members/(?P<slug>[\w-]+)/cards/(?P<short_id>[\w-]+)/$',
+        views.MemberCardDetail.as_view(), name='member-card-detail'),
     # admin urls
     url(r'^places/geonames/$', views.GeoNamesLookup.as_view(),
         name='geonames-lookup'),
