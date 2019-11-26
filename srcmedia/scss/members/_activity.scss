@@ -1,45 +1,34 @@
 .activities {
-    /* on tablet, table area is scrollable horizontally */
-    @media (min-width: $breakpoint-s) and (max-width: calc(#{$breakpoint-m} - 1px)) {
-        overflow: auto;
-
-        .wrapper {
-            width: $breakpoint-m;
-        }
-
-        th:first-child {
-            width: 10rem;
-            padding-left: 1rem;
-            left: 0;
-            z-index: 11;
-            box-shadow: 5px 0 5px 0 rgba(0, 0, 0, 0.19);
-        }
-
-        th:last-child,
-        tr td:last-child {
-            padding-right: 1rem;
-        }
-
-        tr td:first-child {
-            position: absolute;
-            margin-top: -36px;
-            background: white;
-            padding: 1rem;
-            border-top: solid 0.1rem $transparent;
-            width: 10rem;
-            box-shadow: 5px 0 5px 0 rgba(0, 0, 0, 0.19);
-        }
-
-        tr:first-child td {
-            border-top-width: 0;
-        }
-
-        tr:last-child td:first-child {
-            border-bottom: 0;
-        }
+    /* mobile styles: table rows are expandable cards, no headers */
+    table {
+        width: 100%;
     }
 
-    /* fixed width with padding on desktop */
+    thead {
+        display: none;
+    }
+
+    tr {
+        padding: 1rem 0.75rem;
+        border-bottom: solid 0.05rem $light-grey;
+        display: flex; /* mimics inline-block but allows reordering */
+        flex-wrap: wrap;
+        position: relative;
+    }
+
+    td {
+        width: 100%;
+        font-family: $sans;
+        font-size: 0.7rem;
+    }
+
+    .empty {
+        display: none;
+    }
+
+    /* tablet styles: scrollable table with fixed left column */
+
+    /* desktop styles: full-width table */
     @media (min-width: $breakpoint-m) {
         @include padding-container;
 
@@ -47,285 +36,127 @@
             width: 100%;
         }
     }
+}
 
-    /* form controls are mobile only */
-    form {
-        display: none;
+.borrowing {
 
-        @media (max-width: calc(#{$breakpoint-s} - 1px)) {
-            display: block;
-        }
+    .start, /* combined into one line by changing width values */
+    .end {
+        flex: none;
+        width: auto;
     }
 
-    // "category" tooltip
-    #category-tip {
-        font-weight: normal;
-        vertical-align: bottom;
-        min-height: 1.35rem;
+    .start:not(.empty) + .end {
+        padding-left: 3px;
 
         &::before {
-            right: 1.55rem;
-            top: .7rem;
-        }
-
-        &::after {
-            left: -1.5rem;
-            right: 1rem;
-            top: -1.4rem;
-            bottom: unset;
+            content: ' — ';
         }
     }
 
-    table {
-        font-family: $sans;
-        font-size: 0.8rem;
-        width: 100%;
+    .title {
+        padding-right: 35%;
+        font-style: italic;
+    }
 
-        $shadow: rgba(0, 0, 0, 0.2);
+    .type {
+        text-transform: lowercase;
+    }
 
-        /* NOTE: have to stick the individual th elements because
-           sticky doesn't work on thead and tr elements */
-        th.stuck::before {
-            content: ' ';
+    .pubdate {
+        margin-top: 0.75rem;
+        position: relative;
+        order: 5; /* always goes last */
+
+        &::before {
+            content: 'Pub. Date';
             position: absolute;
-            bottom: 0;
-            margin-left: -200%;
-            width: 1200%;
-            height: 100%;
-            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2)
-        }
-
-        th {
+            bottom: 0.75rem;
+            font-size: 0.6rem;
             font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: white;
+        }
+    }
 
-            @media (min-width: $breakpoint-m) {
-                height: 4rem;
-            }
+    .author { /* removed from flow; always at right of card */
+        position: absolute;
+        right: 0.75rem;
+        width: 25%;
+        height: 100%;
+        text-align: right;
+    }
+}
+
+.membership {
+
+    .start,
+    .end {
+        margin-bottom: .5rem;
+    }
+
+    .start {
+        flex: none;
+        width: auto;
+        order: 2;
+    }
+
+    .end { /* large enough to always push next item onto a new line */
+        flex-basis: calc(100% * 2 / 3);
+        order: 3;
+    }
+
+    .start:not(.empty) + .end {
+        padding-left: 3px;
+
+        &::before {
+            content: ' — ';
+        }
+    }
+
+    .duration,
+    .amount,
+    .category {
+        display: inline-block;
+        width: calc(100% / 3);
+        position: relative;
+        margin-top: 0.75rem;
+
+        &::before {
+            position: absolute;
+            bottom: 0.75rem;
+            left: 0;
+            width: 100%;
+            font-size: 0.6rem;
+            font-weight: bold;
+        }
+    }
+
+    .duration {
+        order: 4;
+
+        &::before {
+            content: 'Duration';
+        }
+    }
+
+    .category {
+        order: 5;
+        text-align: center;
+
+        &.empty {
+            display: inline-block;
         }
 
-        tr {
-            border-top: solid 0.1rem $white-two;
+        &::before {
+            content: 'Category';
         }
+    }
 
-        thead tr {
-            border-top: none;
-        }
+    .amount {
+        order: 6;
+        text-align: right;
 
-        td, th {
-            box-sizing: border-box;
-            text-align: center;
-            padding: 1rem 0;
-
-            &:first-child {
-                text-align: left;
-            }
-            &:last-child {
-                text-align: right;
-            }
-        }
-
-        td.title {
-            max-width: 12rem;
-        }
-
-        td.author {
-            max-width: 8rem;
-        }
-
-        /* styles adapted from tablesort */
-        th[role=columnheader]:not([data-sort-method=none]) {
-            cursor: pointer;
-
-            /* display icon to indicate sortable and current sort status */
-            &::after {
-                content: '';
-                display: inline-block;
-                margin-left: 0.35rem;
-                background-image: url('/static/img/icons/inactive-table-sort.svg');
-                background-repeat: no-repeat;
-                background-position: center;
-                background-size: 200%;
-                vertical-align: text-bottom;
-                width: 0.8rem;
-                height: 1.35rem;
-                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.27);
-            }
-
-            &[aria-sort=ascending]::after {
-                background-image: url('/static/img/icons/selected-table-sort-down.svg');
-            }
-
-            &[aria-sort=descending]::after {
-                background-image: url('/static/img/icons/selected-table-sort-up.svg');
-            }
-
-        }
-
-        /* for mobile, display each row as a card and use flex
-           to arrange table cells within the card */
-        @media (max-width: calc(#{$breakpoint-s} - 1px)) {
-
-            thead {
-                display: none;
-            }
-            tr {
-                display: flex;
-                flex-wrap: wrap;
-                padding: 1rem 0.75rem 0;
-
-                border: solid 0.025rem $light-grey;
-                border-bottom: none;
-
-                &:first-child {
-                    border-top: solid 0.025rem $light-grey;
-                }
-                &:last-child {
-                    border-bottom: solid 0.025rem $light-grey;
-                }
-
-
-                /*  hide down arrow until we support expand/collapse on mobile */
-                &::after {
-                    content: '';
-                    order: 6;
-                    width: 100%;
-                    height: 1rem;
-                    /*
-                    background-image: url('/static/img/icons/blackChevron_down.svg');
-                    background-repeat: no-repeat;
-                    background-position: center;
-                    background-size: 0.5rem 0.25rem; */
-                    margin-bottom: 0.5rem;
-                }
-
-                &.expanded  {
-                    /* secondary fields are displayed when expanded */
-                    .amount, .duration, .category {
-                        display: block;
-                    }
-
-                    &::after {
-                        transform: rotate(180deg);
-                        margin-top: 1rem;
-                    }
-                }
-
-            }
-
-            // membership activities
-            &.membership td {
-                display: block;
-                padding: 0;
-                text-align: left;
-                order: 5;
-                width: 30%;
-
-                /* use full-width pseudo-element with order to force line break */
-                &::before {
-                  content: '';
-                  width: 100%;
-                  height: 22px;
-                  order: 4;
-                }
-
-                &.type {
-                    order: 1;
-                    width: 100%;
-                }
-                &.start {
-                    order: 2;
-                    padding-right: 3px;
-                    &::after {
-                        content:" — ";
-                    }
-                    width: auto;
-                }
-                &.end {
-                    order: 3;
-                    width: auto;
-                }
-
-                /* secondary fields are hidden by default, get labels */
-                &.amount, &.duration, &.category {
-                    display: none;
-
-                    &::before {
-                        font-weight: bold;
-                        display: block;
-                    }
-                }
-
-                &.amount::before {
-                    content: "Amount";
-                }
-                &.duration::before {
-                    content: "Duration";
-                }
-                &.category::before {
-                    content: "Category";
-                }
-
-            }
-
-
-            // book activities
-            &.borrowing td {
-                display: block;
-                padding: 0;
-                text-align: left;
-
-                &.title {
-                    order: 1;
-                    width: 60%;
-                    font-style: italic;
-                }
-                &.author {
-                    order: 2;
-                    width: 40%;
-                    text-align: right;
-                    padding-left: 1.1rem;  // minimum space between 22px
-                }
-                &.status {
-                    order: 3;
-                    width: 100%;
-                    text-transform: lowercase;
-                }
-
-                &.start {
-                    order: 4;
-                    padding-right: 3px;
-                    &::after {
-                        content:" — ";
-                    }
-                    width: auto;
-                }
-                &.end {
-                    order: 5;
-                    width: auto;
-                }
-
-                /* secondary fields are hidden by default and get labels */
-                &.pubdate {
-                    display: none;
-                    order: 6;
-                    width: 100%;
-                    padding-top: 0.2rem;
-
-                    &::before {
-                        content: "Publication Date";
-                        font-weight: bold;
-                        display: block;
-                        font-size: 0.7rem;
-
-                    }
-                }
-
-            }
-
+        &::before {
+            content: 'Amount';
         }
     }
 }
