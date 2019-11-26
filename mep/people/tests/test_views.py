@@ -1206,7 +1206,7 @@ class TestMemberCardList(TestCase):
         view = MemberCardList()
         view.kwargs = {'slug': 'stein'}
         assert view.get_absolute_url() == \
-            absolutize_url(reverse('people:member-cardlist',
+            absolutize_url(reverse('people:member-card-list',
                                    kwargs=view.kwargs))
 
     def test_get_breadcrumbs(self):
@@ -1233,7 +1233,7 @@ class TestMemberCardList(TestCase):
     @login_temporarily_required
     def test_view_template(self):
         member = Person.objects.get(slug='stein-gertrude')
-        response = self.client.get(reverse('people:member-cardlist',
+        response = self.client.get(reverse('people:member-card-list',
                                    kwargs={'slug': 'stein-gertrude'}))
         self.assertTemplateUsed('people/member_cardlist.html')
         self.assertTemplateUsed('snippets/breadcrumbs.html')
@@ -1260,6 +1260,6 @@ class TestMemberCardList(TestCase):
                 self.assertContains(response, 'Unknown')
 
         # library member wih no cards
-        response = self.client.get(reverse('people:member-cardlist',
+        response = self.client.get(reverse('people:member-card-list',
                                    kwargs={'slug': 'gay'}))
         self.assertContains(response, 'No cards available')
