@@ -378,7 +378,10 @@ class BorrowingActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         # filter to requested person, then get book activities
         return super().get_queryset() \
                       .filter(account__persons__slug=self.kwargs['slug']) \
-                      .book_activities()
+                      .book_activities() \
+                      .select_related('borrow', 'purchase', 'work') \
+                      .prefetch_related('work__creators', 'work__creator_set',
+                                        'work__creator_set__creator_type')
 
     def get_context_data(self, **kwargs):
         # should 404 if not a person or valid person but not a library member
