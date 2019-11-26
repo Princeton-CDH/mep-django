@@ -80,9 +80,9 @@
             <td class="type">{{ event.event_type }}</td>
             <td class="category">{{ event.subscription.category|default:'-' }}</td>
             <td class="duration" data-sort="{{ event.subscription.duration|default:0 }}">{{ event.subscription.readable_duration|default:'-' }}</td>
-            <td class="start" data-sort="{{ event.start_date|date:"Ymd" }}">{{ event.partial_start_date|ap_format|default:'-' }}</td>
+            <td class="start" data-sort="{{ event.start_date|date:"Ymd" }}">{{ event.partial_start_date|partialdate|default:'-' }}</td>
             <td class="end" data-sort="{{ event.end_date|date:"Ymd" }}">
-                {% if event.reimbursement %} - {% else %}{{ event.partial_end_date|ap_format|default:'-' }}{% endif %}
+                {% if event.reimbursement %} - {% else %}{{ event.partial_end_date|partialdate|default:'-' }}{% endif %}
             </td>
             {# amount is either subscription price or refund amount; refund is negative #}
             {% with subscription_price=event.subscription.price_paid refund=event.reimbursement.refund %}

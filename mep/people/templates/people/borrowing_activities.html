@@ -81,10 +81,10 @@
                 {% else %}{{ event.event_type }}{% endif %}
             </td>
             <td class="start" data-sort="{{ event.partial_start_date|default:'' }}">
-                {{ event.partial_start_date|ap_format|default:'-' }}
+                {{ event.partial_start_date|partialdate|default:'-' }}
             </td>
             <td class="end" data-sort="{{ event.partial_end_date|default:'' }}">
-                {{ event.partial_end_date|ap_format|default:'-' }}
+                {{ event.partial_end_date|partialdate|default:'-' }}
             </td>
         </tr>
         {% endfor %}
