@@ -1119,21 +1119,20 @@ class TestMembershipActivities(TestCase):
         # template (and it might not be exactly what we want, either)
         # self.assertContains(response, subs.start_date.strftime('%b %d, %Y'))
         self.assertContains(
-            response, 'data-sort="%s"' % subs.start_date.strftime('%Y%m%d'))
+            response, 'data-sort="%s"' % subs.partial_start_date)
         self.assertContains(
-            response, 'data-sort="%s"' % subs.end_date.strftime('%Y%m%d'))
-        self.assertContains(
-            response, '%d %s' % (subs.price_paid, subs.currency_symbol()))
+            response, 'data-sort="%s"' % subs.partial_end_date)
+        self.assertContains(response, subs.price_paid)
+        self.assertContains(response, subs.currency_symbol())
         self.assertContains(response, 'Reimbursement')
         reimburse = self.events['reimbursement']
         # start/end should be same sort value stwice
         self.assertContains(
             response, 'data-sort="%s"' %
-            reimburse.start_date.strftime('%Y%m%d'),
+            reimburse.partial_start_date,
             count=2)
-        self.assertContains(
-            response, '-%d %s' % (reimburse.refund,
-                                  reimburse.currency_symbol()))
+        self.assertContains(response, '-%d' % reimburse.refund)
+        self.assertContains(response, reimburse.currency_symbol())
 
         # test member with no membership activity
         response = self.client.get(reverse('people:membership-activities',
