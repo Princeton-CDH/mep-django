@@ -138,7 +138,7 @@ $card-width: 11.25rem;
     }
 
     img {
-        padding-left: 1rem;
+        padding-left: 0.5rem;
         height: 1.55rem;
 
         /* slightly smaller on card image viewer */
@@ -146,8 +146,8 @@ $card-width: 11.25rem;
             height: 1.2rem;
         }
 
-        @media (max-width: $breakpoint-s) {
-            padding-left: 0.5rem;
+        &.logo {
+            filter: grayscale(100%) brightness(30%);
         }
     }
 
