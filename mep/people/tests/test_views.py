@@ -1259,6 +1259,13 @@ class TestMemberCardList(TestCase):
             else:
                 self.assertContains(response, 'Unknown')
 
+        # iiif license image, text & link
+        self.assertContains(response, 'No Known Copyright')
+        self.assertContains(response, 'rightsstatements_org/NKC.svg')
+        # iiif logo icon
+        self.assertContains(response, 'pul_logo_icon')
+
+
         # library member wih no cards
         response = self.client.get(reverse('people:member-card-list',
                                    kwargs={'slug': 'gay'}))
@@ -1374,3 +1381,9 @@ class TestMemberCardDetail(TestCase):
             reverse('people:member-card-detail',
                     kwargs={'slug': context['member'].slug,
                             'short_id': context['next_card'].short_id}))
+
+        # iiif license image, text & link
+        self.assertContains(response, 'No Known Copyright')
+        self.assertContains(response, 'rightsstatements_org/NKC.svg')
+        # iiif logo icon
+        self.assertContains(response, 'pul_logo_icon')

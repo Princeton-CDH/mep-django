@@ -58,5 +58,7 @@
     <div>No cards available.</div>
     {% endif %}
 
+    {% include 'people/snippets/manifest_license.html' with manifest=cards.0.manifest %}
+
 </section>
 {% endblock %}

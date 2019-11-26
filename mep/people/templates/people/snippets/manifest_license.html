@@ -1,0 +1,15 @@
+{# display & link IIIF manifest license and provider logo #}
+{% load static mep_tags %}
+<div class="rights-statement">
+    {# for now, only supports rightsstatments.org licenses (should work for PUL content) #}
+    {% if manifest.license %}
+    <a href="{{ manifest.license }}">
+        <img src="{% static 'img/rightsstatements_org/' %}{{ manifest.rights_statement_id }}.svg"
+           alt="{{ manifest.license_label }}" />
+    </a>
+    {% endif %}
+    {# logo for IIIF provider of digitized item #}
+    {% if manifest.logo %}
+        <img src="{{ manifest.logo }}"/>
+    {% endif %}
+</div>

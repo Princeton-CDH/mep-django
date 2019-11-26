@@ -4,7 +4,7 @@
         display: flex;
         justify-content: space-between;
         padding-top: 1.3rem;
-        padding-bottom: 2.25rem;
+        padding-bottom: 2rem;
         background: $white;
 
         picture {
@@ -73,7 +73,7 @@
         @include container;
 
         table-layout: fixed;
-        margin-bottom: 2rem;
+        margin: 2rem auto;
     }
     th {
         font-size: 0.7rem;

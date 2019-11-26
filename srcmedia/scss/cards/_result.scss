@@ -30,11 +30,10 @@ ol.card-results {
     }
 } */
 
-.card.result {
-    /* display card results in a 3-wide flex grid;
-       cards are 27% width with an 8% width margin between. */
+$card-width: 11.25rem;
 
-    $card-width: 11.25rem;
+.card.result {
+    /* display card results 3 per row in a grid */
 
     border-top: 0;
     width: $card-width;
@@ -111,7 +110,46 @@ ol.card-results {
         }
 
     }
+}
 
+.rights-statement {
+    text-align: right;
+    padding: 0.9rem 0 3rem;
+
+    .card-image-viewer & {
+        background-color: $white;
+        @include padding-container;
+        padding-bottom: 2.5rem;
+    }
+
+    @media (max-width: $breakpoint-xs) {
+        width: $card-width;
+        margin: auto;
+
+        .member-cards > & {
+            /* override styles applied to card images */
+            padding: 0.75rem 0 2.25rem;
+        }
+
+    }
+
+    a, a:hover {
+        border-bottom: none;
+    }
+
+    img {
+        padding-left: 1rem;
+        height: 1.55rem;
+
+        /* slightly smaller on card image viewer */
+        .card-image-viewer & {
+            height: 1.2rem;
+        }
+
+        @media (max-width: $breakpoint-s) {
+            padding-left: 0.5rem;
+        }
+    }
 
 
 }
