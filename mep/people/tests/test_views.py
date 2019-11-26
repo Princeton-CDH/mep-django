@@ -27,7 +27,7 @@ from mep.people.models import (Country, Location, Person, Relationship,
                                RelationshipType)
 from mep.people.views import (GeoNamesLookup, MembershipActivities,
                               MembershipGraphs, MembersList, PersonMerge,
-                              MemberCardList)
+                              MemberCardList, MemberCardDetail)
 
 
 class TestPeopleViews(TestCase):
@@ -1263,3 +1263,114 @@ class TestMemberCardList(TestCase):
         response = self.client.get(reverse('people:member-card-list',
                                    kwargs={'slug': 'gay'}))
         self.assertContains(response, 'No cards available')
+
+
+class TestMemberCardDetail(TestCase):
+    fixtures = ['footnotes_gstein', 'sample_people']
+
+    # short id for first canvas in manifest for stein's card
+    canvas_id = '68fd36f1-a463-441e-9f13-dfc4a6cd4114'
+    kwargs = {'slug': 'stein-gertrude', 'short_id': canvas_id}
+
+    def test_get_object(self):
+        view = MemberCardDetail()
+        # invalid member slug should result in a 404
+        view.kwargs = {'slug': 'bogus', 'canvas_id': self.canvas_id}
+        with pytest.raises(Http404):
+            view.get_object()
+
+        # valid member slug with invalid canvas id should result in a 404
+        view.kwargs = self.kwargs.copy()
+        view.kwargs['short_id'] = 'foo'
+        print(view.kwargs)
+        with pytest.raises(Http404):
+            view.get_object()
+
+        view.kwargs = self.kwargs
+        expected_card = Canvas.objects.get(short_id=self.canvas_id)
+        card = view.get_object()
+        assert card == expected_card
+        # member should be stored on the view
+        assert view.member == Person.objects.get(slug='stein-gertrude')
+        # label should be set
+        card_dates = card.footnote_set.event_date_range()
+        # single-year card
+        assert view.label == card_dates[0].year
+
+    def test_get_absolute_url(self):
+        view = MemberCardDetail()
+        view.kwargs = {'slug': 'stein', 'short_id': self.canvas_id}
+        assert view.get_absolute_url() == \
+            absolutize_url(reverse('people:member-card-detail',
+                                   kwargs=view.kwargs))
+
+    def test_get_breadcrumbs(self):
+        view = MemberCardDetail()
+        view.kwargs = self.kwargs
+        # get object to populate member, object, and label
+        view.get_object()
+        crumbs = view.get_breadcrumbs()
+        assert crumbs[0][0] == 'Home'
+        # last item is this page
+        assert crumbs[-1][0] == view.label
+        assert crumbs[-1][1] == view.get_absolute_url()
+        # second last item is card gallery view
+        assert crumbs[-2][0] == 'Cards'
+        assert crumbs[-2][1] == \
+            absolutize_url(reverse('people:member-card-list',
+                                   kwargs={'slug': 'stein-gertrude'}))
+        # third to last is member page
+        assert crumbs[-3][0] == view.member.short_name
+        assert crumbs[-3][1] == absolutize_url(view.member.get_absolute_url())
+
+    def test_get_context_data(self):
+        view = MemberCardDetail()
+        view.kwargs = self.kwargs
+        view.object = view.get_object()
+        context = view.get_context_data()
+        assert context['member'] == view.member
+        assert context['label'] == view.label
+        expected_events = view.object.footnote_set.events()
+        assert context['events'].count() == expected_events.count()
+        assert set(context['events'].values_list('pk', flat=True)) == \
+            set(expected_events.values_list('pk', flat=True))
+        # canvas 0 is no previous, 2 is next
+        assert context['prev_card'] == Canvas.objects.get(order=0)
+        assert context['next_card'] == Canvas.objects.get(order=2)
+
+    @login_temporarily_required
+    def test_view_template(self):
+        member = Person.objects.get(slug='stein-gertrude')
+        response = self.client.get(reverse('people:member-card-detail',
+                                   kwargs=self.kwargs))
+        self.assertTemplateUsed('people/member_card_detail.html')
+        self.assertTemplateUsed('snippets/breadcrumbs.html')
+        # first name used for page title
+        self.assertContains(response, member.firstname_last)
+        # links to main member page
+        self.assertContains(response, member.get_absolute_url())
+        card = Canvas.objects.get(short_id=self.canvas_id)
+
+        # 1x image appears twice for image and source; 2x once only
+        self.assertContains(response, card.image.size(width=430), count=2)
+        self.assertContains(response, card.image.size(width=860), count=1)
+        # event details displayed
+        events = card.footnote_set.all().events()
+        for event in events:
+            self.assertContains(response, event.partial_start_date)
+            self.assertContains(response, event.work.title)
+            self.assertContains(response, event.event_type)
+            self.assertContains(response, event.partial_end_date)
+
+        # links to next/previous pages
+        context = response.context
+        self.assertContains(
+            response,
+            reverse('people:member-card-detail',
+                    kwargs={'slug': context['member'].slug,
+                            'short_id': context['prev_card'].short_id}))
+        self.assertContains(
+            response,
+            reverse('people:member-card-detail',
+                    kwargs={'slug': context['member'].slug,
+                            'short_id': context['next_card'].short_id}))
