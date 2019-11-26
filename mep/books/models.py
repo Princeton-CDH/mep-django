@@ -254,7 +254,8 @@ class Work(Notable, ModelIndexable):
 
     def creator_by_type(self, creator_type):
         '''return work creators of a single type, e.g. author'''
-        return self.creators.filter(creator__creator_type__name=creator_type)
+        return [creator.person for creator in self.creator_set.all()
+                if creator.creator_type.name == creator_type]
 
     @property
     def authors(self):
