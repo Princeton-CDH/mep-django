@@ -78,17 +78,31 @@
         {% for event in event_list %}
         <tr>
             <td class="type">{{ event.event_type }}</td>
-            <td class="category">{{ event.subscription.category|default:'-' }}</td>
-            <td class="duration" data-sort="{{ event.subscription.duration|default:0 }}">{{ event.subscription.readable_duration|default:'-' }}</td>
-            <td class="start" data-sort="{{ event.start_date|date:"Ymd" }}">{{ event.partial_start_date|partialdate|default:'-' }}</td>
-            <td class="end" data-sort="{{ event.end_date|date:"Ymd" }}">
-                {% if event.reimbursement %} - {% else %}{{ event.partial_end_date|partialdate|default:'-' }}{% endif %}
+            <td class="category{% if not event.subscription.category %} empty{% endif %}">
+                {{ event.subscription.category|default:'-' }}
+            </td>
+            <td class="duration{% if not event.subscription.duration %} empty{% endif %}"
+                data-sort="{{ event.subscription.duration|default:0 }}">
+                {{ event.subscription.readable_duration|default:'-' }}
+            </td>
+            <td class="start{% if not event.partial_start_date %} empty{% endif %}"
+                data-sort="{{ event.partial_start_date|default:'' }}">
+                {{ event.partial_start_date|partialdate|default:'-' }}
+            </td>
+            <td class="end{% if not event.partial_end_date %} empty{% endif %}"
+                data-sort="{{ event.partial_end_date|default:'' }}">
+                {% if event.reimbursement %} - {% else %}
+                {{ event.partial_end_date|partialdate|default:'-' }}{% endif %}
             </td>
             {# amount is either subscription price or refund amount; refund is negative #}
             {% with subscription_price=event.subscription.price_paid refund=event.reimbursement.refund %}
             <td class="amount" data-sort="{% if refund %}-{% endif %}{% firstof subscription_price refund 0 %}">
                 {# only display currency if there is a value #}
-                {% if refund %}-{% endif %}{% firstof subscription_price|floatformat refund|floatformat '-' %}{% if subscription_price or refund %} {% firstof event.subscription.currency_symbol event.reimbursement.currency_symbol '' %}{% endif %}
+                {% if refund %}-{% endif %}
+                {% firstof subscription_price|floatformat refund|floatformat '-' %}
+                {% if subscription_price or refund %}
+                    {% firstof event.subscription.currency_symbol event.reimbursement.currency_symbol '' %}
+                {% endif %}
             {% endwith %}
             </td>
         </tr>
