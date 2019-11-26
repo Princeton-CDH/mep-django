@@ -77,8 +77,10 @@
             <td class="author">{{ event.work.author_list|default:'-' }}</td>
             <td class="pubdate">{{ event.work.year|default:'-' }}</td>
             <td class="type">
-                {% if event.event_type == 'Generic' %} -
-                {% else %}{{ event.event_type }}{% endif %}
+                {% with event.event_type as event_type %}
+                {% if event_type == 'Generic' %} -
+                {% else %}{{ event_type }}{% endif %}
+                {% endwith %}
             </td>
             <td class="start" data-sort="{{ event.partial_start_date|default:'' }}">
                 {{ event.partial_start_date|partialdate|default:'-' }}
