@@ -1,162 +1,198 @@
+/* member activity tables (membership and borrowing) */
+
+$table-padding: 1rem;
+$shadow: rgba(0, 0, 0, 0.2);
+
 .activities {
-    /* mobile styles: table rows are expandable cards, no headers */
+
+    form {
+        display: none;
+    }
+
     table {
         width: 100%;
     }
 
-    thead {
-        display: none;
+    // mobile styles: table rows are expandable cards, no headers
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+
+        form { // show sorting controls
+            display: block;
+        }
+
+        thead {
+            display: none;
+        }
+
+        tr {
+            padding: 1rem 0.75rem;
+            border-bottom: solid 1px $light-grey;
+            display: flex;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        td {
+            width: 100%;
+            font-size: 0.7rem;
+        }
+
+        .empty {
+            display: none;
+        }
     }
 
-    tr {
-        padding: 1rem 0.75rem;
-        border-bottom: solid 0.05rem $light-grey;
-        display: flex; /* mimics inline-block but allows reordering */
-        flex-wrap: wrap;
-        position: relative;
+    // tablet and desktop styles
+    @media (min-width: $breakpoint-s) {
+
+        thead {
+
+            tr {
+                border-top: none;
+            }
+
+            th:first-child {
+                text-align: left;
+            }
+
+            th:last-child {
+                text-align: right;
+            }
+        }
+
+        th {
+            position: sticky;
+            height: 3rem; // same as height of nav blocks
+            top: 0;
+            z-index: 10;
+            background: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            vertical-align: middle;
+
+            // sticky table headers
+            // stick a single (leftmost) header, set a shadow underneath it
+            // that spans the page width
+            &.stuck::before {
+                content: ' ';
+                position: absolute;
+                bottom: -1px;
+                margin-left: -50vw;
+                width: 200vw;
+                height: 100%;
+                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2)
+            }
+        }
+
+        // styles adapted from tablesort
+        th[role=columnheader]:not([data-sort-method=none]) {
+            cursor: pointer;
+
+            // display icon to indicate sortable and current sort status
+            &::after {
+                content: '';
+                display: inline-block;
+                margin-left: 0.35rem;
+                background-image: url('/static/img/icons/inactive-table-sort.svg');
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 200%;
+                vertical-align: middle;
+                width: 0.8rem;
+                height: 1.35rem;
+                box-shadow: 0 2px 4px 0 $shadow;
+            }
+
+            &[aria-sort=ascending]::after {
+                background-image: url('/static/img/icons/selected-table-sort-down.svg');
+            }
+
+            &[aria-sort=descending]::after {
+                background-image: url('/static/img/icons/selected-table-sort-up.svg');
+            }
+        }
+
+        td {
+            font-size: 0.8rem;
+            padding: $table-padding calc(#{$table-padding} / 2);
+            text-align: center;
+
+            &:first-child {
+                text-align: left;
+            }
+
+            &:last-child {
+                text-align: right;
+            }
+        }
+
+        tbody tr {
+            border-top: solid 2px $white-two;
+            border-bottom: solid 2px $white-two;
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
     }
 
-    td {
-        width: 100%;
-        font-family: $sans;
-        font-size: 0.7rem;
+    // tablet only styles: scrollable table with fixed left column
+    @media (min-width: $breakpoint-s) and (max-width: calc(#{$breakpoint-m} - 1px)) {
+
+        overflow: auto; // scrollable
+
+        .wrapper { // table always expands to fill largest tablet size
+            width: $breakpoint-m;
+        }
+
+        th {
+            padding-top: $table-padding;
+        }
+
+        td, th {
+            &:first-child {
+                // width: 10rem;
+                padding-left: $table-padding;
+            }
+
+            &:last-child {
+                padding-right: $table-padding;
+            }
+        }
+
+        // td:first-child {
+        //     position: absolute;
+        //     background: white;
+        //     margin-top: -1.8rem;
+        // }
     }
 
-    .empty {
-        display: none;
-    }
-
-    /* tablet styles: scrollable table with fixed left column */
-
-    /* desktop styles: full-width table */
+    // desktop only styles: fixed-width table
     @media (min-width: $breakpoint-m) {
-        @include padding-container;
+
+        @include padding-container; // fixed width
 
         .wrapper {
             width: 100%;
         }
-    }
-}
 
-.borrowing {
+        td {
 
-    .start, /* combined into one line by changing width values */
-    .end {
-        flex: none;
-        width: auto;
-    }
+            &:first-child {
+                padding-left: 0;
+            }
 
-    .start:not(.empty) + .end {
-        padding-left: 3px;
-
-        &::before {
-            content: ' — ';
-        }
-    }
-
-    .title {
-        padding-right: 35%;
-        font-style: italic;
-    }
-
-    .type {
-        text-transform: lowercase;
-    }
-
-    .pubdate {
-        margin-top: 0.75rem;
-        position: relative;
-        order: 5; /* always goes last */
-
-        &::before {
-            content: 'Pub. Date';
-            position: absolute;
-            bottom: 0.75rem;
-            font-size: 0.6rem;
-            font-weight: bold;
-        }
-    }
-
-    .author { /* removed from flow; always at right of card */
-        position: absolute;
-        right: 0.75rem;
-        width: 25%;
-        height: 100%;
-        text-align: right;
-    }
-}
-
-.membership {
-
-    .start,
-    .end {
-        margin-bottom: .5rem;
-    }
-
-    .start {
-        flex: none;
-        width: auto;
-        order: 2;
-    }
-
-    .end { /* large enough to always push next item onto a new line */
-        flex-basis: calc(100% * 2 / 3);
-        order: 3;
-    }
-
-    .start:not(.empty) + .end {
-        padding-left: 3px;
-
-        &::before {
-            content: ' — ';
-        }
-    }
-
-    .duration,
-    .amount,
-    .category {
-        display: inline-block;
-        width: calc(100% / 3);
-        position: relative;
-        margin-top: 0.75rem;
-
-        &::before {
-            position: absolute;
-            bottom: 0.75rem;
-            left: 0;
-            width: 100%;
-            font-size: 0.6rem;
-            font-weight: bold;
-        }
-    }
-
-    .duration {
-        order: 4;
-
-        &::before {
-            content: 'Duration';
-        }
-    }
-
-    .category {
-        order: 5;
-        text-align: center;
-
-        &.empty {
-            display: inline-block;
+            &:last-child {
+                padding-right: 0;
+            }
         }
 
-        &::before {
-            content: 'Category';
-        }
     }
 
-    .amount {
-        order: 6;
-        text-align: right;
+    @media (min-width: $breakpoint-l) {
 
-        &::before {
-            content: 'Amount';
+        th {
+            height: 4rem;
         }
     }
 }

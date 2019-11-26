@@ -1,0 +1,62 @@
+/* members borrowing activity table */
+.borrowing {
+
+    // mobile styles
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+
+        .start, // combined into one line by changing width values
+        .end {
+            flex: none;
+            width: auto;
+        }
+
+        .start:not(.empty) + .end {
+            padding-left: 3px;
+
+            &::before {
+                content: ' — ';
+            }
+        }
+
+        .title {
+            padding-right: 35%;
+            font-style: italic;
+        }
+
+        .type {
+            text-transform: lowercase;
+        }
+
+        .pubdate {
+            margin-top: 0.75rem;
+            position: relative;
+            order: 5; // always goes last
+
+            &::before {
+                content: 'Pub. Date';
+                position: absolute;
+                bottom: 0.75rem;
+                font-size: 0.6rem;
+                font-weight: bold;
+            }
+        }
+
+        .author { // removed from flow; always at right of card
+            position: absolute;
+            right: 0.75rem;
+            width: 25%;
+            height: 100%;
+            text-align: right;
+        }
+    }
+
+    // tablet and desktop styles
+    @media (min-width: $breakpoint-s) {
+
+        .start,
+        .end,
+        .pubdate {
+            min-width: 6rem;
+        }
+    }
+}
