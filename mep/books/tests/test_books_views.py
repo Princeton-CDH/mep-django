@@ -100,7 +100,7 @@ class TestWorkListView(TestCase):
 
         # multi-author item should show first three authors
         novelists = Work.objects.get(pk=4126)
-        self.assertContains(response, novelists.authors.first())
+        self.assertContains(response, novelists.authors[0])
         self.assertContains(response, novelists.authors[1])
         self.assertContains(response, novelists.authors[2])
 

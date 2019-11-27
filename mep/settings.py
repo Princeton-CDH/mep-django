@@ -170,12 +170,14 @@ STATICFILES_DIRS = [
 ]
 
 # These will be added to ``INSTALLED_APPS``, only if available.
+# NOTE: this is mezzanine-specific; probably remove
 OPTIONAL_APPS = (
     "debug_toolbar",
     "django_extensions",
     PACKAGE_NAME_FILEBROWSER,
     PACKAGE_NAME_GRAPPELLI,
 )
+
 
 # pucas configuration that is not expected to change across deploys
 # and does not reference local server configurations or fields
@@ -263,11 +265,21 @@ if os.path.exists(f):
     exec(open(f, "rb").read())
 
 
+if DEBUG:
+    try:
+        import debug_toolbar
+        INSTALLED_APPS.append('debug_toolbar')
+        MIDDLEWARE += (
+            'debug_toolbar.middleware.DebugToolbarMiddleware',
+        )
+    except ImportError:
+        pass
+
 # Django webpack loader
 WEBPACK_LOADER = {
     'DEFAULT': {
         'CACHE': not DEBUG,
-        'BUNDLE_DIR_NAME': 'bundles/', # must end with slash
+        'BUNDLE_DIR_NAME': 'bundles/',  # must end with slash
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
         'POLL_INTERVAL': 0.1,
         'TIMEOUT': None,

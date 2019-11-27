@@ -12,8 +12,10 @@ urlpatterns = [
         name='member-graphs'),
     url(r'^members/(?P<slug>[\w-]+)/$', views.MemberDetail.as_view(),
         name='member-detail'),
-    url(r'^members/(?P<slug>[\w-]+)/activities/$',
+    url(r'^members/(?P<slug>[\w-]+)/membership/$',
         views.MembershipActivities.as_view(), name='membership-activities'),
+    url(r'^members/(?P<slug>[\w-]+)/borrowing/$',
+        views.BorrowingActivities.as_view(), name='borrowing-activities'),
     url(r'^members/(?P<slug>[\w-]+)/cards/$',
         views.MemberCardList.as_view(), name='member-cardlist'),
 
