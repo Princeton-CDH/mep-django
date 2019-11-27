@@ -59,16 +59,8 @@ $card-width: 11.25rem;
 
     }
 
-
     a:hover {
         border: 0;
-    }
-
-    @media (min-width: $breakpoint-s + 1) {
-        img, source {
-            display: inline;
-            height: 315px;
-        }
     }
 
     img, source {
@@ -114,23 +106,14 @@ $card-width: 11.25rem;
 
 .rights-statement {
     text-align: right;
-    padding: 0.9rem 0 3rem;
+    padding: 0 1rem 3rem;
 
     .card-image-viewer & {
         background-color: $white;
-        @include padding-container;
-        padding-bottom: 2.5rem;
-    }
 
-    @media (max-width: $breakpoint-xs) {
-        width: $card-width;
-        margin: auto;
-
-        .member-cards > & {
-            /* override styles applied to card images */
-            padding: 0.75rem 0 2.25rem;
+        @media (min-width: $breakpoint-s) {
+            @include padding-container;
         }
-
     }
 
     a, a:hover {
@@ -150,7 +133,5 @@ $card-width: 11.25rem;
             filter: grayscale(100%) brightness(30%);
         }
     }
-
-
 }
 

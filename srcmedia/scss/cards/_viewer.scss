@@ -2,105 +2,118 @@
 
     .viewer {
         display: flex;
-        justify-content: space-between;
         padding-top: 1.3rem;
         padding-bottom: 2rem;
         background: $white;
 
-        picture {
-            text-align: center;
-            min-width: 21.5rem;
-            min-height: 30.5rem;
+        picture img {
+            width: 11.25rem;
+
+            @media (min-width: $breakpoint-s) {
+                width: 21.5rem;
+            }
         }
 
-        a > span {
-            @include sr-only;
-        }
-
-        a {
-            border-bottom: 0;
-            position: relative;
-            flex-grow: 1;
+        .next,
+        .prev {
+            flex: auto;
             display: block;
-
+            position: relative;
 
             &::before {
                 content: " ";
+                position: absolute;
+                display: block;
+                /* swap height and width since it will be rotated */
+                height: 1rem;
+                width: 2rem;
+                top: 50%;
                 background-image: url('/static/img/icons/blackChevron_down.svg');
                 background-repeat: no-repeat;
                 background-size: contain;
-                /* swap height and width since it will be rotated */
-                height: 0.7rem;
-                width: 1.35rem;
-                position: absolute;
-                // background-position: 88% 50%;
-                // height: 100%;
-                display: block;
-                top: 50%;
+            }
+        }
+
+        .next::before {
+            transform: rotate(-90deg);
+            left: 0.25rem;
+
+            @media (min-width: $breakpoint-s) {
+                left: 4rem;
             }
 
-            &[aria-hidden] {
-                pointer-events: none;
-                cursor: default;
-                color: #cccccc;
+            @media (min-width: $breakpoint-m) {
+                left: 6rem;
+            }
+        }
 
-                &:before {
-                    /* use opacity to make black image match #ccccc */
-                    opacity: 0.2;
+        .prev::before {
+            transform: rotate(90deg);
+            right: 0.25rem;
+
+            @media (min-width: $breakpoint-s) {
+                right: 4rem;
+            }
+
+            @media (min-width: $breakpoint-m) {
+                right: 6rem;
+            }
+        }
+
+        span::before {
+            opacity: 0.25;
+        }
+
+        a {
+            border: none;
+        }
+    }
+
+    // event table styles
+    .card-events {
+
+        // mobile only
+        @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+
+            .title {
+                font-style: italic;
+            }
+
+            .type {
+                text-transform: lowercase;
+            }
+
+            .start,
+            .end {
+                flex: none;
+                width: auto;
+            }
+
+            .start {
+                order: 3;
+            }
+
+            .end {
+                order: 4;
+            }
+
+            .start:not(.empty) ~ .end {
+                padding-left: 3px;
+
+                &::before {
+                    content: ' — ';
                 }
             }
-
         }
 
-        a[rel=next] {
-            text-align: left;
-            &::before {
-                transform: rotate(-90deg);
-                left: 12%;
+        // tablet + desktop
+        @media (min-width: $breakpoint-s) {
+
+            .start,
+            .end {
+                min-width: 6rem;
             }
         }
-        a[rel=prev] {
-            text-align: right;
-            &::before {
-                right: 12%;
-                transform: rotate(90deg);
-            }
-        }
-
     }
-
-    table {
-        @include container;
-
-        table-layout: fixed;
-        margin: 2rem auto;
-    }
-    th {
-        font-size: 0.7rem;
-    }
-
-    th, td {
-        padding-top: 0.6rem;
-        padding-bottom: 0.6rem;
-    }
-    /* set column widths based on zeplin (use percentages instead?)
-    /* start and end dates */
-    th.date  {
-        width: 5.35rem;
-        // desktop: 107 for start; 107 for end
-        // 102px on tablet for end; 106 for start
-        @media (max-width: $breakpoint-m) {
-            width: 5rem;
-        }
-    }
-    th.title {
-        width: 11.45rem; // 229 on tablet, desktop
-    }
-    th.type {
-        width: 6.75rem;
-        // 137 on tablet, 136 on desktop 
-    }
-
-
 }
 
