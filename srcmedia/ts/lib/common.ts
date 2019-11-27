@@ -162,6 +162,20 @@ function pluralize (n: number|string|Array<any>) {
     }
 }
 
+/**
+ * Set the height of a set of sibling elements by traversing sibling pointers
+ * recursively until all siblings have been reached.
+ *
+ * @param $element first sibling to set height of
+ * @param height height in '50px' style string format
+ */
+function setAllHeights($element: HTMLElement, height: string) {
+    $element.style.height = height
+    if ($element.nextElementSibling) {
+        setAllHeights(($element.nextElementSibling as HTMLElement), height)
+    }
+}
+
 export {
     Reactive,
     Component,
@@ -174,5 +188,6 @@ export {
     fakeValueChange,
     fakeToggle,
     toggleTab,
-    pluralize
+    pluralize,
+    setAllHeights
 }

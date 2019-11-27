@@ -1,0 +1,91 @@
+/* members membership activity table */
+.membership {
+
+    // mobile styles
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+
+        .start,
+        .end {
+            margin-bottom: .5rem;
+        }
+
+        .start {
+            flex: none;
+            width: auto;
+            order: 2;
+        }
+
+        .end { /* large enough to always push next item onto a new line */
+            width: 60%;
+            order: 3;
+        }
+
+        .start:not(.empty) + .end {
+            padding-left: 3px;
+
+            &::before {
+                content: ' — ';
+            }
+        }
+
+        .duration,
+        .amount,
+        .category {
+            display: inline-block;
+            width: calc(100% / 3);
+            position: relative;
+            margin-top: 0.75rem;
+
+            &::before {
+                position: absolute;
+                bottom: 0.75rem;
+                left: 0;
+                width: 100%;
+                font-size: 0.6rem;
+                font-weight: bold;
+            }
+        }
+
+        .duration {
+            order: 4;
+
+            &::before {
+                content: 'Duration';
+            }
+        }
+
+        .category {
+            order: 5;
+            text-align: center;
+
+            &.empty {
+                display: inline-block;
+            }
+
+            &::before {
+                content: 'Category';
+            }
+        }
+
+        .amount {
+            order: 6;
+            text-align: right;
+
+            &::before {
+                content: 'Amount';
+            }
+        }
+    }
+}
+
+// "category" tooltip
+#category-tip {
+    font-weight: normal;
+    vertical-align: middle;
+    min-height: 1.35rem;
+    position: relative;
+
+    &::after {
+        width: 6rem;
+    }
+}

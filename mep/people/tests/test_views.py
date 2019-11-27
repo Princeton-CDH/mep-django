@@ -15,8 +15,9 @@ from django.test import RequestFactory, TestCase
 from django.urls import resolve, reverse
 from djiffy.models import Canvas
 
-from mep.accounts.models import (Account, Address, Event, Reimbursement,
-                                 Subscription, SubscriptionType)
+from mep.accounts.models import (Account, Address, Borrow, Event, Purchase,
+                                 Reimbursement, Subscription, SubscriptionType)
+from mep.accounts.partial_date import DatePrecision
 from mep.books.models import Creator, CreatorType, Work
 from mep.common.utils import absolutize_url, login_temporarily_required
 from mep.footnotes.models import Bibliography, Footnote, SourceType
@@ -25,9 +26,10 @@ from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import (Country, Location, Person, Relationship,
                                RelationshipType)
-from mep.people.views import (GeoNamesLookup, MembershipActivities,
-                              MembershipGraphs, MembersList, PersonMerge,
-                              MemberCardList, MemberCardDetail)
+from mep.people.views import (BorrowingActivities, GeoNamesLookup,
+                              MemberCardDetail, MemberCardList,
+                              MembershipActivities, MembershipGraphs,
+                              MembersList, PersonMerge)
 
 
 class TestPeopleViews(TestCase):
@@ -1092,7 +1094,7 @@ class TestMembershipActivities(TestCase):
         crumbs = self.view.get_breadcrumbs()
         assert crumbs[0][0] == 'Home'
         # last item is this page
-        assert crumbs[-1][0] == 'Membership Activities'
+        assert crumbs[-1][0] == 'Membership'
         assert crumbs[-1][1] == self.view.get_absolute_url()
         # second to last is member page
         assert crumbs[-2][0] == self.member.short_name
@@ -1118,27 +1120,149 @@ class TestMembershipActivities(TestCase):
         # template (and it might not be exactly what we want, either)
         # self.assertContains(response, subs.start_date.strftime('%b %d, %Y'))
         self.assertContains(
-            response, 'data-sort="%s"' % subs.start_date.strftime('%Y%m%d'))
+            response, 'data-sort="%s"' % subs.partial_start_date)
         self.assertContains(
-            response, 'data-sort="%s"' % subs.end_date.strftime('%Y%m%d'))
-        self.assertContains(
-            response, '%d %s' % (subs.price_paid, subs.currency_symbol()))
+            response, 'data-sort="%s"' % subs.partial_end_date)
+        self.assertContains(response, subs.price_paid)
+        self.assertContains(response, subs.currency_symbol())
         self.assertContains(response, 'Reimbursement')
         reimburse = self.events['reimbursement']
         # start/end should be same sort value stwice
         self.assertContains(
             response, 'data-sort="%s"' %
-            reimburse.start_date.strftime('%Y%m%d'),
+            reimburse.partial_start_date,
             count=2)
-        self.assertContains(
-            response, '-%d %s' % (reimburse.refund,
-                                  reimburse.currency_symbol()))
+        self.assertContains(response, '-%d' % reimburse.refund)
+        self.assertContains(response, reimburse.currency_symbol())
 
         # test member with no membership activity
         response = self.client.get(reverse('people:membership-activities',
                                    kwargs={'slug': 'gay'}))
         self.assertNotContains(response, '<table')
         self.assertContains(response, 'No documented membership activity')
+
+
+class TestBorrowingActivities(TestCase):
+    fixtures = ['sample_people.json']
+    # NOTE: might want an event fixture for testing at some point
+
+    def setUp(self):
+        self.member = Person.objects.get(slug="hemingway")
+        self.view = BorrowingActivities()
+        self.view.kwargs = {'slug': self.member.slug}
+
+        # create account with test events and test works
+        acct = Account.objects.create()
+        acct.persons.add(self.member)
+        maidens = Work.objects.get(title='Suppliant Maidens')
+        awakening = Work.objects.get(title='The Awakening of Helena Richie')
+        rises = Work.objects.get(title='The Sun Also Rises')
+
+        # create one event of each type to test with
+        self.events = {
+            'borrow': Borrow.objects.create(account=acct, work=maidens,
+                start_date=date(1924, 2, 1),
+                end_date=date(1924, 3, 1),
+                start_date_precision=(DatePrecision.year | DatePrecision.month),
+                end_date_precision=(DatePrecision.year | DatePrecision.month),
+            ),
+            'purchase': Purchase.objects.create(account=acct, work=awakening,
+                start_date=date(1900, 11, 27),
+                start_date_precision=(DatePrecision.month | DatePrecision.day),
+            ),
+            'generic': Event.objects.create(account=acct, work=rises,
+                start_date=date(1922, 6, 3),
+            )
+        }
+
+        # set partial dates
+        self.events['borrow'].partial_start_date = '1924-02'
+        self.events['borrow'].partial_end_date = '1924-03'
+
+    def test_get_queryset(self):
+        events = self.view.get_queryset()
+        # should have three events
+        assert events.count() == 3
+        # should return teh event object
+        assert self.events['borrow'].event_ptr in events
+        assert self.events['purchase'].event_ptr in events
+
+    def test_get_context_data(self):
+        # get queryset must be run first to populate object_list
+        self.view.object_list = self.view.get_queryset()
+        context = self.view.get_context_data()
+        # library member set in context
+        assert context['member'] == self.member
+        # set on the view
+        assert self.view.member == self.member
+
+        # non-member should 404 - try author from fixture
+        self.view.kwargs['slug'] = 'aeschylus'
+        self.view.object_list = self.view.get_queryset()
+        with pytest.raises(Http404):
+            self.view.get_context_data()
+
+    def test_get_absolute_url(self):
+        assert self.view.get_absolute_url() == \
+            absolutize_url(reverse('people:borrowing-activities',
+                                   kwargs={'slug': self.member.slug}))
+
+    def test_get_breadcrumbs(self):
+        self.view.object_list = self.view.get_queryset()
+        self.view.get_context_data()
+        self.view.member = self.member
+        crumbs = self.view.get_breadcrumbs()
+        assert crumbs[0][0] == 'Home'
+        # last item is this page
+        assert crumbs[-1][0] == 'Borrowing'
+        assert crumbs[-1][1] == self.view.get_absolute_url()
+        # second to last is member page
+        assert crumbs[-2][0] == self.member.short_name
+        assert crumbs[-2][1] == absolutize_url(self.member.get_absolute_url())
+
+    @login_temporarily_required
+    def test_view_template(self):
+        response = self.client.get(reverse('people:borrowing-activities',
+                                   kwargs={'slug': self.member.slug}))
+        # table headers
+        self.assertContains(response, 'Title')
+        self.assertContains(response, 'Author')
+        self.assertContains(response, 'Publication Date')
+        self.assertContains(response, 'Type')
+        self.assertContains(response, 'Start Date')
+        self.assertContains(response, 'End Date')
+
+        # event details - borrow
+        self.assertContains(response, 'Borrow') # type
+        self.assertContains(response, 'Suppliant Maidens') # title
+        self.assertContains(response, 'Aeschylus') # author
+        self.assertContains(response, '1922') # pub date
+        self.assertContains(response, 'Feb. 1924') # partial start date
+        self.assertContains(response, 'March 1924') # partial end date
+        self.assertContains(response, 'data-sort="1924-02"') # sorting
+        self.assertContains(response, 'data-sort="1924-03"') # sorting
+
+        # event details - purchase
+        self.assertContains(response, 'Purchase') # type
+        self.assertContains(response, 'The Awakening of Helena Richie') # title
+        self.assertContains(response, 'Margaret Deland') # author
+        self.assertContains(response, '1906') # pub date
+        self.assertContains(response, 'Nov. 27') # partial start date
+        self.assertContains(response, 'data-sort="--11-27"') # sorting
+
+        # event details - generic
+        self.assertContains(response, '-') # type
+        self.assertContains(response, 'The Sun Also Rises') # title
+        self.assertContains(response, 'Ernest Hemingway') # author
+        self.assertContains(response, '1926') # pub date
+        self.assertContains(response, 'June 3, 1922') # start date
+        self.assertContains(response, 'data-sort="1922-06-03"') # sorting
+
+        # test member with no borrowing activity
+        response = self.client.get(reverse('people:borrowing-activities',
+                                   kwargs={'slug': 'gay'}))
+        self.assertNotContains(response, '<table')
+        self.assertContains(response, 'No documented borrowing activity')
 
 
 class TestMembershipGraphs(TestCase):

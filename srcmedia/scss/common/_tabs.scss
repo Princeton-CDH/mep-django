@@ -4,7 +4,7 @@ nav.tabs {
     align-items: center;
 
     .tab {
-        flex: auto;
+        flex: 1;
         list-style: none;
         height: 2.5rem;
 
@@ -26,7 +26,6 @@ nav.tabs {
 
             > *::after {
                 content: '*';
-                // position: absolute;
             }
         }
     }
@@ -34,10 +33,21 @@ nav.tabs {
     &.subsection {
         background: #fafafa;
         box-shadow: 0 5px 4px 0 rgba(0, 0, 0, 0.19);
-        margin-bottom: 2.5rem;
+        z-index: 12;
 
-        .tab:first-child {
-            border-right: 1px solid $white-two;
+        @media (min-width: $breakpoint-m) {
+            margin-bottom: 2.5rem;
+        }
+
+        .tab {
+
+            &:first-child {
+                border-right: 1px solid $white-two;
+            }
+
+            a, span {
+                text-transform: capitalize;
+            }
         }
     }
 

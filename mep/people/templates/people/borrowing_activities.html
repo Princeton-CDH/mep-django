@@ -2,7 +2,7 @@
 {% load render_bundle from webpack_loader %}
 {% load static %}
 
-{% block page-subtitle %}{{ member.firstname_last }} Membership Activity · Library Members · {% endblock %}
+{% block page-subtitle %}{{ member.firstname_last }} Borrowing Activity · Library Members · {% endblock %}
 
 {% block js %}
 {% render_bundle 'activities' 'js' %}
@@ -23,22 +23,21 @@
     <li class="tab" aria-selected="true">
         <a href="{% url 'people:membership-activities' slug=member.slug %}">activities</a>
     </li>
-    <li class="tab">
-        <a href="{% url 'people:member-card-list' slug=member.slug %}">cards</a>
+    <li class="tab pending">
+        <span>cards</span>
     </li>
 </nav>
 
 <nav class="tabs subsection" aria-label="Activities">
-    <li class="tab">
+    <li class="tab" aria-selected="true">
         <a href="{% url 'people:borrowing-activities' slug=member.slug %}">Borrowing</a>
     </li>
-    <li class="tab" aria-selected="true">
+    <li class="tab">
         <a href="{% url 'people:membership-activities' slug=member.slug %}">Membership</a>
     </li>
 </nav>
 
 <div class="activities">
-
     {% comment %} preliminary form controls for sorting and expand/collapse on mobile
     <form id="activity-mobile-control">
         <label class="sort">
@@ -58,53 +57,44 @@
     {% endcomment %}
 
     {% if not event_list.count %}
-    <p>No documented membership activity.</p>
+    <p>No documented borrowing activity.</p>
     {% else %}
     <div class="wrapper">
-    <table id="activity-table" class="membership">
+    <table id="activity-table" class="borrowing">
         <thead>
             <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publication Date</th>
                 <th>Type</th>
-                <th aria-describedby="category-tip" data-sort-method="none">Category
-                    <span id="category-tip" role="tooltip" class="question"
-                        aria-label="{{ category_tooltip }}" tabindex=0
-                        onclick="event.preventDefault()"/>
-                </th>
-                <th data-sort-method="number">Duration</th>
                 <th data-sort-default>Start Date</th>
                 <th>End Date</th>
-                <th data-sort-method="number">Amount</th>
             </tr>
         </thead>
         {% for event in event_list %}
         <tr>
-            <td class="type">{{ event.event_type }}</td>
-            <td class="category{% if not event.subscription.category %} empty{% endif %}">
-                {{ event.subscription.category|default:'-' }}
+            <td class="title{% if not event.work.title %} empty{% endif %}">
+                {{ event.work.title|default:'-' }}
             </td>
-            <td class="duration{% if not event.subscription.duration %} empty{% endif %}"
-                data-sort="{{ event.subscription.duration|default:0 }}">
-                {{ event.subscription.readable_duration|default:'-' }}
+            <td class="author{% if not event.work.author_list %} empty{% endif %}">
+                {{ event.work.author_list|default:'-' }}
             </td>
+            <td class="pubdate{% if not event.work.year %} empty{% endif %}">
+                {{ event.work.year|default:'-' }}
+            </td>
+            {% with event.event_type as event_type %}
+            <td class="type{% if event_type == 'Generic' %} empty{% endif %}">
+                {% if event_type == 'Generic' %} -
+                {% else %}{{ event_type }}{% endif %}
+            </td>
+            {% endwith %}
             <td class="start{% if not event.partial_start_date %} empty{% endif %}"
                 data-sort="{{ event.partial_start_date|default:'' }}">
                 {{ event.partial_start_date|partialdate|default:'-' }}
             </td>
             <td class="end{% if not event.partial_end_date %} empty{% endif %}"
                 data-sort="{{ event.partial_end_date|default:'' }}">
-                {% if event.reimbursement %} - {% else %}
-                {{ event.partial_end_date|partialdate|default:'-' }}{% endif %}
-            </td>
-            {# amount is either subscription price or refund amount; refund is negative #}
-            {% with subscription_price=event.subscription.price_paid refund=event.reimbursement.refund %}
-            <td class="amount" data-sort="{% if refund %}-{% endif %}{% firstof subscription_price refund 0 %}">
-                {# only display currency if there is a value #}
-                {% if refund %}-{% endif %}
-                {% firstof subscription_price|floatformat refund|floatformat '-' %}
-                {% if subscription_price or refund %}
-                    {% firstof event.subscription.currency_symbol event.reimbursement.currency_symbol '' %}
-                {% endif %}
-            {% endwith %}
+                {{ event.partial_end_date|partialdate|default:'-' }}
             </td>
         </tr>
         {% endfor %}

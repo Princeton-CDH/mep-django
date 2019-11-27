@@ -82,6 +82,26 @@
         }
     },
     {
+        "model": "people.person",
+        "pk": 7153,
+        "fields": {
+            "notes": "",
+            "birth_year": null,
+            "death_year": null,
+            "mep_id": "",
+            "name": "Margaret Deland",
+            "sort_name": "Deland, Margaret",
+            "viaf_id": "",
+            "is_organization": false,
+            "updated_at": "2018-07-02T00:21:22Z",
+            "gender": "F",
+            "title": "",
+            "profession": null,
+            "slug": "deland",
+            "nationalities": []
+        }
+    },
+    {
         "model": "people.location",
         "pk": 213,
         "fields": {
@@ -153,6 +173,18 @@
         }
     },
     {
+        "model": "books.work",
+        "pk": 3529,
+        "fields": {
+            "notes": "",
+            "mep_id": "",
+            "title": "The Awakening of Helena Richie",
+            "year": 1906,
+            "uri": "",
+            "updated_at": "2018-07-02T00:24:06Z"
+        }
+    },
+    {
         "model": "books.creatortype",
         "pk": 1,
         "fields": {
@@ -178,6 +210,16 @@
             "creator_type": 1,
             "person": 7152,
             "work": 3528
+        }
+    },
+    {
+        "model": "books.creator",
+        "pk": 2984,
+        "fields": {
+            "notes": "",
+            "creator_type": 1,
+            "person": 7153,
+            "work": 3529
         }
     }
 ]

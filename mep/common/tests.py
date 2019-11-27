@@ -1,7 +1,7 @@
 import re
+import uuid
 from collections import OrderedDict
 from unittest.mock import Mock
-import uuid
 
 import pytest
 import rdflib
@@ -17,15 +17,16 @@ from django.urls import reverse
 from django.views.generic.list import ListView
 from piffle.iiif import IIIFImageClient
 
-from mep.common import SCHEMA_ORG
+from mep.accounts.models import Account, Event
+from mep.common import SCHEMA_ORG, views
 from mep.common.admin import LocalUserAdmin
-from mep.common.forms import CheckboxFieldset, FacetChoiceField, FacetForm, \
-    RangeField, RangeWidget
+from mep.common.forms import (CheckboxFieldset, FacetChoiceField, FacetForm,
+                              RangeField, RangeWidget)
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
-from mep.common.templatetags.mep_tags import dict_item, domain, iiif_image
+from mep.common.templatetags.mep_tags import domain, dict_item, iiif_image, \
+    partialdate
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
-from mep.common import views
 
 
 class TestNamed(TestCase):
@@ -370,6 +371,50 @@ class TestTemplateTags(TestCase):
         assert iiif_image(myimg, 'bogus') == ''
         assert iiif_image(myimg, 'size:bogus') == ''
         assert iiif_image(myimg, 'size:bogus=1') == ''
+
+    def test_partialdate_filter(self):
+        # None should return None
+        assert partialdate(None, 'c') is None
+        # unset date should return None
+        acct = Account.objects.create()
+        evt = Event.objects.create(account=acct)
+        assert partialdate(evt.partial_start_date, 'c') is None
+
+        # test with ap date format as default
+        with override_settings(DATE_FORMAT='N j, Y'):
+            # year only
+            evt.partial_start_date = '1934'
+            assert partialdate(evt.partial_start_date) == '1934'
+            # year and month
+            evt.partial_start_date = '1934-02'
+            assert partialdate(evt.partial_start_date) == 'Feb. 1934'
+            # month and day
+            evt.partial_start_date = '--03-06'
+            assert partialdate(evt.partial_start_date) == 'March 6'
+            # full precision
+            evt.partial_start_date = '1934-11-06'
+            assert partialdate(evt.partial_start_date) == 'Nov. 6, 1934'
+
+        # partial precision with trailing punctuation in the date
+        evt.partial_start_date = '--11-26'
+        assert partialdate(evt.partial_start_date, 'j N') == '26 Nov.'
+
+        # check a different format
+        evt.partial_start_date = '--11-26'
+        assert partialdate(evt.partial_start_date, 'Ymd') == '1126'
+        evt.partial_start_date = '1932-11'
+        assert partialdate(evt.partial_start_date, 'Ymd') == '193211'
+        evt.partial_start_date = '1932'
+        assert partialdate(evt.partial_start_date, 'Ymd') == '1932'
+
+        # check week format
+        evt.partial_start_date = '1922-01-06'
+        assert partialdate(evt.partial_start_date, 'W y') == '1 22'
+        evt.partial_start_date = '--01-06'
+        assert partialdate(evt.partial_start_date, 'W y') is None
+
+        # handle error in parsing date
+        assert partialdate('foobar', 'Y-m-d') is None
 
 
 class TestCheckboxFieldset(TestCase):

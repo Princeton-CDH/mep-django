@@ -160,9 +160,9 @@ class TestMergeWorks(TestCase):
         merged_work = merge_utils.merge_works(
             Work.objects.filter(uri=work.uri), apps)
         # original + one from work2
-        assert merged_work.authors.count() == 2
+        assert len(merged_work.authors) == 2
         # shouldn't technically be on works, but allowed and test
-        assert merged_work.translators.count() == 1
+        assert len(merged_work.translators) == 1
         # redundant creator record removed
         assert not Creator.objects.filter(pk=creator_w2.pk).exists()
 
