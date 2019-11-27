@@ -406,24 +406,24 @@ class TestAddress(TestCase):
         start_year = 1920
         self.address.start_date = datetime.datetime(year=start_year, month=1, day=1)
         assert str(self.address) == \
-            '%s - %s (%s-)' % (self.location, self.account, start_year)
+            '%s - %s (%s–)' % (self.location, self.account, start_year)
 
         # start and end date
         end_year = 1923
         self.address.end_date = datetime.datetime(year=end_year, month=1, day=1)
         assert str(self.address) == \
-            '%s - %s (%d-%d)' % (self.location, self.account, start_year, end_year)
+            '%s - %s (%d–%d)' % (self.location, self.account, start_year, end_year)
 
         # end date only
         self.address.start_date = None
         assert str(self.address) == \
-            '%s - %s (-%d)' % (self.location, self.account, end_year)
+            '%s - %s (–%d)' % (self.location, self.account, end_year)
 
         # care of person
         self.address.care_of_person = Person.objects.create(
             name='Jones', slug='jones')
         assert str(self.address) == \
-            '%s - %s (-%d) c/o %s' % (self.location, self.account, end_year,
+            '%s - %s (–%d) c/o %s' % (self.location, self.account, end_year,
                                     self.address.care_of_person)
         # care of, no dates
         self.address.end_date = None

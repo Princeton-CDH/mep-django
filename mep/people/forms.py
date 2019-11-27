@@ -38,7 +38,7 @@ class MemberSearchForm(FacetForm):
 
     SORT_CHOICES = [
         ('relevance', 'Relevance'),
-        ('name', 'Name A - Z'),
+        ('name', 'Name A–Z'),
     ]
 
     # NOTE these are not set by default!

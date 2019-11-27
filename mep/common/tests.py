@@ -82,33 +82,33 @@ class TestDateRange(TestCase):
         # date range with start and end
         span.start_year = 1900
         span.end_year = 1901
-        assert span.dates == '1900-1901'
+        assert span.dates == '1900–1901'
         # start and end dates are same year = single year
         span.end_year = span.start_year
         assert span.dates == str(span.start_year)
         # start date but no end
         span.end_year = None
-        assert span.dates == '1900-'
+        assert span.dates == '1900–'
         # end date but no start
         span.end_year = 1950
         span.start_year = None
-        assert span.dates == '-1950'
+        assert span.dates == '–1950'
         # negative start date but no end
         span.start_year = -150
         span.end_year = None
-        assert span.dates == '150 BCE-'
+        assert span.dates == '150 BCE–'
         # negative end date but no start
         span.start_year = None
         span.end_year = -201
-        assert span.dates == '-201 BCE'
+        assert span.dates == '–201 BCE'
         # negative start date and positive end date
         span.start_year = -50
         span.end_year = 20
-        assert span.dates == '50 BCE-20 CE'
+        assert span.dates == '50 BCE–20 CE'
         # negative start and end date
         span.start_year = -150
         span.end_year = -100
-        assert span.dates == '150-100 BCE'
+        assert span.dates == '150–100 BCE'
         # identical negative dates
         span.start_year = span.end_year = -100
         assert span.dates == '100 BCE'
@@ -267,25 +267,25 @@ def test_alpha_pagelabels():
     items = [Item(t) for t in titles]
     paginator = Paginator(items, per_page=2)
     labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
-    assert labels[1] == 'Abi - Abn'
-    assert labels[2] == 'Ad - Al'
-    assert labels[3] == 'Am - And'
-    assert labels[4] == 'Anna - Anne'
+    assert labels[1] == 'Abi–Abn'
+    assert labels[2] == 'Ad–Al'
+    assert labels[3] == 'Am–And'
+    assert labels[4] == 'Anna–Anne'
     assert labels[5] == 'Az'
 
     # exact match on labels for page boundary
     titles.insert(1, 'Abner')
     items = [Item(t) for t in titles]
     labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
-    assert labels[1].endswith('- Abner')
-    assert labels[2].startswith('Abner - ')
+    assert labels[1].endswith('–Abner')
+    assert labels[2].startswith('Abner–')
 
     # single page of results - use first and last for labels
     paginator = Paginator(items, per_page=20)
     labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
     assert len(labels) == 1
     # first two letters of first and last titles is enough
-    assert labels[1] == '%s - %s' % (titles[0][:2], titles[-1][:2])
+    assert labels[1] == '%s–%s' % (titles[0][:2], titles[-1][:2])
 
     # returns empty response if no items
     paginator = Paginator([], per_page=20)
@@ -311,7 +311,7 @@ class TestLabeledPagesMixin(TestCase):
         # should be 7 pages of 5 items each
         assert len(context['page_labels']) == 7
         # last page label shows only the remaining items
-        assert context['page_labels'][-1] == (7, '31 - 33')
+        assert context['page_labels'][-1] == (7, '31–33')
         # with no items, should return an empty list
         view.object_list = []
         view.request = rf.get('/', {'page': '1'})
@@ -325,13 +325,13 @@ class TestLabeledPagesMixin(TestCase):
 
         view = MyLabeledPagesView()
         # create some page labels
-        view._page_labels = [(1, '1-5'), (2, '6-10')]
+        view._page_labels = [(1, '1–5'), (2, '6–10')]
         # make an ajax request
         view.request = Mock()
         view.request.is_ajax.return_value = True
         response = view.dispatch(view.request)
         # should return serialized labels using '|' separator
-        assert response['X-Page-Labels'] == '1-5|6-10'
+        assert response['X-Page-Labels'] == '1–5|6–10'
 
 
 class TestTemplateTags(TestCase):

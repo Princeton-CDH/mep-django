@@ -617,7 +617,7 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
         # format birth-death in a familiar pattern ( - )
         if person.birth_year or person.death_year:
             labels['bio_dates'] = \
-                ' (%s - %s)' % (person.birth_year, person.death_year)
+                ' (%s–%s)' % (person.birth_year, person.death_year)
         # get the first few words of any notes
         if person.notes:
             list_notes = person.notes.split()
@@ -642,7 +642,7 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
                     return format_html(
                         '<strong>{main_string}</strong>'
                         '{mep_id} <br />{type} '
-                        '({start_date} - {end_date})'.strip(),
+                        '({start_date}–{end_date})'.strip(),
                         **labels
                     )
             return format_html('<strong>{main_string}</strong>{mep_id}',
