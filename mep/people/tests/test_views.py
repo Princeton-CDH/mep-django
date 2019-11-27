@@ -19,6 +19,7 @@ from mep.accounts.models import (Account, Address, Borrow, Event, Purchase,
                                  Reimbursement, Subscription, SubscriptionType)
 from mep.accounts.partial_date import DatePrecision
 from mep.books.models import Creator, CreatorType, Work
+from mep.common.templatetags.mep_tags import partialdate
 from mep.common.utils import absolutize_url, login_temporarily_required
 from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
@@ -1488,10 +1489,10 @@ class TestMemberCardDetail(TestCase):
         # event details displayed
         events = card.footnote_set.all().events()
         for event in events:
-            self.assertContains(response, event.partial_start_date)
+            self.assertContains(response, partialdate(event.partial_start_date))
             self.assertContains(response, event.work.title)
             self.assertContains(response, event.event_type)
-            self.assertContains(response, event.partial_end_date)
+            self.assertContains(response, partialdate(event.partial_end_date))
 
         # links to next/previous pages
         context = response.context
