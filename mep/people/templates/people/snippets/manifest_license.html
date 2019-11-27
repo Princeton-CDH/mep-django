@@ -4,7 +4,7 @@
     {# logo for IIIF provider of digitized item #}
     {% if manifest.logo %}
         {# NOTE: could link to findingaids version via rendering url in extra data #}
-        <img class="logo" src="{{ manifest.logo }}"/>
+        <img class="logo" src="{{ manifest.logo }}" alt=""/>
     {% endif %}
     {# for now, only supports rightsstatments.org licenses (should work for PUL content) #}
     {% if manifest.license %}
