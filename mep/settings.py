@@ -229,9 +229,10 @@ CSP_MANIFEST_SRC = ("'self'",)
 # allow XMLHttpRequest or Fetch requests locally (for search), analytics & maps
 CSP_CONNECT_SRC = ("'self'", '*.google-analytics.com', '*.arcgis.com')
 
-# allow loading local images, google tracking pixel(s)?, PUL IIIF images, arcgis & mapbox maps
+# whitelisted image sources - analytics (tracking pixel?), IIIF, maps, etc.
 CSP_IMG_SRC = ("'self'", 'www.googletagmanager.com', '*.google-analytics.com',
-               'iiif.princeton.edu', '*.arcgis.com', 'api.mapbox.com', 'data:')
+               'iiif.princeton.edu', 'figgy.princeton.edu', '*.arcgis.com',
+               'api.mapbox.com', 'data:')
 
 # exclude admin and cms urls from csp directives since they're authenticated
 CSP_EXCLUDE_URL_PREFIXES = ('/admin', '/cms')

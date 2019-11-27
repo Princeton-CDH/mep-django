@@ -29,11 +29,11 @@
 </nav>
 
 <section class="member-cards">
-    {% if  cards %}
+    {% if cards %}
     <ol class="card-results">
     {% for card in cards %}
     <li class="card result">
-        {# <a href="#" aria-label=""> #}
+        <a href="{% url 'people:member-card-detail' member.slug card.short_id %}">
                 {# card thumbnails and year if known #}
                 <picture>
                   {% with card.image|iiif_image:"size:width=225" as 1xthumbnail %}
@@ -50,13 +50,15 @@
                     </span>
                 </div>
                 {% endwith %}
-        {# </a> #}
+        </a>
     </li>
     {% endfor %}
     </ol>
     {% else %}
     <div>No cards available.</div>
     {% endif %}
+
+    {% include 'people/snippets/manifest_license.html' with manifest=cards.0.manifest %}
 
 </section>
 {% endblock %}

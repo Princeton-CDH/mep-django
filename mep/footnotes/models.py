@@ -276,10 +276,9 @@ class Bibliography(Notable, ModelIndexable):
 class FootnoteQuerySet(models.QuerySet):
     '''Custom :class:`models.QuerySet` for :class:`Footnote`'''
 
-    def event_date_range(self):
-        '''Find earliest and latest dates for any events associated
-        with footnotes in this queryset. Returns a tuple of earliest
-        and latest dates, or None if no dates are found.'''
+    def events(self):
+        '''Return an Events queryset of any events (including borrows and
+        purchases) associated with the current footnote queryset.'''
 
         # use get model to avoid circular import
         Event = apps.get_model('accounts', 'Event')
@@ -308,9 +307,18 @@ class FootnoteQuerySet(models.QuerySet):
             elif ctype_lookup[ctype] == 'event':
                 filter_q |= models.Q(pk__in=pk_list)
 
+        # find and return corresponding events
+        return Event.objects.filter(filter_q)
+
+    def event_date_range(self):
+        '''Find earliest and latest dates for any events associated
+        with footnotes in this queryset. Returns a tuple of earliest
+        and latest dates, or None if no dates are found.'''
+
         # find corresponding events, filter out unknown years,
         # and aggregrate dates to get earliest and latest from this set
-        date_values = Event.objects.filter(filter_q).known_years() \
+        # date_values = Event.objects.filter(filter_q).known_years() \
+        date_values = self.events().known_years() \
             .annotate(
                 start_dates=Coalesce('start_date', 'end_date'),
                 end_dates=Coalesce('end_date', 'start_date')) \

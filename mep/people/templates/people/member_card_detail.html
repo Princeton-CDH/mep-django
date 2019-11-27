@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+{% load static mep_tags %}
+
+{% block page-subtitle %}{{ member.firstname_last }} {{ label }} Card · Library Members · {% endblock %}
+
+{% block js %}
+{% render_bundle 'cardViewer' %}
+{% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title=member.firstname_last style="detail" %}
+{% endblock %}
+
+{% block main-style %}white{% endblock %}
+
+{% block content %}
+{% include 'snippets/breadcrumbs.html' %}
+
+<div class="card-image-viewer">
+    <div class="viewer">
+        {% if prev_card %}
+        <a class="prev" rel="prev" aria-label="previous card"
+           href="{% url 'people:member-card-detail' member.slug prev_card.short_id %}"></a>
+        {% else %}
+        <span class="prev"></span>
+        {% endif %}
+        <picture>
+        {% with card.image|iiif_image:"size:width=430" as 1xthumbnail %}
+            <source srcset="{{ 1xthumbnail }}, {{ card.image|iiif_image:"size:width=860" }} 2x">
+            <img src="{{ 1xthumbnail }}" alt="">
+        {% endwith %}
+        </picture>
+        {% if next_card %}
+        <a class="next" rel="next" aria-label="next card"
+           href="{% url 'people:member-card-detail' member.slug next_card.short_id %}"></a>
+        {% else %}
+        <span class="next"/></span>
+        {% endif %}
+    </div>
+
+    {% include 'people/snippets/manifest_license.html' with manifest=card.manifest %}
+
+    {% if events %}
+    <div class="activities">
+    <div class="wrapper">
+    <table class="card-events">
+        <thead>
+            <tr>
+                <th>Start Date</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>End Date</th>
+            </tr>
+        </thead>
+        {% for event in events %}
+        <tr>
+            <td class="start{% if not event.partial_start_date %} empty{% endif %}">
+                {{ event.partial_start_date|partialdate|default:'-' }}
+            </td>
+            <td class="title{% if not event.work.title %} empty{% endif %}">
+                {{ event.work.title|default:'-' }}
+            </td>
+            {% with event.event_type as event_type %}
+            <td class="type{% if event_type == 'Generic' %} empty{% endif %}">
+                {% if event_type == 'Generic' %} -
+                {% else %}{{ event_type }}{% endif %}
+            </td>
+            {% endwith %}
+            <td class="end{% if not event.partial_end_date %} empty{% endif %}">
+                {{ event.partial_end_date|partialdate|default:'-' }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -134,6 +134,28 @@ class TestFootnote(TestCase):
 class TestFootnoteQuerySet(TestCase):
     fixtures = ['footnotes_gstein']
 
+    def test_events(self):
+        # other than stein fixture, should be no event - return nothing
+        gstein_filter = {
+            'bibliography__bibliographic_note__contains': 'Gertrude Stein'
+        }
+        assert not Footnote.objects.exclude(**gstein_filter).events().exists()
+
+        # get a known date from the fixture
+        evt = Borrow.objects.get(pk=26344)
+        assert evt.footnotes.all().events().count() == 1
+        assert evt.footnotes.all().events().first() == evt.event_ptr
+
+        # all events from one account
+        acct = Account.objects.first()  # currently only g. stein in fixture
+        footnote_events = Footnote.objects.filter(**gstein_filter).events()
+        for event in acct.event_set.all():
+            assert event in footnote_events
+
+        # event with no footnote
+        unnoted_event = Event.objects.create(account=acct)
+        assert unnoted_event not in Footnote.objects.all().events()
+
     def test_event_date_range(self):
         # other than stein fixture, should be no event dates - return nothing
         gstein_filter = {
