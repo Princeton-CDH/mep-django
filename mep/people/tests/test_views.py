@@ -643,9 +643,8 @@ class TestMembersListView(TestCase):
         # should not display relevance score
         self.assertNotContains(response, '<dt>relevance</dt>')
 
-        # icon for 'has card' should show up twice, once in the list
-        # and once in the filter icon
-        self.assertContains(response, 'card icon', count=2)
+        # hidden text for 'has card' icon should be rendered
+        self.assertContains(response, 'member has card')
 
         # pagination options set in context
         assert response.context['page_labels']
