@@ -23,7 +23,7 @@
         <a class="prev" rel="prev" aria-label="previous card"
            href="{% url 'people:member-card-detail' member.slug prev_card.short_id %}"></a>
         {% else %}
-        <span class="prev">
+        <span class="prev"></span>
         {% endif %}
         <picture>
         {% with card.image|iiif_image:"size:width=430" as 1xthumbnail %}
@@ -35,7 +35,7 @@
         <a class="next" rel="next" aria-label="next card"
            href="{% url 'people:member-card-detail' member.slug next_card.short_id %}"></a>
         {% else %}
-        <span class="next">
+        <span class="next"/></span>
         {% endif %}
     </div>
 
