@@ -330,8 +330,9 @@ class TestLabeledPagesMixin(TestCase):
         view.request = Mock()
         view.request.is_ajax.return_value = True
         response = view.dispatch(view.request)
-        # should return serialized labels using '|' separator
-        assert response['X-Page-Labels'] == '1–5|6–10'
+        # should return serialized labels using '|' separator and using hyphen
+        # instead of en dash to avoid sending unicode via http header
+        assert response['X-Page-Labels'] == '1-5|6-10'
 
 
 class TestTemplateTags(TestCase):
