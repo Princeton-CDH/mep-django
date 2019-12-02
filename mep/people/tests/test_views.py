@@ -753,7 +753,8 @@ class TestMembersListView(TestCase):
             # first arg is paginator
             assert alpha_pagelabels_args[0] == paginator
             # second arg is queryset with revised field list
-            assert alpha_pagelabels_args[1] == view.queryset.only.return_value
+            assert alpha_pagelabels_args[1] == \
+                view.queryset.only.return_value.get_results.return_value
             # third arg is a lambda
             assert isinstance(alpha_pagelabels_args[2], LambdaType)
 
