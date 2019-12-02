@@ -206,6 +206,15 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         pagination_qs = self.queryset.only('sort_name')
         alpha_labels = alpha_pagelabels(paginator, pagination_qs,
                                         lambda x: x['sort_name'][0])
+
+        # NOTE we need to replace the en dashes in alpha pagelabels with a
+        # hyphen when requested via ajax because unicode can't be sent via the
+        # X-Page-Labels header. this needs to get converted back to an en dash
+        # on the client side.
+        if self.request.is_ajax():
+            alpha_labels = OrderedDict([(label[0], label[1].replace('–', '-'))
+                for label in alpha_labels.items()])
+
         # alpha labels is a dict; use items to return list of tuples
         return alpha_labels.items()
 
