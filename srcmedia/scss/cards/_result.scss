@@ -59,7 +59,8 @@ $card-width: 11.25rem;
 
     }
 
-    a:hover {
+    a:hover,
+    a:focus {
         border: 0;
     }
 
