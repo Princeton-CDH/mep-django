@@ -435,6 +435,20 @@
       </analyzer>
     </fieldType>
 
+    <!-- custom string-like sort field that ignores accents and case; using text because
+         solr string field does not allow analyzers -->
+    <dynamicField name="*_s_en" type="string_en" indexed="true" stored="true" multiValued="false" />
+    <fieldType name="string_en" class="solr.TextField" sortMissingLast="true">
+       <analyzer type="index">
+            <!-- treat entire field as a single token -->
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+            <!-- apply unicode normalization and case folding -->
+          <filter class="solr.ICUFoldingFilterFactory"/>
+       </analyzer>
+       <!-- no query analyzer; only expected to be used for sorting, not
+            querying or faceting -->
+    </fieldType>
+
     <!-- A text field with defaults appropriate for English, plus
          aggressive word-splitting and autophrase features enabled.
          This field is just like text_en, except it adds
