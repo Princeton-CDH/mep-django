@@ -203,7 +203,10 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin,
             return super().get_page_labels(paginator)
 
         # otherwise, when sorting by alpha, generate alpha page labels
-        pagination_qs = self.queryset.only('sort_name')
+        # Only return sort name; get everything at once to avoid
+        # hitting Solr for each page / item.
+        pagination_qs = self.queryset.only('sort_name') \
+                                     .get_results(rows=100000)
         alpha_labels = alpha_pagelabels(paginator, pagination_qs,
                                         lambda x: x['sort_name'][0])
 
