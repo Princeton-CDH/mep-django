@@ -287,6 +287,14 @@ def test_alpha_pagelabels():
     # first two letters of first and last titles is enough
     assert labels[1] == '%s - %s' % (titles[0][:2], titles[-1][:2])
 
+    # case-insensitive
+    titles = ['Core', 'd\'Aricourt', 'D\'Assay', 'Estaing']
+    items = [Item(t) for t in titles]
+    paginator = Paginator(items, per_page=2)
+    labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
+    assert labels[1].endswith("d'Ar")
+    assert labels[2].startswith("D'As")
+
     # returns empty response if no items
     paginator = Paginator([], per_page=20)
     assert not alpha_pagelabels(paginator, [], lambda x: getattr(x, 'title'))
