@@ -311,6 +311,7 @@ class TestPerson(TestCase):
         assert index_data['slug_s'] == pers.slug
         assert index_data['name_t'] == pers.name
         assert index_data['sort_name_t'] == pers.sort_name
+        assert index_data['sort_name_sort_s_en'] == pers.sort_name
         assert index_data['birth_year_i'] == pers.birth_year
         assert index_data['death_year_i'] == pers.death_year
         # account dates and gender should not be set

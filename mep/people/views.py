@@ -121,7 +121,7 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     # map form sort to solr sort field
     solr_sort = {
         'relevance': '-score',
-        'name': 'sort_name_sort_s'
+        'name': 'sort_name_sort'
     }
 
     def get_queryset(self):
