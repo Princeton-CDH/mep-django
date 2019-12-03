@@ -123,7 +123,7 @@ class TestPeopleViews(TestCase):
         data = json.loads(result.content.decode('utf-8'))
         assert len(data['results']) == 1
         text = data['results'][0]['text']
-        expected = '<strong>Sylvia Beach (1900–1970)</strong> sylv.b <br />'
+        expected = '<strong>Sylvia Beach (1900 – 1970)</strong> sylv.b <br />'
         self.assertInHTML(expected, text)
 
         # add notes to beach
@@ -135,7 +135,7 @@ class TestPeopleViews(TestCase):
         text = data['results'][0]['text']
         # first 5 words of notes field should be present in response
         # on a separate line
-        expected = ('<strong>Sylvia Beach (1900–1970)</strong> '
+        expected = ('<strong>Sylvia Beach (1900 – 1970)</strong> '
                     'sylv.b <br />All of these words are')
         self.assertInHTML(expected, text)
 
@@ -165,7 +165,7 @@ class TestPeopleViews(TestCase):
         data = json.loads(result.content.decode('utf-8'))
         text = data['results'][0]['text']
         expected = ('<strong>Ms. Sylvia</strong> sylv.a <br />'
-                    'Subscription (1971-01-01–1971-01-31)')
+                    'Subscription (1971-01-01 – 1971-01-31)')
         self.assertInHTML(expected, text)
 
     def test_person_admin_change(self):
@@ -996,11 +996,11 @@ class TestMemberDetailView(TestCase):
         assert response.context['member'] == gay, \
             'page should correspond to the correct member'
         # check dates
-        self.assertContains(response, '1885–1963', html=True)
+        self.assertContains(response, '1885 – <span class="sr-only">to</span>1963', html=True)
         # check membership dates
         self.assertContains(
             response,
-            'March 4, 1934–<span class="sr-only">to</span> Feb. 3, 1941',
+            'March 4, 1934 – <span class="sr-only">to</span>Feb. 3, 1941',
             html=True)
         # check VIAF
         self.assertContains(response, 'http://viaf.org/viaf/9857613')

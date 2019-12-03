@@ -16,7 +16,7 @@
                 <div class="card-dates {% if not card.years %}unknown{% endif %}">
                     <dt>Card Dates</dt>
                     <dd>{% if card.years %}
-                        {{ card.start }}{% if card.start != card.end %}–<span class="sr-only">to</span>{{ card.end }}{% endif %}
+                        {{ card.start }}{% if card.start != card.end %} – <span class="sr-only">to</span>{{ card.end }}{% endif %}
                         {% else %}Unknown{% endif %}
                     </dd>
                 </div>

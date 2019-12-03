@@ -17,7 +17,7 @@
             <dt>birth / death</dt>
             <dd>
             {% if member.birth_year %}
-            {{ member.birth_year }}{% endif %}–{% if member.death_year %}{{ member.death_year }}
+            {{ member.birth_year }}{% endif %} – {% if member.death_year %}<span class="sr-only">to</span>{{ member.death_year }}
             {% endif %}
             </dd>
         </div>
@@ -47,7 +47,7 @@
             <dt>membership dates</dt>
             <dd>
             {% if account_start %}
-            {{ account_start }}{% endif %}{% if account_end and account_start != account_end %}–<span class="sr-only">to</span>{{ account_end }}
+            {{ account_start }}{% endif %}{% if account_end and account_start != account_end %} – <span class="sr-only">to</span>{{ account_end }}
             {% endif %}
             </dd>
         </div>

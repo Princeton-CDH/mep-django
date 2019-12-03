@@ -35,7 +35,7 @@ class LabeledPagesMixin(ContextMixin):
             # final page should end at number of the final item
             page_end = min(page_start + paginator.per_page, paginator.count)
             # first item on page is 1-based index, e.g. 51-100
-            page_labels.append((page, '%d–%d' % (page_start + 1, page_end)))
+            page_labels.append((page, '%d – %d' % (page_start + 1, page_end)))
 
         return page_labels
 
