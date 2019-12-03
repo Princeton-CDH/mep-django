@@ -455,7 +455,7 @@ class MemberCardList(ListView, RdfViewMixin):
         return context
 
 
-class MemberCardDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
+class MemberCardDetail(DetailView, RdfViewMixin):
     '''Card image viewer for image of a single lending card page
     associated with a single library member.'''
     model = Canvas
@@ -507,8 +507,24 @@ class MemberCardDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
         context = super().get_context_data(**kwargs)
         # use order within manifest to get next/prev links
         sibling_cards = self.object.manifest.canvases
-        next_card = sibling_cards.filter(order=self.object.order + 1).first()
-        prev_card = sibling_cards.filter(order=self.object.order - 1).first()
+        # if user is not logged in, filter out any cards without events
+        if self.request.user.is_anonymous():
+            sibling_cards = sibling_cards.filter(footnote__isnull=False) \
+                                         .distinct()
+
+        # convert into a list of ids in order to get adjacent ids
+        # that skip over blank cards
+        sibling_cards = list(sibling_cards.values_list('short_id', flat=True))
+        current_index = sibling_cards.index(self.object.short_id)
+        try:
+            next_card = sibling_cards[current_index + 1]
+        except IndexError:
+            next_card = None
+        try:
+            prev_card = sibling_cards[current_index - 1]
+        except IndexError:
+            prev_card = None
+
         context.update({
             'member': self.member,
             'label': self.label,

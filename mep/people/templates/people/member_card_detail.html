@@ -21,7 +21,7 @@
     <div class="viewer">
         {% if prev_card %}
         <a class="prev" rel="prev" aria-label="previous card"
-           href="{% url 'people:member-card-detail' member.slug prev_card.short_id %}"></a>
+           href="{% url 'people:member-card-detail' member.slug prev_card %}"></a>
         {% else %}
         <span class="prev"></span>
         {% endif %}
@@ -33,7 +33,7 @@
         </picture>
         {% if next_card %}
         <a class="next" rel="next" aria-label="next card"
-           href="{% url 'people:member-card-detail' member.slug next_card.short_id %}"></a>
+           href="{% url 'people:member-card-detail' member.slug next_card %}"></a>
         {% else %}
         <span class="next"/></span>
         {% endif %}

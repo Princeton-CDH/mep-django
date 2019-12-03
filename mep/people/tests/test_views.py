@@ -509,7 +509,6 @@ class TestLocationAutocompleteView(TestCase):
         assert len(info['results']) == 1
         assert 'Hotel Le Foo' in info['results'][0]['text']
 
-
         # auto complete that should get El Foo
         res = self.client.get(auto_url, {'q': '67891'})
         info = res.json()
@@ -1409,71 +1408,76 @@ class TestMemberCardDetail(TestCase):
     canvas_id = '68fd36f1-a463-441e-9f13-dfc4a6cd4114'
     kwargs = {'slug': 'stein-gertrude', 'short_id': canvas_id}
 
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.cardlist_url = reverse('people:member-card-detail',
+                                    kwargs=self.kwargs)
+        self.view = MemberCardDetail()
+        self.view.request = self.factory.get(self.cardlist_url)
+        # simulate anonymous user
+        self.view.request.user = AnonymousUser()
+
     def test_get_object(self):
-        view = MemberCardDetail()
         # invalid member slug should result in a 404
-        view.kwargs = {'slug': 'bogus', 'canvas_id': self.canvas_id}
+        self.view.kwargs = {'slug': 'bogus', 'canvas_id': self.canvas_id}
         with pytest.raises(Http404):
-            view.get_object()
+            self.view.get_object()
 
         # valid member slug with invalid canvas id should result in a 404
-        view.kwargs = self.kwargs.copy()
-        view.kwargs['short_id'] = 'foo'
-        print(view.kwargs)
+        self.view.kwargs = self.kwargs.copy()
+        self.view.kwargs['short_id'] = 'foo'
         with pytest.raises(Http404):
-            view.get_object()
+            self.view.get_object()
 
-        view.kwargs = self.kwargs
+        self.view.kwargs = self.kwargs
         expected_card = Canvas.objects.get(short_id=self.canvas_id)
-        card = view.get_object()
+        card = self.view.get_object()
         assert card == expected_card
         # member should be stored on the view
-        assert view.member == Person.objects.get(slug='stein-gertrude')
+        assert self.view.member == Person.objects.get(slug='stein-gertrude')
         # label should be set
         card_dates = card.footnote_set.event_date_range()
         # single-year card
-        assert view.label == card_dates[0].year
+        assert self.view.label == card_dates[0].year
 
     def test_get_absolute_url(self):
-        view = MemberCardDetail()
-        view.kwargs = {'slug': 'stein', 'short_id': self.canvas_id}
-        assert view.get_absolute_url() == \
+        self.view.kwargs = {'slug': 'stein', 'short_id': self.canvas_id}
+        assert self.view.get_absolute_url() == \
             absolutize_url(reverse('people:member-card-detail',
-                                   kwargs=view.kwargs))
+                                   kwargs=self.view.kwargs))
 
     def test_get_breadcrumbs(self):
-        view = MemberCardDetail()
-        view.kwargs = self.kwargs
+        self.view.kwargs = self.kwargs
         # get object to populate member, object, and label
-        view.get_object()
-        crumbs = view.get_breadcrumbs()
+        self.view.get_object()
+        crumbs = self.view.get_breadcrumbs()
         assert crumbs[0][0] == 'Home'
         # last item is this page
-        assert crumbs[-1][0] == view.label
-        assert crumbs[-1][1] == view.get_absolute_url()
+        assert crumbs[-1][0] == self.view.label
+        assert crumbs[-1][1] == self.view.get_absolute_url()
         # second last item is card gallery view
         assert crumbs[-2][0] == 'Cards'
         assert crumbs[-2][1] == \
             absolutize_url(reverse('people:member-card-list',
                                    kwargs={'slug': 'stein-gertrude'}))
         # third to last is member page
-        assert crumbs[-3][0] == view.member.short_name
-        assert crumbs[-3][1] == absolutize_url(view.member.get_absolute_url())
+        assert crumbs[-3][0] == self.view.member.short_name
+        assert crumbs[-3][1] == \
+            absolutize_url(self.view.member.get_absolute_url())
 
     def test_get_context_data(self):
-        view = MemberCardDetail()
-        view.kwargs = self.kwargs
-        view.object = view.get_object()
-        context = view.get_context_data()
-        assert context['member'] == view.member
-        assert context['label'] == view.label
-        expected_events = view.object.footnote_set.events()
+        self.view.kwargs = self.kwargs
+        self.view.object = self.view.get_object()
+        context = self.view.get_context_data()
+        assert context['member'] == self.view.member
+        assert context['label'] == self.view.label
+        expected_events = self.view.object.footnote_set.events()
         assert context['events'].count() == expected_events.count()
         assert set(context['events'].values_list('pk', flat=True)) == \
             set(expected_events.values_list('pk', flat=True))
         # canvas 0 is no previous, 2 is next
-        assert context['prev_card'] == Canvas.objects.get(order=0)
-        assert context['next_card'] == Canvas.objects.get(order=2)
+        assert context['prev_card'] == Canvas.objects.get(order=0).short_id
+        assert context['next_card'] == Canvas.objects.get(order=2).short_id
 
     @login_temporarily_required
     def test_view_template(self):
@@ -1505,12 +1509,12 @@ class TestMemberCardDetail(TestCase):
             response,
             reverse('people:member-card-detail',
                     kwargs={'slug': context['member'].slug,
-                            'short_id': context['prev_card'].short_id}))
+                            'short_id': context['prev_card']}))
         self.assertContains(
             response,
             reverse('people:member-card-detail',
                     kwargs={'slug': context['member'].slug,
-                            'short_id': context['next_card'].short_id}))
+                            'short_id': context['next_card']}))
 
         # iiif license image, text & link
         self.assertContains(response, 'No Known Copyright')
