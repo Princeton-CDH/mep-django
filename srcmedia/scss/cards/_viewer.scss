@@ -72,12 +72,14 @@
     // event table styles
     .card-events {
 
+        .title {
+            font-style: italic;
+            text-align: left;
+        }
+
+
         // mobile only
         @media (max-width: calc(#{$breakpoint-s} - 1px)) {
-
-            .title {
-                font-style: italic;
-            }
 
             .type {
                 text-transform: lowercase;
