@@ -6,14 +6,14 @@ from datetime import date
 from types import LambdaType
 from unittest.mock import Mock, patch
 
-import pytest
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import AnonymousUser, Permission, User
 from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
 from django.template.defaultfilters import date as format_date
 from django.test import RequestFactory, TestCase
 from django.urls import resolve, reverse
 from djiffy.models import Canvas
+import pytest
 
 from mep.accounts.models import (Account, Address, Borrow, Event, Purchase,
                                  Reimbursement, Subscription, SubscriptionType)
@@ -1310,49 +1310,56 @@ class TestMembershipGraphs(TestCase):
 class TestMemberCardList(TestCase):
     fixtures = ['footnotes_gstein', 'sample_people']
 
-    def test_get_queryset(self):
-        view = MemberCardList()
-        # invalid slug should result in a 404
-        view.kwargs = {'slug': 'bogus'}
-        with pytest.raises(Http404):
-            view.get_queryset()
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.cardlist_url = reverse('people:member-card-list',
+                                    kwargs={'slug': 'stein-gertrude'})
+        self.view = MemberCardList()
+        self.view.request = self.factory.get(self.cardlist_url)
+        # simulate anonymous user
+        self.view.request.user = AnonymousUser()
 
-        view.kwargs = {'slug': 'stein-gertrude'}
-        canvas_ids = list(view.get_queryset().values_list('pk', flat=True))
+    def test_get_queryset(self):
+        # invalid slug should result in a 404
+        self.view.kwargs = {'slug': 'bogus'}
+        with pytest.raises(Http404):
+            self.view.get_queryset()
+
+        self.view.kwargs = {'slug': 'stein-gertrude'}
+        canvas_ids = list(self.view.get_queryset().values_list('pk', flat=True))
         # member should be stored on the view
-        assert view.member == Person.objects.get(slug='stein-gertrude')
+        assert self.view.member == Person.objects.get(slug='stein-gertrude')
         # queryset should be canvas ids for footnotes associated with Stein
         assert canvas_ids == list(Footnote.objects.filter(
             bibliography__bibliographic_note__contains='Gertrude Stein'
         ).values_list('image__pk', flat=True).distinct())
 
     def test_get_absolute_url(self):
-        view = MemberCardList()
-        view.kwargs = {'slug': 'stein'}
-        assert view.get_absolute_url() == \
+        self.view = MemberCardList()
+        self.view.kwargs = {'slug': 'stein'}
+        assert self.view.get_absolute_url() == \
             absolutize_url(reverse('people:member-card-list',
-                                   kwargs=view.kwargs))
+                                   kwargs=self.view.kwargs))
 
     def test_get_breadcrumbs(self):
-        view = MemberCardList()
-        view.kwargs = {'slug': 'stein-gertrude'}
+        self.view.kwargs = {'slug': 'stein-gertrude'}
         # get queryset to populate member & object
-        view.get_queryset()
-        crumbs = view.get_breadcrumbs()
+        self.view.get_queryset()
+        crumbs = self.view.get_breadcrumbs()
         assert crumbs[0][0] == 'Home'
         # last item is this page
         assert crumbs[-1][0] == 'Cards'
-        assert crumbs[-1][1] == view.get_absolute_url()
+        assert crumbs[-1][1] == self.view.get_absolute_url()
         # second to last is member page
-        assert crumbs[-2][0] == view.member.short_name
-        assert crumbs[-2][1] == absolutize_url(view.member.get_absolute_url())
+        assert crumbs[-2][0] == self.view.member.short_name
+        assert crumbs[-2][1] == \
+            absolutize_url(self.view.member.get_absolute_url())
 
     def test_get_context_data(self):
-        view = MemberCardList()
-        view.kwargs = {'slug': 'stein-gertrude'}
-        view.object_list = view.get_queryset()
-        context = view.get_context_data()
-        assert context['member'] == view.member
+        self.view.kwargs = {'slug': 'stein-gertrude'}
+        self.view.object_list = self.view.get_queryset()
+        context = self.view.get_context_data()
+        assert context['member'] == self.view.member
 
     @login_temporarily_required
     def test_view_template(self):
@@ -1388,7 +1395,6 @@ class TestMemberCardList(TestCase):
         self.assertContains(response, 'rightsstatements_org/NKC.svg')
         # iiif logo icon
         self.assertContains(response, 'pul_logo_icon')
-
 
         # library member wih no cards
         response = self.client.get(reverse('people:member-card-list',

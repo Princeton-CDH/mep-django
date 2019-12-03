@@ -411,7 +411,7 @@ class BorrowingActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         ]
 
 
-class MemberCardList(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
+class MemberCardList(ListView, RdfViewMixin):
     '''Card thumbnails for lending card associated with a single library
     member.'''
     model = Canvas
@@ -424,9 +424,15 @@ class MemberCardList(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
                                         slug=self.kwargs['slug'])
         # find all canvas objects for this person, via manifest
         # associated with lending card bibliography
-        return super().get_queryset() \
-                      .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
-                      .order_by('order')
+        cards = super().get_queryset() \
+                       .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
+                       .order_by('order')
+
+        # if user is not logged in, filter out any cards without events
+        if self.request.user.is_anonymous():
+            cards = cards.filter(footnote__isnull=False).distinct()
+
+        return cards
 
     def get_absolute_url(self):
         '''Full URI for member card list page.'''
