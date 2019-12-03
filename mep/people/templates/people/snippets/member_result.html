@@ -14,7 +14,7 @@
         {# birth & death dates - solr & db #}
         {% if member.birth_year or member.death_year %}
         <div class="birth-death">
-            <dt>birth / death</dt>
+            <dt>birth – death</dt>
             <dd>
             {% if member.birth_year %}
             {{ member.birth_year }}{% endif %} – {% if member.death_year %}<span class="sr-only">to</span>{{ member.death_year }}
