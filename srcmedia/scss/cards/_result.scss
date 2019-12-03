@@ -117,19 +117,29 @@ $card-width: 11.25rem;
         }
     }
 
-    a, a:hover {
-        border-bottom: none;
+    a {
+        margin-left: 0.75rem;
+        border-color: $transparent-pale-teal;
+        display: inline-block;  /* required to center PUL logo */
+        font-size: 0;    /* avoid extra vertical space */
+
+        @media (max-width: $breakpoint-s) {
+            margin-left: 0.5rem;
+        }
+
+        &:hover, &:focus {
+            border-color: $transparent-seafoam-blue;
+        }
     }
 
     img {
-        padding-left: 0.75rem;
         height: 1rem;
         opacity: 0.5;
+        margin-bottom: 5px;
 
         /* slightly smaller on card image viewer */
         @media (max-width: $breakpoint-s) {
             height: 0.825rem;
-            padding-left: 0.5rem;
         }
 
         &.logo {  /* NOTE: logo styles are possibly PUL specific */
