@@ -99,13 +99,13 @@ class DateRange(models.Model):
             return ''
 
         if not self.end_year:  # only start year
-            # '100 BCE-' / '1900-'
-            return '%s-' % DateRange._year_str(self.start_year)
+            # '100 BCE –' / '1900 –'
+            return '%s –' % DateRange._year_str(self.start_year)
 
         # only end year
         if not self.start_year:
-            # '-100 BCE' / '-1900'
-            return '-%s' % DateRange._year_str(self.end_year)
+            # '– 100 BCE' / '– 1900'
+            return '– %s' % DateRange._year_str(self.end_year)
 
         # same year
         if self.start_year == self.end_year:
@@ -116,13 +116,13 @@ class DateRange(models.Model):
         if self.start_year < 0:
             # end date is BCE
             if self.end_year < 0:
-                # '100-50 BCE'
-                return '%s-%s BCE' % (abs(self.start_year), abs(self.end_year))
-            # '100 BCE-20 CE'
-            return '%s BCE-%s CE' % (abs(self.start_year), self.end_year)
+                # '100 – 50 BCE'
+                return '%s – %s BCE' % (abs(self.start_year), abs(self.end_year))
+            # '100 BCE – 20 CE'
+            return '%s BCE – %s CE' % (abs(self.start_year), self.end_year)
 
-        # both CE, '1900-1901'
-        return '%s-%s' % (self.start_year, self.end_year)
+        # both CE, '1900 – 1901'
+        return '%s – %s' % (self.start_year, self.end_year)
 
     def clean(self):
         '''validate that end year is greater than or equal to start year'''

@@ -25,6 +25,7 @@ class LabeledPagesMixin(ContextMixin):
         '''Generate labels for pages. Defaults to labeling pages using numeric
         ranges, e.g. `50-100`.'''
         page_labels = []
+
         # if there's nothing to paginate, just return an empty list
         if paginator.count == 0:
             return page_labels
@@ -34,7 +35,7 @@ class LabeledPagesMixin(ContextMixin):
             # final page should end at number of the final item
             page_end = min(page_start + paginator.per_page, paginator.count)
             # first item on page is 1-based index, e.g. 51-100
-            page_labels.append((page, '%d - %d' % (page_start + 1, page_end)))
+            page_labels.append((page, '%d – %d' % (page_start + 1, page_end)))
 
         return page_labels
 
@@ -52,7 +53,12 @@ class LabeledPagesMixin(ContextMixin):
     def dispatch(self, request, *args, **kwargs):
         response = super(LabeledPagesMixin, self).dispatch(request, *args, **kwargs)
         if self.request.is_ajax():
-            response['X-Page-Labels'] = '|'.join([label for index, label in self._page_labels])
+        # NOTE we need to replace the en dashes in alpha pagelabels with a
+        # hyphen when requested via ajax because unicode can't be sent via the
+        # X-Page-Labels header. this needs to get converted back to an en dash
+        # on the client side.
+            response['X-Page-Labels'] = '|'.join(
+                [label.replace('–', '-') for index, label in self._page_labels])
         return response
 
 

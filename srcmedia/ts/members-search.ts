@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pageLabels$.pipe( // generate new <options> based on page labels if we have any
             map(labels => labels.map((label, pageNumber) => ({
                 value: (pageNumber + 1).toString(), // <option> value is its index (page number)
-                text: label, // text is the page label
+                text: label.replace('-', '–'), // text is the page label; replace hyphens with en dashes
             })))
         ),
         noResultsPageOption$ // if no results, use the 'N/A' label

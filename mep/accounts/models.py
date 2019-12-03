@@ -310,7 +310,7 @@ class Address(Notable, PartialDateMixin):
     def __str__(self):
         details = self.account or self.person or ''
         if self.start_date or self.end_date:
-            details = '%s (%s)' % (details, '-'.join([
+            details = '%s (%s)' % (details, ' – '.join([
                 date.strftime('%Y') if date else ''
                 for date in [self.start_date, self.end_date]]))
         if self.care_of_person:
@@ -318,7 +318,7 @@ class Address(Notable, PartialDateMixin):
 
         # include details if there are any
         if details:
-            return '%s - %s' % (self.location, details)
+            return '%s — %s' % (self.location, details)
         # otherwise just location
         return str(self.location)
 

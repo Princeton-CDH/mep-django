@@ -102,7 +102,7 @@ def alpha_pagelabels(paginator, objects, attr_meth):
     for i in range(0, len(abbreviated_labels), 2):
         page_index = int((i + 2) / 2)
         try:
-            page_labels[page_index] = '%s - %s' % \
+            page_labels[page_index] = '%s – %s' % \
                 (abbreviated_labels[i].strip(),
                  abbreviated_labels[i + 1].strip())
         except IndexError:

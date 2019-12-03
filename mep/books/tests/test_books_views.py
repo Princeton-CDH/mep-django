@@ -143,7 +143,7 @@ class TestWorkListView(TestCase):
         # NOTE this will change if we implement alpha pagination for this view
         form.is_valid.return_value = True
         page_labels = view.get_page_labels(paginator)
-        assert page_labels == [(1, '1 - 100'), (2, '101 - 120')]
+        assert page_labels == [(1, '1 – 100'), (2, '101 – 120')]
         # if invalid, should return one page with 'N/A' label
         form.is_valid.return_value = False
         page_labels = view.get_page_labels(paginator)
