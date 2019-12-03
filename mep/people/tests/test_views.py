@@ -579,11 +579,6 @@ class TestMembersListView(TestCase):
         self.factory = RequestFactory()
         self.members_url = reverse('people:members-list')
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        assert self.client.get(self.members_url).status_code == 404
-
-    @login_temporarily_required
     def test_list(self):
         # test listview functionality using testclient & response
 
@@ -979,7 +974,6 @@ class TestMembersListView(TestCase):
 class TestMemberDetailView(TestCase):
     fixtures = ['sample_people.json']
 
-    @login_temporarily_required
     def test_get_member(self):
         gay = Person.objects.get(name='Francisque Gay', slug='gay')
         url = reverse('people:member-detail', kwargs={'slug': gay.slug})
@@ -1007,7 +1001,6 @@ class TestMemberDetailView(TestCase):
         self.assertContains(response, 'France')
         # NOTE currently not including/checking profession
 
-    @login_temporarily_required
     def test_member_map(self):
         gay = Person.objects.get(name='Francisque Gay', slug='gay')
         url = reverse('people:member-detail', kwargs={'slug': gay.slug})
@@ -1099,7 +1092,6 @@ class TestMembershipActivities(TestCase):
         assert crumbs[-2][0] == self.member.short_name
         assert crumbs[-2][1] == absolutize_url(self.member.get_absolute_url())
 
-    @login_temporarily_required
     def test_view_template(self):
         response = self.client.get(reverse('people:membership-activities',
                                    kwargs={'slug': self.member.slug}))
@@ -1219,7 +1211,6 @@ class TestBorrowingActivities(TestCase):
         assert crumbs[-2][0] == self.member.short_name
         assert crumbs[-2][1] == absolutize_url(self.member.get_absolute_url())
 
-    @login_temporarily_required
     def test_view_template(self):
         response = self.client.get(reverse('people:borrowing-activities',
                                    kwargs={'slug': self.member.slug}))
@@ -1232,30 +1223,30 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'End Date')
 
         # event details - borrow
-        self.assertContains(response, 'Borrow') # type
-        self.assertContains(response, 'Suppliant Maidens') # title
-        self.assertContains(response, 'Aeschylus') # author
-        self.assertContains(response, '1922') # pub date
-        self.assertContains(response, 'Feb. 1924') # partial start date
-        self.assertContains(response, 'March 1924') # partial end date
-        self.assertContains(response, 'data-sort="1924-02"') # sorting
-        self.assertContains(response, 'data-sort="1924-03"') # sorting
+        self.assertContains(response, 'Borrow')  # type
+        self.assertContains(response, 'Suppliant Maidens')  # title
+        self.assertContains(response, 'Aeschylus')  # author
+        self.assertContains(response, '1922')  # pub date
+        self.assertContains(response, 'Feb. 1924')  # partial start date
+        self.assertContains(response, 'March 1924')  # partial end date
+        self.assertContains(response, 'data-sort="1924-02"')  # sorting
+        self.assertContains(response, 'data-sort="1924-03"')  # sorting
 
         # event details - purchase
-        self.assertContains(response, 'Purchase') # type
-        self.assertContains(response, 'The Awakening of Helena Richie') # title
-        self.assertContains(response, 'Margaret Deland') # author
-        self.assertContains(response, '1906') # pub date
-        self.assertContains(response, 'Nov. 27') # partial start date
-        self.assertContains(response, 'data-sort="--11-27"') # sorting
+        self.assertContains(response, 'Purchase')  # type
+        self.assertContains(response, 'The Awakening of Helena Richie')  # title
+        self.assertContains(response, 'Margaret Deland')  # author
+        self.assertContains(response, '1906')  # pub date
+        self.assertContains(response, 'Nov. 27')  # partial start date
+        self.assertContains(response, 'data-sort="--11-27"')  # sorting
 
         # event details - generic
-        self.assertContains(response, '-') # type
-        self.assertContains(response, 'The Sun Also Rises') # title
-        self.assertContains(response, 'Ernest Hemingway') # author
-        self.assertContains(response, '1926') # pub date
-        self.assertContains(response, 'June 3, 1922') # start date
-        self.assertContains(response, 'data-sort="1922-06-03"') # sorting
+        self.assertContains(response, '-')  # type
+        self.assertContains(response, 'The Sun Also Rises')  # title
+        self.assertContains(response, 'Ernest Hemingway')  # author
+        self.assertContains(response, '1926')  # pub date
+        self.assertContains(response, 'June 3, 1922')  # start date
+        self.assertContains(response, 'data-sort="1922-06-03"')  # sorting
 
         # test member with no borrowing activity
         response = self.client.get(reverse('people:borrowing-activities',

@@ -29,8 +29,8 @@ from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
-                  FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
+class MembersList(LabeledPagesMixin, ListView, FormMixin,
+                  AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     page_title = "Members"
@@ -222,7 +222,7 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         ]
 
 
-class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
+class MemberDetail(DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -326,7 +326,7 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
+class MembershipActivities(ListView, RdfViewMixin):
     '''Display a list of membership activities (subscriptions, renewals,
     and reimbursements) for an individual member.'''
     model = Event
@@ -369,7 +369,7 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         ]
 
 
-class BorrowingActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
+class BorrowingActivities(ListView, RdfViewMixin):
     '''Display a list of book-related activities (borrows, purchases, gifts)
     for an individual member.'''
     model = Event
