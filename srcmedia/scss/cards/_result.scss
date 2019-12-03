@@ -122,16 +122,24 @@ $card-width: 11.25rem;
     }
 
     img {
-        padding-left: 0.5rem;
-        height: 1.55rem;
+        padding-left: 0.75rem;
+        height: 1rem;
+        opacity: 0.5;
 
         /* slightly smaller on card image viewer */
-        .card-image-viewer & {
-            height: 1.2rem;
+        @media (max-width: $breakpoint-s) {
+            height: 0.825rem;
+            padding-left: 0.5rem;
         }
 
-        &.logo {
+        &.logo {  /* NOTE: logo styles are possibly PUL specific */
+            height: 1.25rem;
             filter: grayscale(100%) brightness(30%);
+
+            @media (max-width: $breakpoint-s) {
+                height: 1rem;
+            }
+
         }
     }
 }

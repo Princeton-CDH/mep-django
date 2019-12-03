@@ -2,9 +2,8 @@
 {% load static mep_tags %}
 <div class="rights-statement">
     {# logo for IIIF provider of digitized item #}
-    {# {{ manifest.extra_data.rendering|dict_item:"@id" }} #}
     {% if manifest.logo %}
-        {# NOTE: could link to findingaids version via rendering url in extra data #}
+        {# link to findingaids version via rendering url in extra data #}
         {% with manifest.extra_data.rendering|yesno:"a,span" as tag %}
             <{{ tag }} {% if tag == "a" %} href="{{ manifest.extra_data.rendering|dict_item:"@id" }}" target="_blank" {% endif %}>
             <img class="logo" src="{{ manifest.logo }}" alt=""/>
