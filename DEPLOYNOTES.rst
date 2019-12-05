@@ -3,6 +3,22 @@
 Deploy and Upgrade notes
 ========================
 
+
+
+0.23
+----
+
+* Unicode folding and partial name searching require an update to the
+  Solr configuration.
+
+  Copy all files under `solr_conf/conf/` to your configured Solr configset.
+
+  Then update the schema and reindex::
+
+    python manage.py solr_schema
+    python manage.py index -i person
+
+
 0.23
 ----
 
