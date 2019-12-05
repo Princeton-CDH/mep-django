@@ -73,9 +73,12 @@
     .card-events {
 
         .title {
-            font-style: italic;
             text-align: left;
         }
+        td.title {
+            font-style: italic;
+        }
+
 
 
         // mobile only
