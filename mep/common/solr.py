@@ -13,12 +13,9 @@ class SolrSchema(schema.SolrSchema):
 
     #: copy fields for facets and variant search options
     copy_fields = {
-        # string version of sort name for sort/facet
-        'sort_name_t': 'sort_name_sort_s_en',
-        # unicode/case folding version of names for searching
-        'name_t': 'name_txt_gen',
-        'sort_name_t': 'name_txt_gen',
-        # ngram version of names for searching
-        'name_t': 'name_ngram',
-        'sort_name_t': 'name_ngram',
+        # _s_en = string version of sort name for sort/facet
+        # _txt_gen = unicode/case folding version for searching / sorting
+        # _ngram = ngram tokenized version for partial matching
+        'sort_name_t': ['sort_name_sort_s_en', 'name_txt_gen', 'name_ngram'],
+        'name_t': ['name_txt_gen', 'name_ngram']
     }
