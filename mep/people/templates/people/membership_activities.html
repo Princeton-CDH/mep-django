@@ -64,10 +64,10 @@
     <table id="activity-table" class="membership">
         <thead>
             <tr>
-                <th>Type</th>
-                <th aria-describedby="category-tip" data-sort-method="none">Category
-                    <span id="category-tip" role="tooltip" class="question"
-                        aria-label="{{ category_tooltip }}" tabindex=0
+                <th>Activity</th>
+                <th aria-describedby="plan-tip" data-sort-method="none">Plan
+                    <span id="plan-tip" role="tooltip" class="question"
+                        aria-label="{{ plan_tooltip }}" tabindex=0
                         onclick="event.preventDefault()"/>
                 </th>
                 <th data-sort-method="number">Duration</th>
@@ -78,8 +78,8 @@
         </thead>
         {% for event in event_list %}
         <tr>
-            <td class="type">{{ event.event_type }}</td>
-            <td class="category{% if not event.subscription.category %} empty{% endif %}">
+            <td class="activity">{{ event.event_type }}</td>
+            <td class="plan{% if not event.subscription.category %} empty{% endif %}">
                 {{ event.subscription.category|default:'-' }}
             </td>
             <td class="duration{% if not event.subscription.duration %} empty{% endif %}"
