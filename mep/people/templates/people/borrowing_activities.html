@@ -76,7 +76,8 @@
             <td class="title{% if not event.work.title %} empty{% endif %}">
                 {{ event.work.title|default:'-' }}
             </td>
-            <td class="author{% if not event.work.author_list %} empty{% endif %}">
+            <td class="author{% if not event.work.author_list %} empty{% endif %}"
+                data-sort="{{ event.work.sort_author_list|default:'' }}">
                 {{ event.work.author_list|default:'-' }}
             </td>
             <td class="pubdate{% if not event.work.year %} empty{% endif %}">
