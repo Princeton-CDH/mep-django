@@ -262,10 +262,10 @@ class Work(Notable, ModelIndexable):
         '''work creators with type author'''
         return self.creator_by_type('Author')
 
-    @property
     def author_list(self):
         '''semicolon separated list of author names'''
         return '; '.join([auth.name for auth in self.authors])
+    author_list.verbose_name = 'Authors'
 
     @property
     def sort_author_list(self):
