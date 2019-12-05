@@ -256,6 +256,41 @@ class TestWork(TestCase):
         work.genres.add(genre2)
         assert work.genre_list() == '%s; %s' % (genre2.name, genre1.name)
 
+    def test_author_list(self):
+        # no authors
+        work = Work.objects.create(title='Anonymous')
+        assert work.author_list == ''
+        # one author
+        author_type = CreatorType.objects.get(name='Author')
+        author1 = Person.objects.create(name='Smith', slug='s')
+        Creator.objects.create(
+            creator_type=author_type, person=author1, work=work)
+        assert work.author_list == 'Smith'
+        # multiple authors
+        author2 = Person.objects.create(name='Jones', slug='j')
+        Creator.objects.create(
+            creator_type=author_type, person=author2, work=work)
+        assert work.author_list == 'Smith; Jones'
+
+    def test_sort_author_list(self):
+        # no authors
+        work = Work.objects.create(title='Anonymous')
+        assert work.author_list == ''
+        # one author
+        author_type = CreatorType.objects.get(name='Author')
+        author1 = Person.objects.create(name='Bob Smith',
+            sort_name='Smith, Bob', slug='s')
+        Creator.objects.create(
+            creator_type=author_type, person=author1, work=work)
+        assert work.sort_author_list == 'Smith, Bob'
+        # multiple authors
+        author2 = Person.objects.create(name='Bill Jones',
+            sort_name='Jones, Bill', slug='j')
+        Creator.objects.create(
+            creator_type=author_type, person=author2, work=work)
+        assert work.sort_author_list == 'Smith, Bob; Jones, Bill'
+
+
     def test_has_uri(self):
         work = Work(title='Topicless')
         assert not work.has_uri()
