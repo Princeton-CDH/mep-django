@@ -42,6 +42,7 @@ after_success:
 - codecov
 after_script:
 - downloads/solr-${SOLR_VERSION}/bin/solr stop # shut down solr instance
+- rm -rf downloads/solr-${SOLR_VERSION}/
 notifications:
   slack:
     secure: BUUz68smbk73RdlfqKwCOL2vfQNvj3CcGqewYkrSsQ/YXz1EQ51pzR+krMAcnw8a5T/6zNTKzaRz4Z/kg+7EBn+fpFkGWG43NUekNSrCXkFnfK255Gp3RBYOCPyqengKPwxs90UdmjNzxqXe7xTxgL62mkW+mkJjl9l58/xpnzMOC3+0+EDHoXrrWKiQeSYkvqkOmEErsoWzS8HELphYKZvDdQpoFhlqB8Jsh97Wmi+y8bS47BmvVxKcHFmoKUIsjS7xQapvrXllfLEn1ws5TxSRp0/1kKAUaL9NRC8xpGOrGGreWOaSzVt3q4X8HmzoieCWJPQDPNJSFwQ56VF5INVbpT5W+OX0JwV+lJB1Iy7VQWt4bwzilX+gvvW76UcHedQrNnITx6wEqRtlnKvhm7jwAv2DTrmvOK8t1A3cRhtfkahG9M3OpYdNxrs3ROfftMgikVpjxSA1OqqFj22TVl/pFYjP+cvNQX+JICo1eMKZCw6zf/Ei9p5RYZkqywZsY5eQbdYC2pBpFly5DEioxjhqfw0sUOGOiAWId8HeAZmbqi1cKrUtSA2sfSWzGjSOF0n/IrfYTr/ux64bopbwX1natqAi+7XsD9dAQA1AQ12QmpOvBYrH8ThiqCLc14m9+7Vygmeo9+BPk8H9Q312vlsHRPrs/ZOhRsKEghwBa4o=
