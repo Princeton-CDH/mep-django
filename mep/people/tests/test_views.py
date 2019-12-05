@@ -1096,8 +1096,8 @@ class TestMembershipActivities(TestCase):
         response = self.client.get(reverse('people:membership-activities',
                                    kwargs={'slug': self.member.slug}))
         # table headers
-        self.assertContains(response, 'Type')
-        self.assertContains(response, 'Category')
+        self.assertContains(response, 'Activity')
+        self.assertContains(response, 'Plan')
         self.assertContains(response, 'Duration')
         self.assertContains(response, 'Start Date')
         self.assertContains(response, 'End Date')
@@ -1218,7 +1218,7 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'Title')
         self.assertContains(response, 'Author')
         self.assertContains(response, 'Publication Date')
-        self.assertContains(response, 'Type')
+        self.assertContains(response, 'Activity')
         self.assertContains(response, 'Start Date')
         self.assertContains(response, 'End Date')
 
