@@ -582,8 +582,8 @@ class Person(Notable, DateRange, ModelIndexable):
         },
         # address changes can affect arrondissement
         'accounts.Address': {
-            'post_save': PersonSignalHandlers.account_save,
-            'post_delete': PersonSignalHandlers.account_delete,
+            'post_save': PersonSignalHandlers.address_save,
+            'post_delete': PersonSignalHandlers.address_delete,
         }
     }
 
