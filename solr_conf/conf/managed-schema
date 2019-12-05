@@ -373,6 +373,7 @@
          (empty by default), down cases, and performs Unicode normalizatin.
          At query time only, it also applies synonyms.
 	  -->
+    <dynamicField name="*_txt_gen" type="text_general" indexed="true" stored="true" multiValued="true"/>
     <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100" multiValued="true">
       <analyzer type="index">
         <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -381,6 +382,7 @@
         <filter class="solr.SynonymGraphFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
         <filter class="solr.FlattenGraphFilterFactory"/>
         -->
+        <filter class="solr.ICUFoldingFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
       <analyzer type="query">
@@ -388,6 +390,23 @@
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
         <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
         <filter class="solr.ICUFoldingFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+   <!-- A text field with ngram filtering for partial word matching -->
+    <dynamicField name="*_ngram" type="text_ngram" indexed="true"  stored="false" multiValued="true"/>
+    <fieldType name="text_ngram" class="solr.TextField" positionIncrementGap="100">
+      <!-- apply ngram on index only, not on query -->
+      <analyzer type="index">
+         <tokenizer class="solr.StandardTokenizerFactory"/>
+         <!-- apply unicode normalization and case folding -->
+         <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="8"/>
+      </analyzer>
+      <analyzer type="query">
+         <tokenizer class="solr.StandardTokenizerFactory"/>
+         <!-- apply unicode normalization and case folding -->
+         <filter class="solr.ICUFoldingFilterFactory"/>
       </analyzer>
     </fieldType>
 

@@ -735,6 +735,23 @@ class TestMembersListView(TestCase):
 
         # TODO: not sure how to test pagination/multiple pages
 
+        # test partial match
+        response = self.client.get(self.members_url, {'query': "heming"})
+        self.assertContains(response, "Hemingway, Ernest")
+
+        # test accent folding
+        rene_account = Account.objects.create()
+        rene = Person.objects.create(sort_name='Chambrillac, René', slug='rene')
+        rene_account.persons.add(rene)
+        Person.index_items([rene])
+        time.sleep(1)
+        # with accent
+        response = self.client.get(self.members_url, {'query': "rené"})
+        self.assertContains(response, rene.sort_name)
+        # without accent
+        response = self.client.get(self.members_url, {'query': "rene"})
+        self.assertContains(response, rene.sort_name)
+
     def test_get_page_labels(self):
         view = MembersList()
         # patch out get_form
