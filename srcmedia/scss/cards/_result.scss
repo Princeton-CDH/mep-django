@@ -127,9 +127,13 @@ $card-width: 11.25rem;
             margin-left: 0.5rem;
         }
 
-        &:hover, &:focus {
-            border-color: $transparent-seafoam-blue;
+        &:hover, &:focus  {
+            img {
+                opacity: 1;
+            }
         }
+
+
     }
 
     img {
@@ -145,6 +149,10 @@ $card-width: 11.25rem;
         &.logo {  /* NOTE: logo styles are possibly PUL specific */
             height: 1.25rem;
             filter: grayscale(100%) brightness(30%);
+
+            &:hover, a:focus & {
+                filter: grayscale(100%) brightness(60%);
+            }
 
             @media (max-width: $breakpoint-s) {
                 height: 1rem;
