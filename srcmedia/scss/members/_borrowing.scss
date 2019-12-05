@@ -1,6 +1,10 @@
 /* members borrowing activity table */
 .borrowing {
 
+    .title {
+        font-style: italic;
+    }
+
     // mobile styles
     @media (max-width: calc(#{$breakpoint-s} - 1px)) {
 
@@ -20,7 +24,6 @@
 
         .title {
             padding-right: 35%;
-            font-style: italic;
         }
 
         .pubdate {
