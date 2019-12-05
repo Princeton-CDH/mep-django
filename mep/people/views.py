@@ -521,9 +521,9 @@ class MemberCardDetail(DetailView, RdfViewMixin):
             next_card = sibling_cards[current_index + 1]
         except IndexError:
             next_card = None
-        try:
+        if current_index > 0:
             prev_card = sibling_cards[current_index - 1]
-        except IndexError:
+        else:
             prev_card = None
 
         context.update({
