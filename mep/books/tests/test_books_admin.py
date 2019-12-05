@@ -153,7 +153,7 @@ class TestWorkAdmin(TestCase):
             assert item.title in item_data
             assert item.year in item_data
             # test some methods
-            assert item.author_list() in item_data
+            assert item.author_list in item_data
             assert item.admin_url() in item_data
             # test event counts from annotation
             for event_count in ('event_count', 'borrow_count',

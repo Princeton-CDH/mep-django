@@ -113,7 +113,7 @@ class TestWork(TestCase):
 
         assert len(work.authors) == 1
         assert work.authors[0] == author1
-        assert work.author_list() == str(author1)
+        assert work.author_list == str(author1)
 
         # add second author
         Creator.objects.create(creator_type=author_type, person=author2,
@@ -121,7 +121,7 @@ class TestWork(TestCase):
         assert len(work.authors) == 2
         assert author1 in work.authors
         assert author2 in work.authors
-        assert work.author_list() == '%s; %s' % (author1, author2)
+        assert work.author_list == '%s; %s' % (author1, author2)
 
         assert len(work.editors) == 1
         assert work.editors[0] == editor
