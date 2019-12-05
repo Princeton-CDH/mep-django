@@ -71,8 +71,6 @@ class RdfViewMixin(ContextMixin):
     #: breadcrumbs, used to render breadcrumb navigation. they should be a list
     #: of tuples like ('Title', '/url')
     breadcrumbs = []
-    #: json-ld context for the rdf graph; defaults to schema.org
-    json_ld_context = str(SCHEMA_ORG)
 
     def get_context_data(self, *args, **kwargs):
         '''Add generated breadcrumbs and an RDF graph to the view context.'''
@@ -87,10 +85,8 @@ class RdfViewMixin(ContextMixin):
     def add_rdf_to_context(self, context):
         '''add jsonld and breadcrumb list to context dictionary'''
         context.update({
-            'page_jsonld': self.as_rdf()
-                               .serialize(format='json-ld',
-                                          auto_compact=True,
-                                          context=self.json_ld_context),
+            'page_jsonld': self.as_rdf().serialize(format='json-ld',
+                                                   auto_compact=True),
             'breadcrumbs': self.get_breadcrumbs()
         })
         return context
@@ -104,6 +100,8 @@ class RdfViewMixin(ContextMixin):
         '''Generate an RDF graph representing the page.'''
         # add the root node (this page)
         graph = rdflib.ConjunctiveGraph()
+        # explicitly bind schema.org namespace
+        graph.bind('schema', SCHEMA_ORG)
         page_uri = rdflib.URIRef(self.get_absolute_url())
         graph.add((page_uri, rdflib.RDF.type, self.rdf_type))
         # generate and add breadcrumbs, if any
