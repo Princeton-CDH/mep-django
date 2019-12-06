@@ -6,14 +6,14 @@ from datetime import date
 from types import LambdaType
 from unittest.mock import Mock, patch
 
-import pytest
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import AnonymousUser, Permission, User
 from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
 from django.template.defaultfilters import date as format_date
 from django.test import RequestFactory, TestCase
 from django.urls import resolve, reverse
 from djiffy.models import Canvas
+import pytest
 
 from mep.accounts.models import (Account, Address, Borrow, Event, Purchase,
                                  Reimbursement, Subscription, SubscriptionType)
@@ -123,7 +123,7 @@ class TestPeopleViews(TestCase):
         data = json.loads(result.content.decode('utf-8'))
         assert len(data['results']) == 1
         text = data['results'][0]['text']
-        expected = '<strong>Sylvia Beach (1900 - 1970)</strong> sylv.b <br />'
+        expected = '<strong>Sylvia Beach (1900 – 1970)</strong> sylv.b <br />'
         self.assertInHTML(expected, text)
 
         # add notes to beach
@@ -135,7 +135,7 @@ class TestPeopleViews(TestCase):
         text = data['results'][0]['text']
         # first 5 words of notes field should be present in response
         # on a separate line
-        expected = ('<strong>Sylvia Beach (1900 - 1970)</strong> '
+        expected = ('<strong>Sylvia Beach (1900 – 1970)</strong> '
                     'sylv.b <br />All of these words are')
         self.assertInHTML(expected, text)
 
@@ -165,7 +165,7 @@ class TestPeopleViews(TestCase):
         data = json.loads(result.content.decode('utf-8'))
         text = data['results'][0]['text']
         expected = ('<strong>Ms. Sylvia</strong> sylv.a <br />'
-                    'Subscription (1971-01-01 - 1971-01-31)')
+                    'Subscription (1971-01-01 – 1971-01-31)')
         self.assertInHTML(expected, text)
 
     def test_person_admin_change(self):
@@ -509,7 +509,6 @@ class TestLocationAutocompleteView(TestCase):
         assert len(info['results']) == 1
         assert 'Hotel Le Foo' in info['results'][0]['text']
 
-
         # auto complete that should get El Foo
         res = self.client.get(auto_url, {'q': '67891'})
         info = res.json()
@@ -580,11 +579,6 @@ class TestMembersListView(TestCase):
         self.factory = RequestFactory()
         self.members_url = reverse('people:members-list')
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        assert self.client.get(self.members_url).status_code == 404
-
-    @login_temporarily_required
     def test_list(self):
         # test listview functionality using testclient & response
 
@@ -998,7 +992,6 @@ class TestMembersListView(TestCase):
 class TestMemberDetailView(TestCase):
     fixtures = ['sample_people.json']
 
-    @login_temporarily_required
     def test_get_member(self):
         gay = Person.objects.get(name='Francisque Gay', slug='gay')
         url = reverse('people:member-detail', kwargs={'slug': gay.slug})
@@ -1014,11 +1007,11 @@ class TestMemberDetailView(TestCase):
         assert response.context['member'] == gay, \
             'page should correspond to the correct member'
         # check dates
-        self.assertContains(response, '1885 - 1963', html=True)
+        self.assertContains(response, '1885 – <span class="sr-only">to</span>1963', html=True)
         # check membership dates
         self.assertContains(
             response,
-            'March 4, 1934 - <span class="sr-only">to</span> Feb. 3, 1941',
+            'March 4, 1934 – <span class="sr-only">to</span>Feb. 3, 1941',
             html=True)
         # check VIAF
         self.assertContains(response, 'http://viaf.org/viaf/9857613')
@@ -1026,7 +1019,6 @@ class TestMemberDetailView(TestCase):
         self.assertContains(response, 'France')
         # NOTE currently not including/checking profession
 
-    @login_temporarily_required
     def test_member_map(self):
         gay = Person.objects.get(name='Francisque Gay', slug='gay')
         url = reverse('people:member-detail', kwargs={'slug': gay.slug})
@@ -1118,13 +1110,12 @@ class TestMembershipActivities(TestCase):
         assert crumbs[-2][0] == self.member.short_name
         assert crumbs[-2][1] == absolutize_url(self.member.get_absolute_url())
 
-    @login_temporarily_required
     def test_view_template(self):
         response = self.client.get(reverse('people:membership-activities',
                                    kwargs={'slug': self.member.slug}))
         # table headers
-        self.assertContains(response, 'Type')
-        self.assertContains(response, 'Category')
+        self.assertContains(response, 'Activity')
+        self.assertContains(response, 'Plan')
         self.assertContains(response, 'Duration')
         self.assertContains(response, 'Start Date')
         self.assertContains(response, 'End Date')
@@ -1238,7 +1229,6 @@ class TestBorrowingActivities(TestCase):
         assert crumbs[-2][0] == self.member.short_name
         assert crumbs[-2][1] == absolutize_url(self.member.get_absolute_url())
 
-    @login_temporarily_required
     def test_view_template(self):
         response = self.client.get(reverse('people:borrowing-activities',
                                    kwargs={'slug': self.member.slug}))
@@ -1246,35 +1236,35 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'Title')
         self.assertContains(response, 'Author')
         self.assertContains(response, 'Publication Date')
-        self.assertContains(response, 'Type')
+        self.assertContains(response, 'Activity')
         self.assertContains(response, 'Start Date')
         self.assertContains(response, 'End Date')
 
         # event details - borrow
-        self.assertContains(response, 'Borrow') # type
-        self.assertContains(response, 'Suppliant Maidens') # title
-        self.assertContains(response, 'Aeschylus') # author
-        self.assertContains(response, '1922') # pub date
-        self.assertContains(response, 'Feb. 1924') # partial start date
-        self.assertContains(response, 'March 1924') # partial end date
-        self.assertContains(response, 'data-sort="1924-02"') # sorting
-        self.assertContains(response, 'data-sort="1924-03"') # sorting
+        self.assertContains(response, 'Borrow')  # type
+        self.assertContains(response, 'Suppliant Maidens')  # title
+        self.assertContains(response, 'Aeschylus')  # author
+        self.assertContains(response, '1922')  # pub date
+        self.assertContains(response, 'Feb. 1924')  # partial start date
+        self.assertContains(response, 'March 1924')  # partial end date
+        self.assertContains(response, 'data-sort="1924-02"')  # sorting
+        self.assertContains(response, 'data-sort="1924-03"')  # sorting
 
         # event details - purchase
-        self.assertContains(response, 'Purchase') # type
-        self.assertContains(response, 'The Awakening of Helena Richie') # title
-        self.assertContains(response, 'Margaret Deland') # author
-        self.assertContains(response, '1906') # pub date
-        self.assertContains(response, 'Nov. 27') # partial start date
-        self.assertContains(response, 'data-sort="--11-27"') # sorting
+        self.assertContains(response, 'Purchase')  # type
+        self.assertContains(response, 'The Awakening of Helena Richie')  # title
+        self.assertContains(response, 'Margaret Deland')  # author
+        self.assertContains(response, '1906')  # pub date
+        self.assertContains(response, 'Nov. 27')  # partial start date
+        self.assertContains(response, 'data-sort="--11-27"')  # sorting
 
         # event details - generic
-        self.assertContains(response, '-') # type
-        self.assertContains(response, 'The Sun Also Rises') # title
-        self.assertContains(response, 'Ernest Hemingway') # author
-        self.assertContains(response, '1926') # pub date
-        self.assertContains(response, 'June 3, 1922') # start date
-        self.assertContains(response, 'data-sort="1922-06-03"') # sorting
+        self.assertContains(response, '-')  # type
+        self.assertContains(response, 'The Sun Also Rises')  # title
+        self.assertContains(response, 'Ernest Hemingway')  # author
+        self.assertContains(response, '1926')  # pub date
+        self.assertContains(response, 'June 3, 1922')  # start date
+        self.assertContains(response, 'data-sort="1922-06-03"')  # sorting
 
         # test member with no borrowing activity
         response = self.client.get(reverse('people:borrowing-activities',
@@ -1328,49 +1318,56 @@ class TestMembershipGraphs(TestCase):
 class TestMemberCardList(TestCase):
     fixtures = ['footnotes_gstein', 'sample_people']
 
-    def test_get_queryset(self):
-        view = MemberCardList()
-        # invalid slug should result in a 404
-        view.kwargs = {'slug': 'bogus'}
-        with pytest.raises(Http404):
-            view.get_queryset()
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.cardlist_url = reverse('people:member-card-list',
+                                    kwargs={'slug': 'stein-gertrude'})
+        self.view = MemberCardList()
+        self.view.request = self.factory.get(self.cardlist_url)
+        # simulate anonymous user
+        self.view.request.user = AnonymousUser()
 
-        view.kwargs = {'slug': 'stein-gertrude'}
-        canvas_ids = list(view.get_queryset().values_list('pk', flat=True))
+    def test_get_queryset(self):
+        # invalid slug should result in a 404
+        self.view.kwargs = {'slug': 'bogus'}
+        with pytest.raises(Http404):
+            self.view.get_queryset()
+
+        self.view.kwargs = {'slug': 'stein-gertrude'}
+        canvas_ids = list(self.view.get_queryset().values_list('pk', flat=True))
         # member should be stored on the view
-        assert view.member == Person.objects.get(slug='stein-gertrude')
+        assert self.view.member == Person.objects.get(slug='stein-gertrude')
         # queryset should be canvas ids for footnotes associated with Stein
         assert canvas_ids == list(Footnote.objects.filter(
             bibliography__bibliographic_note__contains='Gertrude Stein'
         ).values_list('image__pk', flat=True).distinct())
 
     def test_get_absolute_url(self):
-        view = MemberCardList()
-        view.kwargs = {'slug': 'stein'}
-        assert view.get_absolute_url() == \
+        self.view = MemberCardList()
+        self.view.kwargs = {'slug': 'stein'}
+        assert self.view.get_absolute_url() == \
             absolutize_url(reverse('people:member-card-list',
-                                   kwargs=view.kwargs))
+                                   kwargs=self.view.kwargs))
 
     def test_get_breadcrumbs(self):
-        view = MemberCardList()
-        view.kwargs = {'slug': 'stein-gertrude'}
+        self.view.kwargs = {'slug': 'stein-gertrude'}
         # get queryset to populate member & object
-        view.get_queryset()
-        crumbs = view.get_breadcrumbs()
+        self.view.get_queryset()
+        crumbs = self.view.get_breadcrumbs()
         assert crumbs[0][0] == 'Home'
         # last item is this page
         assert crumbs[-1][0] == 'Cards'
-        assert crumbs[-1][1] == view.get_absolute_url()
+        assert crumbs[-1][1] == self.view.get_absolute_url()
         # second to last is member page
-        assert crumbs[-2][0] == view.member.short_name
-        assert crumbs[-2][1] == absolutize_url(view.member.get_absolute_url())
+        assert crumbs[-2][0] == self.view.member.short_name
+        assert crumbs[-2][1] == \
+            absolutize_url(self.view.member.get_absolute_url())
 
     def test_get_context_data(self):
-        view = MemberCardList()
-        view.kwargs = {'slug': 'stein-gertrude'}
-        view.object_list = view.get_queryset()
-        context = view.get_context_data()
-        assert context['member'] == view.member
+        self.view.kwargs = {'slug': 'stein-gertrude'}
+        self.view.object_list = self.view.get_queryset()
+        context = self.view.get_context_data()
+        assert context['member'] == self.view.member
 
     @login_temporarily_required
     def test_view_template(self):
@@ -1407,7 +1404,6 @@ class TestMemberCardList(TestCase):
         # iiif logo icon
         self.assertContains(response, 'pul_logo_icon')
 
-
         # library member wih no cards
         response = self.client.get(reverse('people:member-card-list',
                                    kwargs={'slug': 'gay'}))
@@ -1421,71 +1417,76 @@ class TestMemberCardDetail(TestCase):
     canvas_id = '68fd36f1-a463-441e-9f13-dfc4a6cd4114'
     kwargs = {'slug': 'stein-gertrude', 'short_id': canvas_id}
 
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.cardlist_url = reverse('people:member-card-detail',
+                                    kwargs=self.kwargs)
+        self.view = MemberCardDetail()
+        self.view.request = self.factory.get(self.cardlist_url)
+        # simulate anonymous user
+        self.view.request.user = AnonymousUser()
+
     def test_get_object(self):
-        view = MemberCardDetail()
         # invalid member slug should result in a 404
-        view.kwargs = {'slug': 'bogus', 'canvas_id': self.canvas_id}
+        self.view.kwargs = {'slug': 'bogus', 'canvas_id': self.canvas_id}
         with pytest.raises(Http404):
-            view.get_object()
+            self.view.get_object()
 
         # valid member slug with invalid canvas id should result in a 404
-        view.kwargs = self.kwargs.copy()
-        view.kwargs['short_id'] = 'foo'
-        print(view.kwargs)
+        self.view.kwargs = self.kwargs.copy()
+        self.view.kwargs['short_id'] = 'foo'
         with pytest.raises(Http404):
-            view.get_object()
+            self.view.get_object()
 
-        view.kwargs = self.kwargs
+        self.view.kwargs = self.kwargs
         expected_card = Canvas.objects.get(short_id=self.canvas_id)
-        card = view.get_object()
+        card = self.view.get_object()
         assert card == expected_card
         # member should be stored on the view
-        assert view.member == Person.objects.get(slug='stein-gertrude')
+        assert self.view.member == Person.objects.get(slug='stein-gertrude')
         # label should be set
         card_dates = card.footnote_set.event_date_range()
         # single-year card
-        assert view.label == card_dates[0].year
+        assert self.view.label == card_dates[0].year
 
     def test_get_absolute_url(self):
-        view = MemberCardDetail()
-        view.kwargs = {'slug': 'stein', 'short_id': self.canvas_id}
-        assert view.get_absolute_url() == \
+        self.view.kwargs = {'slug': 'stein', 'short_id': self.canvas_id}
+        assert self.view.get_absolute_url() == \
             absolutize_url(reverse('people:member-card-detail',
-                                   kwargs=view.kwargs))
+                                   kwargs=self.view.kwargs))
 
     def test_get_breadcrumbs(self):
-        view = MemberCardDetail()
-        view.kwargs = self.kwargs
+        self.view.kwargs = self.kwargs
         # get object to populate member, object, and label
-        view.get_object()
-        crumbs = view.get_breadcrumbs()
+        self.view.get_object()
+        crumbs = self.view.get_breadcrumbs()
         assert crumbs[0][0] == 'Home'
         # last item is this page
-        assert crumbs[-1][0] == view.label
-        assert crumbs[-1][1] == view.get_absolute_url()
+        assert crumbs[-1][0] == self.view.label
+        assert crumbs[-1][1] == self.view.get_absolute_url()
         # second last item is card gallery view
         assert crumbs[-2][0] == 'Cards'
         assert crumbs[-2][1] == \
             absolutize_url(reverse('people:member-card-list',
                                    kwargs={'slug': 'stein-gertrude'}))
         # third to last is member page
-        assert crumbs[-3][0] == view.member.short_name
-        assert crumbs[-3][1] == absolutize_url(view.member.get_absolute_url())
+        assert crumbs[-3][0] == self.view.member.short_name
+        assert crumbs[-3][1] == \
+            absolutize_url(self.view.member.get_absolute_url())
 
     def test_get_context_data(self):
-        view = MemberCardDetail()
-        view.kwargs = self.kwargs
-        view.object = view.get_object()
-        context = view.get_context_data()
-        assert context['member'] == view.member
-        assert context['label'] == view.label
-        expected_events = view.object.footnote_set.events()
+        self.view.kwargs = self.kwargs
+        self.view.object = self.view.get_object()
+        context = self.view.get_context_data()
+        assert context['member'] == self.view.member
+        assert context['label'] == self.view.label
+        expected_events = self.view.object.footnote_set.events()
         assert context['events'].count() == expected_events.count()
         assert set(context['events'].values_list('pk', flat=True)) == \
             set(expected_events.values_list('pk', flat=True))
         # canvas 0 is no previous, 2 is next
-        assert context['prev_card'] == Canvas.objects.get(order=0)
-        assert context['next_card'] == Canvas.objects.get(order=2)
+        assert context['prev_card'] == Canvas.objects.get(order=0).short_id
+        assert context['next_card'] == Canvas.objects.get(order=2).short_id
 
     @login_temporarily_required
     def test_view_template(self):
@@ -1517,12 +1518,12 @@ class TestMemberCardDetail(TestCase):
             response,
             reverse('people:member-card-detail',
                     kwargs={'slug': context['member'].slug,
-                            'short_id': context['prev_card'].short_id}))
+                            'short_id': context['prev_card']}))
         self.assertContains(
             response,
             reverse('people:member-card-detail',
                     kwargs={'slug': context['member'].slug,
-                            'short_id': context['next_card'].short_id}))
+                            'short_id': context['next_card']}))
 
         # iiif license image, text & link
         self.assertContains(response, 'No Known Copyright')

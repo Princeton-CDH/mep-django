@@ -21,7 +21,7 @@
     <div class="viewer">
         {% if prev_card %}
         <a class="prev" rel="prev" aria-label="previous card"
-           href="{% url 'people:member-card-detail' member.slug prev_card.short_id %}"></a>
+           href="{% url 'people:member-card-detail' member.slug prev_card %}"></a>
         {% else %}
         <span class="prev"></span>
         {% endif %}
@@ -33,7 +33,7 @@
         </picture>
         {% if next_card %}
         <a class="next" rel="next" aria-label="next card"
-           href="{% url 'people:member-card-detail' member.slug next_card.short_id %}"></a>
+           href="{% url 'people:member-card-detail' member.slug next_card %}"></a>
         {% else %}
         <span class="next"/></span>
         {% endif %}
@@ -48,8 +48,8 @@
         <thead>
             <tr>
                 <th>Start Date</th>
-                <th>Title</th>
-                <th>Type</th>
+                <th class="title">Title</th>
+                <th>Activity</th>
                 <th>End Date</th>
             </tr>
         </thead>
@@ -62,7 +62,7 @@
                 {{ event.work.title|default:'-' }}
             </td>
             {% with event.event_type as event_type %}
-            <td class="type{% if event_type == 'Generic' %} empty{% endif %}">
+            <td class="activity{% if event_type == 'Generic' %} empty{% endif %}">
                 {% if event_type == 'Generic' %} -
                 {% else %}{{ event_type }}{% endif %}
             </td>

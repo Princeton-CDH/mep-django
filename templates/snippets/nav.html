@@ -18,10 +18,12 @@
                 <img src="{% static 'img/icons/Delete.svg' %}" alt="Close main menu">
             </a>
         </li>
-        <li class="pending">
+        <li>
             <div>
-                <span class="title">members</span>
-                <span class="subtitle">*Coming soon - Explore the lending library membership.</span>
+                <a href="{% url 'people:members-list' %}">
+                    <span class="title">members</span>
+                    <span class="subtitle">Explore the lending library membership.</span>
+                </a>
             </div>
         </li>
         <li class="pending">

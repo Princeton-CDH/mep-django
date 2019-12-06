@@ -23,8 +23,8 @@
     <li class="tab" aria-selected="true">
         <a href="{% url 'people:membership-activities' slug=member.slug %}">activities</a>
     </li>
-    <li class="tab pending">
-        <span>cards</span>
+    <li class="tab">
+        <a href="{% url 'people:member-card-list' slug=member.slug %}">cards</a>
     </li>
 </nav>
 
@@ -66,7 +66,7 @@
                 <th>Title</th>
                 <th>Author</th>
                 <th>Publication Date</th>
-                <th>Type</th>
+                <th>Activity</th>
                 <th data-sort-default>Start Date</th>
                 <th>End Date</th>
             </tr>
@@ -76,14 +76,15 @@
             <td class="title{% if not event.work.title %} empty{% endif %}">
                 {{ event.work.title|default:'-' }}
             </td>
-            <td class="author{% if not event.work.author_list %} empty{% endif %}">
+            <td class="author{% if not event.work.author_list %} empty{% endif %}"
+                data-sort="{{ event.work.sort_author_list|default:'' }}">
                 {{ event.work.author_list|default:'-' }}
             </td>
             <td class="pubdate{% if not event.work.year %} empty{% endif %}">
                 {{ event.work.year|default:'-' }}
             </td>
             {% with event.event_type as event_type %}
-            <td class="type{% if event_type == 'Generic' %} empty{% endif %}">
+            <td class="activity{% if event_type == 'Generic' %} empty{% endif %}">
                 {% if event_type == 'Generic' %} -
                 {% else %}{{ event_type }}{% endif %}
             </td>

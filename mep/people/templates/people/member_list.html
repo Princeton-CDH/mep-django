@@ -75,7 +75,7 @@
         <label class="sort">
             <span>SORTED BY</span>
             {% render_field form.sort form="members-form" %}
-            <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+            {# no dropdown icon; this sort isn't user-controllable #}
         </label>
         <button type="submit" form="members-form">Go</button>
         {% include 'snippets/pagination.html' with form_id="members-form" %}

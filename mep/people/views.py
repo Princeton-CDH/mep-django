@@ -29,8 +29,8 @@ from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
-                  FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
+class MembersList(LabeledPagesMixin, ListView, FormMixin,
+                  AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     page_title = "Members"
@@ -209,6 +209,7 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
                                      .get_results(rows=100000)
         alpha_labels = alpha_pagelabels(paginator, pagination_qs,
                                         lambda x: x['sort_name'][0])
+
         # alpha labels is a dict; use items to return list of tuples
         return alpha_labels.items()
 
@@ -224,7 +225,7 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         ]
 
 
-class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
+class MemberDetail(DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -328,13 +329,13 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
+class MembershipActivities(ListView, RdfViewMixin):
     '''Display a list of membership activities (subscriptions, renewals,
     and reimbursements) for an individual member.'''
     model = Event
     template_name = 'people/membership_activities.html'
-    # tooltip text shown to explain the 'category' column in the table
-    CATEGORY_TOOLTIP = 'More information coming soon.'
+    # tooltip text shown to explain the 'plan' column in the table
+    PLAN_TOOLTIP = 'More information coming soon.'
 
     def get_queryset(self):
         # filter to requested person, then get membership activities
@@ -350,7 +351,7 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         context = super().get_context_data(**kwargs)
         context.update({
             'member': self.member,
-            'category_tooltip': self.CATEGORY_TOOLTIP,
+            'plan_tooltip': self.PLAN_TOOLTIP,
             'page_title': '%s Membership Activity' % self.member.firstname_last
         })
         return context
@@ -371,7 +372,7 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         ]
 
 
-class BorrowingActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
+class BorrowingActivities(ListView, RdfViewMixin):
     '''Display a list of book-related activities (borrows, purchases, gifts)
     for an individual member.'''
     model = Event
@@ -414,7 +415,7 @@ class BorrowingActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         ]
 
 
-class MemberCardList(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
+class MemberCardList(ListView, RdfViewMixin):
     '''Card thumbnails for lending card associated with a single library
     member.'''
     model = Canvas
@@ -427,9 +428,15 @@ class MemberCardList(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
                                         slug=self.kwargs['slug'])
         # find all canvas objects for this person, via manifest
         # associated with lending card bibliography
-        return super().get_queryset() \
-                      .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
-                      .order_by('order')
+        cards = super().get_queryset() \
+                       .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
+                       .order_by('order')
+
+        # if user is not logged in, filter out any cards without events
+        if self.request.user.is_anonymous:
+            cards = cards.filter(footnote__isnull=False).distinct()
+
+        return cards
 
     def get_absolute_url(self):
         '''Full URI for member card list page.'''
@@ -452,7 +459,7 @@ class MemberCardList(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         return context
 
 
-class MemberCardDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
+class MemberCardDetail(DetailView, RdfViewMixin):
     '''Card image viewer for image of a single lending card page
     associated with a single library member.'''
     model = Canvas
@@ -504,8 +511,24 @@ class MemberCardDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
         context = super().get_context_data(**kwargs)
         # use order within manifest to get next/prev links
         sibling_cards = self.object.manifest.canvases
-        next_card = sibling_cards.filter(order=self.object.order + 1).first()
-        prev_card = sibling_cards.filter(order=self.object.order - 1).first()
+        # if user is not logged in, filter out any cards without events
+        if self.request.user.is_anonymous:
+            sibling_cards = sibling_cards.filter(footnote__isnull=False) \
+                                         .distinct()
+
+        # convert into a list of ids in order to get adjacent ids
+        # that skip over blank cards
+        sibling_cards = list(sibling_cards.values_list('short_id', flat=True))
+        current_index = sibling_cards.index(self.object.short_id)
+        try:
+            next_card = sibling_cards[current_index + 1]
+        except IndexError:
+            next_card = None
+        if current_index > 0:
+            prev_card = sibling_cards[current_index - 1]
+        else:
+            prev_card = None
+
         context.update({
             'member': self.member,
             'label': self.label,
@@ -620,7 +643,7 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
         # format birth-death in a familiar pattern ( - )
         if person.birth_year or person.death_year:
             labels['bio_dates'] = \
-                ' (%s - %s)' % (person.birth_year, person.death_year)
+                ' (%s – %s)' % (person.birth_year, person.death_year)
         # get the first few words of any notes
         if person.notes:
             list_notes = person.notes.split()
@@ -645,7 +668,7 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
                     return format_html(
                         '<strong>{main_string}</strong>'
                         '{mep_id} <br />{type} '
-                        '({start_date} - {end_date})'.strip(),
+                        '({start_date} – {end_date})'.strip(),
                         **labels
                     )
             return format_html('<strong>{main_string}</strong>{mep_id}',

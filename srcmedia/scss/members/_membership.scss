@@ -30,7 +30,7 @@
 
         .duration,
         .amount,
-        .category {
+        .plan {
             display: inline-block;
             width: calc(100% / 3);
             position: relative;
@@ -54,7 +54,7 @@
             }
         }
 
-        .category {
+        .plan {
             order: 5;
             text-align: center;
 
@@ -78,8 +78,8 @@
     }
 }
 
-// "category" tooltip
-#category-tip {
+// "plan" tooltip
+#plan-tip {
     font-weight: normal;
     vertical-align: middle;
     min-height: 1.35rem;
