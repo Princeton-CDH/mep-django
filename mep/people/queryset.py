@@ -12,7 +12,7 @@ class PersonSolrQuerySet(AliasedSolrQuerySet):
     field_aliases = {
         'name': 'name_t',
         'sort_name': 'sort_name_t',
-        'sort_name_sort': 'sort_name_sort_s_en',
+        'sort_name_sort': 'sortable_name',
         'birth_year': 'birth_year_i',
         'death_year': 'death_year_i',
         'account_start': 'account_start_i',

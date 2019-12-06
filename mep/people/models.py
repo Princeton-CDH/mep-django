@@ -613,7 +613,7 @@ class Person(Notable, DateRange, ModelIndexable):
             'slug_s': self.slug,
             # text version of sort name for search and display
             'sort_name_t': self.sort_name,
-            'sort_name_sort_s_en': self.sort_name,
+            'sortable_name': self.sort_name,
             'birth_year_i': self.birth_year,
             'death_year_i': self.death_year,
             'has_card_b': self.has_card(),
