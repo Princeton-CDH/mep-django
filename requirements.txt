@@ -12,7 +12,9 @@ django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader
-parasolr>=0.5
+# use bugfix branch to see if sheds more light on Solr field error
+# parasolr>=0.5
+git+https://github.com/Princeton-CDH/parasolr@bugfix/handle-empty-result#egg=parasolr
 django-widget-tweaks
 pymarc
 progressbar2

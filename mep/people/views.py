@@ -177,16 +177,26 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        facets = self.object_list.get_facets()['facet_fields']
-        # convert arrondissement numbers into ordinals for display
-        facets['arrondissement'] = OrderedDict([
-            (ordinal(val), count)
-            for val, count in facets['arrondissement'].items()
-        ])
-        self._form.set_choices_from_facets(facets)
+        facets = self.object_list.get_facets().get('facet_fields', None)
+        error_message = ''
+        # facets are not set if query errors
+        if facets:
+            # convert arrondissement numbers into ordinals for display
+            facets['arrondissement'] = OrderedDict([
+                (ordinal(val), count)
+                for val, count in facets['arrondissement'].items()
+            ])
+            self._form.set_choices_from_facets(facets)
+        else:
+            # if facets are not set, the query errored
+            error_message = 'Something went wrong'
+
+        # if facets are not set, add an error message to display in context?
+        # (this means that something went wrong with the query...)
         context.update({
             'page_title': self.page_title,
-            'page_description': self.page_description
+            'page_description': self.page_description,
+            'error_message': error_message
         })
         return context
 
