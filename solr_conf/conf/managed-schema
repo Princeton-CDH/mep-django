@@ -456,6 +456,7 @@
     <!-- custom string-like sort field that ignores accents and case; using text because
          solr string field does not allow analyzers -->
     <dynamicField name="*_s_en" type="string_en" indexed="true" stored="true" />
+    <field name="sortable_name" type="string_en" indexed="true" stored="true" multiValued="false"/>
     <fieldType name="string_en" class="solr.TextField" sortMissingLast="true" multiValued="false">
        <analyzer type="index">
             <!-- treat entire field as a single token -->
