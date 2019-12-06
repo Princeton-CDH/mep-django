@@ -753,17 +753,15 @@
       <str name="defType">edismax</str>
       <!-- <str name="df">text</str> -->
 
-      <!-- name search pseudo field for members; for now, no unstemmed version or boosting -->
+      <!-- name search pseudo field for members -->
       <str name="name_qf">
         name_t^30
         sort_name_t^20
-        name_txt_gen^5
         name_ngram
       </str>
       <str name="name_pf">
         name_t^30
         sort_name_t^20
-        name_txt_gen^5
         name_ngram
       </str>
 
