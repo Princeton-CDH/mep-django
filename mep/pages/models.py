@@ -82,7 +82,7 @@ class LinkableSectionBlock(blocks.StructBlock):
         icon = 'form'
         label = 'Linkable Section'
         template = 'pages/snippets/linkable_section.html'
-        value_class = SlugStructValue # enables value.slug() in template
+        value_class = SlugStructValue       # enables value.slug() in template
 
 
 class BodyContentBlock(blocks.StreamBlock):
