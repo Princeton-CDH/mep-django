@@ -3,6 +3,17 @@
 Deploy and Upgrade notes
 ========================
 
+0.24
+----
+
+Partial name search on the members list page requires that the Solr
+configuration be updated and members reindexed. Copy all files under
+`solr_conf/conf/` to your configured Solr configset. Then update the
+schema and reindex::
+
+  python manage.py solr_schema
+  python manage.py index -i person
+
 0.23
 ----
 
