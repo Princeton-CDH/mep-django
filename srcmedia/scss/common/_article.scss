@@ -47,6 +47,13 @@ article.main {
         list-style: decimal inside;
     }
 
+    .linkable_section {
+
+        h2 {
+            margin-bottom: 1rem;
+        }
+    }
+
     .footnotes {
         border-top: 1px solid $light-grey;
         padding-top: 1rem;

@@ -8,3 +8,22 @@ main a {
         border-bottom: 2px solid $dark-green;
     }
 }
+
+// '¶' links to linkable sections in body text
+.headerlink {
+    color: $green;
+    border: none;
+    opacity: 0;
+    font-size: 1rem;
+    transition: opacity 0.2s ease-in-out;
+    position: relative;
+    top: -0.2rem;
+
+    &:hover, &:focus {
+        border: none;
+    }
+}
+
+h2:hover > .headerlink {
+    opacity: 1;
+}
