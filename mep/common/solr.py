@@ -8,4 +8,12 @@ class SolrSchema(schema.SolrSchema):
 
     nationality = schema.SolrStringField(multivalued=True)
 
-    # relying on dynamic fields for now
+    # relying on dynamic fields for everything else; see index_data
+    # methods and solr queryset aliases for specifics
+
+    #: copy fields for facets and variant search options
+    copy_fields = {
+        # ngram version of names for searching
+        'name_t': 'name_ngram',
+        'sort_name_t': 'name_ngram',
+    }
