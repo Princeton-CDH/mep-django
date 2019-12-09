@@ -1058,4 +1058,16 @@
       </analyzer>
     </fieldType>
 
+    <!-- custom string-like sort field that ignores accents; using text because
+         solr string field does not allow analyzers -->
+    <dynamicField name="*_isort" type="string_isort" indexed="true" stored="true" />
+    <fieldType name="string_isort" class="solr.TextField" sortMissingLast="true">
+      <analyzer>
+            <!-- treat entire field as a single token -->
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+            <!-- apply unicode normalization and case folding -->
+            <filter class="solr.ICUFoldingFilterFactory"/>
+       </analyzer>
+    </fieldType>
+
 </schema>
