@@ -1,5 +1,7 @@
 import bleach
 from django.template.defaultfilters import striptags, truncatechars_html
+from django.test import SimpleTestCase
+from wagtail.core.blocks import CharBlock, StructBlock
 from wagtail.core.models import Page, Site
 from wagtail.tests.utils import WagtailPageTests
 from wagtail.tests.utils.form_data import (nested_form_data, rich_text,
@@ -7,8 +9,30 @@ from wagtail.tests.utils.form_data import (nested_form_data, rich_text,
 
 from mep.pages.models import (BasePage, ContentLandingPage, ContentPage,
                               EssayLandingPage, EssayPage, HomePage,
-                              LandingPage)
+                              LandingPage, LinkableSectionBlock,
+                              SlugStructValue)
 
+
+class TestLinkableSectionBlock(SimpleTestCase):
+
+    def test_render(self):
+        block = LinkableSectionBlock()
+        html = block.render(block.to_python({
+            'title': 'Joining the Lending Library',
+            'body': 'Info about lending library subscription plans'
+        }))
+        expected_html = '''
+            <span id="joining-the-lending-library"></span>
+            <h2>Joining the Lending Library
+            <a class="headerlink" href="#joining-the-lending-library"
+               title="Permalink to this section">¶</a>
+            </h2>
+            <div class="rich-text">
+                Info about lending library subscription plans
+            </div>
+        '''
+
+        self.assertHTMLEqual(html, expected_html)
 
 class TestHomePage(WagtailPageTests):
     fixtures = ['wagtail_pages']

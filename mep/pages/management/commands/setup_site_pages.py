@@ -38,6 +38,7 @@ class Command(BaseCommand):
                 {'slug': 'cite', 'title': 'How to Cite'},
                 {'slug': 'credits', 'title': 'Credits'},
                 {'slug': 'technical', 'title': 'Technical'},
+                {'slug': 'faq', 'title': 'FAQ'}
             ]
         },
         {
