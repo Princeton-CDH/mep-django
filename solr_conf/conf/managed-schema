@@ -387,7 +387,7 @@
         <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
         <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-         <filter class="solr.ICUFoldingFilterFactory"/>
+        <filter class="solr.ICUFoldingFilterFactory"/>
       </analyzer>
     </fieldType>
 
@@ -1061,7 +1061,6 @@
     <!-- custom string-like sort field that ignores accents; using text because
          solr string field does not allow analyzers -->
     <dynamicField name="*_isort" type="string_isort" indexed="true" stored="true" multiValued="false"/>
-    <field name="sort_name_isort" type="string_isort" indexed="true" stored="true" multiValued="false" />
     <fieldType name="string_isort" class="solr.TextField" sortMissingLast="true" multiValued="false">
       <analyzer>
             <!-- treat entire field as a single token -->
