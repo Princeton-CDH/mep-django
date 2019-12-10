@@ -73,3 +73,14 @@
         }
     }
 }
+
+.empty-results {
+    @include padding-container;
+    padding-top: 3.5rem;
+    text-align: center;
+    font-family: $serif;
+
+    img {
+        width: 50%;
+    }
+}

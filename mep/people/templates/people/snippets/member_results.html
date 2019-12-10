@@ -26,3 +26,13 @@
     </li>
     {% endfor %}
 </ol>
+{% if not members %}
+<div class="empty-results">
+    <p>{{ error_message|default:"No search results found. Try a different search."}}</p>
+    <img
+        srcset="{% static 'img/no-results-error-2x.png' %} 2x,
+               {% static 'img/no-results-error-1x.png' %} 1x"
+        src="{% static 'img/no-results-error-1x.png' %}"
+        alt="Drawing of Shakespeare tearing his hair out and crying" />
+</div>
+{% endif %}
