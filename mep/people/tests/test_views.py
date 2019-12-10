@@ -1390,7 +1390,7 @@ class TestMemberCardList(TestCase):
         # library member wih no cards
         response = self.client.get(reverse('people:member-card-list',
                                    kwargs={'slug': 'gay'}))
-        self.assertContains(response, 'No cards available')
+        self.assertContains(response, 'No lending library cards available')
 
 
 class TestMemberCardDetail(TestCase):
