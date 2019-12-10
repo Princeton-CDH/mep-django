@@ -12,7 +12,9 @@ django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader
-parasolr>=0.5
+# parasolr>=0.5
+# updated version with better error handling
+git+https://github.com/Princeton-CDH/parasolr@develop#egg=parasolr
 django-widget-tweaks
 pymarc
 progressbar2

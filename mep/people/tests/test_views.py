@@ -727,6 +727,11 @@ class TestMembersListView(TestCase):
             response, '<dt>relevance</dt>',
             msg_prefix='relevance score displayed for logged in users')
 
+        # no results - display error text & image
+        response = self.client.get(self.members_url, {'query': 'foobar'})
+        self.assertContains(response, 'No search results found')
+        self.assertContains(response, 'img/no-results-error-1x.png')
+
         # TODO: not sure how to test pagination/multiple pages
 
     def test_get_page_labels(self):
