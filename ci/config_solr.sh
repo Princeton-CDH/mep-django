@@ -18,7 +18,8 @@ fi
 tar xzf $file
 
 # copy in local configset in before starting
-cp -r ../solr_conf solr-${SOLR_VERSION}/server/solr/configsets/sandco
+mkdir solr-${SOLR_VERSION}/server/solr/configsets/sandco
+cp -r ../solr_conf/* solr-${SOLR_VERSION}/server/solr/configsets/sandco/
 
 # Start the solr instance with all default settings
 echo "Starting solr..."
