@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Something isn't working as expected
 title: ''
 labels: bug
 assignees: ''
@@ -10,7 +10,7 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+**To reproduce**
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
@@ -23,16 +23,11 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**Device information**
+ - Device: [e.g. iPhone 6, Samsung Galaxy S10, MacBook Pro]
+ - OS and version: [e.g. macOS 10.14, Windows 10, iOS 8.1, Android 9]
+ - Browser and version: [e.g. Firefox 72, Chrome 79, Safari 13]
+ - Site version [e.g. 0.24.1 - check in the site footer]
 
 **Additional context**
 Add any other context about the problem here.
