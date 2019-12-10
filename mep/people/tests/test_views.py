@@ -732,6 +732,11 @@ class TestMembersListView(TestCase):
         self.assertContains(response, 'No search results found')
         self.assertContains(response, 'img/no-results-error-1x.png')
 
+        # force solr error
+        MembersList.solr_sort['name'] = 'undefined'
+        response = self.client.get(self.members_url)
+        self.assertContains(response, 'Something went wrong.')
+
         # TODO: not sure how to test pagination/multiple pages
 
     def test_get_page_labels(self):
