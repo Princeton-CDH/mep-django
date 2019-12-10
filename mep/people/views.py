@@ -343,7 +343,7 @@ class MembershipActivities(ListView, RdfViewMixin):
     model = Event
     template_name = 'people/membership_activities.html'
     # tooltip text shown to explain the 'plan' column in the table
-    PLAN_TOOLTIP = 'More information coming soon.'
+    PLAN_TOOLTIP = 'Click to learn more about library subscription plans.'
 
     def get_queryset(self):
         # filter to requested person, then get membership activities

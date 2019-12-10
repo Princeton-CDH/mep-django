@@ -1,3 +1,4 @@
+// normal links with green underline
 main a {
     color: $black;
     text-decoration: none;
@@ -26,4 +27,20 @@ main a {
 
 h2:hover > .headerlink {
     opacity: 1;
+}
+
+// info links using 'link' icon
+.info-link {
+    border: none;
+    width: 0.8rem;
+    min-height: 0.8rem;
+    background-image: url('/static/img/icons/link-circle.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+    display: inline-block;
+
+    &:hover, &:focus {
+        border: none;
+    }
 }
