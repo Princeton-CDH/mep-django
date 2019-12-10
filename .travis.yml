@@ -23,7 +23,6 @@ install:
 - npm ci # installs from package-lock.json
 before_script:
 - SOLR_VERSION=$SOLR_VERSION SOLR_CORE=$SOLR_CORE bash ci/config_solr.sh
-#- cp -r solr_conf downloads/solr-${SOLR_VERSION}/server/solr/configsets/sandco  # copy in local configset
 - npm run build:prod # compile static assets
 - mysql -u root -e "create database travismep"; # setup a test db for pa11y
 - mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
