@@ -133,6 +133,7 @@ class WorkSignalHandlers:
 
     @staticmethod
     def creatortype_save(sender=None, instance=None, raw=False, **kwargs):
+        '''reindex all associated works when a creator type is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -145,6 +146,7 @@ class WorkSignalHandlers:
 
     @staticmethod
     def creatortype_delete(sender, instance, **kwargs):
+        '''reindex all associated works when a creator type is deleted'''
         work_ids = Work.objects.filter(creator__creator_type__pk=instance.pk) \
                                .values_list('id', flat=True)
         if work_ids:
@@ -156,6 +158,7 @@ class WorkSignalHandlers:
 
     @staticmethod
     def person_save(sender=None, instance=None, raw=False, **kwargs):
+        '''reindex all works associated via creator when a person is saved'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -168,6 +171,7 @@ class WorkSignalHandlers:
 
     @staticmethod
     def person_delete(sender, instance, **kwargs):
+        '''reindex all works associated via creator when a person is deleted'''
         work_ids = Work.objects.filter(creator__person__pk=instance.pk) \
                                .values_list('id', flat=True)
         if work_ids:
@@ -179,6 +183,7 @@ class WorkSignalHandlers:
 
     @staticmethod
     def creator_change(sender=None, instance=None, raw=False, **kwargs):
+        '''reindex associated work when a creator record is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return

@@ -243,11 +243,14 @@ class PersonSignalHandlers:
 
     @staticmethod
     def debug_log(name, count):
+        '''shared debug logging for person signal save handlers'''
         logger.debug('save %s, reindexing %d related %s', name,
                      count, 'person' if count == 1 else 'people')
 
     @staticmethod
     def country_save(sender=None, instance=None, raw=False, **kwargs):
+        '''when a country is saved, reindex any people associated via
+        nationality'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -259,6 +262,8 @@ class PersonSignalHandlers:
 
     @staticmethod
     def country_delete(sender, instance, **kwargs):
+        '''when a country is deleted, reindex any people associated via
+        nationality before deletion is processed'''
         # get a list of ids for collected works before clearing them
         if not instance.pk:
             return
@@ -275,6 +280,7 @@ class PersonSignalHandlers:
 
     @staticmethod
     def account_save(sender=None, instance=None, raw=False, **kwargs):
+        '''when an account is saved, reindex associated people'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -287,6 +293,8 @@ class PersonSignalHandlers:
 
     @staticmethod
     def account_delete(sender, instance, **kwargs):
+        '''when an account is deleted, reindex associated people
+        before deletion is processed'''
         # get a list of ids for collected works before clearing them
         person_ids = instance.persons.library_members() \
                              .values_list('id', flat=True)
@@ -300,6 +308,8 @@ class PersonSignalHandlers:
 
     @staticmethod
     def event_save(sender=None, instance=None, raw=False, **kwargs):
+        '''when an event is saved, reindex people associated
+        with the corresponding account.'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -311,6 +321,8 @@ class PersonSignalHandlers:
 
     @staticmethod
     def event_delete(sender, instance, **kwargs):
+        '''when an event is delete, reindex people associated
+        with the corresponding account.'''
         # get a list of ids for deleted event
         members = instance.account.persons.library_members()
         if members.exists():
@@ -318,6 +330,8 @@ class PersonSignalHandlers:
 
     @staticmethod
     def address_save(sender=None, instance=None, raw=False, **kwargs):
+        '''when an address is saved, reindex people associated
+        with the corresponding account.'''
         # raw = saved as presented; don't query the database
         if raw:
             return
@@ -332,6 +346,8 @@ class PersonSignalHandlers:
 
     @staticmethod
     def address_delete(sender, instance, **kwargs):
+        '''when an address is deleted, reindex people associated
+        with the corresponding account.'''
         # check that we are associated to a member's account
         if instance.account:
             members = instance.account.persons.library_members()

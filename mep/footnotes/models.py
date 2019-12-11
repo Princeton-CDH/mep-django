@@ -21,12 +21,14 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def debug_log(name, count, mode='save'):
-        # common method for debug logging with logic for singular people
+        '''shared debug logging for card signal save handlers'''
         logger.debug('%s %s, reindexing %d related card%s',
                      mode, name, count, '' if count == 1 else 's')
 
     @staticmethod
     def person_save(sender=None, instance=None, raw=False, **kwargs):
+        '''when a person is saved, reindex bibliography card records
+        associated through an account'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -38,6 +40,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def person_delete(sender, instance, **kwargs):
+        '''when a person is deleted, reindex any bibliography card
+        records associated through an account'''
         card_ids = Bibliography.objects \
             .filter(account__persons__pk=instance.pk) \
             .values_list('id', flat=True)
@@ -53,6 +57,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def account_save(sender=None, instance=None, raw=False, **_kwargs):
+        '''when an account is saved, reindex any associated library
+        lending card.'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -64,6 +70,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def account_delete(sender, instance, **kwargs):
+        '''when an account is deleted, reindex any associated library
+        lending card'''
         card_ids = Bibliography.objects.filter(account__pk=instance.pk) \
             .values_list('id', flat=True)
 
@@ -79,6 +87,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def manifest_save(sender=None, instance=None, raw=False, **kwargs):
+        '''when a manifest is saved, reindex associated library
+        lending card'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -90,6 +100,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def manifest_delete(sender, instance, **kwargs):
+        '''when a manifest is deleted, reindex associated library
+        lending card'''
         card_ids = Bibliography.objects.filter(manifest__pk=instance.pk) \
             .values_list('id', flat=True)
         if card_ids:
@@ -103,6 +115,9 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def canvas_save(sender=None, instance=None, raw=False, **kwargs):
+        '''when a canvas is saved, reindex library lending card
+        associated via manifest'''
+
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -114,6 +129,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def canvas_delete(sender, instance, **kwargs):
+        '''when a canvas is deleted, reindex library lending card
+        associated via manifest'''
         cards = Bibliography.objects.filter(manifest__pk=instance.manifest.pk)
         if cards.exists():
             BibliographySignalHandlers.debug_log('canvas', cards.count(),
@@ -122,10 +139,13 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def event_save(sender=None, instance=None, raw=False, **_kwargs):
+        '''when an event is saved, reindex library lending card
+        associated via account'''
+        # NOTE: should this also/instead rely on footnote associatio?
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
-        # find any cards associated with this canvas, via manifest
+        # find any cards associated with this event, via account
         cards = Bibliography.objects.filter(account__pk=instance.account.pk)
         if cards.exists():
             BibliographySignalHandlers.debug_log('event', cards.count())
@@ -133,6 +153,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def event_delete(sender, instance, **kwargs):
+        '''when an event is deleted, reindex library lending card
+        associated via account'''
         cards = Bibliography.objects.filter(account__pk=instance.account.pk)
         if cards.exists():
             BibliographySignalHandlers.debug_log('event', cards.count(),
