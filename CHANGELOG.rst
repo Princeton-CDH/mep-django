@@ -3,6 +3,18 @@
 CHANGELOG
 =========
 
+0.24
+----
+
+* As a user, I want to see a chronological list of book-related activities for a single library member so that I can see the complete history of book interactions for that person.
+* As a user, I want to browse all card images with known events associated with a single member so that I can get an overview of their card activity.
+* As a user, I want to see a large version of a single card image with associated events so that I can see the events in the context of the archival source.
+* As a user, I want to see a rights statement for card images so that I know what I can do with them.
+* bugfix: account event_date_ranges doesn't properly handle ranges with end date but no start date
+* bugfix: pages with breadcrumbs generate 500 error when schema.org is down
+* bugfix: misconfigured signal handler causing 500 error on admin edits on addresses
+* Numerous design and consistency improvements
+
 0.23.1
 ------
 
