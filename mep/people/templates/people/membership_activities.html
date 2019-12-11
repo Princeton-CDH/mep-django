@@ -81,6 +81,12 @@
             <td class="activity">{{ event.event_type }}</td>
             <td class="plan{% if not event.subscription.category %} empty{% endif %}">
                 {{ event.subscription.category|default:'-' }}
+                {# render info link here so it can be shown on mobile too #}
+                {% if forloop.first %}
+                <a class="info-link" href="/about/faq#joining-the-library"
+                    title="{{ plan_tooltip }}" tabindex="0"
+                    id="plan-tip-2"></a>
+                {% endif %}
             </td>
             <td class="duration{% if not event.subscription.duration %} empty{% endif %}"
                 data-sort="{{ event.subscription.duration|default:0 }}">
