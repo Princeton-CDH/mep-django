@@ -63,7 +63,7 @@
             }
 
             &::before {
-                content: 'Category';
+                content: 'Plan';
             }
         }
 
@@ -80,12 +80,16 @@
 
 // "plan" tooltip
 #plan-tip {
-    font-weight: normal;
     vertical-align: middle;
-    min-height: 1.35rem;
-    position: relative;
+}
 
-    &::after {
-        width: 6rem;
+// "plan" tooltip for mobile
+#plan-tip-2 {
+    position: absolute;
+    top: -.7rem;
+    right: calc(50% - 1.75rem);
+
+    @media (min-width: $breakpoint-s) {
+        display: none;
     }
 }
