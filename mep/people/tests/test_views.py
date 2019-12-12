@@ -731,12 +731,17 @@ class TestMembersListView(TestCase):
         # no results - display error text & image
         response = self.client.get(self.members_url, {'query': 'foobar'})
         self.assertContains(response, 'No search results found')
-        self.assertContains(response, 'img/no-results-error-1x.png')
+        # empty search - no image
+        self.assertNotContains(response, 'img/no-results-error-1x.png')
 
         # force solr error
+        actual_name_sort = MembersList.solr_sort['name']
         MembersList.solr_sort['name'] = 'undefined'
         response = self.client.get(self.members_url)
         self.assertContains(response, 'Something went wrong.')
+        # error - show image
+        self.assertContains(response, 'img/no-results-error-1x.png')
+        MembersList.solr_sort['name'] = actual_name_sort
 
         # TODO: not sure how to test pagination/multiple pages
 
