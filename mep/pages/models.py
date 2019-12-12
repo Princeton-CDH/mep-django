@@ -53,36 +53,29 @@ class SVGImageBlock(blocks.StructBlock):
         label = 'SVG'
 
 
-class SlugStructValue(blocks.StructValue):
-    '''A :class:`~wagtail.core.blocks.StructValue` that enables generating a
-    slug from a title using django's `slugify`, for use as an anchor href.'''
-    # for more on usage of `StructValue`, see:
-    # https://docs.wagtail.io/en/v2.5/topics/streamfield.html#custom-value-class-for-structblock
-
-    @cached_property
-    def slug(self):
-        '''Slugify and return a StructBlock's title, if one is set.'''
-        # NOTE this implementation will compute this on every page load where
-        # a StructBlock that uses SlugStructValue is included.
-        # A different approach might take advantage of wagtail's hooks:
-        # https://docs.wagtail.io/en/v2.3/reference/hooks.html
-        title = self.get('title')
-        if title:
-            return slugify(title)
-
-
 class LinkableSectionBlock(blocks.StructBlock):
     ''':class:`~wagtail.core.blocks.StructBlock` for a rich text block and an
     associated `title` that will render as an <h2>. Creates an anchor (<a>)
     so that the section can be directly linked to using a url fragment.'''
     title = blocks.CharBlock()
+    anchor_text = blocks.CharBlock(help_text='Short label for anchor link')
     body = blocks.RichTextBlock()
+    panels = [
+        FieldPanel('title'),
+        FieldPanel('slug'),
+        FieldPanel('body'),
+    ]
 
     class Meta:
         icon = 'form'
         label = 'Linkable Section'
         template = 'pages/snippets/linkable_section.html'
-        value_class = SlugStructValue       # enables value.slug() in template
+
+    def clean(self, value):
+        cleaned_values = super().clean(value)
+        # run slugify to ensure anchor text is a slug
+        cleaned_values['anchor_text'] = slugify(cleaned_values['anchor_text'])
+        return cleaned_values
 
 
 class BodyContentBlock(blocks.StreamBlock):
