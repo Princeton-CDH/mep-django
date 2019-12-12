@@ -1,31 +1,46 @@
 {% load static wagtailcore_tags %}
 <footer id="page-footer">
-    <nav aria-label="footer navigation">
-        <ul class="primary" aria-label="primary navigation">
-            <li><span class="pending">members</span><li>
-            <li><span class="pending">books</span><li>
-            <li><span class="pending">cards</span><li>
-            <li><a href="{% slugurl 'analysis' %}">analysis</a><li>
-            <li><a href="{% slugurl 'sources' %}">sources</a><li>
-            <li><a href="{% slugurl 'about' %}">about</a><li>
-        </ul>
-        <ul class="secondary" aria-label="secondary navigation">
-            <li><a href="{% slugurl 'home' %}">home</a><li>
-            <li><a href="{% slugurl 'contact' %}">contact</a><li>
-            <li><span class="pending">data export</span><li>
-            <li><a href="{% slugurl 'cite' %}">how to cite</a><li>
-            <li><a href="{% slugurl 'credits' %}">credits</a><li>
-            <li><a href="{% slugurl 'technical' %}">technical</a><li>
-        </ul>
-    </nav>
-    <img id="sco-logo" src="{% static 'img/logo/SCo_logo_vert.png' %}" alt="Shakespeare and Company Project">
-    <div class="logos">
-        <a id="pu-logo" href="https://www.princeton.edu/">
-            <img src="{% static 'img/logo/PUsig2-bw-bs.svg' %}" alt="Princeton University">
-        </a>
-        <a id="cdh-logo" href="https://cdh.princeton.edu/">
-            <img src="{% static 'img/logo/cdh-logo.svg' %}" alt="The Center for Digital Humanities at Princeton">
-        </a>
+    <div class="nav-logos">
+        <nav aria-label="footer navigation">
+            <ul class="primary" aria-label="primary navigation">
+                <li><a href="{% url 'people:members-list' %}">members</a><li>
+                <li><span class="pending">books</span><li>
+                <li><span class="pending">cards</span><li>
+                <li><a href="{% slugurl 'analysis' %}">analysis</a><li>
+                <li><a href="{% slugurl 'sources' %}">sources</a><li>
+                <li><a href="{% slugurl 'about' %}">about</a><li>
+            </ul>
+            <ul class="secondary" aria-label="secondary navigation">
+                <li><a href="{% slugurl 'home' %}">home</a><li>
+                <li><a href="{% slugurl 'contact' %}">contact</a><li>
+                <li><span class="pending">data export</span><li>
+                <li><a href="{% slugurl 'cite' %}">how to cite</a><li>
+                <li><a href="{% slugurl 'credits' %}">credits</a><li>
+                <li><a href="{% slugurl 'technical' %}">technical</a><li>
+            </ul>
+        </nav>
+        <img id="sco-logo" src="{% static 'img/logo/SCo_logo_vert.png' %}" alt="Shakespeare and Company Project">
+        <div class="logos-social">
+            <div class="logos">
+                <a id="pu-logo" href="https://www.princeton.edu/">
+                    <img src="{% static 'img/logo/pu-logo-footer.svg' %}" alt="Princeton University">
+                </a>
+                <a id="cdh-logo" href="https://cdh.princeton.edu/">
+                    <img src="{% static 'img/logo/cdh-logo.svg' %}" alt="The Center for Digital Humanities at Princeton">
+                </a>
+            </div>
+            <div class="social">
+                <a id="facebook" href="https://www.princeton.edu/">
+                    <img src="{% static 'img/icons/facebook.svg' %}" alt="Facebook">
+                </a>
+                <a id="twitter" href="https://www.princeton.edu/">
+                    <img src="{% static 'img/icons/twitter.svg' %}" alt="Twitter">
+                </a>
+                <a id="instagram" href="https://www.princeton.edu/">
+                    <img src="{% static 'img/icons/instagram.svg' %}" alt="Instagram">
+                </a>
+            </div>
+        </div>
     </div>
     <div class="links">
         <span class="note">Coming soon.</span>

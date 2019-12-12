@@ -1,0 +1,477 @@
+[
+{
+    "model": "djiffy.manifest",
+    "pk": 394,
+    "fields": {
+        "label": "Stein, Gertrude",
+        "short_id": "9f6f307d-2eb7-4960-8dc1-9dec4ea53022",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest",
+        "metadata": "{\"Date Created\":[\"1920-03-18/1922-04-13\"],\"Extent\":[\"4 cards\"],\"Identifier\":[\"ark:/88435/ws859k779\"],\"Title\":[\"Stein, Gertrude\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3660\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022.jsonld\":{\"system_updated_at\":\"2019-10-13T23:28:40Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T22:18:53Z\",\"@id\":\"https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022\",\"identifier\":[\"ark:/88435/ws859k779\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Stein, Gertrude\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3660.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/ws859k779\"}}"
+    }
+},
+{
+    "model": "footnotes.sourcetype",
+    "pk": 2,
+    "fields": {
+        "name": "Lending Library Card",
+        "notes": ""
+    }
+},
+{
+    "model": "books.format",
+    "pk": 1,
+    "fields": {
+        "name": "Book",
+        "notes": "",
+        "uri": "http://schema.org/Book"
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 420,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Gertrude Stein Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 394
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 26344,
+    "fields": {
+        "notes": "Year added per JK's research [EG 7/9/18]",
+        "start_date_precision": 7,
+        "end_date_precision": 7,
+        "account": 108,
+        "start_date": "1922-04-03",
+        "end_date": "1922-04-13",
+        "work": 6841,
+        "edition": null
+    }
+},
+{
+    "model": "books.work",
+    "pk": 6841,
+    "fields": {
+        "notes": "OCLCNoMatch",
+        "mep_id": "mep:00r595",
+        "title": "Ursula Trent",
+        "year": 1921,
+        "uri": "",
+        "edition_uri": "",
+        "ebook_url": "",
+        "work_format": null,
+        "updated_at": "2019-06-14T17:44:45Z",
+        "public_notes": "",
+        "genres": [],
+        "subjects": []
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 26318,
+    "fields": {
+        "notes": "Year updated per JK's research [EG 7/9/18]",
+        "start_date_precision": 7,
+        "end_date_precision": null,
+        "account": 108,
+        "start_date": "1921-01-05",
+        "end_date": null,
+        "work": 5036,
+        "edition": null
+    }
+},
+{
+    "model": "books.work",
+    "pk": 5036,
+    "fields": {
+        "notes": "",
+        "mep_id": "mep:00q36f",
+        "title": "This Side of Paradise",
+        "year": 1920,
+        "uri": "http://worldcat.org/entity/work/id/433248",
+        "edition_uri": "http://www.worldcat.org/oclc/732680439",
+        "ebook_url": "",
+        "work_format": 1,
+        "updated_at": "2019-06-14T17:31:48Z",
+        "public_notes": "",
+        "genres": [],
+        "subjects": []
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 26296,
+    "fields": {
+        "notes": "Checked card, no return date given [EG 6/11/18]\r\n\r\nYear updated per JK's research [EG 7/9/18]",
+        "start_date_precision": 7,
+        "end_date_precision": null,
+        "account": 108,
+        "start_date": "1920-03-18",
+        "end_date": null,
+        "work": 4000,
+        "edition": null
+    }
+},
+{
+    "model": "books.work",
+    "pk": 4000,
+    "fields": {
+        "notes": "Author: Mary H. Vorse",
+        "mep_id": "mep:00r342",
+        "title": "The Prestons",
+        "year": 1918,
+        "uri": "http://worldcat.org/entity/work/id/2350214",
+        "edition_uri": "http://www.worldcat.org/oclc/504091827",
+        "ebook_url": "",
+        "work_format": 1,
+        "updated_at": "2019-06-14T17:23:31Z",
+        "public_notes": "",
+        "genres": [],
+        "subjects": []
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 26346,
+    "fields": {
+        "notes": "",
+        "start_date_precision": 6,
+        "end_date_precision": 6,
+        "account": 108,
+        "start_date": "1900-01-19",
+        "end_date": "1900-01-24",
+        "work": 7537,
+        "edition": null
+    }
+},
+{
+    "model": "books.work",
+    "pk": 7537,
+    "fields": {
+        "notes": "Variant titles: Hazard of New Fortunes (2 vols.); Hazard of New Fortunes vol 1; Hazard of New Fortunes vol 2\r\n\r\nMULTIVOLUME",
+        "mep_id": "mep:00fs7b",
+        "title": "A Hazard of New Fortunes",
+        "year": 1890,
+        "uri": "http://worldcat.org/entity/work/id/1407958",
+        "edition_uri": "http://www.worldcat.org/oclc/833665285",
+        "ebook_url": "",
+        "work_format": 1,
+        "updated_at": "2019-08-16T19:41:03Z",
+        "public_notes": "",
+        "genres": [],
+        "subjects": []
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 26301,
+    "fields": {
+        "notes": "volume 2 vols\r\n[EG 6/11/18]\r\n\r\nYear updated per JK's research [EG 7/9/18]",
+        "start_date_precision": null,
+        "end_date_precision": 7,
+        "account": 108,
+        "start_date": null,
+        "end_date": "1920-06-03",
+        "work": 2320,
+        "edition": null
+    }
+},
+{
+    "model": "books.work",
+    "pk": 2320,
+    "fields": {
+        "notes": "Variant Titles: Letters of Meredith\nVariant titles: Letters of G. Meredith\nMerged on 2019-09-12 with MEP id mep:00v728",
+        "mep_id": "mep:00r389",
+        "title": "Letters of George Meredith",
+        "year": 1912,
+        "uri": "http://worldcat.org/entity/work/id/4757735803",
+        "edition_uri": "http://www.worldcat.org/oclc/313022250",
+        "ebook_url": "",
+        "work_format": 1,
+        "updated_at": "2019-09-12T17:33:24Z",
+        "public_notes": "",
+        "genres": [],
+        "subjects": []
+    }
+},
+{
+    "model": "people.person",
+    "pk": 517,
+    "fields": {
+        "notes": "[ID 10.18]: re the 16 March 1920 sub event: I think that, in the logbook, the straight line next to Stein's name indicates that she took the same sub pattern as the person above her in the book: 1 year 2 vols. This is borne out by her subsequent sub events.",
+        "start_year": 1874,
+        "end_year": 1946,
+        "mep_id": "stei.ge",
+        "name": "Gertrude Stein",
+        "sort_name": "Stein, Gertrude",
+        "viaf_id": "http://viaf.org/viaf/22149082",
+        "is_organization": false,
+        "verified": false,
+        "slug": "stein-gertrude",
+        "updated_at": "2019-11-15T16:55:41Z",
+        "gender": "F",
+        "title": "",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 108,
+    "fields": {
+        "card": 420,
+        "persons": [
+            517
+        ]
+    }
+},
+{
+    "model": "accounts.borrow",
+    "pk": 26344,
+    "fields": {
+        "item_status": "R"
+    }
+},
+{
+    "model": "accounts.borrow",
+    "pk": 26318,
+    "fields": {
+        "item_status": ""
+    }
+},
+{
+    "model": "accounts.borrow",
+    "pk": 26296,
+    "fields": {
+        "item_status": ""
+    }
+},
+{
+    "model": "accounts.borrow",
+    "pk": 26346,
+    "fields": {
+        "item_status": "R"
+    }
+},
+{
+    "model": "accounts.borrow",
+    "pk": 26301,
+    "fields": {
+        "item_status": "R"
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 336,
+    "fields": {
+        "label": "Stein, Leo",
+        "short_id": "8493520c-be69-47f1-b159-262f4b8c0e04",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/8493520c-be69-47f1-b159-262f4b8c0e04/manifest",
+        "metadata": "{\"Date Created\":[\"1923-08-20/1933-06-17\"],\"Extent\":[\"5 cards\"],\"Identifier\":[\"ark:/88435/3n204320r\"],\"Title\":[\"Stein, Leo\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3661\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/8493520c-be69-47f1-b159-262f4b8c0e04.jsonld\":{\"system_updated_at\":\"2019-10-13T23:32:12Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T22:19:04Z\",\"@id\":\"https://figgy.princeton.edu/catalog/8493520c-be69-47f1-b159-262f4b8c0e04\",\"identifier\":[\"ark:/88435/3n204320r\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Stein, Leo\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3661.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/3n204320r\"}}"
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 394,
+    "fields": {
+        "label": "Stein, Gertrude",
+        "short_id": "9f6f307d-2eb7-4960-8dc1-9dec4ea53022",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest",
+        "metadata": "{\"Date Created\":[\"1920-03-18/1922-04-13\"],\"Extent\":[\"4 cards\"],\"Identifier\":[\"ark:/88435/ws859k779\"],\"Title\":[\"Stein, Gertrude\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3660\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022.jsonld\":{\"system_updated_at\":\"2019-10-13T23:28:40Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T22:18:53Z\",\"@id\":\"https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022\",\"identifier\":[\"ark:/88435/ws859k779\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Stein, Gertrude\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3660.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/ws859k779\"}}"
+    }
+},
+{
+    "model": "djiffy.canvas",
+    "pk": 1191,
+    "fields": {
+        "label": "9",
+        "short_id": "9242203d-d33e-416a-8658-59ec52b46736",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/8493520c-be69-47f1-b159-262f4b8c0e04/manifest/canvas/9242203d-d33e-416a-8658-59ec52b46736",
+        "iiif_image_id": "https://iiif.princeton.edu/loris/figgy_prod/62%2F77%2F6f%2F62776f401c1744f3b61c996bf9ac6f1c%2Fintermediate_file.jp2",
+        "manifest": 336,
+        "thumbnail": false,
+        "order": 8,
+        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/9242203d-d33e-416a-8658-59ec52b46736/file/89fadffe-567e-4926-8dd2-5ddbe192f19d\",\"label\":\"Download the original file\"}]}"
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 468,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Leo Stein Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 336
+    }
+},
+{
+    "model": "djiffy.canvas",
+    "pk": 1411,
+    "fields": {
+        "label": "5",
+        "short_id": "9d839618-9d3e-4e8e-9d6c-28b46d337b11",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/9d839618-9d3e-4e8e-9d6c-28b46d337b11",
+        "iiif_image_id": "https://iiif.princeton.edu/loris/figgy_prod/87%2F12%2Ffe%2F8712fe479f4f46f0a4647976f6d44102%2Fintermediate_file.jp2",
+        "manifest": 394,
+        "thumbnail": false,
+        "order": 4,
+        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/9d839618-9d3e-4e8e-9d6c-28b46d337b11/file/209ebdda-b57d-4e1d-9e36-193eb4a3df12\",\"label\":\"Download the original file\"}]}"
+    }
+},
+{
+    "model": "djiffy.canvas",
+    "pk": 1409,
+    "fields": {
+        "label": "3",
+        "short_id": "d3182e87-bc20-44f9-a92b-ff978de18d37",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/d3182e87-bc20-44f9-a92b-ff978de18d37",
+        "iiif_image_id": "https://iiif.princeton.edu/loris/figgy_prod/07%2Fb7%2F83%2F07b7834be68d4584bb89d8ef97efcf11%2Fintermediate_file.jp2",
+        "manifest": 394,
+        "thumbnail": false,
+        "order": 2,
+        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/d3182e87-bc20-44f9-a92b-ff978de18d37/file/12a43393-1d18-4414-85b3-9fcb966e2231\",\"label\":\"Download the original file\"}]}"
+    }
+},
+{
+    "model": "djiffy.canvas",
+    "pk": 1408,
+    "fields": {
+        "label": "2",
+        "short_id": "68fd36f1-a463-441e-9f13-dfc4a6cd4114",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/68fd36f1-a463-441e-9f13-dfc4a6cd4114",
+        "iiif_image_id": "https://iiif.princeton.edu/loris/figgy_prod/4e%2F51%2F33%2F4e5133fc38ac495ba74a000ffc979d4f%2Fintermediate_file.jp2",
+        "manifest": 394,
+        "thumbnail": false,
+        "order": 1,
+        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/68fd36f1-a463-441e-9f13-dfc4a6cd4114/file/79be0c46-98e6-4999-80f3-372eb8dfcae9\",\"label\":\"Download the original file\"}]}"
+    }
+},
+{
+    "model": "djiffy.canvas",
+    "pk": 1407,
+    "fields": {
+        "label": "1",
+        "short_id": "31f9c24e-6f97-4149-afb2-e9d2f7ba6cbe",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/31f9c24e-6f97-4149-afb2-e9d2f7ba6cbe",
+        "iiif_image_id": "https://iiif.princeton.edu/loris/figgy_prod/12%2Fe6%2F12%2F12e612fbcef343bcb74f5bec1a44a4f8%2Fintermediate_file.jp2",
+        "manifest": 394,
+        "thumbnail": true,
+        "order": 0,
+        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/31f9c24e-6f97-4149-afb2-e9d2f7ba6cbe/file/73c0d641-1718-43e9-a904-b91184935dde\",\"label\":\"Download the original file\"}]}"
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 21464,
+    "fields": {
+        "notes": "",
+        "bibliography": 468,
+        "location": "https://figgy.princeton.edu/concern/scanned_resources/8493520c-be69-47f1-b159-262f4b8c0e04/manifest/canvas/9242203d-d33e-416a-8658-59ec52b46736",
+        "snippet_text": "",
+         "content_type": [
+            "accounts",
+            "borrow"
+        ],
+        "object_id": 32559,
+        "is_agree": true,
+        "image": 1191
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 15397,
+    "fields": {
+        "notes": "",
+        "bibliography": 420,
+        "location": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/9d839618-9d3e-4e8e-9d6c-28b46d337b11",
+        "snippet_text": "",
+        "content_type": [
+            "accounts",
+            "borrow"
+        ],
+        "object_id": 26346,
+        "is_agree": true,
+        "image": 1411
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 15395,
+    "fields": {
+        "notes": "",
+        "bibliography": 420,
+        "location": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/d3182e87-bc20-44f9-a92b-ff978de18d37",
+        "snippet_text": "",
+         "content_type": [
+            "accounts",
+            "borrow"
+        ],
+        "object_id": 26344,
+        "is_agree": true,
+        "image": 1409
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 15369,
+    "fields": {
+        "notes": "",
+        "bibliography": 420,
+        "location": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/68fd36f1-a463-441e-9f13-dfc4a6cd4114",
+        "snippet_text": "",
+         "content_type": [
+            "accounts",
+            "borrow"
+        ],
+        "object_id": 26318,
+        "is_agree": true,
+        "image": 1408
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 15352,
+    "fields": {
+        "notes": "",
+        "bibliography": 420,
+        "location": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/31f9c24e-6f97-4149-afb2-e9d2f7ba6cbe",
+        "snippet_text": "",
+         "content_type": [
+            "accounts",
+            "borrow"
+        ],
+        "object_id": 26301,
+        "is_agree": true,
+        "image": 1407
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 15347,
+    "fields": {
+        "notes": "",
+        "bibliography": 420,
+        "location": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest/canvas/31f9c24e-6f97-4149-afb2-e9d2f7ba6cbe",
+        "snippet_text": "",
+         "content_type": [
+            "accounts",
+            "borrow"
+        ],
+        "object_id": 26296,
+        "is_agree": true,
+        "image": 1407
+    }
+}
+]

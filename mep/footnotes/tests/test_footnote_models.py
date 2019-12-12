@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from djiffy.models import Manifest
 
-from mep.accounts.models import Account, Event
+from mep.accounts.models import Account, Event, Borrow, Purchase
 from mep.footnotes.admin import BibliographyAdmin
 from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.models import Person
@@ -129,6 +129,77 @@ class TestFootnote(TestCase):
             assert image_thumbnail.startswith(
                 '<a target="_blank" href="%s">' % test_rendering_url
             )
+
+
+class TestFootnoteQuerySet(TestCase):
+    fixtures = ['footnotes_gstein']
+
+    def test_events(self):
+        # other than stein fixture, should be no event - return nothing
+        gstein_filter = {
+            'bibliography__bibliographic_note__contains': 'Gertrude Stein'
+        }
+        assert not Footnote.objects.exclude(**gstein_filter).events().exists()
+
+        # get a known date from the fixture
+        evt = Borrow.objects.get(pk=26344)
+        assert evt.footnotes.all().events().count() == 1
+        assert evt.footnotes.all().events().first() == evt.event_ptr
+
+        # all events from one account
+        acct = Account.objects.first()  # currently only g. stein in fixture
+        footnote_events = Footnote.objects.filter(**gstein_filter).events()
+        for event in acct.event_set.all():
+            assert event in footnote_events
+
+        # event with no footnote
+        unnoted_event = Event.objects.create(account=acct)
+        assert unnoted_event not in Footnote.objects.all().events()
+
+    def test_event_date_range(self):
+        # other than stein fixture, should be no event dates - return nothing
+        gstein_filter = {
+            'bibliography__bibliographic_note__contains': 'Gertrude Stein'
+        }
+        assert not Footnote.objects.exclude(**gstein_filter) \
+            .event_date_range()
+
+        # get a known date from the fixture with start and end date fully known
+        evt = Borrow.objects.get(pk=26344)
+        footnote_dates = evt.footnotes.all().event_date_range()
+
+        # should not be null
+        assert footnote_dates
+        assert footnote_dates[0] == evt.start_date
+        assert footnote_dates[1] == evt.end_date
+
+        # full date range should be min/max of all events from the account
+        acct = Account.objects.first()  # currently only g. stein in fixture
+        event_dates = acct.event_dates
+        footnote_dates = Footnote.objects.filter(**gstein_filter) \
+                                 .event_date_range()
+        assert footnote_dates[0] == event_dates[0]
+        assert footnote_dates[1] == event_dates[-1]
+
+        # add new purchase and generic events with footnotes
+        generic_event = Event.objects.create(
+            account=evt.account, start_date=date(1919, 11, 17))
+        evt_ctype = ContentType.objects.get_for_model(Event)
+        bib = evt.footnotes.first().bibliography
+        Footnote.objects.create(object_id=generic_event.pk,
+                                content_type=evt_ctype, bibliography=bib)
+        footnote_dates = Footnote.objects.filter(**gstein_filter) \
+            .event_date_range()
+        assert footnote_dates[0] == generic_event.start_date
+
+        purchase_evt = Purchase.objects.create(
+            account=evt.account, start_date=date(1962, 3, 5))
+        evt_ctype = ContentType.objects.get_for_model(Purchase)
+        Footnote.objects.create(object_id=purchase_evt.pk,
+                                content_type=evt_ctype, bibliography=bib)
+        footnote_dates = Footnote.objects.filter(**gstein_filter) \
+            .event_date_range()
+        assert footnote_dates[1] == purchase_evt.start_date
 
 
 class TestBibliographyAdmin:

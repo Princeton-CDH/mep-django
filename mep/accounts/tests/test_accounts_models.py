@@ -328,6 +328,12 @@ class TestAccount(TestCase):
         # should extend the existing range
         assert account.event_date_ranges() == [[start, sub2_end]]
 
+        # range with end but no start should be grouped within the range
+        # and not sorted first in its own range because of no start date
+        Subscription.objects.create(account=account,
+                                    end_date=datetime.date(1923, 7, 1))
+        assert account.event_date_ranges() == [[start, sub2_end]]
+
         # non-contiguous range should result in two ranges
         sub3_start = datetime.date(1924, 1, 5)
         sub3_end = datetime.date(1924, 3, 5)
@@ -394,42 +400,42 @@ class TestAddress(TestCase):
 
     def test_str(self):
         # account only
-        assert str(self.address) == '%s - %s' % (self.location, self.account)
+        assert str(self.address) == '%s — %s' % (self.location, self.account)
 
         # account with start date
         start_year = 1920
         self.address.start_date = datetime.datetime(year=start_year, month=1, day=1)
         assert str(self.address) == \
-            '%s - %s (%s-)' % (self.location, self.account, start_year)
+            '%s — %s (%s – )' % (self.location, self.account, start_year)
 
         # start and end date
         end_year = 1923
         self.address.end_date = datetime.datetime(year=end_year, month=1, day=1)
         assert str(self.address) == \
-            '%s - %s (%d-%d)' % (self.location, self.account, start_year, end_year)
+            '%s — %s (%d – %d)' % (self.location, self.account, start_year, end_year)
 
         # end date only
         self.address.start_date = None
         assert str(self.address) == \
-            '%s - %s (-%d)' % (self.location, self.account, end_year)
+            '%s — %s ( – %d)' % (self.location, self.account, end_year)
 
         # care of person
         self.address.care_of_person = Person.objects.create(
             name='Jones', slug='jones')
         assert str(self.address) == \
-            '%s - %s (-%d) c/o %s' % (self.location, self.account, end_year,
+            '%s — %s ( – %d) c/o %s' % (self.location, self.account, end_year,
                                     self.address.care_of_person)
         # care of, no dates
         self.address.end_date = None
         assert str(self.address) == \
-            '%s - %s c/o %s' % (self.location, self.account,
+            '%s — %s c/o %s' % (self.location, self.account,
                                 self.address.care_of_person)
 
         # person, no account
         self.address.account = None
         self.address.person = Person.objects.create(name='Smith', slug='sm')
         assert str(self.address) == \
-            '%s - %s c/o %s' % (self.location, self.address.person,
+            '%s — %s c/o %s' % (self.location, self.address.person,
                                 self.address.care_of_person)
 
     def test_clean(self):

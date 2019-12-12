@@ -106,7 +106,7 @@
             }
 
             .choice {
-                flex: 1;
+                flex: auto;
                 border: 1px solid $light-grey;
                 padding-top: 0.1rem;
             }
@@ -116,11 +116,21 @@
                 flex-direction: column;
                 padding: 0;
                 color: $black;
+                font-size: 0.7rem;
 
                 &::before {
                     top: initial;
                     left: 0.2rem;
                     bottom: 0.2rem;
+                    width: 0.5rem;
+                    height: 0.5rem;
+                }
+
+                .count {
+                    font-size: 0.5rem;
+                    width: 100%;
+                    text-align: right;
+                    padding-right: 0.5rem;
                 }
             }
 
@@ -206,7 +216,6 @@
 
         .separator {
             display: inline-block;
-            padding: 0 .5rem;
             font-size: 0.7rem;
         }
 

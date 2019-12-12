@@ -47,6 +47,13 @@ article.main {
         list-style: decimal inside;
     }
 
+    .linkable_section {
+
+        h2 {
+            margin-bottom: 1rem;
+        }
+    }
+
     .footnotes {
         border-top: 1px solid $light-grey;
         padding-top: 1rem;
@@ -69,4 +76,11 @@ article.main {
             font-size: 0.8rem;
         }
     }
+}
+
+/* preliminary style to highlight an anchor link target (esp. for info links) */
+:target {
+    border-left: 3px solid $green;
+    margin-left: -1rem;
+    padding-left: 1rem;
 }

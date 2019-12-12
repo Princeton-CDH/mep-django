@@ -1,0 +1,95 @@
+/* members membership activity table */
+.membership {
+
+    // mobile styles
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+
+        .start,
+        .end {
+            margin-bottom: .5rem;
+        }
+
+        .start {
+            flex: none;
+            width: auto;
+            order: 2;
+        }
+
+        .end { /* large enough to always push next item onto a new line */
+            width: 60%;
+            order: 3;
+        }
+
+        .start:not(.empty) + .end {
+            padding-left: 3px;
+
+            &::before {
+                content: ' — ';
+            }
+        }
+
+        .duration,
+        .amount,
+        .plan {
+            display: inline-block;
+            width: calc(100% / 3);
+            position: relative;
+            margin-top: 0.75rem;
+
+            &::before {
+                position: absolute;
+                bottom: 0.75rem;
+                left: 0;
+                width: 100%;
+                font-size: 0.6rem;
+                font-weight: bold;
+            }
+        }
+
+        .duration {
+            order: 4;
+
+            &::before {
+                content: 'Duration';
+            }
+        }
+
+        .plan {
+            order: 5;
+            text-align: center;
+
+            &.empty {
+                display: inline-block;
+            }
+
+            &::before {
+                content: 'Plan';
+            }
+        }
+
+        .amount {
+            order: 6;
+            text-align: right;
+
+            &::before {
+                content: 'Amount';
+            }
+        }
+    }
+}
+
+// "plan" tooltip
+#plan-tip {
+    vertical-align: middle;
+}
+
+// "plan" tooltip for mobile
+#plan-tip-2 {
+    position: absolute;
+    top: -.7rem;
+    right: calc(50% - 1.75rem);
+
+    @media (min-width: $breakpoint-s) {
+        display: none;
+    }
+}

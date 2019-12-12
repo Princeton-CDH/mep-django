@@ -29,7 +29,7 @@ class PersonChoiceFieldTest(TestCase):
             notes='more important details here')
         label = pchoicefield.label_from_instance(pers)
         assert '%s %s' % (pers.title, pers.name) in label
-        assert '%s–\n' % pers.birth_year in label
+        assert '%s – \n' % pers.birth_year in label
         assert 'MEP id %s' % pers.mep_id in label
         assert '<a href="%(url)s" rel="nofollow">%(url)s</a>' % {'url': pers.viaf_id} \
             in label
@@ -38,7 +38,7 @@ class PersonChoiceFieldTest(TestCase):
         # birth and death year when both are known
         pers.death_year = 1956
         label = pchoicefield.label_from_instance(pers)
-        assert '%s–%s' % (pers.birth_year, pers.death_year) in label
+        assert '%s – %s' % (pers.birth_year, pers.death_year) in label
 
         # display events if any
         acct = Account.objects.create()
@@ -52,10 +52,10 @@ class PersonChoiceFieldTest(TestCase):
         label = pchoicefield.label_from_instance(pers)
         assert 'Subscription' in label
         # use template tag date format for consistency
-        assert '%s–%s' % (format_date(subs.start_date), format_date(subs.end_date)) in label
+        assert '%s – %s' % (format_date(subs.start_date), format_date(subs.end_date)) in label
         assert subs.notes in label
         assert 'Borrow' in label
-        assert '%s–%s' % (format_date(borrow.start_date), format_date(borrow.end_date)) in label
+        assert '%s – %s' % (format_date(borrow.start_date), format_date(borrow.end_date)) in label
 
 
 class PersonMergeFormTest(TestCase):
@@ -123,7 +123,7 @@ class TestMemberForm(TestCase):
         form = MemberSearchForm(data)
         assert form.fields['sort'].widget.choices[0] == form.SORT_CHOICES[0]
         assert form.fields['sort'].widget.choices[1] == \
-            ('name', {'label': 'Name A-Z', 'disabled': True})
+            ('name', {'label': 'Name A – Z', 'disabled': True})
 
         # empty query, relevance disabled
         data['query'] = ''

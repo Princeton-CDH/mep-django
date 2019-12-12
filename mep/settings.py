@@ -170,12 +170,14 @@ STATICFILES_DIRS = [
 ]
 
 # These will be added to ``INSTALLED_APPS``, only if available.
+# NOTE: this is mezzanine-specific; probably remove
 OPTIONAL_APPS = (
     "debug_toolbar",
     "django_extensions",
     PACKAGE_NAME_FILEBROWSER,
     PACKAGE_NAME_GRAPPELLI,
 )
+
 
 # pucas configuration that is not expected to change across deploys
 # and does not reference local server configurations or fields
@@ -213,28 +215,24 @@ SCRIPT_USERNAME = 'script'
 CSP_DEFAULT_SRC = "'none'"
 
 # allow loading js locally and from google (for analytics)
-CSP_SCRIPT_SRC = ("'self'", 'https://www.googletagmanager.com',
-    'https://www.google-analytics.com', 'https://ssl.google-analytics.com')
+CSP_SCRIPT_SRC = ("'self'", 'www.googletagmanager.com', '*.google-analytics.com')
 
 # allow loading fonts locally only
 CSP_FONT_SRC = ("'self'",)
 
-# allow loading css locally only
-CSP_STYLE_SRC = ("'self'",)
+# allow loading css locally & via inline styles
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
 
 # allow loading web manifest locally only
 CSP_MANIFEST_SRC = ("'self'",)
 
-# allow XMLHttpRequest or Fetch requests locally (for search) and analytics
-CSP_CONNECT_SRC = ("'self'", 'https://google-analytics.com', 'https://tiles.arcgis.com/')
+# allow XMLHttpRequest or Fetch requests locally (for search), analytics & maps
+CSP_CONNECT_SRC = ("'self'", '*.google-analytics.com', '*.arcgis.com')
 
-# allow loading local images, google tracking pixel(s)?, PUL IIIF images, arcgis & mapbox maps
-CSP_IMG_SRC = ("'self'", 'https://www.googletagmanager.com',
-               'https://www.google-analytics.com',
-               'https://iiif.princeton.edu', 'https://tiles.arcgis.com',
-               'https://tiles1.arcgis.com', 'https://tiles2.arcgis.com',
-               'https://tiles3.arcgis.com', 'https://tiles4.arcgis.com',
-               'https://api.mapbox.com', 'data:')
+# whitelisted image sources - analytics (tracking pixel?), IIIF, maps, etc.
+CSP_IMG_SRC = ("'self'", 'www.googletagmanager.com', '*.google-analytics.com',
+               'iiif.princeton.edu', 'figgy.princeton.edu', '*.arcgis.com',
+               'api.mapbox.com', 'data:')
 
 # exclude admin and cms urls from csp directives since they're authenticated
 CSP_EXCLUDE_URL_PREFIXES = ('/admin', '/cms')
@@ -268,11 +266,21 @@ if os.path.exists(f):
     exec(open(f, "rb").read())
 
 
+if DEBUG:
+    try:
+        import debug_toolbar
+        INSTALLED_APPS.append('debug_toolbar')
+        MIDDLEWARE += (
+            'debug_toolbar.middleware.DebugToolbarMiddleware',
+        )
+    except ImportError:
+        pass
+
 # Django webpack loader
 WEBPACK_LOADER = {
     'DEFAULT': {
         'CACHE': not DEBUG,
-        'BUNDLE_DIR_NAME': 'bundles/', # must end with slash
+        'BUNDLE_DIR_NAME': 'bundles/',  # must end with slash
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
         'POLL_INTERVAL': 0.1,
         'TIMEOUT': None,

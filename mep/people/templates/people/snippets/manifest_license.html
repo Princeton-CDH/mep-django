@@ -1,0 +1,20 @@
+{# display & link IIIF manifest license and provider logo #}
+{% load static mep_tags %}
+<div class="rights-statement">
+    {# logo for IIIF provider of digitized item #}
+    {% if manifest.logo %}
+        {# link to findingaids version via rendering url in extra data #}
+        {% with manifest.extra_data.rendering|yesno:"a,span" as tag %}
+            <{{ tag }} {% if tag == "a" %} href="{{ manifest.extra_data.rendering|dict_item:"@id" }}" target="_blank" {% endif %}>
+            <img class="logo" src="{{ manifest.logo }}" alt=""/>
+            </{{ tag }}>
+        {% endwith %}
+    {% endif %}
+    {# for now, only supports rightsstatments.org licenses (should work for PUL content) #}
+    {% if manifest.license %}
+    <a href="{{ manifest.license }}" target="_blank">
+        <img src="{% static 'img/rightsstatements_org/' %}{{ manifest.rights_statement_id }}.svg"
+           alt="{{ manifest.license_label }}" />
+    </a>
+    {% endif %}
+</div>

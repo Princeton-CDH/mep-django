@@ -1,12 +1,22 @@
 #page-footer {
     @include container;
-    padding: 4rem 0 1rem;
+    padding: 1rem 0;
     flex: none;
     background: $white;
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-    line-height: 1.25;
+    max-width: calc(#{$breakpoint-m} - 4rem);
+
+    @media (min-width: $breakpoint-s) {
+        padding: 4rem 0 1rem;
+    }
+
+    .nav-logos {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        justify-content: space-between;
+        line-height: 1.25;
+        position: relative;
+    }
 
     a,
     span {
@@ -28,18 +38,18 @@
     }
 
     nav {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
+        margin: 0 auto;
 
         @media (min-width: $breakpoint-s) {
-            width: fit-content;
-            flex: auto;
+            margin: 0;
         }
 
         ul {
-            flex: none;
+            display: inline-block;
+        }
+
+        .secondary {
+            margin-left: 2rem;
         }
 
         li {
@@ -53,37 +63,65 @@
     }
 
     #sco-logo {
-        width: 6rem;
-        margin: 1rem auto;
+        flex: none;
+        width: 7rem;
         display: block;
+        margin: 1rem auto;
 
         @media (min-width: $breakpoint-s) {
-            margin: 1rem 2rem;
+            margin: 0;
+            position: absolute;
+            left: calc(50% - 3.5rem);
+            top: 0;
         }
+    }
+
+    .logos-social {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .logos,
+    .social {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .social {
+        display: none;  // disabled for now
+        margin-top: 1rem;
+        justify-content: center;
+
+        @media (min-width: $breakpoint-s) {
+            justify-content: flex-end;
+        }
+
+        img {
+            width: 1rem;
+            height: 1rem;
+            margin-left: .75rem;
+        }
+    }
+
+    #pu-logo img {
+        width: 6.5rem;
 
         @media (min-width: $breakpoint-m) {
-            margin: 1rem 4rem;
+            width: 8rem;
         }
-    }
-
-    .logos {
-        display: flex;
-        width: 100%;
-        flex-direction: row;
-        justify-content: space-between;
-
-        @media (min-width: $breakpoint-s) {
-            width: fit-content;
-            flex: auto;
-        }
-    }
-
-    #pu-logo {
-        width: 6.25rem;
     }
 
     #cdh-logo {
-        width: 5rem;
+        margin-left: 1rem;
+
+        @media (min-width: $breakpoint-m) {
+            margin-left: 2rem;
+        }
+
+        img {
+            width: 5rem;
+        }
     }
 
     .links {

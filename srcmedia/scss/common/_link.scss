@@ -1,3 +1,4 @@
+// normal links with green underline
 main a {
     color: $black;
     text-decoration: none;
@@ -6,5 +7,40 @@ main a {
 
     &:hover, &:focus {
         border-bottom: 2px solid $dark-green;
+    }
+}
+
+// '¶' links to linkable sections in body text
+.headerlink {
+    color: $green;
+    border: none;
+    opacity: 0;
+    font-size: 1rem;
+    transition: opacity 0.2s ease-in-out;
+    position: relative;
+    top: -0.2rem;
+
+    &:hover, &:focus {
+        border: none;
+    }
+}
+
+h2:hover > .headerlink {
+    opacity: 1;
+}
+
+// info links using 'link' icon
+.info-link {
+    border: none;
+    width: 2rem;
+    height: 2rem;
+    background-image: url('/static/img/icons/link-circle.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 0.8rem 0.8rem;
+    display: inline-block;
+
+    &:hover, &:focus {
+        border: none;
     }
 }

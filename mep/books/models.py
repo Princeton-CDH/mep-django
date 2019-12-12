@@ -133,6 +133,7 @@ class WorkSignalHandlers:
 
     @staticmethod
     def creatortype_save(sender=None, instance=None, raw=False, **kwargs):
+        '''reindex all associated works when a creator type is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -145,6 +146,7 @@ class WorkSignalHandlers:
 
     @staticmethod
     def creatortype_delete(sender, instance, **kwargs):
+        '''reindex all associated works when a creator type is deleted'''
         work_ids = Work.objects.filter(creator__creator_type__pk=instance.pk) \
                                .values_list('id', flat=True)
         if work_ids:
@@ -156,6 +158,7 @@ class WorkSignalHandlers:
 
     @staticmethod
     def person_save(sender=None, instance=None, raw=False, **kwargs):
+        '''reindex all works associated via creator when a person is saved'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -168,6 +171,7 @@ class WorkSignalHandlers:
 
     @staticmethod
     def person_delete(sender, instance, **kwargs):
+        '''reindex all works associated via creator when a person is deleted'''
         work_ids = Work.objects.filter(creator__person__pk=instance.pk) \
                                .values_list('id', flat=True)
         if work_ids:
@@ -179,6 +183,7 @@ class WorkSignalHandlers:
 
     @staticmethod
     def creator_change(sender=None, instance=None, raw=False, **kwargs):
+        '''reindex associated work when a creator record is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -254,7 +259,8 @@ class Work(Notable, ModelIndexable):
 
     def creator_by_type(self, creator_type):
         '''return work creators of a single type, e.g. author'''
-        return self.creators.filter(creator__creator_type__name=creator_type)
+        return [creator.person for creator in self.creator_set.all()
+                if creator.creator_type.name == creator_type]
 
     @property
     def authors(self):
@@ -263,8 +269,13 @@ class Work(Notable, ModelIndexable):
 
     def author_list(self):
         '''semicolon separated list of author names'''
-        return '; '.join([str(auth) for auth in self.authors])
+        return '; '.join([auth.name for auth in self.authors])
     author_list.verbose_name = 'Authors'
+
+    @property
+    def sort_author_list(self):
+        '''semicolon separated list of author sort names'''
+        return '; '.join([auth.sort_name for auth in self.authors])
 
     @property
     def editors(self):

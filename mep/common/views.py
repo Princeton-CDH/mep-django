@@ -25,6 +25,7 @@ class LabeledPagesMixin(ContextMixin):
         '''Generate labels for pages. Defaults to labeling pages using numeric
         ranges, e.g. `50-100`.'''
         page_labels = []
+
         # if there's nothing to paginate, just return an empty list
         if paginator.count == 0:
             return page_labels
@@ -34,7 +35,7 @@ class LabeledPagesMixin(ContextMixin):
             # final page should end at number of the final item
             page_end = min(page_start + paginator.per_page, paginator.count)
             # first item on page is 1-based index, e.g. 51-100
-            page_labels.append((page, '%d - %d' % (page_start + 1, page_end)))
+            page_labels.append((page, '%d – %d' % (page_start + 1, page_end)))
 
         return page_labels
 
@@ -52,7 +53,12 @@ class LabeledPagesMixin(ContextMixin):
     def dispatch(self, request, *args, **kwargs):
         response = super(LabeledPagesMixin, self).dispatch(request, *args, **kwargs)
         if self.request.is_ajax():
-            response['X-Page-Labels'] = '|'.join([label for index, label in self._page_labels])
+        # NOTE we need to replace the en dashes in alpha pagelabels with a
+        # hyphen when requested via ajax because unicode can't be sent via the
+        # X-Page-Labels header. this needs to get converted back to an en dash
+        # on the client side.
+            response['X-Page-Labels'] = '|'.join(
+                [label.replace('–', '-') for index, label in self._page_labels])
         return response
 
 
@@ -65,8 +71,6 @@ class RdfViewMixin(ContextMixin):
     #: breadcrumbs, used to render breadcrumb navigation. they should be a list
     #: of tuples like ('Title', '/url')
     breadcrumbs = []
-    #: json-ld context for the rdf graph; defaults to schema.org
-    json_ld_context = str(SCHEMA_ORG)
 
     def get_context_data(self, *args, **kwargs):
         '''Add generated breadcrumbs and an RDF graph to the view context.'''
@@ -81,10 +85,8 @@ class RdfViewMixin(ContextMixin):
     def add_rdf_to_context(self, context):
         '''add jsonld and breadcrumb list to context dictionary'''
         context.update({
-            'page_jsonld': self.as_rdf()
-                               .serialize(format='json-ld',
-                                          auto_compact=True,
-                                          context=self.json_ld_context),
+            'page_jsonld': self.as_rdf().serialize(format='json-ld',
+                                                   auto_compact=True),
             'breadcrumbs': self.get_breadcrumbs()
         })
         return context
@@ -98,6 +100,8 @@ class RdfViewMixin(ContextMixin):
         '''Generate an RDF graph representing the page.'''
         # add the root node (this page)
         graph = rdflib.ConjunctiveGraph()
+        # explicitly bind schema.org namespace
+        graph.bind('schema', SCHEMA_ORG)
         page_uri = rdflib.URIRef(self.get_absolute_url())
         graph.add((page_uri, rdflib.RDF.type, self.rdf_type))
         # generate and add breadcrumbs, if any

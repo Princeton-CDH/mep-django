@@ -29,10 +29,10 @@
         <a href="{% url 'people:member-detail' slug=member.slug %}">biography</a>
     </li>
     <li class="tab">
-        <a href="{% url 'people:membership-activities' slug=member.slug %}">activities</a>
+        <a href="{% url 'people:borrowing-activities' slug=member.slug %}">activities</a>
     </li>
     <li class="tab">
-        <a href="#">cards</a>
+        <a href="{% url 'people:member-card-list' slug=member.slug %}">cards</a>
     </li>
 </nav>
 

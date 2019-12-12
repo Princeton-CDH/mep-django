@@ -3,6 +3,19 @@
 Deploy and Upgrade notes
 ========================
 
+0.24
+----
+
+Partial name and accent-agnostic search on the members requires that the Solr
+configuration be updated and members reindexed. Copy all files under
+`solr_conf/conf/` to your configured Solr configset and restart Solr
+to ensure the managed schema is loaded. Then update the schema, clear
+people from the index, and then reindex::
+
+  python manage.py solr_schema
+  python manage.py index -c person -i none
+  python manage.py index -i person
+
 0.23
 ----
 

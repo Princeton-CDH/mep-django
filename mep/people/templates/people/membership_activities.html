@@ -23,14 +23,14 @@
     <li class="tab" aria-selected="true">
         <a href="{% url 'people:membership-activities' slug=member.slug %}">activities</a>
     </li>
-    <li class="tab pending">
-        <span>cards</span>
+    <li class="tab">
+        <a href="{% url 'people:member-card-list' slug=member.slug %}">cards</a>
     </li>
 </nav>
 
 <nav class="tabs subsection" aria-label="Activities">
-    <li class="tab pending">
-        <span>Borrowing</span>
+    <li class="tab">
+        <a href="{% url 'people:borrowing-activities' slug=member.slug %}">Borrowing</a>
     </li>
     <li class="tab" aria-selected="true">
         <a href="{% url 'people:membership-activities' slug=member.slug %}">Membership</a>
@@ -60,14 +60,15 @@
     {% if not event_list.count %}
     <p>No documented membership activity.</p>
     {% else %}
-    <table id="activity-table">
+    <div class="wrapper">
+    <table id="activity-table" class="membership">
         <thead>
             <tr>
-                <th>Type</th>
-                <th aria-describedby="category-tip">Category
-                    <span id="category-tip" role="tooltip" class="question"
-                        aria-label="{{ category_tooltip }}" tabindex=0
-                        onclick="event.preventDefault()"/>
+                <th>Activity</th>
+                <th data-sort-method="none">Plan
+                    <a class="info-link" href="/about/faq/#lending-library-plans"
+                        title="{{ plan_tooltip }}" tabindex="0"
+                        id="plan-tip"></a>
                 </th>
                 <th data-sort-method="number">Duration</th>
                 <th data-sort-default>Start Date</th>
@@ -77,23 +78,44 @@
         </thead>
         {% for event in event_list %}
         <tr>
-            <td class="type">{{ event.event_type }}</td>
-            <td class="category">{{ event.subscription.category|default:'-' }}</td>
-            <td class="duration" data-sort="{{ event.subscription.duration|default:0 }}">{{ event.subscription.readable_duration|default:'-' }}</td>
-            <td class="start" data-sort="{{ event.start_date|date:"Ymd" }}">{{ event.start_date|default:'-' }}</td>
-            <td class="end" data-sort="{{ event.end_date|date:"Ymd" }}">
-                {% if event.reimbursement %} - {% else %}{{ event.end_date|default:'-' }}{% endif %}
+            <td class="activity">{{ event.event_type }}</td>
+            <td class="plan{% if not event.subscription.category %} empty{% endif %}">
+                {{ event.subscription.category|default:'-' }}
+                {# render info link here so it can be shown on mobile too #}
+                {% if forloop.first %}
+                <a class="info-link" href="/about/faq#joining-the-library"
+                    title="{{ plan_tooltip }}" tabindex="0"
+                    id="plan-tip-2"></a>
+                {% endif %}
+            </td>
+            <td class="duration{% if not event.subscription.duration %} empty{% endif %}"
+                data-sort="{{ event.subscription.duration|default:0 }}">
+                {{ event.subscription.readable_duration|default:'-' }}
+            </td>
+            <td class="start{% if not event.partial_start_date %} empty{% endif %}"
+                data-sort="{{ event.partial_start_date|default:'' }}">
+                {{ event.partial_start_date|partialdate|default:'-' }}
+            </td>
+            <td class="end{% if not event.partial_end_date %} empty{% endif %}"
+                data-sort="{{ event.partial_end_date|default:'' }}">
+                {% if event.reimbursement %} - {% else %}
+                {{ event.partial_end_date|partialdate|default:'-' }}{% endif %}
             </td>
             {# amount is either subscription price or refund amount; refund is negative #}
             {% with subscription_price=event.subscription.price_paid refund=event.reimbursement.refund %}
             <td class="amount" data-sort="{% if refund %}-{% endif %}{% firstof subscription_price refund 0 %}">
                 {# only display currency if there is a value #}
-                {% if refund %}-{% endif %}{% firstof subscription_price|floatformat refund|floatformat '-' %}{% if subscription_price or refund %} {% firstof event.subscription.currency_symbol event.reimbursement.currency_symbol '' %}{% endif %}
+                {% if refund %}-{% endif %}
+                {% firstof subscription_price|floatformat refund|floatformat '-' %}
+                {% if subscription_price or refund %}
+                    {% firstof event.subscription.currency_symbol event.reimbursement.currency_symbol '' %}
+                {% endif %}
             {% endwith %}
             </td>
         </tr>
         {% endfor %}
     </table>
+    </div>
     {% endif %}
 </div>
 {% endblock %}

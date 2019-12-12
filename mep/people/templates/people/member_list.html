@@ -46,11 +46,15 @@
                                 {{ form.birth_year }}
                             </fieldset>
                             {% render_field form.gender %}
-                            <span id="{{ form.gender.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip"
-                                aria-label="{{ form.gender.help_text }}" tabindex=0/>
+                            <a class="info-link" href="/about/faq#gender"
+                                title="Why do we identify gender?" tabindex="0"
+                                id="{{ form.gender.field.widget.attrs|dict_item:'aria-describedby' }}"></a>
                         </div>
                         <div class="column">
                             <div class="expander" role="button" aria-controls="id_nationality" tabindex="0" aria-expanded="false">{{ form.nationality.label }}</div>
+                            <a class="info-link" href="/about/faq#nationality"
+                                title="Why do we identify nationality?" tabindex="0"
+                                id="{{ form.nationality.field.widget.attrs|dict_item:'aria-describedby' }}"></a>
                             {% render_field form.nationality %}
                         </div>
                         <div class="column">
@@ -75,7 +79,7 @@
         <label class="sort">
             <span>SORTED BY</span>
             {% render_field form.sort form="members-form" %}
-            <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+            {# no dropdown icon; this sort isn't user-controllable #}
         </label>
         <button type="submit" form="members-form">Go</button>
         {% include 'snippets/pagination.html' with form_id="members-form" %}

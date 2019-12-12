@@ -93,48 +93,27 @@
         }
     }
 
-    // gender facet tooltip
-    // tooltip text flips to below icon on tablet and back to above on desktop
-    // because it can't exceed the bounds of its parent container (column)
+    // gender facet info link
     #gender_tip {
-        height: fit-content;
         position: absolute;
-        top: 3rem;
-        right: 0.5rem;
+        top: 2.7rem;
+        left: 3.6rem;
 
         @media (min-width: $breakpoint-s) {
-            top: 4.25rem;
-            right: 1rem;
+            top: 3.75rem;
+        }
+    }
+
+    #nationality-info {
+        z-index: 1;
+        position: absolute;
+        left: 4.75rem;
+        top: 0;
+
+        @media (min-width: $breakpoint-s) {
+            top: -0.5rem;
         }
 
-        &::before {
-            bottom: 0.5rem;
-            transform-origin: bottom center;
-
-            @media (min-width: $breakpoint-s) {
-                transform: rotate(180deg);
-            }
-
-            @media (min-width: $breakpoint-m) {
-                transform: none;
-            }
-        }
-
-        &::after {
-            right: 0;
-            bottom: 1.25rem;
-            min-width: 9rem;
-
-            @media (min-width: $breakpoint-s) {
-                bottom: -4.25rem;
-                right: -0.5rem;
-            }
-
-            @media (min-width: $breakpoint-m) {
-                bottom: 1.25rem;
-                min-width: 11rem; // larger on desktop
-            }
-        }
     }
 
     // make the tabpanels display when their tabs are aria-selected

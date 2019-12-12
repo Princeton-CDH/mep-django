@@ -29,6 +29,7 @@
         "@types/esri-leaflet": "^2.1.5",
         "@types/jest": "^24.0.11",
         "@types/leaflet": "^1.5.5",
+        "@types/masonry-layout": "^4.2.1",
         "autoprefixer": "^9.4.6",
         "awesome-typescript-loader": "^5.2.1",
         "babel-core": "^7.0.0-bridge.0",
@@ -62,6 +63,7 @@
         "d3": "^5.12.0",
         "esri-leaflet": "^2.3.1",
         "leaflet": "^1.5.1",
+        "masonry-layout": "^4.2.2",
         "rxjs": "^6.5.1",
         "tablesort": "^5.1.0"
     }

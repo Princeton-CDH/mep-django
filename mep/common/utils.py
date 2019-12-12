@@ -91,7 +91,11 @@ def alpha_pagelabels(paginator, objects, attr_meth):
             abbr += char   # or abbr = label[:j]
             # if abbreviation is different from neighboring labels
             # at the current length, then use it
-            if abbr not in (next_label[:j], prev_label[:j]):
+            # - compare case-insensitively
+            # NOTE: should possibly ignore trailing punctuation here...
+            # possible to get "Gray" / "Gray,"
+            if abbr.lower() not in (next_label[:j].lower(),
+                                    prev_label[:j].lower()):
                 break
             # if we don't break before the loop finishes, use
             # the whole label
@@ -102,7 +106,7 @@ def alpha_pagelabels(paginator, objects, attr_meth):
     for i in range(0, len(abbreviated_labels), 2):
         page_index = int((i + 2) / 2)
         try:
-            page_labels[page_index] = '%s - %s' % \
+            page_labels[page_index] = '%s – %s' % \
                 (abbreviated_labels[i].strip(),
                  abbreviated_labels[i + 1].strip())
         except IndexError:

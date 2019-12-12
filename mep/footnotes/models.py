@@ -1,8 +1,11 @@
+from collections import defaultdict
 import logging
 
+from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models.functions import Coalesce
 from djiffy.models import Canvas, Manifest
 from parasolr.django.indexing import ModelIndexable
 
@@ -18,12 +21,14 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def debug_log(name, count, mode='save'):
-        # common method for debug logging with logic for singular people
+        '''shared debug logging for card signal save handlers'''
         logger.debug('%s %s, reindexing %d related card%s',
                      mode, name, count, '' if count == 1 else 's')
 
     @staticmethod
     def person_save(sender=None, instance=None, raw=False, **kwargs):
+        '''when a person is saved, reindex bibliography card records
+        associated through an account'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -35,6 +40,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def person_delete(sender, instance, **kwargs):
+        '''when a person is deleted, reindex any bibliography card
+        records associated through an account'''
         card_ids = Bibliography.objects \
             .filter(account__persons__pk=instance.pk) \
             .values_list('id', flat=True)
@@ -50,6 +57,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def account_save(sender=None, instance=None, raw=False, **_kwargs):
+        '''when an account is saved, reindex any associated library
+        lending card.'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -61,6 +70,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def account_delete(sender, instance, **kwargs):
+        '''when an account is deleted, reindex any associated library
+        lending card'''
         card_ids = Bibliography.objects.filter(account__pk=instance.pk) \
             .values_list('id', flat=True)
 
@@ -76,6 +87,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def manifest_save(sender=None, instance=None, raw=False, **kwargs):
+        '''when a manifest is saved, reindex associated library
+        lending card'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -87,6 +100,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def manifest_delete(sender, instance, **kwargs):
+        '''when a manifest is deleted, reindex associated library
+        lending card'''
         card_ids = Bibliography.objects.filter(manifest__pk=instance.pk) \
             .values_list('id', flat=True)
         if card_ids:
@@ -100,6 +115,9 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def canvas_save(sender=None, instance=None, raw=False, **kwargs):
+        '''when a canvas is saved, reindex library lending card
+        associated via manifest'''
+
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
@@ -111,6 +129,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def canvas_delete(sender, instance, **kwargs):
+        '''when a canvas is deleted, reindex library lending card
+        associated via manifest'''
         cards = Bibliography.objects.filter(manifest__pk=instance.manifest.pk)
         if cards.exists():
             BibliographySignalHandlers.debug_log('canvas', cards.count(),
@@ -119,10 +139,13 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def event_save(sender=None, instance=None, raw=False, **_kwargs):
+        '''when an event is saved, reindex library lending card
+        associated via account'''
+        # NOTE: should this also/instead rely on footnote associatio?
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
             return
-        # find any cards associated with this canvas, via manifest
+        # find any cards associated with this event, via account
         cards = Bibliography.objects.filter(account__pk=instance.account.pk)
         if cards.exists():
             BibliographySignalHandlers.debug_log('event', cards.count())
@@ -130,6 +153,8 @@ class BibliographySignalHandlers:
 
     @staticmethod
     def event_delete(sender, instance, **kwargs):
+        '''when an event is deleted, reindex library lending card
+        associated via account'''
         cards = Bibliography.objects.filter(account__pk=instance.account.pk)
         if cards.exists():
             BibliographySignalHandlers.debug_log('event', cards.count(),
@@ -270,6 +295,62 @@ class Bibliography(Notable, ModelIndexable):
         return index_data
 
 
+class FootnoteQuerySet(models.QuerySet):
+    '''Custom :class:`models.QuerySet` for :class:`Footnote`'''
+
+    def events(self):
+        '''Return an Events queryset of any events (including borrows and
+        purchases) associated with the current footnote queryset.'''
+
+        # use get model to avoid circular import
+        Event = apps.get_model('accounts', 'Event')
+        # get a list of the event content types we care about
+        event_content_types = ContentType.objects.filter(
+            app_label='accounts',
+            model__in=['event', 'borrow', 'purchase'])
+        # lookup dict: content type pk and model name
+        ctype_lookup = {ctype.pk: ctype.name for ctype in event_content_types}
+
+        # get event ids and content types from the current footnote queryset
+        event_refs = self.filter(content_type__in=event_content_types) \
+                         .values('object_id', 'content_type')
+        # group event ids by content type
+        event_ids_by_type = defaultdict(list)
+        for ref in event_refs:
+            event_ids_by_type[ref['content_type']].append(ref['object_id'])
+        # construct an OR filter query for each content type and list of ids
+        # - look for nothing OR for events and event subtypes by id
+        filter_q = models.Q(pk__in=[])
+        for ctype, pk_list in event_ids_by_type.items():
+            if ctype_lookup[ctype] == 'borrow':
+                filter_q |= models.Q(borrow__pk__in=pk_list)
+            elif ctype_lookup[ctype] == 'purchase':
+                filter_q |= models.Q(purchase__pk__in=pk_list)
+            elif ctype_lookup[ctype] == 'event':
+                filter_q |= models.Q(pk__in=pk_list)
+
+        # find and return corresponding events
+        return Event.objects.filter(filter_q)
+
+    def event_date_range(self):
+        '''Find earliest and latest dates for any events associated
+        with footnotes in this queryset. Returns a tuple of earliest
+        and latest dates, or None if no dates are found.'''
+
+        # find corresponding events, filter out unknown years,
+        # and aggregrate dates to get earliest and latest from this set
+        # date_values = Event.objects.filter(filter_q).known_years() \
+        date_values = self.events().known_years() \
+            .annotate(
+                start_dates=Coalesce('start_date', 'end_date'),
+                end_dates=Coalesce('end_date', 'start_date')) \
+            .aggregate(first=models.Min('start_dates'),
+                       last=models.Max('end_dates'))
+        # return earliest and latest dates, unless result is None
+        if date_values['first']:
+            return date_values['first'], date_values['last']
+
+
 class Footnote(Notable):
     '''Footnote that can be associated with any other model via
     generic relationship.  Used to provide supporting documentation
@@ -305,6 +386,9 @@ class Footnote(Notable):
     image = models.ForeignKey(
         Canvas, blank=True, null=True,
         help_text='''Image location from an imported manifest, if available.''')
+
+    # override default manager with customized version
+    objects = FootnoteQuerySet.as_manager()
 
     def __str__(self):
         return 'Footnote on %s (%s)' % (self.content_object,

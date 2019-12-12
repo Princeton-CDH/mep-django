@@ -189,8 +189,8 @@ class Command(BaseCommand):
             search_opts['title__exact'] = work.title
 
         # search by first author if there is one
-        if work.authors.exists():
-            search_opts['author__all'] = str(work.authors.first())
+        if work.authors:
+            search_opts['author__all'] = str(work.authors[0])
 
         # search by year if known
         if work.year:

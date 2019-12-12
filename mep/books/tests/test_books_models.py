@@ -112,22 +112,22 @@ class TestWork(TestCase):
             creator_type=translator_type, person=translator, work=work)
 
         assert len(work.authors) == 1
-        assert work.authors.first() == author1
+        assert work.authors[0] == author1
         assert work.author_list() == str(author1)
 
         # add second author
         Creator.objects.create(creator_type=author_type, person=author2,
-            work=work)
+                               work=work)
         assert len(work.authors) == 2
         assert author1 in work.authors
         assert author2 in work.authors
         assert work.author_list() == '%s; %s' % (author1, author2)
 
         assert len(work.editors) == 1
-        assert work.editors.first() == editor
+        assert work.editors[0] == editor
 
         assert len(work.translators) == 1
-        assert work.translators.first() == translator
+        assert work.translators[0] == translator
 
     def test_format(self):
         work = Work.objects.create(title='Searching')
@@ -255,6 +255,41 @@ class TestWork(TestCase):
         work.genres.add(genre1)
         work.genres.add(genre2)
         assert work.genre_list() == '%s; %s' % (genre2.name, genre1.name)
+
+    def test_author_list(self):
+        # no authors
+        work = Work.objects.create(title='Anonymous')
+        assert work.author_list() == ''
+        # one author
+        author_type = CreatorType.objects.get(name='Author')
+        author1 = Person.objects.create(name='Smith', slug='s')
+        Creator.objects.create(
+            creator_type=author_type, person=author1, work=work)
+        assert work.author_list() == 'Smith'
+        # multiple authors
+        author2 = Person.objects.create(name='Jones', slug='j')
+        Creator.objects.create(
+            creator_type=author_type, person=author2, work=work)
+        assert work.author_list() == 'Smith; Jones'
+
+    def test_sort_author_list(self):
+        # no authors
+        work = Work.objects.create(title='Anonymous')
+        assert work.sort_author_list == ''
+        # one author
+        author_type = CreatorType.objects.get(name='Author')
+        author1 = Person.objects.create(name='Bob Smith',
+            sort_name='Smith, Bob', slug='s')
+        Creator.objects.create(
+            creator_type=author_type, person=author1, work=work)
+        assert work.sort_author_list == 'Smith, Bob'
+        # multiple authors
+        author2 = Person.objects.create(name='Bill Jones',
+            sort_name='Jones, Bill', slug='j')
+        Creator.objects.create(
+            creator_type=author_type, person=author2, work=work)
+        assert work.sort_author_list == 'Smith, Bob; Jones, Bill'
+
 
     def test_has_uri(self):
         work = Work(title='Topicless')

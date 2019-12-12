@@ -1,8 +1,25 @@
 ol.card-results {
-    display: flex;
-    flex-wrap: wrap;
     padding-top: 2.15rem;
     border-top: 1px solid $white-two;
+
+    // on tablet and desktop, three cards per line
+    @media (min-width: $breakpoint-s) {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .member-cards & {
+        border-top: 0;
+
+        @media (min-width: $breakpoint-m + 1) {
+            padding-top: 3.8rem;
+        }
+    }
+
+}
+
+.member-cards > div {   /* no cards available */
+    padding: 3.8rem 0;
 }
 
 /* TODO: page nav controls spacing is not quite right.
@@ -13,39 +30,38 @@ ol.card-results {
     }
 } */
 
-.card.result {
-    /* display card results in a 3-wide flex grid;
-       cards are 27% width with an 8% width margin between. */
+$card-width: 11.25rem;
 
-    $card-width: 11.25rem;
+.card.result {
+    /* display card results 3 per row in a grid */
 
     border-top: 0;
     width: $card-width;
-    /* space between cards: subtract three cards and divide remainder by 2 */;
-    margin-right: calc((100% - (#{$card-width} * 3)) / 2);
     margin-bottom: 2.8rem;
 
-    &:nth-child(3n+0) {
-        margin-right: 0;
+    // on tablet and desktop, three cards per line
+    @media (min-width: $breakpoint-s + 1) {
+        &:nth-child(3n+1) {
+            justify-self: start;
+        }
+        &:nth-child(3n+2) {
+            justify-self: center;
+        }
+        &:nth-child(3n+0) {
+            justify-self: end;
+        }
     }
 
     @media (max-width: $breakpoint-s) {
+        // on mobile, centered with one card per line
         margin-right: auto;
         margin-left: auto;
-        &:nth-child(3n+0) {
-            margin-right: auto;
-        }
+
     }
 
-    a:hover {
+    a:hover,
+    a:focus {
         border: 0;
-    }
-
-    @media (min-width: $breakpoint-s + 1) {
-        picture {
-            display: block;
-            height: 315px;
-        }
     }
 
     img, source {
@@ -62,6 +78,7 @@ ol.card-results {
         font-family: $serif;
         font-size: 1.2rem;
     }
+
     .card-dates dd {
         font-family: $sans;
         font-size: 0.82rem;
@@ -70,5 +87,78 @@ ol.card-results {
         color: $mid-grey;
     }
 
+
+    // adjust for individual member card thumbnails
+    .member-cards & {
+        margin-bottom: 1.75rem;
+
+        span.label {
+            @include sr-only;
+        }
+
+        .card-dates {
+            // NOTE: picture element is taking up some space so this
+            // looks too big; not sure how to adjust
+            // padding-top: 0.95rem;
+        }
+
+    }
+}
+
+.rights-statement {
+    text-align: right;
+    padding: 0 1rem 3rem;
+
+    .card-image-viewer & {
+        background-color: $white;
+
+        @media (min-width: $breakpoint-s) {
+            @include padding-container;
+        }
+    }
+
+    a {
+        margin-left: 0.75rem;
+        border-color: $transparent-pale-teal;
+        display: inline-block;  /* required to center PUL logo */
+        font-size: 0;    /* avoid extra vertical space */
+
+        @media (max-width: $breakpoint-s) {
+            margin-left: 0.5rem;
+        }
+
+        &:hover, &:focus  {
+            img {
+                opacity: 1;
+            }
+        }
+
+
+    }
+
+    img {
+        height: 1rem;
+        opacity: 0.5;
+        margin-bottom: 5px;
+
+        /* slightly smaller on card image viewer */
+        @media (max-width: $breakpoint-s) {
+            height: 0.825rem;
+        }
+
+        &.logo {  /* NOTE: logo styles are possibly PUL specific */
+            height: 1.25rem;
+            filter: grayscale(100%) brightness(30%);
+
+            &:hover, a:focus & {
+                filter: grayscale(100%) brightness(60%);
+            }
+
+            @media (max-width: $breakpoint-s) {
+                height: 1rem;
+            }
+
+        }
+    }
 }
 

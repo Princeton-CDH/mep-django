@@ -8,6 +8,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
 from django.db import models
+from django.db.models.functions import Coalesce
 from django.template.defaultfilters import pluralize
 
 from mep.accounts.partial_date import PartialDateMixin, DatePrecision,\
@@ -91,7 +92,11 @@ class Account(models.Model):
         ranges = []
         current_range = None
 
-        events = self.event_set.known_years()
+        events = self.event_set.known_years() \
+                               .annotate(
+            first_date=Coalesce('start_date', 'end_date')
+        ).order_by('first_date')
+
         # if event type was specified, filter as requested
         if event_type == 'membership':
             events = events.membership_activities()
@@ -305,7 +310,7 @@ class Address(Notable, PartialDateMixin):
     def __str__(self):
         details = self.account or self.person or ''
         if self.start_date or self.end_date:
-            details = '%s (%s)' % (details, '-'.join([
+            details = '%s (%s)' % (details, ' – '.join([
                 date.strftime('%Y') if date else ''
                 for date in [self.start_date, self.end_date]]))
         if self.care_of_person:
@@ -313,7 +318,7 @@ class Address(Notable, PartialDateMixin):
 
         # include details if there are any
         if details:
-            return '%s - %s' % (self.location, details)
+            return '%s — %s' % (self.location, details)
         # otherwise just location
         return str(self.location)
 
@@ -387,7 +392,7 @@ class Event(Notable, PartialDateMixin):
         help_text='Edition of the work, if known.',
         on_delete=models.deletion.SET_NULL)
 
-    event_footnotes = GenericRelation(Footnote)
+    event_footnotes = GenericRelation(Footnote, related_query_name='events')
 
     objects = EventQuerySet.as_manager()
 
@@ -586,10 +591,11 @@ class Borrow(Event):
         (ITEM_BOUGHT, 'Bought'),
         (ITEM_MISSING, 'Missing'),
     )
-    item_status = models.CharField(max_length=2, blank=True,
+    item_status = models.CharField(
+        max_length=2, blank=True,
         help_text='Status of borrowed item (bought, missing, returned)',
         choices=STATUS_CHOICES)
-    footnotes = GenericRelation(Footnote)
+    footnotes = GenericRelation(Footnote, related_query_name='borrows')
 
     def save(self, *args, **kwargs):
         # if end date is set and item status is not, automatically set
@@ -602,8 +608,8 @@ class Borrow(Event):
 class Purchase(CurrencyMixin, Event):
     '''Inherited table indicating purchase events; extends :class:`Event`'''
     price = models.DecimalField(max_digits=8, decimal_places=2,
-        blank=True, null=True)
-    footnotes = GenericRelation(Footnote)
+                                blank=True, null=True)
+    footnotes = GenericRelation(Footnote, related_query_name='purchases')
 
     def date(self):
         '''alias of :attr:`date_range` for display; since reimbersument

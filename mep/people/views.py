@@ -15,6 +15,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormMixin, FormView
+from djiffy.models import Canvas
 
 from mep.accounts.models import Address, Event
 from mep.common import SCHEMA_ORG
@@ -28,8 +29,8 @@ from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
-                  FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
+class MembersList(LabeledPagesMixin, ListView, FormMixin,
+                  AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     page_title = "Members"
@@ -120,7 +121,7 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     # map form sort to solr sort field
     solr_sort = {
         'relevance': '-score',
-        'name': 'sort_name_sort_s'
+        'name': 'sort_name_isort'
     }
 
     def get_queryset(self):
@@ -176,16 +177,24 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        facets = self.object_list.get_facets()['facet_fields']
-        # convert arrondissement numbers into ordinals for display
-        facets['arrondissement'] = OrderedDict([
-            (ordinal(val), count)
-            for val, count in facets['arrondissement'].items()
-        ])
-        self._form.set_choices_from_facets(facets)
+        facets = self.object_list.get_facets().get('facet_fields', None)
+        error_message = ''
+        # facets are not set if there is an error on the query
+        if facets:
+            # convert arrondissement numbers into ordinals for display
+            facets['arrondissement'] = OrderedDict([
+                (ordinal(val), count)
+                for val, count in facets['arrondissement'].items()
+            ])
+            self._form.set_choices_from_facets(facets)
+        else:
+            # if facets are not set, the query errored
+            error_message = 'Something went wrong.'
+
         context.update({
             'page_title': self.page_title,
-            'page_description': self.page_description
+            'page_description': self.page_description,
+            'error_message': error_message
         })
         return context
 
@@ -202,9 +211,13 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
             return super().get_page_labels(paginator)
 
         # otherwise, when sorting by alpha, generate alpha page labels
-        pagination_qs = self.queryset.only('sort_name')
+        # Only return sort name; get everything at once to avoid
+        # hitting Solr for each page / item.
+        pagination_qs = self.queryset.only('sort_name') \
+                                     .get_results(rows=100000)
         alpha_labels = alpha_pagelabels(paginator, pagination_qs,
                                         lambda x: x['sort_name'][0])
+
         # alpha labels is a dict; use items to return list of tuples
         return alpha_labels.items()
 
@@ -220,7 +233,7 @@ class MembersList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         ]
 
 
-class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
+class MemberDetail(DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -324,13 +337,13 @@ class MemberDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
+class MembershipActivities(ListView, RdfViewMixin):
     '''Display a list of membership activities (subscriptions, renewals,
     and reimbursements) for an individual member.'''
     model = Event
     template_name = 'people/membership_activities.html'
-    # tooltip text shown to explain the 'category' column in the table
-    CATEGORY_TOOLTIP = 'More information coming soon.'
+    # tooltip text shown to explain the 'plan' column in the table
+    PLAN_TOOLTIP = 'What are the lending library “plans”?'
 
     def get_queryset(self):
         # filter to requested person, then get membership activities
@@ -346,7 +359,7 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         context = super().get_context_data(**kwargs)
         context.update({
             'member': self.member,
-            'category_tooltip': self.CATEGORY_TOOLTIP,
+            'plan_tooltip': self.PLAN_TOOLTIP,
             'page_title': '%s Membership Activity' % self.member.firstname_last
         })
         return context
@@ -361,9 +374,177 @@ class MembershipActivities(LoginRequiredOr404Mixin, ListView, RdfViewMixin):
         return [
             ('Home', absolutize_url('/')),
             (MembersList.page_title, MembersList().get_absolute_url()),
-            (self.member.short_name, self.member.get_absolute_url()),
-            ('Membership Activities', self.get_absolute_url())
+            (self.member.short_name,
+             absolutize_url(self.member.get_absolute_url())),
+            ('Membership', self.get_absolute_url())
         ]
+
+
+class BorrowingActivities(ListView, RdfViewMixin):
+    '''Display a list of book-related activities (borrows, purchases, gifts)
+    for an individual member.'''
+    model = Event
+    template_name = 'people/borrowing_activities.html'
+
+    def get_queryset(self):
+        # filter to requested person, then get book activities
+        return super().get_queryset() \
+                      .filter(account__persons__slug=self.kwargs['slug']) \
+                      .book_activities() \
+                      .select_related('borrow', 'purchase', 'work') \
+                      .prefetch_related('work__creators', 'work__creator_set',
+                                        'work__creator_set__creator_type')
+
+    def get_context_data(self, **kwargs):
+        # should 404 if not a person or valid person but not a library member
+        # store member before calling super so available for breadcrumbs
+        self.member = get_object_or_404(Person.objects.library_members(),
+                                        slug=self.kwargs['slug'])
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'member': self.member,
+            'page_title': '%s Borrowing Activity' % self.member.firstname_last
+        })
+        return context
+
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
+        return absolutize_url(reverse('people:borrowing-activities',
+                                      kwargs=self.kwargs))
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            (MembersList.page_title, MembersList().get_absolute_url()),
+            (self.member.short_name,
+                absolutize_url(self.member.get_absolute_url())),
+            ('Borrowing', self.get_absolute_url())
+        ]
+
+
+class MemberCardList(ListView, RdfViewMixin):
+    '''Card thumbnails for lending card associated with a single library
+    member.'''
+    model = Canvas
+    template_name = 'people/member_cardlist.html'
+    context_object_name = 'cards'
+
+    def get_queryset(self):
+        # find the associated member; 404 if not found or not a library member
+        self.member = get_object_or_404(Person.objects.library_members(),
+                                        slug=self.kwargs['slug'])
+        # find all canvas objects for this person, via manifest
+        # associated with lending card bibliography
+        cards = super().get_queryset() \
+                       .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
+                       .order_by('order')
+
+        # if user is not logged in, filter out any cards without events
+        if self.request.user.is_anonymous:
+            cards = cards.filter(footnote__isnull=False).distinct()
+
+        return cards
+
+    def get_absolute_url(self):
+        '''Full URI for member card list page.'''
+        return absolutize_url(reverse('people:member-card-list',
+                                      kwargs=self.kwargs))
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            (MembersList.page_title, MembersList().get_absolute_url()),
+            (self.member.short_name,
+             absolutize_url(self.member.get_absolute_url())),
+            ('Cards', self.get_absolute_url())
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['member'] = self.member
+        return context
+
+
+class MemberCardDetail(DetailView, RdfViewMixin):
+    '''Card image viewer for image of a single lending card page
+    associated with a single library member.'''
+    model = Canvas
+    template_name = 'people/member_card_detail.html'
+    context_object_name = 'card'
+
+    def get_object(self):
+        # find the associated member; 404 if not found or not a library member
+        self.member = get_object_or_404(Person.objects.library_members(),
+                                        slug=self.kwargs['slug'])
+        # find requested canvas objects for this person, via manifest
+        # associated with lending card bibliography
+        filters = {
+            'short_id': self.kwargs['short_id'],
+            'manifest__bibliography__account__persons__slug':
+            self.kwargs['slug']
+        }
+        # return super().get_queryset().filter(**filters)
+        card = get_object_or_404(Canvas.objects.all(), **filters)
+        # use card dates for label
+        card_dates = card.footnote_set.event_date_range()
+        label = 'Unknown'
+        if card_dates:
+            label = card_dates[0].year
+            if card_dates[1].year != card_dates[0].year:
+                label = '%s – %s' % (label, card_dates[1].year)
+
+        self.label = label
+        return card
+
+    def get_absolute_url(self):
+        '''Full URI for member card list page.'''
+        return absolutize_url(reverse('people:member-card-detail',
+                                      kwargs=self.kwargs))
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            (MembersList.page_title, MembersList().get_absolute_url()),
+            (self.member.short_name,
+             absolutize_url(self.member.get_absolute_url())),
+            ('Cards', absolutize_url(reverse('people:member-card-list',
+                                     kwargs={'slug': self.member.slug}))),
+            (self.label, self.get_absolute_url())
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # use order within manifest to get next/prev links
+        sibling_cards = self.object.manifest.canvases
+        # if user is not logged in, filter out any cards without events
+        if self.request.user.is_anonymous:
+            sibling_cards = sibling_cards.filter(footnote__isnull=False) \
+                                         .distinct()
+
+        # convert into a list of ids in order to get adjacent ids
+        # that skip over blank cards
+        sibling_cards = list(sibling_cards.values_list('short_id', flat=True))
+        current_index = sibling_cards.index(self.object.short_id)
+        try:
+            next_card = sibling_cards[current_index + 1]
+        except IndexError:
+            next_card = None
+        if current_index > 0:
+            prev_card = sibling_cards[current_index - 1]
+        else:
+            prev_card = None
+
+        context.update({
+            'member': self.member,
+            'label': self.label,
+            'events': self.object.footnote_set.events(),
+            'next_card': next_card,
+            'prev_card': prev_card
+        })
+        return context
 
 
 class MembershipGraphs(LoginRequiredOr404Mixin, TemplateView):
@@ -470,7 +651,7 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
         # format birth-death in a familiar pattern ( - )
         if person.birth_year or person.death_year:
             labels['bio_dates'] = \
-                ' (%s - %s)' % (person.birth_year, person.death_year)
+                ' (%s – %s)' % (person.birth_year, person.death_year)
         # get the first few words of any notes
         if person.notes:
             list_notes = person.notes.split()
@@ -495,7 +676,7 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
                     return format_html(
                         '<strong>{main_string}</strong>'
                         '{mep_id} <br />{type} '
-                        '({start_date} - {end_date})'.strip(),
+                        '({start_date} – {end_date})'.strip(),
                         **labels
                     )
             return format_html('<strong>{main_string}</strong>{mep_id}',

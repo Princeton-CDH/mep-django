@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+{% load static %}
+
+{% block page-subtitle %}{{ member.firstname_last }} Borrowing Activity · Library Members · {% endblock %}
+
+{% block js %}
+{% render_bundle 'activities' 'js' %}
+{% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title=member.firstname_last style="detail" %}
+{% endblock %}
+
+{% block main-style %}tabbed white{% endblock %}
+
+{% block content %}
+{% include 'snippets/breadcrumbs.html' %}
+<nav class="tabs" aria-label="sections">
+    <li class="tab">
+        <a href="{% url 'people:member-detail' slug=member.slug %}">biography</a>
+    </li>
+    <li class="tab" aria-selected="true">
+        <a href="{% url 'people:membership-activities' slug=member.slug %}">activities</a>
+    </li>
+    <li class="tab">
+        <a href="{% url 'people:member-card-list' slug=member.slug %}">cards</a>
+    </li>
+</nav>
+
+<nav class="tabs subsection" aria-label="Activities">
+    <li class="tab" aria-selected="true">
+        <a href="{% url 'people:borrowing-activities' slug=member.slug %}">Borrowing</a>
+    </li>
+    <li class="tab">
+        <a href="{% url 'people:membership-activities' slug=member.slug %}">Membership</a>
+    </li>
+</nav>
+
+<div class="activities">
+    {% comment %} preliminary form controls for sorting and expand/collapse on mobile
+    <form id="activity-mobile-control">
+        <label class="sort">
+            <span>SORTED BY</span>
+            <select>
+                <option value="1">Type</option>
+                <option value="2">Category</option>
+                <option value="3">Duration</option>
+                <option value="4" selected="selected">Start Date</option>
+                <option value="5">End Date</option>
+                <option value="6">Amount</option>
+            </select>
+            <img class="dropdown icon" src="{% static 'img/icons/chevron_down.png' %}" alt="">
+        </label>
+        <button id="expand">Expand all</button>
+    </form>
+    {% endcomment %}
+
+    {% if not event_list.count %}
+    <p>No documented borrowing activity.</p>
+    {% else %}
+    <div class="wrapper">
+    <table id="activity-table" class="borrowing">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publication Date</th>
+                <th>Activity</th>
+                <th data-sort-default>Start Date</th>
+                <th>End Date</th>
+            </tr>
+        </thead>
+        {% for event in event_list %}
+        <tr>
+            <td class="title{% if not event.work.title %} empty{% endif %}">
+                {{ event.work.title|default:'-' }}
+            </td>
+            <td class="author{% if not event.work.author_list %} empty{% endif %}"
+                data-sort="{{ event.work.sort_author_list|default:'' }}">
+                {{ event.work.author_list|default:'-' }}
+            </td>
+            <td class="pubdate{% if not event.work.year %} empty{% endif %}">
+                {{ event.work.year|default:'-' }}
+            </td>
+            {% with event.event_type as event_type %}
+            <td class="activity{% if event_type == 'Generic' %} empty{% endif %}">
+                {% if event_type == 'Generic' %} -
+                {% else %}{{ event_type }}{% endif %}
+            </td>
+            {% endwith %}
+            <td class="start{% if not event.partial_start_date %} empty{% endif %}"
+                data-sort="{{ event.partial_start_date|default:'' }}">
+                {{ event.partial_start_date|partialdate|default:'-' }}
+            </td>
+            <td class="end{% if not event.partial_end_date %} empty{% endif %}"
+                data-sort="{{ event.partial_end_date|default:'' }}">
+                {{ event.partial_end_date|partialdate|default:'-' }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

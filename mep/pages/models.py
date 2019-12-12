@@ -4,6 +4,8 @@ import bleach
 from django.db import models
 from django.http import Http404
 from django.template.defaultfilters import striptags, truncatechars_html
+from django.utils.functional import cached_property
+from django.utils.text import slugify
 from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
 from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
@@ -51,6 +53,31 @@ class SVGImageBlock(blocks.StructBlock):
         label = 'SVG'
 
 
+class LinkableSectionBlock(blocks.StructBlock):
+    ''':class:`~wagtail.core.blocks.StructBlock` for a rich text block and an
+    associated `title` that will render as an <h2>. Creates an anchor (<a>)
+    so that the section can be directly linked to using a url fragment.'''
+    title = blocks.CharBlock()
+    anchor_text = blocks.CharBlock(help_text='Short label for anchor link')
+    body = blocks.RichTextBlock()
+    panels = [
+        FieldPanel('title'),
+        FieldPanel('slug'),
+        FieldPanel('body'),
+    ]
+
+    class Meta:
+        icon = 'form'
+        label = 'Linkable Section'
+        template = 'pages/snippets/linkable_section.html'
+
+    def clean(self, value):
+        cleaned_values = super().clean(value)
+        # run slugify to ensure anchor text is a slug
+        cleaned_values['anchor_text'] = slugify(cleaned_values['anchor_text'])
+        return cleaned_values
+
+
 class BodyContentBlock(blocks.StreamBlock):
     '''Common set of content blocks for content/analysis pages.'''
     paragraph = blocks.RichTextBlock(
@@ -63,6 +90,7 @@ class BodyContentBlock(blocks.StreamBlock):
         features=['ol', 'ul', 'bold', 'italic', 'link'],
         classname='footnotes'
     )
+    linkable_section = LinkableSectionBlock()
 
 
 class HomePage(Page):

@@ -130,7 +130,7 @@ class TestReportTimegaps(TestCase):
         assert self.cmd.find_gaps(account, timedelta(days=30)) == []
 
         # if first event end date is not found, start date should be used
-        # with gap size of 30 days, this is a gap (1/1 - 3/1)
+        # with gap size of 30 days, this is a gap (1/1 – 3/1)
         event1.end_date = None
         event1.save()
         gaps = self.cmd.find_gaps(account, timedelta(days=30))
@@ -142,7 +142,7 @@ class TestReportTimegaps(TestCase):
 
         # if second event start date is not found, end date should be used
         event2.start_date = None
-        # 1/1 - 4/1 should be a gap at 30 days
+        # 1/1 – 4/1 should be a gap at 30 days
         gaps = self.cmd.find_gaps(account, timedelta(days=30))
         assert len(gaps) == 1
         assert gaps[0] == (event1, event2)

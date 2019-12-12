@@ -6,13 +6,21 @@ from mep.people import views
 app_name = 'people'
 
 urlpatterns = [
+    # public member urls
     url(r'^members/$', views.MembersList.as_view(), name='members-list'),
     url(r'^members/graphs/$', views.MembershipGraphs.as_view(),
         name='member-graphs'),
     url(r'^members/(?P<slug>[\w-]+)/$', views.MemberDetail.as_view(),
         name='member-detail'),
-    url(r'^members/(?P<slug>[\w-]+)/activities/$',
+    url(r'^members/(?P<slug>[\w-]+)/membership/$',
         views.MembershipActivities.as_view(), name='membership-activities'),
+    url(r'^members/(?P<slug>[\w-]+)/borrowing/$',
+        views.BorrowingActivities.as_view(), name='borrowing-activities'),
+    url(r'^members/(?P<slug>[\w-]+)/cards/$',
+        views.MemberCardList.as_view(), name='member-card-list'),
+    url(r'^members/(?P<slug>[\w-]+)/cards/(?P<short_id>[\w-]+)/$',
+        views.MemberCardDetail.as_view(), name='member-card-detail'),
+    # admin urls
     url(r'^places/geonames/$', views.GeoNamesLookup.as_view(),
         name='geonames-lookup'),
     url(r'^places/geonames/country/$', views.GeoNamesLookup.as_view(),

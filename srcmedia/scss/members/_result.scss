@@ -3,20 +3,6 @@
         flex-flow: row wrap;
     }
 
-    // show the "has card" icon if present
-    .card.icon {
-        width: 1.5rem;
-        position: absolute;
-        bottom: 2rem;
-        left: 1.5rem;
-        transition: opacity 0.5s;
-
-        @media (min-width: $breakpoint-s) {
-            left: -2.5rem;
-            top: 0;
-        }
-    }
-
     .primary {
         flex: auto;
 
@@ -47,5 +33,55 @@
     // show the name
     .name {
         display: block;
+    }
+
+    // show the "has card" icon if present
+    &.has-card {
+
+        // on mobile, the icon is positioned relative to the "primary"
+        // portion of the result
+        @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+
+            .primary {
+                position: relative;
+
+                &::after {
+                    content: url('/static/img/icons/member_card.svg');
+                    width: 1.25rem;
+                    height:  1.75rem;
+                    position: absolute;
+                    bottom: -2.25rem;
+                }
+            }
+        }
+
+        // on tablet/desktop, the icon is positioned relative to the counter
+        // portion of the result
+        @media (min-width: $breakpoint-s) {
+
+            .counter {
+                position: relative;
+
+                &::before {
+                    content: url('/static/img/icons/member_card.svg');
+                    width: 1.25rem;
+                    height:  1.75rem;
+                    position: absolute;
+                    left: -1.75rem;
+                }
+            }
+        }
+    }
+}
+
+.empty-results {
+    @include padding-container;
+    padding-top: 3.5rem;
+    text-align: center;
+    font-family: $serif;
+    min-height: 8rem;
+
+    img {
+        width: 50%;
     }
 }

@@ -1,13 +1,41 @@
-import bleach
-from django.template.defaultfilters import striptags, truncatechars_html
+from django.template.defaultfilters import striptags
+from django.test import SimpleTestCase
 from wagtail.core.models import Page, Site
 from wagtail.tests.utils import WagtailPageTests
-from wagtail.tests.utils.form_data import (nested_form_data, rich_text,
-                                           streamfield)
+from wagtail.tests.utils.form_data import nested_form_data, rich_text, \
+    streamfield
 
-from mep.pages.models import (BasePage, ContentLandingPage, ContentPage,
-                              EssayLandingPage, EssayPage, HomePage,
-                              LandingPage)
+from mep.pages.models import ContentLandingPage, ContentPage, \
+    EssayLandingPage, EssayPage, HomePage, LinkableSectionBlock
+
+
+class TestLinkableSectionBlock(SimpleTestCase):
+
+    def test_clean(self):
+        block = LinkableSectionBlock()
+        cleaned_values = block.clean({'anchor_text': 'lending library plans'})
+        assert cleaned_values['anchor_text'] == 'lending-library-plans'
+
+    def test_render(self):
+        block = LinkableSectionBlock()
+        html = block.render(block.to_python({
+            'title': 'Joining the Lending Library',
+            'body': 'Info about lending library subscription plans',
+            'anchor_text': 'joining-the-lending-library',
+        }))
+        expected_html = '''
+            <div id="joining-the-lending-library">
+            <h2>Joining the Lending Library
+            <a class="headerlink" href="#joining-the-lending-library"
+               title="Permalink to this section">¶</a>
+            </h2>
+            <div class="rich-text">
+                Info about lending library subscription plans
+            </div>
+            </div>
+        '''
+
+        self.assertHTMLEqual(html, expected_html)
 
 
 class TestHomePage(WagtailPageTests):

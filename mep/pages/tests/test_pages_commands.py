@@ -45,7 +45,7 @@ class TestSetupSitePagesCommand(TestCase):
 
         assert EssayLandingPage.objects.count() == 1, 'should create analysis landing page'
 
-        assert ContentPage.objects.count() == 7, 'should create 7 content pages'
+        assert ContentPage.objects.count() == 8, 'should create 8 content pages'
 
         self.cmd.handle() # run again
 
@@ -58,5 +58,5 @@ class TestSetupSitePagesCommand(TestCase):
         assert EssayLandingPage.objects.count() == 1, \
             'running twice shouldn\'t create duplicate landing pages'
 
-        assert ContentPage.objects.count() == 7, 'running twice shouldn\'t \
+        assert ContentPage.objects.count() == 8, 'running twice shouldn\'t \
             create duplicate content pages'

@@ -1,7 +1,7 @@
 import re
+import uuid
 from collections import OrderedDict
 from unittest.mock import Mock
-import uuid
 
 import pytest
 import rdflib
@@ -15,16 +15,18 @@ from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
 from django.views.generic.list import ListView
+from piffle.iiif import IIIFImageClient
 
-from mep.common import SCHEMA_ORG
+from mep.accounts.models import Account, Event
+from mep.common import SCHEMA_ORG, views
 from mep.common.admin import LocalUserAdmin
-from mep.common.forms import CheckboxFieldset, FacetChoiceField, FacetForm, \
-    RangeField, RangeWidget
+from mep.common.forms import (CheckboxFieldset, FacetChoiceField, FacetForm,
+                              RangeField, RangeWidget)
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
-from mep.common.templatetags.mep_tags import dict_item, domain
+from mep.common.templatetags.mep_tags import domain, dict_item, iiif_image, \
+    partialdate
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
-from mep.common import views
 
 
 class TestNamed(TestCase):
@@ -80,33 +82,33 @@ class TestDateRange(TestCase):
         # date range with start and end
         span.start_year = 1900
         span.end_year = 1901
-        assert span.dates == '1900-1901'
+        assert span.dates == '1900 – 1901'
         # start and end dates are same year = single year
         span.end_year = span.start_year
         assert span.dates == str(span.start_year)
         # start date but no end
         span.end_year = None
-        assert span.dates == '1900-'
+        assert span.dates == '1900 –'
         # end date but no start
         span.end_year = 1950
         span.start_year = None
-        assert span.dates == '-1950'
+        assert span.dates == '– 1950'
         # negative start date but no end
         span.start_year = -150
         span.end_year = None
-        assert span.dates == '150 BCE-'
+        assert span.dates == '150 BCE –'
         # negative end date but no start
         span.start_year = None
         span.end_year = -201
-        assert span.dates == '-201 BCE'
+        assert span.dates == '– 201 BCE'
         # negative start date and positive end date
         span.start_year = -50
         span.end_year = 20
-        assert span.dates == '50 BCE-20 CE'
+        assert span.dates == '50 BCE – 20 CE'
         # negative start and end date
         span.start_year = -150
         span.end_year = -100
-        assert span.dates == '150-100 BCE'
+        assert span.dates == '150 – 100 BCE'
         # identical negative dates
         span.start_year = span.end_year = -100
         assert span.dates == '100 BCE'
@@ -265,29 +267,37 @@ def test_alpha_pagelabels():
     items = [Item(t) for t in titles]
     paginator = Paginator(items, per_page=2)
     labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
-    assert labels[1] == 'Abi - Abn'
-    assert labels[2] == 'Ad - Al'
-    assert labels[3] == 'Am - And'
-    assert labels[4] == 'Anna - Anne'
+    assert labels[1] == 'Abi – Abn'
+    assert labels[2] == 'Ad – Al'
+    assert labels[3] == 'Am – And'
+    assert labels[4] == 'Anna – Anne'
     assert labels[5] == 'Az'
 
     # exact match on labels for page boundary
     titles.insert(1, 'Abner')
     items = [Item(t) for t in titles]
     labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
-    assert labels[1].endswith('- Abner')
-    assert labels[2].startswith('Abner - ')
+    assert labels[1].endswith('– Abner')
+    assert labels[2].startswith('Abner –')
 
     # single page of results - use first and last for labels
     paginator = Paginator(items, per_page=20)
     labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
     assert len(labels) == 1
     # first two letters of first and last titles is enough
-    assert labels[1] == '%s - %s' % (titles[0][:2], titles[-1][:2])
+    assert labels[1] == '%s – %s' % (titles[0][:2], titles[-1][:2])
 
     # returns empty response if no items
     paginator = Paginator([], per_page=20)
     assert not alpha_pagelabels(paginator, [], lambda x: getattr(x, 'title'))
+
+    # case-insensitive
+    titles = ['Core', 'd\'Aricourt', 'D\'Assay', 'Estaing']
+    items = [Item(t) for t in titles]
+    paginator = Paginator(items, per_page=2)
+    labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'))
+    assert labels[1].endswith("d'Ar")
+    assert labels[2].startswith("D'As")
 
 
 class TestLabeledPagesMixin(TestCase):
@@ -309,7 +319,7 @@ class TestLabeledPagesMixin(TestCase):
         # should be 7 pages of 5 items each
         assert len(context['page_labels']) == 7
         # last page label shows only the remaining items
-        assert context['page_labels'][-1] == (7, '31 - 33')
+        assert context['page_labels'][-1] == (7, '31 – 33')
         # with no items, should return an empty list
         view.object_list = []
         view.request = rf.get('/', {'page': '1'})
@@ -323,13 +333,14 @@ class TestLabeledPagesMixin(TestCase):
 
         view = MyLabeledPagesView()
         # create some page labels
-        view._page_labels = [(1, '1-5'), (2, '6-10')]
+        view._page_labels = [(1, '1 – 5'), (2, '6 – 10')]
         # make an ajax request
         view.request = Mock()
         view.request.is_ajax.return_value = True
         response = view.dispatch(view.request)
-        # should return serialized labels using '|' separator
-        assert response['X-Page-Labels'] == '1-5|6-10'
+        # should return serialized labels using '|' separator and using hyphen
+        # instead of en dash to avoid sending unicode via http header
+        assert response['X-Page-Labels'] == '1 - 5|6 - 10'
 
 
 class TestTemplateTags(TestCase):
@@ -355,6 +366,64 @@ class TestTemplateTags(TestCase):
         assert domain('oops') is None
         assert domain(2) is None
         assert domain(None) is None
+
+    def test_iiif_image(self):
+        myimg = IIIFImageClient('http://image.server/path/', 'myimgid')
+        # check expected behavior
+        assert str(iiif_image(myimg, 'size:width=250')) == \
+            str(myimg.size(width=250))
+        assert str(iiif_image(myimg, 'size:width=250,height=300')) == \
+            str(myimg.size(width=250, height=300))
+        assert str(iiif_image(myimg, 'format:png')) == str(myimg.format('png'))
+
+        # check that errors don't raise exceptions
+        assert iiif_image(myimg, 'bogus') == ''
+        assert iiif_image(myimg, 'size:bogus') == ''
+        assert iiif_image(myimg, 'size:bogus=1') == ''
+
+    def test_partialdate_filter(self):
+        # None should return None
+        assert partialdate(None, 'c') is None
+        # unset date should return None
+        acct = Account.objects.create()
+        evt = Event.objects.create(account=acct)
+        assert partialdate(evt.partial_start_date, 'c') is None
+
+        # test with ap date format as default
+        with override_settings(DATE_FORMAT='N j, Y'):
+            # year only
+            evt.partial_start_date = '1934'
+            assert partialdate(evt.partial_start_date) == '1934'
+            # year and month
+            evt.partial_start_date = '1934-02'
+            assert partialdate(evt.partial_start_date) == 'Feb. 1934'
+            # month and day
+            evt.partial_start_date = '--03-06'
+            assert partialdate(evt.partial_start_date) == 'March 6'
+            # full precision
+            evt.partial_start_date = '1934-11-06'
+            assert partialdate(evt.partial_start_date) == 'Nov. 6, 1934'
+
+        # partial precision with trailing punctuation in the date
+        evt.partial_start_date = '--11-26'
+        assert partialdate(evt.partial_start_date, 'j N') == '26 Nov.'
+
+        # check a different format
+        evt.partial_start_date = '--11-26'
+        assert partialdate(evt.partial_start_date, 'Ymd') == '1126'
+        evt.partial_start_date = '1932-11'
+        assert partialdate(evt.partial_start_date, 'Ymd') == '193211'
+        evt.partial_start_date = '1932'
+        assert partialdate(evt.partial_start_date, 'Ymd') == '1932'
+
+        # check week format
+        evt.partial_start_date = '1922-01-06'
+        assert partialdate(evt.partial_start_date, 'W y') == '1 22'
+        evt.partial_start_date = '--01-06'
+        assert partialdate(evt.partial_start_date, 'W y') is None
+
+        # handle error in parsing date
+        assert partialdate('foobar', 'Y-m-d') is None
 
 
 class TestCheckboxFieldset(TestCase):

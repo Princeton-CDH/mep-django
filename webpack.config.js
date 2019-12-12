@@ -24,6 +24,8 @@ module.exports = env => ({
         booksSearch: './ts/books-search.ts',
         activities: './ts/activities.ts',
         cardSearch: './ts/cards-search.ts',
+        landing: './ts/pages/landing.ts',
+        cardViewer: './ts/pages/card-viewer.ts'
     },
     output: {
         path: path.resolve(__dirname, 'bundles'), // where to output bundles

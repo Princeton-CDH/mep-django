@@ -6,15 +6,15 @@
 </style>
 <ol class="member-results">
     {% for person in members %}
-    <li class="members result">
+    <li class="members result{% if person.has_card %} has-card{% endif %}">
         <a href="{% url 'people:member-detail' slug=person.slug %}" aria-label="{{ person.sort_name.0 }}">
             <div class="container">
-                {# counter for search results, includes "has card" icon #}
-                <span class="counter">
+                {# counter for search results #}
+                <span class="counter"></span>
+                {# indicator for SRs if person has card (icon) #}
                 {% if person.has_card %}
-                    <img class="card icon" src="{% static 'img/icons/member_card.svg' %}" alt="member has card">
+                <span class="sr-only">member has card</span>
                 {% endif %}
-                </span>
                 {# member details #}
                 {% include 'people/snippets/member_result.html' with member=person %}
                 {# link to view detail page #}
@@ -26,3 +26,15 @@
     </li>
     {% endfor %}
 </ol>
+{% if not members %}
+<div class="empty-results">
+    <p>{{ error_message|default:"No search results found. Try a different search."}}</p>
+    {% if error_message %}  {# Only display if something went wrong. #}
+    <img
+        srcset="{% static 'img/no-results-error-2x.png' %} 2x,
+               {% static 'img/no-results-error-1x.png' %} 1x"
+        src="{% static 'img/no-results-error-1x.png' %}"
+        alt="Drawing of Shakespeare tearing his hair out and crying" />
+    {% endif %}
+</div>
+{% endif %}

@@ -38,7 +38,7 @@ class MemberSearchForm(FacetForm):
 
     SORT_CHOICES = [
         ('relevance', 'Relevance'),
-        ('name', 'Name A-Z'),
+        ('name', 'Name A – Z'),
     ]
 
     # NOTE these are not set by default!
@@ -61,19 +61,22 @@ class MemberSearchForm(FacetForm):
         help_text='Limit to members with lending library cards.')
     gender = FacetChoiceField(
         label='Gender',
+        none_val='Unidentified',
         widget=CheckboxFieldset(attrs={
             'class': 'choice facet',
             'aria-describedby': 'gender_tip'
         }),
-        help_text='Learn more about gender and its representation in the Project \
-        in the Analysis section.')
+        help_text='Click to learn more about gender representation in the Project.')
     membership_dates = RangeField(label='Membership Dates', required=False,
                                   widget=RangeWidget(attrs={'size': 4}))
     birth_year = RangeField(label='Birth Year', required=False,
                             widget=RangeWidget(attrs={'size': 4}))
     nationality = FacetChoiceField(
         label='Nationality', hide_threshold=0,
-        widget=CheckboxFieldset(attrs={'class': 'text facet'})
+        widget=CheckboxFieldset(attrs={
+            'class': 'text facet',
+            'aria-describedby': 'nationality-info'
+        })
     )
     arrondissement = FacetChoiceField(
         label='Arrondissement', hide_threshold=0,

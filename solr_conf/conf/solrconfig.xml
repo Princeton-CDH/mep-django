@@ -755,14 +755,15 @@
 
       <!-- name search pseudo field for members; for now, no unstemmed version or boosting -->
       <str name="name_qf">
-        name_t
-        sort_name_t
+        name_t^30
+        sort_name_t^20
+        name_ngram
       </str>
       <str name="name_pf">
-        name_t
-        sort_name_t
+        name_t^30
+        sort_name_t^20
+        name_ngram
       </str>
-
 
     </lst>
     <!-- In addition to defaults, "appends" params can be specified
