@@ -95,15 +95,25 @@
 
     // gender facet info link
     #gender_tip {
-        height: fit-content;
         position: absolute;
-        top: 3.2rem;
-        left: 4rem;
+        top: 2.7rem;
+        left: 3.6rem;
 
         @media (min-width: $breakpoint-s) {
-            top: 4.35rem;
-            left: 4.25rem;
+            top: 3.75rem;
         }
+    }
+
+    #nationality-info {
+        z-index: 1;
+        position: absolute;
+        left: 4.75rem;
+        top: 0;
+
+        @media (min-width: $breakpoint-s) {
+            top: -0.5rem;
+        }
+
     }
 
     // make the tabpanels display when their tabs are aria-selected

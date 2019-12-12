@@ -32,12 +32,12 @@ h2:hover > .headerlink {
 // info links using 'link' icon
 .info-link {
     border: none;
-    width: 0.8rem;
-    min-height: 0.8rem;
+    width: 2rem;
+    height: 2rem;
     background-image: url('/static/img/icons/link-circle.svg');
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 100%;
+    background-size: 0.8rem 0.8rem;
     display: inline-block;
 
     &:hover, &:focus {

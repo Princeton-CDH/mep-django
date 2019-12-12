@@ -46,12 +46,15 @@
                                 {{ form.birth_year }}
                             </fieldset>
                             {% render_field form.gender %}
-                            <a class="info-link" href="/about/faq#why-assign-gender"
-                                title="{{ form.gender.help_text }}" tabindex="0"
+                            <a class="info-link" href="/about/faq#why-do-we-identify-gender"
+                                title="Why do we identify gender?" tabindex="0"
                                 id="{{ form.gender.field.widget.attrs|dict_item:'aria-describedby' }}"></a>
                         </div>
                         <div class="column">
                             <div class="expander" role="button" aria-controls="id_nationality" tabindex="0" aria-expanded="false">{{ form.nationality.label }}</div>
+                            <a class="info-link" href="/about/faq#why-do-we-identify-nationality"
+                                title="Why do we identify nationality?" tabindex="0"
+                                id="{{ form.nationality.field.widget.attrs|dict_item:'aria-describedby' }}"></a>
                             {% render_field form.nationality %}
                         </div>
                         <div class="column">
