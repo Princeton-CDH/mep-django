@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Code Documentation &#8212; mep-django 0.22.0 documentation</title>
+    <title>Code Documentation &#8212; mep-django 0.24.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -155,6 +155,16 @@ were members of the Sylvia Beach lending library.</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="mep.accounts.models.Account.active_months">
+<code class="sig-name descname">active_months</code><span class="sig-paren">(</span><em class="sig-param">event_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.active_months"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.active_months" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate and return a list of year/month dates this account
+was active, based on associated events. Optionally filter
+to a specific kind of event activity (currently supports
+“membership” or “books”).
+Months are returned as a set in YYYYMM format.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.accounts.models.Account.add_event">
 <code class="sig-name descname">add_event</code><span class="sig-paren">(</span><em class="sig-param">etype='event'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.add_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.add_event" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
@@ -182,9 +192,11 @@ One of <code class="docutils literal notranslate"><span class="pre">borrow</span
 
 <dl class="method">
 <dt id="mep.accounts.models.Account.event_date_ranges">
-<em class="property">property </em><code class="sig-name descname">event_date_ranges</code><a class="headerlink" href="#mep.accounts.models.Account.event_date_ranges" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">event_date_ranges</code><span class="sig-paren">(</span><em class="sig-param">event_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Account.event_date_ranges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Account.event_date_ranges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate and return a list of date ranges this account
-was active, based on associated events.</p>
+was active, based on associated events. Optionally filter
+to a specific kind of event activity (currently only
+supports membership).</p>
 </dd></dl>
 
 <dl class="method">
@@ -883,6 +895,12 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.books.models.Work.sort_author_list">
+<em class="property">property </em><code class="sig-name descname">sort_author_list</code><a class="headerlink" href="#mep.books.models.Work.sort_author_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>semicolon separated list of author sort names</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.books.models.Work.subject_list">
 <code class="sig-name descname">subject_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Work.subject_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Work.subject_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>semicolon separated list of subject names</p>
@@ -904,6 +922,43 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 <dt id="mep.books.models.Work.updated_at">
 <code class="sig-name descname">updated_at</code><a class="headerlink" href="#mep.books.models.Work.updated_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>update timestamp</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.books.models.WorkSignalHandlers">
+<em class="property">class </em><code class="sig-prename descclassname">mep.books.models.</code><code class="sig-name descname">WorkSignalHandlers</code><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signal handlers for indexing <a class="reference internal" href="#mep.books.models.Work" title="mep.books.models.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a> records when
+related records are saved or deleted.</p>
+<dl class="method">
+<dt id="mep.books.models.WorkSignalHandlers.creator_change">
+<em class="property">static </em><code class="sig-name descname">creator_change</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.creator_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.creator_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>reindex associated work when a creator record is changed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.WorkSignalHandlers.creatortype_delete">
+<em class="property">static </em><code class="sig-name descname">creatortype_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.creatortype_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.creatortype_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>reindex all associated works when a creator type is deleted</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.WorkSignalHandlers.creatortype_save">
+<em class="property">static </em><code class="sig-name descname">creatortype_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.creatortype_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.creatortype_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>reindex all associated works when a creator type is changed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.WorkSignalHandlers.person_delete">
+<em class="property">static </em><code class="sig-name descname">person_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.person_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.person_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>reindex all works associated via creator when a person is deleted</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.WorkSignalHandlers.person_save">
+<em class="property">static </em><code class="sig-name descname">person_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.person_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.person_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>reindex all works associated via creator when a person is saved</p>
 </dd></dl>
 
 </dd></dl>
@@ -963,6 +1018,14 @@ e.g. Wikipedia page.</p>
 <dt id="mep.people.models.Location.MultipleObjectsReturned">
 <em class="property">exception </em><code class="sig-name descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.people.models.Location.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.Location.arrondissement">
+<code class="sig-name descname">arrondissement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Location.arrondissement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Location.arrondissement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the arrondissement corresponding to a particular postal code in
+Paris. If the <cite>Location</cite> is not in Paris or doesn’t have a postal code,
+return None.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="mep.people.models.Location.city">
@@ -1032,7 +1095,8 @@ e.g. Wikipedia page.</p>
 <dl class="method">
 <dt id="mep.people.models.Person.address_count">
 <code class="sig-name descname">address_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Person.address_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Person.address_count" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of documented addresses for this person</p>
+<dd><p>Number of documented addresses for this person, associated through
+their account.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1053,10 +1117,22 @@ e.g. Wikipedia page.</p>
 <dd><p>death year</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="mep.people.models.Person.firstname_last">
+<em class="property">property </em><code class="sig-name descname">firstname_last</code><a class="headerlink" href="#mep.people.models.Person.firstname_last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary name in ‘firstname lastname’ format for display</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="mep.people.models.Person.footnotes">
 <code class="sig-name descname">footnotes</code><a class="headerlink" href="#mep.people.models.Person.footnotes" title="Permalink to this definition">¶</a></dt>
 <dd><p>footnotes (<a class="reference internal" href="#mep.footnotes.models.Footnote" title="mep.footnotes.models.Footnote"><code class="xref py py-class docutils literal notranslate"><span class="pre">Footnote</span></code></a>)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.gender">
+<code class="sig-name descname">gender</code><a class="headerlink" href="#mep.people.models.Person.gender" title="Permalink to this definition">¶</a></dt>
+<dd><p>gender</p>
 </dd></dl>
 
 <dl class="method">
@@ -1163,17 +1239,17 @@ and there’s a viaf id for the record</p>
 <dd><p>Set local birth and death dates based on information from VIAF</p>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="mep.people.models.Person.sex">
-<code class="sig-name descname">sex</code><a class="headerlink" href="#mep.people.models.Person.sex" title="Permalink to this definition">¶</a></dt>
-<dd><p>sex</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="mep.people.models.Person.short_name">
 <em class="property">property </em><code class="sig-name descname">short_name</code><a class="headerlink" href="#mep.people.models.Person.short_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shortened form of name used for locations where space is tight,
 e.g. breadcrumb navigation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.models.Person.slug">
+<code class="sig-name descname">slug</code><a class="headerlink" href="#mep.people.models.Person.slug" title="Permalink to this definition">¶</a></dt>
+<dd><p>slug for use in urls</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1261,6 +1337,74 @@ with another person.</p>
 in the queryset has an account shared with another person</p>
 </dd>
 </dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.models.PersonSignalHandlers">
+<em class="property">class </em><code class="sig-prename descclassname">mep.people.models.</code><code class="sig-name descname">PersonSignalHandlers</code><a class="reference internal" href="_modules/mep/people/models.html#PersonSignalHandlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonSignalHandlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signal handlers for indexing <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a> records when
+related records are saved or deleted.</p>
+<dl class="method">
+<dt id="mep.people.models.PersonSignalHandlers.account_delete">
+<em class="property">static </em><code class="sig-name descname">account_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonSignalHandlers.account_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonSignalHandlers.account_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an account is deleted, reindex associated people
+before deletion is processed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.PersonSignalHandlers.account_save">
+<em class="property">static </em><code class="sig-name descname">account_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonSignalHandlers.account_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonSignalHandlers.account_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an account is saved, reindex associated people</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.PersonSignalHandlers.address_delete">
+<em class="property">static </em><code class="sig-name descname">address_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonSignalHandlers.address_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonSignalHandlers.address_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an address is deleted, reindex people associated
+with the corresponding account.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.PersonSignalHandlers.address_save">
+<em class="property">static </em><code class="sig-name descname">address_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonSignalHandlers.address_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonSignalHandlers.address_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an address is saved, reindex people associated
+with the corresponding account.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.PersonSignalHandlers.country_delete">
+<em class="property">static </em><code class="sig-name descname">country_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonSignalHandlers.country_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonSignalHandlers.country_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>when a country is deleted, reindex any people associated via
+nationality before deletion is processed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.PersonSignalHandlers.country_save">
+<em class="property">static </em><code class="sig-name descname">country_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonSignalHandlers.country_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonSignalHandlers.country_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>when a country is saved, reindex any people associated via
+nationality</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.PersonSignalHandlers.debug_log">
+<em class="property">static </em><code class="sig-name descname">debug_log</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">count</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonSignalHandlers.debug_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonSignalHandlers.debug_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>shared debug logging for person signal save handlers</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.PersonSignalHandlers.event_delete">
+<em class="property">static </em><code class="sig-name descname">event_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonSignalHandlers.event_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonSignalHandlers.event_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an event is delete, reindex people associated
+with the corresponding account.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.PersonSignalHandlers.event_save">
+<em class="property">static </em><code class="sig-name descname">event_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonSignalHandlers.event_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonSignalHandlers.event_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an event is saved, reindex people associated
+with the corresponding account.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1360,6 +1504,45 @@ can override this method to customize the display of the choices.</p>
 <div class="section" id="module-mep.people.views">
 <span id="views"></span><h3>Views<a class="headerlink" href="#module-mep.people.views" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
+<dt id="mep.people.views.BorrowingActivities">
+<em class="property">class </em><code class="sig-prename descclassname">mep.people.views.</code><code class="sig-name descname">BorrowingActivities</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#BorrowingActivities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.BorrowingActivities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a list of book-related activities (borrows, purchases, gifts)
+for an individual member.</p>
+<dl class="method">
+<dt id="mep.people.views.BorrowingActivities.get_absolute_url">
+<code class="sig-name descname">get_absolute_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#BorrowingActivities.get_absolute_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.BorrowingActivities.get_absolute_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full URI of this page.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.BorrowingActivities.get_breadcrumbs">
+<code class="sig-name descname">get_breadcrumbs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#BorrowingActivities.get_breadcrumbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.BorrowingActivities.get_breadcrumbs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of breadcrumbs and links to display for this page.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.BorrowingActivities.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#BorrowingActivities.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.BorrowingActivities.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the context for this view.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.BorrowingActivities.get_queryset">
+<code class="sig-name descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#BorrowingActivities.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.BorrowingActivities.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of items for this view.</p>
+<p>The return value must be an iterable and may be an instance of
+<cite>QuerySet</cite> in which case <cite>QuerySet</cite> specific behavior will be enabled.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.views.BorrowingActivities.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#mep.people.views.BorrowingActivities.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.accounts.models.Event" title="mep.accounts.models.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.accounts.models.Event</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="mep.people.views.CountryAutocomplete">
 <em class="property">class </em><code class="sig-prename descclassname">mep.people.views.</code><code class="sig-name descname">CountryAutocomplete</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#CountryAutocomplete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.CountryAutocomplete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Basic autocomplete lookup, for use with django-autocomplete-light and
@@ -1402,6 +1585,84 @@ Optional mode parameter to restrict to countries only.</p>
 <code class="sig-name descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#LocationAutocomplete.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.LocationAutocomplete.get_queryset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get queryset of <a class="reference internal" href="#mep.people.models.Location" title="mep.people.models.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Location</span></code></a> objects.
 Use Q objects to search all relevant fields in autocomplete.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.views.MemberCardDetail">
+<em class="property">class </em><code class="sig-prename descclassname">mep.people.views.</code><code class="sig-name descname">MemberCardDetail</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberCardDetail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberCardDetail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Card image viewer for image of a single lending card page
+associated with a single library member.</p>
+<dl class="method">
+<dt id="mep.people.views.MemberCardDetail.get_absolute_url">
+<code class="sig-name descname">get_absolute_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberCardDetail.get_absolute_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberCardDetail.get_absolute_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full URI for member card list page.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.MemberCardDetail.get_breadcrumbs">
+<code class="sig-name descname">get_breadcrumbs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberCardDetail.get_breadcrumbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberCardDetail.get_breadcrumbs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of breadcrumbs and links to display for this page.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.MemberCardDetail.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberCardDetail.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberCardDetail.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the single object into the context dict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.MemberCardDetail.get_object">
+<code class="sig-name descname">get_object</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberCardDetail.get_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberCardDetail.get_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the object the view is displaying.</p>
+<p>By default this requires <cite>self.queryset</cite> and a <cite>pk</cite> or <cite>slug</cite> argument
+in the URLconf, but subclasses can override this to return any object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.views.MemberCardDetail.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#mep.people.views.MemberCardDetail.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference external" href="https://princeton-cdh.github.io/djiffy/codedocs.html#djiffy.models.Canvas" title="(in Djiffy v0.5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">djiffy.models.Canvas</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.views.MemberCardList">
+<em class="property">class </em><code class="sig-prename descclassname">mep.people.views.</code><code class="sig-name descname">MemberCardList</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberCardList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberCardList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Card thumbnails for lending card associated with a single library
+member.</p>
+<dl class="method">
+<dt id="mep.people.views.MemberCardList.get_absolute_url">
+<code class="sig-name descname">get_absolute_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberCardList.get_absolute_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberCardList.get_absolute_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full URI for member card list page.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.MemberCardList.get_breadcrumbs">
+<code class="sig-name descname">get_breadcrumbs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberCardList.get_breadcrumbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberCardList.get_breadcrumbs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of breadcrumbs and links to display for this page.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.MemberCardList.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberCardList.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberCardList.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the context for this view.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.views.MemberCardList.get_queryset">
+<code class="sig-name descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberCardList.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberCardList.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of items for this view.</p>
+<p>The return value must be an iterable and may be an instance of
+<cite>QuerySet</cite> in which case <cite>QuerySet</cite> specific behavior will be enabled.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mep.people.views.MemberCardList.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#mep.people.views.MemberCardList.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference external" href="https://princeton-cdh.github.io/djiffy/codedocs.html#djiffy.models.Canvas" title="(in Djiffy v0.5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">djiffy.models.Canvas</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -1582,6 +1843,17 @@ and reimbursements) for an individual member.</p>
 <dt id="mep.people.views.MembershipActivities.model">
 <code class="sig-name descname">model</code><a class="headerlink" href="#mep.people.views.MembershipActivities.model" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#mep.accounts.models.Event" title="mep.accounts.models.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.accounts.models.Event</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.people.views.MembershipGraphs">
+<em class="property">class </em><code class="sig-prename descclassname">mep.people.views.</code><code class="sig-name descname">MembershipGraphs</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MembershipGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MembershipGraphs" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="mep.people.views.MembershipGraphs.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#mep.people.views.MembershipGraphs.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.people.models.Person</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -1806,7 +2078,7 @@ people are edited here).</p>
 
 <dl class="attribute">
 <dt id="mep.people.admin.PersonAdmin.export_fields">
-<code class="sig-name descname">export_fields</code><em class="property"> = ['id', 'name', 'sort_name', 'mep_id', 'account_id', 'birth_year', 'death_year', 'sex', 'title', 'profession', 'is_organization', 'is_creator', 'has_account', 'in_logbooks', 'has_card', 'subscription_dates', 'verified', 'updated_at', 'admin_url']</em><a class="headerlink" href="#mep.people.admin.PersonAdmin.export_fields" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">export_fields</code><em class="property"> = ['id', 'name', 'sort_name', 'mep_id', 'account_id', 'birth_year', 'death_year', 'gender', 'title', 'profession', 'is_organization', 'is_creator', 'has_account', 'in_logbooks', 'has_card', 'subscription_dates', 'verified', 'updated_at', 'admin_url']</em><a class="headerlink" href="#mep.people.admin.PersonAdmin.export_fields" title="Permalink to this definition">¶</a></dt>
 <dd><p>fields to be included in CSV export</p>
 </dd></dl>
 
@@ -1948,6 +2220,89 @@ records associated with an account and with a IIIF manifest.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="mep.footnotes.models.BibliographySignalHandlers">
+<em class="property">class </em><code class="sig-prename descclassname">mep.footnotes.models.</code><code class="sig-name descname">BibliographySignalHandlers</code><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signal handlers for indexing <a class="reference internal" href="#mep.footnotes.models.Bibliography" title="mep.footnotes.models.Bibliography"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bibliography</span></code></a> records when
+related records are saved or deleted.</p>
+<dl class="method">
+<dt id="mep.footnotes.models.BibliographySignalHandlers.account_delete">
+<em class="property">static </em><code class="sig-name descname">account_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers.account_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers.account_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an account is deleted, reindex any associated library
+lending card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.BibliographySignalHandlers.account_save">
+<em class="property">static </em><code class="sig-name descname">account_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers.account_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers.account_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an account is saved, reindex any associated library
+lending card.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.BibliographySignalHandlers.canvas_delete">
+<em class="property">static </em><code class="sig-name descname">canvas_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers.canvas_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers.canvas_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>when a canvas is deleted, reindex library lending card
+associated via manifest</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.BibliographySignalHandlers.canvas_save">
+<em class="property">static </em><code class="sig-name descname">canvas_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers.canvas_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers.canvas_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>when a canvas is saved, reindex library lending card
+associated via manifest</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.BibliographySignalHandlers.debug_log">
+<em class="property">static </em><code class="sig-name descname">debug_log</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">count</em>, <em class="sig-param">mode='save'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers.debug_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers.debug_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>shared debug logging for card signal save handlers</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.BibliographySignalHandlers.event_delete">
+<em class="property">static </em><code class="sig-name descname">event_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers.event_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers.event_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an event is deleted, reindex library lending card
+associated via account</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.BibliographySignalHandlers.event_save">
+<em class="property">static </em><code class="sig-name descname">event_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers.event_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers.event_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an event is saved, reindex library lending card
+associated via account</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.BibliographySignalHandlers.manifest_delete">
+<em class="property">static </em><code class="sig-name descname">manifest_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers.manifest_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers.manifest_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>when a manifest is deleted, reindex associated library
+lending card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.BibliographySignalHandlers.manifest_save">
+<em class="property">static </em><code class="sig-name descname">manifest_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers.manifest_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers.manifest_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>when a manifest is saved, reindex associated library
+lending card</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.BibliographySignalHandlers.person_delete">
+<em class="property">static </em><code class="sig-name descname">person_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers.person_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers.person_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>when a person is deleted, reindex any bibliography card
+records associated through an account</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.BibliographySignalHandlers.person_save">
+<em class="property">static </em><code class="sig-name descname">person_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#BibliographySignalHandlers.person_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.BibliographySignalHandlers.person_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>when a person is saved, reindex bibliography card records
+associated through an account</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="mep.footnotes.models.Footnote">
 <em class="property">class </em><code class="sig-prename descclassname">mep.footnotes.models.</code><code class="sig-name descname">Footnote</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#Footnote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.Footnote" title="Permalink to this definition">¶</a></dt>
 <dd><p>Footnote that can be associated with any other model via
@@ -1968,6 +2323,27 @@ for or against information in the system.</p>
 <code class="sig-name descname">image_thumbnail</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#Footnote.image_thumbnail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.Footnote.image_thumbnail" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use admin thumbnail from image if available, but wrap
 in a link using rendering url from manifest when present</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mep.footnotes.models.FootnoteQuerySet">
+<em class="property">class </em><code class="sig-prename descclassname">mep.footnotes.models.</code><code class="sig-name descname">FootnoteQuerySet</code><span class="sig-paren">(</span><em class="sig-param">model=None</em>, <em class="sig-param">query=None</em>, <em class="sig-param">using=None</em>, <em class="sig-param">hints=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#FootnoteQuerySet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.FootnoteQuerySet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom <code class="xref py py-class docutils literal notranslate"><span class="pre">models.QuerySet</span></code> for <a class="reference internal" href="#mep.footnotes.models.Footnote" title="mep.footnotes.models.Footnote"><code class="xref py py-class docutils literal notranslate"><span class="pre">Footnote</span></code></a></p>
+<dl class="method">
+<dt id="mep.footnotes.models.FootnoteQuerySet.event_date_range">
+<code class="sig-name descname">event_date_range</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#FootnoteQuerySet.event_date_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.FootnoteQuerySet.event_date_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find earliest and latest dates for any events associated
+with footnotes in this queryset. Returns a tuple of earliest
+and latest dates, or None if no dates are found.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.footnotes.models.FootnoteQuerySet.events">
+<code class="sig-name descname">events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#FootnoteQuerySet.events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.FootnoteQuerySet.events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an Events queryset of any events (including borrows and
+purchases) associated with the current footnote queryset.</p>
 </dd></dl>
 
 </dd></dl>

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>mep.people.views &#8212; mep-django 0.22.0 documentation</title>
+    <title>mep.people.views &#8212; mep-django 0.24.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -31,13 +31,13 @@
           <div class="body" role="main">
             
   <h1>Source code for mep.people.views</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">timedelta</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span>
 
 <span class="kn">from</span> <span class="nn">dal</span> <span class="k">import</span> <span class="n">autocomplete</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">django.contrib</span> <span class="k">import</span> <span class="n">messages</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth.mixins</span> <span class="k">import</span> <span class="n">PermissionRequiredMixin</span>
+<span class="kn">from</span> <span class="nn">django.contrib.humanize.templatetags.humanize</span> <span class="k">import</span> <span class="n">ordinal</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span>
 <span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Q</span>
 <span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">JsonResponse</span>
@@ -46,28 +46,34 @@
 <span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">format_html</span>
 <span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="k">import</span> <span class="n">mark_safe</span>
 <span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">ListView</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.base</span> <span class="k">import</span> <span class="n">TemplateView</span>
 <span class="kn">from</span> <span class="nn">django.views.generic.edit</span> <span class="k">import</span> <span class="n">FormMixin</span><span class="p">,</span> <span class="n">FormView</span>
+<span class="kn">from</span> <span class="nn">djiffy.models</span> <span class="k">import</span> <span class="n">Canvas</span>
 
-<span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Address</span><span class="p">,</span> <span class="n">Event</span>
 <span class="kn">from</span> <span class="nn">mep.common</span> <span class="k">import</span> <span class="n">SCHEMA_ORG</span>
 <span class="kn">from</span> <span class="nn">mep.common.utils</span> <span class="k">import</span> <span class="n">absolutize_url</span><span class="p">,</span> <span class="n">alpha_pagelabels</span>
-<span class="kn">from</span> <span class="nn">mep.common.views</span> <span class="k">import</span> <span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span> \
-    <span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">LoginRequiredOr404Mixin</span><span class="p">,</span> <span class="n">RdfViewMixin</span>
+<span class="kn">from</span> <span class="nn">mep.common.views</span> <span class="k">import</span> <span class="p">(</span><span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span>
+                              <span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">LoginRequiredOr404Mixin</span><span class="p">,</span>
+                              <span class="n">RdfViewMixin</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mep.people.forms</span> <span class="k">import</span> <span class="n">MemberSearchForm</span><span class="p">,</span> <span class="n">PersonMergeForm</span>
 <span class="kn">from</span> <span class="nn">mep.people.geonames</span> <span class="k">import</span> <span class="n">GeoNamesAPI</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Country</span><span class="p">,</span> <span class="n">Location</span><span class="p">,</span> <span class="n">Person</span>
 <span class="kn">from</span> <span class="nn">mep.people.queryset</span> <span class="k">import</span> <span class="n">PersonSolrQuerySet</span>
 
 
-<div class="viewcode-block" id="MembersList"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList">[docs]</a><span class="k">class</span> <span class="nc">MembersList</span><span class="p">(</span><span class="n">LoginRequiredOr404Mixin</span><span class="p">,</span> <span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span>
-                  <span class="n">FormMixin</span><span class="p">,</span> <span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="MembersList"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList">[docs]</a><span class="k">class</span> <span class="nc">MembersList</span><span class="p">(</span><span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">FormMixin</span><span class="p">,</span>
+                  <span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;List page for searching and browsing library members.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
+    <span class="n">page_title</span> <span class="o">=</span> <span class="s2">&quot;Members&quot;</span>
+    <span class="n">page_description</span> <span class="o">=</span> <span class="s2">&quot;Search and browse members by name and filter &quot;</span> <span class="o">+</span> \
+        <span class="s2">&quot;by date and demographics.&quot;</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_list.html&#39;</span>
     <span class="n">ajax_template_name</span> <span class="o">=</span> <span class="s1">&#39;people/snippets/member_results.html&#39;</span>
     <span class="n">paginate_by</span> <span class="o">=</span> <span class="mi">100</span>
     <span class="n">context_object_name</span> <span class="o">=</span> <span class="s1">&#39;members&#39;</span>
-    <span class="n">rdf_type</span> <span class="o">=</span> <span class="n">SCHEMA_ORG</span><span class="o">.</span><span class="n">SearchResultPage</span>
+    <span class="n">rdf_type</span> <span class="o">=</span> <span class="n">SCHEMA_ORG</span><span class="o">.</span><span class="n">SearchResultsPage</span>
 
     <span class="n">form_class</span> <span class="o">=</span> <span class="n">MemberSearchForm</span>
     <span class="c1"># cached form instance for current request</span>
@@ -148,14 +154,16 @@
     <span class="c1"># map form sort to solr sort field</span>
     <span class="n">solr_sort</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;relevance&#39;</span><span class="p">:</span> <span class="s1">&#39;-score&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;sort_name_sort_s&#39;</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;sort_name_isort&#39;</span>
     <span class="p">}</span>
 
 <div class="viewcode-block" id="MembersList.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sqs</span> <span class="o">=</span> <span class="n">PersonSolrQuerySet</span><span class="p">()</span> \
             <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;has_card&#39;</span><span class="p">)</span> \
-            <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;sex&#39;</span><span class="p">,</span> <span class="n">missing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="s1">&#39;sex&#39;</span><span class="p">)</span> \
-            <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;nationality&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="s1">&#39;nationality&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="n">missing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="s1">&#39;gender&#39;</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;nationality&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="s1">&#39;nationality&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;arrondissement&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="s1">&#39;arrondissement&#39;</span><span class="p">,</span>
+                         <span class="n">sort</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
 
         <span class="n">form</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">()</span>
 
@@ -174,12 +182,17 @@
 
             <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;has_card&#39;</span><span class="p">]:</span>
                 <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">has_card</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;has_card&#39;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;sex&#39;</span><span class="p">]:</span>
-                <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">sex__in</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;sex&#39;</span><span class="p">],</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;sex&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;gender&#39;</span><span class="p">]:</span>
+                <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">gender__in</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;gender&#39;</span><span class="p">],</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;gender&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;nationality&#39;</span><span class="p">]:</span>
                 <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">nationality__in</span><span class="o">=</span><span class="p">[</span>
                     <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">val</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;nationality&#39;</span><span class="p">]</span>
                 <span class="p">],</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;nationality&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;arrondissement&#39;</span><span class="p">]:</span>
+                <span class="c1"># strip off ordinal letters and filter on numeric arrondissement</span>
+                <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">arrondissement__in</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">val</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;arrondissement&#39;</span><span class="p">]</span>
+                <span class="p">],</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;arrondissement&#39;</span><span class="p">)</span>
 
             <span class="c1"># range filter by membership dates, if set</span>
             <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;membership_dates&#39;</span><span class="p">]:</span>
@@ -197,8 +210,25 @@
 
 <div class="viewcode-block" id="MembersList.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_form</span><span class="o">.</span><span class="n">set_choices_from_facets</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="o">.</span><span class="n">get_facets</span><span class="p">()[</span><span class="s1">&#39;facet_fields&#39;</span><span class="p">])</span>
+        <span class="n">facets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="o">.</span><span class="n">get_facets</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;facet_fields&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">error_message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># facets are not set if there is an error on the query</span>
+        <span class="k">if</span> <span class="n">facets</span><span class="p">:</span>
+            <span class="c1"># convert arrondissement numbers into ordinals for display</span>
+            <span class="n">facets</span><span class="p">[</span><span class="s1">&#39;arrondissement&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+                <span class="p">(</span><span class="n">ordinal</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">count</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">val</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">facets</span><span class="p">[</span><span class="s1">&#39;arrondissement&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_form</span><span class="o">.</span><span class="n">set_choices_from_facets</span><span class="p">(</span><span class="n">facets</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if facets are not set, the query errored</span>
+            <span class="n">error_message</span> <span class="o">=</span> <span class="s1">&#39;Something went wrong.&#39;</span>
+
+        <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;page_title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span>
+            <span class="s1">&#39;page_description&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">page_description</span><span class="p">,</span>
+            <span class="s1">&#39;error_message&#39;</span><span class="p">:</span> <span class="n">error_message</span>
+        <span class="p">})</span>
         <span class="k">return</span> <span class="n">context</span></div>
 
 <div class="viewcode-block" id="MembersList.get_page_labels"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembersList.get_page_labels">[docs]</a>    <span class="k">def</span> <span class="nf">get_page_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paginator</span><span class="p">):</span>
@@ -214,9 +244,13 @@
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_page_labels</span><span class="p">(</span><span class="n">paginator</span><span class="p">)</span>
 
         <span class="c1"># otherwise, when sorting by alpha, generate alpha page labels</span>
-        <span class="n">pagination_qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queryset</span><span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="s1">&#39;sort_name&#39;</span><span class="p">)</span>
+        <span class="c1"># Only return sort name; get everything at once to avoid</span>
+        <span class="c1"># hitting Solr for each page / item.</span>
+        <span class="n">pagination_qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queryset</span><span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="s1">&#39;sort_name&#39;</span><span class="p">)</span> \
+                                     <span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
         <span class="n">alpha_labels</span> <span class="o">=</span> <span class="n">alpha_pagelabels</span><span class="p">(</span><span class="n">paginator</span><span class="p">,</span> <span class="n">pagination_qs</span><span class="p">,</span>
                                         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;sort_name&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
         <span class="c1"># alpha labels is a dict; use items to return list of tuples</span>
         <span class="k">return</span> <span class="n">alpha_labels</span><span class="o">.</span><span class="n">items</span><span class="p">()</span></div>
 
@@ -228,11 +262,11 @@
         <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
-            <span class="p">(</span><span class="s1">&#39;Members&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
         <span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="MemberDetail"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail">[docs]</a><span class="k">class</span> <span class="nc">MemberDetail</span><span class="p">(</span><span class="n">LoginRequiredOr404Mixin</span><span class="p">,</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="MemberDetail"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail">[docs]</a><span class="k">class</span> <span class="nc">MemberDetail</span><span class="p">(</span><span class="n">DetailView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Detail page for a single library member.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_detail.html&#39;</span>
@@ -249,7 +283,11 @@
 
 <div class="viewcode-block" id="MemberDetail.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># add account to context for convenience</span>
         <span class="n">account</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;account&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">account</span>
+
         <span class="n">month_counts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="c1"># count book events by month; known years only</span>
         <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">known_years</span><span class="p">()</span><span class="o">.</span><span class="n">book_activities</span><span class="p">():</span>
@@ -259,6 +297,7 @@
             <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span> <span class="o">!=</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span><span class="p">:</span>
                 <span class="n">month_counts</span><span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-01&#39;</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
 
+        <span class="c1"># data for member timeline visualization</span>
         <span class="n">context</span><span class="p">[</span><span class="s1">&#39;timeline&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;membership_activities&#39;</span><span class="p">:</span> <span class="p">[{</span>
                 <span class="s1">&#39;startDate&#39;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
@@ -275,38 +314,87 @@
             <span class="s1">&#39;activity_ranges&#39;</span><span class="p">:</span> <span class="p">[{</span>
                 <span class="s1">&#39;startDate&#39;</span><span class="p">:</span> <span class="n">start</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
                 <span class="s1">&#39;endDate&#39;</span><span class="p">:</span> <span class="n">end</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-            <span class="p">}</span> <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">account</span><span class="o">.</span><span class="n">event_date_ranges</span><span class="p">]</span>
+            <span class="p">}</span> <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">account</span><span class="o">.</span><span class="n">event_date_ranges</span><span class="p">()]</span>
         <span class="p">}</span>
+
+        <span class="c1"># plottable locations for member address map visualization, which</span>
+        <span class="c1"># is a leaflet map that will consume JSON address data</span>
+        <span class="c1"># NOTE probably refactor this into a queryset method for use on</span>
+        <span class="c1"># members search map</span>
+        <span class="n">addresses</span> <span class="o">=</span> <span class="n">Address</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">location__latitude__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">location__longitude__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;addresses&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># these fields are taken from Location unchanged</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">address</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s1">&#39;street_address&#39;</span><span class="p">:</span> <span class="n">address</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">street_address</span><span class="p">,</span>
+                <span class="s1">&#39;city&#39;</span><span class="p">:</span> <span class="n">address</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">city</span><span class="p">,</span>
+                <span class="s1">&#39;postal_code&#39;</span><span class="p">:</span> <span class="n">address</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">postal_code</span><span class="p">,</span>
+                <span class="c1"># lat/long aren&#39;t JSON serializable so we need to do this</span>
+                <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">address</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
+                <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">address</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+                <span class="c1"># NOTE not currently using dates as they&#39;re not entered yet</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="n">addresses</span><span class="p">]</span>
+
+        <span class="c1"># address of the lending library itself; automatically available from</span>
+        <span class="c1"># migration mep/people/migrations/0014_library_location.py</span>
+        <span class="n">library</span> <span class="o">=</span> <span class="n">Location</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Shakespeare &amp; Company&#39;</span><span class="p">)</span>
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;library_address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;street_address&#39;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">street_address</span><span class="p">,</span>
+            <span class="s1">&#39;city&#39;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">city</span><span class="p">,</span>
+            <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">library</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
+            <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">library</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># config settings used to render the map; set in local_settings.py</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;mapbox_token&#39;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s1">&#39;MAPBOX_ACCESS_TOKEN&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;mapbox_basemap&#39;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s1">&#39;MAPBOX_BASEMAP&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;paris_overlay&#39;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s1">&#39;PARIS_OVERLAY&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+            <span class="c1"># metadata for social preview</span>
+            <span class="s1">&#39;page_title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">firstname_last</span>
+        <span class="p">})</span>
+
         <span class="k">return</span> <span class="n">context</span></div>
 
 <div class="viewcode-block" id="MemberDetail.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberDetail.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
-            <span class="p">(</span><span class="s1">&#39;Members&#39;</span><span class="p">,</span> <span class="n">MembersList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+            <span class="p">(</span><span class="n">MembersList</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span> <span class="n">MembersList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">short_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
         <span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="MembershipActivities"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities">[docs]</a><span class="k">class</span> <span class="nc">MembershipActivities</span><span class="p">(</span><span class="n">LoginRequiredOr404Mixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="MembershipActivities"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities">[docs]</a><span class="k">class</span> <span class="nc">MembershipActivities</span><span class="p">(</span><span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Display a list of membership activities (subscriptions, renewals,</span>
 <span class="sd">    and reimbursements) for an individual member.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Event</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/membership_activities.html&#39;</span>
+    <span class="c1"># tooltip text shown to explain the &#39;plan&#39; column in the table</span>
+    <span class="n">PLAN_TOOLTIP</span> <span class="o">=</span> <span class="s1">&#39;What are the lending library “plans”?&#39;</span>
 
 <div class="viewcode-block" id="MembershipActivities.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># filter to requested person, then get membership activities</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span> \
-                      <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account__persons__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;pk&#39;</span><span class="p">])</span> \
+                      <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account__persons__slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span> \
                       <span class="o">.</span><span class="n">membership_activities</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="MembershipActivities.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># should 404 if not a person or valid person but not a library member</span>
         <span class="c1"># store member before calling super so available for breadcrumbs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">member</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">library_members</span><span class="p">(),</span>
-                                        <span class="n">pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;pk&#39;</span><span class="p">])</span>
+                                        <span class="n">slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span>
         <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;member&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;member&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="p">,</span>
+            <span class="s1">&#39;plan_tooltip&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLAN_TOOLTIP</span><span class="p">,</span>
+            <span class="s1">&#39;page_title&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> Membership Activity&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">firstname_last</span>
+        <span class="p">})</span>
         <span class="k">return</span> <span class="n">context</span></div>
 
 <div class="viewcode-block" id="MembershipActivities.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipActivities.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -318,10 +406,215 @@
         <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
-            <span class="p">(</span><span class="s1">&#39;Members&#39;</span><span class="p">,</span> <span class="n">MembersList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">short_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
-            <span class="p">(</span><span class="s1">&#39;Membership Activities&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+            <span class="p">(</span><span class="n">MembersList</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span> <span class="n">MembersList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">short_name</span><span class="p">,</span>
+             <span class="n">absolutize_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())),</span>
+            <span class="p">(</span><span class="s1">&#39;Membership&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
         <span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="BorrowingActivities"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.BorrowingActivities">[docs]</a><span class="k">class</span> <span class="nc">BorrowingActivities</span><span class="p">(</span><span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Display a list of book-related activities (borrows, purchases, gifts)</span>
+<span class="sd">    for an individual member.&#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Event</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/borrowing_activities.html&#39;</span>
+
+<div class="viewcode-block" id="BorrowingActivities.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.BorrowingActivities.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># filter to requested person, then get book activities</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span> \
+                      <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account__persons__slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span> \
+                      <span class="o">.</span><span class="n">book_activities</span><span class="p">()</span> \
+                      <span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;borrow&#39;</span><span class="p">,</span> <span class="s1">&#39;purchase&#39;</span><span class="p">,</span> <span class="s1">&#39;work&#39;</span><span class="p">)</span> \
+                      <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;work__creators&#39;</span><span class="p">,</span> <span class="s1">&#39;work__creator_set&#39;</span><span class="p">,</span>
+                                        <span class="s1">&#39;work__creator_set__creator_type&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BorrowingActivities.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.BorrowingActivities.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># should 404 if not a person or valid person but not a library member</span>
+        <span class="c1"># store member before calling super so available for breadcrumbs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">member</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">library_members</span><span class="p">(),</span>
+                                        <span class="n">slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;member&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="p">,</span>
+            <span class="s1">&#39;page_title&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> Borrowing Activity&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">firstname_last</span>
+        <span class="p">})</span>
+        <span class="k">return</span> <span class="n">context</span></div>
+
+<div class="viewcode-block" id="BorrowingActivities.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.BorrowingActivities.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the full URI of this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:borrowing-activities&#39;</span><span class="p">,</span>
+                                      <span class="n">kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="BorrowingActivities.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.BorrowingActivities.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="n">MembersList</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span> <span class="n">MembersList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">short_name</span><span class="p">,</span>
+                <span class="n">absolutize_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())),</span>
+            <span class="p">(</span><span class="s1">&#39;Borrowing&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+        <span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="MemberCardList"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardList">[docs]</a><span class="k">class</span> <span class="nc">MemberCardList</span><span class="p">(</span><span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Card thumbnails for lending card associated with a single library</span>
+<span class="sd">    member.&#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Canvas</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_cardlist.html&#39;</span>
+    <span class="n">context_object_name</span> <span class="o">=</span> <span class="s1">&#39;cards&#39;</span>
+
+<div class="viewcode-block" id="MemberCardList.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardList.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># find the associated member; 404 if not found or not a library member</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">member</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">library_members</span><span class="p">(),</span>
+                                        <span class="n">slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span>
+        <span class="c1"># find all canvas objects for this person, via manifest</span>
+        <span class="c1"># associated with lending card bibliography</span>
+        <span class="n">cards</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span> \
+                       <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">manifest__bibliography__account__persons__slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span> \
+                       <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">)</span>
+
+        <span class="c1"># if user is not logged in, filter out any cards without events</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_anonymous</span><span class="p">:</span>
+            <span class="n">cards</span> <span class="o">=</span> <span class="n">cards</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">footnote__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">cards</span></div>
+
+<div class="viewcode-block" id="MemberCardList.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardList.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Full URI for member card list page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:member-card-list&#39;</span><span class="p">,</span>
+                                      <span class="n">kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MemberCardList.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardList.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="n">MembersList</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span> <span class="n">MembersList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">short_name</span><span class="p">,</span>
+             <span class="n">absolutize_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())),</span>
+            <span class="p">(</span><span class="s1">&#39;Cards&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="MemberCardList.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardList.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;member&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span>
+        <span class="k">return</span> <span class="n">context</span></div></div>
+
+
+<div class="viewcode-block" id="MemberCardDetail"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardDetail">[docs]</a><span class="k">class</span> <span class="nc">MemberCardDetail</span><span class="p">(</span><span class="n">DetailView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Card image viewer for image of a single lending card page</span>
+<span class="sd">    associated with a single library member.&#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Canvas</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_card_detail.html&#39;</span>
+    <span class="n">context_object_name</span> <span class="o">=</span> <span class="s1">&#39;card&#39;</span>
+
+<div class="viewcode-block" id="MemberCardDetail.get_object"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardDetail.get_object">[docs]</a>    <span class="k">def</span> <span class="nf">get_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># find the associated member; 404 if not found or not a library member</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">member</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">library_members</span><span class="p">(),</span>
+                                        <span class="n">slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span>
+        <span class="c1"># find requested canvas objects for this person, via manifest</span>
+        <span class="c1"># associated with lending card bibliography</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;short_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;short_id&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;manifest__bibliography__account__persons__slug&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="c1"># return super().get_queryset().filter(**filters)</span>
+        <span class="n">card</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Canvas</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span>
+        <span class="c1"># use card dates for label</span>
+        <span class="n">card_dates</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">footnote_set</span><span class="o">.</span><span class="n">event_date_range</span><span class="p">()</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Unknown&#39;</span>
+        <span class="k">if</span> <span class="n">card_dates</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">card_dates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">year</span>
+            <span class="k">if</span> <span class="n">card_dates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">year</span> <span class="o">!=</span> <span class="n">card_dates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> – </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">card_dates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="k">return</span> <span class="n">card</span></div>
+
+<div class="viewcode-block" id="MemberCardDetail.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardDetail.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Full URI for member card list page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:member-card-detail&#39;</span><span class="p">,</span>
+                                      <span class="n">kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MemberCardDetail.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardDetail.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="n">MembersList</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span> <span class="n">MembersList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">short_name</span><span class="p">,</span>
+             <span class="n">absolutize_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())),</span>
+            <span class="p">(</span><span class="s1">&#39;Cards&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:member-card-list&#39;</span><span class="p">,</span>
+                                     <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;slug&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">slug</span><span class="p">}))),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="MemberCardDetail.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardDetail.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># use order within manifest to get next/prev links</span>
+        <span class="n">sibling_cards</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">canvases</span>
+        <span class="c1"># if user is not logged in, filter out any cards without events</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_anonymous</span><span class="p">:</span>
+            <span class="n">sibling_cards</span> <span class="o">=</span> <span class="n">sibling_cards</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">footnote__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
+                                         <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+
+        <span class="c1"># convert into a list of ids in order to get adjacent ids</span>
+        <span class="c1"># that skip over blank cards</span>
+        <span class="n">sibling_cards</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sibling_cards</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;short_id&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">current_index</span> <span class="o">=</span> <span class="n">sibling_cards</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">short_id</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">next_card</span> <span class="o">=</span> <span class="n">sibling_cards</span><span class="p">[</span><span class="n">current_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="n">next_card</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">current_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">prev_card</span> <span class="o">=</span> <span class="n">sibling_cards</span><span class="p">[</span><span class="n">current_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prev_card</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;member&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="p">,</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+            <span class="s1">&#39;events&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">footnote_set</span><span class="o">.</span><span class="n">events</span><span class="p">(),</span>
+            <span class="s1">&#39;next_card&#39;</span><span class="p">:</span> <span class="n">next_card</span><span class="p">,</span>
+            <span class="s1">&#39;prev_card&#39;</span><span class="p">:</span> <span class="n">prev_card</span>
+        <span class="p">})</span>
+        <span class="k">return</span> <span class="n">context</span></div></div>
+
+
+<div class="viewcode-block" id="MembershipGraphs"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MembershipGraphs">[docs]</a><span class="k">class</span> <span class="nc">MembershipGraphs</span><span class="p">(</span><span class="n">LoginRequiredOr404Mixin</span><span class="p">,</span> <span class="n">TemplateView</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Person</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;people/member_graphs.html&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">()</span>
+
+        <span class="c1"># use facets to get member totals by month and year</span>
+        <span class="n">sqs</span> <span class="o">=</span> <span class="n">PersonSolrQuerySet</span><span class="p">()</span> \
+            <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;account_yearmonths&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;logbook_yearmonths&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;card_yearmonths&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+        <span class="n">facets</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">get_facets</span><span class="p">()[</span><span class="s1">&#39;facet_fields&#39;</span><span class="p">]</span>
+
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1"># convert into a format that&#39;s easier to use with javascript/d3</span>
+            <span class="s1">&#39;members&#39;</span><span class="p">:</span> <span class="p">[{</span>
+                <span class="s1">&#39;startDate&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">-01&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">yearmonth</span><span class="p">[:</span><span class="mi">4</span><span class="p">],</span> <span class="n">yearmonth</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]),</span>
+                <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="n">count</span>
+            <span class="p">}</span> <span class="k">for</span> <span class="n">yearmonth</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">facets</span><span class="p">[</span><span class="s1">&#39;account_yearmonths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;logbooks&#39;</span><span class="p">:</span> <span class="p">[{</span>
+                <span class="s1">&#39;startDate&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">-01&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">yearmonth</span><span class="p">[:</span><span class="mi">4</span><span class="p">],</span> <span class="n">yearmonth</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]),</span>
+                <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="n">count</span>
+            <span class="p">}</span> <span class="k">for</span> <span class="n">yearmonth</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">facets</span><span class="p">[</span><span class="s1">&#39;logbook_yearmonths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;cards&#39;</span><span class="p">:</span> <span class="p">[{</span>
+                <span class="s1">&#39;startDate&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">-01&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">yearmonth</span><span class="p">[:</span><span class="mi">4</span><span class="p">],</span> <span class="n">yearmonth</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]),</span>
+                <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="n">count</span>
+            <span class="p">}</span> <span class="k">for</span> <span class="n">yearmonth</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">facets</span><span class="p">[</span><span class="s1">&#39;card_yearmonths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">]</span>
+
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">context</span></div>
 
 
 <div class="viewcode-block" id="GeoNamesLookup"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.GeoNamesLookup">[docs]</a><span class="k">class</span> <span class="nc">GeoNamesLookup</span><span class="p">(</span><span class="n">autocomplete</span><span class="o">.</span><span class="n">Select2ListView</span><span class="p">):</span>
@@ -391,7 +684,7 @@
         <span class="c1"># format birth-death in a familiar pattern ( - )</span>
         <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">birth_year</span> <span class="ow">or</span> <span class="n">person</span><span class="o">.</span><span class="n">death_year</span><span class="p">:</span>
             <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;bio_dates&#39;</span><span class="p">]</span> <span class="o">=</span> \
-                <span class="s1">&#39; (</span><span class="si">%s</span><span class="s1"> - </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">birth_year</span><span class="p">,</span> <span class="n">person</span><span class="o">.</span><span class="n">death_year</span><span class="p">)</span>
+                <span class="s1">&#39; (</span><span class="si">%s</span><span class="s1"> – </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">birth_year</span><span class="p">,</span> <span class="n">person</span><span class="o">.</span><span class="n">death_year</span><span class="p">)</span>
         <span class="c1"># get the first few words of any notes</span>
         <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
             <span class="n">list_notes</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -416,7 +709,7 @@
                     <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span>
                         <span class="s1">&#39;&lt;strong&gt;</span><span class="si">{main_string}</span><span class="s1">&lt;/strong&gt;&#39;</span>
                         <span class="s1">&#39;</span><span class="si">{mep_id}</span><span class="s1"> &lt;br /&gt;</span><span class="si">{type}</span><span class="s1"> &#39;</span>
-                        <span class="s1">&#39;(</span><span class="si">{start_date}</span><span class="s1"> - </span><span class="si">{end_date}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                        <span class="s1">&#39;(</span><span class="si">{start_date}</span><span class="s1"> – </span><span class="si">{end_date}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
                         <span class="o">**</span><span class="n">labels</span>
                     <span class="p">)</span>
             <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span><span class="s1">&#39;&lt;strong&gt;</span><span class="si">{main_string}</span><span class="s1">&lt;/strong&gt;</span><span class="si">{mep_id}</span><span class="s1">&#39;</span><span class="p">,</span>

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>mep.books.models &#8212; mep-django 0.22.0 documentation</title>
+    <title>mep.books.models &#8212; mep-django 0.24.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ObjectDoesNotExist</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
-<span class="kn">from</span> <span class="nn">parasolr.indexing</span> <span class="k">import</span> <span class="n">Indexable</span>
+<span class="kn">from</span> <span class="nn">parasolr.django.indexing</span> <span class="k">import</span> <span class="n">ModelIndexable</span>
 <span class="kn">import</span> <span class="nn">rdflib</span>
 <span class="kn">import</span> <span class="nn">requests</span>
 
@@ -160,7 +160,73 @@
                        <span class="n">uri</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Work"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work">[docs]</a><span class="k">class</span> <span class="nc">Work</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">Indexable</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkSignalHandlers"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers">[docs]</a><span class="k">class</span> <span class="nc">WorkSignalHandlers</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Signal handlers for indexing :class:`Work` records when</span>
+<span class="sd">    related records are saved or deleted.&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="WorkSignalHandlers.creatortype_save"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.creatortype_save">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">creatortype_save</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;reindex all associated works when a creator type is changed&#39;&#39;&#39;</span>
+        <span class="c1"># raw = saved as presented; don&#39;t query the database</span>
+        <span class="k">if</span> <span class="n">raw</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1"># if any members are associated</span>
+        <span class="n">works</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">creator__creator_type__pk</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">works</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;creator type save, reindexing </span><span class="si">%d</span><span class="s1"> related works&#39;</span><span class="p">,</span>
+                         <span class="n">works</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+            <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">works</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WorkSignalHandlers.creatortype_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.creatortype_delete">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">creatortype_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;reindex all associated works when a creator type is deleted&#39;&#39;&#39;</span>
+        <span class="n">work_ids</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">creator__creator_type__pk</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> \
+                               <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">work_ids</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;creator type delete, reindexing </span><span class="si">%d</span><span class="s1"> related works&#39;</span><span class="p">,</span>
+                         <span class="nb">len</span><span class="p">(</span><span class="n">work_ids</span><span class="p">))</span>
+            <span class="c1"># find the items based on the list of ids to reindex</span>
+            <span class="n">works</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">work_ids</span><span class="p">))</span>
+            <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">works</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WorkSignalHandlers.person_save"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.person_save">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">person_save</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;reindex all works associated via creator when a person is saved&#39;&#39;&#39;</span>
+        <span class="c1"># raw = saved as presented; don&#39;t query the database</span>
+        <span class="k">if</span> <span class="n">raw</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1"># if any members are associated</span>
+        <span class="n">works</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">creator__person__pk</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">works</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;person save, reindexing </span><span class="si">%d</span><span class="s1"> related works&#39;</span><span class="p">,</span>
+                         <span class="n">works</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+            <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">works</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WorkSignalHandlers.person_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.person_delete">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">person_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;reindex all works associated via creator when a person is deleted&#39;&#39;&#39;</span>
+        <span class="n">work_ids</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">creator__person__pk</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> \
+                               <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">work_ids</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;person delete, reindexing </span><span class="si">%d</span><span class="s1"> related works&#39;</span><span class="p">,</span>
+                         <span class="nb">len</span><span class="p">(</span><span class="n">work_ids</span><span class="p">))</span>
+            <span class="c1"># find the items based on the list of ids to reindex</span>
+            <span class="n">works</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">work_ids</span><span class="p">))</span>
+            <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">works</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WorkSignalHandlers.creator_change"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.creator_change">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">creator_change</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;reindex associated work when a creator record is changed&#39;&#39;&#39;</span>
+        <span class="c1"># raw = saved as presented; don&#39;t query the database</span>
+        <span class="k">if</span> <span class="n">raw</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;creator change, reindexing </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+                     <span class="n">instance</span><span class="o">.</span><span class="n">work</span><span class="p">)</span>
+        <span class="c1"># delete the assocation so cards will index without the account</span>
+        <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">([</span><span class="n">instance</span><span class="o">.</span><span class="n">work</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="Work"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work">[docs]</a><span class="k">class</span> <span class="nc">Work</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">ModelIndexable</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Work record for an item that circulated in the library or was</span>
 <span class="sd">    other referenced in library activities.&#39;&#39;&#39;</span>
 
@@ -226,7 +292,8 @@
 
 <div class="viewcode-block" id="Work.creator_by_type"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work.creator_by_type">[docs]</a>    <span class="k">def</span> <span class="nf">creator_by_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">creator_type</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;return work creators of a single type, e.g. author&#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">creators</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">creator__creator_type__name</span><span class="o">=</span><span class="n">creator_type</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">creator</span><span class="o">.</span><span class="n">person</span> <span class="k">for</span> <span class="n">creator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">creator</span><span class="o">.</span><span class="n">creator_type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">creator_type</span><span class="p">]</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">authors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -235,8 +302,13 @@
 
 <div class="viewcode-block" id="Work.author_list"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work.author_list">[docs]</a>    <span class="k">def</span> <span class="nf">author_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;semicolon separated list of author names&#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">auth</span><span class="p">)</span> <span class="k">for</span> <span class="n">auth</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">auth</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">auth</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">])</span></div>
     <span class="n">author_list</span><span class="o">.</span><span class="n">verbose_name</span> <span class="o">=</span> <span class="s1">&#39;Authors&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sort_author_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;semicolon separated list of author sort names&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">auth</span><span class="o">.</span><span class="n">sort_name</span> <span class="k">for</span> <span class="n">auth</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">editors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -291,6 +363,21 @@
 <div class="viewcode-block" id="Work.format"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;format of this work if known (e.g. book or periodical)&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_format</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_format</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span></div>
+
+    <span class="n">index_depends_on</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;creators&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;post_save&#39;</span><span class="p">:</span> <span class="n">WorkSignalHandlers</span><span class="o">.</span><span class="n">person_save</span><span class="p">,</span>
+            <span class="s1">&#39;pre_delete&#39;</span><span class="p">:</span> <span class="n">WorkSignalHandlers</span><span class="o">.</span><span class="n">person_delete</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;books.Creator&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;post_save&#39;</span><span class="p">:</span> <span class="n">WorkSignalHandlers</span><span class="o">.</span><span class="n">creator_change</span><span class="p">,</span>
+            <span class="s1">&#39;post_delete&#39;</span><span class="p">:</span> <span class="n">WorkSignalHandlers</span><span class="o">.</span><span class="n">creator_change</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;books.CreatorType&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;post_save&#39;</span><span class="p">:</span> <span class="n">WorkSignalHandlers</span><span class="o">.</span><span class="n">creatortype_save</span><span class="p">,</span>
+            <span class="s1">&#39;pre_delete&#39;</span><span class="p">:</span> <span class="n">WorkSignalHandlers</span><span class="o">.</span><span class="n">creatortype_delete</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
 
 <div class="viewcode-block" id="Work.index_data"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work.index_data">[docs]</a>    <span class="k">def</span> <span class="nf">index_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;data for indexing in Solr&#39;&#39;&#39;</span>

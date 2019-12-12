@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>mep.people.forms &#8212; mep-django 0.22.0 documentation</title>
+    <title>mep.people.forms &#8212; mep-django 0.24.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -71,7 +71,7 @@
 
     <span class="n">SORT_CHOICES</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="s1">&#39;relevance&#39;</span><span class="p">,</span> <span class="s1">&#39;Relevance&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;Name A-Z&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;Name A – Z&#39;</span><span class="p">),</span>
     <span class="p">]</span>
 
     <span class="c1"># NOTE these are not set by default!</span>
@@ -92,9 +92,14 @@
             <span class="s1">&#39;aria-describedby&#39;</span><span class="p">:</span> <span class="s1">&#39;has_card_tip&#39;</span>
         <span class="p">}),</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Limit to members with lending library cards.&#39;</span><span class="p">)</span>
-    <span class="n">sex</span> <span class="o">=</span> <span class="n">FacetChoiceField</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Gender&#39;</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">CheckboxFieldset</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-        <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;choice facet&#39;</span>
-    <span class="p">}))</span>
+    <span class="n">gender</span> <span class="o">=</span> <span class="n">FacetChoiceField</span><span class="p">(</span>
+        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Gender&#39;</span><span class="p">,</span>
+        <span class="n">none_val</span><span class="o">=</span><span class="s1">&#39;Unidentified&#39;</span><span class="p">,</span>
+        <span class="n">widget</span><span class="o">=</span><span class="n">CheckboxFieldset</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;choice facet&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;aria-describedby&#39;</span><span class="p">:</span> <span class="s1">&#39;gender_tip&#39;</span>
+        <span class="p">}),</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Click to learn more about gender representation in the Project.&#39;</span><span class="p">)</span>
     <span class="n">membership_dates</span> <span class="o">=</span> <span class="n">RangeField</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Membership Dates&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                   <span class="n">widget</span><span class="o">=</span><span class="n">RangeWidget</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}))</span>
     <span class="n">birth_year</span> <span class="o">=</span> <span class="n">RangeField</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Birth Year&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -102,8 +107,13 @@
     <span class="n">nationality</span> <span class="o">=</span> <span class="n">FacetChoiceField</span><span class="p">(</span>
         <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Nationality&#39;</span><span class="p">,</span> <span class="n">hide_threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">widget</span><span class="o">=</span><span class="n">CheckboxFieldset</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-            <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;text facet&#39;</span>
+            <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;text facet&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;aria-describedby&#39;</span><span class="p">:</span> <span class="s1">&#39;nationality-info&#39;</span>
         <span class="p">})</span>
+    <span class="p">)</span>
+    <span class="n">arrondissement</span> <span class="o">=</span> <span class="n">FacetChoiceField</span><span class="p">(</span>
+        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Arrondissement&#39;</span><span class="p">,</span> <span class="n">hide_threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">widget</span><span class="o">=</span><span class="n">CheckboxFieldset</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;text facet&#39;</span><span class="p">})</span>
     <span class="p">)</span>
 
 <div class="viewcode-block" id="MemberSearchForm.set_range_minmax"><a class="viewcode-back" href="../../../codedocs.html#mep.people.forms.MemberSearchForm.set_range_minmax">[docs]</a>    <span class="k">def</span> <span class="nf">set_range_minmax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">range_minmax</span><span class="p">):</span>
