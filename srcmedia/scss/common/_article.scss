@@ -77,3 +77,10 @@ article.main {
         }
     }
 }
+
+/* preliminary style to highlight an anchor link target (esp. for info links) */
+:target {
+    border-left: 3px solid $green;
+    margin-left: -1rem;
+    padding-left: 1rem;
+}
