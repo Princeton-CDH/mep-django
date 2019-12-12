@@ -105,7 +105,11 @@
     }
 
     #pu-logo img {
-        width: 8rem;
+        width: 6.5rem;
+
+        @media (min-width: $breakpoint-m) {
+            width: 8rem;
+        }
     }
 
     #cdh-logo {
