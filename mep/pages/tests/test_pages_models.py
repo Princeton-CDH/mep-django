@@ -22,13 +22,14 @@ class TestLinkableSectionBlock(SimpleTestCase):
             'body': 'Info about lending library subscription plans'
         }))
         expected_html = '''
-            <span id="joining-the-lending-library"></span>
+            <div id="joining-the-lending-library">
             <h2>Joining the Lending Library
             <a class="headerlink" href="#joining-the-lending-library"
                title="Permalink to this section">¶</a>
             </h2>
             <div class="rich-text">
                 Info about lending library subscription plans
+            </div>
             </div>
         '''
 
