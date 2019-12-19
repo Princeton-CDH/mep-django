@@ -1,10 +1,6 @@
 {% load wagtailcore_tags mep_page_tags %}
 {% for block in page.body %}
-    {% if block.block_type == 'image' or block.block_type == 'svg_image' %}
-        {% include "pages/snippets/figure.html" with captioned_img=block.value block_type=block.block_type %}
-    {% else %}
-        <div class="{{ block.block_type }}">
-            {% include_block block|format_citation:SW_VERSION %}
-        </div>
-    {% endif %}
+    <div class="{{ block.block_type }}">
+        {% include_block block|format_citation:SW_VERSION %}
+    </div>
 {% endfor %}

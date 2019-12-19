@@ -36,6 +36,7 @@ class CaptionedImageBlock(blocks.StructBlock):
 
     class Meta:
         icon = 'image'
+        template = 'pages/blocks/captioned_image_block.html'
 
 
 class SVGImageBlock(blocks.StructBlock):
@@ -43,14 +44,21 @@ class SVGImageBlock(blocks.StructBlock):
     alternative text and optional formatted caption. Separate from
     :class:`CaptionedImageBlock` because Wagtail image handling
     does not work with SVG.'''
+    extended_description_help = '''This text will only be read to \
+    non-sighted users and should describe the major insights or \
+    takeaways from the graphic. Multiple paragraphs are allowed.'''
+
     image = DocumentChooserBlock()
     alternative_text = blocks.TextBlock(required=True, help_text=ALT_TEXT_HELP)
     caption = blocks.RichTextBlock(features=['bold', 'italic', 'link'],
                                    required=False)
+    extended_description = blocks.RichTextBlock(
+        features=['p'], required=False, help_text=extended_description_help)
 
     class Meta:
         icon = 'image'
         label = 'SVG'
+        template = 'pages/blocks/svg_image_block.html'
 
 
 class LinkableSectionBlock(blocks.StructBlock):
