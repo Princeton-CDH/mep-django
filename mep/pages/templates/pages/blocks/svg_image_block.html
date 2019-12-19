@@ -1,0 +1,7 @@
+{# Render SVGImageBlock with optional caption and description #}
+<figure>
+    <img src="{{ value.image.url }}" alt="{{ value.alternative_text }}" role="img"/>
+    {% if value.caption %}
+    <figcaption>{{ value.caption }}</figcaption>
+    {% endif %}
+</figure>

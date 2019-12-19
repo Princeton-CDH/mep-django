@@ -36,6 +36,7 @@ class CaptionedImageBlock(blocks.StructBlock):
 
     class Meta:
         icon = 'image'
+        template = 'pages/blocks/captioned_image_block.html'
 
 
 class SVGImageBlock(blocks.StructBlock):
@@ -51,6 +52,7 @@ class SVGImageBlock(blocks.StructBlock):
     class Meta:
         icon = 'image'
         label = 'SVG'
+        template = 'pages/blocks/svg_image_block.html'
 
 
 class LinkableSectionBlock(blocks.StructBlock):
