@@ -1017,13 +1017,14 @@ class TestMemberDetailView(TestCase):
         account.add_event('borrow', start_date=date(1941, 2, 3))
         response = self.client.get(url)
         # check correct templates used & context passed
-        self.assertTemplateUsed('member_detail.html')
+        self.assertTemplateUsed(response, 'people/member_detail.html')
         assert response.status_code == 200, \
             'library members should have a detail page'
         assert response.context['member'] == gay, \
             'page should correspond to the correct member'
         # check dates
-        self.assertContains(response, '1885 – <span class="sr-only">to</span>1963', html=True)
+        self.assertContains(
+            response, '1885 – <span class="sr-only">to</span>1963', html=True)
         # check membership dates
         self.assertContains(
             response,
