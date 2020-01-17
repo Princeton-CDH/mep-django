@@ -579,8 +579,49 @@ class MembershipGraphs(LoginRequiredOr404Mixin, TemplateView):
                 'count': count
             } for yearmonth, count in facets['card_yearmonths'].items()
             ]
-
         }
+
+        # generate version to output as tabular data
+        logbook_month_max = 0
+        # NOTE: in django templates, these defaultdicts return default value
+        # when attempting to iterate, retrieve items, keys, etc
+        # (accessing by index instead of trying method first?)
+        logbooks = defaultdict(lambda: [0] * 12)
+        for yearmonth, count in facets['logbook_yearmonths'].items():
+            logbook_month_max = max(logbook_month_max, count)
+            logbooks[int(yearmonth[:4])][int(yearmonth[-2:]) - 1] = count
+
+        cards_month_max = 0
+        cards = defaultdict(lambda: [0] * 12)
+        for yearmonth, count in facets['card_yearmonths'].items():
+            cards_month_max = max(cards_month_max, count)
+            cards[int(yearmonth[:4])][int(yearmonth[-2:]) - 1] = count
+
+        members = defaultdict(lambda: [0] * 12)
+        for yearmonth, count in facets['account_yearmonths'].items():
+            members[int(yearmonth[:4])][int(yearmonth[-2:]) - 1] = count
+
+        card_percents = {}
+        for year, counts in cards.items():
+            member_counts = members[year]
+            percents = []
+            for index, value in enumerate(counts):
+                if member_counts[index]:
+                    percents.append(value / member_counts[index])
+                else:
+                    percents.append('-')
+            card_percents[year] = percents
+
+        context['tabular_data'] = {
+            'years': range(1921, 1942),  # workaround for iteration problem
+            'logbooks': logbooks,
+            'logbooks_month_max': logbook_month_max,
+            'cards': cards,
+            'cards_month_max': cards_month_max,
+            'members': members,
+            'card_percents': card_percents
+        }
+
         return context
 
 

@@ -16,14 +16,108 @@
 
 {% block content %}
 <article class="main">
+  <section>
   <h2>Members with subscriptions</h2>
     <div class="membership-graph" data-series="subscriptions"> </div>
+
+    <table width="100%" style="text-align: center">
+      <caption>Totals by month: members with subscriptions</caption>
+      <tr style="font-weight:bold">
+        <th>Year</th>
+        <th>Jan</th>
+        <th>Feb</th>
+        <th>Mar</th>
+        <th>Apr</th>
+        <th>May</th>
+        <th>Jun</th>
+        <th>Jul</th>
+        <th>Aug</th>
+        <th>Sep</th>
+        <th>Oct</th>
+        <th>Nov</th>
+        <th>Dec</th>
+      </tr>
+      {% for year in tabular_data.years %}
+        <tr>
+          <th>{{ year }}</th>
+          {% for count in tabular_data.logbooks|dict_item:year %}
+          <td {% if count == tabular_data.logbooks_month_max %} style="font-weight:bold"{% endif %}>{{ count }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </table>
+
+    <p></p>
+</section>
+
+<section>
   <h2>Members with book activity</h2>
     <div class="membership-graph" data-series="borrows"> </div>
+
+    <table width="100%" style="text-align: center">
+      <caption>Totals by month: members with book activity</caption>
+      <tr style="font-weight:bold">
+        <th>Year</th>
+        <th>Jan</th>
+        <th>Feb</th>
+        <th>Mar</th>
+        <th>Apr</th>
+        <th>May</th>
+        <th>Jun</th>
+        <th>Jul</th>
+        <th>Aug</th>
+        <th>Sep</th>
+        <th>Oct</th>
+        <th>Nov</th>
+        <th>Dec</th>
+      </tr>
+      {% for year in tabular_data.years %}
+        <tr>
+          <th>{{ year }}</th>
+          {% for count in tabular_data.cards|dict_item:year %}
+          <td {% if count == tabular_data.cards_month_max %} style="font-weight:bold"{% endif %}>{{ count }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </table>
+    <p></p>
+  </section>
+
   <h2>Subscriptions and book activity together</h2>
     <div class="membership-graph" data-series="subscriptions borrows"> </div>
   <h2>Subscriptions, book activity, and total number of members</h2>
     <div class="membership-graph" data-series="subscriptions borrows members"> </div>
+
+
+  <table width="100%" style="text-align: center">
+      <caption>Percentage by month: members with book activity against total known members</caption>
+      <tr style="font-weight:bold">
+        <th>Year</th>
+        <th>Jan</th>
+        <th>Feb</th>
+        <th>Mar</th>
+        <th>Apr</th>
+        <th>May</th>
+        <th>Jun</th>
+        <th>Jul</th>
+        <th>Aug</th>
+        <th>Sep</th>
+        <th>Oct</th>
+        <th>Nov</th>
+        <th>Dec</th>
+      </tr>
+      {% for year in tabular_data.years %}
+        <tr>
+          <th>{{ year }}</th>
+          {% for count in tabular_data.card_percents|dict_item:year %}
+          <td>{{ count|floatformat:2 }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </table>
+    <p></p>
+
+
 </article>
   <script nonce="{{ request.csp_nonce }}">
       var membershipData = {{ data|json }};
