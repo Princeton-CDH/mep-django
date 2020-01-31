@@ -613,7 +613,7 @@ class MembershipGraphs(LoginRequiredOr404Mixin, TemplateView):
             card_percents[year] = percents
 
         context['tabular_data'] = {
-            'years': range(1921, 1942),  # workaround for iteration problem
+            'years': range(1919, 1942),  # workaround for iteration problem
             'logbooks': logbooks,
             'logbooks_month_max': logbook_month_max,
             'cards': cards,

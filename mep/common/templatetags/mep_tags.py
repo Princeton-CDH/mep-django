@@ -146,14 +146,15 @@ def partialdate(val, date_format=None):
 
 @register.filter(name='min')
 def list_minimum(values):
-    return min(values)
+    return min([val for val in values if not isinstance(val, str)])
 
 
 @register.filter(name='max')
 def list_maximum(values):
-    return max(values)
+    return max([val for val in values if not isinstance(val, str)])
 
 
 @register.filter(name='avg')
 def list_average(values):
+    values = [val for val in values if not isinstance(val, str)]
     return sum(values) / len(values)
