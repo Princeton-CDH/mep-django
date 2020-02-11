@@ -311,11 +311,17 @@ class Person(models.Model):
     '''Common model for a person, currently used to document authorship for
     instances of :class:`BasePage`. Adapted from PPA.'''
 
-    #: the display name of an individual
-    name = models.CharField(
+    #: first or given name and all non-family names (i.e. middle names)
+    # NOTE this is everything *before* the comma in a citation
+    first_name = models.CharField(
         max_length=255,
-        help_text='Full name for the person as it should appear in the author '
-                  'list.'
+        help_text='First or given name and all non-family or middle names, e.g.'
+                   '"Henry Wadsworth", as it would appear in a citation.'
+    )
+    #: last or family name of an individual
+    last_name = models.CharField(
+        max_length=255,
+        help_text='Last or family name, e.g. "Longfellow".'
     )
     #: identifying URI for a person (VIAF, ORCID iD, personal website, etc.)
     url = models.URLField(
@@ -347,6 +353,11 @@ class Person(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def name(self):
+        '''Return the Person's name in "Firstname Lastname" format.'''
+        return '%s %s' % (self.first_name, self.last_name)
 
 
 class BasePage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
