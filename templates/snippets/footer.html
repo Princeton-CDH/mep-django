@@ -5,13 +5,12 @@
             <ul class="primary" aria-label="primary navigation">
                 <li><a href="{% url 'people:members-list' %}">members</a><li>
                 <li><span class="pending">books</span><li>
-                <li><span class="pending">cards</span><li>
                 <li><a href="{% slugurl 'analysis' %}">analysis</a><li>
                 <li><a href="{% slugurl 'sources' %}">sources</a><li>
                 <li><a href="{% slugurl 'about' %}">about</a><li>
             </ul>
             <ul class="secondary" aria-label="secondary navigation">
-                <li><a href="{% slugurl 'home' %}">home</a><li>
+                <li><a href="{% slugurl 'faq' %}">f.a.q.</a><li>
                 <li><a href="{% slugurl 'contact' %}">contact</a><li>
                 <li><span class="pending">data export</span><li>
                 <li><a href="{% slugurl 'cite' %}">how to cite</a><li>
@@ -19,7 +18,9 @@
                 <li><a href="{% slugurl 'technical' %}">technical</a><li>
             </ul>
         </nav>
-        <img id="sco-logo" src="{% static 'img/logo/SCo_logo_vert.png' %}" alt="Shakespeare and Company Project">
+        <a id="sco-logo" href="{% slugurl 'home' %}">
+            <img src="{% static 'img/logo/SCo_logo_vert.png' %}" alt="Shakespeare and Company Project">
+        </a>
         <div class="logos-social">
             <div class="logos">
                 <a id="pu-logo" href="https://www.princeton.edu/">
