@@ -25,7 +25,8 @@ class TestSubscriptionAdminForm(TestCase):
 
     def test_validation(self):
         acct = Account.objects.create()
-        subs = Subscription(duration=5, start_date=datetime.date.today())
+        subs = Subscription(duration=5,
+                            start_date=datetime.date.today())
         form_data = {
             'account': acct.id,
             'duration_units': '1 week'
@@ -43,30 +44,46 @@ class TestSubscriptionAdminForm(TestCase):
 
     def test_clean(self):
         acct = Account.objects.create()
-        subs = Subscription(duration=5, start_date=datetime.date.today())
+        today = datetime.date.today()
+        subs = Subscription(duration=5, account=acct, start_date=today)
         form_data = {
             'account': acct.id,
             'duration_units': '1 week',
             'duration': subs.duration,
-            'start_date': subs.start_date,
-            'end_date': None
+            'partial_start_date': subs.start_date.isoformat(),
+            'partial_end_date': None
         }
         form = SubscriptionAdminForm(form_data, instance=subs)
         # validate so cleaned data will be available
         assert form.is_valid()
 
         # check that end date is set
-        assert 'end_date' in form.cleaned_data
+        cleaned_data = form.clean()
+        assert 'partial_end_date' in cleaned_data
         # and calculated correctly
-        assert form.cleaned_data['end_date'] == \
-            subs.start_date + relativedelta(days=7)
+        assert form.instance.partial_end_date == \
+            (today + relativedelta(days=7)).isoformat()
+        assert cleaned_data['partial_end_date'] == \
+            (today + relativedelta(days=7)).isoformat()
 
         # when start date and end date are both set, duration should be ignored
-        form_data['end_date'] = subs.start_date + relativedelta(days=3)
+        form_data['partial_end_date'] = \
+            (today + relativedelta(days=3)).isoformat()
         form_data['duration_units'] = '6 months'
         form = SubscriptionAdminForm(form_data, instance=subs)
         assert form.is_valid()
-        assert form.cleaned_data['end_date'] == form_data['end_date']
+        cleaned_data = form.clean()
+        assert cleaned_data['partial_end_date'] == \
+            form_data['partial_end_date']
+
+        # handle partial dates correctly
+        form_data['partial_start_date'] = '1923-01'
+        form_data['partial_end_date'] = None
+        form_data['duration_units'] = '6 months'
+        form = SubscriptionAdminForm(form_data, instance=subs)
+        assert form.is_valid()
+        cleaned_data = form.clean()
+        assert cleaned_data['partial_end_date'] == '1923-07'
 
 
 class TestPartialDateFormMixin(TestCase):
@@ -178,8 +195,8 @@ class TestPartialDateFormMixin(TestCase):
         assert borrow.end_date_precision is None
         # fill out some valid partial dates for start and end
         form_data = {
-            'partial_start_date': '1901-05-03', # yyyy-mm-dd (full precision)
-            'partial_end_date': '--05-03', # --mm--dd (month and day)
+            'partial_start_date': '1901-05-03',  # yyyy-mm-dd (full precision)
+            'partial_end_date': '--05-03',  # --mm--dd (month and day)
             'account': acct.id
         }
         form = BorrowAdminForm(form_data, instance=borrow)
@@ -187,10 +204,11 @@ class TestPartialDateFormMixin(TestCase):
         form.clean()
         # dates and precision should get correctly set through the descriptor
         assert borrow.start_date == datetime.date(1901, 5, 3)
-        assert borrow.start_date_precision == DatePrecision.year | DatePrecision.month | DatePrecision.day
+        assert borrow.start_date_precision == \
+            DatePrecision.year | DatePrecision.month | DatePrecision.day
         assert borrow.end_date == datetime.date(1900, 5, 3)
-        assert borrow.end_date_precision == DatePrecision.month | DatePrecision.day
-
+        assert borrow.end_date_precision == \
+            DatePrecision.month | DatePrecision.day
 
 
 class TestEventTypeListFilter(TestCase):

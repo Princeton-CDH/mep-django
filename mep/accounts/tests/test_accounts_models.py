@@ -881,7 +881,8 @@ class TestReimbursement(TestCase):
     def test_date(self):
         self.reimbursement.start_date = datetime.date(1920, 1, 1)
         self.reimbursement.save()
-        assert self.reimbursement.date() == self.reimbursement.start_date
+        assert self.reimbursement.date() == \
+            self.reimbursement.partial_start_date
 
     def test_validate_unique(self):
         # resaving existing record should not error
@@ -902,7 +903,6 @@ class TestReimbursement(TestCase):
         # a related object error
         Reimbursement().validate_unique()
 
-
     def test_auto_end_date(self):
         self.reimbursement.start_date = datetime.datetime.now()
         self.reimbursement.save()
@@ -911,6 +911,13 @@ class TestReimbursement(TestCase):
         self.reimbursement.start_date = None
         self.reimbursement.save()
         assert not self.reimbursement.end_date
+
+        # partial dates
+        self.reimbursement.partial_start_date = '1942-01'
+        self.reimbursement.end_date = None
+        self.reimbursement.save()
+        assert self.reimbursement.partial_end_date == \
+            self.reimbursement.partial_start_date
 
 
 class TestBorrow(TestCase):
