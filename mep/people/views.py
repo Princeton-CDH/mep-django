@@ -292,6 +292,8 @@ class MemberDetail(DetailView, RdfViewMixin):
             .filter(location__latitude__isnull=False) \
             .filter(location__longitude__isnull=False)
 
+        # NOTE probably refactor this into a method on Location for feeding
+        # to leaflet; also use below
         context['addresses'] = [
             {
                 # these fields are taken from Location unchanged
