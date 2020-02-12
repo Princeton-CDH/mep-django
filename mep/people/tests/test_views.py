@@ -1412,8 +1412,6 @@ class TestMemberCardList(TestCase):
                 # show end year if different
                 if start.year != end.year:
                     self.assertContains(response, end.year)
-            else:
-                self.assertContains(response, 'Unknown')
 
         # iiif license image, text & link
         self.assertContains(response, 'No Known Copyright')
@@ -1528,7 +1526,6 @@ class TestMemberCardDetail(TestCase):
         assert context['prev_card'] == Canvas.objects.get(order=0).short_id
         assert context['next_card'] == Canvas.objects.get(order=2).short_id
 
-    @login_temporarily_required
     def test_view_template(self):
         member = Person.objects.get(slug='stein-gertrude')
         response = self.client.get(reverse('people:member-card-detail',
@@ -1547,7 +1544,8 @@ class TestMemberCardDetail(TestCase):
         # event details displayed
         events = card.footnote_set.all().events()
         for event in events:
-            self.assertContains(response, partialdate(event.partial_start_date))
+            self.assertContains(response,
+                                partialdate(event.partial_start_date))
             self.assertContains(response, event.work.title)
             self.assertContains(response, event.event_type)
             self.assertContains(response, partialdate(event.partial_end_date))
