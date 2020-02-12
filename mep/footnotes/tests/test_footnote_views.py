@@ -125,8 +125,6 @@ class TestCardList(TestCase):
             if card_years:
                 self.assertContains(response, min(card_years).year)
                 self.assertContains(response, max(card_years).year)
-            else:
-                self.assertContains(response, 'Unknown')
 
     @login_temporarily_required
     def test_get_page_labels(self):

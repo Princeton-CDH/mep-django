@@ -436,15 +436,9 @@ class MemberCardList(ListView, RdfViewMixin):
                                         slug=self.kwargs['slug'])
         # find all canvas objects for this person, via manifest
         # associated with lending card bibliography
-        cards = super().get_queryset() \
-                       .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
-                       .order_by('order')
-
-        # if user is not logged in, filter out any cards without events
-        if self.request.user.is_anonymous:
-            cards = cards.filter(footnote__isnull=False).distinct()
-
-        return cards
+        return super().get_queryset() \
+                      .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
+                      .order_by('order')
 
     def get_absolute_url(self):
         '''Full URI for member card list page.'''
@@ -489,6 +483,8 @@ class MemberCardDetail(DetailView, RdfViewMixin):
         card = get_object_or_404(Canvas.objects.all(), **filters)
         # use card dates for label
         card_dates = card.footnote_set.event_date_range()
+        # used for page title and breadcrumb label;
+        # ned something here when dates are unknown
         label = 'Unknown'
         if card_dates:
             label = card_dates[0].year
