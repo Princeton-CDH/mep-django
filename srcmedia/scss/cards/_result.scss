@@ -20,6 +20,10 @@ ol.card-results {
 
 .member-cards > div {   /* no cards available */
     padding: 3.8rem 0;
+
+    &.notes {
+        padding-top: 1rem;
+    }
 }
 
 /* TODO: page nav controls spacing is not quite right.
