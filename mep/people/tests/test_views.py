@@ -10,6 +10,7 @@ from django.contrib.auth.models import AnonymousUser, Permission, User
 from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
 from django.template.defaultfilters import date as format_date
+from django.template.defaultfilters import urlize
 from django.test import RequestFactory, TestCase
 from django.urls import resolve, reverse
 from djiffy.models import Canvas
@@ -1386,7 +1387,6 @@ class TestMemberCardList(TestCase):
         context = self.view.get_context_data()
         assert context['member'] == self.view.member
 
-    @login_temporarily_required
     def test_view_template(self):
         member = Person.objects.get(slug='stein-gertrude')
         response = self.client.get(reverse('people:member-card-list',
@@ -1421,10 +1421,33 @@ class TestMemberCardList(TestCase):
         # iiif logo icon
         self.assertContains(response, 'pul_logo_icon')
 
+        # no citation because card images are available
+        self.assertNotContains(response, '<div class="citation">')
+        self.assertNotContains(response, member.card.bibliographic_note)
+        # includes notes on card record
+        self.assertContains(response, urlize(member.card.notes))
+
         # library member wih no cards
         response = self.client.get(reverse('people:member-card-list',
                                    kwargs={'slug': 'gay'}))
         self.assertContains(response, 'No lending library cards available')
+
+        # add non-image card citation
+        # fixture doesn't include card for hemingway
+        hemingway = Person.objects.get(slug='hemingway')
+        # create a card record and associate it with the account
+        src_type = SourceType.objects.get(name='Lending Library Card')
+        card = Bibliography.objects.create(
+            bibliographic_note='lending card citation', source_type=src_type)
+        hemingway_account = hemingway.account_set.first()
+        hemingway_account.card = card
+        hemingway_account.save()
+        response = self.client.get(reverse('people:member-card-list',
+                                   kwargs={'slug': 'hemingway'}))
+        # should include citation
+        self.assertContains(response, card.bibliographic_note)
+        # should not include cards unavailable text
+        self.assertNotContains(response, 'No lending library cards available')
 
 
 class TestMemberCardDetail(TestCase):
