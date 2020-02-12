@@ -1047,11 +1047,18 @@ class TestMemberDetailView(TestCase):
         assert 'mapbox_basemap' in response.context
         assert 'paris_overlay' in response.context
         # address of the library itself should be in context
-        assert response.context['library_address']['name'] == 'Shakespeare & Company'
+        assert response.context['library_address']['name'] == 'Shakespeare and Company'
         # Gay's address info should be in context
         assert response.context['addresses'][0]['street_address'] == '3 Rue Garancière'
         assert response.context['addresses'][0]['latitude'] == '48.85101'
         assert response.context['addresses'][0]['longitude'] == '2.33590'
+        # if we don't have the library's address, page should still render
+        library = Location.objects.get(name='Shakespeare and Company')
+        library.delete()
+        response = self.client.get(url)
+        assert response.status_code == 200
+        # library address is rendered as "null"
+        self.assertContains(response, "libraryAddress = null")
 
     def test_get_non_member(self):
         aeschylus = Person.objects.get(name='Aeschylus', slug='aeschylus')
