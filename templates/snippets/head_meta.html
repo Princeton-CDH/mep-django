@@ -21,9 +21,11 @@ page_description, and page_meta_image if set in context.
 {% if page.homepage %} {# project citation on home page #}
 <meta name="citation_title" content="Shakespeare and Company Project"/>
 <meta name="citation_date" content="2019"/>
-{% elif page.contentpage %} {# content page citation details #}
+{% elif page.contentpage or page.essaypage %} {# content/essay page citation details #}
 <meta name="citation_title" content="{{ page.title|escape }}"/>
-{# add multiple citation_author entries as needed, once we have them #}
+{% for author in page.authors %}
+<meta name="citation_author" content="{{ author.value }}">
+{% endfor %}
 <meta name="citation_date" content="{{ page.first_published_at|date:"Y/m/d" }}"/>
 {% endif %}
 
