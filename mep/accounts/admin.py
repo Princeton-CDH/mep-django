@@ -191,7 +191,6 @@ class SubscriptionAdminForm(PartialDateFormMixin):
         # use bound subscription object to parse the dates
         subs = self.instance
         subs.partial_start_date = cleaned_data.get('partial_start_date', None)
-        print('in clean, subs partial start date %s' % subs.partial_start_date)
         subs.partial_end_date = cleaned_data.get('partial_end_date', None)
         duration_units = cleaned_data.get('duration_units', None)
         if subs.partial_start_date and duration_units and \
@@ -210,8 +209,6 @@ class SubscriptionAdminForm(PartialDateFormMixin):
             # set string value
             cleaned_data['partial_end_date'] = subs.partial_end_date
 
-        print('in clean, subs start date %s' % subs.start_date)
-        print('in clean, subs partial start date %s' % subs.partial_start_date)
         return cleaned_data
 
 
