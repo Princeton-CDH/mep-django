@@ -1,6 +1,22 @@
 <div class="citation">
     <h2>Cite this document</h2>
     <p>
+        <span class="authors">
+        {% spaceless %}
+        {% for person in page.authors %}
+        {% with author=person.value %}
+            {% if forloop.first %}
+            <span>{{ author.last_name }}, {{ author.first_name }}</span>
+            {% elif forloop.last %}
+            <span>, and {{ author.name }}</span>
+            {% else %}
+            <span>, {{ author.name }}</span>
+            {% endif %}
+        {% endwith %}
+        {% endfor %}
+        <span>.</span>
+        {% endspaceless %}
+        </span>
         <span class="title">“{{ page.title }}.” </span>
         <span class="project">Shakespeare and Company Project</span>,
         version {{ SW_VERSION }}. Center for Digital Humanities, Princeton University.
