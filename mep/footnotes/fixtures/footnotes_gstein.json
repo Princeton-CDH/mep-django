@@ -33,7 +33,7 @@
     "model": "footnotes.bibliography",
     "pk": 420,
     "fields": {
-        "notes": "",
+        "notes": "Note with additional details about Stein's cards with url http://example.org",
         "bibliographic_note": "Sylvia Beach, Gertrude Stein Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
         "source_type": 2,
         "manifest": 394

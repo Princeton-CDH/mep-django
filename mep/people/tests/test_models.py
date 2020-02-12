@@ -98,6 +98,24 @@ class TestPerson(TestCase):
         pers.sort_name = 'Bryher'
         assert pers.firstname_last == pers.sort_name
 
+    def test_card(self):
+        pers = Person.objects.create(name='Beach')
+        # no account
+        assert not pers.card
+        # add account, but no card
+        acct = Account.objects.create()
+        acct.persons.add(pers)
+        assert not pers.card
+
+        # create card and add to account
+        src_type = SourceType.objects.get_or_create(
+            name='Lending Library Card')[0]
+        card = Bibliography.objects.create(
+            bibliographic_note='John\'s Library Card', source_type=src_type)
+        acct.card = card
+        acct.save()
+        assert pers.card == card
+
     def test_set_birth_death_years(self):
         pers = Person(name='Humperdinck')
         # no viaf id

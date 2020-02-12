@@ -110,8 +110,8 @@ class PersonQuerySet(models.QuerySet):
     '''Custom :class:`models.QuerySet` for :class:`Person`'''
 
     def library_members(self):
-        '''Rsestrict queryset to people who are library members,
-        based on assocatide account.'''
+        '''Restrict queryset to people who are library members,
+        based on associated account.'''
         return self.exclude(account=None)
 
     @transaction.atomic
@@ -153,7 +153,7 @@ class PersonQuerySet(models.QuerySet):
         # make sure specified person is skipped even if in the current queryset
         merge_people = self.exclude(id=person.id)
 
-        Creator = apps.get_model('books', 'Creator') # prevents circular import issue
+        Creator = apps.get_model('books', 'Creator')  # prevents circular import issue
 
         for merge_person in merge_people:
             if merge_person.has_account(): # if the merged person had an account
@@ -488,6 +488,13 @@ class Person(Notable, DateRange, ModelIndexable):
         '''Primary name in 'firstname lastname' format for display'''
         names = self.sort_name.split(', ', 1)
         return ' '.join(reversed(names))
+
+    @property
+    def card(self):
+        '''Lending library card record associated with member account'''
+        account = self.account_set.first()
+        if account:
+            return account.card
 
     def set_birth_death_years(self):
         '''Set local birth and death dates based on information from VIAF'''
