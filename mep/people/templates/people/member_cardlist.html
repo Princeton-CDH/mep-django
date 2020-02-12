@@ -54,8 +54,15 @@
     </li>
     {% endfor %}
     </ol>
+    {% elif member.card %}
+    {# show bibliographic citation if a member has a card but no images are available #}
+    <div class="citation">{{ member.card.bibliographic_note }}</div>
     {% else %}
     <div>No lending library cards available.</div>
+    {% endif %}
+
+    {% if member.card.notes %}
+    <div>{{ member.card.notes|urlize }}</div>
     {% endif %}
 
     {% include 'people/snippets/manifest_license.html' with manifest=cards.0.manifest %}
