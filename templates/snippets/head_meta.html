@@ -24,7 +24,7 @@ page_description, and page_meta_image if set in context.
 {% elif page.contentpage or page.essaypage %} {# content/essay page citation details #}
 <meta name="citation_title" content="{{ page.title|escape }}"/>
 {% for author in page.authors %}
-<meta name="citation_author" content="{{ author.value }}">
+<meta name="citation_author" content="{{ author.lastname_first }}">
 {% endfor %}
 <meta name="citation_date" content="{{ page.first_published_at|date:"Y/m/d" }}"/>
 {% endif %}

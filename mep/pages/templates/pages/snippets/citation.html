@@ -6,9 +6,10 @@
         {% for person in page.authors %}
         {% with author=person.value %}
             {% if forloop.first %}
-            <span>{{ author.last_name }}, {{ author.first_name }}</span>
+            <span>{{ author.lastname_first }}</span>
             {% elif forloop.last %}
-            <span>, and {{ author.name }}</span>
+            {% if page.authors|length > 2 %}<span>, </span>{% endif %}
+            <span> and {{ author.name }}</span>
             {% else %}
             <span>, {{ author.name }}</span>
             {% endif %}

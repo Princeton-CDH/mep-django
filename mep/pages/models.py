@@ -359,6 +359,11 @@ class Person(models.Model):
         '''Return the Person's name in "Firstname Lastname" format.'''
         return '%s %s' % (self.first_name, self.last_name)
 
+    @property
+    def lastname_first(self):
+        '''Return the Person's name in "Lastname, Firstname" format.'''
+        return '%s, %s' % (self.last_name, self.first_name)
+
 
 class BasePage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
     '''Abstract :class:`wagtail.core.models.Page` model that contains all

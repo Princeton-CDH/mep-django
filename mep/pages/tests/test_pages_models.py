@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 from django.template.defaultfilters import striptags
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 from wagtail.core.models import Page, Site
 from wagtail.documents.models import Document
 from wagtail.tests.utils import WagtailPageTests
@@ -10,7 +10,7 @@ from wagtail.tests.utils.form_data import nested_form_data, rich_text, \
 
 from mep.pages.models import CaptionedImageBlock, ContentLandingPage,  \
     ContentPage, EssayLandingPage, EssayPage, HomePage, LinkableSectionBlock, \
-    SVGImageBlock
+    SVGImageBlock, Person
 
 
 class TestLinkableSectionBlock(SimpleTestCase):
@@ -341,3 +341,24 @@ class TestEssayPage(WagtailPageTests):
     def test_set_url_path(self):
         # TODO
         pass
+
+
+class TestPerson(TestCase):
+
+    def test_name(self):
+        # first and last name
+        person = Person.objects.create(first_name='James', last_name='Joyce')
+        assert person.name == 'James Joyce'
+        # middle names
+        person = Person.objects.create(first_name='Henry Wadsworth',
+                                       last_name='Longfellow')
+        assert person.name == 'Henry Wadsworth Longfellow'
+
+    def test_lastname_first(self):
+        # first and last name
+        person = Person.objects.create(first_name='James', last_name='Joyce')
+        assert person.lastname_first == 'Joyce, James'
+        # middle names
+        person = Person.objects.create(first_name='Henry Wadsworth',
+                                       last_name='Longfellow')
+        assert person.lastname_first == 'Longfellow, Henry Wadsworth'
