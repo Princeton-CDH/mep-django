@@ -515,11 +515,6 @@ class MemberCardDetail(DetailView, RdfViewMixin):
         context = super().get_context_data(**kwargs)
         # use order within manifest to get next/prev links
         sibling_cards = self.object.manifest.canvases
-        # if user is not logged in, filter out any cards without events
-        if self.request.user.is_anonymous:
-            sibling_cards = sibling_cards.filter(footnote__isnull=False) \
-                                         .distinct()
-
         # convert into a list of ids in order to get adjacent ids
         # that skip over blank cards
         sibling_cards = list(sibling_cards.values_list('short_id', flat=True))
