@@ -233,7 +233,7 @@ class TestPeopleViews(TestCase):
         self.assertContains(response, '%s - ' % format_date(subs2.start_date))
         # Reimbursement events should be listed
         self.assertContains(response, 'Reimbursement')
-        self.assertContains(response, format_date(reimb.start_date))
+        self.assertContains(response, format_date(reimb.partial_start_date))
         # Other event types should not be
         self.assertNotContains(response, 'Generic')
         self.assertNotContains(response, format_date(generic.start_date))

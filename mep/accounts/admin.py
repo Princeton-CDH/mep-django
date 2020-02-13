@@ -4,7 +4,7 @@ from dal import autocomplete
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib import admin
-from django.core.validators import RegexValidator, ValidationError
+from django.core.validators import RegexValidator
 
 from mep.accounts.partial_date import PartialDateFormMixin
 from mep.accounts.models import Account, Address, Subscription,\
@@ -139,7 +139,7 @@ class EventAdmin(admin.ModelAdmin):
     inlines = [OpenFootnoteInline]
 
 
-class SubscriptionAdminForm(forms.ModelForm):
+class SubscriptionAdminForm(PartialDateFormMixin):
     # regular expression to validate duration input and capture elements
     # for conversion into relativedelta; currently requires full names
     # and allows plural or singular
@@ -153,7 +153,7 @@ class SubscriptionAdminForm(forms.ModelForm):
     # are present but end date is not
     duration_units = forms.CharField(
         label='Duration', required=False,
-        help_text='Duration in days, weeks, months, or years. ' + \
+        help_text='Duration in days, weeks, months, or years. ' +
                   'Enter as 1 day, 2 weeks, 3 months, 1 year, etc.',
         validators=[RegexValidator(regex=duration_regex,
                                    message=duration_msg)
@@ -179,22 +179,35 @@ class SubscriptionAdminForm(forms.ModelForm):
         if field_name == 'duration_units':
             return self.instance.readable_duration()
         # handle everything else normally
-        return super(SubscriptionAdminForm, self).get_initial_for_field(field, field_name)
+        return super(SubscriptionAdminForm, self) \
+            .get_initial_for_field(field, field_name)
 
     def clean(self):
-        cleaned_data = super(SubscriptionAdminForm, self).clean()
         # if start date and duration are set, calculate end date
-        start_date = cleaned_data.get('start_date', None)
-        end_date = cleaned_data.get('end_date', None)
+        cleaned_data = super(SubscriptionAdminForm, self).clean()
+        # if invalid and unset, return
+        if not cleaned_data:
+            return
+        # use bound subscription object to parse the dates
+        subs = self.instance
+        subs.partial_start_date = cleaned_data.get('partial_start_date', None)
+        subs.partial_end_date = cleaned_data.get('partial_end_date', None)
         duration_units = cleaned_data.get('duration_units', None)
-        if start_date and duration_units and not end_date:
+        if subs.partial_start_date and duration_units and \
+           not subs.partial_end_date:
             match = self.duration_regex.search(duration_units)
             duration_info = match.groupdict()
             unit = '%ss' % duration_info['unit']  # ensure unit is plural
             value = int(duration_info['number'])
             # initialize relative delta, e.g. 2 months
             rel_duration = relativedelta(**{unit: value})
-            cleaned_data['end_date'] = start_date + rel_duration
+            # calculate end date based on start date (as date object)
+            # and relative duration
+            subs.end_date = subs.start_date + rel_duration
+            # end date precision should be same as start
+            subs.end_date_precision = subs.start_date_precision
+            # set string value
+            cleaned_data['partial_end_date'] = subs.partial_end_date
 
         return cleaned_data
 
@@ -204,11 +217,15 @@ class SubscriptionAdmin(admin.ModelAdmin):
     form = SubscriptionAdminForm
     date_hierarchy = 'start_date'
     list_display = ('account', 'category', 'subtype',
-                    'readable_duration', 'duration', 'start_date', 'end_date',
+                    'readable_duration', 'duration',
+                    'partial_start_date', 'partial_end_date',
                     'volumes', 'price_paid', 'deposit', 'currency_symbol')
     list_filter = ('category', 'subtype', 'currency')
-    search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
-    fields = ('account', ('start_date', 'end_date'), 'subtype', 'category',
+    search_fields = ('account__persons__name', 'account__persons__mep_id',
+                     'notes')
+    fields = ('account',
+              ('partial_start_date', 'partial_end_date'),
+              'subtype', 'category',
               'volumes', ('duration_units', 'duration'),
               'deposit', 'price_paid',
               'currency', 'notes')
@@ -219,11 +236,12 @@ class SubscriptionInline(CollapsibleTabularInline):
     model = Subscription
     form = SubscriptionAdminForm
     extra = 1
-    fields = ('start_date', 'end_date', 'subtype', 'category', 'volumes',
+    fields = ('partial_start_date', 'partial_end_date', 'subtype', 'category',
+              'volumes',
               'duration_units', 'deposit', 'price_paid', 'currency', 'notes')
 
 
-class ReimbursementAdminForm(forms.ModelForm):
+class ReimbursementAdminForm(PartialDateFormMixin):
     class Meta:
         model = Reimbursement
         fields = ('__all__')
@@ -247,10 +265,11 @@ class ReimbursementAdmin(admin.ModelAdmin):
     form = ReimbursementAdminForm
     model = Reimbursement
     date_hierarchy = 'start_date'
-    fields = ('account', ('start_date', 'refund', 'currency'), 'notes')
+    fields = ('account', ('partial_start_date', 'refund', 'currency'), 'notes')
     list_display = ('account', 'date', 'refund', 'currency_symbol',)
     list_filter = ('currency',)
-    search_fields = ('account__persons__name', 'account__persons__mep_id', 'notes')
+    search_fields = ('account__persons__name', 'account__persons__mep_id',
+                     'notes')
 
 
 class PurchaseAdminForm(PartialDateFormMixin):
@@ -302,7 +321,7 @@ class ReimbursementInline(CollapsibleTabularInline):
     model = Reimbursement
     form = ReimbursementAdminForm
     extra = 1
-    fields = ('start_date', 'refund', 'currency', 'notes')
+    fields = ('partial_start_date', 'refund', 'currency', 'notes')
 
 
 class AddressInlineForm(PartialDateFormMixin):
@@ -314,7 +333,7 @@ class AddressInlineForm(PartialDateFormMixin):
                         'account id, as well as associated person and '
                         'address data.'),
             'location': ('Searches on name, street address, city, '
-                        'postal code, and country.'),
+                         'postal code, and country.'),
         }
         widgets = {
             'account': AUTOCOMPLETE['account'],
@@ -347,7 +366,7 @@ class AccountAdminForm(forms.ModelForm):
         fields = ('__all__')
         widgets = {
             'persons': AUTOCOMPLETE['person-multiple'],
-         }
+        }
 
 
 class AccountAdmin(admin.ModelAdmin):
