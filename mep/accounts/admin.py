@@ -258,7 +258,7 @@ class ReimbursementAdminForm(PartialDateFormMixin):
         super(ReimbursementAdminForm, self).__init__(*args, **kwargs)
         # override start date label to just date, since reimbursements
         # are single-day events
-        self.fields['start_date'].label = "Date"
+        self.fields['partial_start_date'].label = "Date"
 
 
 class ReimbursementAdmin(admin.ModelAdmin):
