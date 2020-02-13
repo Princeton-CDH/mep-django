@@ -346,7 +346,8 @@ class Person(models.Model):
     )
 
     panels = [
-        FieldPanel('name'),
+        FieldPanel('last_name'),
+        FieldPanel('first_name'),
         FieldPanel('url'),
         FieldPanel('twitter_id'),
     ]
