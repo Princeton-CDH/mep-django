@@ -13,7 +13,7 @@ type Address = {
     end_date?: string,
 }
 declare const addressData: Array<Address>
-declare const libraryAddress: Address
+declare const libraryAddress: Address|null
 
 // defined in local_settings.py and passed in the django view/template
 declare const mapboxToken: string
@@ -51,21 +51,27 @@ parisTiles.addTo(addressMap)
 /*
  * bookstore icon + marker on map
  */
-const bookstoreIcon = icon({
-    iconUrl: '/static/img/icons/bookstore-pin.svg',
-    iconSize: [46, 62],
-    iconAnchor: [23, 62],
-    popupAnchor: [0, -60]
-})
 
-const bookstoreMarker = marker([libraryAddress.latitude, libraryAddress.longitude], {
-    icon: bookstoreIcon,
-    zIndexOffset: 1, // on top of address markers
-})
+let bookstoreMarker
 
-bookstoreMarker.bindPopup(popupText(libraryAddress))
+if (libraryAddress) { // only add if data is available
 
-bookstoreMarker.addTo(addressMap)
+    const bookstoreIcon = icon({
+        iconUrl: '/static/img/icons/bookstore-pin.svg',
+        iconSize: [46, 62],
+        iconAnchor: [23, 62],
+        popupAnchor: [0, -60]
+    })
+    
+    bookstoreMarker = marker([libraryAddress.latitude, libraryAddress.longitude], {
+        icon: bookstoreIcon,
+        zIndexOffset: 1, // on top of address markers
+    })
+    
+    bookstoreMarker.bindPopup(popupText(libraryAddress))
+    
+    bookstoreMarker.addTo(addressMap)
+}
 
 /*
  * address icons + markers on map
@@ -117,7 +123,9 @@ addressMarkers
  * set up initial zoom/view
  */
 // zoom to fit all markers
-const allMarkers = featureGroup([bookstoreMarker, ...addressMarkers])
+const allMarkers = featureGroup([...addressMarkers])
+if (bookstoreMarker) allMarkers.addLayer(bookstoreMarker)
+
 addressMap.fitBounds(allMarkers.getBounds().pad(0.1))
 
 // open the first marker: needs a delay otherwise the text inside will be

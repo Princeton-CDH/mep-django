@@ -292,6 +292,8 @@ class MemberDetail(DetailView, RdfViewMixin):
             .filter(location__latitude__isnull=False) \
             .filter(location__longitude__isnull=False)
 
+        # NOTE probably refactor this into a method on Location for feeding
+        # to leaflet; also use below
         context['addresses'] = [
             {
                 # these fields are taken from Location unchanged
@@ -308,14 +310,18 @@ class MemberDetail(DetailView, RdfViewMixin):
 
         # address of the lending library itself; automatically available from
         # migration mep/people/migrations/0014_library_location.py
-        library = Location.objects.get(name='Shakespeare & Company')
-        context['library_address'] = {
-            'name': library.name,
-            'street_address': library.street_address,
-            'city': library.city,
-            'latitude': str(library.latitude),
-            'longitude': str(library.longitude),
-        }
+        try:
+            library = Location.objects.get(name='Shakespeare and Company')
+            context['library_address'] = {
+                'name': library.name,
+                'street_address': library.street_address,
+                'city': library.city,
+                'latitude': str(library.latitude),
+                'longitude': str(library.longitude),
+            }
+        except Location.DoesNotExist:
+            # if we can't find library's address send 'null' & don't render it
+            context['library_address'] = None
 
         # config settings used to render the map; set in local_settings.py
         context.update({
