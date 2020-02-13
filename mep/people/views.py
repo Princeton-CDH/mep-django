@@ -484,12 +484,16 @@ class MemberCardDetail(DetailView, RdfViewMixin):
         # use card dates for label
         card_dates = card.footnote_set.event_date_range()
         # used for page title and breadcrumb label;
-        # ned something here when dates are unknown
-        label = 'Unknown'
         if card_dates:
             label = card_dates[0].year
             if card_dates[1].year != card_dates[0].year:
                 label = '%s – %s' % (label, card_dates[1].year)
+        elif card.footnote_set.exists():
+            # if there are footnotes but no dates, label as unknown
+            label = 'Unknown'
+        else:
+            # if there are no footnotes, label as Blank
+            label = 'Blank'
 
         self.label = label
         return card

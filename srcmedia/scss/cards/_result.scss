@@ -87,6 +87,9 @@ $card-width: 11.25rem;
         font-family: $sans;
         font-size: 0.82rem;
     }
+    .card-dates.unknown  {
+        color: $mid-grey;
+    }
 
     // adjust for individual member card thumbnails
     .member-cards & {

@@ -42,10 +42,12 @@
                   {% endwith %}
                 </picture>
                 {% with card.footnote_set.event_date_range as dates %}
-                <div class="card-dates">
+                <div class="card-dates {% if card.footnote_set.exists and not dates %}unknown{% endif %}">
                     <span class="label">Card Years</span>
                     <span>{% if dates.0 %}{{ dates.0.year }}
                         {% if dates.0.year != dates.1.year %} – <span class="sr-only">to</span>{{ dates.1.year }}{% endif %}
+                        {% elif card.footnote_set.exists %}
+                        Unknown
                         {% endif %}
                     </span>
                 </div>
