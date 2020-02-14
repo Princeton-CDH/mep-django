@@ -78,7 +78,7 @@ class TestSVGImageBlock(SimpleTestCase):
         html = block.render({
             'image': test_svg, 'alternative_text': alt_text
         })
-        assert ('<figure role="img" ') in html
+        assert ('<figure ') in html
         assert '<img role="img" ' in html
         # no caption, no extended description
         assert '<figcaption>' not in html
