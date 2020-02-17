@@ -3,6 +3,17 @@
 CHANGELOG
 =========
 
+0.25
+----
+
+* As a data editor, I need to enter partially known dates for membership events so I can document memberships from sources where the exact date is not known.
+* As a non-sighted user, I want to hear a description of visualizations embedded in essay content so that I can access these insights.
+* As a user, I want to know when a member's card is available elsewhere so I can look beyond the site if needed.
+* bugfix: document citation does not include author name even if author is associated with a document
+* bugfix: editing library Location causes member detail pages to not load
+* updates content and ordering of footer navigation
+* restores blank card images in card image gallery and detail views
+
 0.24
 ----
 
