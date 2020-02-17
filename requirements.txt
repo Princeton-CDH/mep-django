@@ -2,6 +2,8 @@ Django>=1.11,<2.0
 mysqlclient<1.4
 django-grappelli<2.11
 cached_property
+# require cas-ng to <4.0 since 4 is now out and requires django 2.2
+django-cas-ng<4.0
 pucas>=0.6
 eulxml
 viapy
@@ -18,6 +20,8 @@ pymarc
 progressbar2
 rdflib
 rdflib-jsonld
+# require jsonfield (dep of djiffy) pre 3.0, since 3 requires django 2.2
+jsonfield<3.0
 djiffy
 django-csp
 bleach

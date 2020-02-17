@@ -191,7 +191,7 @@ function drawMembershipGraph(el: HTMLDivElement) {
             .attr("y", firstLabelY.text)
             .attr("width", 100)
             .attr("height", 100)
-            .text ('Members with subscriptions')
+            .text ('Members')
     }
 
     if (dataSeries && dataSeries.includes('borrows')) {
