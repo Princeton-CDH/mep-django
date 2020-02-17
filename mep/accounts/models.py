@@ -512,6 +512,9 @@ class Subscription(Event, CurrencyMixin):
     def calculate_duration(self):
         '''calculate and set subscription duration based on start and end
         date, when both are known'''
+        # NOTE: duration calculation currently ignores partial dates;
+        # assumes when partial dates are used they are used
+        # consistently for both start and end dates
         if self.start_date and self.end_date:
             # calculate duration in days as timedelta from end to start
             self.duration = (self.end_date - self.start_date).days
@@ -653,12 +656,12 @@ class Purchase(CurrencyMixin, Event):
 class Reimbursement(Event, CurrencyMixin):
     '''Reimbursement event; extends :class:`Event`'''
     refund = models.DecimalField(max_digits=8, decimal_places=2, null=True,
-        blank=True)
+                                 blank=True)
 
     def date(self):
         '''alias of :attr:`start_date` for display, since reimbersument
         is a single-day event'''
-        return self.start_date
+        return self.partial_start_date
     date.admin_order_field = 'start_date'
 
     def save(self, *args, **kwargs):
@@ -666,6 +669,8 @@ class Reimbursement(Event, CurrencyMixin):
         to make that explicit and simplify any generic event date
         range searching and filtering.'''
         self.end_date = self.start_date
+        # copy precision in case of partially-known start date
+        self.end_date_precision = self.start_date_precision
         super(Reimbursement, self).save(*args, **kwargs)
 
     def validate_unique(self, *args, **kwargs):
@@ -679,7 +684,7 @@ class Reimbursement(Event, CurrencyMixin):
         # should not have same date + account
         try:
             qs = Reimbursement.objects.filter(start_date=self.start_date,
-                account=self.account)
+                                              account=self.account)
         except ObjectDoesNotExist:
             # bail out without making any further assertions because
             # we've had a missing related field and other checks

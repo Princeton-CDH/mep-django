@@ -10,6 +10,7 @@ from django.contrib.auth.models import AnonymousUser, Permission, User
 from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
 from django.template.defaultfilters import date as format_date
+from django.template.defaultfilters import urlize
 from django.test import RequestFactory, TestCase
 from django.urls import resolve, reverse
 from djiffy.models import Canvas
@@ -232,7 +233,7 @@ class TestPeopleViews(TestCase):
         self.assertContains(response, '%s - ' % format_date(subs2.start_date))
         # Reimbursement events should be listed
         self.assertContains(response, 'Reimbursement')
-        self.assertContains(response, format_date(reimb.start_date))
+        self.assertContains(response, format_date(reimb.partial_start_date))
         # Other event types should not be
         self.assertNotContains(response, 'Generic')
         self.assertNotContains(response, format_date(generic.start_date))
@@ -1017,13 +1018,14 @@ class TestMemberDetailView(TestCase):
         account.add_event('borrow', start_date=date(1941, 2, 3))
         response = self.client.get(url)
         # check correct templates used & context passed
-        self.assertTemplateUsed('member_detail.html')
+        self.assertTemplateUsed(response, 'people/member_detail.html')
         assert response.status_code == 200, \
             'library members should have a detail page'
         assert response.context['member'] == gay, \
             'page should correspond to the correct member'
         # check dates
-        self.assertContains(response, '1885 – <span class="sr-only">to</span>1963', html=True)
+        self.assertContains(
+            response, '1885 – <span class="sr-only">to</span>1963', html=True)
         # check membership dates
         self.assertContains(
             response,
@@ -1046,11 +1048,18 @@ class TestMemberDetailView(TestCase):
         assert 'mapbox_basemap' in response.context
         assert 'paris_overlay' in response.context
         # address of the library itself should be in context
-        assert response.context['library_address']['name'] == 'Shakespeare & Company'
+        assert response.context['library_address']['name'] == 'Shakespeare and Company'
         # Gay's address info should be in context
         assert response.context['addresses'][0]['street_address'] == '3 Rue Garancière'
         assert response.context['addresses'][0]['latitude'] == '48.85101'
         assert response.context['addresses'][0]['longitude'] == '2.33590'
+        # if we don't have the library's address, page should still render
+        library = Location.objects.get(name='Shakespeare and Company')
+        library.delete()
+        response = self.client.get(url)
+        assert response.status_code == 200
+        # library address is rendered as "null"
+        self.assertContains(response, "libraryAddress = null")
 
     def test_get_non_member(self):
         aeschylus = Person.objects.get(name='Aeschylus', slug='aeschylus')
@@ -1385,7 +1394,6 @@ class TestMemberCardList(TestCase):
         context = self.view.get_context_data()
         assert context['member'] == self.view.member
 
-    @login_temporarily_required
     def test_view_template(self):
         member = Person.objects.get(slug='stein-gertrude')
         response = self.client.get(reverse('people:member-card-list',
@@ -1411,8 +1419,6 @@ class TestMemberCardList(TestCase):
                 # show end year if different
                 if start.year != end.year:
                     self.assertContains(response, end.year)
-            else:
-                self.assertContains(response, 'Unknown')
 
         # iiif license image, text & link
         self.assertContains(response, 'No Known Copyright')
@@ -1420,10 +1426,33 @@ class TestMemberCardList(TestCase):
         # iiif logo icon
         self.assertContains(response, 'pul_logo_icon')
 
+        # no citation because card images are available
+        self.assertNotContains(response, '<div class="citation">')
+        self.assertNotContains(response, member.card.bibliographic_note)
+        # includes notes on card record
+        self.assertContains(response, urlize(member.card.notes))
+
         # library member wih no cards
         response = self.client.get(reverse('people:member-card-list',
                                    kwargs={'slug': 'gay'}))
         self.assertContains(response, 'No lending library cards available')
+
+        # add non-image card citation
+        # fixture doesn't include card for hemingway
+        hemingway = Person.objects.get(slug='hemingway')
+        # create a card record and associate it with the account
+        src_type = SourceType.objects.get(name='Lending Library Card')
+        card = Bibliography.objects.create(
+            bibliographic_note='lending card citation', source_type=src_type)
+        hemingway_account = hemingway.account_set.first()
+        hemingway_account.card = card
+        hemingway_account.save()
+        response = self.client.get(reverse('people:member-card-list',
+                                   kwargs={'slug': 'hemingway'}))
+        # should include citation
+        self.assertContains(response, card.bibliographic_note)
+        # should not include cards unavailable text
+        self.assertNotContains(response, 'No lending library cards available')
 
 
 class TestMemberCardDetail(TestCase):
@@ -1504,7 +1533,6 @@ class TestMemberCardDetail(TestCase):
         assert context['prev_card'] == Canvas.objects.get(order=0).short_id
         assert context['next_card'] == Canvas.objects.get(order=2).short_id
 
-    @login_temporarily_required
     def test_view_template(self):
         member = Person.objects.get(slug='stein-gertrude')
         response = self.client.get(reverse('people:member-card-detail',
@@ -1523,7 +1551,8 @@ class TestMemberCardDetail(TestCase):
         # event details displayed
         events = card.footnote_set.all().events()
         for event in events:
-            self.assertContains(response, partialdate(event.partial_start_date))
+            self.assertContains(response,
+                                partialdate(event.partial_start_date))
             self.assertContains(response, event.work.title)
             self.assertContains(response, event.event_type)
             self.assertContains(response, partialdate(event.partial_end_date))

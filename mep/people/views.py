@@ -292,6 +292,8 @@ class MemberDetail(DetailView, RdfViewMixin):
             .filter(location__latitude__isnull=False) \
             .filter(location__longitude__isnull=False)
 
+        # NOTE probably refactor this into a method on Location for feeding
+        # to leaflet; also use below
         context['addresses'] = [
             {
                 # these fields are taken from Location unchanged
@@ -308,14 +310,18 @@ class MemberDetail(DetailView, RdfViewMixin):
 
         # address of the lending library itself; automatically available from
         # migration mep/people/migrations/0014_library_location.py
-        library = Location.objects.get(name='Shakespeare & Company')
-        context['library_address'] = {
-            'name': library.name,
-            'street_address': library.street_address,
-            'city': library.city,
-            'latitude': str(library.latitude),
-            'longitude': str(library.longitude),
-        }
+        try:
+            library = Location.objects.get(name='Shakespeare and Company')
+            context['library_address'] = {
+                'name': library.name,
+                'street_address': library.street_address,
+                'city': library.city,
+                'latitude': str(library.latitude),
+                'longitude': str(library.longitude),
+            }
+        except Location.DoesNotExist:
+            # if we can't find library's address send 'null' & don't render it
+            context['library_address'] = None
 
         # config settings used to render the map; set in local_settings.py
         context.update({
@@ -436,15 +442,9 @@ class MemberCardList(ListView, RdfViewMixin):
                                         slug=self.kwargs['slug'])
         # find all canvas objects for this person, via manifest
         # associated with lending card bibliography
-        cards = super().get_queryset() \
-                       .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
-                       .order_by('order')
-
-        # if user is not logged in, filter out any cards without events
-        if self.request.user.is_anonymous:
-            cards = cards.filter(footnote__isnull=False).distinct()
-
-        return cards
+        return super().get_queryset() \
+                      .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
+                      .order_by('order')
 
     def get_absolute_url(self):
         '''Full URI for member card list page.'''
@@ -489,11 +489,17 @@ class MemberCardDetail(DetailView, RdfViewMixin):
         card = get_object_or_404(Canvas.objects.all(), **filters)
         # use card dates for label
         card_dates = card.footnote_set.event_date_range()
-        label = 'Unknown'
+        # used for page title and breadcrumb label;
         if card_dates:
             label = card_dates[0].year
             if card_dates[1].year != card_dates[0].year:
                 label = '%s – %s' % (label, card_dates[1].year)
+        elif card.footnote_set.exists():
+            # if there are footnotes but no dates, label as unknown
+            label = 'Unknown'
+        else:
+            # if there are no footnotes, label as Blank
+            label = 'Blank'
 
         self.label = label
         return card
@@ -519,11 +525,6 @@ class MemberCardDetail(DetailView, RdfViewMixin):
         context = super().get_context_data(**kwargs)
         # use order within manifest to get next/prev links
         sibling_cards = self.object.manifest.canvases
-        # if user is not logged in, filter out any cards without events
-        if self.request.user.is_anonymous:
-            sibling_cards = sibling_cards.filter(footnote__isnull=False) \
-                                         .distinct()
-
         # convert into a list of ids in order to get adjacent ids
         # that skip over blank cards
         sibling_cards = list(sibling_cards.values_list('short_id', flat=True))
@@ -579,8 +580,49 @@ class MembershipGraphs(LoginRequiredOr404Mixin, TemplateView):
                 'count': count
             } for yearmonth, count in facets['card_yearmonths'].items()
             ]
-
         }
+
+        # generate version to output as tabular data
+        logbook_month_max = 0
+        # NOTE: in django templates, these defaultdicts return default value
+        # when attempting to iterate, retrieve items, keys, etc
+        # (accessing by index instead of trying method first?)
+        logbooks = defaultdict(lambda: [0] * 12)
+        for yearmonth, count in facets['logbook_yearmonths'].items():
+            logbook_month_max = max(logbook_month_max, count)
+            logbooks[int(yearmonth[:4])][int(yearmonth[-2:]) - 1] = count
+
+        cards_month_max = 0
+        cards = defaultdict(lambda: [0] * 12)
+        for yearmonth, count in facets['card_yearmonths'].items():
+            cards_month_max = max(cards_month_max, count)
+            cards[int(yearmonth[:4])][int(yearmonth[-2:]) - 1] = count
+
+        members = defaultdict(lambda: [0] * 12)
+        for yearmonth, count in facets['account_yearmonths'].items():
+            members[int(yearmonth[:4])][int(yearmonth[-2:]) - 1] = count
+
+        card_percents = {}
+        for year, counts in cards.items():
+            member_counts = members[year]
+            percents = []
+            for index, value in enumerate(counts):
+                if member_counts[index]:
+                    percents.append(value / member_counts[index])
+                else:
+                    percents.append('-')
+            card_percents[year] = percents
+
+        context['tabular_data'] = {
+            'years': range(1919, 1942),  # workaround for iteration problem
+            'logbooks': logbooks,
+            'logbooks_month_max': logbook_month_max,
+            'cards': cards,
+            'cards_month_max': cards_month_max,
+            'members': members,
+            'card_percents': card_percents
+        }
+
         return context
 
 

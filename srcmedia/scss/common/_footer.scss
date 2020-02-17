@@ -46,6 +46,7 @@
 
         ul {
             display: inline-block;
+            vertical-align: top;
         }
 
         .secondary {
@@ -73,6 +74,10 @@
             position: absolute;
             left: calc(50% - 3.5rem);
             top: 0;
+        }
+
+        img {
+            width: 100%;
         }
     }
 

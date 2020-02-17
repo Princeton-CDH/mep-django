@@ -1,12 +1,16 @@
+from unittest.mock import Mock
+
 from django.template.defaultfilters import striptags
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 from wagtail.core.models import Page, Site
+from wagtail.documents.models import Document
 from wagtail.tests.utils import WagtailPageTests
 from wagtail.tests.utils.form_data import nested_form_data, rich_text, \
     streamfield
 
-from mep.pages.models import ContentLandingPage, ContentPage, \
-    EssayLandingPage, EssayPage, HomePage, LinkableSectionBlock
+from mep.pages.models import CaptionedImageBlock, ContentLandingPage,  \
+    ContentPage, EssayLandingPage, EssayPage, HomePage, LinkableSectionBlock, \
+    SVGImageBlock, Person
 
 
 class TestLinkableSectionBlock(SimpleTestCase):
@@ -36,6 +40,59 @@ class TestLinkableSectionBlock(SimpleTestCase):
         '''
 
         self.assertHTMLEqual(html, expected_html)
+
+
+class TestCaptionedImageBlock(SimpleTestCase):
+
+    def test_render(self):
+        block = CaptionedImageBlock()
+        test_img = {'url': 'kitty.png', 'width': 100, 'height': 200}
+        alt_text = 'picture of a kitten'
+        # NOTE: using "img" here instead of "image" means we're
+        # not actually testing the image logic; but not clear how
+        # to mock or use an image object in a test
+        html = block.render(block.to_python({
+            'img': test_img, 'alternative_text': alt_text
+        }))
+        assert '<figure>' in html
+        assert '<img srcset="' in html
+        assert 'alt="picture of a kitten" ' in html
+        # no caption
+        assert '<figcaption>' not in html
+
+        # with caption
+        caption = 'A kitten curled up in the sunshine'
+        html = block.render(block.to_python({
+            'img': test_img, 'alternative_text': alt_text,
+            'caption': caption}))
+        assert ('<figcaption><div class="rich-text">%s</div></figcaption'
+                % caption) in html
+
+
+class TestSVGImageBlock(SimpleTestCase):
+
+    def test_render(self):
+        block = SVGImageBlock()
+        test_svg = {'url': 'graph.svg'}  # Mock(spec=Document, url='graph.svg')
+        alt_text = 'membership timeline'
+        html = block.render({
+            'image': test_svg, 'alternative_text': alt_text
+        })
+        assert ('<figure ') in html
+        assert '<img role="img" ' in html
+        # no caption, no extended description
+        assert '<figcaption>' not in html
+        assert '<div class="sr-only" ' not in html
+
+        # with caption & extended description
+        caption = 'membership activity from 1919 to 1942'
+        desc = 'chart shows activity in 1920 and 1940'
+        html = block.render({
+            'image': test_svg, 'alternative_text': alt_text,
+            'caption': caption, 'extended_description': desc})
+        assert ('<figcaption>%s</figcaption' % caption) in html
+        assert '<div class="sr-only" id="graphsvg-desc">' in html
+        assert desc in html
 
 
 class TestHomePage(WagtailPageTests):
@@ -284,3 +341,24 @@ class TestEssayPage(WagtailPageTests):
     def test_set_url_path(self):
         # TODO
         pass
+
+
+class TestPerson(TestCase):
+
+    def test_name(self):
+        # first and last name
+        person = Person.objects.create(first_name='James', last_name='Joyce')
+        assert person.name == 'James Joyce'
+        # middle names
+        person = Person.objects.create(first_name='Henry Wadsworth',
+                                       last_name='Longfellow')
+        assert person.name == 'Henry Wadsworth Longfellow'
+
+    def test_lastname_first(self):
+        # first and last name
+        person = Person.objects.create(first_name='James', last_name='Joyce')
+        assert person.lastname_first == 'Joyce, James'
+        # middle names
+        person = Person.objects.create(first_name='Henry Wadsworth',
+                                       last_name='Longfellow')
+        assert person.lastname_first == 'Longfellow, Henry Wadsworth'

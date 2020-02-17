@@ -3,6 +3,13 @@
 Deploy and Upgrade notes
 ========================
 
+0.25
+----
+
+* The name of the canonical `Location` representing the library should be
+  changed to "Shakespeare and Company" (no &), if it is not already. This change
+  has been reflected in an earlier migration.
+
 0.24
 ----
 

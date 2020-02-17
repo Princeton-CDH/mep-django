@@ -42,11 +42,13 @@
                   {% endwith %}
                 </picture>
                 {% with card.footnote_set.event_date_range as dates %}
-                <div class="card-dates {% if not dates %}unknown{% endif %}">
+                <div class="card-dates {% if card.footnote_set.exists and not dates %}unknown{% endif %}">
                     <span class="label">Card Years</span>
                     <span>{% if dates.0 %}{{ dates.0.year }}
                         {% if dates.0.year != dates.1.year %} – <span class="sr-only">to</span>{{ dates.1.year }}{% endif %}
-                        {% else %}Unknown{% endif %}
+                        {% elif card.footnote_set.exists %}
+                        Unknown
+                        {% endif %}
                     </span>
                 </div>
                 {% endwith %}
@@ -54,11 +56,20 @@
     </li>
     {% endfor %}
     </ol>
+    {% elif member.card %}
+    {# show bibliographic citation if a member has a card but no images are available #}
+    <div class="citation"><p>{{ member.card.bibliographic_note|urlize }}</p></div>
     {% else %}
     <div>No lending library cards available.</div>
     {% endif %}
 
+    {% if member.card.notes %}
+    <div class="notes">{{ member.card.notes|urlize }}</div>
+    {% endif %}
+
+    {% if cards.0.manifest %}
     {% include 'people/snippets/manifest_license.html' with manifest=cards.0.manifest %}
+    {% endif %}
 
 </section>
 {% endblock %}

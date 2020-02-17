@@ -36,6 +36,7 @@ class CaptionedImageBlock(blocks.StructBlock):
 
     class Meta:
         icon = 'image'
+        template = 'pages/blocks/captioned_image_block.html'
 
 
 class SVGImageBlock(blocks.StructBlock):
@@ -43,14 +44,21 @@ class SVGImageBlock(blocks.StructBlock):
     alternative text and optional formatted caption. Separate from
     :class:`CaptionedImageBlock` because Wagtail image handling
     does not work with SVG.'''
+    extended_description_help = '''This text will only be read to \
+    non-sighted users and should describe the major insights or \
+    takeaways from the graphic. Multiple paragraphs are allowed.'''
+
     image = DocumentChooserBlock()
     alternative_text = blocks.TextBlock(required=True, help_text=ALT_TEXT_HELP)
     caption = blocks.RichTextBlock(features=['bold', 'italic', 'link'],
                                    required=False)
+    extended_description = blocks.RichTextBlock(
+        features=['p'], required=False, help_text=extended_description_help)
 
     class Meta:
         icon = 'image'
         label = 'SVG'
+        template = 'pages/blocks/svg_image_block.html'
 
 
 class LinkableSectionBlock(blocks.StructBlock):
@@ -303,11 +311,17 @@ class Person(models.Model):
     '''Common model for a person, currently used to document authorship for
     instances of :class:`BasePage`. Adapted from PPA.'''
 
-    #: the display name of an individual
-    name = models.CharField(
+    #: first or given name and all non-family names (i.e. middle names)
+    # NOTE this is everything *before* the comma in a citation
+    first_name = models.CharField(
         max_length=255,
-        help_text='Full name for the person as it should appear in the author '
-                  'list.'
+        help_text='First or given name and all non-family or middle names, e.g.'
+                   '"Henry Wadsworth", as it would appear in a citation.'
+    )
+    #: last or family name of an individual
+    last_name = models.CharField(
+        max_length=255,
+        help_text='Last or family name, e.g. "Longfellow".'
     )
     #: identifying URI for a person (VIAF, ORCID iD, personal website, etc.)
     url = models.URLField(
@@ -332,13 +346,24 @@ class Person(models.Model):
     )
 
     panels = [
-        FieldPanel('name'),
+        FieldPanel('last_name'),
+        FieldPanel('first_name'),
         FieldPanel('url'),
         FieldPanel('twitter_id'),
     ]
 
     def __str__(self):
         return self.name
+
+    @property
+    def name(self):
+        '''Return the Person's name in "Firstname Lastname" format.'''
+        return '%s %s' % (self.first_name, self.last_name)
+
+    @property
+    def lastname_first(self):
+        '''Return the Person's name in "Lastname, Firstname" format.'''
+        return '%s, %s' % (self.last_name, self.first_name)
 
 
 class BasePage(RdfPageMixin, Page, PagePreviewDescriptionMixin):

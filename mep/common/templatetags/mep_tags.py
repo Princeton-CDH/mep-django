@@ -142,3 +142,19 @@ def partialdate(val, date_format=None):
     # format the date value using the django's date templatetag and
     # the revised format string
     return date(dt, date_format)
+
+
+@register.filter(name='min')
+def list_minimum(values):
+    return min([val for val in values if not isinstance(val, str)])
+
+
+@register.filter(name='max')
+def list_maximum(values):
+    return max([val for val in values if not isinstance(val, str)])
+
+
+@register.filter(name='avg')
+def list_average(values):
+    values = [val for val in values if not isinstance(val, str)]
+    return sum(values) / len(values)
