@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.exceptions import MultipleObjectsReturned
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -523,27 +524,27 @@ class MemberCardDetail(DetailView, RdfViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # use order within manifest to get next/prev links
-        sibling_cards = self.object.manifest.canvases
-        # convert into a list of ids in order to get adjacent ids
-        # that skip over blank cards
-        sibling_cards = list(sibling_cards.values_list('short_id', flat=True))
-        current_index = sibling_cards.index(self.object.short_id)
-        try:
-            next_card = sibling_cards[current_index + 1]
-        except IndexError:
-            next_card = None
-        if current_index > 0:
-            prev_card = sibling_cards[current_index - 1]
-        else:
-            prev_card = None
+
+        # get all cards (canvases) from the manifest and store their ids
+        cards = self.object.manifest.canvases
+        cards = list(cards.values_list('short_id', flat=True))
+        
+        # create a paginator with 1 card per page and get the current "page"
+        paginator = Paginator(cards, 1)
+        current_index = cards.index(self.object.short_id)
+        page_obj = paginator.page(current_index + 1) # 1-based page index
+
+        # add next/previous page ids to generate links, if any
+        if page_obj.has_previous():
+            context.update({ 'prev_card_id': cards[current_index - 1] })
+        if page_obj.has_next():
+            context.update({ 'next_card_id': cards[current_index + 1] })
 
         context.update({
             'member': self.member,
             'label': self.label,
             'events': self.object.footnote_set.events(),
-            'next_card': next_card,
-            'prev_card': prev_card
+            'page_obj': page_obj,
         })
         return context
 
