@@ -2,9 +2,13 @@
 
     .viewer {
         display: flex;
-        padding-top: 1.3rem;
-        padding-bottom: 2rem;
+        padding-top: 2rem;
+        padding-bottom: 1.3rem;
         background: $white;
+
+        @media (min-width: $breakpoint-s) {
+            padding-bottom: 2rem;
+        }
 
         picture img {
             width: 11.25rem;
@@ -66,6 +70,92 @@
 
         a {
             border: none;
+        }
+    }
+
+    // card image navigation
+    .nav-wrapper {
+        background: $white;
+        padding-bottom: 1.3rem;
+        position: relative;
+
+        @media (min-width: $breakpoint-s) { padding-bottom: 2rem; }
+
+        &::before, &::after {
+            height: 100%;
+            width: 4rem;
+            position: absolute;
+            top: 0;
+            content: '';
+            z-index: 1;
+        }
+
+        &::before {
+            left: 0;
+            background: linear-gradient(
+                270deg,
+                $transparent 0%,
+                $transparent 25%,
+                $white 75%);
+        }
+
+        &::after {
+            right: 0;
+            background: linear-gradient(
+                90deg,
+                $transparent 0%,
+                $transparent 25%,
+                $white 75%);
+        }
+    }
+
+    nav.cards {
+        margin: auto;
+        max-width: none;
+        overflow-x: auto;
+
+        @media (min-width: $breakpoint-s) { max-width: 34rem; }
+        @media (min-width: $breakpoint-m) { max-width: 38rem; }
+
+        ol {
+            display: flex;
+            flex-direction: row nowrap;
+        }
+
+        li {
+            flex: none;
+            margin-right: 0.5rem;
+
+            @media (min-width: $breakpoint-s) { margin-right: 1rem; }
+
+            &:first-child {
+                padding-left: 3.25rem;
+                @media (min-width: $breakpoint-s) { padding-left: 4.75rem; }
+                @media (min-width: $breakpoint-m) { padding-left: 5.25rem; }
+            }
+
+            &:last-child {
+                padding-right: 3.25rem;
+                @media (min-width: $breakpoint-s) { padding-right: 4.75rem; }
+                @media (min-width: $breakpoint-m) { padding-right: 5.25rem; }
+            }
+        }
+
+        a { border: none; }
+
+        picture img {
+            width: 2.25rem;
+            height: 3.25rem;
+
+            @media (min-width: $breakpoint-s) {
+                width: 4.75rem;
+                height: 6.5rem;
+            }
+
+            @media (min-width: $breakpoint-m) {
+                width: 5.25rem;
+                height: 7.5rem;
+            }
         }
     }
 

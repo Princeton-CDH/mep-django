@@ -527,24 +527,26 @@ class MemberCardDetail(DetailView, RdfViewMixin):
 
         # get all cards (canvases) from the manifest and store their ids
         cards = self.object.manifest.canvases
-        cards = list(cards.values_list('short_id', flat=True))
+        card_ids = list(cards.values_list('short_id', flat=True))
         
         # create a paginator with 1 card per page and get the current "page"
-        paginator = Paginator(cards, 1)
-        current_index = cards.index(self.object.short_id)
+        paginator = Paginator(card_ids, 1)
+        current_index = card_ids.index(self.object.short_id)
         page_obj = paginator.page(current_index + 1) # 1-based page index
 
         # add next/previous page ids to generate links, if any
         if page_obj.has_previous():
-            context.update({ 'prev_card_id': cards[current_index - 1] })
+            context.update({ 'prev_card_id': card_ids[current_index - 1] })
         if page_obj.has_next():
-            context.update({ 'next_card_id': cards[current_index + 1] })
+            context.update({ 'next_card_id': card_ids[current_index + 1] })
 
+        # NOTE does using paginator get us anything here? maybe revisit
         context.update({
             'member': self.member,
             'label': self.label,
             'events': self.object.footnote_set.events(),
             'page_obj': page_obj,
+            'cards': cards,
         })
         return context
 

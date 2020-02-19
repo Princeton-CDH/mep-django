@@ -39,6 +39,25 @@
         {% endif %}
     </div>
 
+    <div class="nav-wrapper"> {% spaceless %}
+        <nav class="cards" aria-label="cards">
+            <ol>
+                {% for card_ in cards.all %}
+                <li class="card{% if card_ == card %} active{% endif %}">
+                <a href="{% url 'people:member-card-detail' member.slug card_.short_id %}">
+                <picture>
+                {% with card_.image|iiif_image:"size:width=105" as 1xthumbnail %}
+                    <source srcset="{{ 1xthumbnail }}, {{ card_.image|iiif_image:"size:width=215" }} 2x">
+                    <img src="{{ 1xthumbnail }}" alt="">
+                {% endwith %}
+                </picture>
+                </a>
+                </li>
+                {% endfor %}
+            </ol>
+        </nav>
+    </div> {% endspaceless %}
+
     {% include 'people/snippets/manifest_license.html' with manifest=card.manifest %}
 
     {% if events %}
