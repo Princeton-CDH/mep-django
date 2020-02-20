@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**
  * Automatically scroll the card navigation to focus the currently viewed card.
- * 
- * @param nav 
- * @param activeCard 
+ *
+ * @param nav
+ * @param activeCard
  */
 function scrollToActiveCard(nav: HTMLElement, activeCard: HTMLLIElement): void {
     // distance we want to scroll is (offset - card width - margin)px
