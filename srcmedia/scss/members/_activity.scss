@@ -30,6 +30,8 @@ $shadow: rgba(0, 0, 0, 0.2);
             display: flex;
             flex-wrap: wrap;
             position: relative;
+
+            &:first-child { border-top: solid 1px $light-grey; }
         }
 
         td {
