@@ -1530,8 +1530,12 @@ class TestMemberCardDetail(TestCase):
         assert set(context['events'].values_list('pk', flat=True)) == \
             set(expected_events.values_list('pk', flat=True))
         # canvas 0 is no previous, 2 is next
-        assert context['prev_card'] == Canvas.objects.get(order=0).short_id
-        assert context['next_card'] == Canvas.objects.get(order=2).short_id
+        assert context['prev_card_id'] == Canvas.objects.get(order=0).short_id
+        assert context['next_card_id'] == Canvas.objects.get(order=2).short_id
+        # should have a page object & paginator stored in context
+        assert isinstance(context['page_obj'].paginator, Paginator)
+        # list of other cards (canvases) stored in context
+        assert context['cards'] == self.view.get_object().manifest.canvases
 
     def test_view_template(self):
         member = Person.objects.get(slug='stein-gertrude')
@@ -1563,15 +1567,34 @@ class TestMemberCardDetail(TestCase):
             response,
             reverse('people:member-card-detail',
                     kwargs={'slug': context['member'].slug,
-                            'short_id': context['prev_card']}))
+                            'short_id': context['prev_card_id']}))
         self.assertContains(
             response,
             reverse('people:member-card-detail',
                     kwargs={'slug': context['member'].slug,
-                            'short_id': context['next_card']}))
+                            'short_id': context['next_card_id']}))
 
         # iiif license image, text & link
         self.assertContains(response, 'No Known Copyright')
         self.assertContains(response, 'rightsstatements_org/NKC.svg')
         # iiif logo icon
         self.assertContains(response, 'pul_logo_icon')
+
+        # current card is marked active
+        self.assertContains(response, '<li class="card active">')
+        # descriptive alt for current card
+        self.assertContains(response, 'alt="Gertrude Stein 1921 card"')
+        # current card/total counter is rendered
+        self.assertContains(response, '2<span aria-label="of">/</span>4', html=True)
+        
+        # cards nav
+        for i, card in enumerate(context['cards'].all()):
+            # thumbnail is displayed for each card in sequence
+            self.assertContains(response, card.image.size(width=105))
+            # links rendered for each card in sequence
+            self.assertContains(response,
+                                reverse('people:member-card-detail',
+                                kwargs={'slug': context['member'].slug,
+                                'short_id': card.short_id }))
+            # each card link has an alt
+            self.assertContains(response, 'alt="Gertude Stein card %d"' % (i + 1))

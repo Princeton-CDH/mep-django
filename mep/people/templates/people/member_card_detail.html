@@ -30,7 +30,7 @@
             <source srcset="{{ 1xthumbnail }}, {{ card.image|iiif_image:"size:width=860" }} 2x">
             <img src="{{ 1xthumbnail }}" alt="{{ member.firstname_last }} {{ label }} card" aria-describedby="card-counter">
             <span id="card-counter" aria-hidden="true">
-                card {{ page_obj.number }}
+                {{ page_obj.number }}
                 <span aria-label="of">/</span>
                 {{ page_obj.paginator.num_pages }}
             </span>
