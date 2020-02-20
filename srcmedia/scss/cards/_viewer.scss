@@ -82,6 +82,7 @@
         @media (min-width: $breakpoint-s) { padding-bottom: 2rem; }
 
         &::before, &::after {
+            pointer-events: none;
             height: 100%;
             width: 4rem;
             position: absolute;
@@ -113,9 +114,12 @@
         margin: auto;
         max-width: none;
         overflow-x: auto;
+        scrollbar-width: none;
 
         @media (min-width: $breakpoint-s) { max-width: 34rem; }
         @media (min-width: $breakpoint-m) { max-width: 38rem; }
+
+        &::-webkit-scrollbar { display: none; }
 
         ol {
             display: flex;
@@ -139,13 +143,17 @@
                 @media (min-width: $breakpoint-s) { padding-right: 4.75rem; }
                 @media (min-width: $breakpoint-m) { padding-right: 5.25rem; }
             }
+
+            &.active img, &:hover img { opacity: 1; }
         }
 
         a { border: none; }
 
-        picture img {
+        img {
             width: 2.25rem;
             height: 3.25rem;
+            opacity: 0.5;
+            transition: opacity 0.25s ease;
 
             @media (min-width: $breakpoint-s) {
                 width: 4.75rem;
