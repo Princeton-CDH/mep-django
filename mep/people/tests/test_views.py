@@ -1585,8 +1585,9 @@ class TestMemberCardDetail(TestCase):
         # descriptive alt for current card
         self.assertContains(response, 'alt="Gertrude Stein 1921 card"')
         # current card/total counter is rendered
-        self.assertContains(response, '2<span aria-label="of">/</span>4', html=True)
-        
+        self.assertContains(response, '2<span aria-label="of">/</span>4',
+                            html=True)
+
         # cards nav
         for i, card in enumerate(context['cards'].all()):
             # thumbnail is displayed for each card in sequence
@@ -1594,7 +1595,8 @@ class TestMemberCardDetail(TestCase):
             # links rendered for each card in sequence
             self.assertContains(response,
                                 reverse('people:member-card-detail',
-                                kwargs={'slug': context['member'].slug,
-                                'short_id': card.short_id }))
+                                        kwargs={'slug': context['member'].slug,
+                                                'short_id': card.short_id}))
             # each card link has an alt
-            self.assertContains(response, 'alt="Gertude Stein card %d"' % (i + 1))
+            self.assertContains(
+                response, 'alt="Gertrude Stein card %d"' % (i + 1))
