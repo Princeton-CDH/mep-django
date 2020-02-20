@@ -10,12 +10,22 @@
             padding-bottom: 2rem;
         }
 
+        picture { position: relative; }
+
         picture img {
             width: 11.25rem;
 
             @media (min-width: $breakpoint-s) {
                 width: 21.5rem;
             }
+        }
+
+        #card-counter {
+            font-size: .75rem;
+            color: $brownish-grey;
+            position: absolute;
+            bottom: -1rem;
+            right: 0;
         }
 
         .next,

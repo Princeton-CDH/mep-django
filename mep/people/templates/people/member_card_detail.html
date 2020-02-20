@@ -28,7 +28,12 @@
         <picture>
         {% with card.image|iiif_image:"size:width=430" as 1xthumbnail %}
             <source srcset="{{ 1xthumbnail }}, {{ card.image|iiif_image:"size:width=860" }} 2x">
-            <img src="{{ 1xthumbnail }}" alt="">
+            <img src="{{ 1xthumbnail }}" alt="{{ member.firstname_last }} {{ label }} card" aria-describedby="card-counter">
+            <span id="card-counter">
+                {{ page_obj.number }}
+                <span aria-label="of">/</span>
+                {{ page_obj.paginator.num_pages }}
+            </span>
         {% endwith %}
         </picture>
         {% if page_obj.has_next %}
