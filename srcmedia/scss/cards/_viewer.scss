@@ -84,12 +84,35 @@
     }
 
     // card image navigation
-    .nav-wrapper {
+    .card.nav.container {
         background: $white;
-        padding-bottom: 1.3rem;
-        position: relative;
 
-        @media (min-width: $breakpoint-s) { padding-bottom: 2rem; }
+        $width: $breakpoint-xs;
+        padding-bottom: 1.3rem;
+        padding-left: calc((100vw - #{$width}) / 2);
+        padding-right: calc((100vw - #{$width}) / 2);
+        width: $width;
+
+        @media (min-width: $breakpoint-s) {
+            $width: 30rem;
+            padding-bottom: 2rem;
+            padding-left: calc((100vw - #{$width}) / 2);
+            padding-right: calc((100vw - #{$width}) / 2);
+            width: $width;
+        }
+
+        @media (min-width: $breakpoint-m) {
+            $width: 40rem;
+            padding-left: calc((100vw - #{$width}) / 2);
+            padding-right: calc((100vw - #{$width}) / 2);
+            width: $width;
+        }
+    }
+
+    // fade created via pseudo-elements
+    .card.nav > .wrapper {
+        background: $white;
+        position: relative;
 
         &::before, &::after {
             pointer-events: none;
@@ -99,35 +122,32 @@
             top: 0;
             content: '';
             z-index: 1;
+
+            @media (min-width: $breakpoint-s) { width: 6rem; }
         }
 
         &::before {
             left: 0;
             background: linear-gradient(
                 270deg,
-                $transparent 0%,
-                $transparent 25%,
-                $white 75%);
+                $transparent 20%,
+                transparentize($white, 0.5) 50%,
+                $white 80%);
         }
 
         &::after {
             right: 0;
             background: linear-gradient(
                 90deg,
-                $transparent 0%,
-                $transparent 25%,
-                $white 75%);
+                $transparent 20%,
+                transparentize($white, 0.5) 50%,
+                $white 80%);
         }
     }
 
     nav.cards {
-        margin: auto;
-        max-width: none;
         overflow-x: auto;
         scrollbar-width: none;
-
-        @media (min-width: $breakpoint-s) { max-width: 34rem; }
-        @media (min-width: $breakpoint-m) { max-width: 38rem; }
 
         &::-webkit-scrollbar { display: none; }
 
