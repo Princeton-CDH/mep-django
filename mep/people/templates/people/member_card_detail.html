@@ -19,7 +19,7 @@
 
 <div class="card-image-viewer">
     <div class="viewer">
-        {% if page_obj.has_previous %}
+        {% if card_page.has_previous %}
         <a class="prev" rel="prev" aria-label="previous card"
            href="{% url 'people:member-card-detail' member.slug prev_card_id %}"></a>
         {% else %}
@@ -30,17 +30,17 @@
             <source srcset="{{ 1xthumbnail }}, {{ card.image|iiif_image:"size:width=860" }} 2x">
             <img src="{{ 1xthumbnail }}" alt="{{ member.firstname_last }} {{ label }} card" aria-describedby="card-counter">
             <span id="card-counter" aria-hidden="true">
-                {{ page_obj.number }}
+                {{ card_page.number }}
                 <span aria-label="of">/</span>
-                {{ page_obj.paginator.num_pages }}
+                {{ card_page.paginator.num_pages }}
             </span>
         {% endwith %}
         </picture>
-        {% if page_obj.has_next %}
+        {% if card_page.has_next %}
         <a class="next" rel="next" aria-label="next card"
            href="{% url 'people:member-card-detail' member.slug next_card_id %}"></a>
         {% else %}
-        <span class="next"/></span>
+        <span class="next"></span>
         {% endif %}
     </div>
 

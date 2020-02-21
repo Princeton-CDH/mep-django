@@ -1533,7 +1533,7 @@ class TestMemberCardDetail(TestCase):
         assert context['prev_card_id'] == Canvas.objects.get(order=0).short_id
         assert context['next_card_id'] == Canvas.objects.get(order=2).short_id
         # should have a page object & paginator stored in context
-        assert isinstance(context['page_obj'].paginator, Paginator)
+        assert isinstance(context['card_page'].paginator, Paginator)
         # list of other cards (canvases) stored in context
         assert context['cards'] == self.view.get_object().manifest.canvases
 
