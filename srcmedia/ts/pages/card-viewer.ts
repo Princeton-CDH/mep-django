@@ -26,6 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function scrollToActiveCard(nav: HTMLElement, activeCard: HTMLLIElement): void {
     // distance we want to scroll is (offset - card width - margin)px
     const style = getComputedStyle(activeCard)
-    const margin = style.marginRight ? parseInt(style.marginRight.split('px')[0]) : 0
+    const margin = style.marginRight ? parseInt(style.marginRight.split('px')[0], 10) : 0
     nav.scroll(activeCard.offsetLeft - activeCard.offsetWidth - margin, 0)
 }
