@@ -17,6 +17,9 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
                FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library items.'''
     model = Work
+    page_title = "Books"
+    page_description = "Search and browse books by title and filter " + \
+        "by bibliographic metadata."
     template_name = 'books/work_list.html'
     ajax_template_name = 'books/snippets/work_results.html'
     paginate_by = 100
@@ -49,17 +52,32 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         'title': 'title_s',
     }
 
+    #: bib data query alias field syntax (type defaults to edismax in solr config)
+    search_bib_query = '{!qf=$bib_qf pf=$bib_pf v=$bib_query}'
+
     def get_queryset(self):
-        # NOTE faceting on pub date currently as a placeholder; no UI use yet
-        sqs = WorkSolrQuerySet().facet_field('pub_date_i')
+        # NOTE faceting on several fields as placeholders, no UI yet
+        sqs = WorkSolrQuerySet() \
+            .facet_field('pub_date_i') \
+            .facet_field('format_s') \
+            .facet_field('authors_t') \
+            .facet_field('creators_t')
+            
         form = self.get_form()
 
         # empty qs if not valid
         if not form.is_valid():
             sqs = sqs.none()
+
         # otherwise apply filters, query, sort, etc.
         else:
             search_opts = form.cleaned_data
+
+            if search_opts['query']:
+                sqs = sqs.search(self.search_bib_query) \
+                         .raw_query_parameters(bib_query=search_opts['query']) \
+                         .also('score')  # include relevance score in results
+
             sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
 
         self.queryset = sqs
