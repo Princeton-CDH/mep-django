@@ -532,20 +532,20 @@ class MemberCardDetail(DetailView, RdfViewMixin):
         # create a paginator with 1 card per page and get the current "page"
         paginator = Paginator(card_ids, 1)
         current_index = card_ids.index(self.object.short_id)
-        page_obj = paginator.page(current_index + 1) # 1-based page index
+        card_page = paginator.page(current_index + 1) # 1-based page index
 
         # add next/previous page ids to generate links, if any
-        if page_obj.has_previous():
-            context.update({ 'prev_card_id': card_ids[current_index - 1] })
-        if page_obj.has_next():
-            context.update({ 'next_card_id': card_ids[current_index + 1] })
+        if card_page.has_previous():
+            context['prev_card_id'] = card_ids[current_index - 1]
+        if card_page.has_next():
+            context['next_card_id'] = card_ids[current_index + 1]
 
         # NOTE does using paginator get us anything here? maybe revisit
         context.update({
             'member': self.member,
             'label': self.label,
             'events': self.object.footnote_set.events(),
-            'page_obj': page_obj,
+            'card_page': card_page,
             'cards': cards,
         })
         return context
