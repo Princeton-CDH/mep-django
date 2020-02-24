@@ -18,7 +18,7 @@ from django.test import TestCase
 from djiffy.models import Canvas, Manifest
 
 from mep.accounts.management.commands import import_figgy_cards, \
-    report_timegaps
+    report_timegaps, export_events
 from mep.accounts.models import Account, Borrow, Event
 from mep.footnotes.models import Bibliography, Footnote
 
@@ -389,3 +389,48 @@ class TestManifestImportWithRendering:
         result = importer.import_manifest(mock_manifest, path)
         assert 'rendering' in result.extra_data
         assert result.extra_data['rendering'] == mock_manifest.rendering
+
+
+class TestExportEvents(TestCase):
+
+    def setUp(self):
+        self.cmd = export_events.Command()
+        self.cmd.stdout = StringIO()
+
+
+@patch('mep.accounts.management.commands.export_events.progressbar')
+class TestStreamArray(TestCase):
+
+    def test_init(self, mockprogbar):
+        total = 5
+        gen = (i for i in range(total))
+
+        streamer = export_events.StreamArray(gen, total)
+        assert streamer.gen == gen
+        assert streamer.progress == 0
+        assert streamer.total == total
+
+        mockprogbar.ProgressBar.assert_called_with(redirect_stdout=True,
+                                                   max_value=total)
+        assert streamer.progbar == mockprogbar.ProgressBar.return_value
+
+    def test_len(self, mockprogbar):
+        total = 5
+        gen = (i for i in range(total))
+        streamer = export_events.StreamArray(gen, total)
+        assert len(streamer) == total
+
+    def test_iter(self, mockprogbar):
+        total = 2
+        gen = (i for i in range(total))
+        streamer = export_events.StreamArray(gen, total)
+        values = []
+        for val in streamer:
+            values.append(val)
+
+        assert values == [i for i in range(total)]
+        assert streamer.progress == total
+        # progress bar update should be called once per item
+        assert streamer.progbar.update.call_count == total
+        # progress bar finish should be called once when iteration completes
+        assert streamer.progbar.finish.call_count == 1

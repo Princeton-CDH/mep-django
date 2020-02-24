@@ -175,8 +175,6 @@ class Command(BaseCommand):
             #    item_info['edition title'] = event.
             if event.work.uri:
                 item_info['work uri'] = event.work.uri
-            if event.work.edition_uri:
-                item_info['edition uri'] = event.work.edition_uri
             if event.work.public_notes:
                 item_info['notes'] = event.work.public_notes
 
@@ -222,7 +220,15 @@ class Command(BaseCommand):
 
 
 class StreamArray(list):
-    '''Wrapper for a generator so it can be encoded as json'''
+    '''Wrapper for a generator so data can be streamed and encoded as json.
+    Includes progressbar output that updates as the generator is consumed.
+
+
+    :param gen: generator with data to be exported
+    :param total: total number of items in the generator, for
+        initializing the progress bar
+    '''
+
     # adapted from answer on
     # https://stackoverflow.com/questions/21663800/python-make-a-list-generator-json-serializable
 
