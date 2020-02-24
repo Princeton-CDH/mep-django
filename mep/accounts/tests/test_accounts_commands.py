@@ -3,7 +3,7 @@ import os.path
 from collections import OrderedDict
 from datetime import date, timedelta
 from io import StringIO
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest.mock import Mock, patch
 
 from dateutil.relativedelta import relativedelta
@@ -431,12 +431,12 @@ class TestExportEvents(TestCase):
         assert len(event_data) == Event.objects.count()
         assert isinstance(event_data[0], OrderedDict)
 
-    def test_member_data(self):
+    def test_member_info(self):
         # test single member data
         event = Event.objects.filter(account__persons__name__contains="Brue") \
             .first()
         person = event.account.persons.first()
-        member_info = self.cmd.member_data(event)
+        member_info = self.cmd.member_info(event)
         assert member_info['sort names'][0] == person.sort_name
         assert member_info['names'][0] == person.name
         assert member_info['URIs'][0] == \
@@ -446,14 +446,14 @@ class TestExportEvents(TestCase):
         event = Event.objects.filter(account__persons__name__contains="Edel") \
             .first()
 
-        member_info = self.cmd.member_data(event)
+        member_info = self.cmd.member_info(event)
         # each field should have two values
         for field in ('sort names', 'names', 'URIs'):
             assert len(member_info[field]) == 2
 
         # TODO: test no member? or is that invalid
 
-    def test_subscription_data(self):
+    def test_subscription_info(self):
         # get a subscription with no subcategory and both dates
         event = Event.objects.filter(
             subscription__isnull=False,
@@ -461,7 +461,7 @@ class TestExportEvents(TestCase):
             subscription__category__isnull=True) \
             .first()
         subs = event.subscription
-        info = self.cmd.subscription_data(event)
+        info = self.cmd.subscription_info(event)
         assert info['price paid'] == '%s%.2f' % (subs.currency_symbol(),
                                                  subs.price_paid)
         # test event has no deposit amount
@@ -469,9 +469,67 @@ class TestExportEvents(TestCase):
         assert info['duration'] == subs.readable_duration()
         assert info['duration days'] == subs.duration
         assert info['volumes'] == subs.volumes
+        assert 'category' not in info
 
-        # test category subtype,
-        # testing missing dates = no duration
+        # category subtype
+        event = Event.objects.filter(
+            subscription__category__isnull=False).first()
+        info = self.cmd.subscription_info(event)
+        assert info['category'] == event.subscription.category.name
+
+        # missing dates = no duration
+        event = Event.objects.filter(
+            subscription__isnull=False, end_date__isnull=True).first()
+        info = self.cmd.subscription_info(event)
+        assert 'duration' not in info
+        assert 'duration days' not in info
+
+        # non-subscription
+        event = Event.objects.filter(subscription__isnull=True).first()
+        assert not self.cmd.subscription_info(event)
+
+    def test_item_data(self):
+        # with work uri and notes
+        event = Event.objects.filter(work__isnull=False) \
+            .exclude(work__uri='').exclude(work__public_notes='').first()
+        info = self.cmd.item_info(event)
+        assert info['title'] == event.work.title
+        assert info['work uri'] == event.work.uri
+        assert info['notes'] == event.work.public_notes
+
+        # without work uri and notes
+        event = Event.objects.filter(
+            work__isnull=False, work__uri='',
+            work__public_notes='').first()
+        info = self.cmd.item_info(event)
+        assert 'work uri' not in info
+        assert 'notes' not in info
+
+        # TODO: test with edition
+
+        # no work, no item data
+        event = Event.objects.filter(work__isnull=True).first()
+        assert not self.cmd.item_info(event)
+
+    def test_source_info(self):
+        # footnote
+        event = Event.objects.filter(event_footnotes__isnull=False).first()
+        footnote = event.event_footnotes.first()
+        info = self.cmd.source_info(footnote)
+        assert info['citation'] == footnote.bibliography.bibliographic_note
+        assert info['manifest'] == footnote.bibliography.manifest.uri
+        assert info['image'] == str(footnote.image.image)
+
+    def test_command_line(self):
+        # test calling via command line with args
+        tempdir = TemporaryDirectory()
+        stdout = StringIO()
+        call_command('export_events', '-d', tempdir.name, stdout=stdout)
+        output = stdout.getvalue()
+        assert 'Exporting JSON' in output
+        assert 'Exporting CSV' in output
+        assert os.path.exists(os.path.join(tempdir.name, 'events.json'))
+        assert os.path.exists(os.path.join(tempdir.name, 'events.csv'))
 
 
 @patch('mep.accounts.management.commands.export_events.progressbar')

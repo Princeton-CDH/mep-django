@@ -108,20 +108,16 @@ class Command(BaseCommand):
             ('end date', event.partial_end_date or ''),
             ('member', OrderedDict()),
         ])
-        member_info = self.member_data(event)
+        member_info = self.member_info(event)
         if member_info:
-            data['members'] = member_info
+            data['member'] = member_info
 
-        # variable to store footnote reference
+        # variable to store footnote reference, if any
         footnote = None
-
-        subscription_info = self.subscription_data(event)
-        if subscription_info:
-            data['subscription'] = subscription_info
 
         # subscription-specific data
         if event_type in ['Subscription', 'Supplement', 'Renewal']:
-            data['subscription'] = self.subscription_data(event)
+            data['subscription'] = self.subscription_info(event)
 
         # reimbursement data
         elif event_type in 'Reimbursement' and event.reimbursement.refund:
@@ -152,14 +148,13 @@ class Command(BaseCommand):
         item_info = self.item_info(event)
         if item_info:
             data['item'] = item_info
-
         if event.notes:
             data['notes'] = event.notes
         if footnote:
             data['source'] = self.source_info(footnote)
         return data
 
-    def member_data(self, event):
+    def member_info(self, event):
         '''Event about member(s) for the account associated with an event.'''
         members = event.account.persons.all()
         # return if no member attached
@@ -172,7 +167,7 @@ class Command(BaseCommand):
             ('URIs', [absolutize_url(m.get_absolute_url()) for m in members])
         ])
 
-    def subscription_data(self, event):
+    def subscription_info(self, event):
         '''subscription details for an event'''
         # bail out if this event is not a subscription
         try:
@@ -212,18 +207,17 @@ class Command(BaseCommand):
 
     def source_info(self, footnote):
         '''source details from a footnote'''
-        if footnote:
-            source_info = OrderedDict([
-                ('citation', footnote.bibliography.bibliographic_note)
-            ])
-            if footnote.bibliography.manifest:
-                source_info['manifest'] = footnote.bibliography.manifest.uri
-                if footnote.image:
-                    # FIXME: should this actually resolve to an image?
-                    source_info['image'] = footnote.image.iiif_image_id
-                    # image id in manifest: /full/1000,/0/default.jpg
-                    # source_info['image'] = footnote.image.uri
-            return source_info
+        source_info = OrderedDict([
+            ('citation', footnote.bibliography.bibliographic_note)
+        ])
+        if footnote.bibliography.manifest:
+            source_info['manifest'] = footnote.bibliography.manifest.uri
+            if footnote.image:
+                # FIXME: should this actually resolve to an image?
+                source_info['image'] = str(footnote.image.image)
+                # image id in manifest: /full/1000,/0/default.jpg
+                # source_info['image'] = footnote.image.uri
+        return source_info
 
     def flatten_dict(self, data):
         '''Flatten a dictionary with nested dictionaries or lists into a

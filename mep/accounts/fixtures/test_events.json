@@ -144,7 +144,7 @@
         "ebook_url": "",
         "work_format": 1,
         "updated_at": "2019-12-02T04:47:37Z",
-        "public_notes": "",
+        "public_notes": "additional details",
         "genres": [
             30,
             2,
@@ -1046,6 +1046,204 @@
         "public_notes": "",
         "nationalities": []
     }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 505,
+    "fields": {
+        "label": "Rey, Jean-Dominique",
+        "short_id": "cdf6e9e8-feb7-4b78-9b59-19a747d96d7c",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/cdf6e9e8-feb7-4b78-9b59-19a747d96d7c/manifest",
+        "metadata": "{\"Date Created\":[\"1967-06-28T00:00:00Z\"],\"Extent\":[\"2 cards\"],\"Identifier\":[\"ark:/88435/js956k931\"],\"Title\":[\"Rey, Jean-Dominique\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3571\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/cdf6e9e8-feb7-4b78-9b59-19a747d96d7c.jsonld\":{\"system_updated_at\":\"2019-10-13T23:29:50Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T22:05:41Z\",\"@id\":\"https://figgy.princeton.edu/catalog/cdf6e9e8-feb7-4b78-9b59-19a747d96d7c\",\"identifier\":[\"ark:/88435/js956k931\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Rey, Jean-Dominique\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3571.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/js956k931\"}}"
+    }
+},
+{
+    "model": "footnotes.sourcetype",
+    "pk": 2,
+    "fields": {
+        "name": "Lending Library Card",
+        "notes": ""
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 385,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Jean-Dominique Rey Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 505
+    }
+},
+{
+    "model": "books.work",
+    "pk": 3366,
+    "fields": {
+        "notes": "OCLCNoMatch",
+        "mep_id": "mep:00sw5z",
+        "title": "The Heart to Artemis: A Writer's Memoir",
+        "year": 1962,
+        "uri": "",
+        "edition_uri": "",
+        "ebook_url": "",
+        "work_format": null,
+        "updated_at": "2019-06-14T17:18:33Z",
+        "public_notes": "",
+        "genres": [],
+        "subjects": []
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 5019,
+    "fields": {
+        "card": 385,
+        "persons": [
+            428
+        ]
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 32444,
+    "fields": {
+        "notes": "NOTATION: SBGIFT: given copy to S& Co Heart to Artemis",
+        "start_date_precision": 7,
+        "end_date_precision": null,
+        "account": 5019,
+        "start_date": "1962-06-28",
+        "end_date": null,
+        "work": 3366,
+        "edition": null
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 505,
+    "fields": {
+        "label": "Rey, Jean-Dominique",
+        "short_id": "cdf6e9e8-feb7-4b78-9b59-19a747d96d7c",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/cdf6e9e8-feb7-4b78-9b59-19a747d96d7c/manifest",
+        "metadata": "{\"Date Created\":[\"1967-06-28T00:00:00Z\"],\"Extent\":[\"2 cards\"],\"Identifier\":[\"ark:/88435/js956k931\"],\"Title\":[\"Rey, Jean-Dominique\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3571\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/cdf6e9e8-feb7-4b78-9b59-19a747d96d7c.jsonld\":{\"system_updated_at\":\"2019-10-13T23:29:50Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T22:05:41Z\",\"@id\":\"https://figgy.princeton.edu/catalog/cdf6e9e8-feb7-4b78-9b59-19a747d96d7c\",\"identifier\":[\"ark:/88435/js956k931\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Rey, Jean-Dominique\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3571.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/js956k931\"}}"
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 490,
+    "fields": {
+        "label": "Edel, Bertha (Cohen)",
+        "short_id": "ca089bb3-2269-478d-9a29-260c164126a1",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/ca089bb3-2269-478d-9a29-260c164126a1/manifest",
+        "metadata": "{\"Date Created\":[\"1936-11-19/1937-03-16\"],\"Extent\":[\"1 card\"],\"Identifier\":[\"ark:/88435/4j03d3777\"],\"Title\":[\"Edel, Bertha (Cohen)\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3290\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/ca089bb3-2269-478d-9a29-260c164126a1.jsonld\":{\"system_updated_at\":\"2019-10-13T23:31:18Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T21:20:30Z\",\"@id\":\"https://figgy.princeton.edu/catalog/ca089bb3-2269-478d-9a29-260c164126a1\",\"identifier\":[\"ark:/88435/4j03d3777\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Edel, Bertha (Cohen)\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3290.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/4j03d3777\"}}"
+    }
+},
+{
+    "model": "footnotes.sourcetype",
+    "pk": 2,
+    "fields": {
+        "name": "Lending Library Card",
+        "notes": ""
+    }
+},
+{
+    "model": "djiffy.canvas",
+    "pk": 1831,
+    "fields": {
+        "label": "3",
+        "short_id": "90102718-51cb-4a5d-a7d8-4c5bd5f8f45f",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/cdf6e9e8-feb7-4b78-9b59-19a747d96d7c/manifest/canvas/90102718-51cb-4a5d-a7d8-4c5bd5f8f45f",
+        "iiif_image_id": "https://iiif.princeton.edu/loris/figgy_prod/76%2F80%2Fe5%2F7680e5d8bd5b4806abcad9ebb742a0f4%2Fintermediate_file.jp2",
+        "manifest": 505,
+        "thumbnail": false,
+        "order": 2,
+        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/90102718-51cb-4a5d-a7d8-4c5bd5f8f45f/file/bc9383d6-8200-4845-90b9-2ef527a81519\",\"label\":\"Download the original file\"}]}"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 2,
+    "fields": {
+        "app_label": "accounts",
+        "model": "event"
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 385,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Jean-Dominique Rey Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 505
+    }
+},
+{
+    "model": "djiffy.canvas",
+    "pk": 1767,
+    "fields": {
+        "label": "1",
+        "short_id": "ff227e06-065b-4c4c-8b35-70f7763077b6",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/ca089bb3-2269-478d-9a29-260c164126a1/manifest/canvas/ff227e06-065b-4c4c-8b35-70f7763077b6",
+        "iiif_image_id": "https://iiif.princeton.edu/loris/figgy_prod/c0%2F14%2F76%2Fc01476973ef64e7a8b361c1334d68244%2Fintermediate_file.jp2",
+        "manifest": 490,
+        "thumbnail": true,
+        "order": 0,
+        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/ff227e06-065b-4c4c-8b35-70f7763077b6/file/f663272c-d70e-40c1-8003-248f18d8dfb6\",\"label\":\"Download the original file\"}]}"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 3,
+    "fields": {
+        "app_label": "accounts",
+        "model": "borrow"
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 125,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Mr and Mrs Le\u00f3n Edel Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 490
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 21349,
+    "fields": {
+        "notes": "",
+        "bibliography": 385,
+        "location": "https://figgy.princeton.edu/concern/scanned_resources/cdf6e9e8-feb7-4b78-9b59-19a747d96d7c/manifest/canvas/90102718-51cb-4a5d-a7d8-4c5bd5f8f45f",
+        "snippet_text": "",
+        "content_type": 2,
+        "object_id": 32444,
+        "is_agree": true,
+        "image": 1831
+    }
+},
+{
+    "model": "footnotes.footnote",
+    "pk": 4024,
+    "fields": {
+        "notes": "",
+        "bibliography": 125,
+        "location": "https://figgy.princeton.edu/concern/scanned_resources/ca089bb3-2269-478d-9a29-260c164126a1/manifest/canvas/ff227e06-065b-4c4c-8b35-70f7763077b6",
+        "snippet_text": "",
+        "content_type": 3,
+        "object_id": 14973,
+        "is_agree": true,
+        "image": 1767
+    }
 }
 ]
-
