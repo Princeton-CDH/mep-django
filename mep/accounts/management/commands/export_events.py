@@ -16,6 +16,7 @@ import json
 import os.path
 from collections import OrderedDict
 
+from django.db.models.functions import Coalesce
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 import progressbar
@@ -89,8 +90,12 @@ class Command(BaseCommand):
                 csvwriter.writerow(self.flatten_dict(row))
 
     def get_data(self, maximum=None):
-        # get event objects to be exported
-        events = Event.objects.all()
+        '''get event objects to be exported'''
+        # Order events by date. Order on precision first so unknown dates
+        # will be last, then sort by first known date of start/end.
+        events = Event.objects.all() \
+            .order_by(Coalesce('start_date_precision', 'end_date_precision'),
+                      Coalesce('start_date', 'end_date').asc(nulls_last=True))
         # grab the first N if maximum is specified
         if maximum:
             events = events[:maximum]

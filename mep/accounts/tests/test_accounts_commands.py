@@ -516,8 +516,8 @@ class TestExportEvents(TestCase):
         assert 'work uri' not in info
         assert 'notes' not in info
 
-        # event with edition
-        event = Event.objects.filter(edition_isnull=False).first()
+        # event with known edition
+        event = Event.objects.filter(edition__isnull=False).first()
         info = self.cmd.item_info(event)
         assert info['volume'] == str(event.edition)
 
