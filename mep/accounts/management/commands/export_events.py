@@ -44,8 +44,8 @@ class Command(BaseCommand):
         # purchase specific
         'purchase price',
         # related book/item
-        'item title',  # work URI TBD
-        'item work uri', 'item edition uri', 'item notes',
+        'item title', 'item work uri', 'item volume',
+        'item notes',
         # generic
         'notes',
         # footnote/citation
@@ -194,9 +194,10 @@ class Command(BaseCommand):
             item_info = OrderedDict([
                 ('title', event.work.title),
             ])
-            # TODO
-            # if event.edition:
-            #    item_info['edition title'] = event.
+            if event.edition:
+                # NOTE: using string representation for now,
+                # will revisit to refine later
+                item_info['volume'] = str(event.edition)
             if event.work.uri:
                 item_info['work uri'] = event.work.uri
             if event.work.public_notes:
@@ -212,10 +213,8 @@ class Command(BaseCommand):
         if footnote.bibliography.manifest:
             source_info['manifest'] = footnote.bibliography.manifest.uri
             if footnote.image:
-                # FIXME: should this actually resolve to an image?
+                # default iiif image
                 source_info['image'] = str(footnote.image.image)
-                # image id in manifest: /full/1000,/0/default.jpg
-                # source_info['image'] = footnote.image.uri
         return source_info
 
     def flatten_dict(self, data):
@@ -227,8 +226,8 @@ class Command(BaseCommand):
         for key, val in data.items():
             # for a nested subdictionary, combine key and nested key
             if isinstance(val, dict):
-                # TODO: recurse to handle lists in nested dicts
-                for subkey, subval in val.items():
+                # recurse to handle lists in nested dicts
+                for subkey, subval in self.flatten_dict(val).items():
                     flat_data[' '.join([key, subkey])] = subval
             # convert list to a delimited string
             elif isinstance(val, list):

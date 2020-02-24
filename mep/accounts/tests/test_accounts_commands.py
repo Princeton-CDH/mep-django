@@ -423,6 +423,16 @@ class TestExportEvents(TestCase):
         assert flat_nested['page id'] == nested['page']['id']
         assert flat_nested['page label'] == nested['page']['label']
 
+        # nested with list
+        nested_list = {
+            'page': {
+                'id': 'p1',
+                'label': ['one', 'two']
+            }
+        }
+        flat_nested = self.cmd.flatten_dict(nested_list)
+        assert flat_nested['page label'] == 'one;two'
+
     def test_get_data(self):
         data = self.cmd.get_data()
         assert isinstance(data, export_events.StreamArray)
@@ -490,12 +500,13 @@ class TestExportEvents(TestCase):
 
     def test_item_data(self):
         # with work uri and notes
-        event = Event.objects.filter(work__isnull=False) \
+        event = Event.objects.filter(work__isnull=False, edition__isnull=True)\
             .exclude(work__uri='').exclude(work__public_notes='').first()
         info = self.cmd.item_info(event)
         assert info['title'] == event.work.title
         assert info['work uri'] == event.work.uri
         assert info['notes'] == event.work.public_notes
+        assert 'volume' not in info
 
         # without work uri and notes
         event = Event.objects.filter(
@@ -505,7 +516,10 @@ class TestExportEvents(TestCase):
         assert 'work uri' not in info
         assert 'notes' not in info
 
-        # TODO: test with edition
+        # event with edition
+        event = Event.objects.filter(edition_isnull=False).first()
+        info = self.cmd.item_info(event)
+        assert info['volume'] == str(event.edition)
 
         # no work, no item data
         event = Event.objects.filter(work__isnull=True).first()
