@@ -387,7 +387,7 @@ class Work(Notable, ModelIndexable):
         index_data = super().index_data()
 
         index_data.update({
-            'title_s': self.title, # will be copyfield'd into `title_t`
+            'title_t': self.title, # will be copyfield'd into `title_txt_en`
             'pk_i': self.pk, # NOTE include pk for now for item detail url
             'authors_t': [str(a) for a in self.authors] if self.authors else None,
             'creators_t': self.creator_names,
