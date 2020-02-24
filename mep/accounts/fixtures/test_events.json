@@ -1,0 +1,1051 @@
+[
+{
+    "model": "djiffy.manifest",
+    "pk": 490,
+    "fields": {
+        "label": "Edel, Bertha (Cohen)",
+        "short_id": "ca089bb3-2269-478d-9a29-260c164126a1",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/ca089bb3-2269-478d-9a29-260c164126a1/manifest",
+        "metadata": "{\"Date Created\":[\"1936-11-19/1937-03-16\"],\"Extent\":[\"1 card\"],\"Identifier\":[\"ark:/88435/4j03d3777\"],\"Title\":[\"Edel, Bertha (Cohen)\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3290\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/ca089bb3-2269-478d-9a29-260c164126a1.jsonld\":{\"system_updated_at\":\"2019-10-13T23:31:18Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T21:20:30Z\",\"@id\":\"https://figgy.princeton.edu/catalog/ca089bb3-2269-478d-9a29-260c164126a1\",\"identifier\":[\"ark:/88435/4j03d3777\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Edel, Bertha (Cohen)\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3290.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/4j03d3777\"}}"
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 45,
+    "fields": {
+        "label": "Michaelides, L.",
+        "short_id": "12de5eb4-662e-4b27-853b-9f9b82431393",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/12de5eb4-662e-4b27-853b-9f9b82431393/manifest",
+        "metadata": "{\"Date Created\":[\"1920-10-16/1938-05-02\"],\"Extent\":[\"5 cards\"],\"Identifier\":[\"ark:/88435/w3763b905\"],\"Title\":[\"Michaelides, L.\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3481\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-12-03",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/12de5eb4-662e-4b27-853b-9f9b82431393.jsonld\":{\"system_updated_at\":\"2019-12-03T00:05:34Z\",\"system_created_at\":\"2019-06-12T21:52:55Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"@id\":\"https://figgy.princeton.edu/catalog/12de5eb4-662e-4b27-853b-9f9b82431393\",\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@language\":\"eng\",\"@value\":\"Michaelides, L.\"}],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"title\":\"Sylvia Beach Papers C0108\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\"}],\"identifier\":[\"ark:/88435/w3763b905\"]},\"https://findingaids.princeton.edu/collections/C0108/c3481.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\"}"
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 36,
+    "fields": {
+        "label": "Pulsford, G. E.",
+        "short_id": "102cb596-6c26-4ff2-8da7-c975308e6c89",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/102cb596-6c26-4ff2-8da7-c975308e6c89/manifest",
+        "metadata": "{\"Date Created\":[\"undated\"],\"Extent\":[\"1 card\"],\"Identifier\":[\"ark:/88435/sb397d376\"],\"Title\":[\"Pulsford, G. E.\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3556\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/102cb596-6c26-4ff2-8da7-c975308e6c89.jsonld\":{\"system_updated_at\":\"2019-10-13T23:28:22Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T22:03:52Z\",\"@id\":\"https://figgy.princeton.edu/catalog/102cb596-6c26-4ff2-8da7-c975308e6c89\",\"identifier\":[\"ark:/88435/sb397d376\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Pulsford, G. E.\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3556.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/sb397d376\"}}"
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 488,
+    "fields": {
+        "label": "Coeur, le",
+        "short_id": "c8ed4922-cdcf-4448-8617-5ca7599cb894",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/c8ed4922-cdcf-4448-8617-5ca7599cb894/manifest",
+        "metadata": "{\"Date Created\":[\"1935-04-05/1937-04-10\"],\"Extent\":[\"1 card\"],\"Identifier\":[\"ark:/88435/7d278z151\"],\"Title\":[\"Coeur, le\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3237\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/c8ed4922-cdcf-4448-8617-5ca7599cb894.jsonld\":{\"system_updated_at\":\"2019-10-13T23:32:46Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T21:11:58Z\",\"@id\":\"https://figgy.princeton.edu/catalog/c8ed4922-cdcf-4448-8617-5ca7599cb894\",\"identifier\":[\"ark:/88435/7d278z151\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Coeur, le\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3237.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/7d278z151\"}}"
+    }
+},
+{
+    "model": "footnotes.sourcetype",
+    "pk": 2,
+    "fields": {
+        "name": "Lending Library Card",
+        "notes": ""
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 125,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Mr and Mrs Le\u00f3n Edel Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 490
+    }
+},
+{
+    "model": "books.format",
+    "pk": 2,
+    "fields": {
+        "name": "Periodical",
+        "notes": "",
+        "uri": "http://schema.org/Periodical"
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 274,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Madame L. Michaelides Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 45
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 361,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, G.E.Pulsford Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 36
+    }
+},
+{
+    "model": "books.format",
+    "pk": 1,
+    "fields": {
+        "name": "Book",
+        "notes": "",
+        "uri": "http://schema.org/Book"
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 235,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Madame le Coeur Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 488
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 14973,
+    "fields": {
+        "notes": "Reassociated from Leon Edel [EG 11/13/2018]",
+        "start_date_precision": 7,
+        "end_date_precision": 7,
+        "account": 6127,
+        "start_date": "1936-11-19",
+        "end_date": "1936-11-25",
+        "work": 937,
+        "edition": null
+    }
+},
+{
+    "model": "books.work",
+    "pk": 937,
+    "fields": {
+        "notes": "CONSOLIDATE with Young Manhood of Studs Lonigan (ID: 937) -ck Author: S Lonigan\r\nAuthor: Farrell // Complete [JK]\r\nMerged on 2019-09-12 with MEP id mep:00m38b, MEP id mep:00fs5q",
+        "mep_id": "mep:00kq1w",
+        "title": "The Young Manhood of Studs Lonigan",
+        "year": 1934,
+        "uri": "http://worldcat.org/entity/work/id/2863541234",
+        "edition_uri": "http://www.worldcat.org/oclc/970449993",
+        "ebook_url": "",
+        "work_format": 1,
+        "updated_at": "2019-12-02T04:47:37Z",
+        "public_notes": "",
+        "genres": [
+            30,
+            2,
+            10
+        ],
+        "subjects": []
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 6127,
+    "fields": {
+        "card": 125,
+        "persons": [
+            143,
+            142
+        ]
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 19942,
+    "fields": {
+        "notes": "(extra)\r\nissue Oct\r\nYear added, correlated with logbooks [EG 6/20/18]",
+        "start_date_precision": 7,
+        "end_date_precision": 7,
+        "account": 198,
+        "start_date": "1920-10-21",
+        "end_date": "1920-10-25",
+        "work": 4598,
+        "edition": 38
+    }
+},
+{
+    "model": "books.edition",
+    "pk": 38,
+    "fields": {
+        "notes": "",
+        "work": 4598,
+        "title": "",
+        "volume": 69,
+        "number": 4,
+        "year": 1920,
+        "season": "October",
+        "edition": "",
+        "uri": "",
+        "updated_at": "2020-01-22T19:07:05Z",
+        "publisher": [],
+        "pub_places": []
+    }
+},
+{
+    "model": "books.work",
+    "pk": 4598,
+    "fields": {
+        "notes": "PERIODICAL\r\nMerged on 2019-09-12 with MEP id mep:00c75t",
+        "mep_id": "mep:007q5q",
+        "title": "The Dial",
+        "year": null,
+        "uri": "http://worldcat.org/entity/work/id/53956220",
+        "edition_uri": "http://www.worldcat.org/oclc/243873605",
+        "ebook_url": "",
+        "work_format": 2,
+        "updated_at": "2020-01-22T19:08:44Z",
+        "public_notes": "",
+        "genres": [
+            31
+        ],
+        "subjects": [
+            66
+        ]
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 198,
+    "fields": {
+        "card": 274,
+        "persons": [
+            339
+        ]
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 24083,
+    "fields": {
+        "notes": "",
+        "start_date_precision": 6,
+        "end_date_precision": 6,
+        "account": 582,
+        "start_date": "1900-01-12",
+        "end_date": "1900-01-20",
+        "work": 6258,
+        "edition": null
+    }
+},
+{
+    "model": "books.work",
+    "pk": 6258,
+    "fields": {
+        "notes": "Variant titles: Burned Alive; Buried Alive.; Buried_ Alive_",
+        "mep_id": "mep:006m4b",
+        "title": "Buried Alive",
+        "year": 1908,
+        "uri": "http://worldcat.org/entity/work/id/1835056",
+        "edition_uri": "http://www.worldcat.org/oclc/491180155",
+        "ebook_url": "",
+        "work_format": 1,
+        "updated_at": "2019-06-14T17:40:42Z",
+        "public_notes": "",
+        "genres": [
+            2
+        ],
+        "subjects": []
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 582,
+    "fields": {
+        "card": 361,
+        "persons": [
+            412
+        ]
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 18947,
+    "fields": {
+        "notes": "p. 2.80\t",
+        "start_date_precision": null,
+        "end_date_precision": 7,
+        "account": 140,
+        "start_date": null,
+        "end_date": "1936-04-15",
+        "work": 2314,
+        "edition": null
+    }
+},
+{
+    "model": "books.work",
+    "pk": 2314,
+    "fields": {
+        "notes": "Variant titles: Lolly Willows; Lolly willowes",
+        "mep_id": "mep:001s4h",
+        "title": "Lolly Willowes",
+        "year": 1926,
+        "uri": "http://worldcat.org/entity/work/id/31692090",
+        "edition_uri": "http://www.worldcat.org/oclc/986547884",
+        "ebook_url": "",
+        "work_format": 1,
+        "updated_at": "2019-06-14T17:11:23Z",
+        "public_notes": "",
+        "genres": [
+            2
+        ],
+        "subjects": []
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 140,
+    "fields": {
+        "card": 235,
+        "persons": [
+            270
+        ]
+    }
+},
+{
+    "model": "accounts.borrow",
+    "pk": 14973,
+    "fields": {
+        "item_status": "R"
+    }
+},
+{
+    "model": "accounts.borrow",
+    "pk": 19942,
+    "fields": {
+        "item_status": "R"
+    }
+},
+{
+    "model": "accounts.borrow",
+    "pk": 24083,
+    "fields": {
+        "item_status": "R"
+    }
+},
+{
+    "model": "accounts.borrow",
+    "pk": 18947,
+    "fields": {
+        "item_status": "R"
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 8,
+    "fields": {
+        "label": "Marcilly, Francoise de",
+        "short_id": "04c36dc8-5ddf-447d-be18-448ecf5def9d",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/04c36dc8-5ddf-447d-be18-448ecf5def9d/manifest",
+        "metadata": "{\"Date Created\":[\"1929-04-19/1940-10-25\"],\"Extent\":[\"11 cards\"],\"Identifier\":[\"ark:/88435/nc580r78j\"],\"Title\":[\"Marcilly, Francoise de\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3446\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-12-11",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/04c36dc8-5ddf-447d-be18-448ecf5def9d.jsonld\":{\"identifier\":[\"ark:/88435/nc580r78j\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"title\":\"Sylvia Beach Papers C0108\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\"}],\"title\":[{\"@language\":\"eng\",\"@value\":\"Marcilly, Francoise de\"}],\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T21:46:54Z\",\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"pref_label\":\"No Known Copyright\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\"},\"system_updated_at\":\"2019-12-11T02:13:42Z\",\"@id\":\"https://figgy.princeton.edu/catalog/04c36dc8-5ddf-447d-be18-448ecf5def9d\"},\"https://findingaids.princeton.edu/collections/C0108/c3446.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\"}"
+    }
+},
+{
+    "model": "footnotes.sourcetype",
+    "pk": 2,
+    "fields": {
+        "name": "Lending Library Card",
+        "notes": ""
+    }
+},
+{
+    "model": "books.format",
+    "pk": 1,
+    "fields": {
+        "name": "Book",
+        "notes": "",
+        "uri": "http://schema.org/Book"
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 293,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Mme de Marcilly Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 8
+    }
+},
+{
+    "model": "books.work",
+    "pk": 4784,
+    "fields": {
+        "notes": "Variant titles: Vision; A visionAuthor: Yeats",
+        "mep_id": "mep:007h7p",
+        "title": "A Vision",
+        "year": 1925,
+        "uri": "http://worldcat.org/entity/work/id/3943275478",
+        "edition_uri": "http://www.worldcat.org/oclc/12424131",
+        "ebook_url": "",
+        "work_format": 1,
+        "updated_at": "2019-06-14T17:29:32Z",
+        "public_notes": "",
+        "genres": [],
+        "subjects": [
+            1386,
+            1387
+        ]
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 4931,
+    "fields": {
+        "card": 293,
+        "persons": [
+            305
+        ]
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 32262,
+    "fields": {
+        "notes": "EQUIVEXCHANGE",
+        "start_date_precision": null,
+        "end_date_precision": null,
+        "account": 4931,
+        "start_date": null,
+        "end_date": null,
+        "work": 4784,
+        "edition": null
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 70,
+    "fields": {
+        "label": "Morinni, Clara de",
+        "short_id": "1b1b31e4-b340-4768-b43c-5d47dac0afcc",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/1b1b31e4-b340-4768-b43c-5d47dac0afcc/manifest",
+        "metadata": "{\"Date Created\":[\"1935-02-20/1935-09-11\"],\"Extent\":[\"1 card\"],\"Identifier\":[\"ark:/88435/kw52jd19v\"],\"Title\":[\"Morinni, Clara de\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3493\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/1b1b31e4-b340-4768-b43c-5d47dac0afcc.jsonld\":{\"system_updated_at\":\"2019-10-13T23:31:01Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T21:55:07Z\",\"@id\":\"https://figgy.princeton.edu/catalog/1b1b31e4-b340-4768-b43c-5d47dac0afcc\",\"identifier\":[\"ark:/88435/kw52jd19v\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Morinni, Clara de\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3493.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/kw52jd19v\"}}"
+    }
+},
+{
+    "model": "footnotes.sourcetype",
+    "pk": 2,
+    "fields": {
+        "name": "Lending Library Card",
+        "notes": ""
+    }
+},
+{
+    "model": "books.format",
+    "pk": 2,
+    "fields": {
+        "name": "Periodical",
+        "notes": "",
+        "uri": "http://schema.org/Periodical"
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 286,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Madame Jacques de Morinni Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 70
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 32196,
+    "fields": {
+        "notes": "",
+        "start_date_precision": 7,
+        "end_date_precision": 7,
+        "account": 4962,
+        "start_date": "1935-04-28",
+        "end_date": "1935-04-28",
+        "work": 5793,
+        "edition": null
+    }
+},
+{
+    "model": "books.work",
+    "pk": 5793,
+    "fields": {
+        "notes": "PERIODICAL\r\n\r\nVariant titles: T&T; T + T; T&T.; T+ T; Time + Tide.; Time + Tide; time & tide; T+T.; t*T; Time and Tide.; Time & Tide; t & t; \"Time + Tide\"; T+T; t&t; T.T.; Tune + Tide // PERIODICAL [JK]",
+        "mep_id": "mep:003z04",
+        "title": "Time and Tide",
+        "year": null,
+        "uri": "http://worldcat.org/entity/work/id/3372107206",
+        "edition_uri": "http://www.worldcat.org/oclc/145377812",
+        "ebook_url": "",
+        "work_format": 2,
+        "updated_at": "2020-01-28T02:45:38Z",
+        "public_notes": "",
+        "genres": [],
+        "subjects": []
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 4962,
+    "fields": {
+        "card": 286,
+        "persons": [
+            298
+        ]
+    }
+},
+{
+    "model": "accounts.purchase",
+    "pk": 32196,
+    "fields": {
+        "currency": "FRF",
+        "price": "3.25"
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 10942,
+    "fields": {
+        "notes": "",
+        "start_date_precision": null,
+        "end_date_precision": null,
+        "account": 697,
+        "start_date": "1941-12-06",
+        "end_date": "1941-12-06",
+        "work": null,
+        "edition": null
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 697,
+    "fields": {
+        "card": null,
+        "persons": [
+            1698
+        ]
+    }
+},
+{
+    "model": "accounts.reimbursement",
+    "pk": 10942,
+    "fields": {
+        "currency": "FRF",
+        "refund": "50.00"
+    }
+},
+{
+    "model": "djiffy.manifest",
+    "pk": 490,
+    "fields": {
+        "label": "Edel, Bertha (Cohen)",
+        "short_id": "ca089bb3-2269-478d-9a29-260c164126a1",
+        "uri": "https://figgy.princeton.edu/concern/scanned_resources/ca089bb3-2269-478d-9a29-260c164126a1/manifest",
+        "metadata": "{\"Date Created\":[\"1936-11-19/1937-03-16\"],\"Extent\":[\"1 card\"],\"Identifier\":[\"ark:/88435/4j03d3777\"],\"Title\":[\"Edel, Bertha (Cohen)\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3290\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "created": "2019-10-14",
+        "last_modified": "2019-10-14",
+        "extra_data": "{\"https://figgy.princeton.edu/catalog/ca089bb3-2269-478d-9a29-260c164126a1.jsonld\":{\"system_updated_at\":\"2019-10-13T23:31:18Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T21:20:30Z\",\"@id\":\"https://figgy.princeton.edu/catalog/ca089bb3-2269-478d-9a29-260c164126a1\",\"identifier\":[\"ark:/88435/4j03d3777\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Edel, Bertha (Cohen)\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3290.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/4j03d3777\"}}"
+    }
+},
+{
+    "model": "footnotes.sourcetype",
+    "pk": 2,
+    "fields": {
+        "name": "Lending Library Card",
+        "notes": ""
+    }
+},
+{
+    "model": "footnotes.bibliography",
+    "pk": 125,
+    "fields": {
+        "notes": "",
+        "bibliographic_note": "Sylvia Beach, Mr and Mrs Le\u00f3n Edel Lending Library Card, Box 43, Sylvia Beach Papers, Department of Rare Books and Special Collections, Princeton University Library.",
+        "source_type": 2,
+        "manifest": 490
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 8810,
+    "fields": {
+        "notes": "",
+        "start_date_precision": 7,
+        "end_date_precision": 7,
+        "account": 6127,
+        "start_date": "1936-11-19",
+        "end_date": "1936-12-19",
+        "work": null,
+        "edition": null
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 6127,
+    "fields": {
+        "card": 125,
+        "persons": [
+            143,
+            142
+        ]
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 4728,
+    "fields": {
+        "notes": "\"Moynahan paid up\"",
+        "start_date_precision": null,
+        "end_date_precision": null,
+        "account": 6279,
+        "start_date": "1926-04-07",
+        "end_date": "1926-05-07",
+        "work": null,
+        "edition": null
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 6279,
+    "fields": {
+        "card": null,
+        "persons": [
+            8907
+        ]
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 19,
+    "fields": {
+        "notes": "ERROR: can't find this. Logbook images skip from 11/26 to 12/1 [CM 11/13/18]",
+        "start_date_precision": null,
+        "end_date_precision": null,
+        "account": 14,
+        "start_date": "1919-11-29",
+        "end_date": "1920-02-29",
+        "work": null,
+        "edition": null
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 14,
+    "fields": {
+        "card": null,
+        "persons": [
+            649
+        ]
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 32879,
+    "fields": {
+        "notes": "",
+        "start_date_precision": null,
+        "end_date_precision": null,
+        "account": 7045,
+        "start_date": null,
+        "end_date": null,
+        "work": null,
+        "edition": null
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 7045,
+    "fields": {
+        "card": null,
+        "persons": [
+            9687
+        ]
+    }
+},
+{
+    "model": "accounts.subscriptiontype",
+    "pk": 1,
+    "fields": {
+        "name": "A",
+        "notes": ""
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 10284,
+    "fields": {
+        "notes": "",
+        "start_date_precision": null,
+        "end_date_precision": null,
+        "account": 5198,
+        "start_date": null,
+        "end_date": null,
+        "work": null,
+        "edition": null
+    }
+},
+{
+    "model": "accounts.account",
+    "pk": 5198,
+    "fields": {
+        "card": null,
+        "persons": [
+            5107
+        ]
+    }
+},
+{
+    "model": "accounts.subscription",
+    "pk": 8810,
+    "fields": {
+        "currency": "FRF",
+        "duration": 30,
+        "volumes": "2.00",
+        "category": null,
+        "price_paid": "25.00",
+        "deposit": "60.00",
+        "subtype": ""
+    }
+},
+{
+    "model": "accounts.subscription",
+    "pk": 4728,
+    "fields": {
+        "currency": "FRF",
+        "duration": 30,
+        "volumes": "1.00",
+        "category": null,
+        "price_paid": "15.00",
+        "deposit": "20.00",
+        "subtype": "oth"
+    }
+},
+{
+    "model": "accounts.subscription",
+    "pk": 19,
+    "fields": {
+        "currency": "FRF",
+        "duration": 92,
+        "volumes": "1.00",
+        "category": null,
+        "price_paid": "6.40",
+        "deposit": null,
+        "subtype": "sup"
+    }
+},
+{
+    "model": "accounts.subscription",
+    "pk": 32879,
+    "fields": {
+        "currency": "FRF",
+        "duration": null,
+        "volumes": "1.00",
+        "category": null,
+        "price_paid": "50.00",
+        "deposit": "30.00",
+        "subtype": "ren"
+    }
+},
+{
+    "model": "accounts.subscription",
+    "pk": 10284,
+    "fields": {
+        "currency": "FRF",
+        "duration": null,
+        "volumes": "1.00",
+        "category": 1,
+        "price_paid": "25.00",
+        "deposit": "50.00",
+        "subtype": ""
+    }
+},
+{
+    "model": "people.person",
+    "pk": 412,
+    "fields": {
+        "notes": "Demerge? [JK]\r\n\r\nERROX: I don't think there's a warrant to connect these borrowing events to the Pulsford card [JK]\r\n\r\n[ID 11.18]: I agree. Demerged all events from this account.",
+        "start_year": null,
+        "end_year": null,
+        "mep_id": "puls.g",
+        "name": "G. E. Pulsford",
+        "sort_name": "Pulsford, G. E.",
+        "viaf_id": "",
+        "is_organization": false,
+        "verified": false,
+        "slug": "pulsford-g-e",
+        "updated_at": "2020-01-01T20:35:51Z",
+        "gender": "M",
+        "title": "Mr.",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
+    "model": "people.person",
+    "pk": 8907,
+    "fields": {
+        "notes": "ID: RULEFIT: Merged Moynahan on 2019-09-01",
+        "start_year": null,
+        "end_year": null,
+        "mep_id": "",
+        "name": "Mr. Moynahan",
+        "sort_name": "Moynahan, Mr.",
+        "viaf_id": "",
+        "is_organization": false,
+        "verified": false,
+        "slug": "moynahan",
+        "updated_at": "2020-01-01T22:50:05Z",
+        "gender": "M",
+        "title": "Mr.",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
+    "model": "people.person",
+    "pk": 339,
+    "fields": {
+        "notes": "Mrs. L. Michaelides; not sure if \"L\" is her name or her husband's\r\n\r\nID: CARDPROOF:\r\nMerged Michaelides on 2019-07-28\r\nMerged Michaelides on 2019-08-27\r\nMerged Michaelides on 2019-08-27\r\nMerged Michaelides on 2019-08-27\r\nMerged Michaelides on 2019-08-27\r\nMerged Michaelides on 2019-08-27\r\nMerged Michaelides on 2019-08-27\r\nMerged Michaelides on 2019-08-27\r\nMerged MEP id michaelids on 2019-08-27",
+        "start_year": null,
+        "end_year": null,
+        "mep_id": "mich.l",
+        "name": "L. Michaelides",
+        "sort_name": "Michaelides, L.",
+        "viaf_id": "",
+        "is_organization": false,
+        "verified": false,
+        "slug": "michaelides-l",
+        "updated_at": "2020-01-01T23:58:48Z",
+        "gender": "F",
+        "title": "Mrs.",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
+    "model": "people.person",
+    "pk": 9687,
+    "fields": {
+        "notes": "",
+        "start_year": null,
+        "end_year": null,
+        "mep_id": "",
+        "name": "Simone Levy",
+        "sort_name": "Levy, Simone",
+        "viaf_id": "",
+        "is_organization": false,
+        "verified": false,
+        "slug": "levy-simone",
+        "updated_at": "2019-11-19T14:47:34Z",
+        "gender": "",
+        "title": "",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
+    "model": "people.person",
+    "pk": 270,
+    "fields": {
+        "notes": "all addresses except Jean Dolent address are summer addresses\r\nMadame Lecoeur, 1935\r\n\r\nID: CARDPROOF:\r\nMerged Lecoeur on 2019-08-20\r\nMerged Lecoeur on 2019-08-20\r\nMerged Lecoeur on 2019-08-20\r\nMerged MEP id lecueur on 2019-08-20",
+        "start_year": null,
+        "end_year": null,
+        "mep_id": "coeu",
+        "name": "Mme Lecoeur",
+        "sort_name": "Lecoeur, Mme",
+        "viaf_id": "",
+        "is_organization": false,
+        "verified": true,
+        "slug": "lecoeur",
+        "updated_at": "2020-01-03T20:19:44Z",
+        "gender": "F",
+        "title": "Mme",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
+    "model": "people.person",
+    "pk": 5107,
+    "fields": {
+        "notes": "",
+        "start_year": null,
+        "end_year": null,
+        "mep_id": "",
+        "name": "Kanapa",
+        "sort_name": "Kanapa",
+        "viaf_id": "",
+        "is_organization": false,
+        "verified": false,
+        "slug": "kanapa",
+        "updated_at": "2019-11-19T14:47:33Z",
+        "gender": "",
+        "title": "",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
+    "model": "people.person",
+    "pk": 142,
+    "fields": {
+        "notes": "Merged MEP id edel on 2018-05-10",
+        "start_year": 1907,
+        "end_year": 1997,
+        "mep_id": "edel.le",
+        "name": "Leon Edel",
+        "sort_name": "Edel, Leon",
+        "viaf_id": "http://viaf.org/viaf/108589496",
+        "is_organization": false,
+        "verified": false,
+        "slug": "edel-leon",
+        "updated_at": "2020-01-11T21:38:02Z",
+        "gender": "M",
+        "title": "Mr.",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": [
+            8,
+            1
+        ]
+    }
+},
+{
+    "model": "people.person",
+    "pk": 143,
+    "fields": {
+        "notes": "Mrs. Leon Edel",
+        "start_year": null,
+        "end_year": null,
+        "mep_id": "edel.be",
+        "name": "Bertha (Cohen) Edel / Mrs. Leon Edel",
+        "sort_name": "Edel, Bertha",
+        "viaf_id": "",
+        "is_organization": false,
+        "verified": false,
+        "slug": "edel-bertha",
+        "updated_at": "2020-01-02T22:15:24Z",
+        "gender": "F",
+        "title": "",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": [
+            1
+        ]
+    }
+},
+{
+    "model": "people.person",
+    "pk": 649,
+    "fields": {
+        "notes": "ID: RULEFIT: REIMMATCH:\r\nMerged de Neufville on 2019-09-01\r\nMerged de Neufville on 2019-09-01\r\nMerged de Neufville on 2019-09-01\r\nMerged de Neufville on 2019-09-01\r\nMerged MEP id neuv on 2019-09-01",
+        "start_year": null,
+        "end_year": null,
+        "mep_id": "neuf.ag",
+        "name": "Agn\u00e8s de Neufville",
+        "sort_name": "de Neufville, Agn\u00e8s",
+        "viaf_id": "",
+        "is_organization": false,
+        "verified": false,
+        "slug": "neufville-agnes-de",
+        "updated_at": "2020-02-07T17:31:52Z",
+        "gender": "F",
+        "title": "Mlle",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
+    "model": "people.person",
+    "pk": 298,
+    "fields": {
+        "notes": "Madame Jacques de Morinni\r\n\r\nID: CARDPROOF:\r\nMerged de Morinni on 2019-09-01\r\nMerged de Morinni on 2019-09-01\r\nMerged de Morinni on 2019-09-01",
+        "start_year": null,
+        "end_year": null,
+        "mep_id": "mori.cl",
+        "name": "Clara de Morinni",
+        "sort_name": "de Morinni, Clara",
+        "viaf_id": "",
+        "is_organization": false,
+        "verified": false,
+        "slug": "morinni",
+        "updated_at": "2020-02-07T17:23:33Z",
+        "gender": "F",
+        "title": "",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
+    "model": "people.person",
+    "pk": 305,
+    "fields": {
+        "notes": "Mme de Marcilly\r\n\r\n5/8/34 1m\r\nMerged MEP id marcilly on 2018-05-13\r\n\r\nMissingSub according to card [JK 5/13/18]\r\n\r\nID: CARDPROOF:\r\nMerged de Marcilly on 2019-08-24\r\nMerged Marcilly on 2019-08-24\r\nMerged Marcilly on 2019-08-24\r\nMerged de Marcilly on 2019-08-24\r\nMerged de Marcilly on 2019-08-24",
+        "start_year": 1905,
+        "end_year": 2000,
+        "mep_id": "marc.fr",
+        "name": "Francoise de Marcilly",
+        "sort_name": "de Marcilly, Francoise",
+        "viaf_id": "http://viaf.org/viaf/19901517",
+        "is_organization": false,
+        "verified": true,
+        "slug": "marcilly",
+        "updated_at": "2020-02-07T17:35:15Z",
+        "gender": "F",
+        "title": "Mme",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": [
+            2
+        ]
+    }
+},
+{
+    "model": "people.person",
+    "pk": 1698,
+    "fields": {
+        "notes": "",
+        "start_year": null,
+        "end_year": null,
+        "mep_id": "brue",
+        "name": "Mme Bruel",
+        "sort_name": "Bruel, Mme",
+        "viaf_id": "",
+        "is_organization": false,
+        "verified": false,
+        "slug": "bruel",
+        "updated_at": "2020-01-03T00:24:10Z",
+        "gender": "F",
+        "title": "Mme",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+}
+]
+
