@@ -531,6 +531,14 @@ class TestExportEvents(TestCase):
         assert os.path.exists(os.path.join(tempdir.name, 'events.json'))
         assert os.path.exists(os.path.join(tempdir.name, 'events.csv'))
 
+        with patch('mep.accounts.management.commands.export_events' +
+                   '.Command.event_data') as mock_event_data:
+            mock_event_data.return_value = {'event type': 'test'}
+            call_command('export_events', '-d', tempdir.name, '-m', 2,
+                         stdout=stdout)
+            # 2 objects * 2 (once each for CSV, JSON)
+            assert mock_event_data.call_count == 4
+
 
 @patch('mep.accounts.management.commands.export_events.progressbar')
 class TestStreamArray(TestCase):

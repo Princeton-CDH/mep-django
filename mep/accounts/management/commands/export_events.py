@@ -56,16 +56,18 @@ class Command(BaseCommand):
         parser.add_argument(
             '-d', '--directory',
             help='Specify the directory where files should be generated')
+        parser.add_argument(
+            '-m', '--max', type=int,
+            help='Maximum number of events to export (for testing)')
 
     def handle(self, *args, **kwargs):
-
         base_filename = 'events'
         if kwargs['directory']:
             base_filename = os.path.join(kwargs['directory'], base_filename)
 
         # generate filenames based on slug ?
         # Can we use the same data to generate both CSV and JSON?
-        data = self.get_data()
+        data = self.get_data(kwargs.get('max'))
         self.stdout.write('Exporting JSON')
         # list of dictionaries can be output as is for JSON export
         with open('{}.json'.format(base_filename), 'w') as jsonfile:
@@ -74,7 +76,8 @@ class Command(BaseCommand):
 
         # generate CSV export
         self.stdout.write('Exporting CSV')
-        data = self.get_data()  # get again because it's a generator
+        # need to get the data again, since it's a generator
+        data = self.get_data(kwargs.get('max'))
         with open('{}.csv'.format(base_filename), 'w') as csvfile:
             # write utf-8 byte order mark at the beginning of the file
             csvfile.write(codecs.BOM_UTF8.decode())
@@ -85,18 +88,14 @@ class Command(BaseCommand):
             for row in data:
                 csvwriter.writerow(self.flatten_dict(row))
 
-    def get_data(self):
-        # aggregate data to be exported for use in generating
-        # CSV and JSON output
-        return StreamArray((self.event_data(event)
-                            for event in Event.objects.all()),
-                           Event.objects.count())
-
-        # limit = 10000
-        # # TODO: order? maybe by date by default?
-        # return StreamArray((self.event_data(event)
-        #                     for event in Event.objects.all()[:limit]),
-        #                    limit)
+    def get_data(self, maximum=None):
+        # get event objects to be exported
+        events = Event.objects.all()
+        # grab the first N if maximum is specified
+        if maximum:
+            events = events[:maximum]
+        return StreamArray((self.event_data(event) for event in events),
+                           events.count())
 
     def event_data(self, event):
         '''Generate a dictionary of data to export for a single
