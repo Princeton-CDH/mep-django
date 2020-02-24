@@ -1,5 +1,6 @@
 import codecs
 import os.path
+from collections import OrderedDict
 from datetime import date, timedelta
 from io import StringIO
 from tempfile import NamedTemporaryFile
@@ -20,6 +21,7 @@ from djiffy.models import Canvas, Manifest
 from mep.accounts.management.commands import import_figgy_cards, \
     report_timegaps, export_events
 from mep.accounts.models import Account, Borrow, Event
+from mep.common.utils import absolutize_url
 from mep.footnotes.models import Bibliography, Footnote
 
 
@@ -392,10 +394,84 @@ class TestManifestImportWithRendering:
 
 
 class TestExportEvents(TestCase):
+    fixtures = ['test_events']
 
     def setUp(self):
         self.cmd = export_events.Command()
         self.cmd.stdout = StringIO()
+
+    def test_flatten_dict(self):
+        # flat dict should not be changed
+        flat = {'one': 'a', 'two': 'b'}
+        assert flat == self.cmd.flatten_dict(flat)
+
+        # list should be converted to string
+        listed = {'one': ['a', 'b']}
+        flat_listed = self.cmd.flatten_dict(listed)
+        assert flat_listed['one'] == 'a;b'
+
+        # nested dict should have keys combined and be flatted
+        nested = {
+            'page': {
+                'id': 'p1',
+                'label': 'one'
+            }
+        }
+        flat_nested = self.cmd.flatten_dict(nested)
+        assert 'page id' in flat_nested
+        assert 'page label' in flat_nested
+        assert flat_nested['page id'] == nested['page']['id']
+        assert flat_nested['page label'] == nested['page']['label']
+
+    def test_get_data(self):
+        data = self.cmd.get_data()
+        assert isinstance(data, export_events.StreamArray)
+        assert data.total == Event.objects.count()
+        event_data = list(data)
+        assert len(event_data) == Event.objects.count()
+        assert isinstance(event_data[0], OrderedDict)
+
+    def test_member_data(self):
+        # test single member data
+        event = Event.objects.filter(account__persons__name__contains="Brue") \
+            .first()
+        person = event.account.persons.first()
+        member_info = self.cmd.member_data(event)
+        assert member_info['sort names'][0] == person.sort_name
+        assert member_info['names'][0] == person.name
+        assert member_info['URIs'][0] == \
+            absolutize_url(person.get_absolute_url())
+
+        # event with two members; fixture includes Edel joint account
+        event = Event.objects.filter(account__persons__name__contains="Edel") \
+            .first()
+
+        member_info = self.cmd.member_data(event)
+        # each field should have two values
+        for field in ('sort names', 'names', 'URIs'):
+            assert len(member_info[field]) == 2
+
+        # TODO: test no member? or is that invalid
+
+    def test_subscription_data(self):
+        # get a subscription with no subcategory and both dates
+        event = Event.objects.filter(
+            subscription__isnull=False,
+            start_date__isnull=False, end_date__isnull=False,
+            subscription__category__isnull=True) \
+            .first()
+        subs = event.subscription
+        info = self.cmd.subscription_data(event)
+        assert info['price paid'] == '%s%.2f' % (subs.currency_symbol(),
+                                                 subs.price_paid)
+        # test event has no deposit amount
+        assert info['deposit'] == '%s0.00' % subs.currency_symbol()
+        assert info['duration'] == subs.readable_duration()
+        assert info['duration days'] == subs.duration
+        assert info['volumes'] == subs.volumes
+
+        # test category subtype,
+        # testing missing dates = no duration
 
 
 @patch('mep.accounts.management.commands.export_events.progressbar')

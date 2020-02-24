@@ -16,6 +16,7 @@ import json
 import os.path
 from collections import OrderedDict
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 import progressbar
 
@@ -85,7 +86,7 @@ class Command(BaseCommand):
                 csvwriter.writerow(self.flatten_dict(row))
 
     def get_data(self):
-        # aggregate  data to be exported for use in generating
+        # aggregate data to be exported for use in generating
         # CSV and JSON output
         return StreamArray((self.event_data(event)
                             for event in Event.objects.all()),
@@ -100,18 +101,6 @@ class Command(BaseCommand):
     def event_data(self, event):
         '''Generate a dictionary of data to export for a single
          :class:`~mep.accounts.models.Event`'''
-
-        # #: fields for CSV output
-        #   csv_fields = [
-        #       'member names', 'member sort names', 'member URIs', 'event type',
-        #       'start date', 'end date', 'subscription category',
-        #       'subscription volumes', 'subscription duration', 'subscription days',
-        #       'price paid', 'refund', 'deposit',
-        #       'work title',  # work URI TBD
-        #       'edition title', 'borrow status', 'notes'
-        #       'source', 'source manifest', 'source image'
-        #   ]
-
         event_type = event.event_type
         data = OrderedDict([
             ('event type', event_type),
@@ -119,42 +108,37 @@ class Command(BaseCommand):
             ('end date', event.partial_end_date or ''),
             ('member', OrderedDict()),
         ])
-        members = event.account.persons.all()
-        if members:
-            data['member']['sort names'] = [m.sort_name for m in members]
-            data['member']['names'] = [m.name for m in members]
-            data['member']['URIs'] = [absolutize_url(m.get_absolute_url())
-                                      for m in members]
+        member_info = self.member_data(event)
+        if member_info:
+            data['members'] = member_info
 
+        # variable to store footnote reference
         footnote = None
+
+        subscription_info = self.subscription_data(event)
+        if subscription_info:
+            data['subscription'] = subscription_info
 
         # subscription-specific data
         if event_type in ['Subscription', 'Supplement', 'Renewal']:
-            subs = event.subscription
-            subscription_info = OrderedDict([
-                ('price paid', '%s%.2f' % (subs.currency_symbol(),
-                                           subs.price_paid or 0)),
-                ('deposit', '%s%.2f' % (subs.currency_symbol(),
-                                        subs.deposit or 0))
-            ])
-            if subs.duration:
-                subscription_info['duration'] = subs.readable_duration()
-                subscription_info['duration days'] = subs.duration
-            if subs.volumes:
-                subscription_info['volumes'] = int(subs.volumes)
-            if subs.category:
-                subscription_info['category'] = subs.category.name
-            data['subscription'] = subscription_info
+            data['subscription'] = self.subscription_data(event)
 
+        # reimbursement data
         elif event_type in 'Reimbursement' and event.reimbursement.refund:
             data['reimbursement'] = {
                 'refund': '%s%.2f' %
                 (event.reimbursement.currency_symbol(), event.reimbursement.refund)
             }
+
+        # borrow data
         elif event_type == 'Borrow':
-            data['borrow'] = {'status': event.borrow.get_item_status_display()}
+            data['borrow'] = {
+                'status': event.borrow.get_item_status_display()
+            }
+            # capture a footnote if there is one
             footnote = event.borrow.footnotes.first()
 
+        # purchase data
         elif event_type == 'Purchase' and event.purchase.price:
             data['purchase'] = {
                 'price': '%s%.2f' %
@@ -162,10 +146,56 @@ class Command(BaseCommand):
             }
             footnote = event.purchase.footnotes.first()
 
-        # generic event - check for footnotes
-        else:
-            footnote = footnote or event.event_footnotes.first()
+        # check for footnote on the generic event if one was not already found
+        footnote = footnote or event.event_footnotes.first()
 
+        item_info = self.item_info(event)
+        if item_info:
+            data['item'] = item_info
+
+        if event.notes:
+            data['notes'] = event.notes
+        if footnote:
+            data['source'] = self.source_info(footnote)
+        return data
+
+    def member_data(self, event):
+        '''Event about member(s) for the account associated with an event.'''
+        members = event.account.persons.all()
+        # return if no member attached
+        if not members:
+            return
+
+        return OrderedDict([
+            ('sort names', [m.sort_name for m in members]),
+            ('names', [m.name for m in members]),
+            ('URIs', [absolutize_url(m.get_absolute_url()) for m in members])
+        ])
+
+    def subscription_data(self, event):
+        '''subscription details for an event'''
+        # bail out if this event is not a subscription
+        try:
+            subs = event.subscription
+        except ObjectDoesNotExist:
+            return
+
+        info = OrderedDict([
+            ('price paid', '%s%.2f' % (subs.currency_symbol(),
+                                       subs.price_paid or 0)),
+            ('deposit', '%s%.2f' % (subs.currency_symbol(),
+                                    subs.deposit or 0))
+        ])
+        if subs.duration:
+            info['duration'] = subs.readable_duration()
+            info['duration days'] = subs.duration
+        if subs.volumes:
+            info['volumes'] = int(subs.volumes)
+        if subs.category:
+            info['category'] = subs.category.name
+        return info
+
+    def item_info(self, event):
         if event.work:
             item_info = OrderedDict([
                 ('title', event.work.title),
@@ -178,11 +208,10 @@ class Command(BaseCommand):
             if event.work.public_notes:
                 item_info['notes'] = event.work.public_notes
 
-            data['item'] = item_info
+            return item_info
 
-        if event.notes:
-            data['notes'] = event.notes
-
+    def source_info(self, footnote):
+        '''source details from a footnote'''
         if footnote:
             source_info = OrderedDict([
                 ('citation', footnote.bibliography.bibliographic_note)
@@ -194,9 +223,7 @@ class Command(BaseCommand):
                     source_info['image'] = footnote.image.iiif_image_id
                     # image id in manifest: /full/1000,/0/default.jpg
                     # source_info['image'] = footnote.image.uri
-            data['source'] = source_info
-
-        return data
+            return source_info
 
     def flatten_dict(self, data):
         '''Flatten a dictionary with nested dictionaries or lists into a
