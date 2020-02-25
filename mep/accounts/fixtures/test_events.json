@@ -1114,7 +1114,10 @@
         "bibliography": 385,
         "location": "https://figgy.princeton.edu/concern/scanned_resources/cdf6e9e8-feb7-4b78-9b59-19a747d96d7c/manifest/canvas/90102718-51cb-4a5d-a7d8-4c5bd5f8f45f",
         "snippet_text": "",
-        "content_type": 2,
+        "content_type": [
+            "accounts",
+            "event"
+        ],
         "object_id": 32444,
         "is_agree": true,
         "image": 1831
@@ -1128,7 +1131,10 @@
         "bibliography": 125,
         "location": "https://figgy.princeton.edu/concern/scanned_resources/ca089bb3-2269-478d-9a29-260c164126a1/manifest/canvas/ff227e06-065b-4c4c-8b35-70f7763077b6",
         "snippet_text": "",
-        "content_type": 3,
+        "content_type": [
+            "accounts",
+            "borrow"
+        ],
         "object_id": 14973,
         "is_agree": true,
         "image": 1767
