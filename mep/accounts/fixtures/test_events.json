@@ -1139,5 +1139,27 @@
         "is_agree": true,
         "image": 1767
     }
+},
+{
+    "model": "accounts.account",
+    "pk": 18,
+    "fields": {
+        "card": null,
+        "persons": []
+    }
+},
+{
+    "model": "accounts.event",
+    "pk": 18,
+    "fields": {
+        "notes": "Event irregularity\r\nNo person is associated with this account via mepid.",
+        "start_date_precision": null,
+        "end_date_precision": null,
+        "account": 18,
+        "start_date": "1919-11-28",
+        "end_date": "1919-12-28",
+        "work": null,
+        "edition": null
+    }
 }
 ]

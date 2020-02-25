@@ -461,7 +461,9 @@ class TestExportEvents(TestCase):
         for field in ('sort names', 'names', 'URIs'):
             assert len(member_info[field]) == 2
 
-        # TODO: test no member? or is that invalid
+        # test event with account but no person
+        nomember = Event.objects.filter(account__persons__isnull=True).first()
+        assert not self.cmd.member_info(nomember)
 
     def test_subscription_info(self):
         # get a subscription with no subcategory and both dates
