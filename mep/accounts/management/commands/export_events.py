@@ -66,7 +66,6 @@ class Command(BaseCommand):
         if kwargs['directory']:
             base_filename = os.path.join(kwargs['directory'], base_filename)
 
-        # generate filenames based on slug ?
         # Can we use the same data to generate both CSV and JSON?
         data = self.get_data(kwargs.get('max'))
         self.stdout.write('Exporting JSON')
@@ -127,7 +126,8 @@ class Command(BaseCommand):
         elif event_type in 'Reimbursement' and event.reimbursement.refund:
             data['reimbursement'] = {
                 'refund': '%s%.2f' %
-                (event.reimbursement.currency_symbol(), event.reimbursement.refund)
+                (event.reimbursement.currency_symbol(),
+                 event.reimbursement.refund)
             }
 
         # borrow data
