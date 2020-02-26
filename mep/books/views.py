@@ -34,6 +34,13 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         kwargs = super().get_form_kwargs()
         form_data = self.request.GET.copy()
 
+        # always use relevance sort for keyword search;
+        # otherwise use default (sort by name)
+        if form_data.get('query', None):
+            form_data['sort'] = 'relevance'
+        else:
+            form_data['sort'] = self.initial['sort']
+
         # set defaults
         for key, val in self.initial.items():
             form_data.setdefault(key, val)
@@ -49,19 +56,15 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     # map form sort to solr sort
     solr_sort = {
         'relevance': '-score',
-        'title': 'title_s',
+        'title': 'sort_title_isort',
     }
 
     #: bib data query alias field syntax (type defaults to edismax in solr config)
     search_bib_query = '{!qf=$bib_qf pf=$bib_pf v=$bib_query}'
 
     def get_queryset(self):
-        # NOTE faceting on several fields as placeholders, no UI yet
-        sqs = WorkSolrQuerySet() \
-            .facet_field('pub_date_i') \
-            .facet_field('format_s') \
-            .facet_field('authors_t') \
-            .facet_field('creators_t')
+        # NOTE faceting on format as placeholder, no UI yet
+        sqs = WorkSolrQuerySet().facet_field('format')
             
         form = self.get_form()
 
@@ -85,8 +88,20 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        self._form.set_choices_from_facets(
-            self.object_list.get_facets()['facet_fields'])
+        facets = self.object_list.get_facets().get('facet_fields', None)
+        error_message = ''
+        # facets are not set if there is an error on the query
+        if facets:
+            self._form.set_choices_from_facets(facets)
+        else:
+            # if facets are not set, the query errored
+            error_message = 'Something went wrong.'
+
+        context.update({
+            'page_title': self.page_title,
+            'page_description': self.page_description,
+            'error_message': error_message
+        })
         return context
 
     def get_page_labels(self, paginator):
@@ -110,7 +125,7 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         # reverse() via get_absolute_url(), which needs the urlconf to be loaded
         return [
             ('Home', absolutize_url('/')),
-            ('Books', self.get_absolute_url())
+            (self.page_title, self.get_absolute_url())
         ]
 
 

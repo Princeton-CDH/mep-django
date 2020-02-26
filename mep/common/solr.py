@@ -16,6 +16,6 @@ class SolrSchema(schema.SolrSchema):
         # ngram version of names for searching
         'name_t': 'name_ngram',
         'sort_name_t': 'name_ngram',
-        # more aggressively processed item titles with lower boost
-        'title_t': 'title_txt_en' 
+        # ngram version of titles for searching
+        'title_txt_en': 'title_ngram',
     }

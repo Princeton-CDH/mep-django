@@ -387,9 +387,11 @@ class Work(Notable, ModelIndexable):
         index_data = super().index_data()
 
         index_data.update({
-            'title_t': self.title, # will be copyfield'd into `title_txt_en`
+            'title_txt_en': self.title,
+            'sort_title_isort': self.title, # use title directly for sorting for now
             'pk_i': self.pk, # NOTE include pk for now for item detail url
             'authors_t': [str(a) for a in self.authors] if self.authors else None,
+            'sort_authors_isort': self.sort_author_list,
             'creators_t': self.creator_names,
             'pub_date_i': self.year,
             'format_s': self.format(),

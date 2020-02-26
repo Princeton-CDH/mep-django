@@ -118,7 +118,7 @@ class TestWorkListView(TestCase):
         view.request = self.factory.get(self.url)
         # if form is valid, should return all works sorted by chosen sort
         form.is_valid.return_value = True
-        form.cleaned_data = {'sort': 'title'}  # becomes 'title_s'
+        form.cleaned_data = {'sort': 'title'}
         solr_qs = view.get_queryset()
         db_qs = Work.objects.order_by('title')
         # querysets from solr and db should match
