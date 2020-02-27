@@ -76,7 +76,7 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         else:
             search_opts = form.cleaned_data
 
-            if search_opts['query']:
+            if search_opts.get('query', None):
                 sqs = sqs.search(self.search_bib_query) \
                          .raw_query_parameters(bib_query=search_opts['query']) \
                          .also('score')  # include relevance score in results
