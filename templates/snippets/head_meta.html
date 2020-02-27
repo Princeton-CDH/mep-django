@@ -53,6 +53,8 @@ page_description, and page_meta_image if set in context.
 {% with default_image="img/social-launching-2020.png" %}
 {% if page.contentpage.featured_image %}
     {% image page.contentpage.featured_image max-1080x1080 as featured_image %}
+{% elif page.essaypage.featured_image %}
+    {% image page.essaypage.featured_image max-1080x1080 as featured_image %}
 {% elif page.landingpage.header_image %}
     {% image page.landingpage.header_image max-1080x1080 as featured_image %}
 {% endif %}
