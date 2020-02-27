@@ -3,6 +3,12 @@
 CHANGELOG
 =========
 
+0.26
+----
+
+* As an admin, I want to generate a data download for events so that I can deposit and version the data for others to use.
+* As a user, when I'm viewing a single card image I want to navigate to any card images associated with the same member so that I can see all of their borrowing activity in context.
+
 0.25
 ----
 
