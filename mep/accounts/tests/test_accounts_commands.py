@@ -1,8 +1,9 @@
 import codecs
 import os.path
+from collections import OrderedDict
 from datetime import date, timedelta
 from io import StringIO
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest.mock import Mock, patch
 
 from dateutil.relativedelta import relativedelta
@@ -18,8 +19,9 @@ from django.test import TestCase
 from djiffy.models import Canvas, Manifest
 
 from mep.accounts.management.commands import import_figgy_cards, \
-    report_timegaps
+    report_timegaps, export_events
 from mep.accounts.models import Account, Borrow, Event
+from mep.common.utils import absolutize_url
 from mep.footnotes.models import Bibliography, Footnote
 
 
@@ -389,3 +391,204 @@ class TestManifestImportWithRendering:
         result = importer.import_manifest(mock_manifest, path)
         assert 'rendering' in result.extra_data
         assert result.extra_data['rendering'] == mock_manifest.rendering
+
+
+class TestExportEvents(TestCase):
+    fixtures = ['test_events']
+
+    def setUp(self):
+        self.cmd = export_events.Command()
+        self.cmd.stdout = StringIO()
+
+    def test_flatten_dict(self):
+        # flat dict should not be changed
+        flat = {'one': 'a', 'two': 'b'}
+        assert flat == self.cmd.flatten_dict(flat)
+
+        # list should be converted to string
+        listed = {'one': ['a', 'b']}
+        flat_listed = self.cmd.flatten_dict(listed)
+        assert flat_listed['one'] == 'a;b'
+
+        # nested dict should have keys combined and be flatted
+        nested = {
+            'page': {
+                'id': 'p1',
+                'label': 'one'
+            }
+        }
+        flat_nested = self.cmd.flatten_dict(nested)
+        assert 'page id' in flat_nested
+        assert 'page label' in flat_nested
+        assert flat_nested['page id'] == nested['page']['id']
+        assert flat_nested['page label'] == nested['page']['label']
+
+        # nested with list
+        nested_list = {
+            'page': {
+                'id': 'p1',
+                'label': ['one', 'two']
+            }
+        }
+        flat_nested = self.cmd.flatten_dict(nested_list)
+        assert flat_nested['page label'] == 'one;two'
+
+    def test_get_data(self):
+        data = self.cmd.get_data()
+        assert isinstance(data, export_events.StreamArray)
+        assert data.total == Event.objects.count()
+        event_data = list(data)
+        assert len(event_data) == Event.objects.count()
+        assert isinstance(event_data[0], OrderedDict)
+
+    def test_member_info(self):
+        # test single member data
+        event = Event.objects.filter(account__persons__name__contains="Brue") \
+            .first()
+        person = event.account.persons.first()
+        member_info = self.cmd.member_info(event)
+        assert member_info['sort names'][0] == person.sort_name
+        assert member_info['names'][0] == person.name
+        assert member_info['URIs'][0] == \
+            absolutize_url(person.get_absolute_url())
+
+        # event with two members; fixture includes Edel joint account
+        event = Event.objects.filter(account__persons__name__contains="Edel") \
+            .first()
+
+        member_info = self.cmd.member_info(event)
+        # each field should have two values
+        for field in ('sort names', 'names', 'URIs'):
+            assert len(member_info[field]) == 2
+
+        # test event with account but no person
+        nomember = Event.objects.filter(account__persons__isnull=True).first()
+        assert not self.cmd.member_info(nomember)
+
+    def test_subscription_info(self):
+        # get a subscription with no subcategory and both dates
+        event = Event.objects.filter(
+            subscription__isnull=False,
+            start_date__isnull=False, end_date__isnull=False,
+            subscription__category__isnull=True) \
+            .first()
+        subs = event.subscription
+        info = self.cmd.subscription_info(event)
+        assert info['price paid'] == '%s%.2f' % (subs.currency_symbol(),
+                                                 subs.price_paid)
+        # test event has no deposit amount
+        assert info['deposit'] == '%s0.00' % subs.currency_symbol()
+        assert info['duration'] == subs.readable_duration()
+        assert info['duration days'] == subs.duration
+        assert info['volumes'] == subs.volumes
+        assert 'category' not in info
+
+        # category subtype
+        event = Event.objects.filter(
+            subscription__category__isnull=False).first()
+        info = self.cmd.subscription_info(event)
+        assert info['category'] == event.subscription.category.name
+
+        # missing dates = no duration
+        event = Event.objects.filter(
+            subscription__isnull=False, end_date__isnull=True).first()
+        info = self.cmd.subscription_info(event)
+        assert 'duration' not in info
+        assert 'duration days' not in info
+
+        # non-subscription
+        event = Event.objects.filter(subscription__isnull=True).first()
+        assert not self.cmd.subscription_info(event)
+
+    def test_item_data(self):
+        # with work uri and notes
+        event = Event.objects.filter(work__isnull=False, edition__isnull=True)\
+            .exclude(work__uri='').exclude(work__public_notes='').first()
+        info = self.cmd.item_info(event)
+        assert info['title'] == event.work.title
+        assert info['work uri'] == event.work.uri
+        assert info['notes'] == event.work.public_notes
+        assert 'volume' not in info
+
+        # without work uri and notes
+        event = Event.objects.filter(
+            work__isnull=False, work__uri='',
+            work__public_notes='').first()
+        info = self.cmd.item_info(event)
+        assert 'work uri' not in info
+        assert 'notes' not in info
+
+        # event with known edition
+        event = Event.objects.filter(edition__isnull=False).first()
+        info = self.cmd.item_info(event)
+        assert info['volume'] == str(event.edition)
+
+        # no work, no item data
+        event = Event.objects.filter(work__isnull=True).first()
+        assert not self.cmd.item_info(event)
+
+    def test_source_info(self):
+        # footnote
+        event = Event.objects.filter(event_footnotes__isnull=False).first()
+        footnote = event.event_footnotes.first()
+        info = self.cmd.source_info(footnote)
+        assert info['citation'] == footnote.bibliography.bibliographic_note
+        assert info['manifest'] == footnote.bibliography.manifest.uri
+        assert info['image'] == str(footnote.image.image)
+
+    def test_command_line(self):
+        # test calling via command line with args
+        tempdir = TemporaryDirectory()
+        stdout = StringIO()
+        call_command('export_events', '-d', tempdir.name, stdout=stdout)
+        output = stdout.getvalue()
+        assert 'Exporting JSON' in output
+        assert 'Exporting CSV' in output
+        assert os.path.exists(os.path.join(tempdir.name, 'events.json'))
+        assert os.path.exists(os.path.join(tempdir.name, 'events.csv'))
+
+        with patch('mep.accounts.management.commands.export_events' +
+                   '.Command.event_data') as mock_event_data:
+            mock_event_data.return_value = {'event type': 'test'}
+            call_command('export_events', '-d', tempdir.name, '-m', 2,
+                         stdout=stdout)
+            # 2 objects * 2 (once each for CSV, JSON)
+            assert mock_event_data.call_count == 4
+
+
+@patch('mep.accounts.management.commands.export_events.progressbar')
+class TestStreamArray(TestCase):
+
+    def test_init(self, mockprogbar):
+        total = 5
+        gen = (i for i in range(total))
+
+        streamer = export_events.StreamArray(gen, total)
+        assert streamer.gen == gen
+        assert streamer.progress == 0
+        assert streamer.total == total
+
+        mockprogbar.ProgressBar.assert_called_with(redirect_stdout=True,
+                                                   max_value=total)
+        assert streamer.progbar == mockprogbar.ProgressBar.return_value
+
+    def test_len(self, mockprogbar):
+        total = 5
+        gen = (i for i in range(total))
+        streamer = export_events.StreamArray(gen, total)
+        assert len(streamer) == total
+
+    def test_iter(self, mockprogbar):
+        total = 2
+        gen = (i for i in range(total))
+        streamer = export_events.StreamArray(gen, total)
+        values = []
+        for val in streamer:
+            values.append(val)
+
+        assert values == [i for i in range(total)]
+        assert streamer.progress == total
+        # progress bar update should be called once per item
+        assert streamer.progbar.update.call_count == total
+        # progress bar finish should be called once when iteration completes
+        assert streamer.progbar.finish.call_count == 1

@@ -85,8 +85,9 @@
     }
 
     // penultimate item (before active one) needs to make its right-side border green
+    // but don't do this on mobile since the active item isn't shown
     li:nth-last-of-type(2) a::before {
-        border-left-color: $green;
+        @media (min-width: $breakpoint-s) { border-left-color: $green; }
     }
 
     // remove default hover styles for links
@@ -101,9 +102,15 @@
     }
 
     // last item is the active one, green border
+    // on mobile it isn't shown to conserve space
     span {
         border-color: $green;
         font-weight: bold;
+        display: none;
+
+        @media (min-width: $breakpoint-s) {
+            display: flex;
+        }
 
         &::before {
             border-left-color: $green;
