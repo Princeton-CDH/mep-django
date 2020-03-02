@@ -41,7 +41,7 @@ export default class MainMenu {
         this.element.style.opacity = '0'
         this.element.style.pointerEvents = 'none'
         this.element.setAttribute('aria-hidden', 'true')
-        document.body.style.overflowY = null
+        document.body.style.overflowY = ''
         return new Promise(resolve => setTimeout(resolve, this.transitionDuration))
     }
 }
