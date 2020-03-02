@@ -5,9 +5,6 @@ Generates a CSV and JSON file including details on every event in the
 database with summary details and URIs for associated library member(s)
 and book (for events linked to books).
 
-Takes an optional argument to specify the output directory. Otherwise,
-files are created in the current directory.
-
 '''
 
 from collections import OrderedDict

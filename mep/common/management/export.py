@@ -14,7 +14,9 @@ from django.core.management.base import BaseCommand, ImproperlyConfigured
 
 class BaseExport(BaseCommand):
     '''
-    Export model data in CSV and JSON formats.
+    Export model data in CSV and JSON formats. Takes an optional argument to
+    specify the output directory. Otherwise, files are created in the current
+    directory.
 
     Children must set `model` to define the model being exported, and define
     :meth:`get_object_data()` to transform a single model instance into a dict
