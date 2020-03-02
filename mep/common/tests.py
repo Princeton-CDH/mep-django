@@ -1,7 +1,7 @@
 import re
 import uuid
 from collections import OrderedDict
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 import rdflib
@@ -9,6 +9,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
+from django.db.models import Model
 from django.http import Http404, HttpRequest, JsonResponse
 from django.template.loader import get_template
 from django.test import TestCase, override_settings
@@ -22,9 +23,10 @@ from mep.common import SCHEMA_ORG, views
 from mep.common.admin import LocalUserAdmin
 from mep.common.forms import (CheckboxFieldset, FacetChoiceField, FacetForm,
                               RangeField, RangeWidget)
+from mep.common.management.export import BaseExport, StreamArray
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
-from mep.common.templatetags.mep_tags import domain, dict_item, iiif_image, \
-    partialdate
+from mep.common.templatetags.mep_tags import (dict_item, domain, iiif_image,
+                                              partialdate)
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
 
@@ -753,3 +755,77 @@ class TestBreadcrumbsTemplate(TestCase):
         assert "<a href=\"/\">Home</a>" in response
         # final crumb should be <span>
         assert "<span>My Page</span>" in response
+
+
+class TestBaseExport(TestCase):
+
+    def test_flatten_dict(self):
+        # flat dict should not be changed
+        flat = {'one': 'a', 'two': 'b'}
+        assert flat == BaseExport.flatten_dict(flat)
+
+        # list should be converted to string
+        listed = {'one': ['a', 'b']}
+        flat_listed = BaseExport.flatten_dict(listed)
+        assert flat_listed['one'] == 'a;b'
+
+        # nested dict should have keys combined and be flatted
+        nested = {
+            'page': {
+                'id': 'p1',
+                'label': 'one'
+            }
+        }
+        flat_nested = BaseExport.flatten_dict(nested)
+        assert 'page id' in flat_nested
+        assert 'page label' in flat_nested
+        assert flat_nested['page id'] == nested['page']['id']
+        assert flat_nested['page label'] == nested['page']['label']
+
+        # nested with list
+        nested_list = {
+            'page': {
+                'id': 'p1',
+                'label': ['one', 'two']
+            }
+        }
+        flat_nested = BaseExport.flatten_dict(nested_list)
+        assert flat_nested['page label'] == 'one;two'
+
+
+@patch('mep.common.management.export.progressbar')
+class TestStreamArray(TestCase):
+
+    def test_init(self, mockprogbar):
+        total = 5
+        gen = (i for i in range(total))
+
+        streamer = StreamArray(gen, total)
+        assert streamer.gen == gen
+        assert streamer.progress == 0
+        assert streamer.total == total
+
+        mockprogbar.ProgressBar.assert_called_with(redirect_stdout=True,
+                                                   max_value=total)
+        assert streamer.progbar == mockprogbar.ProgressBar.return_value
+
+    def test_len(self, mockprogbar):
+        total = 5
+        gen = (i for i in range(total))
+        streamer = StreamArray(gen, total)
+        assert len(streamer) == total
+
+    def test_iter(self, mockprogbar):
+        total = 2
+        gen = (i for i in range(total))
+        streamer = StreamArray(gen, total)
+        values = []
+        for val in streamer:
+            values.append(val)
+
+        assert values == [i for i in range(total)]
+        assert streamer.progress == total
+        # progress bar update should be called once per item
+        assert streamer.progbar.update.call_count == total
+        # progress bar finish should be called once when iteration completes
+        assert streamer.progbar.finish.call_count == 1

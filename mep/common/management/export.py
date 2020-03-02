@@ -8,13 +8,14 @@ import csv
 import json
 import os.path
 
-from django.core.management.base import BaseCommand
+import progressbar
+from django.core.management.base import BaseCommand, ImproperlyConfigured
 
 
 class BaseExport(BaseCommand):
     '''
     Export model data in CSV and JSON formats.
-    
+
     Children must set `model` to define the model being exported, and define
     :meth:`get_object_data()` to transform a single model instance into a dict
     that will be used for export.
@@ -80,12 +81,13 @@ class BaseExport(BaseCommand):
         '''
         if self.model is None:
             raise ImproperlyConfigured(
-                "%(cls)s is missing a model. Set the model property to a django
+                "%(cls)s is missing a model. Set the model property to a django"
                 "Model class." % {
                     'cls': self.__class__.__name__
                 }
             )
-        return self.model.Meta.verbose_name_plural
+        # force evaluation of proxy; otherwise os.path.join() will error
+        return str(self.model._meta.verbose_name_plural)
 
     def get_queryset(self):
         '''
@@ -123,7 +125,8 @@ class BaseExport(BaseCommand):
         '''
         raise NotImplementedError
 
-    def flatten_dict(self, data):
+    @staticmethod
+    def flatten_dict(data):
         '''
         Flatten a dictionary with nested dictionaries or lists into a
         key value pairs that can be output as CSV.  Nested dictionaries will be
@@ -135,7 +138,7 @@ class BaseExport(BaseCommand):
             # for a nested subdictionary, combine key and nested key
             if isinstance(val, dict):
                 # recurse to handle lists in nested dicts
-                for subkey, subval in self.flatten_dict(val).items():
+                for subkey, subval in BaseExport.flatten_dict(val).items():
                     flat_data[' '.join([key, subkey])] = subval
             # convert list to a delimited string
             elif isinstance(val, list):

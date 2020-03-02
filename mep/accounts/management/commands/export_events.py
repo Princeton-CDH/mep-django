@@ -12,13 +12,11 @@ files are created in the current directory.
 
 from collections import OrderedDict
 
-import progressbar
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand
 from django.db.models.functions import Coalesce
 
 from mep.accounts.models import Event
-from mep.common.management import BaseExport
+from mep.common.management.export import BaseExport
 from mep.common.utils import absolutize_url
 
 
@@ -84,8 +82,8 @@ class Command(BaseExport):
         elif event_type in 'Reimbursement' and obj.reimbursement.refund:
             data['reimbursement'] = {
                 'refund': '%s%.2f' %
-                (obj.reimbursement.currency_symbol(),
-                 obj.reimbursement.refund)
+                          (obj.reimbursement.currency_symbol(),
+                           obj.reimbursement.refund)
             }
 
         # borrow data
@@ -100,14 +98,14 @@ class Command(BaseExport):
         elif event_type == 'Purchase' and obj.purchase.price:
             data['purchase'] = {
                 'price': '%s%.2f' %
-                (obj.purchase.currency_symbol(), obj.purchase.price)
+                         (obj.purchase.currency_symbol(), obj.purchase.price)
             }
             footnote = obj.purchase.footnotes.first()
 
         # check for footnote on the generic event if one was not already found
         footnote = footnote or obj.event_footnotes.first()
 
-        item_info = self.item_info(event)
+        item_info = self.item_info(obj)
         if item_info:
             data['item'] = item_info
         if obj.notes:
@@ -153,6 +151,7 @@ class Command(BaseExport):
         return info
 
     def item_info(self, event):
+        '''associated work details for an event'''
         if event.work:
             item_info = OrderedDict([
                 ('title', event.work.title),
