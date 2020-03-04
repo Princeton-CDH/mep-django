@@ -8,7 +8,7 @@ database, with summary details and coordinates for associated addresses.
 
 from collections import OrderedDict
 
-from mep.people.models import Person, InfoURL
+from mep.people.models import Person, InfoURL, Location
 from mep.common.management.export import BaseExport
 from mep.common.templatetags.mep_tags import domain
 
@@ -80,10 +80,12 @@ class Command(BaseExport):
                 data['nationalities'].append(country.name)
 
         # add ordered list of addresses & coordinates
-        if obj.locations.exists():
+        addresses = obj.account_set.first().address_set
+        if addresses.exists():
             data['addresses'] = []
             data['coordinates'] = []
-            for location in obj.locations.all():
+            for location_pk in addresses.values_list('location'):
+                location = Location.objects.get(pk=location_pk[0])
                 data['addresses'].append(str(location))
                 data['coordinates'].append(
                     '%s, %s' % (location.latitude, location.longitude)
