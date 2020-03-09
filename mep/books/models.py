@@ -289,9 +289,9 @@ class Work(Notable, ModelIndexable):
     @property
     def creator_names(self):
         '''list of all creator names, including authors'''
-        if self.creators.count() < 1:
-            return None
-        return [creator.name for creator in self.creators.all()]
+        if self.creators.exists():
+            return [creator.name for creator in self.creators.all()]
+        return []
 
     @property
     def authors(self):
@@ -387,7 +387,7 @@ class Work(Notable, ModelIndexable):
         index_data = super().index_data()
 
         index_data.update({
-            'title_txt_en': self.title,
+            'title_t': self.title,
             'sort_title_isort': self.title, # use title directly for sorting for now
             'pk_i': self.pk, # NOTE include pk for now for item detail url
             'authors_t': [str(a) for a in self.authors] if self.authors else None,

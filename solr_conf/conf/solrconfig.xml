@@ -767,9 +767,8 @@
 
       <!-- bib metadata search pseudo field for books -->
       <str name="bib_qf">
-        title_txt_en^100
-        sort_title_isort^50
-        title_ngram^40
+        title_t^100
+        title_txt_en^50
         authors_t^30
         creators_t^20
         pub_date_i^10
@@ -777,9 +776,8 @@
         notes_txt_en
       </str>
       <str name="bib_pf">
-        title_txt_en^100
-        sort_title_isort^50
-        title_ngram^40
+        title_t^100
+        title_txt_en^50
         authors_t^30
         creators_t^20
         notes_txt_en^10
