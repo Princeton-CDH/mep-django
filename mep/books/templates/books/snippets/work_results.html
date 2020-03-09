@@ -1,4 +1,3 @@
-{% load static %}
 <style nonce="{{ request.csp_nonce }}">
     .work-results {
         counter-reset: results {{ page_obj.start_index|add:'-1' }};
@@ -23,14 +22,5 @@
     {% endfor %}
 </ol>
 {% if not works %}
-<div class="empty-results">
-    <p>{{ error_message|default:"No search results found. Try a different search."}}</p>
-    {% if error_message %}  {# Only display if something went wrong. #}
-    <img
-        srcset="{% static 'img/no-results-error-2x.png' %} 2x,
-               {% static 'img/no-results-error-1x.png' %} 1x"
-        src="{% static 'img/no-results-error-1x.png' %}"
-        alt="Drawing of Shakespeare tearing his hair out and crying" />
-    {% endif %}
-</div>
+{% include 'common/empty_results.html' %}
 {% endif %}
