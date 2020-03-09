@@ -20,6 +20,7 @@
         <label for="{{ form.query.id_for_label }}"></label>
         {% include 'common/form_errors.html' %}
         <fieldset class="group">
+            {% comment %}
             <legend>Filter by:</legend>
             <div class="inner">
                 <div class="creators tab" role="tab" aria-setsize="2" aria-posinset="1" aria-selected="false" aria-controls="creators-panel" aria-disabled>Creators*</div>
@@ -27,6 +28,7 @@
                 <div class="tabpanel" id="creators-panel" role="tabpanel"></div>
                 <div class="tabpanel" id="publishers-panel" role="tabpanel"></div>
             </div>
+            {% endcomment %}
             <input type="submit" value="submit"/>
         </fieldset>
         <output class="total-results" id="total">{{ works.count|intcomma }} total result{{ works.count|pluralize }}</output>
