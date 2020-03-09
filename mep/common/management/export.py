@@ -79,7 +79,8 @@ class BaseExport(BaseCommand):
     def get_base_filename(self):
         '''
         Base filename to use for export. Uses model's plural verbose name
-        by default, .e.g "events.json" and "events.csv".
+        by default, .e.g "events.json" and "events.csv". Returns the filename
+        without an extension.
         '''
         if self.model is None:
             raise ImproperlyConfigured(

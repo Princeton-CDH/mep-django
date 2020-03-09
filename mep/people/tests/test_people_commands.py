@@ -48,4 +48,3 @@ class TestExportMembers(TestCase):
         # check addresses & coordinates
         self.assertTrue('3 Rue Garancière, Paris' in gay_data['addresses'])
         self.assertTrue('48.85101, 2.33590' in gay_data ['coordinates'])
-

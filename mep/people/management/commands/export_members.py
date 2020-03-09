@@ -39,6 +39,10 @@ class Command(BaseExport):
         '''filter to library members'''
         return Person.objects.library_members()
 
+    def get_base_filename(self):
+        '''set the filename to "members.csv" since it's a subset of people'''
+        return 'members'
+
     def get_object_data(self, obj: Person):
         '''
         Generate dictionary of data to export for a single
