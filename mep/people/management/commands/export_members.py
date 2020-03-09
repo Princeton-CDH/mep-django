@@ -8,9 +8,10 @@ database, with summary details and coordinates for associated addresses.
 
 from collections import OrderedDict
 
-from mep.people.models import Person, InfoURL, Location
 from mep.common.management.export import BaseExport
 from mep.common.templatetags.mep_tags import domain
+from mep.common.utils import absolutize_url
+from mep.people.models import Person
 
 
 class Command(BaseExport):
@@ -45,7 +46,7 @@ class Command(BaseExport):
         '''
         # required properties
         data = OrderedDict([
-            ('uri', obj.get_absolute_url()),
+            ('uri', absolutize_url(obj.get_absolute_url())),
             ('name', obj.name),
             ('sort name', obj.sort_name),
             ('is organization', obj.is_organization),
@@ -54,7 +55,7 @@ class Command(BaseExport):
 
         # add gender
         if obj.gender:
-            data['gender'] = obj.gender
+            data['gender'] = obj.get_gender_display()
 
         # add title
         if obj.title:
@@ -69,9 +70,10 @@ class Command(BaseExport):
         # viaf & wikipedia URLs
         if obj.viaf_id:
             data['viaf url'] = obj.viaf_id
-        for info_url in InfoURL.objects.filter(person__pk=obj.pk):
+        for info_url in obj.urls.all():
             if domain(info_url.url) == 'wikipedia':
                 data['wikipedia url'] = info_url.url
+                break
 
         # add all nationalities
         if obj.nationalities.exists():
@@ -80,12 +82,11 @@ class Command(BaseExport):
                 data['nationalities'].append(country.name)
 
         # add ordered list of addresses & coordinates
-        addresses = obj.account_set.first().address_set
-        if addresses.exists():
+        locations = obj.account_set.first().locations
+        if locations.exists():
             data['addresses'] = []
             data['coordinates'] = []
-            for location_pk in addresses.values_list('location'):
-                location = Location.objects.get(pk=location_pk[0])
+            for location in locations.all():
                 data['addresses'].append(str(location))
                 data['coordinates'].append(
                     '%s, %s' % (location.latitude, location.longitude)

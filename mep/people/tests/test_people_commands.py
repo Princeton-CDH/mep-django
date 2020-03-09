@@ -30,7 +30,7 @@ class TestExportMembers(TestCase):
 
         # check some basic data
         self.assertEqual(gay_data['name'], 'Francisque Gay')
-        self.assertEqual(gay_data['gender'], 'M')
+        self.assertEqual(gay_data['gender'], 'Male')
         self.assertEqual(gay_data['birth year'], 1885)
         self.assertEqual(hemingway_data['sort name'], 'Hemingway, Ernest')
         self.assertEqual(hemingway_data['death year'], 1961)
