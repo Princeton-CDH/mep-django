@@ -198,7 +198,7 @@ class WorkSignalHandlers:
         if raw or not instance.pk:
             return
         # if any works are associated
-        works = Work.objects.filter(format__pk=instance.pk)
+        works = Work.objects.filter(work_format__pk=instance.pk)
         if works.exists():
             logger.debug('format save, reindexing %d related works',
                          works.count())
@@ -207,7 +207,7 @@ class WorkSignalHandlers:
     @staticmethod
     def format_delete(sender, instance, **kwargs):
         '''reindex all associated works when a format is deleted'''
-        work_ids = Work.objects.filter(format__pk=instance.pk) \
+        work_ids = Work.objects.filter(work_format__pk=instance.pk) \
                                .values_list('id', flat=True)
         if work_ids:
             logger.debug('format delete, reindexing %d related works',

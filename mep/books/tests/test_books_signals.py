@@ -1,9 +1,10 @@
 from unittest.mock import patch
 
-from parasolr.django.indexing import ModelIndexable
 import pytest
+from parasolr.django.indexing import ModelIndexable
 
-from mep.books.models import Creator, CreatorType, Work, WorkSignalHandlers
+from mep.books.models import (Creator, CreatorType, Format, Work,
+                              WorkSignalHandlers)
 from mep.people.models import Person
 
 
@@ -118,3 +119,33 @@ def test_creator_change(mock_indexitems):
     assert mock_indexitems.call_count == 1
     # person should be in the queryset; first arg for the last call
     assert mock_indexitems.called_with([work])
+
+
+@pytest.mark.django_db
+@patch.object(ModelIndexable, 'index_items')
+def test_format_save(mock_indexitems):
+    # not associated with work; ignore
+    zine = Format.objects.create(name="zine")
+    WorkSignalHandlers.format_save(Format, zine)
+    mock_indexitems.assert_not_called()
+
+    # associate with work; should be called
+    poems = Work.objects.create(title='Poems', year=1916, work_format=zine)
+    WorkSignalHandlers.format_save(Format, zine)
+    assert mock_indexitems.call_count == 1
+    assert poems in mock_indexitems.call_args[0][0]
+
+
+@pytest.mark.django_db
+@patch.object(ModelIndexable, 'index_items')
+def test_format_delete(mock_indexitems):
+    # not associated with work; ignore
+    zine = Format.objects.create(name="zine")
+    WorkSignalHandlers.format_delete(Format, zine)
+    mock_indexitems.assert_not_called()
+
+    # associate with work; should be called
+    poems = Work.objects.create(title='Poems', year=1916, work_format=zine)
+    WorkSignalHandlers.format_delete(Format, zine)
+    assert mock_indexitems.call_count == 1
+    assert poems in mock_indexitems.call_args[0][0]
