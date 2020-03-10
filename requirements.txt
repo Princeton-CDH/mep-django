@@ -7,7 +7,7 @@ django-cas-ng<4.0
 pucas>=0.6
 eulxml
 # 0.2 viapy when released
-git+https://github.com/Princeton-CDH/viapy.git@feature/django-upgrade#egg=viapy
+git+https://github.com/Princeton-CDH/viapy.git@develop#egg=viapy
 #viapy
 wagtail>=2.3,<2.4 # 2.4+ requires django 2.0
 django-autocomplete-light>=3.5.1
@@ -25,7 +25,7 @@ rdflib-jsonld
 # require jsonfield (dep of djiffy) pre 3.0, since 3 requires django 2.2
 jsonfield<3.0
 # 0.6 djiffy when released
-git+https://github.com/Princeton-CDH/djiffy.git@feature/django-upgrade#egg=viapy
+git+https://github.com/Princeton-CDH/djiffy.git@develop#egg=djiffy
 #djiffy
 django-csp
 bleach
