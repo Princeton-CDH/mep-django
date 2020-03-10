@@ -23,10 +23,10 @@ class TestPartialDateField(TestCase):
     def test_from_db_value(self):
         dpf = DatePrecisionField()
         # cast value to date precision
-        assert isinstance(dpf.from_db_value(1, None, None, None),
+        assert isinstance(dpf.from_db_value(1, None, None),
                           DatePrecision)
         # handle None
-        assert dpf.from_db_value(None, None, None, None) is None
+        assert dpf.from_db_value(None, None, None) is None
 
     def test_value_to_string(self):
         class Imprecise:
