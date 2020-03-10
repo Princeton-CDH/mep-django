@@ -21,4 +21,21 @@
 <section class="details">
     {% include 'books/snippets/work_result.html' %}
 </section>
+{% if work.edition_set.exists %}
+<section class="volumes-issues">
+    <h2>Volume/Issue</h2>
+    <ul>
+    {% for edition in work.edition_set.all %}
+    <li>
+        {% if edition.volume %}Vol. {{ edition.volume }}{% endif %}
+        {% if edition.number %}, no. {{ edition.number }}{% endif %}
+        {% if edition.season %}, {{ edition.season }}{% endif %}
+        {% if edition.year %} {{ edition.year }}{% endif %}
+        {% if edition.title %}<em>{{ edition.title }}</em>{% endif %}
+    </li>
+    {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
 {% endblock %}
