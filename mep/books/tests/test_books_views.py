@@ -130,7 +130,7 @@ class TestWorkListView(TestCase):
         self.assertNotContains(response, novelists.authors[3])
 
         # should show "...x more authors" text
-        self.assertContains(response, '... 16 more authors')
+        self.assertContains(response, '...16 more authors')
 
     def test_get_queryset(self):
         # create a mocked form

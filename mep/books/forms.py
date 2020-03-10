@@ -8,7 +8,7 @@ class WorkSearchForm(FacetForm):
 
     SORT_CHOICES = [
         ('relevance', 'Relevance'),
-        ('title', 'Title A-Z'),
+        ('title', 'Title A - Z'),
     ]
 
     # NOTE these are not set by default!

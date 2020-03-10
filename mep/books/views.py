@@ -35,7 +35,7 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         form_data = self.request.GET.copy()
 
         # always use relevance sort for keyword search;
-        # otherwise use default (sort by name)
+        # otherwise use default (sort by title)
         if form_data.get('query', None):
             form_data['sort'] = 'relevance'
         else:
@@ -64,7 +64,7 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
 
     def get_queryset(self):
         # NOTE faceting on format as placeholder, no UI yet
-        sqs = WorkSolrQuerySet().facet_field('format')
+        sqs = WorkSolrQuerySet().facet_field('format', exclude='format')
             
         form = self.get_form()
 
