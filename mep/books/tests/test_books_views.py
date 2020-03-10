@@ -102,15 +102,17 @@ class TestWorkListView(TestCase):
         self.assertContains(response, '%d total results' % Work.objects.count())
 
     @login_temporarily_required
-    def test_form_errors(self):
+    def test_form_no_result(self):
         # no results - display error text & image
         response = self.client.get(self.url, {'query': 'foobar'})
         self.assertContains(response, 'No search results found')
         # empty search - no image
         self.assertNotContains(response, 'img/no-results-error-1x.png')
 
+    @login_temporarily_required
+    @patch.dict(WorkList.solr_sort, {'title': 'undefined'})
+    def test_form_errors(self):
         # force solr error by sending garbage sort value
-        WorkList.solr_sort['title'] = 'undefined'
         response = self.client.get(self.url)
         self.assertContains(response, 'Something went wrong.')
         # error - show image
@@ -145,7 +147,7 @@ class TestWorkListView(TestCase):
         db_qs = Work.objects.order_by('title')
         # querysets from solr and db should match
         for index, item in enumerate(solr_qs):
-            assert db_qs[index].title == item['title']
+            assert db_qs[index].title == item['title'][0]
             assert db_qs[index].pk == item['pk']
         # if form is invalid, should return empty queryset
         form.is_valid.return_value = False
