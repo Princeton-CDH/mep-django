@@ -5,31 +5,24 @@ Generates a CSV and JSON file including details on every event in the
 database with summary details and URIs for associated library member(s)
 and book (for events linked to books).
 
-Takes an optional argument to specify the output directory. Otherwise,
-files are created in the current directory.
-
 '''
 
-import codecs
-import csv
-import json
-import os.path
 from collections import OrderedDict
 
-from django.db.models.functions import Coalesce
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand
-import progressbar
+from django.db.models.functions import Coalesce
 
 from mep.accounts.models import Event
+from mep.common.management.export import BaseExport
 from mep.common.utils import absolutize_url
 
 
-class Command(BaseCommand):
-    '''Export event data'''
+class Command(BaseExport):
+    '''Export event data.'''
     help = __doc__
 
-    #: fields for CSV output
+    model = Event
+
     csv_fields = [
         'event type',
         'start date', 'end date',
@@ -53,65 +46,25 @@ class Command(BaseCommand):
         'source citation', 'source manifest', 'source image'
     ]
 
-    def add_arguments(self, parser):
-        parser.add_argument(
-            '-d', '--directory',
-            help='Specify the directory where files should be generated')
-        parser.add_argument(
-            '-m', '--max', type=int,
-            help='Maximum number of events to export (for testing)')
-
-    def handle(self, *args, **kwargs):
-        base_filename = 'events'
-        if kwargs['directory']:
-            base_filename = os.path.join(kwargs['directory'], base_filename)
-
-        # Can we use the same data to generate both CSV and JSON?
-        data = self.get_data(kwargs.get('max'))
-        self.stdout.write('Exporting JSON')
-        # list of dictionaries can be output as is for JSON export
-        with open('{}.json'.format(base_filename), 'w') as jsonfile:
-            for chunk in json.JSONEncoder(indent=2).iterencode(data):
-                jsonfile.write(chunk)
-
-        # generate CSV export
-        self.stdout.write('Exporting CSV')
-        # need to get the data again, since it's a generator
-        data = self.get_data(kwargs.get('max'))
-        with open('{}.csv'.format(base_filename), 'w') as csvfile:
-            # write utf-8 byte order mark at the beginning of the file
-            csvfile.write(codecs.BOM_UTF8.decode())
-
-            csvwriter = csv.DictWriter(csvfile, fieldnames=self.csv_fields)
-            csvwriter.writeheader()
-
-            for row in data:
-                csvwriter.writerow(self.flatten_dict(row))
-
-    def get_data(self, maximum=None):
+    def get_queryset(self):
         '''get event objects to be exported'''
         # Order events by date. Order on precision first so unknown dates
         # will be last, then sort by first known date of start/end.
-        events = Event.objects.all() \
+        return Event.objects.all() \
             .order_by(Coalesce('start_date_precision', 'end_date_precision'),
                       Coalesce('start_date', 'end_date').asc(nulls_last=True))
-        # grab the first N if maximum is specified
-        if maximum:
-            events = events[:maximum]
-        return StreamArray((self.event_data(event) for event in events),
-                           events.count())
 
-    def event_data(self, event):
+    def get_object_data(self, obj):
         '''Generate a dictionary of data to export for a single
          :class:`~mep.accounts.models.Event`'''
-        event_type = event.event_type
+        event_type = obj.event_type
         data = OrderedDict([
             ('event type', event_type),
-            ('start date', event.partial_start_date or ''),
-            ('end date', event.partial_end_date or ''),
+            ('start date', obj.partial_start_date or ''),
+            ('end date', obj.partial_end_date or ''),
             ('member', OrderedDict()),
         ])
-        member_info = self.member_info(event)
+        member_info = self.member_info(obj)
         if member_info:
             data['member'] = member_info
 
@@ -120,40 +73,40 @@ class Command(BaseCommand):
 
         # subscription-specific data
         if event_type in ['Subscription', 'Supplement', 'Renewal']:
-            data['subscription'] = self.subscription_info(event)
+            data['subscription'] = self.subscription_info(obj)
 
         # reimbursement data
-        elif event_type in 'Reimbursement' and event.reimbursement.refund:
+        elif event_type in 'Reimbursement' and obj.reimbursement.refund:
             data['reimbursement'] = {
                 'refund': '%s%.2f' %
-                (event.reimbursement.currency_symbol(),
-                 event.reimbursement.refund)
+                          (obj.reimbursement.currency_symbol(),
+                           obj.reimbursement.refund)
             }
 
         # borrow data
         elif event_type == 'Borrow':
             data['borrow'] = {
-                'status': event.borrow.get_item_status_display()
+                'status': obj.borrow.get_item_status_display()
             }
             # capture a footnote if there is one
-            footnote = event.borrow.footnotes.first()
+            footnote = obj.borrow.footnotes.first()
 
         # purchase data
-        elif event_type == 'Purchase' and event.purchase.price:
+        elif event_type == 'Purchase' and obj.purchase.price:
             data['purchase'] = {
                 'price': '%s%.2f' %
-                (event.purchase.currency_symbol(), event.purchase.price)
+                         (obj.purchase.currency_symbol(), obj.purchase.price)
             }
-            footnote = event.purchase.footnotes.first()
+            footnote = obj.purchase.footnotes.first()
 
         # check for footnote on the generic event if one was not already found
-        footnote = footnote or event.event_footnotes.first()
+        footnote = footnote or obj.event_footnotes.first()
 
-        item_info = self.item_info(event)
+        item_info = self.item_info(obj)
         if item_info:
             data['item'] = item_info
-        if event.notes:
-            data['notes'] = event.notes
+        if obj.notes:
+            data['notes'] = obj.notes
         if footnote:
             data['source'] = self.source_info(footnote)
         return data
@@ -195,6 +148,7 @@ class Command(BaseCommand):
         return info
 
     def item_info(self, event):
+        '''associated work details for an event'''
         if event.work:
             item_info = OrderedDict([
                 ('title', event.work.title),
@@ -221,55 +175,3 @@ class Command(BaseCommand):
                 # default iiif image
                 source_info['image'] = str(footnote.image.image)
         return source_info
-
-    def flatten_dict(self, data):
-        '''Flatten a dictionary with nested dictionaries or lists into a
-        key value pairs that can be output as CSV.  Nested dictionaries will be
-        flattened and keys combined; lists will be converted into semi-colon
-        delimited strings.'''
-        flat_data = {}
-        for key, val in data.items():
-            # for a nested subdictionary, combine key and nested key
-            if isinstance(val, dict):
-                # recurse to handle lists in nested dicts
-                for subkey, subval in self.flatten_dict(val).items():
-                    flat_data[' '.join([key, subkey])] = subval
-            # convert list to a delimited string
-            elif isinstance(val, list):
-                flat_data[key] = ';'.join(val)
-            else:
-                flat_data[key] = val
-
-        return flat_data
-
-
-class StreamArray(list):
-    '''Wrapper for a generator so data can be streamed and encoded as json.
-    Includes progressbar output that updates as the generator is consumed.
-
-
-    :param gen: generator with data to be exported
-    :param total: total number of items in the generator, for
-        initializing the progress bar
-    '''
-
-    # adapted from answer on
-    # https://stackoverflow.com/questions/21663800/python-make-a-list-generator-json-serializable
-
-    def __init__(self, gen, total):
-        self.progbar = progressbar.ProgressBar(redirect_stdout=True,
-                                               max_value=total)
-        self.progress = 0
-        self.gen = gen
-        self.total = total
-
-    def __iter__(self):
-        for el in self.gen:
-            self.progress += 1
-            self.progbar.update(self.progress)
-            yield el
-        # mark progress bar as finished when iteration finishes
-        self.progbar.finish()
-
-    def __len__(self):
-        return self.total
