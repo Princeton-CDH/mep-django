@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.redirects.models import Redirect
 from taggit.models import Tag
-from wagtail.core.models import Page, Site
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
 
@@ -9,8 +8,6 @@ from wagtail.images.models import Image
 # editing something in the wrong place and potentially causing
 # problems
 
-admin.site.unregister(Page)
-admin.site.unregister(Site)
 admin.site.unregister(Redirect)
 admin.site.unregister(Image)
 admin.site.unregister(Document)

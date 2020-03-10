@@ -89,8 +89,10 @@ class LinkableSectionBlock(blocks.StructBlock):
 class BodyContentBlock(blocks.StreamBlock):
     '''Common set of content blocks for content/analysis pages.'''
     paragraph = blocks.RichTextBlock(
-        features=['h3', 'h4', 'bold', 'italic', 'link',
-                  'ol', 'ul', 'blockquote'])
+        features=['h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul',
+                  'hr', 'blockquote', 'document', 'superscript', 'subscript',
+                  'strikethrough', 'code']
+    )
     image = CaptionedImageBlock()
     svg_image = SVGImageBlock()
     document = DocumentChooserBlock()
