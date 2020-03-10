@@ -270,7 +270,7 @@ class TestPerson(TestCase):
     def test_admin_url(self):
         pers = Person.objects.create(name='John', slug='john')
         resolved_url = resolve(pers.admin_url())
-        assert resolved_url.args[0] == str(pers.id)
+        assert resolved_url.kwargs['object_id'] == str(pers.id)
         assert resolved_url.view_name == 'admin:people_person_change'
 
     def test_has_card(self):

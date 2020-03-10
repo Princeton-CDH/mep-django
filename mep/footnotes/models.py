@@ -175,7 +175,8 @@ class Bibliography(Notable, ModelIndexable):
     # Note: citation might be better singular
     bibliographic_note = models.TextField(
         help_text='Full bibliographic citation')
-    source_type = models.ForeignKey(SourceType)
+    source_type = models.ForeignKey(SourceType,
+                                    on_delete=models.CASCADE)
 
     #: digital version as instance of :class:`djiffy.models.Manifest`
     manifest = models.ForeignKey(
@@ -356,7 +357,7 @@ class Footnote(Notable):
     generic relationship.  Used to provide supporting documentation
     for or against information in the system.
     '''
-    bibliography = models.ForeignKey(Bibliography)
+    bibliography = models.ForeignKey(Bibliography, on_delete=models.CASCADE)
     location = models.TextField(
         blank=True,
         help_text='Page number for a book, URL for part of a website,' +
@@ -384,8 +385,8 @@ class Footnote(Notable):
         default=True)
 
     image = models.ForeignKey(
-        Canvas, blank=True, null=True,
-        help_text='''Image location from an imported manifest, if available.''')
+        Canvas, blank=True, null=True, on_delete=models.SET_NULL,
+        help_text='Image location from an imported manifest, if available.')
 
     # override default manager with customized version
     objects = FootnoteQuerySet.as_manager()
