@@ -1,11 +1,10 @@
-import json
 import string
 from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import date
-from django.template.defaulttags import mark_safe, register
+from django.template.defaulttags import register
 from piffle.iiif import IIIFImageClientException
 
 from mep.accounts.models import Event
@@ -20,11 +19,6 @@ def dict_item(dictionary, key):
         {{ mydict|dict_item:keyvar }}
     '''
     return dictionary.get(key, None)
-
-
-@register.filter(name='json')
-def json_dumps(data):
-    return mark_safe(json.dumps(data))
 
 
 @register.filter

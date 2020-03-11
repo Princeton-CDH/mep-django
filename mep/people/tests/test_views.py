@@ -1060,7 +1060,8 @@ class TestMemberDetailView(TestCase):
         response = self.client.get(url)
         assert response.status_code == 200
         # library address is rendered as "null"
-        self.assertContains(response, "libraryAddress = null")
+        self.assertContains(response,
+            '<script id="library-address" type="application/json">null</script>')
 
     def test_get_non_member(self):
         aeschylus = Person.objects.get(name='Aeschylus', slug='aeschylus')

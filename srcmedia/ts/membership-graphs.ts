@@ -13,9 +13,10 @@ type MembershipTotals = {
     members: Array<MembershipCount>,
 }
 
-declare const membershipData: MembershipTotals
 
-// <div class="timeline" data-series="subscriptions borrows members">
+const dataElement = document.getElementById('membership-data') as HTMLElement
+const membershipData = JSON.parse(dataElement.textContent || '') as MembershipTotals
+
 const targets = document.getElementsByClassName('membership-graph') as HTMLCollection
 
 const bookstoreDates = {
