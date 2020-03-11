@@ -31,8 +31,9 @@ class CaptionedImageBlock(blocks.StructBlock):
     that both caption and alternative text can be context-specific.'''
     image = ImageChooserBlock()
     alternative_text = blocks.TextBlock(required=True, help_text=ALT_TEXT_HELP)
-    caption = blocks.RichTextBlock(features=['bold', 'italic', 'link'],
-                                   required=False)
+    caption = blocks.RichTextBlock(
+        features=['bold', 'italic', 'link', 'superscript'],
+       required=False)
 
     class Meta:
         icon = 'image'
@@ -50,8 +51,9 @@ class SVGImageBlock(blocks.StructBlock):
 
     image = DocumentChooserBlock()
     alternative_text = blocks.TextBlock(required=True, help_text=ALT_TEXT_HELP)
-    caption = blocks.RichTextBlock(features=['bold', 'italic', 'link'],
-                                   required=False)
+    caption = blocks.RichTextBlock(
+        features=['bold', 'italic', 'link', 'superscript'],
+        required=False)
     extended_description = blocks.RichTextBlock(
         features=['p'], required=False, help_text=extended_description_help)
 
