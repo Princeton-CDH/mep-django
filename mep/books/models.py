@@ -289,9 +289,7 @@ class Work(Notable, ModelIndexable):
     @property
     def creator_names(self):
         '''list of all creator names, including authors'''
-        if self.creators.exists():
-            return [creator.name for creator in self.creators.all()]
-        return []
+        return [creator.name for creator in self.creators.all()]
 
     @property
     def authors(self):
