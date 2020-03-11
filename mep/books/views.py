@@ -63,7 +63,10 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     search_bib_query = '{!qf=$bib_qf pf=$bib_pf v=$bib_query}'
 
     def get_queryset(self):
-        sqs = WorkSolrQuerySet()
+        # NOTE faceting so that response doesn't register as an error;
+        # data is currently unused
+        sqs = WorkSolrQuerySet().facet_field('format', exclude='format')
+            
         form = self.get_form()
 
         # empty qs if not valid
