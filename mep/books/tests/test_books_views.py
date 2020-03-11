@@ -1,5 +1,5 @@
 import time
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
@@ -83,7 +83,6 @@ class TestWorkListView(TestCase):
         # should display all works in the database
         works = Work.objects.all()
         assert response.context['works'].count() == works.count()
-        self.assertContains(response, '%d total results' % works.count())
         for work in works:
             self.assertContains(response, work.title)
             self.assertContains(response, work.year)
@@ -93,6 +92,31 @@ class TestWorkListView(TestCase):
             # self.assertContains(response, work.get_absolute_url())
 
         # NOTE publishers display is designed but data not yet available
+
+    @login_temporarily_required
+    def test_form(self):
+        response = self.client.get(self.url)
+        # filter form should be displayed with filled-in query field one time
+        self.assertContains(response, 'Search book', count=1)
+        # should show total result count
+        self.assertContains(response, '%d total results' % Work.objects.count())
+
+    @login_temporarily_required
+    def test_form_no_result(self):
+        # no results - display error text & image
+        response = self.client.get(self.url, {'query': 'foobar'})
+        self.assertContains(response, 'No search results found')
+        # empty search - no image
+        self.assertNotContains(response, 'img/no-results-error-1x.png')
+
+    @login_temporarily_required
+    @patch.dict(WorkList.solr_sort, {'title': 'undefined'})
+    def test_form_errors(self):
+        # force solr error by sending garbage sort value
+        response = self.client.get(self.url)
+        self.assertContains(response, 'Something went wrong.')
+        # error - show image
+        self.assertContains(response, 'img/no-results-error-1x.png')
 
     @login_temporarily_required
     def test_many_authors(self):
@@ -108,7 +132,7 @@ class TestWorkListView(TestCase):
         self.assertNotContains(response, novelists.authors[3])
 
         # should show "...x more authors" text
-        self.assertContains(response, '... 16 more authors')
+        self.assertContains(response, '...16 more authors')
 
     def test_get_queryset(self):
         # create a mocked form
@@ -118,12 +142,12 @@ class TestWorkListView(TestCase):
         view.request = self.factory.get(self.url)
         # if form is valid, should return all works sorted by chosen sort
         form.is_valid.return_value = True
-        form.cleaned_data = {'sort': 'title'}  # becomes 'title_s'
+        form.cleaned_data = {'sort': 'title'}
         solr_qs = view.get_queryset()
         db_qs = Work.objects.order_by('title')
         # querysets from solr and db should match
         for index, item in enumerate(solr_qs):
-            assert db_qs[index].title == item['title']
+            assert db_qs[index].title == item['title'][0]
             assert db_qs[index].pk == item['pk']
         # if form is invalid, should return empty queryset
         form.is_valid.return_value = False
@@ -148,3 +172,18 @@ class TestWorkListView(TestCase):
         form.is_valid.return_value = False
         page_labels = view.get_page_labels(paginator)
         assert page_labels == [(1, 'N/A')]
+
+    @login_temporarily_required
+    def test_pagination(self):
+        response = self.client.get(self.url)
+        # pagination options set in context
+        assert response.context['page_labels']
+        # current fixture is not enough to paginate
+        # next/prev links should have aria-hidden to indicate not usable
+        self.assertContains(response, '<a rel="prev" aria-hidden')
+        self.assertContains(response, '<a rel="next" aria-hidden')
+        # pagination labels are used, current page selected
+        self.assertContains(
+            response,
+            '<option value="1" selected="selected">%s</option>' % \
+            list(response.context['page_labels'])[0][1])

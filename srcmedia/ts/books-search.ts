@@ -1,16 +1,18 @@
 import { merge } from 'rxjs'
-import { map, filter, mapTo, startWith, distinctUntilChanged, withLatestFrom, debounceTime } from 'rxjs/operators'
+import { map, filter, mapTo, startWith, distinctUntilChanged, withLatestFrom, debounceTime, skip } from 'rxjs/operators'
 
 import PageControls from './components/PageControls'
 import { RxSelect } from './lib/select'
 import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
+import { RxTextInput } from './lib/input'
 import { arraysAreEqual } from './lib/common'
 
 document.addEventListener('DOMContentLoaded', () => {
 
     /* ELEMENTS */
     const $booksSearchForm = document.getElementById('books-form') as HTMLFormElement
+    const $keywordInput = document.querySelector('input[name=query]') as HTMLInputElement
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
@@ -20,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* COMPONENTS */
     const booksSearchForm = new RxFacetedSearchForm($booksSearchForm)
+    const keywordInput = new RxTextInput($keywordInput)
     const pageControls = new PageControls($pageControls)
     const pageSelect = new RxSelect($pageSelect)
     const sortSelect = new RxSelect($sortSelect)
@@ -29,11 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
         startWith(pageSelect.element.value), // start with the current page
-        map(p => parseInt(p)), // get a number from a string, for math
+        map(p => parseInt(p, 10)), // get a number from a string, for math
         distinctUntilChanged() // only update when changed
     )
     const totalResults$ = booksSearchForm.totalResults.pipe(
-        map(t => parseInt(t)),
+        map(t => parseInt(t, 10)),
     )
     const totalPages$ = booksSearchForm.pageLabels.pipe(
         map(l => l.length), // number of page labels tells us the number of pages
@@ -41,6 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
     )
     const noResults$ = booksSearchForm.totalResults.pipe(
         map(t => t === '0'), // true if totalResults is '0'
+        distinctUntilChanged()
+    )
+    const keywordChange$ = keywordInput.value$.pipe( // debounced, deduped changes
+        skip(1), // ignore initial value
+        debounceTime(500),
+        distinctUntilChanged()
+    )
+    const noKeyword$ = keywordInput.value$.pipe(
+        map(v => v === ''), // true if the value of the keyword input is ''
         distinctUntilChanged()
     )
     const pageLabels$ = booksSearchForm.pageLabels.pipe(
@@ -68,8 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
         map(([a, c]) => a === 'next' ? c + 1 : c - 1), // if 'next', add 1, otherwise subtract 1
         map(c => c.toString()) // map to a string for passing as pageSelect value
     )
+    const reloadFacets$ = merge( // a list of all the things that require fetching new facets
+        keywordChange$,
+    )
     const reloadResults$ = merge( // a list of all the things that require fetching new results (jump to page 1)
-        // reloadFacets$, // anything that changes facets also triggers new results
+        reloadFacets$, // anything that changes facets also triggers new results
         sortSelect.value
     ).pipe(debounceTime(100))
     const totalResultsText$ = merge(

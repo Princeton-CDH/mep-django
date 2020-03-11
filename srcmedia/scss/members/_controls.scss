@@ -1,5 +1,5 @@
 // make the sorting dropdown non-interactive since it's auto-selected
-select[name=sort] {
+.members.sort-pages select[name=sort] {
     pointer-events: none;
     
     + .dropdown.icon {

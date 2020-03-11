@@ -3,6 +3,18 @@
 Deploy and Upgrade notes
 ========================
 
+0.26
+----
+
+Bibliographic metadata search for works requires that the Solr configuration be
+updated and works reindexed. Copy all files under `solr_conf/conf/` to your
+configured Solr configset and restart Solr to ensure the managed schema is
+loaded. Then update the schema, clear works from the index, and then reindex::
+
+  python manage.py solr_schema
+  python manage.py index -c work -i none
+  python manage.py index -i work
+
 0.25
 ----
 

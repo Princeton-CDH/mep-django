@@ -8,12 +8,17 @@ class WorkSearchForm(FacetForm):
 
     SORT_CHOICES = [
         ('relevance', 'Relevance'),
-        ('title', 'Title A-Z'),
+        ('title', 'Title A - Z'),
     ]
 
     # NOTE these are not set by default!
     error_css_class = 'error'
     required_css_class = 'required'
 
+    query = forms.CharField(label='Keyword or Phrase', required=False,
+                        widget=forms.TextInput(attrs={
+                            'placeholder': 'Search book',
+                            'aria-label': 'Keyword or Phrase'
+                        }))
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False,
                              widget=SelectWithDisabled)

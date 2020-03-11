@@ -1,17 +1,16 @@
 import datetime
 import logging
 
+import rdflib
+import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
 from parasolr.django.indexing import ModelIndexable
-import rdflib
-import requests
 
 from mep.common.models import Named, Notable
 from mep.common.validators import verify_latlon
 from mep.people.models import Person
-
 
 logger = logging.getLogger(__name__)
 
@@ -192,6 +191,31 @@ class WorkSignalHandlers:
         # delete the assocation so cards will index without the account
         ModelIndexable.index_items([instance.work])
 
+    @staticmethod
+    def format_save(sender=None, instance=None, raw=False, **kwargs):
+        '''reindex associated work when a format is changed'''
+        # raw = saved as presented; don't query the database
+        if raw or not instance.pk:
+            return
+        # if any works are associated
+        works = Work.objects.filter(work_format__pk=instance.pk)
+        if works.exists():
+            logger.debug('format save, reindexing %d related works',
+                         works.count())
+            ModelIndexable.index_items(works)
+
+    @staticmethod
+    def format_delete(sender, instance, **kwargs):
+        '''reindex all associated works when a format is deleted'''
+        work_ids = Work.objects.filter(work_format__pk=instance.pk) \
+                               .values_list('id', flat=True)
+        if work_ids:
+            logger.debug('format delete, reindexing %d related works',
+                         len(work_ids))
+            # find the items based on the list of ids to reindex
+            works = Work.objects.filter(id__in=list(work_ids))
+            ModelIndexable.index_items(works)
+
 
 class Work(Notable, ModelIndexable):
     '''Work record for an item that circulated in the library or was
@@ -261,6 +285,11 @@ class Work(Notable, ModelIndexable):
         '''return work creators of a single type, e.g. author'''
         return [creator.person for creator in self.creator_set.all()
                 if creator.creator_type.name == creator_type]
+
+    @property
+    def creator_names(self):
+        '''list of all creator names, including authors'''
+        return [creator.name for creator in self.creators.all()]
 
     @property
     def authors(self):
@@ -343,6 +372,10 @@ class Work(Notable, ModelIndexable):
         'books.CreatorType': {
             'post_save': WorkSignalHandlers.creatortype_save,
             'pre_delete': WorkSignalHandlers.creatortype_delete,
+        },
+        'books.Format': {
+            'post_save': WorkSignalHandlers.format_save,
+            'pre_delete': WorkSignalHandlers.format_delete,   
         }
     }
 
@@ -352,13 +385,15 @@ class Work(Notable, ModelIndexable):
         index_data = super().index_data()
 
         index_data.update({
-            'title_s': self.title,
-            # include pk for now for item detail url
-            'pk_i': self.pk,
+            'title_t': self.title,
+            'sort_title_isort': self.title, # use title directly for sorting for now
+            'pk_i': self.pk, # NOTE include pk for now for item detail url
             'authors_t': [str(a) for a in self.authors] if self.authors else None,
-            'editors_t': [str(e) for e in self.editors] if self.editors else None,
-            'translators_t': [str(t) for t in self.translators] if self.translators else None,
+            'sort_authors_isort': self.sort_author_list,
+            'creators_t': self.creator_names,
             'pub_date_i': self.year,
+            'format_s': self.format(),
+            'notes_txt_en': self.public_notes
         })
 
         return index_data
