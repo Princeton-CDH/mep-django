@@ -231,6 +231,7 @@ class PersonAdmin(admin.ModelAdmin):
         redirect = '%s?ids=%s' % (reverse('people:merge'), ','.join(selected))
         return HttpResponseRedirect(redirect, status=303)   # 303 = See Other
     merge_people.short_description = 'Merge selected people'
+    merge_people.allowed_permissions = ('change', 'delete')
 
     #: fields to be included in CSV export
     export_fields = [
