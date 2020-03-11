@@ -1,11 +1,13 @@
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.functions import Coalesce
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from djiffy.models import Canvas, Manifest
 from parasolr.django.indexing import ModelIndexable
 
@@ -392,8 +394,10 @@ class Footnote(Notable):
     objects = FootnoteQuerySet.as_manager()
 
     def __str__(self):
-        return 'Footnote on %s (%s)' % (self.content_object,
-            ' '.join([str(i) for i in [self.bibliography, self.location] if i]))
+        return 'Footnote on %s (%s)' % \
+            (self.content_object,
+             ' '.join([str(i) for i in [self.bibliography, self.location]
+                       if i]))
 
     # NOTE: for convenient access from other models, add a
     # reverse generic relation
@@ -409,7 +413,9 @@ class Footnote(Notable):
         if self.image:
             img = self.image.admin_thumbnail()
             if 'rendering' in self.image.manifest.extra_data:
-                img = '<a target="_blank" href="%s">%s</a>' % \
-                    (self.image.manifest.extra_data['rendering']['@id'], img)
+                img = format_html(
+                    '<a target="_blank" href="{}">{}</a>',
+                    self.image.manifest.extra_data['rendering']['@id'],
+                    mark_safe(img))
             return img
     image_thumbnail.allow_tags = True
