@@ -3,7 +3,7 @@
 Deploy and Upgrade notes
 ========================
 
-0.26
+0.27
 ----
 
 Bibliographic metadata search for works requires that the Solr configuration be
