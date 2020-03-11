@@ -10,12 +10,14 @@ class WorkSolrQuerySet(AliasedSolrQuerySet):
 
     #: map readable field names to actual solr fields
     field_aliases = {
-        'title': 'title_s',
+        'title': 'title_t',
+        'sort_title': 'sort_title_isort',
         'authors': 'authors_t',
-        'editors': 'editors_t',
+        'creators': 'creators_t',
         'pub_date': 'pub_date_i',
-        'translators': 'translators_t',
+        'format': 'format_s',
         'pk': 'pk_i',
+        'notes': 'notes_txt_en',
         'account_start': 'account_start_i',
         'account_end': 'account_end_i'
     }
