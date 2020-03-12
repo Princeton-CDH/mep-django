@@ -190,23 +190,28 @@ class EditionYearToPartial(TestMigrations):
     migrate_to = '0018_edition_date_to_partial'
 
     def setUpBeforeMigration(self, apps):
-        Work    = apps.get_model('books', 'Work')
-        Edition = apps.get_model('books', 'Edition')
+        self.Work = apps.get_model('books', 'Work')
+        self.Edition = apps.get_model('books', 'Edition')
 
         # create a work and an edition to test date conversion logic
-        self.ny  = Work.objects.create(title='New Yorker')
-        self.ed  = Edition.objects.create(work=self.ny, year=1931)
-        self.ed2 = Edition.objects.create(work=self.ny) # no year defined
+        self.ny = self.Work.objects.create(title='New Yorker')
+        self.ed = self.Edition.objects.create(work=self.ny, year=1931)
+        self.ed2 = self.Edition.objects.create(work=self.ny)  # no year defined
 
     def test_convert(self):
         # should save() as jan 1 of year, with year precision
-        self.assertEqual(self.ed.date, date(1931, 1, 1))
-        self.assertEqual(self.ed.date_precision, DatePrecision.year)
+
+        # get a fresh copy of the object after migration
+        ed = self.Edition.objects.get(pk=self.ed.pk)
+        assert ed.date == date(1931, 1, 1)
+        assert ed.date_precision == DatePrecision.year
 
     @patch('mep.books.models.Edition.save')
     def test_null_year(self, mock_save):
-        # save() should only be called once, since only one edition has a year
-        mock_save.assert_called_once_with(instance=self.ed)
+        # get a fresh copy of the object after migration
+        ed2 = self.Edition.objects.get(pk=self.ed2.pk)
+        assert ed2.date is None
+        assert ed2.date_precision is None
 
 
 @pytest.mark.last
