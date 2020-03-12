@@ -451,7 +451,16 @@ class TestEdition(TestCase):
         # with title
         edition.title = 'Subsection'
         assert edition.display_html() == \
-            'no. 19a, Winter 1931<br/><em>Subsection</em>'
+            'no. 19a, Winter 1931 <br/><em>Subsection</em>'
+
+    def test_display_text(self):
+        work = Work.objects.create(title='transition')
+        # volume only
+        edition = Edition(work=work, volume=3,
+                          date=datetime.date(1931, 1, 1),
+                          title='subtitle')
+        assert edition.display_text() == \
+            'Vol. 3 1931 subtitle'
 
 
 class TestEditionCreator(TestCase):
