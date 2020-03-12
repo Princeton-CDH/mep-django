@@ -35,8 +35,9 @@ class EditionInline(admin.StackedInline):
     extra = 1
     show_change_link = True
     classes = ('grp-collapse grp-open',)
+    date_hierarchy = 'date'
     fields = (
-        'title', 'year',
+        'title', 'partial_date',
         ('volume', 'number', 'season', 'edition'),
         'uri', 'notes'
     )

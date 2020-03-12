@@ -401,19 +401,20 @@ class TestEdition(TestCase):
         edition.title = 'The foo and the bar'
         assert str(edition) == '%s (%s)' % (edition.title, work.year)
 
-        # edition year takes precedence
-        edition.year = 1920
-        assert str(edition) == '%s (%s)' % (edition.title, edition.year)
-
+        # edition date takes precedence
+        edition.partial_date = '1920'
+        assert str(edition) == '%s (%s)' % (edition.title, edition.partial_date)
+        
         # includes volume, number, season when present
         edition.volume = 2
-        assert str(edition) == '%s (%s) vol. 2' % (edition.title, edition.year)
+        assert str(edition) == '%s (%s) vol. 2' % (edition.title,
+                                                   edition.partial_date)
         edition.number = 3
         assert str(edition) == '%s (%s) vol. 2 no. 3' % \
-            (edition.title, edition.year)
+            (edition.title, edition.partial_date)
         edition.season = 'Winter'
         assert str(edition) == '%s (%s) vol. 2 no. 3 Winter' % \
-            (edition.title, edition.year)
+            (edition.title, edition.partial_date)
 
         unknown_work = Work.objects.create()
         # handles missing title
