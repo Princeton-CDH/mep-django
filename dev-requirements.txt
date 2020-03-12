@@ -3,6 +3,6 @@ pytest-django>=3.4.7
 pytest-cov
 pytest-ordering
 # note: pytest-sugar is optional but pretty
-#pytest-sugar
+pytest-sugar
 django-debug-toolbar
 sphinx
