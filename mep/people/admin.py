@@ -29,7 +29,7 @@ class GeoNamesLookupWidget(autocomplete.Select2):
     '''Customize autocomplete select widget to display Geonames URI
     as a link.'''
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, renderer=None, attrs=None):
         if attrs is None:
             attrs = {}
         attrs['class'] = 'geonames-lookup'
@@ -46,7 +46,7 @@ class MapWidget(forms.NumberInput):
     '''Customize numeric input and add a map div to display a leaflet map
     for latitude and longitude values on the form.'''
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, renderer=None, attrs=None):
         widget = super(MapWidget, self).render(name, value, attrs)
         return mark_safe(u'<div id="geonames_map"></div>%s' % widget)
 
@@ -231,6 +231,7 @@ class PersonAdmin(admin.ModelAdmin):
         redirect = '%s?ids=%s' % (reverse('people:merge'), ','.join(selected))
         return HttpResponseRedirect(redirect, status=303)   # 303 = See Other
     merge_people.short_description = 'Merge selected people'
+    merge_people.allowed_permissions = ('change', 'delete')
 
     #: fields to be included in CSV export
     export_fields = [

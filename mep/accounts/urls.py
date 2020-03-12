@@ -1,5 +1,6 @@
 from django.conf.urls import url
-from .views import AccountAutocomplete
+
+from mep.accounts.views import AccountAutocomplete
 
 # url namespace
 app_name = 'accounts'

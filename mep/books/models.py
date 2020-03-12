@@ -244,7 +244,7 @@ class Work(Notable, ModelIndexable):
             downloaded, e.g. Project Gutenberg page for this item')
     work_format = models.ForeignKey(
         Format, verbose_name='Format', null=True, blank=True,
-        help_text='Format, e.g. book or periodical')
+        help_text='Format, e.g. book or periodical', on_delete=models.SET_NULL)
 
     #: update timestamp
     updated_at = models.DateTimeField(auto_now=True, null=True)
@@ -459,7 +459,8 @@ class Edition(Notable):
     '''A specific known edition of a :class:`Work` that circulated.'''
 
     work = models.ForeignKey(
-        Work, help_text='Generic Work associated with this edition.')
+        Work, help_text='Generic Work associated with this edition.',
+        on_delete=models.CASCADE)
     title = models.CharField(
         max_length=255, blank=True,
         help_text='Title of this edition, if different from associated work')
@@ -512,9 +513,9 @@ class CreatorType(Named, Notable):
 
 
 class Creator(Notable):
-    creator_type = models.ForeignKey(CreatorType)
-    person = models.ForeignKey(Person)
-    work = models.ForeignKey(Work)
+    creator_type = models.ForeignKey(CreatorType, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    work = models.ForeignKey(Work, on_delete=models.CASCADE)
 
     def __str__(self):
         return '%s %s %s' % (self.person, self.creator_type, self.work)
@@ -523,9 +524,9 @@ class Creator(Notable):
 class EditionCreator(Notable):
     '''Creator specific to an :class:`Edition` of a :class:`Work`.'''
 
-    creator_type = models.ForeignKey(CreatorType)
-    person = models.ForeignKey(Person)
-    edition = models.ForeignKey(Edition)
+    creator_type = models.ForeignKey(CreatorType, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
 
     def __str__(self):
         '''String representation: person, creator type, edition.'''

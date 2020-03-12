@@ -12,8 +12,12 @@ type Address = {
     start_date?: string,
     end_date?: string,
 }
-declare const addressData: Array<Address>
-declare const libraryAddress: Address|null
+
+const addressDataElement = document.getElementById('address-data') as HTMLElement
+const addressData = JSON.parse(addressDataElement.textContent || '') as Array<Address>
+
+const libraryAddressDataElement = document.getElementById('library-address') as HTMLElement
+const libraryAddress = JSON.parse(libraryAddressDataElement.textContent || '') as Address|null
 
 // defined in local_settings.py and passed in the django view/template
 declare const mapboxToken: string
@@ -62,14 +66,14 @@ if (libraryAddress) { // only add if data is available
         iconAnchor: [23, 62],
         popupAnchor: [0, -60]
     })
-    
+
     bookstoreMarker = marker([libraryAddress.latitude, libraryAddress.longitude], {
         icon: bookstoreIcon,
         zIndexOffset: 1, // on top of address markers
     })
-    
+
     bookstoreMarker.bindPopup(popupText(libraryAddress))
-    
+
     bookstoreMarker.addTo(addressMap)
 }
 

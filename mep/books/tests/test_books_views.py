@@ -3,8 +3,8 @@ from unittest.mock import Mock, patch
 
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
-from django.core.urlresolvers import reverse
 from django.test import RequestFactory, TestCase
+from django.urls import reverse
 
 from mep.books.models import Work
 from mep.books.views import WorkList

@@ -1,7 +1,8 @@
+{{ timeline|json_script:"timeline-data"}}
+
 <script nonce="{{ request.csp_nonce }}">
 
-var data = {{ timeline|json }}
-console.log('timeline data: ', data)
+var data = JSON.parse(document.getElementById('timeline-data').textContent);
 
 function drawMemberTimeline(data, mode) {
 
