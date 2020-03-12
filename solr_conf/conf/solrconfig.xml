@@ -767,22 +767,22 @@
 
       <!-- bib metadata search pseudo field for books -->
       <str name="bib_qf">
-        title_t^100
+        authors_t^100
+        title_t^90
         title_txt_en^50
-        authors_t^30
         creators_t^20
         pub_date_i^10
-        format_s^10
+        format_s_lower^10
         notes_txt_en
       </str>
       <str name="bib_pf">
-        title_t^100
+        authors_t^100
+        title_t^90
         title_txt_en^50
-        authors_t^30
         creators_t^20
         notes_txt_en^10
         pub_date_i
-        format_s
+        format_s_lower
       </str>
 
     </lst>

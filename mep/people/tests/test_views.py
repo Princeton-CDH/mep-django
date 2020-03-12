@@ -269,7 +269,8 @@ class TestPeopleViews(TestCase):
         assert response.status_code == 302
 
         staff_password = str(uuid.uuid4())
-        staffuser = User.objects.create_user(username='staff',
+        staffuser = User.objects.create_user(
+            username='staff',
             password=staff_password, email='staff@example.com',
             is_staff=True)
 
@@ -277,7 +278,7 @@ class TestPeopleViews(TestCase):
         self.client.login(username=staffuser.username, password=staff_password)
         # staff user without persion permission should still fail
         response = self.client.get(reverse('people:merge'))
-        assert response.status_code == 302
+        assert response.status_code == 403
 
         # give staff user required permissions for merge person view
         perms = Permission.objects.filter(codename__in=['change_person', 'delete_person'])
@@ -1059,7 +1060,8 @@ class TestMemberDetailView(TestCase):
         response = self.client.get(url)
         assert response.status_code == 200
         # library address is rendered as "null"
-        self.assertContains(response, "libraryAddress = null")
+        self.assertContains(response,
+            '<script id="library-address" type="application/json">null</script>')
 
     def test_get_non_member(self):
         aeschylus = Person.objects.get(name='Aeschylus', slug='aeschylus')

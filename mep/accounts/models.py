@@ -288,15 +288,19 @@ class Account(models.Model):
 class Address(Notable, PartialDateMixin):
     '''Address associated with an :class:`Account` or
     a :class:`~mep.people.models.Person`.  Used to associate locations with
-    people and accounts, with optional start and end dates and a care/of person.'''
-    location = models.ForeignKey(Location)
-    account = models.ForeignKey(Account, blank=True, null=True,
+    people and accounts, with optional start and end dates and
+    a care/of person.'''
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    account = models.ForeignKey(
+        Account, blank=True, null=True, on_delete=models.CASCADE,
         help_text='Associated library account')
-    person = models.ForeignKey(Person, blank=True, null=True,
+    person = models.ForeignKey(
+        Person, blank=True, null=True, on_delete=models.CASCADE,
         help_text='For personal addresses not associated with library accounts.')
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
-    care_of_person = models.ForeignKey(Person, blank=True, null=True,
+    care_of_person = models.ForeignKey(
+        Person, blank=True, null=True, on_delete=models.SET_NULL,
         related_name='care_of_addresses')
 
     class Meta:
@@ -380,7 +384,7 @@ class EventQuerySet(models.QuerySet):
 
 class Event(Notable, PartialDateMixin):
     '''Base table for events in the Shakespeare and Co. Lending Library'''
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     work = models.ForeignKey(
@@ -468,19 +472,21 @@ class CurrencyMixin(models.Model):
 
 class Subscription(Event, CurrencyMixin):
     '''Records subscription events in the MEP database'''
-    duration = models.PositiveIntegerField('Days',
-        blank=True, null=True,
-        help_text='Subscription duration in days. Automatically calculated from start and end date.')
-    volumes = models.DecimalField(blank=True, null=True, max_digits=4,
-        decimal_places=2,
+    duration = models.PositiveIntegerField(
+        'Days', blank=True, null=True,
+        help_text='Subscription duration in days. ' +
+                  'Automatically calculated from start and end date.')
+    volumes = models.DecimalField(
+        blank=True, null=True, max_digits=4, decimal_places=2,
         help_text='Number of volumes for checkout')
-    category = models.ForeignKey(SubscriptionType, null=True, blank=True,
+    category = models.ForeignKey(
+        SubscriptionType, null=True, blank=True, on_delete=models.SET_NULL,
         help_text='Code to indicate the kind of subscription')
 
     # NOTE: Using decimal field to take advantage of Python's decimal handling
     # Can store up to 99999999.99 -- which is *probably* safe.
     price_paid = models.DecimalField(max_digits=10, decimal_places=2,
-        blank=True, null=True)
+                                     blank=True, null=True)
     deposit = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -498,7 +504,8 @@ class Subscription(Event, CurrencyMixin):
         (RENEWAL, 'Renewal'),
         (OTHER, 'Other'),
     )
-    subtype = models.CharField(verbose_name='Type', max_length=50, blank=True,
+    subtype = models.CharField(
+        verbose_name='Type', max_length=50, blank=True,
         choices=EVENT_TYPE_CHOICES,
         help_text='Type of subscription event, e.g. supplement or renewal.')
 

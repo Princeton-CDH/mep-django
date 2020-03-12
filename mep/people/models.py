@@ -71,7 +71,8 @@ class Location(Notable):
         validators=[verify_latlon]
     )
     #: :class:`Country`
-    country = models.ForeignKey(Country, blank=True, null=True)
+    country = models.ForeignKey(Country, blank=True, null=True,
+                                on_delete=models.SET_NULL)
 
     #: footnotes (:class:`~mep.footnotes.models.Footnote`)
     footnotes = GenericRelation(Footnote)
@@ -408,7 +409,8 @@ class Person(Notable, DateRange, ModelIndexable):
     #: title
     title = models.CharField(blank=True, max_length=255)
     #: :class:`Profession`
-    profession = models.ForeignKey(Profession, blank=True, null=True)
+    profession = models.ForeignKey(Profession, blank=True, null=True,
+                                   on_delete=models.SET_NULL)
     #: nationalities, link to :class:`Country`
     nationalities = models.ManyToManyField(Country, blank=True)
     #: relationships to other people, via :class:`Relationship`
@@ -696,7 +698,8 @@ class InfoURL(Notable):
     url = models.URLField(
         verbose_name='URL',
         help_text='Additional (non-VIAF) URLs for a person.')
-    person = models.ForeignKey(Person, related_name='urls')
+    person = models.ForeignKey(Person, related_name='urls',
+                               on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'Informational URL'
@@ -714,9 +717,12 @@ class RelationshipType(Named, Notable):
 
 class Relationship(Notable):
     '''Through model for :class:`Person` to ``self``'''
-    from_person = models.ForeignKey(Person, related_name='from_relationships')
-    to_person = models.ForeignKey(Person, related_name='to_relationships')
-    relationship_type = models.ForeignKey(RelationshipType)
+    from_person = models.ForeignKey(
+        Person, related_name='from_relationships', on_delete=models.CASCADE)
+    to_person = models.ForeignKey(
+        Person, related_name='to_relationships', on_delete=models.CASCADE)
+    relationship_type = models.ForeignKey(
+        RelationshipType, on_delete=models.CASCADE)
 
     def __repr__(self):
         '''Custom method to produce a more human useable representation
