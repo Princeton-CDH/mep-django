@@ -16,6 +16,6 @@ class SolrSchema(schema.SolrSchema):
         # ngram version of names for searching
         'name_t': 'name_ngram',
         'sort_name_t': 'name_ngram',
-        # stemmed version of titles for searching
+        # stemmed version of titles for searching  
         'title_t': 'title_txt_en',
     }

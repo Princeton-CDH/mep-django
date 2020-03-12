@@ -392,7 +392,7 @@ class Work(Notable, ModelIndexable):
             'sort_authors_isort': self.sort_author_list,
             'creators_t': self.creator_names,
             'pub_date_i': self.year,
-            'format_s': self.format(),
+            'format_s_lower': self.format(),
             'notes_txt_en': self.public_notes
         })
 

@@ -15,7 +15,7 @@ class WorkSolrQuerySet(AliasedSolrQuerySet):
         'authors': 'authors_t',
         'creators': 'creators_t',
         'pub_date': 'pub_date_i',
-        'format': 'format_s',
+        'format': 'format_s_lower',
         'pk': 'pk_i',
         'notes': 'notes_txt_en',
         'account_start': 'account_start_i',
