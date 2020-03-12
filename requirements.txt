@@ -1,5 +1,5 @@
 Django>=1.11,<2.0
-mysqlclient<1.4
+mysqlclient>1.3.13
 django-grappelli<2.11
 cached_property
 # require cas-ng to <4.0 since 4 is now out and requires django 2.2
