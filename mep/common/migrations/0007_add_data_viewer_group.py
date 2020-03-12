@@ -7,7 +7,7 @@ data_viewer_perms = {
     'accounts': [
         'view_account',
         "view_address",
-        # 'view_accountaddress',
+        'view_accountaddress',
         'view_borrow',
         'view_event',
         'view_purchase',
@@ -24,18 +24,18 @@ data_viewer_perms = {
         'view_edition',
         'view_editioncreator',
     ],
-    "footnotes": [
-        "view_bibliography",
-        "view_footnote",
-        "view_sourcetype"
+    'footnotes': [
+        'view_bibliography',
+        'view_footnote',
+        'view_sourcetype'
     ],
-    "people": [
-        "view_country",
-        "view_infourl",
-        "view_person",
-        "view_profession",
-        "view_relationship",
-        "view_relationshiptype"
+    'people': [
+        'view_country',
+        'view_infourl',
+        'view_person',
+        'view_profession',
+        'view_relationship',
+        'view_relationshiptype'
     ],
     'djiffy': [
         'view_manifest',
@@ -45,8 +45,8 @@ data_viewer_perms = {
 
 
 def create_data_viewer_group(apps, schema_editor):
-    Group = apps.get_model("auth", "Group")
-    Permission = apps.get_model("auth", "Permission")
+    Group = apps.get_model('auth', 'Group')
+    Permission = apps.get_model('auth', 'Permission')
 
     # make sure permissions are created before loading the fixture
     # which references them
@@ -72,7 +72,7 @@ def create_data_viewer_group(apps, schema_editor):
 
 
 def remove_data_viewer_group(apps, schema_editor):
-    Group = apps.get_model("auth", "Group")
+    Group = apps.get_model('auth', 'Group')
     Group.objects.filter(name='Data Viewer').delete()
 
 
