@@ -40,8 +40,6 @@ class Command(BaseExport):
         # related book/item
         'item title', 'item work uri', 'item volume',
         'item notes',
-        # generic
-        'notes',
         # footnote/citation
         'source citation', 'source manifest', 'source image'
     ]
@@ -105,8 +103,6 @@ class Command(BaseExport):
         item_info = self.item_info(obj)
         if item_info:
             data['item'] = item_info
-        if obj.notes:
-            data['notes'] = obj.notes
         if footnote:
             data['source'] = self.source_info(footnote)
         return data
@@ -154,9 +150,7 @@ class Command(BaseExport):
                 ('title', event.work.title),
             ])
             if event.edition:
-                # NOTE: using string representation for now,
-                # will revisit to refine later
-                item_info['volume'] = str(event.edition)
+                item_info['volume'] = event.edition.display_text()
             if event.work.uri:
                 item_info['work uri'] = event.work.uri
             if event.work.public_notes:
