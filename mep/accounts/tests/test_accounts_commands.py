@@ -489,7 +489,7 @@ class TestExportEvents(TestCase):
         # event with known edition
         event = Event.objects.filter(edition__isnull=False).first()
         info = self.cmd.item_info(event)
-        assert info['volume'] == str(event.edition)
+        assert info['volume'] == event.edition.display_text()
 
         # no work, no item data
         event = Event.objects.filter(work__isnull=True).first()

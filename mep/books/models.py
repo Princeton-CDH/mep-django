@@ -5,6 +5,7 @@ import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
+from django.utils.html import format_html, strip_tags
 from parasolr.django.indexing import ModelIndexable
 
 from mep.accounts.partial_date import (DatePrecisionField, PartialDate,
@@ -513,6 +514,31 @@ class Edition(Notable):
             parts.append(self.season)
         # include edition?
         return ' '.join(parts)
+
+    def display_html(self):
+        '''Render volume/issue citation with formatting, suitable
+        for inclusion on a webpage.'''
+        parts = []
+        if self.volume:
+            parts.append('Vol. %s' % self.volume)
+        if self.number:
+            parts.append('no. %s' % self.number)
+        if self.season or self.date:
+            season_year = '%s %s' % (
+                self.season,
+                self.date.year if self.date else '')
+            parts.append(season_year.strip())
+
+        citation = ', '.join(parts)
+
+        if self.title:
+            return format_html('{} <br/><em>{}</em>',
+                               citation, self.title)
+        return citation
+
+    def display_text(self):
+        '''text-only version of volume/issue citation'''
+        return strip_tags(self.display_html())
 
 
 class CreatorType(Named, Notable):

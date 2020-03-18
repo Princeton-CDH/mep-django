@@ -404,7 +404,7 @@ class TestEdition(TestCase):
         # edition date takes precedence
         edition.partial_date = '1920'
         assert str(edition) == '%s (%s)' % (edition.title, edition.partial_date)
-        
+
         # includes volume, number, season when present
         edition.volume = 2
         assert str(edition) == '%s (%s) vol. 2' % (edition.title,
@@ -430,6 +430,42 @@ class TestEdition(TestCase):
         # saved repr
         edition.save()
         assert repr(edition) == '<Edition pk:%d %s>' % (edition.pk, edition)
+
+    def test_display_html(self):
+        work = Work.objects.create(title='transition')
+        # volume only
+        edition = Edition(work=work, volume=3)
+        assert edition.display_html() == 'Vol. 3'
+        # volume + number
+        edition.number = '19a'
+        assert edition.display_html() == 'Vol. 3, no. 19a'
+        # volume + number + season
+        edition.season = 'Winter'
+        assert edition.display_html() == 'Vol. 3, no. 19a, Winter'
+        # volume + number + season + year
+        edition.date = datetime.date(1931, 1, 1)
+        assert edition.display_html() == 'Vol. 3, no. 19a, Winter 1931'
+        # number + season + date, no volume
+        edition.volume = None
+        assert edition.display_html() == 'no. 19a, Winter 1931'
+        # with title
+        edition.title = 'Subsection'
+        assert edition.display_html() == \
+            'no. 19a, Winter 1931 <br/><em>Subsection</em>'
+
+        # title and year but no season
+        edition.season = ''
+        assert edition.display_html() == \
+            'no. 19a, 1931 <br/><em>Subsection</em>'
+
+    def test_display_text(self):
+        work = Work.objects.create(title='transition')
+        # volume only
+        edition = Edition(work=work, volume=3,
+                          date=datetime.date(1931, 1, 1),
+                          title='subtitle')
+        assert edition.display_text() == \
+            'Vol. 3, 1931 subtitle'
 
 
 class TestEditionCreator(TestCase):
