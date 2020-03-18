@@ -12,6 +12,7 @@ from mep.accounts.partial_date import DatePrecision
 # and from winthrop-django
 
 
+@pytest.mark.last
 class TestMigrations(TransactionTestCase):
 
     app = None

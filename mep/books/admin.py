@@ -1,13 +1,16 @@
 from django import forms
 from django.conf.urls import url
 from django.contrib import admin
+from django.core.validators import ValidationError
 from django.urls import reverse
 from django.db.models import Count
 from django.utils.html import format_html
 from django.utils.timezone import now
+
 from tabular_export.admin import export_to_csv_response
 
 from mep.accounts.admin import AUTOCOMPLETE
+from mep.accounts.partial_date import PartialDateFormMixin
 from mep.books.models import Creator, CreatorType, Work, Subject, Format, \
     Genre, Edition
 from mep.common.admin import CollapsibleTabularInline
@@ -29,14 +32,45 @@ class WorkCreatorInline(CollapsibleTabularInline):
     extra = 1
 
 
+class EditionForm(forms.ModelForm):
+    class Meta:
+        model = Edition
+        fields = ('title', 'partial_date',
+                  'volume', 'number', 'season', 'edition',
+                  'uri', 'notes')
+
+    partial_date = forms.CharField(
+        validators=[PartialDateFormMixin.partial_date_validator],
+        required=False,
+        help_text='%s; used to sort editions and display year. %s' % (
+            Edition._meta.get_field('date').help_text,
+            PartialDateFormMixin.partial_date_help_text),
+        label="Date")
+
+    def get_initial_for_field(self, field, name):
+        if name == 'partial_date':
+            return self.instance.partial_date
+        return super().get_initial_for_field(field, name)
+
+    def clean(self):
+        '''Parse partial dates and save them on form submission.'''
+        cleaned_data = super().clean()
+        if not self.errors:
+            try:
+                self.instance.partial_date = cleaned_data['partial_date']
+            except ValueError as verr:
+                raise ValidationError('Date validation error: %s' % verr)
+            return cleaned_data
+
+
 class EditionInline(admin.StackedInline):
     model = Edition
-    # form = EditionInlineForm
+    form = EditionForm
     extra = 1
     show_change_link = True
     classes = ('grp-collapse grp-open',)
     fields = (
-        'title', 'year',
+        'title', 'partial_date',
         ('volume', 'number', 'season', 'edition'),
         'uri', 'notes'
     )

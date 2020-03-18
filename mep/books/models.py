@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 import rdflib
@@ -8,6 +7,8 @@ from django.db import models
 from django.urls import reverse
 from parasolr.django.indexing import ModelIndexable
 
+from mep.accounts.partial_date import (DatePrecisionField, PartialDate,
+                                       PartialDateMixin)
 from mep.common.models import Named, Notable
 from mep.common.validators import verify_latlon
 from mep.people.models import Person
@@ -131,7 +132,7 @@ class WorkSignalHandlers:
     related records are saved or deleted.'''
 
     @staticmethod
-    def creatortype_save(sender=None, instance=None, raw=False, **kwargs):
+    def creatortype_save(sender, instance=None, raw=False, **_kwargs):
         '''reindex all associated works when a creator type is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
@@ -144,7 +145,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def creatortype_delete(sender, instance, **kwargs):
+    def creatortype_delete(sender, instance, **_kwargs):
         '''reindex all associated works when a creator type is deleted'''
         work_ids = Work.objects.filter(creator__creator_type__pk=instance.pk) \
                                .values_list('id', flat=True)
@@ -156,7 +157,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def person_save(sender=None, instance=None, raw=False, **kwargs):
+    def person_save(sender, instance=None, raw=False, **_kwargs):
         '''reindex all works associated via creator when a person is saved'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
@@ -169,7 +170,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def person_delete(sender, instance, **kwargs):
+    def person_delete(sender, instance, **_kwargs):
         '''reindex all works associated via creator when a person is deleted'''
         work_ids = Work.objects.filter(creator__person__pk=instance.pk) \
                                .values_list('id', flat=True)
@@ -181,7 +182,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def creator_change(sender=None, instance=None, raw=False, **kwargs):
+    def creator_change(sender, instance=None, raw=False, **_kwargs):
         '''reindex associated work when a creator record is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
@@ -192,7 +193,7 @@ class WorkSignalHandlers:
         ModelIndexable.index_items([instance.work])
 
     @staticmethod
-    def format_save(sender=None, instance=None, raw=False, **kwargs):
+    def format_save(sender, instance=None, raw=False, **_kwargs):
         '''reindex associated work when a format is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
@@ -205,7 +206,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def format_delete(sender, instance, **kwargs):
+    def format_delete(sender, instance, **_kwargs):
         '''reindex all associated works when a format is deleted'''
         work_ids = Work.objects.filter(work_format__pk=instance.pk) \
                                .values_list('id', flat=True)
@@ -375,7 +376,7 @@ class Work(Notable, ModelIndexable):
         },
         'books.Format': {
             'post_save': WorkSignalHandlers.format_save,
-            'pre_delete': WorkSignalHandlers.format_delete,   
+            'pre_delete': WorkSignalHandlers.format_delete,
         }
     }
 
@@ -466,11 +467,14 @@ class Edition(Notable):
         max_length=255, blank=True,
         help_text='Title of this edition, if different from associated work')
     volume = models.PositiveSmallIntegerField(blank=True, null=True)
-    number = models.PositiveSmallIntegerField(blank=True, null=True)
-    year = models.PositiveSmallIntegerField(
-        blank=True, null=True,
+    number = models.CharField(max_length=255, blank=True, null=True)
+    date = models.DateField(blank=True, null=True,
         help_text='Date of Publication for this edition')
-    season = models.CharField(max_length=255, blank=True)
+    date_precision = DatePrecisionField(blank=True, null=True)
+    partial_date = PartialDate('date', 'date_precision',
+        PartialDateMixin.UNKNOWN_YEAR, label='publication date')
+    season = models.CharField(max_length=255, blank=True,
+        help_text='Spell out month or season if part of numbering')
     edition = models.CharField(max_length=255, blank=True)
     uri = models.URLField(
         blank=True, verbose_name='URI',
@@ -488,6 +492,9 @@ class Edition(Notable):
 
     # language model foreign key may be added in future
 
+    class Meta:
+        ordering = ['date']
+
     def __repr__(self):
         # provide pk for easy lookup and string for recognition
         return '<Edition pk:%s %s>' % (self.pk or '??', self)
@@ -496,7 +503,7 @@ class Edition(Notable):
         # simple string representation
         parts = [
             self.title or self.work.title or '??',
-            '(%s)' % (self.year or self.work.year or '??', ),
+            '(%s)' % (self.partial_date or self.work.year or '??', ),
         ]
         if self.volume:
             parts.append('vol. %s' % self.volume)

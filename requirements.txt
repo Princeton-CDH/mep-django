@@ -9,7 +9,7 @@ eulxml
 # 0.2 viapy when released
 git+https://github.com/Princeton-CDH/viapy.git@develop#egg=viapy
 #viapy
-wagtail<=2.8
+wagtail>=2.8
 django-autocomplete-light>=3.5.1
 python-dateutil
 django-apptemplates
