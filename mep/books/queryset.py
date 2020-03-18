@@ -13,6 +13,7 @@ class WorkSolrQuerySet(AliasedSolrQuerySet):
         'title': 'title_t',
         'sort_title': 'sort_title_isort',
         'authors': 'authors_t',
+        'sort_authors': 'sort_authors_t',
         'creators': 'creators_t',
         'pub_date': 'pub_date_i',
         'format': 'format_s_lower',
