@@ -522,15 +522,13 @@ class Edition(Notable):
             parts.append('Vol. %s' % self.volume)
         if self.number:
             parts.append('no. %s' % self.number)
-        if self.season:
-            parts.append(self.season)
+        if self.season or self.date:
+            season_year = '%s %s' % (
+                self.season,
+                self.date.year if self.date else '')
+            parts.append(season_year.strip())
 
         citation = ', '.join(parts)
-
-        # date is partial but we only want year;
-        # assuming year is known if set
-        if self.date:
-            citation = '%s %s' % (citation, self.date.year)
 
         if self.title:
             return format_html('{} <br/><em>{}</em>',
