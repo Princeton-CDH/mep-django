@@ -32,13 +32,12 @@ class WorkCreatorInline(CollapsibleTabularInline):
     extra = 1
 
 
-class EditionInlineForm(forms.ModelForm):
-    model = Edition
-    fields = (
-        'title', 'partial_start_date',
-        ('volume', 'number', 'season', 'edition'),
-        'uri', 'notes'
-    )
+class EditionForm(forms.ModelForm):
+    class Meta:
+        model = Edition
+        fields = ('title', 'partial_date',
+                  'volume', 'number', 'season', 'edition',
+                  'uri', 'notes')
 
     partial_date = forms.CharField(
         validators=[PartialDateFormMixin.partial_date_validator],
@@ -66,7 +65,7 @@ class EditionInlineForm(forms.ModelForm):
 
 class EditionInline(admin.StackedInline):
     model = Edition
-    form = EditionInlineForm
+    form = EditionForm
     extra = 1
     show_change_link = True
     classes = ('grp-collapse grp-open',)

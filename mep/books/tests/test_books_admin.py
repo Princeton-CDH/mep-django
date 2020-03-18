@@ -1,3 +1,4 @@
+import datetime
 from unittest.mock import Mock, patch
 
 from django.contrib import admin
@@ -6,8 +7,9 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from mep.accounts.models import Account, Borrow, Purchase
-from mep.books.admin import WorkAdmin
-from mep.books.models import Work
+from mep.accounts.partial_date import DatePrecision
+from mep.books.admin import EditionForm, WorkAdmin
+from mep.books.models import Edition, Work
 
 
 class TestWorkAdmin(TestCase):
@@ -188,3 +190,58 @@ class TestWorkAdmin(TestCase):
             assert 'Events' in headers
             assert 'Borrows' in headers
             assert 'Purchases' in headers
+
+
+class TestEditionForm(TestCase):
+
+    # tests adapted from PartialDateFormMixin tests in account admin tests
+
+    def test_get_initial_for_field(self):
+        work = Work.objects.create()
+        edition = Edition(work=work, volume=1)
+        edition.partial_date = '1901-05'
+        form = EditionForm(instance=edition)
+        # ensure that partial date is auto-populated correctly
+        assert form.get_initial_for_field(form.fields['partial_date'],
+                                          'partial_date') == \
+            edition.partial_date
+        # shouldn't affect other fields
+        assert form.get_initial_for_field(form.fields['volume'],
+                                          'volume') == edition.volume
+
+    def test_validation(self):
+        work = Work.objects.create()
+        edition = Edition(work=work)
+        edition.partial_date = '1901-05'
+
+        # check date validation
+        form_data = {
+            'partial_date': '1901-05',
+            'work': work.id
+        }
+        form = EditionForm(form_data, instance=edition)
+        assert form.is_valid()
+        # invalid
+        form_data['partial_date'] = '20-20'
+        form = EditionForm(form_data, instance=edition)
+        assert not form.is_valid()
+
+    def test_clean(self):
+        work = Work.objects.create()
+        edition = Edition(work=work)
+
+        # a newly created edition should have None for all date values
+        assert edition.date is None
+        assert edition.date_precision is None
+        # fill out some valid partial dates for start and end
+        form_data = {
+            'partial_date': '1931-06',
+            'work': work.id
+        }
+        form = EditionForm(form_data, instance=edition)
+        assert form.is_valid()
+        form.clean()
+        # dates and precision should get correctly set through the descriptor
+        assert edition.date == datetime.date(1931, 6, 1)
+        assert edition.date_precision == \
+            DatePrecision.year | DatePrecision.month
