@@ -2,6 +2,8 @@ from dal import autocomplete
 from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from djiffy.models import Canvas
 
 from mep.common.admin import NamedNotableAdmin
@@ -103,10 +105,10 @@ class BibliographyAdmin(admin.ModelAdmin):
         if obj.manifest:
             img = obj.manifest.admin_thumbnail()
             if 'rendering' in obj.manifest.extra_data:
-                img = '<a target="_blank" href="%s">%s</a>' % \
-                    (obj.manifest.extra_data['rendering']['@id'], img)
+                img = format_html('<a target="_blank" href="{}">{}</a>',
+                                  obj.manifest.extra_data['rendering']['@id'],
+                                  mark_safe(img))
             return img
-    manifest_thumbnail.allow_tags = True
 
 
 # NOTE: it might be good to add canvas/manifest autocomplete in future

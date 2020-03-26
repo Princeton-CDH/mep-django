@@ -221,5 +221,14 @@
             "person": 7153,
             "work": 3529
         }
+    },
+    {
+        "model": "people.infourl",
+        "pk": 1,
+        "fields": {
+            "notes": "Added for testing",
+            "url": "https://en.wikipedia.org/wiki/Ernest_Hemingway",
+            "person": 224
+        }       
     }
 ]

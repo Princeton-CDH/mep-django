@@ -135,3 +135,17 @@ h2.tagline {
     }
 }
 
+
+sup {
+    vertical-align: super;
+    font-size: smaller;
+}
+
+sub {
+    vertical-align: sub;
+    font-size: smaller;
+}
+
+code {
+    font-family: monospace;
+}

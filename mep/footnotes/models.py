@@ -1,11 +1,13 @@
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.functions import Coalesce
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from djiffy.models import Canvas, Manifest
 from parasolr.django.indexing import ModelIndexable
 
@@ -175,7 +177,8 @@ class Bibliography(Notable, ModelIndexable):
     # Note: citation might be better singular
     bibliographic_note = models.TextField(
         help_text='Full bibliographic citation')
-    source_type = models.ForeignKey(SourceType)
+    source_type = models.ForeignKey(SourceType,
+                                    on_delete=models.CASCADE)
 
     #: digital version as instance of :class:`djiffy.models.Manifest`
     manifest = models.ForeignKey(
@@ -356,7 +359,7 @@ class Footnote(Notable):
     generic relationship.  Used to provide supporting documentation
     for or against information in the system.
     '''
-    bibliography = models.ForeignKey(Bibliography)
+    bibliography = models.ForeignKey(Bibliography, on_delete=models.CASCADE)
     location = models.TextField(
         blank=True,
         help_text='Page number for a book, URL for part of a website,' +
@@ -384,15 +387,17 @@ class Footnote(Notable):
         default=True)
 
     image = models.ForeignKey(
-        Canvas, blank=True, null=True,
-        help_text='''Image location from an imported manifest, if available.''')
+        Canvas, blank=True, null=True, on_delete=models.SET_NULL,
+        help_text='Image location from an imported manifest, if available.')
 
     # override default manager with customized version
     objects = FootnoteQuerySet.as_manager()
 
     def __str__(self):
-        return 'Footnote on %s (%s)' % (self.content_object,
-            ' '.join([str(i) for i in [self.bibliography, self.location] if i]))
+        return 'Footnote on %s (%s)' % \
+            (self.content_object,
+             ' '.join([str(i) for i in [self.bibliography, self.location]
+                       if i]))
 
     # NOTE: for convenient access from other models, add a
     # reverse generic relation
@@ -408,7 +413,9 @@ class Footnote(Notable):
         if self.image:
             img = self.image.admin_thumbnail()
             if 'rendering' in self.image.manifest.extra_data:
-                img = '<a target="_blank" href="%s">%s</a>' % \
-                    (self.image.manifest.extra_data['rendering']['@id'], img)
+                img = format_html(
+                    '<a target="_blank" href="{}">{}</a>',
+                    self.image.manifest.extra_data['rendering']['@id'],
+                    mark_safe(img))
             return img
     image_thumbnail.allow_tags = True

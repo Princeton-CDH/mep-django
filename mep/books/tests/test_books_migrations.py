@@ -1,15 +1,18 @@
+from datetime import date
+from unittest.mock import patch
 
+import pytest
 from django.apps import apps
 from django.conf import settings
 from django.contrib.admin.models import CHANGE, LogEntry
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
-import pytest
 
-from mep.accounts.models import Account, Event
-from mep.accounts.tests.test_accounts_migrations import TestMigrations
 import mep.books.migration_group_work_utils as merge_utils
+from mep.accounts.models import Account, Event
+from mep.accounts.partial_date import DatePrecision
+from mep.accounts.tests.test_accounts_migrations import TestMigrations
 from mep.books.models import Creator, CreatorType, Work
 from mep.people.models import Person
 
@@ -179,6 +182,36 @@ class TestMergeWorks(TestCase):
             Work.objects.filter(uri=work.uri), apps)
 
         assert merged_work.event_set.count() == 3
+
+
+class EditionYearToPartial(TestMigrations):
+    app = 'books'
+    migrate_from = '0017_edition_details'
+    migrate_to = '0018_edition_date_to_partial'
+
+    def setUpBeforeMigration(self, apps):
+        self.Work = apps.get_model('books', 'Work')
+        self.Edition = apps.get_model('books', 'Edition')
+
+        # create a work and an edition to test date conversion logic
+        self.ny = self.Work.objects.create(title='New Yorker')
+        self.ed = self.Edition.objects.create(work=self.ny, year=1931)
+        self.ed2 = self.Edition.objects.create(work=self.ny)  # no year defined
+
+    def test_convert(self):
+        # should save() as jan 1 of year, with year precision
+
+        # get a fresh copy of the object after migration
+        ed = self.Edition.objects.get(pk=self.ed.pk)
+        assert ed.date == date(1931, 1, 1)
+        assert ed.date_precision == DatePrecision.year
+
+    @patch('mep.books.models.Edition.save')
+    def test_null_year(self, mock_save):
+        # get a fresh copy of the object after migration
+        ed2 = self.Edition.objects.get(pk=self.ed2.pk)
+        assert ed2.date is None
+        assert ed2.date_precision is None
 
 
 @pytest.mark.last

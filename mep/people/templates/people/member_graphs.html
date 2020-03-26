@@ -143,9 +143,8 @@
 
 
 </article>
-  <script nonce="{{ request.csp_nonce }}">
-      var membershipData = {{ data|json }};
-  </script>
+
+{{ data|json_script:"membership-data"}}
 {# load the membership graph bundle, which will render based on data-series #}
 {% render_bundle 'membershipGraphs' %}
 

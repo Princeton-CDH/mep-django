@@ -19,9 +19,9 @@ class AliasIntegerField(models.IntegerField):
         setattr(cls, name, self)
 
     def __get__(self, instance, instance_type=None):
+        # if no instance is defined, return the descriptor object
         if not instance:
-            raise AttributeError('Are you trying to set a field that does not '
-                                 'exist on the aliased model?')
+            return self
         return getattr(instance, self.db_column)
 
     def __set__(self, instance, value, instance_type=None):

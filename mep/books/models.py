@@ -1,17 +1,18 @@
-import datetime
 import logging
 
+import rdflib
+import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
+from django.utils.html import format_html, strip_tags
 from parasolr.django.indexing import ModelIndexable
-import rdflib
-import requests
 
+from mep.accounts.partial_date import (DatePrecisionField, PartialDate,
+                                       PartialDateMixin)
 from mep.common.models import Named, Notable
 from mep.common.validators import verify_latlon
 from mep.people.models import Person
-
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +133,7 @@ class WorkSignalHandlers:
     related records are saved or deleted.'''
 
     @staticmethod
-    def creatortype_save(sender=None, instance=None, raw=False, **kwargs):
+    def creatortype_save(sender, instance=None, raw=False, **_kwargs):
         '''reindex all associated works when a creator type is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
@@ -145,7 +146,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def creatortype_delete(sender, instance, **kwargs):
+    def creatortype_delete(sender, instance, **_kwargs):
         '''reindex all associated works when a creator type is deleted'''
         work_ids = Work.objects.filter(creator__creator_type__pk=instance.pk) \
                                .values_list('id', flat=True)
@@ -157,7 +158,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def person_save(sender=None, instance=None, raw=False, **kwargs):
+    def person_save(sender, instance=None, raw=False, **_kwargs):
         '''reindex all works associated via creator when a person is saved'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
@@ -170,7 +171,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def person_delete(sender, instance, **kwargs):
+    def person_delete(sender, instance, **_kwargs):
         '''reindex all works associated via creator when a person is deleted'''
         work_ids = Work.objects.filter(creator__person__pk=instance.pk) \
                                .values_list('id', flat=True)
@@ -182,7 +183,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def creator_change(sender=None, instance=None, raw=False, **kwargs):
+    def creator_change(sender, instance=None, raw=False, **_kwargs):
         '''reindex associated work when a creator record is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
@@ -191,6 +192,31 @@ class WorkSignalHandlers:
                      instance.work)
         # delete the assocation so cards will index without the account
         ModelIndexable.index_items([instance.work])
+
+    @staticmethod
+    def format_save(sender, instance=None, raw=False, **_kwargs):
+        '''reindex associated work when a format is changed'''
+        # raw = saved as presented; don't query the database
+        if raw or not instance.pk:
+            return
+        # if any works are associated
+        works = Work.objects.filter(work_format__pk=instance.pk)
+        if works.exists():
+            logger.debug('format save, reindexing %d related works',
+                         works.count())
+            ModelIndexable.index_items(works)
+
+    @staticmethod
+    def format_delete(sender, instance, **_kwargs):
+        '''reindex all associated works when a format is deleted'''
+        work_ids = Work.objects.filter(work_format__pk=instance.pk) \
+                               .values_list('id', flat=True)
+        if work_ids:
+            logger.debug('format delete, reindexing %d related works',
+                         len(work_ids))
+            # find the items based on the list of ids to reindex
+            works = Work.objects.filter(id__in=list(work_ids))
+            ModelIndexable.index_items(works)
 
 
 class Work(Notable, ModelIndexable):
@@ -220,7 +246,7 @@ class Work(Notable, ModelIndexable):
             downloaded, e.g. Project Gutenberg page for this item')
     work_format = models.ForeignKey(
         Format, verbose_name='Format', null=True, blank=True,
-        help_text='Format, e.g. book or periodical')
+        help_text='Format, e.g. book or periodical', on_delete=models.SET_NULL)
 
     #: update timestamp
     updated_at = models.DateTimeField(auto_now=True, null=True)
@@ -261,6 +287,11 @@ class Work(Notable, ModelIndexable):
         '''return work creators of a single type, e.g. author'''
         return [creator.person for creator in self.creator_set.all()
                 if creator.creator_type.name == creator_type]
+
+    @property
+    def creator_names(self):
+        '''list of all creator names, including authors'''
+        return [creator.name for creator in self.creators.all()]
 
     @property
     def authors(self):
@@ -343,6 +374,10 @@ class Work(Notable, ModelIndexable):
         'books.CreatorType': {
             'post_save': WorkSignalHandlers.creatortype_save,
             'pre_delete': WorkSignalHandlers.creatortype_delete,
+        },
+        'books.Format': {
+            'post_save': WorkSignalHandlers.format_save,
+            'pre_delete': WorkSignalHandlers.format_delete,
         }
     }
 
@@ -352,13 +387,16 @@ class Work(Notable, ModelIndexable):
         index_data = super().index_data()
 
         index_data.update({
-            'title_s': self.title,
-            # include pk for now for item detail url
-            'pk_i': self.pk,
-            'authors_t': [str(a) for a in self.authors] if self.authors else None,
-            'editors_t': [str(e) for e in self.editors] if self.editors else None,
-            'translators_t': [str(t) for t in self.translators] if self.translators else None,
+            'title_t': self.title,
+            'sort_title_isort': self.title, # use title directly for sorting for now
+            'pk_i': self.pk, # NOTE include pk for now for item detail url
+            'authors_t': [a.name for a in self.authors] if self.authors else None,
+            'sort_authors_t': [str(a) for a in self.authors] if self.authors else None,
+            'sort_authors_isort': self.sort_author_list,
+            'creators_t': self.creator_names,
             'pub_date_i': self.year,
+            'format_s_lower': self.format(),
+            'notes_txt_en': self.public_notes
         })
 
         return index_data
@@ -424,16 +462,20 @@ class Edition(Notable):
     '''A specific known edition of a :class:`Work` that circulated.'''
 
     work = models.ForeignKey(
-        Work, help_text='Generic Work associated with this edition.')
+        Work, help_text='Generic Work associated with this edition.',
+        on_delete=models.CASCADE)
     title = models.CharField(
         max_length=255, blank=True,
         help_text='Title of this edition, if different from associated work')
     volume = models.PositiveSmallIntegerField(blank=True, null=True)
-    number = models.PositiveSmallIntegerField(blank=True, null=True)
-    year = models.PositiveSmallIntegerField(
-        blank=True, null=True,
+    number = models.CharField(max_length=255, blank=True, null=True)
+    date = models.DateField(blank=True, null=True,
         help_text='Date of Publication for this edition')
-    season = models.CharField(max_length=255, blank=True)
+    date_precision = DatePrecisionField(blank=True, null=True)
+    partial_date = PartialDate('date', 'date_precision',
+        PartialDateMixin.UNKNOWN_YEAR, label='publication date')
+    season = models.CharField(max_length=255, blank=True,
+        help_text='Spell out month or season if part of numbering')
     edition = models.CharField(max_length=255, blank=True)
     uri = models.URLField(
         blank=True, verbose_name='URI',
@@ -451,6 +493,9 @@ class Edition(Notable):
 
     # language model foreign key may be added in future
 
+    class Meta:
+        ordering = ['date']
+
     def __repr__(self):
         # provide pk for easy lookup and string for recognition
         return '<Edition pk:%s %s>' % (self.pk or '??', self)
@@ -459,7 +504,7 @@ class Edition(Notable):
         # simple string representation
         parts = [
             self.title or self.work.title or '??',
-            '(%s)' % (self.year or self.work.year or '??', ),
+            '(%s)' % (self.partial_date or self.work.year or '??', ),
         ]
         if self.volume:
             parts.append('vol. %s' % self.volume)
@@ -470,6 +515,31 @@ class Edition(Notable):
         # include edition?
         return ' '.join(parts)
 
+    def display_html(self):
+        '''Render volume/issue citation with formatting, suitable
+        for inclusion on a webpage.'''
+        parts = []
+        if self.volume:
+            parts.append('Vol. %s' % self.volume)
+        if self.number:
+            parts.append('no. %s' % self.number)
+        if self.season or self.date:
+            season_year = '%s %s' % (
+                self.season,
+                self.date.year if self.date else '')
+            parts.append(season_year.strip())
+
+        citation = ', '.join(parts)
+
+        if self.title:
+            return format_html('{} <br/><em>{}</em>',
+                               citation, self.title)
+        return citation
+
+    def display_text(self):
+        '''text-only version of volume/issue citation'''
+        return strip_tags(self.display_html())
+
 
 class CreatorType(Named, Notable):
     '''Type of creator role a person can have in relation to a work;
@@ -477,9 +547,9 @@ class CreatorType(Named, Notable):
 
 
 class Creator(Notable):
-    creator_type = models.ForeignKey(CreatorType)
-    person = models.ForeignKey(Person)
-    work = models.ForeignKey(Work)
+    creator_type = models.ForeignKey(CreatorType, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    work = models.ForeignKey(Work, on_delete=models.CASCADE)
 
     def __str__(self):
         return '%s %s %s' % (self.person, self.creator_type, self.work)
@@ -488,9 +558,9 @@ class Creator(Notable):
 class EditionCreator(Notable):
     '''Creator specific to an :class:`Edition` of a :class:`Work`.'''
 
-    creator_type = models.ForeignKey(CreatorType)
-    person = models.ForeignKey(Person)
-    edition = models.ForeignKey(Edition)
+    creator_type = models.ForeignKey(CreatorType, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    edition = models.ForeignKey(Edition, on_delete=models.CASCADE)
 
     def __str__(self):
         '''String representation: person, creator type, edition.'''

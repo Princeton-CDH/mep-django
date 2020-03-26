@@ -18,7 +18,22 @@
         <a href="#">events</a>
     </li>
 </nav>
-<section class="details">
+<section class="details" aria-label="bibliography">
     {% include 'books/snippets/work_result.html' %}
+
+{% if work.edition_set.exists %}
+<div class="volumes-issues">
+    <h2>Volume/Issue</h2>
+    <ul>
+    {% for edition in work.edition_set.all %}
+    <li>
+        {{ edition.display_html }}
+    </li>
+    {% endfor %}
+    </ul>
+</div>
+
 </section>
+{% endif %}
+
 {% endblock %}

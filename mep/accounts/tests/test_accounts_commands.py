@@ -21,6 +21,7 @@ from djiffy.models import Canvas, Manifest
 from mep.accounts.management.commands import import_figgy_cards, \
     report_timegaps, export_events
 from mep.accounts.models import Account, Borrow, Event
+from mep.common.management.export import StreamArray
 from mep.common.utils import absolutize_url
 from mep.footnotes.models import Bibliography, Footnote
 
@@ -400,42 +401,9 @@ class TestExportEvents(TestCase):
         self.cmd = export_events.Command()
         self.cmd.stdout = StringIO()
 
-    def test_flatten_dict(self):
-        # flat dict should not be changed
-        flat = {'one': 'a', 'two': 'b'}
-        assert flat == self.cmd.flatten_dict(flat)
-
-        # list should be converted to string
-        listed = {'one': ['a', 'b']}
-        flat_listed = self.cmd.flatten_dict(listed)
-        assert flat_listed['one'] == 'a;b'
-
-        # nested dict should have keys combined and be flatted
-        nested = {
-            'page': {
-                'id': 'p1',
-                'label': 'one'
-            }
-        }
-        flat_nested = self.cmd.flatten_dict(nested)
-        assert 'page id' in flat_nested
-        assert 'page label' in flat_nested
-        assert flat_nested['page id'] == nested['page']['id']
-        assert flat_nested['page label'] == nested['page']['label']
-
-        # nested with list
-        nested_list = {
-            'page': {
-                'id': 'p1',
-                'label': ['one', 'two']
-            }
-        }
-        flat_nested = self.cmd.flatten_dict(nested_list)
-        assert flat_nested['page label'] == 'one;two'
-
     def test_get_data(self):
         data = self.cmd.get_data()
-        assert isinstance(data, export_events.StreamArray)
+        assert isinstance(data, StreamArray)
         assert data.total == Event.objects.count()
         event_data = list(data)
         assert len(event_data) == Event.objects.count()
@@ -521,7 +489,7 @@ class TestExportEvents(TestCase):
         # event with known edition
         event = Event.objects.filter(edition__isnull=False).first()
         info = self.cmd.item_info(event)
-        assert info['volume'] == str(event.edition)
+        assert info['volume'] == event.edition.display_text()
 
         # no work, no item data
         event = Event.objects.filter(work__isnull=True).first()
@@ -548,47 +516,9 @@ class TestExportEvents(TestCase):
         assert os.path.exists(os.path.join(tempdir.name, 'events.csv'))
 
         with patch('mep.accounts.management.commands.export_events' +
-                   '.Command.event_data') as mock_event_data:
-            mock_event_data.return_value = {'event type': 'test'}
+                   '.Command.get_object_data') as mock_get_obj_data:
+            mock_get_obj_data.return_value = {'event type': 'test'}
             call_command('export_events', '-d', tempdir.name, '-m', 2,
                          stdout=stdout)
             # 2 objects * 2 (once each for CSV, JSON)
-            assert mock_event_data.call_count == 4
-
-
-@patch('mep.accounts.management.commands.export_events.progressbar')
-class TestStreamArray(TestCase):
-
-    def test_init(self, mockprogbar):
-        total = 5
-        gen = (i for i in range(total))
-
-        streamer = export_events.StreamArray(gen, total)
-        assert streamer.gen == gen
-        assert streamer.progress == 0
-        assert streamer.total == total
-
-        mockprogbar.ProgressBar.assert_called_with(redirect_stdout=True,
-                                                   max_value=total)
-        assert streamer.progbar == mockprogbar.ProgressBar.return_value
-
-    def test_len(self, mockprogbar):
-        total = 5
-        gen = (i for i in range(total))
-        streamer = export_events.StreamArray(gen, total)
-        assert len(streamer) == total
-
-    def test_iter(self, mockprogbar):
-        total = 2
-        gen = (i for i in range(total))
-        streamer = export_events.StreamArray(gen, total)
-        values = []
-        for val in streamer:
-            values.append(val)
-
-        assert values == [i for i in range(total)]
-        assert streamer.progress == total
-        # progress bar update should be called once per item
-        assert streamer.progbar.update.call_count == total
-        # progress bar finish should be called once when iteration completes
-        assert streamer.progbar.finish.call_count == 1
+            assert mock_get_obj_data.call_count == 4

@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-from django.utils.text import mark_safe
+from django.utils.html import mark_safe
 
 
 class SelectDisabledMixin():

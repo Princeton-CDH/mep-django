@@ -4,21 +4,13 @@
         {# title - solr only #}
         <div class="title">
             <dt>title</dt>
-            <dd>{{ work.title }}</dt>
+            <dd>{{ work.title.0 }}</dt>
         </div>
         {# authors - solr & db #}
-        {% if work.authors|length > 0 %}
-        <div class="authors">
-            <dt>authors</dt>
-            {% for author in work.authors %}
-                {% if forloop.counter <= 3 %}
-                <dd>{{ author }}</dd>
-                {% endif %}
-            {% endfor %}
-            {% if work.authors|length > 3 %}
-            <dd>... {{ work.authors|length|add:"-3" }} more authors</dd>
-            {% endif %}
-        </div>
+        {% if work.sort_authors %}
+            {% include 'books/snippets/work_authors.html' with authors=work.sort_authors %}
+        {% else %}
+            {% include 'books/snippets/work_authors.html' with authors=work.authors.all %}
         {% endif %}
         {# editors - db only #}
         {% if work.editors.count > 0 %}

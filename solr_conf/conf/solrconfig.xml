@@ -765,6 +765,23 @@
         name_ngram
       </str>
 
+      <!-- bib metadata search pseudo field for books -->
+      <str name="bib_qf">
+        authors_t^200
+        title_t^60
+        title_txt_en^40
+        creators_t^20
+        format_s_lower^10
+        notes_txt_en
+      </str>
+      <str name="bib_pf">
+        authors_t^2000
+        title_t^600
+        title_txt_en^400
+        creators_t^200
+        notes_txt_en^10
+      </str>
+
     </lst>
     <!-- In addition to defaults, "appends" params can be specified
          to identify values which should be appended to the list of
