@@ -6,9 +6,7 @@ cached_property
 django-cas-ng<4.0
 pucas>=0.6
 eulxml
-# 0.2 viapy when released
-git+https://github.com/Princeton-CDH/viapy.git@develop#egg=viapy
-#viapy
+viapy>=0.2
 wagtail>=2.8
 django-autocomplete-light>=3.5.1
 python-dateutil
@@ -24,9 +22,7 @@ rdflib
 rdflib-jsonld
 # require jsonfield (dep of djiffy) pre 3.0, since 3 requires django 2.2
 jsonfield<3.0
-# 0.6 djiffy when released
-git+https://github.com/Princeton-CDH/djiffy.git@develop#egg=djiffy
-#djiffy
+djiffy>=0.6
 django-csp
 bleach
 django-fullurl
