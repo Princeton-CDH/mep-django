@@ -3,6 +3,17 @@
 CHANGELOG
 =========
 
+0.27
+----
+
+* As a user, I want to search for library items by bibliographic metadata so that I can find specific items I’m interested in.
+* As a user, I want the items list page updated as soon as I change search terms, filters, or results page so that I can refine my search without losing my place in the form and have results load more quickly.
+* As a data editor, I want to enter months for periodical publication dates and non-numeric volumes when entering multivolume and periodical details.
+* As a user viewing an individual work, I want to see a list of known issues (for periodical) or volumes (for multivolume works) so that I have more details about what items circulated.
+* As an admin, I want to generate a data download of member information so that I can deposit and version the data for others to use.
+* Revise events data export to exclude notes and use new edition display
+* Updated to Django 2.2.10 and wagtail 2.8
+
 0.26
 ----
 
