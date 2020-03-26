@@ -4,14 +4,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>mep.books.models &#8212; mep-django 0.24.0 documentation</title>
+    <title>mep.books.models &#8212; mep-django 0.27.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -31,20 +31,21 @@
           <div class="body" role="main">
             
   <h1>Source code for mep.books.models</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
 
+<span class="kn">import</span> <span class="nn">rdflib</span>
+<span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ObjectDoesNotExist</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">format_html</span><span class="p">,</span> <span class="n">strip_tags</span>
 <span class="kn">from</span> <span class="nn">parasolr.django.indexing</span> <span class="k">import</span> <span class="n">ModelIndexable</span>
-<span class="kn">import</span> <span class="nn">rdflib</span>
-<span class="kn">import</span> <span class="nn">requests</span>
 
+<span class="kn">from</span> <span class="nn">mep.accounts.partial_date</span> <span class="k">import</span> <span class="p">(</span><span class="n">DatePrecisionField</span><span class="p">,</span> <span class="n">PartialDate</span><span class="p">,</span>
+                                       <span class="n">PartialDateMixin</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
 <span class="kn">from</span> <span class="nn">mep.common.validators</span> <span class="k">import</span> <span class="n">verify_latlon</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Person</span>
-
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -165,7 +166,7 @@
 <span class="sd">    related records are saved or deleted.&#39;&#39;&#39;</span>
 
 <div class="viewcode-block" id="WorkSignalHandlers.creatortype_save"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.creatortype_save">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">creatortype_save</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">creatortype_save</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;reindex all associated works when a creator type is changed&#39;&#39;&#39;</span>
         <span class="c1"># raw = saved as presented; don&#39;t query the database</span>
         <span class="k">if</span> <span class="n">raw</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">:</span>
@@ -178,7 +179,7 @@
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">works</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WorkSignalHandlers.creatortype_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.creatortype_delete">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">creatortype_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">creatortype_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;reindex all associated works when a creator type is deleted&#39;&#39;&#39;</span>
         <span class="n">work_ids</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">creator__creator_type__pk</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> \
                                <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -190,7 +191,7 @@
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">works</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WorkSignalHandlers.person_save"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.person_save">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">person_save</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">person_save</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;reindex all works associated via creator when a person is saved&#39;&#39;&#39;</span>
         <span class="c1"># raw = saved as presented; don&#39;t query the database</span>
         <span class="k">if</span> <span class="n">raw</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">:</span>
@@ -203,7 +204,7 @@
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">works</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WorkSignalHandlers.person_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.person_delete">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">person_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">person_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;reindex all works associated via creator when a person is deleted&#39;&#39;&#39;</span>
         <span class="n">work_ids</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">creator__person__pk</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> \
                                <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -215,7 +216,7 @@
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">works</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WorkSignalHandlers.creator_change"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.creator_change">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">creator_change</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">creator_change</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;reindex associated work when a creator record is changed&#39;&#39;&#39;</span>
         <span class="c1"># raw = saved as presented; don&#39;t query the database</span>
         <span class="k">if</span> <span class="n">raw</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">:</span>
@@ -223,7 +224,32 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;creator change, reindexing </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
                      <span class="n">instance</span><span class="o">.</span><span class="n">work</span><span class="p">)</span>
         <span class="c1"># delete the assocation so cards will index without the account</span>
-        <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">([</span><span class="n">instance</span><span class="o">.</span><span class="n">work</span><span class="p">])</span></div></div>
+        <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">([</span><span class="n">instance</span><span class="o">.</span><span class="n">work</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="WorkSignalHandlers.format_save"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.format_save">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">format_save</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;reindex associated work when a format is changed&#39;&#39;&#39;</span>
+        <span class="c1"># raw = saved as presented; don&#39;t query the database</span>
+        <span class="k">if</span> <span class="n">raw</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1"># if any works are associated</span>
+        <span class="n">works</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">work_format__pk</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">works</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;format save, reindexing </span><span class="si">%d</span><span class="s1"> related works&#39;</span><span class="p">,</span>
+                         <span class="n">works</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+            <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">works</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WorkSignalHandlers.format_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkSignalHandlers.format_delete">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">format_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;reindex all associated works when a format is deleted&#39;&#39;&#39;</span>
+        <span class="n">work_ids</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">work_format__pk</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> \
+                               <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">work_ids</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;format delete, reindexing </span><span class="si">%d</span><span class="s1"> related works&#39;</span><span class="p">,</span>
+                         <span class="nb">len</span><span class="p">(</span><span class="n">work_ids</span><span class="p">))</span>
+            <span class="c1"># find the items based on the list of ids to reindex</span>
+            <span class="n">works</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">work_ids</span><span class="p">))</span>
+            <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">works</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Work"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work">[docs]</a><span class="k">class</span> <span class="nc">Work</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">ModelIndexable</span><span class="p">):</span>
@@ -253,7 +279,7 @@
 <span class="s1">            downloaded, e.g. Project Gutenberg page for this item&#39;</span><span class="p">)</span>
     <span class="n">work_format</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="n">Format</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;Format&#39;</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Format, e.g. book or periodical&#39;</span><span class="p">)</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Format, e.g. book or periodical&#39;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">)</span>
 
     <span class="c1">#: update timestamp</span>
     <span class="n">updated_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -294,6 +320,11 @@
         <span class="sd">&#39;&#39;&#39;return work creators of a single type, e.g. author&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">creator</span><span class="o">.</span><span class="n">person</span> <span class="k">for</span> <span class="n">creator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">creator</span><span class="o">.</span><span class="n">creator_type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">creator_type</span><span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">creator_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;list of all creator names, including authors&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">creator</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">creator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">creators</span><span class="o">.</span><span class="n">all</span><span class="p">()]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">authors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -376,6 +407,10 @@
         <span class="s1">&#39;books.CreatorType&#39;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;post_save&#39;</span><span class="p">:</span> <span class="n">WorkSignalHandlers</span><span class="o">.</span><span class="n">creatortype_save</span><span class="p">,</span>
             <span class="s1">&#39;pre_delete&#39;</span><span class="p">:</span> <span class="n">WorkSignalHandlers</span><span class="o">.</span><span class="n">creatortype_delete</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;books.Format&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;post_save&#39;</span><span class="p">:</span> <span class="n">WorkSignalHandlers</span><span class="o">.</span><span class="n">format_save</span><span class="p">,</span>
+            <span class="s1">&#39;pre_delete&#39;</span><span class="p">:</span> <span class="n">WorkSignalHandlers</span><span class="o">.</span><span class="n">format_delete</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">}</span>
 
@@ -385,13 +420,16 @@
         <span class="n">index_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">index_data</span><span class="p">()</span>
 
         <span class="n">index_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-            <span class="s1">&#39;title_s&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
-            <span class="c1"># include pk for now for item detail url</span>
-            <span class="s1">&#39;pk_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
-            <span class="s1">&#39;authors_t&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;editors_t&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">editors</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">editors</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;translators_t&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">translators</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">translators</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;title_t&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="s1">&#39;sort_title_isort&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="c1"># use title directly for sorting for now</span>
+            <span class="s1">&#39;pk_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span> <span class="c1"># NOTE include pk for now for item detail url</span>
+            <span class="s1">&#39;authors_t&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;sort_authors_t&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;sort_authors_isort&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_author_list</span><span class="p">,</span>
+            <span class="s1">&#39;creators_t&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">creator_names</span><span class="p">,</span>
             <span class="s1">&#39;pub_date_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+            <span class="s1">&#39;format_s_lower&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(),</span>
+            <span class="s1">&#39;notes_txt_en&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">public_notes</span>
         <span class="p">})</span>
 
         <span class="k">return</span> <span class="n">index_data</span></div>
@@ -457,16 +495,20 @@
     <span class="sd">&#39;&#39;&#39;A specific known edition of a :class:`Work` that circulated.&#39;&#39;&#39;</span>
 
     <span class="n">work</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">Work</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Generic Work associated with this edition.&#39;</span><span class="p">)</span>
+        <span class="n">Work</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Generic Work associated with this edition.&#39;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Title of this edition, if different from associated work&#39;</span><span class="p">)</span>
     <span class="n">volume</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">number</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">year</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span>
-        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">number</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Date of Publication for this edition&#39;</span><span class="p">)</span>
-    <span class="n">season</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">date_precision</span> <span class="o">=</span> <span class="n">DatePrecisionField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">partial_date</span> <span class="o">=</span> <span class="n">PartialDate</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;date_precision&#39;</span><span class="p">,</span>
+        <span class="n">PartialDateMixin</span><span class="o">.</span><span class="n">UNKNOWN_YEAR</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;publication date&#39;</span><span class="p">)</span>
+    <span class="n">season</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Spell out month or season if part of numbering&#39;</span><span class="p">)</span>
     <span class="n">edition</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">uri</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;URI&#39;</span><span class="p">,</span>
@@ -484,6 +526,9 @@
 
     <span class="c1"># language model foreign key may be added in future</span>
 
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># provide pk for easy lookup and string for recognition</span>
         <span class="k">return</span> <span class="s1">&#39;&lt;Edition pk:</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span> <span class="ow">or</span> <span class="s1">&#39;??&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
@@ -492,7 +537,7 @@
         <span class="c1"># simple string representation</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">title</span> <span class="ow">or</span> <span class="s1">&#39;??&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">year</span> <span class="ow">or</span> <span class="s1">&#39;??&#39;</span><span class="p">,</span> <span class="p">),</span>
+            <span class="s1">&#39;(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">partial_date</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">year</span> <span class="ow">or</span> <span class="s1">&#39;??&#39;</span><span class="p">,</span> <span class="p">),</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">:</span>
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;vol. </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
@@ -501,7 +546,32 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">season</span><span class="p">:</span>
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">season</span><span class="p">)</span>
         <span class="c1"># include edition?</span>
-        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Edition.display_html"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Edition.display_html">[docs]</a>    <span class="k">def</span> <span class="nf">display_html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Render volume/issue citation with formatting, suitable</span>
+<span class="sd">        for inclusion on a webpage.&#39;&#39;&#39;</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Vol. </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">number</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;no. </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">season</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="p">:</span>
+            <span class="n">season_year</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">season</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">year</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">season_year</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+        <span class="n">citation</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> &lt;br/&gt;&lt;em&gt;</span><span class="si">{}</span><span class="s1">&lt;/em&gt;&#39;</span><span class="p">,</span>
+                               <span class="n">citation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">citation</span></div>
+
+<div class="viewcode-block" id="Edition.display_text"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Edition.display_text">[docs]</a>    <span class="k">def</span> <span class="nf">display_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;text-only version of volume/issue citation&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">strip_tags</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">display_html</span><span class="p">())</span></div></div>
 
 
 <div class="viewcode-block" id="CreatorType"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.CreatorType">[docs]</a><span class="k">class</span> <span class="nc">CreatorType</span><span class="p">(</span><span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">):</span>
@@ -510,9 +580,9 @@
 
 
 <div class="viewcode-block" id="Creator"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Creator">[docs]</a><span class="k">class</span> <span class="nc">Creator</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
-    <span class="n">creator_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">CreatorType</span><span class="p">)</span>
-    <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">)</span>
-    <span class="n">work</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Work</span><span class="p">)</span>
+    <span class="n">creator_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">CreatorType</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">work</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">person</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">creator_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="p">)</span></div>
@@ -521,9 +591,9 @@
 <div class="viewcode-block" id="EditionCreator"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.EditionCreator">[docs]</a><span class="k">class</span> <span class="nc">EditionCreator</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Creator specific to an :class:`Edition` of a :class:`Work`.&#39;&#39;&#39;</span>
 
-    <span class="n">creator_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">CreatorType</span><span class="p">)</span>
-    <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">)</span>
-    <span class="n">edition</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Edition</span><span class="p">)</span>
+    <span class="n">creator_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">CreatorType</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">edition</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Edition</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;String representation: person, creator type, edition.&#39;&#39;&#39;</span>
@@ -596,7 +666,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<script>$('#searchbox').show(0);</script><div class="powered_by">
 <p>Powered by:</p>
 <a href="http://cdh.princeton.edu/">
 <img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
@@ -611,7 +681,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

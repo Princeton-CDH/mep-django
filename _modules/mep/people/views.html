@@ -4,14 +4,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>mep.people.views &#8212; mep-django 0.24.0 documentation</title>
+    <title>mep.people.views &#8212; mep-django 0.27.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -39,6 +39,7 @@
 <span class="kn">from</span> <span class="nn">django.contrib.auth.mixins</span> <span class="k">import</span> <span class="n">PermissionRequiredMixin</span>
 <span class="kn">from</span> <span class="nn">django.contrib.humanize.templatetags.humanize</span> <span class="k">import</span> <span class="n">ordinal</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span>
+<span class="kn">from</span> <span class="nn">django.core.paginator</span> <span class="k">import</span> <span class="n">Paginator</span>
 <span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Q</span>
 <span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">JsonResponse</span>
 <span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">get_object_or_404</span>
@@ -325,6 +326,8 @@
             <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">location__latitude__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
             <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">location__longitude__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
+        <span class="c1"># NOTE probably refactor this into a method on Location for feeding</span>
+        <span class="c1"># to leaflet; also use below</span>
         <span class="n">context</span><span class="p">[</span><span class="s1">&#39;addresses&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{</span>
                 <span class="c1"># these fields are taken from Location unchanged</span>
@@ -341,14 +344,18 @@
 
         <span class="c1"># address of the lending library itself; automatically available from</span>
         <span class="c1"># migration mep/people/migrations/0014_library_location.py</span>
-        <span class="n">library</span> <span class="o">=</span> <span class="n">Location</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Shakespeare &amp; Company&#39;</span><span class="p">)</span>
-        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;library_address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;street_address&#39;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">street_address</span><span class="p">,</span>
-            <span class="s1">&#39;city&#39;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">city</span><span class="p">,</span>
-            <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">library</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
-            <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">library</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
-        <span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">library</span> <span class="o">=</span> <span class="n">Location</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Shakespeare and Company&#39;</span><span class="p">)</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;library_address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s1">&#39;street_address&#39;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">street_address</span><span class="p">,</span>
+                <span class="s1">&#39;city&#39;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">city</span><span class="p">,</span>
+                <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">library</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
+                <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">library</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="k">except</span> <span class="n">Location</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="c1"># if we can&#39;t find library&#39;s address send &#39;null&#39; &amp; don&#39;t render it</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;library_address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># config settings used to render the map; set in local_settings.py</span>
         <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
@@ -469,15 +476,9 @@
                                         <span class="n">slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span>
         <span class="c1"># find all canvas objects for this person, via manifest</span>
         <span class="c1"># associated with lending card bibliography</span>
-        <span class="n">cards</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span> \
-                       <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">manifest__bibliography__account__persons__slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span> \
-                       <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">)</span>
-
-        <span class="c1"># if user is not logged in, filter out any cards without events</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_anonymous</span><span class="p">:</span>
-            <span class="n">cards</span> <span class="o">=</span> <span class="n">cards</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">footnote__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">cards</span></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span> \
+                      <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">manifest__bibliography__account__persons__slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span> \
+                      <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MemberCardList.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardList.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Full URI for member card list page.&#39;&#39;&#39;</span>
@@ -522,11 +523,17 @@
         <span class="n">card</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Canvas</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span>
         <span class="c1"># use card dates for label</span>
         <span class="n">card_dates</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">footnote_set</span><span class="o">.</span><span class="n">event_date_range</span><span class="p">()</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Unknown&#39;</span>
+        <span class="c1"># used for page title and breadcrumb label;</span>
         <span class="k">if</span> <span class="n">card_dates</span><span class="p">:</span>
             <span class="n">label</span> <span class="o">=</span> <span class="n">card_dates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">year</span>
             <span class="k">if</span> <span class="n">card_dates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">year</span> <span class="o">!=</span> <span class="n">card_dates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
                 <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> – </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">card_dates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">card</span><span class="o">.</span><span class="n">footnote_set</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="c1"># if there are footnotes but no dates, label as unknown</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Unknown&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if there are no footnotes, label as Blank</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Blank&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
         <span class="k">return</span> <span class="n">card</span></div>
@@ -550,32 +557,29 @@
 
 <div class="viewcode-block" id="MemberCardDetail.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.people.views.MemberCardDetail.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="c1"># use order within manifest to get next/prev links</span>
-        <span class="n">sibling_cards</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">canvases</span>
-        <span class="c1"># if user is not logged in, filter out any cards without events</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_anonymous</span><span class="p">:</span>
-            <span class="n">sibling_cards</span> <span class="o">=</span> <span class="n">sibling_cards</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">footnote__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
-                                         <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
 
-        <span class="c1"># convert into a list of ids in order to get adjacent ids</span>
-        <span class="c1"># that skip over blank cards</span>
-        <span class="n">sibling_cards</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sibling_cards</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;short_id&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-        <span class="n">current_index</span> <span class="o">=</span> <span class="n">sibling_cards</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">short_id</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">next_card</span> <span class="o">=</span> <span class="n">sibling_cards</span><span class="p">[</span><span class="n">current_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-            <span class="n">next_card</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">current_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">prev_card</span> <span class="o">=</span> <span class="n">sibling_cards</span><span class="p">[</span><span class="n">current_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">prev_card</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># get all cards (canvases) from the manifest and store their ids</span>
+        <span class="n">cards</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">canvases</span>
+        <span class="n">card_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cards</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;short_id&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        
+        <span class="c1"># create a paginator with 1 card per page and get the current &quot;page&quot;</span>
+        <span class="n">paginator</span> <span class="o">=</span> <span class="n">Paginator</span><span class="p">(</span><span class="n">card_ids</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">current_index</span> <span class="o">=</span> <span class="n">card_ids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">short_id</span><span class="p">)</span>
+        <span class="n">card_page</span> <span class="o">=</span> <span class="n">paginator</span><span class="o">.</span><span class="n">page</span><span class="p">(</span><span class="n">current_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># 1-based page index</span>
 
+        <span class="c1"># add next/previous page ids to generate links, if any</span>
+        <span class="k">if</span> <span class="n">card_page</span><span class="o">.</span><span class="n">has_previous</span><span class="p">():</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;prev_card_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">card_ids</span><span class="p">[</span><span class="n">current_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">card_page</span><span class="o">.</span><span class="n">has_next</span><span class="p">():</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;next_card_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">card_ids</span><span class="p">[</span><span class="n">current_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># NOTE does using paginator get us anything here? maybe revisit</span>
         <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
             <span class="s1">&#39;member&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">member</span><span class="p">,</span>
             <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
             <span class="s1">&#39;events&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">footnote_set</span><span class="o">.</span><span class="n">events</span><span class="p">(),</span>
-            <span class="s1">&#39;next_card&#39;</span><span class="p">:</span> <span class="n">next_card</span><span class="p">,</span>
-            <span class="s1">&#39;prev_card&#39;</span><span class="p">:</span> <span class="n">prev_card</span>
+            <span class="s1">&#39;card_page&#39;</span><span class="p">:</span> <span class="n">card_page</span><span class="p">,</span>
+            <span class="s1">&#39;cards&#39;</span><span class="p">:</span> <span class="n">cards</span><span class="p">,</span>
         <span class="p">})</span>
         <span class="k">return</span> <span class="n">context</span></div></div>
 
@@ -612,8 +616,49 @@
                 <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="n">count</span>
             <span class="p">}</span> <span class="k">for</span> <span class="n">yearmonth</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">facets</span><span class="p">[</span><span class="s1">&#39;card_yearmonths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">]</span>
-
         <span class="p">}</span>
+
+        <span class="c1"># generate version to output as tabular data</span>
+        <span class="n">logbook_month_max</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># NOTE: in django templates, these defaultdicts return default value</span>
+        <span class="c1"># when attempting to iterate, retrieve items, keys, etc</span>
+        <span class="c1"># (accessing by index instead of trying method first?)</span>
+        <span class="n">logbooks</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">yearmonth</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">facets</span><span class="p">[</span><span class="s1">&#39;logbook_yearmonths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">logbook_month_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">logbook_month_max</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+            <span class="n">logbooks</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">yearmonth</span><span class="p">[:</span><span class="mi">4</span><span class="p">])][</span><span class="nb">int</span><span class="p">(</span><span class="n">yearmonth</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+
+        <span class="n">cards_month_max</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">cards</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">yearmonth</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">facets</span><span class="p">[</span><span class="s1">&#39;card_yearmonths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">cards_month_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cards_month_max</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+            <span class="n">cards</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">yearmonth</span><span class="p">[:</span><span class="mi">4</span><span class="p">])][</span><span class="nb">int</span><span class="p">(</span><span class="n">yearmonth</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+
+        <span class="n">members</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">yearmonth</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">facets</span><span class="p">[</span><span class="s1">&#39;account_yearmonths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">members</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">yearmonth</span><span class="p">[:</span><span class="mi">4</span><span class="p">])][</span><span class="nb">int</span><span class="p">(</span><span class="n">yearmonth</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+
+        <span class="n">card_percents</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">counts</span> <span class="ow">in</span> <span class="n">cards</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">member_counts</span> <span class="o">=</span> <span class="n">members</span><span class="p">[</span><span class="n">year</span><span class="p">]</span>
+            <span class="n">percents</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">counts</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">member_counts</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
+                    <span class="n">percents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">member_counts</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">percents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+            <span class="n">card_percents</span><span class="p">[</span><span class="n">year</span><span class="p">]</span> <span class="o">=</span> <span class="n">percents</span>
+
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;tabular_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;years&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1919</span><span class="p">,</span> <span class="mi">1942</span><span class="p">),</span>  <span class="c1"># workaround for iteration problem</span>
+            <span class="s1">&#39;logbooks&#39;</span><span class="p">:</span> <span class="n">logbooks</span><span class="p">,</span>
+            <span class="s1">&#39;logbooks_month_max&#39;</span><span class="p">:</span> <span class="n">logbook_month_max</span><span class="p">,</span>
+            <span class="s1">&#39;cards&#39;</span><span class="p">:</span> <span class="n">cards</span><span class="p">,</span>
+            <span class="s1">&#39;cards_month_max&#39;</span><span class="p">:</span> <span class="n">cards_month_max</span><span class="p">,</span>
+            <span class="s1">&#39;members&#39;</span><span class="p">:</span> <span class="n">members</span><span class="p">,</span>
+            <span class="s1">&#39;card_percents&#39;</span><span class="p">:</span> <span class="n">card_percents</span>
+        <span class="p">}</span>
+
         <span class="k">return</span> <span class="n">context</span></div>
 
 
@@ -931,7 +976,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<script>$('#searchbox').show(0);</script><div class="powered_by">
 <p>Powered by:</p>
 <a href="http://cdh.princeton.edu/">
 <img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
@@ -946,7 +991,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

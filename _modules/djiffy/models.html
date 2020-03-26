@@ -4,14 +4,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>djiffy.models &#8212; mep-django 0.24.0 documentation</title>
+    <title>djiffy.models &#8212; mep-django 0.27.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -40,6 +40,7 @@
 <span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">format_html</span>
 <span class="kn">from</span> <span class="nn">jsonfield</span> <span class="k">import</span> <span class="n">JSONField</span>
 <span class="kn">from</span> <span class="nn">piffle</span> <span class="k">import</span> <span class="n">iiif</span>
 <span class="kn">import</span> <span class="nn">rdflib</span>
@@ -112,7 +113,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">thumbnail</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">thumbnail</span><span class="o">.</span><span class="n">admin_thumbnail</span><span class="p">()</span>
     <span class="n">admin_thumbnail</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;Thumbnail&#39;</span>
-    <span class="n">admin_thumbnail</span><span class="o">.</span><span class="n">allow_tags</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">logo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -230,16 +230,17 @@
     <span class="c1">#: URL of IIIF image for this canvas</span>
     <span class="n">iiif_image_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">()</span>
     <span class="c1">#: :class:`Manifest` this canvas vbelongs to</span>
-    <span class="n">manifest</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Manifest</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;canvases&#39;</span><span class="p">)</span>
+    <span class="n">manifest</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Manifest</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;canvases&#39;</span><span class="p">,</span>
+                                 <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="c1">#: boolean flag to indicate if this canvas shoudl be used as thumbnail</span>
     <span class="n">thumbnail</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="c1">#: order of this canvas within associated manifest primary sequence</span>
     <span class="n">order</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">()</span>
-    <span class="c1"># (for now only stores a single sequence, so just store order on the page    )</span>
+    <span class="c1"># (for now only stores a single sequence, so just store order on the page)</span>
     <span class="c1"># format? size? (ocr text eventually?)</span>
     <span class="c1">#: extra data not otherwise given its own field, serialized as json</span>
     <span class="n">extra_data</span> <span class="o">=</span> <span class="n">JSONField</span><span class="p">(</span><span class="n">load_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;object_pairs_hook&#39;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">},</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">)</span>
+                           <span class="n">default</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">)</span>
 
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
         <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;manifest&quot;</span><span class="p">,</span> <span class="s2">&quot;order&quot;</span><span class="p">]</span>
@@ -306,9 +307,8 @@
 
     <span class="k">def</span> <span class="nf">admin_thumbnail</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;thumbnail for convenience display in admin interface&#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="sa">u</span><span class="s1">&#39;&lt;img src=&quot;</span><span class="si">%s</span><span class="s1">&quot; /&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">mini_thumbnail</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span><span class="s1">&#39;&lt;img src=&quot;</span><span class="si">{}</span><span class="s1">&quot; /&gt;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">mini_thumbnail</span><span class="p">())</span>
     <span class="n">admin_thumbnail</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;Thumbnail&#39;</span>
-    <span class="n">admin_thumbnail</span><span class="o">.</span><span class="n">allow_tags</span> <span class="o">=</span> <span class="kc">True</span>
 
 
 <span class="k">class</span> <span class="nc">IIIFPresentation</span><span class="p">(</span><span class="n">AttrMap</span><span class="p">):</span>
@@ -498,7 +498,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<script>$('#searchbox').show(0);</script><div class="powered_by">
 <p>Powered by:</p>
 <a href="http://cdh.princeton.edu/">
 <img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
@@ -513,7 +513,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

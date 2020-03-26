@@ -4,14 +4,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>mep.footnotes.models &#8212; mep-django 0.24.0 documentation</title>
+    <title>mep.footnotes.models &#8212; mep-django 0.27.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -31,14 +31,16 @@
           <div class="body" role="main">
             
   <h1>Source code for mep.footnotes.models</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 
 <span class="kn">from</span> <span class="nn">django.apps</span> <span class="k">import</span> <span class="n">apps</span>
 <span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericForeignKey</span>
 <span class="kn">from</span> <span class="nn">django.contrib.contenttypes.models</span> <span class="k">import</span> <span class="n">ContentType</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">django.db.models.functions</span> <span class="k">import</span> <span class="n">Coalesce</span>
+<span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">format_html</span>
+<span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="k">import</span> <span class="n">mark_safe</span>
 <span class="kn">from</span> <span class="nn">djiffy.models</span> <span class="k">import</span> <span class="n">Canvas</span><span class="p">,</span> <span class="n">Manifest</span>
 <span class="kn">from</span> <span class="nn">parasolr.django.indexing</span> <span class="k">import</span> <span class="n">ModelIndexable</span>
 
@@ -208,7 +210,8 @@
     <span class="c1"># Note: citation might be better singular</span>
     <span class="n">bibliographic_note</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Full bibliographic citation&#39;</span><span class="p">)</span>
-    <span class="n">source_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">SourceType</span><span class="p">)</span>
+    <span class="n">source_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">SourceType</span><span class="p">,</span>
+                                    <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
 
     <span class="c1">#: digital version as instance of :class:`djiffy.models.Manifest`</span>
     <span class="n">manifest</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
@@ -389,7 +392,7 @@
 <span class="sd">    generic relationship.  Used to provide supporting documentation</span>
 <span class="sd">    for or against information in the system.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">bibliography</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Bibliography</span><span class="p">)</span>
+    <span class="n">bibliography</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Bibliography</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">location</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Page number for a book, URL for part of a website,&#39;</span> <span class="o">+</span>
@@ -417,15 +420,17 @@
         <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">image</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">Canvas</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;&#39;&#39;Image location from an imported manifest, if available.&#39;&#39;&#39;</span><span class="p">)</span>
+        <span class="n">Canvas</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Image location from an imported manifest, if available.&#39;</span><span class="p">)</span>
 
     <span class="c1"># override default manager with customized version</span>
     <span class="n">objects</span> <span class="o">=</span> <span class="n">FootnoteQuerySet</span><span class="o">.</span><span class="n">as_manager</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;Footnote on </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content_object</span><span class="p">,</span>
-            <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bibliography</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="s1">&#39;Footnote on </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content_object</span><span class="p">,</span>
+             <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bibliography</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">]</span>
+                       <span class="k">if</span> <span class="n">i</span><span class="p">]))</span>
 
     <span class="c1"># NOTE: for convenient access from other models, add a</span>
     <span class="c1"># reverse generic relation</span>
@@ -441,8 +446,10 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">:</span>
             <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">admin_thumbnail</span><span class="p">()</span>
             <span class="k">if</span> <span class="s1">&#39;rendering&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">extra_data</span><span class="p">:</span>
-                <span class="n">img</span> <span class="o">=</span> <span class="s1">&#39;&lt;a target=&quot;_blank&quot; href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/a&gt;&#39;</span> <span class="o">%</span> \
-                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">extra_data</span><span class="p">[</span><span class="s1">&#39;rendering&#39;</span><span class="p">][</span><span class="s1">&#39;@id&#39;</span><span class="p">],</span> <span class="n">img</span><span class="p">)</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">format_html</span><span class="p">(</span>
+                    <span class="s1">&#39;&lt;a target=&quot;_blank&quot; href=&quot;</span><span class="si">{}</span><span class="s1">&quot;&gt;</span><span class="si">{}</span><span class="s1">&lt;/a&gt;&#39;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">extra_data</span><span class="p">[</span><span class="s1">&#39;rendering&#39;</span><span class="p">][</span><span class="s1">&#39;@id&#39;</span><span class="p">],</span>
+                    <span class="n">mark_safe</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">img</span></div>
     <span class="n">image_thumbnail</span><span class="o">.</span><span class="n">allow_tags</span> <span class="o">=</span> <span class="kc">True</span></div>
 </pre></div>
@@ -513,7 +520,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<script>$('#searchbox').show(0);</script><div class="powered_by">
 <p>Powered by:</p>
 <a href="http://cdh.princeton.edu/">
 <img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
@@ -528,7 +535,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

@@ -4,14 +4,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Code Documentation &#8212; mep-django 0.24.0 documentation</title>
+    <title>Code Documentation &#8212; mep-django 0.27.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="CHANGELOG" href="changelog.html" />
@@ -54,9 +54,8 @@ for user display and in model and queryset use.</p>
 <dt id="mep.common.models.AliasIntegerField.contribute_to_class">
 <code class="sig-name descname">contribute_to_class</code><span class="sig-paren">(</span><em class="sig-param">cls</em>, <em class="sig-param">name</em>, <em class="sig-param">private_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/common/models.html#AliasIntegerField.contribute_to_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.common.models.AliasIntegerField.contribute_to_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register the field with the model class it belongs to.</p>
-<p>If private_only is True, a separate instance of this field will be
-created for every subclass of cls, even if cls is not an abstract
-model.</p>
+<p>If private_only is True, create a separate instance of this field
+for every subclass of cls, even if cls is not an abstract model.</p>
 </dd></dl>
 
 </dd></dl>
@@ -271,7 +270,8 @@ account.</p>
 <em class="property">class </em><code class="sig-prename descclassname">mep.accounts.models.</code><code class="sig-name descname">Address</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Address" title="Permalink to this definition">¶</a></dt>
 <dd><p>Address associated with an <a class="reference internal" href="#mep.accounts.models.Account" title="mep.accounts.models.Account"><code class="xref py py-class docutils literal notranslate"><span class="pre">Account</span></code></a> or
 a <a class="reference internal" href="#mep.people.models.Person" title="mep.people.models.Person"><code class="xref py py-class docutils literal notranslate"><span class="pre">Person</span></code></a>.  Used to associate locations with
-people and accounts, with optional start and end dates and a care/of person.</p>
+people and accounts, with optional start and end dates and
+a care/of person.</p>
 <dl class="exception">
 <dt id="mep.accounts.models.Address.DoesNotExist">
 <em class="property">exception </em><code class="sig-name descname">DoesNotExist</code><a class="headerlink" href="#mep.accounts.models.Address.DoesNotExist" title="Permalink to this definition">¶</a></dt>
@@ -315,7 +315,7 @@ optional to account for unclear titles</p>
 <dl class="method">
 <dt id="mep.accounts.models.Borrow.save">
 <code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Borrow.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Borrow.save" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saves the current instance. Override this in a subclass if you want to
+<dd><p>Save the current instance. Override this in a subclass if you want to
 control the saving process.</p>
 <p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
 that the “save” must be an SQL insert or update (or equivalent for
@@ -433,7 +433,7 @@ is a single-day event will always be a single partial date.</p>
 <dl class="method">
 <dt id="mep.accounts.models.Purchase.save">
 <code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Purchase.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Purchase.save" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saves the current instance. Override this in a subclass if you want to
+<dd><p>Save the current instance. Override this in a subclass if you want to
 control the saving process.</p>
 <p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
 that the “save” must be an SQL insert or update (or equivalent for
@@ -524,7 +524,7 @@ Intended to follow Beach’s conventions, e.g. 1 year rather than
 <dl class="method">
 <dt id="mep.accounts.models.Subscription.save">
 <code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Subscription.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Subscription.save" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saves the current instance. Override this in a subclass if you want to
+<dd><p>Save the current instance. Override this in a subclass if you want to
 control the saving process.</p>
 <p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
 that the “save” must be an SQL insert or update (or equivalent for
@@ -629,6 +629,19 @@ author, editor, translator, etc.</p>
 <dt id="mep.books.models.Edition.MultipleObjectsReturned">
 <em class="property">exception </em><code class="sig-name descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.Edition.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.Edition.display_html">
+<code class="sig-name descname">display_html</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Edition.display_html"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Edition.display_html" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render volume/issue citation with formatting, suitable
+for inclusion on a webpage.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.Edition.display_text">
+<code class="sig-name descname">display_text</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Edition.display_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Edition.display_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>text-only version of volume/issue citation</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="mep.books.models.Edition.updated_at">
@@ -812,6 +825,12 @@ other referenced in library activities.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.books.models.Work.creator_names">
+<em class="property">property </em><code class="sig-name descname">creator_names</code><a class="headerlink" href="#mep.books.models.Work.creator_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of all creator names, including authors</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.books.models.Work.editors">
 <em class="property">property </em><code class="sig-name descname">editors</code><a class="headerlink" href="#mep.books.models.Work.editors" title="Permalink to this definition">¶</a></dt>
 <dd><p>work creators with type editor</p>
@@ -887,7 +906,7 @@ based on a WorldCat record.</p>
 <dl class="method">
 <dt id="mep.books.models.Work.save">
 <code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Work.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Work.save" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saves the current instance. Override this in a subclass if you want to
+<dd><p>Save the current instance. Override this in a subclass if you want to
 control the saving process.</p>
 <p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
 that the “save” must be an SQL insert or update (or equivalent for
@@ -933,31 +952,43 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 related records are saved or deleted.</p>
 <dl class="method">
 <dt id="mep.books.models.WorkSignalHandlers.creator_change">
-<em class="property">static </em><code class="sig-name descname">creator_change</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.creator_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.creator_change" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">creator_change</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.creator_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.creator_change" title="Permalink to this definition">¶</a></dt>
 <dd><p>reindex associated work when a creator record is changed</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mep.books.models.WorkSignalHandlers.creatortype_delete">
-<em class="property">static </em><code class="sig-name descname">creatortype_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.creatortype_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.creatortype_delete" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">creatortype_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.creatortype_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.creatortype_delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>reindex all associated works when a creator type is deleted</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mep.books.models.WorkSignalHandlers.creatortype_save">
-<em class="property">static </em><code class="sig-name descname">creatortype_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.creatortype_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.creatortype_save" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">creatortype_save</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.creatortype_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.creatortype_save" title="Permalink to this definition">¶</a></dt>
 <dd><p>reindex all associated works when a creator type is changed</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mep.books.models.WorkSignalHandlers.format_delete">
+<em class="property">static </em><code class="sig-name descname">format_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.format_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.format_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>reindex all associated works when a format is deleted</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.books.models.WorkSignalHandlers.format_save">
+<em class="property">static </em><code class="sig-name descname">format_save</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.format_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.format_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>reindex associated work when a format is changed</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mep.books.models.WorkSignalHandlers.person_delete">
-<em class="property">static </em><code class="sig-name descname">person_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.person_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.person_delete" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">person_delete</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance</em>, <em class="sig-param">**_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.person_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.person_delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>reindex all works associated via creator when a person is deleted</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mep.books.models.WorkSignalHandlers.person_save">
-<em class="property">static </em><code class="sig-name descname">person_save</code><span class="sig-paren">(</span><em class="sig-param">sender=None</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.person_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.person_save" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">person_save</code><span class="sig-paren">(</span><em class="sig-param">sender</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">raw=False</em>, <em class="sig-param">**_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.person_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.person_save" title="Permalink to this definition">¶</a></dt>
 <dd><p>reindex all works associated via creator when a person is saved</p>
 </dd></dl>
 
@@ -1109,6 +1140,12 @@ their account.</p>
 <dt id="mep.people.models.Person.birth_year">
 <code class="sig-name descname">birth_year</code><a class="headerlink" href="#mep.people.models.Person.birth_year" title="Permalink to this definition">¶</a></dt>
 <dd><p>birth year</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mep.people.models.Person.card">
+<em class="property">property </em><code class="sig-name descname">card</code><a class="headerlink" href="#mep.people.models.Person.card" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lending library card record associated with member account</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1287,7 +1324,7 @@ this person’s account(s).</p>
 <dl class="method">
 <dt id="mep.people.models.Person.viaf">
 <em class="property">property </em><code class="sig-name descname">viaf</code><a class="headerlink" href="#mep.people.models.Person.viaf" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference external" href="https://viapy.readthedocs.io/en/latest/codedocs.html#viapy.api.ViafEntity" title="(in viapy v0.1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">viapy.api.ViafEntity</span></code></a> for this record if <a class="reference internal" href="#mep.people.models.Person.viaf_id" title="mep.people.models.Person.viaf_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">viaf_id</span></code></a>
+<dd><p><a class="reference external" href="https://viapy.readthedocs.io/en/latest/codedocs.html#viapy.api.ViafEntity" title="(in viapy v0.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">viapy.api.ViafEntity</span></code></a> for this record if <a class="reference internal" href="#mep.people.models.Person.viaf_id" title="mep.people.models.Person.viaf_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">viaf_id</span></code></a>
 is set.</p>
 </dd></dl>
 
@@ -1306,8 +1343,8 @@ is set.</p>
 <dl class="method">
 <dt id="mep.people.models.PersonQuerySet.library_members">
 <code class="sig-name descname">library_members</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#PersonQuerySet.library_members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.PersonQuerySet.library_members" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rsestrict queryset to people who are library members,
-based on assocatide account.</p>
+<dd><p>Restrict queryset to people who are library members,
+based on associated account.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1484,13 +1521,13 @@ tuples of min and max integers as values.</p>
 
 <dl class="class">
 <dt id="mep.people.forms.PersonChoiceField">
-<em class="property">class </em><code class="sig-prename descclassname">mep.people.forms.</code><code class="sig-name descname">PersonChoiceField</code><span class="sig-paren">(</span><em class="sig-param">queryset</em>, <em class="sig-param">empty_label='---------'</em>, <em class="sig-param">required=True</em>, <em class="sig-param">widget=None</em>, <em class="sig-param">label=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">help_text=''</em>, <em class="sig-param">to_field_name=None</em>, <em class="sig-param">limit_choices_to=None</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/forms.html#PersonChoiceField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.forms.PersonChoiceField" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">mep.people.forms.</code><code class="sig-name descname">PersonChoiceField</code><span class="sig-paren">(</span><em class="sig-param">queryset</em>, <em class="sig-param">*</em>, <em class="sig-param">empty_label='---------'</em>, <em class="sig-param">required=True</em>, <em class="sig-param">widget=None</em>, <em class="sig-param">label=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">help_text=''</em>, <em class="sig-param">to_field_name=None</em>, <em class="sig-param">limit_choices_to=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/forms.html#PersonChoiceField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.forms.PersonChoiceField" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
 <dt id="mep.people.forms.PersonChoiceField.label_from_instance">
 <code class="sig-name descname">label_from_instance</code><span class="sig-paren">(</span><em class="sig-param">person</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/forms.html#PersonChoiceField.label_from_instance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.forms.PersonChoiceField.label_from_instance" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method is used to convert objects into strings; it’s used to
-generate the labels for the choices presented by this object. Subclasses
-can override this method to customize the display of the choices.</p>
+<dd><p>Convert objects into strings and generate the labels for the choices
+presented by this object. Subclasses can override this method to
+customize the display of the choices.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1615,9 +1652,9 @@ associated with a single library member.</p>
 <dl class="method">
 <dt id="mep.people.views.MemberCardDetail.get_object">
 <code class="sig-name descname">get_object</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberCardDetail.get_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberCardDetail.get_object" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the object the view is displaying.</p>
-<p>By default this requires <cite>self.queryset</cite> and a <cite>pk</cite> or <cite>slug</cite> argument
-in the URLconf, but subclasses can override this to return any object.</p>
+<dd><p>Return the object the view is displaying.</p>
+<p>Require <cite>self.queryset</cite> and a <cite>pk</cite> or <cite>slug</cite> argument in the URLconf.
+Subclasses can override this to return any object.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1693,8 +1730,8 @@ member.</p>
 <dt id="mep.people.views.MemberDetail.get_queryset">
 <code class="sig-name descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MemberDetail.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MemberDetail.get_queryset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <cite>QuerySet</cite> that will be used to look up the object.</p>
-<p>Note that this method is called by the default implementation of
-<cite>get_object</cite> and may not be called if <cite>get_object</cite> is overridden.</p>
+<p>This method is called by the default implementation of get_object() and
+may not be called if get_object() is overridden.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1736,13 +1773,13 @@ member.</p>
 <dl class="method">
 <dt id="mep.people.views.MembersList.get_form">
 <code class="sig-name descname">get_form</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MembersList.get_form"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MembersList.get_form" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an instance of the form to be used in this view.</p>
+<dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mep.people.views.MembersList.get_form_kwargs">
 <code class="sig-name descname">get_form_kwargs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#MembersList.get_form_kwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.MembersList.get_form_kwargs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the keyword arguments for instantiating the form.</p>
+<dd><p>Return the keyword arguments for instantiating the form.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1904,13 +1941,13 @@ with custom admin action
 <dl class="method">
 <dt id="mep.people.views.PersonMerge.get_form_kwargs">
 <code class="sig-name descname">get_form_kwargs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonMerge.get_form_kwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonMerge.get_form_kwargs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the keyword arguments for instantiating the form.</p>
+<dd><p>Return the keyword arguments for instantiating the form.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mep.people.views.PersonMerge.get_initial">
 <code class="sig-name descname">get_initial</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#PersonMerge.get_initial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.PersonMerge.get_initial" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the initial data to use for forms on this view.</p>
+<dd><p>Return the initial data to use for forms on this view.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1994,7 +2031,7 @@ an exception if an error occurred.</p>
 
 <dl class="class">
 <dt id="mep.people.admin.CountryAdminForm">
-<em class="property">class </em><code class="sig-prename descclassname">mep.people.admin.</code><code class="sig-name descname">CountryAdminForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#CountryAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.CountryAdminForm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">mep.people.admin.</code><code class="sig-name descname">CountryAdminForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#CountryAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.CountryAdminForm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom model form for Place editing, used to add geonames lookup.</p>
 </dd></dl>
 
@@ -2005,8 +2042,8 @@ an exception if an error occurred.</p>
 as a link.</p>
 <dl class="method">
 <dt id="mep.people.admin.GeoNamesLookupWidget.render">
-<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#GeoNamesLookupWidget.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.GeoNamesLookupWidget.render" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calling Django render together with <cite>render_forward_conf</cite>.</p>
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value</em>, <em class="sig-param">renderer=None</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#GeoNamesLookupWidget.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.GeoNamesLookupWidget.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Django render together with <cite>render_forward_conf</cite>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -2035,7 +2072,7 @@ as a link.</p>
 
 <dl class="class">
 <dt id="mep.people.admin.LocationAdminForm">
-<em class="property">class </em><code class="sig-prename descclassname">mep.people.admin.</code><code class="sig-name descname">LocationAdminForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#LocationAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.LocationAdminForm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">mep.people.admin.</code><code class="sig-name descname">LocationAdminForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#LocationAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.LocationAdminForm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom model form for Address editing.</p>
 <dl class="attribute">
 <dt id="mep.people.admin.LocationAdminForm.mapbox_token">
@@ -2052,8 +2089,8 @@ as a link.</p>
 for latitude and longitude values on the form.</p>
 <dl class="method">
 <dt id="mep.people.admin.MapWidget.render">
-<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#MapWidget.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.MapWidget.render" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns this Widget rendered as HTML, as a Unicode string.</p>
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value</em>, <em class="sig-param">renderer=None</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#MapWidget.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.MapWidget.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render the widget as an HTML string.</p>
 </dd></dl>
 
 </dd></dl>
@@ -2117,7 +2154,7 @@ as CSV</p>
 
 <dl class="class">
 <dt id="mep.people.admin.PersonAdminForm">
-<em class="property">class </em><code class="sig-prename descclassname">mep.people.admin.</code><code class="sig-name descname">PersonAdminForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdminForm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">mep.people.admin.</code><code class="sig-name descname">PersonAdminForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonAdminForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonAdminForm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom model form for Person editing; used to add VIAF lookup</p>
 </dd></dl>
 
@@ -2135,7 +2172,7 @@ between people who are creators of books vs. those who are library members.</p>
 <dl class="method">
 <dt id="mep.people.admin.PersonTypeListFilter.queryset">
 <code class="sig-name descname">queryset</code><span class="sig-paren">(</span><em class="sig-param">request</em>, <em class="sig-param">queryset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#PersonTypeListFilter.queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.PersonTypeListFilter.queryset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the filtered queryset.</p>
+<dd><p>Return the filtered queryset.</p>
 </dd></dl>
 
 </dd></dl>
@@ -2160,7 +2197,7 @@ between people who are creators of books vs. those who are library members.</p>
 
 <dl class="class">
 <dt id="mep.people.admin.RelationshipInlineForm">
-<em class="property">class </em><code class="sig-prename descclassname">mep.people.admin.</code><code class="sig-name descname">RelationshipInlineForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#RelationshipInlineForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.RelationshipInlineForm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">mep.people.admin.</code><code class="sig-name descname">RelationshipInlineForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/admin.html#RelationshipInlineForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.admin.RelationshipInlineForm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom model form for Book editing, used to add autocomplete
 for place lookup.</p>
 </dd></dl>
@@ -2476,7 +2513,7 @@ purchases) associated with the current footnote queryset.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<script>$('#searchbox').show(0);</script><div class="powered_by">
 <p>Powered by:</p>
 <a href="http://cdh.princeton.edu/">
 <img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
@@ -2491,7 +2528,7 @@ purchases) associated with the current footnote queryset.</p>
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

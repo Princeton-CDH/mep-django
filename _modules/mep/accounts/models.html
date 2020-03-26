@@ -4,14 +4,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>mep.accounts.models &#8212; mep-django 0.24.0 documentation</title>
+    <title>mep.accounts.models &#8212; mep-django 0.27.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -321,15 +321,19 @@
 <div class="viewcode-block" id="Address"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Address">[docs]</a><span class="k">class</span> <span class="nc">Address</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">PartialDateMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Address associated with an :class:`Account` or</span>
 <span class="sd">    a :class:`~mep.people.models.Person`.  Used to associate locations with</span>
-<span class="sd">    people and accounts, with optional start and end dates and a care/of person.&#39;&#39;&#39;</span>
-    <span class="n">location</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Location</span><span class="p">)</span>
-    <span class="n">account</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Account</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="sd">    people and accounts, with optional start and end dates and</span>
+<span class="sd">    a care/of person.&#39;&#39;&#39;</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Location</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Account</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Associated library account&#39;</span><span class="p">)</span>
-    <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Person</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;For personal addresses not associated with library accounts.&#39;</span><span class="p">)</span>
     <span class="n">start_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">end_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">care_of_person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">care_of_person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Person</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;care_of_addresses&#39;</span><span class="p">)</span>
 
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
@@ -413,7 +417,7 @@
 
 <div class="viewcode-block" id="Event"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Event">[docs]</a><span class="k">class</span> <span class="nc">Event</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">PartialDateMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Base table for events in the Shakespeare and Co. Lending Library&#39;&#39;&#39;</span>
-    <span class="n">account</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Account</span><span class="p">)</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Account</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">start_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">end_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">work</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
@@ -501,19 +505,21 @@
 
 <div class="viewcode-block" id="Subscription"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Subscription">[docs]</a><span class="k">class</span> <span class="nc">Subscription</span><span class="p">(</span><span class="n">Event</span><span class="p">,</span> <span class="n">CurrencyMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Records subscription events in the MEP database&#39;&#39;&#39;</span>
-    <span class="n">duration</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="s1">&#39;Days&#39;</span><span class="p">,</span>
-        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Subscription duration in days. Automatically calculated from start and end date.&#39;</span><span class="p">)</span>
-    <span class="n">volumes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_digits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-        <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">duration</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span>
+        <span class="s1">&#39;Days&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Subscription duration in days. &#39;</span> <span class="o">+</span>
+                  <span class="s1">&#39;Automatically calculated from start and end date.&#39;</span><span class="p">)</span>
+    <span class="n">volumes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_digits</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Number of volumes for checkout&#39;</span><span class="p">)</span>
-    <span class="n">category</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">SubscriptionType</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">category</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">SubscriptionType</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Code to indicate the kind of subscription&#39;</span><span class="p">)</span>
 
     <span class="c1"># NOTE: Using decimal field to take advantage of Python&#39;s decimal handling</span>
     <span class="c1"># Can store up to 99999999.99 -- which is *probably* safe.</span>
     <span class="n">price_paid</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                                     <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">deposit</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
         <span class="n">max_digits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -531,7 +537,8 @@
         <span class="p">(</span><span class="n">RENEWAL</span><span class="p">,</span> <span class="s1">&#39;Renewal&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="n">OTHER</span><span class="p">,</span> <span class="s1">&#39;Other&#39;</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="n">subtype</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;Type&#39;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">subtype</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;Type&#39;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">EVENT_TYPE_CHOICES</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Type of subscription event, e.g. supplement or renewal.&#39;</span><span class="p">)</span>
 
@@ -545,6 +552,9 @@
 <div class="viewcode-block" id="Subscription.calculate_duration"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Subscription.calculate_duration">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;calculate and set subscription duration based on start and end</span>
 <span class="sd">        date, when both are known&#39;&#39;&#39;</span>
+        <span class="c1"># NOTE: duration calculation currently ignores partial dates;</span>
+        <span class="c1"># assumes when partial dates are used they are used</span>
+        <span class="c1"># consistently for both start and end dates</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">:</span>
             <span class="c1"># calculate duration in days as timedelta from end to start</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">)</span><span class="o">.</span><span class="n">days</span></div>
@@ -686,12 +696,12 @@
 <div class="viewcode-block" id="Reimbursement"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Reimbursement">[docs]</a><span class="k">class</span> <span class="nc">Reimbursement</span><span class="p">(</span><span class="n">Event</span><span class="p">,</span> <span class="n">CurrencyMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Reimbursement event; extends :class:`Event`&#39;&#39;&#39;</span>
     <span class="n">refund</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                                 <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Reimbursement.date"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Reimbursement.date">[docs]</a>    <span class="k">def</span> <span class="nf">date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;alias of :attr:`start_date` for display, since reimbersument</span>
 <span class="sd">        is a single-day event&#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">partial_start_date</span></div>
     <span class="n">date</span><span class="o">.</span><span class="n">admin_order_field</span> <span class="o">=</span> <span class="s1">&#39;start_date&#39;</span>
 
 <div class="viewcode-block" id="Reimbursement.save"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Reimbursement.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -699,6 +709,8 @@
 <span class="sd">        to make that explicit and simplify any generic event date</span>
 <span class="sd">        range searching and filtering.&#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span>
+        <span class="c1"># copy precision in case of partially-known start date</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_date_precision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date_precision</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Reimbursement</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Reimbursement.validate_unique"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Reimbursement.validate_unique">[docs]</a>    <span class="k">def</span> <span class="nf">validate_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -712,7 +724,7 @@
         <span class="c1"># should not have same date + account</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">qs</span> <span class="o">=</span> <span class="n">Reimbursement</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span>
-                <span class="n">account</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">)</span>
+                                              <span class="n">account</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
             <span class="c1"># bail out without making any further assertions because</span>
             <span class="c1"># we&#39;ve had a missing related field and other checks</span>
@@ -792,7 +804,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<script>$('#searchbox').show(0);</script><div class="powered_by">
 <p>Powered by:</p>
 <a href="http://cdh.princeton.edu/">
 <img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
@@ -807,7 +819,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

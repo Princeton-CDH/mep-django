@@ -4,14 +4,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>mep.people.models &#8212; mep-django 0.24.0 documentation</title>
+    <title>mep.people.models &#8212; mep-django 0.27.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -104,7 +104,8 @@
         <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">verify_latlon</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="c1">#: :class:`Country`</span>
-    <span class="n">country</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Country</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">country</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Country</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">)</span>
 
     <span class="c1">#: footnotes (:class:`~mep.footnotes.models.Footnote`)</span>
     <span class="n">footnotes</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="n">Footnote</span><span class="p">)</span>
@@ -143,8 +144,8 @@
     <span class="sd">&#39;&#39;&#39;Custom :class:`models.QuerySet` for :class:`Person`&#39;&#39;&#39;</span>
 
 <div class="viewcode-block" id="PersonQuerySet.library_members"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.PersonQuerySet.library_members">[docs]</a>    <span class="k">def</span> <span class="nf">library_members</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Rsestrict queryset to people who are library members,</span>
-<span class="sd">        based on assocatide account.&#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39;Restrict queryset to people who are library members,</span>
+<span class="sd">        based on associated account.&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PersonQuerySet.merge_with"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.PersonQuerySet.merge_with">[docs]</a>    <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
@@ -186,7 +187,7 @@
         <span class="c1"># make sure specified person is skipped even if in the current queryset</span>
         <span class="n">merge_people</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
 
-        <span class="n">Creator</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;books&#39;</span><span class="p">,</span> <span class="s1">&#39;Creator&#39;</span><span class="p">)</span> <span class="c1"># prevents circular import issue</span>
+        <span class="n">Creator</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;books&#39;</span><span class="p">,</span> <span class="s1">&#39;Creator&#39;</span><span class="p">)</span>  <span class="c1"># prevents circular import issue</span>
 
         <span class="k">for</span> <span class="n">merge_person</span> <span class="ow">in</span> <span class="n">merge_people</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span> <span class="c1"># if the merged person had an account</span>
@@ -441,7 +442,8 @@
     <span class="c1">#: title</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
     <span class="c1">#: :class:`Profession`</span>
-    <span class="n">profession</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Profession</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">profession</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Profession</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">)</span>
     <span class="c1">#: nationalities, link to :class:`Country`</span>
     <span class="n">nationalities</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Country</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1">#: relationships to other people, via :class:`Relationship`</span>
@@ -521,6 +523,13 @@
         <span class="sd">&#39;&#39;&#39;Primary name in &#39;firstname lastname&#39; format for display&#39;&#39;&#39;</span>
         <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">card</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Lending library card record associated with member account&#39;&#39;&#39;</span>
+        <span class="n">account</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">account</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">account</span><span class="o">.</span><span class="n">card</span>
 
 <div class="viewcode-block" id="Person.set_birth_death_years"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.set_birth_death_years">[docs]</a>    <span class="k">def</span> <span class="nf">set_birth_death_years</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Set local birth and death dates based on information from VIAF&#39;&#39;&#39;</span>
@@ -722,7 +731,8 @@
     <span class="n">url</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span>
         <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;URL&#39;</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Additional (non-VIAF) URLs for a person.&#39;</span><span class="p">)</span>
-    <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;urls&#39;</span><span class="p">)</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;urls&#39;</span><span class="p">,</span>
+                               <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
 
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
         <span class="n">verbose_name</span> <span class="o">=</span> <span class="s1">&#39;Informational URL&#39;</span>
@@ -740,9 +750,12 @@
 
 <div class="viewcode-block" id="Relationship"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Relationship">[docs]</a><span class="k">class</span> <span class="nc">Relationship</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Through model for :class:`Person` to ``self``&#39;&#39;&#39;</span>
-    <span class="n">from_person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;from_relationships&#39;</span><span class="p">)</span>
-    <span class="n">to_person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;to_relationships&#39;</span><span class="p">)</span>
-    <span class="n">relationship_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">RelationshipType</span><span class="p">)</span>
+    <span class="n">from_person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Person</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;from_relationships&#39;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">to_person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Person</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;to_relationships&#39;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">relationship_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">RelationshipType</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Custom method to produce a more human useable representation</span>
@@ -828,7 +841,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script><div class="powered_by">
+<script>$('#searchbox').show(0);</script><div class="powered_by">
 <p>Powered by:</p>
 <a href="http://cdh.princeton.edu/">
 <img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
@@ -843,7 +856,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
