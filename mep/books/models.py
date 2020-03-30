@@ -288,6 +288,11 @@ class Work(Notable, ModelIndexable):
         return [creator.person for creator in self.creator_set.all()
                 if creator.creator_type.name == creator_type]
 
+    def get_absolute_url(self):
+        '''Return the public url to view book's detail page'''
+        # NOTE using pk as slug for now
+        return reverse('books:book-detail', args=[self.pk])
+
     @property
     def creator_names(self):
         '''list of all creator names, including authors'''

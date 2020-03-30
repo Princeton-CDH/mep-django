@@ -7,17 +7,24 @@
 {% include 'snippets/header.html' with title=work.title style="detail" %}
 {% endblock %}
 
-{% block main-style %}tabbed{% endblock %}
+{% block main-style %}tabbed white{% endblock %}
 
 {% block content %}
-<nav class="tabs" aria-label="sections">
-    <li class="tab active">
-        <span>details</span>
+{# breadcrumbs & tabs #}
+{% include 'snippets/breadcrumbs.html' %}
+<nav class="tabs" aria-label="tabs">
+    <li class="tab" aria-selected="true">
+        <a href="{% url 'books:book-detail' pk=work.pk %}">bibliography</a>
     </li>
     <li class="tab">
-        <a href="#">events</a>
+        <a href="">activities</a>
+    </li>
+    <li class="tab">
+        <a href="">cards</a>
     </li>
 </nav>
+
+
 <section class="details" aria-label="bibliography">
     {% include 'books/snippets/work_result.html' %}
 

@@ -130,12 +130,24 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         ]
 
 
-class WorkDetail(LoginRequiredOr404Mixin, DetailView):
+class WorkDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
     '''Detail page for a single library book.'''
     model = Work
     template_name = 'books/work_detail.html'
     context_object_name = 'work'
+    rdf_type = SCHEMA_ORG.ItemPage
 
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
+        return absolutize_url(self.object.get_absolute_url())
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            (WorkList.page_title, WorkList().get_absolute_url()),
+            (self.object.title, self.get_absolute_url())
+        ]
 
 class WorkAutocomplete(autocomplete.Select2QuerySetView):
     '''Basic autocomplete lookup, for use with django-autocomplete-light and
