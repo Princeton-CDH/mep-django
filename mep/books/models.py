@@ -133,7 +133,7 @@ class WorkSignalHandlers:
     related records are saved or deleted.'''
 
     @staticmethod
-    def creatortype_save(sender, instance=None, raw=False, **_kwargs):
+    def creatortype_save(_sender, instance=None, raw=False, **_kwargs):
         '''reindex all associated works when a creator type is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
@@ -146,7 +146,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def creatortype_delete(sender, instance, **_kwargs):
+    def creatortype_delete(_sender, instance, **_kwargs):
         '''reindex all associated works when a creator type is deleted'''
         work_ids = Work.objects.filter(creator__creator_type__pk=instance.pk) \
                                .values_list('id', flat=True)
@@ -158,7 +158,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def person_save(sender, instance=None, raw=False, **_kwargs):
+    def person_save(_sender, instance=None, raw=False, **_kwargs):
         '''reindex all works associated via creator when a person is saved'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
@@ -171,7 +171,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def person_delete(sender, instance, **_kwargs):
+    def person_delete(_sender, instance, **_kwargs):
         '''reindex all works associated via creator when a person is deleted'''
         work_ids = Work.objects.filter(creator__person__pk=instance.pk) \
                                .values_list('id', flat=True)
@@ -183,7 +183,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def creator_change(sender, instance=None, raw=False, **_kwargs):
+    def creator_change(_sender, instance=None, raw=False, **_kwargs):
         '''reindex associated work when a creator record is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
@@ -194,7 +194,7 @@ class WorkSignalHandlers:
         ModelIndexable.index_items([instance.work])
 
     @staticmethod
-    def format_save(sender, instance=None, raw=False, **_kwargs):
+    def format_save(_sender, instance=None, raw=False, **_kwargs):
         '''reindex associated work when a format is changed'''
         # raw = saved as presented; don't query the database
         if raw or not instance.pk:
@@ -207,7 +207,7 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
     @staticmethod
-    def format_delete(sender, instance, **_kwargs):
+    def format_delete(_sender, instance, **_kwargs):
         '''reindex all associated works when a format is deleted'''
         work_ids = Work.objects.filter(work_format__pk=instance.pk) \
                                .values_list('id', flat=True)
@@ -322,6 +322,11 @@ class Work(Notable, ModelIndexable):
     def translators(self):
         '''work creators with type translator'''
         return self.creator_by_type('Translator')
+
+    @property
+    def illustrators(self):
+        '''work creators with type illustrator'''
+        return self.creator_by_type('Illustrator')
 
     @property
     def event_count(self):
@@ -550,6 +555,9 @@ class CreatorType(Named, Notable):
     '''Type of creator role a person can have in relation to a work;
     author, editor, translator, etc.'''
 
+    order = models.PositiveSmallIntegerField(
+        help_text='order in which creators will be listed')
+
 
 class Creator(Notable):
     creator_type = models.ForeignKey(CreatorType, on_delete=models.CASCADE)
@@ -558,6 +566,9 @@ class Creator(Notable):
 
     def __str__(self):
         return '%s %s %s' % (self.person, self.creator_type, self.work)
+
+    class Meta:
+        ordering = ['creator_type__order', 'creator__person__sort_name']
 
 
 class EditionCreator(Notable):

@@ -2,7 +2,7 @@ from datetime import date
 from unittest.mock import patch
 
 import pytest
-from django.apps import apps
+from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.admin.models import CHANGE, LogEntry
 from django.contrib.auth.models import User
@@ -82,7 +82,7 @@ def test_ok_to_merge():
 def test_create_logentry():
     myobj = CreatorType.objects.first()
     msg = 'test change log'
-    merge_utils.create_logentry(myobj, repr(myobj), msg, apps)
+    merge_utils.create_logentry(myobj, repr(myobj), msg, django_apps)
     script_user = User.objects.get(username=settings.SCRIPT_USERNAME)
     obj_content_type = ContentType.objects.get_for_model(CreatorType)
 
@@ -108,7 +108,7 @@ class TestMergeWorks(TestCase):
                                     ebook_url='http://example.com/mybook.pub')
 
         merged_work = merge_utils.merge_works(
-            Work.objects.filter(uri=work.uri), apps)
+            Work.objects.filter(uri=work.uri), django_apps)
 
         # should copy attributes
         assert merged_work.ebook_url == work2.ebook_url
@@ -130,7 +130,7 @@ class TestMergeWorks(TestCase):
         Work.objects.create(title='Alternate title', uri=work.uri)
 
         merged_work = merge_utils.merge_works(
-            Work.objects.filter(uri=work.uri), apps)
+            Work.objects.filter(uri=work.uri), django_apps)
         assert 'TITLEVAR' in merged_work.notes
 
     def test_year_variation(self):
@@ -140,7 +140,7 @@ class TestMergeWorks(TestCase):
                                     year=work.year - 3)
 
         merged_work = merge_utils.merge_works(
-            Work.objects.filter(uri=work.uri), apps)
+            Work.objects.filter(uri=work.uri), django_apps)
         # should use the earliest year among all works
         assert merged_work.year == work2.year
 
@@ -161,7 +161,7 @@ class TestMergeWorks(TestCase):
                                work=work2)
 
         merged_work = merge_utils.merge_works(
-            Work.objects.filter(uri=work.uri), apps)
+            Work.objects.filter(uri=work.uri), django_apps)
         # original + one from work2
         assert len(merged_work.authors) == 2
         # shouldn't technically be on works, but allowed and test
@@ -179,39 +179,9 @@ class TestMergeWorks(TestCase):
         Event.objects.create(account=acct, work=work2)
 
         merged_work = merge_utils.merge_works(
-            Work.objects.filter(uri=work.uri), apps)
+            Work.objects.filter(uri=work.uri), django_apps)
 
         assert merged_work.event_set.count() == 3
-
-
-class EditionYearToPartial(TestMigrations):
-    app = 'books'
-    migrate_from = '0017_edition_details'
-    migrate_to = '0018_edition_date_to_partial'
-
-    def setUpBeforeMigration(self, apps):
-        self.Work = apps.get_model('books', 'Work')
-        self.Edition = apps.get_model('books', 'Edition')
-
-        # create a work and an edition to test date conversion logic
-        self.ny = self.Work.objects.create(title='New Yorker')
-        self.ed = self.Edition.objects.create(work=self.ny, year=1931)
-        self.ed2 = self.Edition.objects.create(work=self.ny)  # no year defined
-
-    def test_convert(self):
-        # should save() as jan 1 of year, with year precision
-
-        # get a fresh copy of the object after migration
-        ed = self.Edition.objects.get(pk=self.ed.pk)
-        assert ed.date == date(1931, 1, 1)
-        assert ed.date_precision == DatePrecision.year
-
-    @patch('mep.books.models.Edition.save')
-    def test_null_year(self, mock_save):
-        # get a fresh copy of the object after migration
-        ed2 = self.Edition.objects.get(pk=self.ed2.pk)
-        assert ed2.date is None
-        assert ed2.date_precision is None
 
 
 @pytest.mark.last
@@ -261,3 +231,55 @@ class GroupWorksbyUri(TestMigrations):
         assert Work.objects.count() == self.work_count - 1
         # ny2 should be gone after the merge
         assert not Work.objects.filter(pk=self.ny2.pk).exists()
+
+@pytest.mark.last
+class EditionYearToPartial(TestMigrations):
+    app = 'books'
+    migrate_from = '0017_edition_details'
+    migrate_to = '0018_edition_date_to_partial'
+
+    def setUpBeforeMigration(self, apps):
+        self.Work = apps.get_model('books', 'Work')
+        self.Edition = apps.get_model('books', 'Edition')
+
+        # create a work and an edition to test date conversion logic
+        self.ny = self.Work.objects.create(title='New Yorker')
+        self.ed = self.Edition.objects.create(work=self.ny, year=1931)
+        self.ed2 = self.Edition.objects.create(work=self.ny)  # no year defined
+
+    def test_convert(self):
+        # should save() as jan 1 of year, with year precision
+
+        # get a fresh copy of the object after migration
+        ed = self.Edition.objects.get(pk=self.ed.pk)
+        assert ed.date == date(1931, 1, 1)
+        assert ed.date_precision == DatePrecision.year
+
+    @patch('mep.books.models.Edition.save')
+    def test_null_year(self, mock_save):
+        # get a fresh copy of the object after migration
+        ed2 = self.Edition.objects.get(pk=self.ed2.pk)
+        assert ed2.date is None
+        assert ed2.date_precision is None
+
+@pytest.mark.last
+class CreatorTypeOrder(TestMigrations):
+    app = 'books'
+    migrate_from = '0020_format_on_delete'
+    migrate_to = '0021_creator_type_order'
+
+    def setUpBeforeMigration(self, apps):
+        self.CreatorType = apps.get_model('books', 'CreatorType')
+        # ensure we have a few creator types to test
+        (self.author, _) = self.CreatorType.objects.get_or_create(name='Author')
+        (self.author, _) = self.CreatorType.objects.get_or_create(name='Editor')
+        (self.binder, _) = self.CreatorType.objects.get_or_create(name='Binder')
+
+    def test_set_order_existing(self):
+        # if a creatortype is on our preset list, it gets a special order
+        self.assertEqual(self.author.order, 1)
+        self.assertEqual(self.editor.order, 2)
+
+    def test_set_order_other(self):
+        # other creator types get the default order of 20
+        self.assertEqual(self.binder.order, 20)
