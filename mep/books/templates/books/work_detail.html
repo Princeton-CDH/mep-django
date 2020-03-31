@@ -24,23 +24,28 @@
     </li>
 </nav>
 
-
+{# bibliographic details #}
 <section class="details" aria-label="bibliography">
-    {% include 'books/snippets/work_result.html' %}
-
-{% if work.edition_set.exists %}
-<div class="volumes-issues">
-    <h2>Volume/Issue</h2>
-    <ul>
-    {% for edition in work.edition_set.all %}
-    <li>
-        {{ edition.display_html }}
-    </li>
-    {% endfor %}
-    </ul>
-</div>
-
+    {# creators #}
+    <dl>
+        {% for creator in work.creator_set.all %}
+        {% ifchanged %}
+        <dt>{{ creator.creator_type.name }}</dt>
+        {% endifchanged %}
+        <dd>{{ creator.person.name }}</dd>
+        {% endfor %}
+    </dl>
+    {# volume/issue info #}
+    {% if work.edition_set.exists %}
+    <div class="volumes-issues">
+        <h2>Volume/Issue</h2>
+        <ul>
+        {% for edition in work.edition_set.all %}
+        <li>{{ edition.display_html }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
 </section>
-{% endif %}
 
 {% endblock %}
