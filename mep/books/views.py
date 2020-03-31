@@ -66,7 +66,7 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         # NOTE faceting so that response doesn't register as an error;
         # data is currently unused
         sqs = WorkSolrQuerySet().facet_field('format', exclude='format')
-            
+
         form = self.get_form()
 
         # empty qs if not valid
