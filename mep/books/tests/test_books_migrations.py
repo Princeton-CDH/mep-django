@@ -276,13 +276,13 @@ class CreatorTypeOrder(TestMigrations):
         self.CreatorType.objects.get_or_create(name='Binder')
 
     def test_set_order_existing(self):
-        author = self.CreatorType.objects.get(name='Author')
-        editor = self.CreatorType.objects.get(name='Editor')
+        author = CreatorType.objects.get(name='Author')
+        editor = CreatorType.objects.get(name='Editor')
         # if a creatortype is on our preset list, it gets a special order
         self.assertEqual(author.order, 1)
         self.assertEqual(editor.order, 2)
 
     def test_set_order_other(self):
-        binder = self.CreatorType.objects.get(name='Binder')
+        binder = CreatorType.objects.get(name='Binder')
         # other creator types get the default order of 20
         self.assertEqual(binder.order, 20)
