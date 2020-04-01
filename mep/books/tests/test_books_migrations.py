@@ -271,15 +271,18 @@ class CreatorTypeOrder(TestMigrations):
     def setUpBeforeMigration(self, apps):
         self.CreatorType = apps.get_model('books', 'CreatorType')
         # ensure we have a few creator types to test
-        (self.author, _) = self.CreatorType.objects.get_or_create(name='Author')
-        (self.author, _) = self.CreatorType.objects.get_or_create(name='Editor')
-        (self.binder, _) = self.CreatorType.objects.get_or_create(name='Binder')
+        self.CreatorType.objects.get_or_create(name='Author')
+        self.CreatorType.objects.get_or_create(name='Editor')
+        self.CreatorType.objects.get_or_create(name='Binder')
 
     def test_set_order_existing(self):
+        author = self.CreatorType.objects.get(name='Author')
+        editor = self.CreatorType.objects.get(name='Editor')
         # if a creatortype is on our preset list, it gets a special order
-        self.assertEqual(self.author.order, 1)
-        self.assertEqual(self.editor.order, 2)
+        self.assertEqual(author.order, 1)
+        self.assertEqual(editor.order, 2)
 
     def test_set_order_other(self):
+        binder = self.CreatorType.objects.get(name='Binder')
         # other creator types get the default order of 20
-        self.assertEqual(self.binder.order, 20)
+        self.assertEqual(binder.order, 20)
