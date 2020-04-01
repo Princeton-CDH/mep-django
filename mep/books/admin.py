@@ -19,7 +19,7 @@ from mep.common.admin import CollapsibleTabularInline
 class WorkCreatorInlineForm(forms.ModelForm):
     class Meta:
         model = Creator
-        fields = ('creator_type', 'person', 'notes')
+        fields = ('creator_type', 'person', 'order', 'notes')
         widgets = {
             'person': AUTOCOMPLETE['person'],
         }
