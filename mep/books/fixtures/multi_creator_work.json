@@ -413,7 +413,8 @@
     "pk": 1,
     "fields": {
         "name": "Author",
-        "notes": ""
+        "notes": "",
+        "order": 1
     }
 },
 {
@@ -454,7 +455,8 @@
     "pk": 2,
     "fields": {
         "name": "Editor",
-        "notes": ""
+        "notes": "",
+        "order": 2
     }
 },
 {
