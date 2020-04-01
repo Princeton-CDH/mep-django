@@ -124,7 +124,7 @@ class TestPersonTypeListFilter(TestCase):
         # create a test work and creator
         work = Work(title='Le foo et le bar', year=1916, mep_id='lfelb')
         work.save()
-        ctype = CreatorType(1)
+        ctype = CreatorType(1, order=1)
         ctype.save()
         creator = Creator(creator_type=ctype, person=engelbert, work=work)
         creator.save()
