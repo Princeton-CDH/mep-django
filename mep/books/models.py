@@ -568,7 +568,7 @@ class Creator(Notable):
         return '%s %s %s' % (self.person, self.creator_type, self.work)
 
     class Meta:
-        ordering = ['creator_type__order', 'creator__person__sort_name']
+        ordering = ['creator_type__order', 'person__sort_name']
 
 
 class EditionCreator(Notable):
