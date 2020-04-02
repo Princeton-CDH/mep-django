@@ -12,7 +12,11 @@ section[aria-label=bibliography] {
     }
 
     .left { flex: auto; }
-    .right { flex: none; }
+
+    .right {
+        flex: none;
+        text-align: right;
+    }
 
     .notes { margin-top: 2rem; }
     .notes dt { @include sr-only; }
@@ -29,7 +33,10 @@ section[aria-label=bibliography] {
     }
 
     a.read {
-        display: inline-block;
+        display: block;
+        font-size: 0.8rem;
+        line-height: 1.2rem;
+        margin-top: 1rem;
     }
 
     .volumes-issues {
