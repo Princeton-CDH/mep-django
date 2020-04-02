@@ -218,11 +218,11 @@ class TestWorkDetailView(TestCase):
         # all authors should be listed as <dd> elements under <dt>
         self.assertContains(response, '<dt>Author</dt>')
         for author in work.authors:
-            self.assertContains(response, '<dd>%s</dd>' % author.person.name)
+            self.assertContains(response, '<dd>%s</dd>' % author.name)
         # editors should be listed as <dd> elements under <dt>
         self.assertContains(response, '<dt>Editor</dt>')
         for editor in work.editors:
-            self.assertContains(response, '<dd>%s</dd>' % editor.person.name)
+            self.assertContains(response, '<dd>%s</dd>' % editor.name)
 
     @login_temporarily_required
     def test_pubdate_display(self):
@@ -255,7 +255,7 @@ class TestWorkDetailView(TestCase):
         response = self.client.get(url)
         # check that a link was rendered
         self.assertContains(response,
-            '<a class="read" href="%s">Read Online</a>' % work.ebook_url)
+            '<a class="read" href="%s">Read online</a>' % work.ebook_url)
 
     @login_temporarily_required
     def test_notes_display(self):
