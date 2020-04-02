@@ -150,7 +150,8 @@
             2,
             10
         ],
-        "subjects": []
+        "subjects": [],
+        "slug": "lonigan-young-manhood"
     }
 },
 {
@@ -210,6 +211,7 @@
         "work_format": 2,
         "updated_at": "2020-01-22T19:08:44Z",
         "public_notes": "",
+        "slug": "dial",
         "genres": [
             31
         ],
@@ -256,6 +258,7 @@
         "work_format": 1,
         "updated_at": "2019-06-14T17:40:42Z",
         "public_notes": "",
+        "slug": "buried-alive",
         "genres": [
             2
         ],
@@ -300,6 +303,7 @@
         "work_format": 1,
         "updated_at": "2019-06-14T17:11:23Z",
         "public_notes": "",
+        "slug": "lolly-willowes",
         "genres": [
             2
         ],
@@ -390,6 +394,7 @@
         "work_format": 1,
         "updated_at": "2019-06-14T17:29:32Z",
         "public_notes": "",
+        "slug": "vision",
         "genres": [],
         "subjects": [
             1386,
@@ -481,6 +486,7 @@
         "work_format": 2,
         "updated_at": "2020-01-28T02:45:38Z",
         "public_notes": "",
+        "slug": "time-tide",
         "genres": [],
         "subjects": []
     }
@@ -1037,6 +1043,7 @@
         "work_format": null,
         "updated_at": "2019-06-14T17:18:33Z",
         "public_notes": "",
+        "slug": "heart-artemis",
         "genres": [],
         "subjects": []
     }
