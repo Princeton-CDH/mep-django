@@ -15,6 +15,10 @@ class Migration(migrations.Migration):
             name='order',
             field=models.PositiveSmallIntegerField(blank=True, help_text='Order for multiple creators of the same type (optional)', null=True),
         ),
+        migrations.AlterModelOptions(
+            name='creator',
+            options={'ordering': ['creator_type', 'order', 'person__sort_name']},
+        ),
         migrations.AddField(
             model_name='work',
             name='slug',

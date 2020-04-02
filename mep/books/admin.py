@@ -89,7 +89,8 @@ class WorkAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Basic metadata', {
             'fields': ('title', 'year',
-                       ('events', 'borrows', 'purchases'))
+                       ('events', 'borrows', 'purchases'),
+                       'slug')
         }),
         ('Additional metadata', {
             'fields': (
