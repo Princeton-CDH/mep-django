@@ -218,11 +218,11 @@ class TestWorkDetailView(TestCase):
         # all authors should be listed as <dd> elements under <dt>
         self.assertContains(response, '<dt>Author</dt>')
         for author in work.authors:
-            self.assertContains(response, f'<dd>{author}</dd>')
+            self.assertContains(response, '<dd>%s</dd>' % author)
         # editors should be listed as <dd> elements under <dt>
         self.assertContains(response, '<dt>Editor</dt>')
         for editor in work.editors:
-            self.assertContains(response, f'<dd>{editor}</dd>')
+            self.assertContains(response, '<dd>%s</dd>' % editor)
 
     @login_temporarily_required
     def test_pubdate_display(self):
@@ -232,7 +232,7 @@ class TestWorkDetailView(TestCase):
         response = self.client.get(url)
         # check that the publication date is a <dd> under a <dt>
         self.assertContains(response, '<dt>Publication Date</dt>')
-        self.assertContains(response, f'<dd>{work.year}</dd>')
+        self.assertContains(response, '<dd>%s</dd>' % work.year)
 
     @login_temporarily_required
     def test_format_display(self):
@@ -255,7 +255,7 @@ class TestWorkDetailView(TestCase):
         response = self.client.get(url)
         # check that a link was rendered
         self.assertContains(response,
-            f'<a class="read" href={work.ebook_url}>Read Online</a>')
+            '<a class="read" href=%s>Read Online</a>' % work.ebook_url)
 
     @login_temporarily_required
     def test_notes_display(self):
@@ -265,7 +265,7 @@ class TestWorkDetailView(TestCase):
         response = self.client.get(url)
         # check that the notes are rendered as a <dd> under a <dt>
         self.assertContains(response, '<dt>Notes</dt>')
-        self.assertContains(response, f'<dd>{work.public_notes}</dd>')
+        self.assertContains(response, '<dd>%s</dd>' % work.public_notes)
         # TODO check that uncertainty icon is rendered
 
     @login_temporarily_required
