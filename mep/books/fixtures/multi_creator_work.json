@@ -528,16 +528,6 @@
 },
 {
     "model": "books.creator",
-    "pk": 7494,
-    "fields": {
-        "notes": "",
-        "creator_type": 1,
-        "person": 6103,
-        "work": 4126
-    }
-},
-{
-    "model": "books.creator",
     "pk": 7493,
     "fields": {
         "notes": "",
