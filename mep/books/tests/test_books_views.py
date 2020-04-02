@@ -203,7 +203,7 @@ class TestWorkDetailView(TestCase):
         work = Work.objects.first()
         url = reverse('books:book-detail', kwargs={'pk': work.pk})
         response = self.client.get(url)
-        breadcrumbs = response['context']['breadcrumbs']
+        breadcrumbs = response.context['breadcrumbs']
         # last crumb should be the title of the work
         self.assertEqual(breadcrumbs[-1][0], work.title)
         # second to last crumb should be the work list
@@ -218,11 +218,11 @@ class TestWorkDetailView(TestCase):
         # all authors should be listed as <dd> elements under <dt>
         self.assertContains(response, '<dt>Author</dt>')
         for author in work.authors:
-            self.assertContains(response, '<dd>%s</dd>' % author)
+            self.assertContains(response, '<dd>%s</dd>' % author.person.name)
         # editors should be listed as <dd> elements under <dt>
         self.assertContains(response, '<dt>Editor</dt>')
         for editor in work.editors:
-            self.assertContains(response, '<dd>%s</dd>' % editor)
+            self.assertContains(response, '<dd>%s</dd>' % editor.person.name)
 
     @login_temporarily_required
     def test_pubdate_display(self):
@@ -255,7 +255,7 @@ class TestWorkDetailView(TestCase):
         response = self.client.get(url)
         # check that a link was rendered
         self.assertContains(response,
-            '<a class="read" href=%s>Read Online</a>' % work.ebook_url)
+            '<a class="read" href="%s">Read Online</a>' % work.ebook_url)
 
     @login_temporarily_required
     def test_notes_display(self):
@@ -279,4 +279,3 @@ class TestWorkDetailView(TestCase):
         self.assertContains(response, '<h2>Volume/Issue</h2>')
         for issue in issues:
             self.assertContains(response, issue.display_html())
-
