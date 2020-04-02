@@ -266,7 +266,7 @@ class TestWorkDetailView(TestCase):
         # check that the notes are rendered as a <dd> under a <dt>
         self.assertContains(response, '<dt>Notes</dt>')
         self.assertContains(response, '<dd>%s</dd>' % work.public_notes)
-        # TODO check that uncertainty icon is rendered
+        # NOTE check that uncertainty icon is rendered when implemented
 
     @login_temporarily_required
     def test_edition_volume_display(self):
