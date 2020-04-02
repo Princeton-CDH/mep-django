@@ -39,6 +39,12 @@
             <dt>Publication Date</dt>
             <dd>{{ work.year }}</dd>
             {% endif %}
+            {% if work.public_notes %}
+            <div class="notes">
+                <dt>Notes</dt>
+                <dd>{{ work.public_notes }}</dd>
+            </div>
+            {% endif %}
         </dl>
         {# format & view online link #}
         <div class="right">
