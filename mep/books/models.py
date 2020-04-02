@@ -281,7 +281,6 @@ class Work(Notable, ModelIndexable):
         # if slug is empty generate
         if not self.slug:
             self.generate_slug()
-            print(self.slug)
         super(Work, self).save(*args, **kwargs)
 
     def __repr__(self):
@@ -480,7 +479,7 @@ class Work(Notable, ModelIndexable):
                          .exclude(pk=self.pk) \
                          .order_by('slug') \
                          .values_list('slug', flat=True)
-        if self.slug in dupe_slugs:
+        if dupe_slugs.count() and self.slug in dupe_slugs:
             nonstop_title_words = remove_stopwords(self.title).split()
             # if title has more than three words, use the 4th for uniqueness
             if len(nonstop_title_words) > 3:
@@ -497,8 +496,8 @@ class Work(Notable, ModelIndexable):
                 suffixes = [slug[len(prefix):] for slug in dupe_slugs
                             if slug.startswith(prefix)]
                 # get the largest numeric suffix
-                slug_count = max(int(num) for num in suffixes
-                                 if num.isnumeric())
+                values = [int(num) for num in suffixes if num.isnumeric()]
+                slug_count = max(values) if values else 1
                 # use the next number for the current slug
                 self.slug = '%s-%s' % (self.slug, slug_count + 1)
 

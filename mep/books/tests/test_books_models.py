@@ -278,18 +278,17 @@ class TestWork(TestCase):
         assert work.sort_author_list == ''
         # one author
         author_type = CreatorType.objects.get(name='Author')
-        author1 = Person.objects.create(name='Bob Smith',
-            sort_name='Smith, Bob', slug='s')
+        author1 = Person.objects.create(
+            name='Bob Smith', sort_name='Smith, Bob', slug='s')
         Creator.objects.create(
             creator_type=author_type, person=author1, work=work)
         assert work.sort_author_list == 'Smith, Bob'
         # multiple authors
-        author2 = Person.objects.create(name='Bill Jones',
-            sort_name='Jones, Bill', slug='j')
+        author2 = Person.objects.create(
+            name='Bill Jones', sort_name='Jones, Bill', slug='j')
         Creator.objects.create(
             creator_type=author_type, person=author2, work=work)
-        assert work.sort_author_list == 'Smith, Bob; Jones, Bill'
-
+        assert work.sort_author_list == 'Jones, Bill; Smith, Bob'
 
     def test_has_uri(self):
         work = Work(title='Topicless')
@@ -392,7 +391,8 @@ class TestSubject(TestCase):
 class TestEdition(TestCase):
 
     def test_str(self):
-        work = Work.objects.create(title='Le foo et le bar', year=1916)
+        work = Work.objects.create(title='Le foo et le bar', year=1916,
+                                   slug='foo-bar')
         # no edition title or year - uses work details
         edition = Edition(work=work)
         assert str(edition) == '%s (%s)' % (work.title, work.year)
@@ -416,13 +416,14 @@ class TestEdition(TestCase):
         assert str(edition) == '%s (%s) vol. 2 no. 3 Winter' % \
             (edition.title, edition.partial_date)
 
-        unknown_work = Work.objects.create()
+        unknown_work = Work.objects.create(slug='unknown')
         # handles missing title
         unknown_edition = Edition(work=unknown_work)
         assert str(unknown_edition) == '?? (??)'
 
     def test_repr(self):
-        work = Work.objects.create(title='Le foo et le bar', year=1916)
+        work = Work.objects.create(title='Le foo et le bar', year=1916,
+                                   slug='foo-bar-1916')
         # unsaved edition has no pk
         edition = Edition(work=work)
         assert repr(edition) == '<Edition pk:?? %s>' % edition
@@ -432,7 +433,7 @@ class TestEdition(TestCase):
         assert repr(edition) == '<Edition pk:%d %s>' % (edition.pk, edition)
 
     def test_display_html(self):
-        work = Work.objects.create(title='transition')
+        work = Work.objects.create(title='transition', slug='transition')
         # volume only
         edition = Edition(work=work, volume=3)
         assert edition.display_html() == 'Vol. 3'
@@ -459,7 +460,7 @@ class TestEdition(TestCase):
             'no. 19a, 1931 <br/><em>Subsection</em>'
 
     def test_display_text(self):
-        work = Work.objects.create(title='transition')
+        work = Work.objects.create(title='transition', slug='trans')
         # volume only
         edition = Edition(work=work, volume=3,
                           date=datetime.date(1931, 1, 1),
