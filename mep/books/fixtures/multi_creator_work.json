@@ -194,29 +194,6 @@
 },
 {
     "model": "people.person",
-    "pk": 6103,
-    "fields": {
-        "notes": "",
-        "start_year": 1900,
-        "end_year": 1991,
-        "mep_id": "",
-        "name": "Seán O'Faoláin",
-        "sort_name": "O'Faoláin, Seán",
-        "viaf_id": "http://viaf.org/viaf/59087224/",
-        "is_organization": false,
-        "verified": false,
-        "updated_at": "2018-06-22T19:13:53Z",
-        "gender": "M",
-        "title": "",
-        "slug": "ofaolin",
-        "profession": null,
-        "nationalities": [
-            16
-        ]
-    }
-},
-{
-    "model": "people.person",
     "pk": 7366,
     "fields": {
         "notes": "",
