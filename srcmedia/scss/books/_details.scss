@@ -1,6 +1,8 @@
 // book detail page styles
 
 section[aria-label=bibliography] {
+    max-width: calc(#{$breakpoint-s} - #{$breakpoint-xs});
+
     .split {
         display: flex;
         flex-direction: row;
