@@ -10,7 +10,7 @@ from parasolr.django.indexing import ModelIndexable
 
 from mep.accounts.partial_date import (DatePrecisionField, PartialDate,
                                        PartialDateMixin)
-from mep.books.utils import remove_stopwords, work_slug
+from mep.books.utils import nonstop_words, work_slug
 from mep.common.models import Named, Notable
 from mep.common.validators import verify_latlon
 from mep.people.models import Person
@@ -480,7 +480,7 @@ class Work(Notable, ModelIndexable):
                          .order_by('slug') \
                          .values_list('slug', flat=True)
         if dupe_slugs.count() and self.slug in dupe_slugs:
-            nonstop_title_words = remove_stopwords(self.title).split()
+            nonstop_title_words = nonstop_words(self.title)
             # if title has more than three words, use the 4th for uniqueness
             if len(nonstop_title_words) > 3:
                 self.slug = work_slug(self, max_words=4)

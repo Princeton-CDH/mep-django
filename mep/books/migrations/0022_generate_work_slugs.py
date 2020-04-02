@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from django.db import migrations, models
 
-from mep.books.utils import remove_stopwords, work_slug
+from mep.books.utils import nonstop_words, work_slug
 
 
 def generate_slugs(apps, schema_editor):
@@ -31,7 +31,7 @@ def generate_slugs(apps, schema_editor):
         for work in Work.objects.filter(slug=dupe_slug).order_by('title') \
                                                        .distinct():
 
-            nonstop_title_words = remove_stopwords(work.title).split()
+            nonstop_title_words = nonstop_words(work.title)
             # if title has more than three words, use the 4th for uniqueness
             if len(nonstop_title_words) > 3:
                 work.slug = work_slug(work, max_words=4)

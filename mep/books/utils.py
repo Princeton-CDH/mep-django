@@ -21,9 +21,11 @@ STOP_WORDS = stop_words.get_stop_words('en') + \
 # - should "ah" be a stopword?  auld?
 
 
-def remove_stopwords(text):
-    return ' '.join(word for word in re.split(r'[\s\W]+', text)
-                    if slugify(word) not in STOP_WORDS)
+def nonstop_words(text):
+    '''split text into words, remove stopwords, and return a list of all
+    non-stopwords.'''
+    return [word for word in re.split(r'[\s\W]+', text)
+            if slugify(word) not in STOP_WORDS]
 
 
 def creator_lastname(work):
@@ -48,7 +50,7 @@ def work_slug(work, max_words=3):
     first editor if no author), and first few non-stopwords in the title.'''
     lastname = creator_lastname(work)
     # title with stop words removed
-    nonstop_title_words = remove_stopwords(work.title).split()
+    nonstop_title_words = nonstop_words(work.title)
     # by default, use at most first three words in the title
     slug_text = '%s %s' % (lastname, nonstop_title_words[:max_words])
     return slugify(unidecode(slug_text))
