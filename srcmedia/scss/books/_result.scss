@@ -1,29 +1,45 @@
 .books.result {
 
+    dl.book {
+        display: flex;
+        flex: auto;
+    }
+
     .primary {
         flex: 2;
     }
 
-    // show the title
-    .title {
-        display: block;
+    // items that go on left/top on mobile
+    .title,
+    .authors,
+    .editors,
+    .translators,
+    .pubdate {
+        text-align: left;
     }
 
+    // items that go on the right/bottom on mobile
+    .translators,
+    .format,
+    .relevance {
+        text-align: right;
+    }
+
+    .authors,
+    .pubdate {
+        margin-top: .4rem;
+    }
+
+    // headings are only read via SRs since they're implied visually
+    .title dt,
     .authors dt,
     .pubdate dt {
         @include sr-only;
     }
 
-    .authors dd {
-        margin-top: 0.5rem;
-    }
-
-    .pubdate dd {
-        margin-top: 0.75rem;
-    }
-
-    // hide the "view cards" link
-    .view-cards {
-        display: none;
+    .title dd {
+        line-height: 1.4rem;
+        font-size: 1rem;
+        font-family: $serif;
     }
 }

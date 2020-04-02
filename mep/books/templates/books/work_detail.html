@@ -26,15 +26,30 @@
 
 {# bibliographic details #}
 <section class="details" aria-label="bibliography">
-    {# creators #}
-    <dl>
-        {% for creator in work.creator_set.all %}
-        {% ifchanged %}
-        <dt>{{ creator.creator_type.name }}</dt>
-        {% endifchanged %}
-        <dd>{{ creator.person.name }}</dd>
-        {% endfor %}
-    </dl>
+    <div class="split">
+        {# creators & publication date #}
+        <dl class="left">
+            {% for creator in work.creator_set.all %}
+            {% ifchanged %}
+            <dt>{{ creator.creator_type.name }}</dt>
+            {% endifchanged %}
+            <dd>{{ creator.person.name }}</dd>
+            {% endfor %}
+            {% if work.year %}
+            <dt>Publication Date</dt>
+            <dd>{{ work.year }}</dd>
+            {% endif %}
+        </dl>
+        {# format & view online link #}
+        <div class="right">
+            {% if work.work_format %}
+            <div class="format">{{ work.work_format }}</div>
+            {% endif %}
+            {% if work.ebook_url %}
+            <a class="read" href="{{ work.ebook_url }}">Read online</a>
+            {% endif %}
+        </div>
+    </div>
     {# volume/issue info #}
     {% if work.edition_set.exists %}
     <div class="volumes-issues">
