@@ -67,6 +67,18 @@ dl.member {
 
 }
 
+// biographical details
+section[aria-label=biography] {
+    dl {
+        .primary,
+        .secondary {
+            > div + div {
+                margin-top: 1rem;
+            }
+        }
+    }
+}
+
 // timeline graphs & map
 section[aria-label=timeline],
 section.map {
