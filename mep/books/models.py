@@ -324,11 +324,6 @@ class Work(Notable, ModelIndexable):
         return self.creator_by_type('Translator')
 
     @property
-    def illustrators(self):
-        '''work creators with type illustrator'''
-        return self.creator_by_type('Illustrator')
-
-    @property
     def event_count(self):
         '''Number of events of any kind associated with this work.'''
         # use database annotation if present; otherwise use queryset
@@ -556,7 +551,7 @@ class CreatorType(Named, Notable):
     author, editor, translator, etc.'''
 
     order = models.PositiveSmallIntegerField(
-        help_text='order in which creators will be listed')
+        help_text='order in which creator types will be listed')
 
 
 class Creator(Notable):
