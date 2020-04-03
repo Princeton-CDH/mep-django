@@ -7,33 +7,66 @@
 {% include 'snippets/header.html' with title=work.title style="detail" %}
 {% endblock %}
 
-{% block main-style %}tabbed{% endblock %}
+{% block main-style %}tabbed white{% endblock %}
 
 {% block content %}
-<nav class="tabs" aria-label="sections">
-    <li class="tab active">
-        <span>details</span>
+{# breadcrumbs & tabs #}
+{% include 'snippets/breadcrumbs.html' %}
+<nav class="tabs" aria-label="tabs">
+    <li class="tab" aria-selected="true">
+        <a href="{% url 'books:book-detail' pk=work.pk %}">bibliography</a>
     </li>
     <li class="tab">
-        <a href="#">events</a>
+        <a href="">activities</a>
+    </li>
+    <li class="tab">
+        <a href="">cards</a>
     </li>
 </nav>
+
+{# bibliographic details #}
 <section class="details" aria-label="bibliography">
-    {% include 'books/snippets/work_result.html' %}
-
-{% if work.edition_set.exists %}
-<div class="volumes-issues">
-    <h2>Volume/Issue</h2>
-    <ul>
-    {% for edition in work.edition_set.all %}
-    <li>
-        {{ edition.display_html }}
-    </li>
-    {% endfor %}
-    </ul>
-</div>
-
+    <div class="split">
+        {# creators & publication date #}
+        <dl class="left">
+            {% for creator in work.creator_set.all %}
+            {% ifchanged %}
+            <dt>{{ creator.creator_type.name }}</dt>
+            {% endifchanged %}
+            <dd>{{ creator.person.name }}</dd>
+            {% endfor %}
+            {% if work.year %}
+            <dt>Publication Date</dt>
+            <dd>{{ work.year }}</dd>
+            {% endif %}
+            {% if work.public_notes %}
+            <div class="notes">
+                <dt>Notes</dt>
+                <dd>{{ work.public_notes }}</dd>
+            </div>
+            {% endif %}
+        </dl>
+        {# format & view online link #}
+        <div class="right">
+            {% if work.work_format %}
+            <div class="format">{{ work.work_format }}</div>
+            {% endif %}
+            {% if work.ebook_url %}
+            <a class="read" href="{{ work.ebook_url }}">Read online</a>
+            {% endif %}
+        </div>
+    </div>
+    {# volume/issue info #}
+    {% if work.edition_set.exists %}
+    <div class="volumes-issues">
+        <h2>Volume/Issue</h2>
+        <ul>
+        {% for edition in work.edition_set.all %}
+        <li>{{ edition.display_html }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
 </section>
-{% endif %}
 
 {% endblock %}

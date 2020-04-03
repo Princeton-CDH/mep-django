@@ -11,7 +11,54 @@
                 {# counter for search results #}
                 <span class="counter"></span>
                 {# book details #}
-                {% include 'books/snippets/work_result.html' %}
+                <dl class="book">
+                    <div class="primary">
+                        {# title #}
+                        <div class="title">
+                            <dt>Title</dt>
+                            <dd>{{ work.title.0 }}</dt>
+                        </div>
+                        {# authors (first three) #}
+                        {% if work.sort_authors %}
+                        <div class="authors">
+                            <dt>Authors</dt>
+                            {% for author in work.sort_authors %}
+                                {% if forloop.counter <= 3 %}
+                                <dd>{{ author }}</dd>
+                                {% endif %}
+                            {% endfor %}
+                            {% if work.sort_authors|length > 3 %}
+                            {% with extra_authors=work.sort_authors|length|add:"-3" %}
+                            <dd>...{{ extra_authors }} more author{{ extra_authors|pluralize }}</dd>
+                            {% endwith %}
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        {# publication date #}
+                        {% if work.pub_date %}
+                        <div class="pubdate">
+                            <dt>Publication Date</dt>
+                            <dd>{{ work.pub_date }}</dd>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="secondary">
+                        {# format #}
+                        {% if work.work_format %}
+                        <div class="format">
+                            <dt>Format</dt>
+                            <dd>{{ work.work_format }}</dd>
+                        </div>
+                        {% endif %}
+                        {# search result relevance (if user is logged in) #}
+                        {% if user.is_authenticated and work.score %}
+                        <div class="relevance">
+                            <dt>Relevance</dt>
+                            <dd>{{ work.score }}</dd>
+                        </div>
+                        {% endif %}
+                    </div>
+                </dl>
                 {# link to view detail page #}
                 <span class="see-more">
                     See more details

@@ -288,7 +288,7 @@ class TestWork(TestCase):
             sort_name='Jones, Bill', slug='j')
         Creator.objects.create(
             creator_type=author_type, person=author2, work=work)
-        assert work.sort_author_list == 'Smith, Bob; Jones, Bill'
+        assert work.sort_author_list == 'Jones, Bill; Smith, Bob'
 
 
     def test_has_uri(self):
