@@ -311,9 +311,7 @@ class Work(Notable, ModelIndexable):
         Returns True if the Work's notes indicate that it should show an
         uncertainty icon via the UNCERTAINTYICON tag.
         '''
-        if self.has_notes() and "UNCERTAINTYICON" in self.notes:
-            return True
-        return False
+        return "UNCERTAINTYICON" in self.notes
 
     @property
     def creator_names(self):
