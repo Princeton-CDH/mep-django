@@ -21,8 +21,12 @@ def nonstop_words(text):
     # remove French L' at beginning of words; remove all other apostrophes
     # to avoid splitting words with contractions or possives
     text = re.sub(r'\bL\'', '', text, flags=re.IGNORECASE).replace("'", "")
-    return [word for word in re.split(r'[\s\W]+', text)
-            if word and slugify(word) not in STOP_WORDS]
+    # split on whitespace and punctuation, remove empty strings
+    words = [word for word in re.split(r'[\s\W]+', text) if word]
+    title_words = [word for word in words if slugify(word) not in STOP_WORDS]
+    # return filtered list if not empty; otherwise use unfiltered words
+    # (i.e., title "Car" which is a French stopword)
+    return title_words or words
 
 
 def creator_lastname(work):
