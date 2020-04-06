@@ -14,18 +14,15 @@ from unidecode import unidecode
 STOP_WORDS = stop_words.get_stop_words('en') + \
     stop_words.get_stop_words('fr')
 
-# fixme: regex is separating contractions like can't and youth's
-# would be better to keep those if possible
-# - remove the -s- but keep can't as cant if possible
-# and/or remove single letter words too
-# - should "ah" be a stopword?  auld?
-
 
 def nonstop_words(text):
     '''split text into words, remove stopwords, and return a list of all
-    non-stopwords.'''
+    non-stopwords. Removes punctuation, including apostrophes within words.'''
+    # remove French L' at beginning of words; remove all other apostrophes
+    # to avoid splitting words with contractions or possives
+    text = re.sub(r'\bL\'', '', text, flags=re.IGNORECASE).replace("'", "")
     return [word for word in re.split(r'[\s\W]+', text)
-            if slugify(word) not in STOP_WORDS]
+            if word and slugify(word) not in STOP_WORDS]
 
 
 def creator_lastname(work):

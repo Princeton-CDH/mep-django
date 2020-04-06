@@ -10,6 +10,10 @@ def test_nonstop_words():
     assert nonstop_words('A Portrait of the Artist') == ['Portrait', 'Artist']
     assert nonstop_words("L'Infini Turbulent") == ['Infini', 'Turbulent']
     # TODO: test/improve can't/youth's
+    assert nonstop_words("La Vie et L'Habitude") == ['Vie', 'Habitude']
+    assert nonstop_words("Gray's Anatomy") == ['Grays', 'Anatomy']
+    assert nonstop_words("Why Didn't They Ask Evans?") == \
+        ["Didnt", "Ask", "Evans"]
 
 
 class TestCreatorLastname(TestCase):
@@ -38,3 +42,11 @@ class TestWorkSlug(TestCase):
         assert work_slug(work) == 'bates-english-novelists-survey'
         assert work_slug(work, max_words=4) == \
             'bates-english-novelists-survey-novel'
+
+        work = Work(title="La Vie et L'Habitude")
+        assert work_slug(work) == 'vie-habitude'
+        work.title = "Gray's Anatomy"
+        assert work_slug(work) == 'grays-anatomy'
+        work.title = "Why Didn't They Ask Evans?"
+        assert work_slug(work) == "didnt-ask-evans"
+
