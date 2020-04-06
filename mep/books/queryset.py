@@ -20,5 +20,6 @@ class WorkSolrQuerySet(AliasedSolrQuerySet):
         'pk': 'pk_i',
         'notes': 'notes_txt_en',
         'account_start': 'account_start_i',
-        'account_end': 'account_end_i'
+        'account_end': 'account_end_i',
+        'is_uncertain': 'is_uncertain_b',
     }

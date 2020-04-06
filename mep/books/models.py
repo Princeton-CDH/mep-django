@@ -411,7 +411,8 @@ class Work(Notable, ModelIndexable):
             'creators_t': self.creator_names,
             'pub_date_i': self.year,
             'format_s_lower': self.format(),
-            'notes_txt_en': self.public_notes
+            'notes_txt_en': self.public_notes,
+            'is_uncertain_b': self.is_uncertain,
         })
 
         return index_data
