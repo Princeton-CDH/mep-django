@@ -8,7 +8,7 @@ from mep.books.utils import nonstop_words, work_slug
 
 
 def generate_slugs(apps, schema_editor):
-    '''Generate uniuqe slugs for works'''
+    '''Generate unique slugs for works'''
     Work = apps.get_model('books', 'Work')
 
     # first pass: generate slugs
