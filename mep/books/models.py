@@ -303,8 +303,7 @@ class Work(Notable, ModelIndexable):
 
     def get_absolute_url(self):
         '''Return the public url to view book's detail page'''
-        # NOTE using pk as slug for now
-        return reverse('books:book-detail', args=[self.pk])
+        return reverse('books:book-detail', args=[self.slug])
 
     @property
     def creator_names(self):
@@ -406,8 +405,8 @@ class Work(Notable, ModelIndexable):
 
         index_data.update({
             'title_t': self.title,
-            'sort_title_isort': self.title, # use title directly for sorting for now
-            'pk_i': self.pk, # NOTE include pk for now for item detail url
+            'sort_title_isort': self.title,  # use title directly for sorting for now
+            'slug_s': self.slug,
             'authors_t': [a.name for a in self.authors] if self.authors else None,
             'sort_authors_t': [str(a) for a in self.authors] if self.authors else None,
             'sort_authors_isort': self.sort_author_list,

@@ -6,7 +6,7 @@
 <ol class="work-results">
     {% for work in works %}
     <li class="books result">
-        <a href="{% url 'books:book-detail' pk=work.pk %}" aria-label="{{ work.title }}">
+        <a href="{% url 'books:book-detail' slug=work.slug %}" aria-label="{{ work.title }}">
             <div class="container">
                 {# counter for search results #}
                 <span class="counter"></span>
