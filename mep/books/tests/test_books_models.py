@@ -8,6 +8,7 @@ import requests
 from mep.accounts.models import Account, Borrow, Event, Purchase
 from mep.books.models import Creator, CreatorType, Edition, EditionCreator, \
     Format, Genre, Subject, Work
+from mep.books.utils import work_slug
 from mep.books.tests.test_oclc import FIXTURE_DIR
 from mep.people.models import Person
 
@@ -295,6 +296,44 @@ class TestWork(TestCase):
         assert not work.has_uri()
         work.uri = 'http://www.worldcat.org/oclc/578050'
         assert work.has_uri()
+
+    def test_save(self):
+        with patch.object(Work, 'generate_slug') as mock_generate_slug:
+            work = Work(title='Topicless', slug='notopic', mep_id='')
+            work.save()
+            # empty string converted to None
+            assert work.mep_id is None
+            # generate slug not called
+            assert mock_generate_slug.call_count == 0
+
+            # generate slug called if no slug is set
+            work.slug = ''
+            work.save()
+            assert mock_generate_slug.call_count == 1
+
+    def test_generate_slug(self):
+        work = Work(title='totally unique title')
+        work.generate_slug()
+        # uses result of work slug unchanged
+        assert work.slug == work_slug(work)
+        work.save()
+
+        # three-word title will be a duplicate slug, should use fourth
+        work = Work(title='totally unique title 2020')
+        work.generate_slug()
+        assert work.slug == work_slug(work, max_words=4)
+
+        # numeric differentiation when needed
+        Work.objects.create(title='unclear', slug='unclear')
+        unclear2 = Work(title='unclear')
+        unclear2.generate_slug()
+        # should determine -2 based on existing of one unclear slug
+        assert unclear2.slug == 'unclear-2'
+        unclear2.save()
+        # should increment if there are existing numbers
+        unclear3 = Work(title='unclear')
+        unclear3.generate_slug()
+        assert unclear3.slug == 'unclear-3'
 
 
 class TestCreator(TestCase):
