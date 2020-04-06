@@ -301,6 +301,11 @@ class Work(Notable, ModelIndexable):
         return [creator.person for creator in self.creator_set.all()
                 if creator.creator_type.name == creator_type]
 
+    def get_absolute_url(self):
+        '''Return the public url to view book's detail page'''
+        # NOTE using pk as slug for now
+        return reverse('books:book-detail', args=[self.pk])
+
     @property
     def creator_names(self):
         '''list of all creator names, including authors'''
@@ -589,6 +594,9 @@ class CreatorType(Named, Notable):
     '''Type of creator role a person can have in relation to a work;
     author, editor, translator, etc.'''
 
+    order = models.PositiveSmallIntegerField(
+        help_text='order in which creator types will be listed')
+
 
 class Creator(Notable):
     creator_type = models.ForeignKey(CreatorType, on_delete=models.CASCADE)
@@ -603,6 +611,9 @@ class Creator(Notable):
 
     def __str__(self):
         return '%s %s %s' % (self.person, self.creator_type, self.work)
+
+    class Meta:
+        ordering = ['creator_type__order', 'person__sort_name']
 
 
 class EditionCreator(Notable):

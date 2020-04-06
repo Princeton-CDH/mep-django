@@ -79,7 +79,7 @@
         }
 
         a {
-            border: none;
+            text-decoration: none;
         }
     }
 
@@ -179,7 +179,7 @@
             &.active img { border: 0.1rem solid $green; }
         }
 
-        a { border: none; }
+        a { text-decoration: none; }
 
         img {
             width: 2.25rem;

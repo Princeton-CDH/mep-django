@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
-from mep.books.models import Work
+from mep.books.models import Work, Edition
 from mep.books.views import WorkList
 from mep.common.utils import login_temporarily_required
 
@@ -132,7 +132,7 @@ class TestWorkListView(TestCase):
         self.assertNotContains(response, novelists.authors[3])
 
         # should show "...x more authors" text
-        self.assertContains(response, '...16 more authors')
+        self.assertContains(response, '...15 more authors')
 
     def test_get_queryset(self):
         # create a mocked form
@@ -187,3 +187,95 @@ class TestWorkListView(TestCase):
             response,
             '<option value="1" selected="selected">%s</option>' % \
             list(response.context['page_labels'])[0][1])
+
+class TestWorkDetailView(TestCase):
+    fixtures = ['sample_works', 'multi_creator_work']
+
+    def test_login_required_or_404(self):
+        # 404 if not logged in; TEMPORARY
+        work = Work.objects.first()
+        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        assert self.client.get(url).status_code == 404
+
+    @login_temporarily_required
+    def test_get_breadcrumbs(self):
+        # fetch any work and check breadcrumbs
+        work = Work.objects.first()
+        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        response = self.client.get(url)
+        breadcrumbs = response.context['breadcrumbs']
+        # last crumb should be the title of the work
+        self.assertEqual(breadcrumbs[-1][0], work.title)
+        # second to last crumb should be the work list
+        self.assertEqual(breadcrumbs[-2][0], WorkList.page_title)
+
+    @login_temporarily_required
+    def test_creators_display(self):
+        # fetch a multi-creator work
+        work = Work.objects.get(pk=4126)
+        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        response = self.client.get(url)
+        # all authors should be listed as <dd> elements under <dt>
+        self.assertContains(response, '<dt>Author</dt>')
+        for author in work.authors:
+            self.assertContains(response, '<dd>%s</dd>' % author.name)
+        # editors should be listed as <dd> elements under <dt>
+        self.assertContains(response, '<dt>Editor</dt>')
+        for editor in work.editors:
+            self.assertContains(response, '<dd>%s</dd>' % editor.name)
+
+    @login_temporarily_required
+    def test_pubdate_display(self):
+        # fetch a work with a publication date
+        work = Work.objects.get(pk=1)
+        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        response = self.client.get(url)
+        # check that the publication date is a <dd> under a <dt>
+        self.assertContains(response, '<dt>Publication Date</dt>')
+        self.assertContains(response, '<dd>%s</dd>' % work.year)
+
+    @login_temporarily_required
+    def test_format_display(self):
+        # fetch some works with different formats
+        book = Work.objects.get(title='Murder on the Blue Train')
+        periodical = Work.objects.get(title='The Dial')
+        # check the rendering of the format indicator
+        url = reverse('books:book-detail', kwargs={'pk': book.pk})
+        response = self.client.get(url)
+        self.assertContains(response, '<div class="format">Book</div>')
+        url = reverse('books:book-detail', kwargs={'pk': periodical.pk})
+        response = self.client.get(url)
+        self.assertContains(response, '<div class="format">Periodical</div>')  
+
+    @login_temporarily_required
+    def test_read_link_display(self):
+        # fetch a work with an ebook url
+        work = Work.objects.get(title='The Dial')
+        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        response = self.client.get(url)
+        # check that a link was rendered
+        self.assertContains(response,
+            '<a class="read" href="%s">Read online</a>' % work.ebook_url)
+
+    @login_temporarily_required
+    def test_notes_display(self):
+        # fetch a work with public notes
+        work = Work.objects.get(title='Chronicle of my Life')
+        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        response = self.client.get(url)
+        # check that the notes are rendered as a <dd> under a <dt>
+        self.assertContains(response, '<dt>Notes</dt>')
+        self.assertContains(response, '<dd>%s</dd>' % work.public_notes)
+        # NOTE check that uncertainty icon is rendered when implemented
+
+    @login_temporarily_required
+    def test_edition_volume_display(self):
+        # fetch a periodical with issue information
+        work = Work.objects.get(title='The Dial')
+        issues = Edition.objects.filter(work=work)
+        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        response = self.client.get(url)
+        # check that all issues are rendered in a list format
+        self.assertContains(response, '<h2>Volume/Issue</h2>')
+        for issue in issues:
+            self.assertContains(response, issue.display_html())

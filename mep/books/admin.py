@@ -218,7 +218,8 @@ class WorkAdmin(admin.ModelAdmin):
 
 class CreatorTypeAdmin(admin.ModelAdmin):
     model = CreatorType
-    list_display = ('name', 'notes')
+    list_display = ('name', 'notes', 'order')
+    list_editable = ('order',)
 
 
 class SubjectAdmin(admin.ModelAdmin):

@@ -192,7 +192,8 @@
         "pk": 1,
         "fields": {
             "name": "Author",
-            "notes": ""
+            "notes": "",
+            "order": 1
         }
     },
     {
