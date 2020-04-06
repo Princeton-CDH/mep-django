@@ -306,6 +306,16 @@ class Work(Notable, ModelIndexable):
         return reverse('books:book-detail', args=[self.slug])
 
     @property
+    def is_uncertain(self):
+        '''
+        Returns True if the Work's notes indicate that it should show an
+        uncertainty icon via the UNCERTAINTYICON tag.
+        '''
+        if self.has_notes() and "UNCERTAINTYICON" in self.notes:
+            return True
+        return False
+
+    @property
     def creator_names(self):
         '''list of all creator names, including authors'''
         return [creator.name for creator in self.creators.all()]

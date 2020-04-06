@@ -335,6 +335,17 @@ class TestWork(TestCase):
         unclear3.generate_slug()
         assert unclear3.slug == 'unclear-3'
 
+    def test_is_uncertain(self):
+        # work without notes should not show icon
+        work1 = Work(title='My Book')
+        assert not work1.is_uncertain
+        # work with notes but no UNCERTAINTYICON tag should not show icon
+        work2 = Work(title='My Notable Book', notes='my notes')
+        assert not work2.is_uncertain
+        # work with UNCERTAINTYICON tag should show icon
+        work3 = Work(title='Uncertain', notes='foo UNCERTAINTYICON bar')
+        assert work3.is_uncertain
+
 
 class TestCreator(TestCase):
 
