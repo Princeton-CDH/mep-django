@@ -42,4 +42,42 @@
         font-size: 1rem;
         font-family: $serif;
     }
+
+    // show the uncertainty icon if present
+    &.uncertain {
+
+        // on mobile, the icon is positioned relative to the "primary"
+        // portion of the result
+        @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+
+            .primary {
+                position: relative;
+
+                &::after {
+                    content: url('/static/img/icons/uncertainty.svg');
+                    width: .75rem;
+                    height:  .75rem;
+                    position: absolute;
+                    bottom: -1rem;
+                }
+            }
+        }
+
+        // on tablet/desktop, the icon is positioned relative to the counter
+        // portion of the result
+        @media (min-width: $breakpoint-s) {
+
+            .counter {
+                position: relative;
+
+                &::before {
+                    content: url('/static/img/icons/uncertainty.svg');
+                    width: .75rem;
+                    height:  .75rem;
+                    position: absolute;
+                    left: -1.25rem;
+                }
+            }
+        }
+    }
 }
