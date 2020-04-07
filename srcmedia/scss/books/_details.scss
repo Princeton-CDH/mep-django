@@ -20,9 +20,40 @@ section[aria-label=bibliography] {
         text-align: right;
     }
 
-    .notes { margin-top: 2rem; }
+    dd + .notes { margin-top: 2rem; }
+
     .notes dt { @include sr-only; }
-    .notes dd { margin: 0; }
+    
+    .notes dd {
+        white-space: pre-line;
+        margin: 0;
+    }
+
+    /* uncertainty icon is displayed above the notes on mobile; to the left on
+        all other screens */
+
+    @media (max-width: calc(#{$breakpoint-xs + 1px})) {
+        dd + .notes.uncertain { margin-top: 2.75rem; }
+    }
+
+    .notes.uncertain {
+        position: relative;
+
+        &::before {
+            content: url('/static/img/icons/uncertainty.svg');
+            width: .75rem;
+            height:  .75rem;
+            position: absolute;
+            top: -1.5rem;
+        }
+
+        @media (min-width: $breakpoint-s) {
+            &::before {
+                top: -.1rem;
+                left: -1rem;
+            }
+        }
+    }
 
     .format {
         display: inline-block;

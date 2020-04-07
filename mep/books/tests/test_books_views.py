@@ -134,6 +134,12 @@ class TestWorkListView(TestCase):
         # should show "...x more authors" text
         self.assertContains(response, '...15 more authors')
 
+    @login_temporarily_required
+    def test_uncertain_work(self):
+        response = self.client.get(self.url)
+        # item with UNCERTAINTYICON in notes should show text to SRs
+        self.assertContains(response, Work.UNCERTAINTY_MESSAGE)
+
     def test_get_queryset(self):
         # create a mocked form
         view = WorkList()
