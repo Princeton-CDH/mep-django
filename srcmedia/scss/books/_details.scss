@@ -22,7 +22,11 @@ section[aria-label=bibliography] {
 
     .notes { margin-top: 2rem; }
     .notes dt { @include sr-only; }
-    .notes dd { margin: 0; }
+    
+    .notes dd {
+        white-space: pre-line;
+        margin: 0;
+    }
 
     /* uncertainty icon is displayed above the notes on mobile; to the left on
         all other screens */
@@ -35,14 +39,14 @@ section[aria-label=bibliography] {
             width: .75rem;
             height:  .75rem;
             position: absolute;
-            bottom: 1.75rem;
+            top: -1.5rem;
         }
 
         @media (min-width: $breakpoint-s) {
             margin-top: 2rem;
 
             &::before {
-                bottom: .5rem;
+                top: -.1rem;
                 left: -1rem;
             }
         }
