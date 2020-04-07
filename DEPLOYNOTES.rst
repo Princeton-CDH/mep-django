@@ -3,6 +3,14 @@
 Deploy and Upgrade notes
 ========================
 
+0.28
+----
+
+The addition of slugs for book urls requires a Solr reindex after running
+migrations::
+
+  python manage.py index -i work
+
 0.27
 ----
 

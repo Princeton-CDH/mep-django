@@ -42,15 +42,17 @@ class TestReconcileOCLC(TestCase):
 
         # create works that should be ignored
         # generic, problem, title*, zero, existing uri, previous no match
-        Work.objects.create(notes="GENERIC can't identify")
-        Work.objects.create(notes="PROBLEM some problematic issue here")
-        Work.objects.create(notes="OBSCURE")
-        Work.objects.create(title="Plays*")
-        Work.objects.create(notes="ZERO no borrows")
-        Work.objects.create(notes="OCLCNoMatch")
+        Work.objects.create(notes="GENERIC can't identify", slug='generic')
+        Work.objects.create(notes="PROBLEM some problematic issue here",
+                            slug='problem')
+        Work.objects.create(notes="OBSCURE", slug="obscure")
+        Work.objects.create(title="Plays*", slug="plays")
+        Work.objects.create(notes="ZERO no borrows", slug="zero")
+        Work.objects.create(notes="OCLCNoMatch", slug="nomatch")
         Work.objects.create(
             title='Mark Twain\'s notebook',
-            uri='http://experiment.worldcat.org/entity/work/data/477260')
+            uri='http://experiment.worldcat.org/entity/work/data/477260',
+            slug="mark-twains-notebook")
         stdout = StringIO()
         call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
                      stdout=stdout)
@@ -62,12 +64,14 @@ class TestReconcileOCLC(TestCase):
         mockprogressbar.ProgressBar.assert_not_called()
 
         # create works that should be processed
-        work1 = Work.objects.create(title="Patriotic Adventurer", year=1936)
+        work1 = Work.objects.create(title="Patriotic Adventurer", year=1936,
+                                    slug="patriotic")
         # with one author to sanity-check included in output
         ctype = CreatorType.objects.get(name='Author')
         person = Person.objects.create(sort_name='Ireland, Denis')
         Creator.objects.create(creator_type=ctype, person=person, work=work1)
-        work2 = Work.objects.create(title="Crowded House", notes="Variant title")
+        work2 = Work.objects.create(title="Crowded House",
+                                    notes="Variant title", slug="crowded")
         stdout = StringIO()
         # return no matches for one, some for the second
         mock_oclc_info.side_effect = {'# matches': 0}, {"# matches": 5}
@@ -95,7 +99,7 @@ class TestReconcileOCLC(TestCase):
 
         # create enough works to trigger progressbar
         for title in range(6):
-            Work.objects.create(title=title)
+            Work.objects.create(title=title, slug='%s' % title)
         mock_oclc_info.side_effect = None
         call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
                      stdout=stdout)
@@ -121,21 +125,23 @@ class TestReconcileOCLC(TestCase):
                 'OCLC Date': 1936,
                 'OCLC URI': 'http://worldcat.org/entity/work/id/49679151',
                 'Work URI': 'http://www.worldcat.org/oclc/65986486'
-                }
+            }
             mock_oclc_info.side_effect = mock_result_info, {'# matches': 0}
 
             # create works to be processed
-            work1 = Work.objects.create(title="Patriotic Adventurer", year=1936)
+            work1 = Work.objects.create(title="Patriotic Adventurer",
+                                        year=1936, slug="patriotic-adv")
             # with one author to sanity-check included in output
             ctype = CreatorType.objects.get(name='Author')
-            person = Person.objects.create(sort_name='Ireland, Denis')
+            person = Person.objects.create(sort_name='Ireland, Denis', slug='d')
             Creator.objects.create(creator_type=ctype, person=person, work=work1)
-            work2 = Work.objects.create(title="Crowded House", notes="Variant title")
+            work2 = Work.objects.create(title="Crowded House",
+                                        notes="Variant title", slug="crowd")
 
             csvtempfile = NamedTemporaryFile(suffix='csv')
             self.cmd.report([work1, work2], csvtempfile.name)
 
-       # check csvfile contents
+        # check csvfile contents
         csvtempfile.seek(0)
         csv_content = csvtempfile.read().decode()
         # csv output should have byte-order marck
@@ -156,7 +162,8 @@ class TestReconcileOCLC(TestCase):
         assert self.cmd.stats['found'] == 1
 
     def test_update_works(self):
-        work1 = Work.objects.create(title="Time + Tide", notes='some notes')
+        work1 = Work.objects.create(title="Time + Tide", notes='some notes',
+                                    slug="time-tide")
         with patch.object(self.cmd, 'oclc_search_record') as mock_oclc_search:
             # use a mock for the world cat entity
             worldcat_entity = Mock(
@@ -233,11 +240,13 @@ class TestReconcileOCLC(TestCase):
         }
 
         # search work with title, author, year
-        work = Work.objects.create(title="Patriotic Adventurer", year=1936)
+        work = Work.objects.create(title="Patriotic Adventurer", year=1936,
+                                   slug="patriotic-adventurer")
         # with one author to sanity-check included in output
         ctype = CreatorType.objects.get(name='Author')
-        person = Person.objects.create(sort_name='Ireland, Denis')
-        creator = Creator.objects.create(creator_type=ctype, person=person, work=work)
+        person = Person.objects.create(sort_name='Ireland, Denis', slug='di')
+        creator = Creator.objects.create(creator_type=ctype, person=person,
+                                         work=work)
 
         result = self.cmd.oclc_search(work)
         assert result == srwresponse
@@ -247,7 +256,7 @@ class TestReconcileOCLC(TestCase):
             title__exact=work.title, author__all=str(person),
             year=work.year, material_type__exact='book',
             **default_filters
-            )
+        )
 
         # search does not include missing fields
         # - delete all but title, no events for first known interaction
