@@ -114,11 +114,7 @@ class WorkAdmin(admin.ModelAdmin):
         '''Annotate the queryset with the number of events, borrows,
         and purchases for sorting and display.'''
         return super(WorkAdmin, self) \
-            .get_queryset(request) \
-            .annotate(Count('event', distinct=True),
-                      Count('event__borrow', distinct=True),
-                      Count('event__purchase', distinct=True)
-                      )
+            .get_queryset(request).count_events()
 
     def _event_count(self, obj, event_type='event'):
         '''Display an event count as a link to associated event.
@@ -171,20 +167,20 @@ class WorkAdmin(admin.ModelAdmin):
         # annotate with event counts for inclusion (needed in case
         # queryset was generated from a search and doesn't get default logic)
         queryset = queryset.prefetch_related('creator_set') \
-                           .annotate(Count('event', distinct=True),
-                                     Count('event__borrow', distinct=True),
-                                     Count('event__purchase', distinct=True)
-                                     )
+                           .count_events()
+
         for work in queryset:
             # retrieve values for configured export fields; if the attribute
             # is a callable (i.e., a custom property method), call it
             yield [value() if callable(value) else value
-                   for value in (getattr(work, field) for field in self.export_fields)]
+                   for value in (getattr(work, field) for field
+                                 in self.export_fields)]
 
     def export_to_csv(self, request, queryset=None):
         '''Stream tabular data as a CSV file'''
         queryset = self.get_queryset(request) if queryset is None else queryset
-        # use verbose names to label the columns (adapted from django-tabular-export)
+        # use verbose names to label the columns
+        # (adapted from django-tabular-export)
 
         # get verbose names for model fields
         verbose_names = {
@@ -197,7 +193,8 @@ class WorkAdmin(admin.ModelAdmin):
         })
 
         # get verbose field name if there is one; look for verbose name
-        # on a non-field attribute (e.g. a method); otherwise, title case the field name
+        # on a non-field attribute (e.g. a method); otherwise,
+        # title case the field name
         headers = [verbose_names.get(field, None) or
                    getattr(getattr(queryset.model, field),
                            'verbose_name', field.title())
@@ -208,7 +205,7 @@ class WorkAdmin(admin.ModelAdmin):
     export_to_csv.short_description = 'Export selected works to CSV'
 
     def get_urls(self):
-            # adds a custom URL for exporting all items as CSRF_FAILURE_VIEW = ''
+        # adds a custom URL for exporting all items as CSRF_FAILURE_VIEW = ''
         urls = [
             url(r'^csv/$', self.admin_site.admin_view(self.export_to_csv),
                 name='books_work_csv')

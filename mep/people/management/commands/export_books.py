@@ -8,8 +8,6 @@ database, with summary details and coordinates for associated addresses.
 
 from collections import OrderedDict
 
-from django.db.models import Count
-
 from mep.books.models import CreatorType, Work
 from mep.common.management.export import BaseExport
 from mep.common.utils import absolutize_url
@@ -26,7 +24,6 @@ class Command(BaseExport):
     creator_types = CreatorType.objects.all().filter(creator__isnull=False) \
                                .distinct() \
                                .values_list('name', flat=True)
-    print(creator_types)
 
     csv_fields = ['uri', 'title'] + \
         [creator.lower() for creator in creator_types] + [
@@ -45,17 +42,13 @@ class Command(BaseExport):
     ]
 
     def get_base_filename(self):
-        '''use "books" instead of "works" since it's more accessible'''
+        '''use "books" instead of "works" for export file'''
         return 'books'
 
     def get_queryset(self):
         '''prefetch and annotate to make the export more efficient'''
-        # NOTE: same queryset as used for django admin csv export,
-        # is there a way to share? move to custom queryset with methods
         return super().get_queryset().prefetch_related('creator_set') \
-            .annotate(Count('event', distinct=True),
-                      Count('event__borrow', distinct=True),
-                      Count('event__purchase', distinct=True))
+                      .count_events()
 
     def get_object_data(self, work):
         '''
