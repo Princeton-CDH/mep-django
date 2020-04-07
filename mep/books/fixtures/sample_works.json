@@ -7,6 +7,7 @@
 			"mep_id": "exite",
 			"title": "Exit Eliza",
 			"year": 1912,
+			"slug": "exit-eliza",
 			"work_format": 1,
 			"uri": "http://www.worldcat.org/oclc/2777112"
 		}
@@ -19,8 +20,9 @@
 			"mep_id": null,
 			"title": "Grimm Fairy Tales",
 			"year": null,
-			"work_format": 1,
-			"uri": ""
+			"uri": "",
+			"slug": "grimm-fairy-tales",
+			"work_format": 1
 		}
 	},
 	{
@@ -32,7 +34,8 @@
 			"title": "The Kreutzer sonata",
 			"year": null,
 			"work_format": 1,
-			"uri": "http://worldcat.org/entity/work/id/4918580916"
+			"uri": "http://worldcat.org/entity/work/id/4918580916",
+			"slug": "kreutzer-sonata"
 		}
 	},
 	{
@@ -43,8 +46,9 @@
 			"mep_id": null,
 			"title": "Chronicle of my Life",
 			"year": null,
-			"work_format": 1,
 			"uri": "",
+			"slug": "chronicle-life",
+			"work_format": 1,
 			"public_notes": "Here are some public notes."
 		}
 	},
@@ -56,8 +60,9 @@
 			"mep_id": null,
 			"title": "Murder on the Blue Train",
 			"year": null,
-			"work_format": 1,
-			"uri": ""
+			"uri": "",
+			"slug": "murder-blue-train",
+			"work_format": 1
 		}
 	},
 	{
@@ -71,7 +76,8 @@
 			"uri": "http://worldcat.org/entity/work/id/53956220",
 			"edition_uri": "http://www.worldcat.org/oclc/243873605",
 			"ebook_url": "http://example.com",
-			"work_format": 2
+			"work_format": 2,
+			"slug": "dial"
 		}
 	},
 	{

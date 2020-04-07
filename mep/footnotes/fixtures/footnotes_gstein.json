@@ -67,6 +67,7 @@
         "work_format": null,
         "updated_at": "2019-06-14T17:44:45Z",
         "public_notes": "",
+        "slug": "ursula-trent",
         "genres": [],
         "subjects": []
     }
@@ -99,6 +100,7 @@
         "work_format": 1,
         "updated_at": "2019-06-14T17:31:48Z",
         "public_notes": "",
+        "slug": "side-paradise",
         "genres": [],
         "subjects": []
     }
@@ -131,6 +133,7 @@
         "work_format": 1,
         "updated_at": "2019-06-14T17:23:31Z",
         "public_notes": "",
+        "slug": "prestons",
         "genres": [],
         "subjects": []
     }
@@ -163,6 +166,7 @@
         "work_format": 1,
         "updated_at": "2019-08-16T19:41:03Z",
         "public_notes": "",
+        "slug": "hazard-new-fortunes",
         "genres": [],
         "subjects": []
     }
@@ -195,6 +199,7 @@
         "work_format": 1,
         "updated_at": "2019-09-12T17:33:24Z",
         "public_notes": "",
+        "slug": "letters-george-meredith",
         "genres": [],
         "subjects": []
     }

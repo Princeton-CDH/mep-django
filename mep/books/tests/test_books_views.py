@@ -87,7 +87,7 @@ class TestWorkListView(TestCase):
             self.assertContains(response, work.title)
             self.assertContains(response, work.year)
             self.assertContains(response,
-                                reverse('books:book-detail', args=[work.pk]))
+                                reverse('books:book-detail', args=[work.slug]))
             # TODO: get abs url not yet implemented, should be used here
             # self.assertContains(response, work.get_absolute_url())
 
@@ -148,7 +148,7 @@ class TestWorkListView(TestCase):
         # querysets from solr and db should match
         for index, item in enumerate(solr_qs):
             assert db_qs[index].title == item['title'][0]
-            assert db_qs[index].pk == item['pk']
+            assert db_qs[index].slug == item['slug']
         # if form is invalid, should return empty queryset
         form.is_valid.return_value = False
         solr_qs = view.get_queryset()
@@ -185,8 +185,9 @@ class TestWorkListView(TestCase):
         # pagination labels are used, current page selected
         self.assertContains(
             response,
-            '<option value="1" selected="selected">%s</option>' % \
+            '<option value="1" selected="selected">%s</option>' %
             list(response.context['page_labels'])[0][1])
+
 
 class TestWorkDetailView(TestCase):
     fixtures = ['sample_works', 'multi_creator_work']
@@ -194,14 +195,14 @@ class TestWorkDetailView(TestCase):
     def test_login_required_or_404(self):
         # 404 if not logged in; TEMPORARY
         work = Work.objects.first()
-        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        url = reverse('books:book-detail', kwargs={'slug': work.slug})
         assert self.client.get(url).status_code == 404
 
     @login_temporarily_required
     def test_get_breadcrumbs(self):
         # fetch any work and check breadcrumbs
         work = Work.objects.first()
-        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        url = reverse('books:book-detail', kwargs={'slug': work.slug})
         response = self.client.get(url)
         breadcrumbs = response.context['breadcrumbs']
         # last crumb should be the title of the work
@@ -213,7 +214,7 @@ class TestWorkDetailView(TestCase):
     def test_creators_display(self):
         # fetch a multi-creator work
         work = Work.objects.get(pk=4126)
-        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        url = reverse('books:book-detail', kwargs={'slug': work.slug})
         response = self.client.get(url)
         # all authors should be listed as <dd> elements under <dt>
         self.assertContains(response, '<dt>Author</dt>')
@@ -228,7 +229,7 @@ class TestWorkDetailView(TestCase):
     def test_pubdate_display(self):
         # fetch a work with a publication date
         work = Work.objects.get(pk=1)
-        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        url = reverse('books:book-detail', kwargs={'slug': work.slug})
         response = self.client.get(url)
         # check that the publication date is a <dd> under a <dt>
         self.assertContains(response, '<dt>Publication Date</dt>')
@@ -240,28 +241,29 @@ class TestWorkDetailView(TestCase):
         book = Work.objects.get(title='Murder on the Blue Train')
         periodical = Work.objects.get(title='The Dial')
         # check the rendering of the format indicator
-        url = reverse('books:book-detail', kwargs={'pk': book.pk})
+        url = reverse('books:book-detail', kwargs={'slug': book.slug})
         response = self.client.get(url)
         self.assertContains(response, '<div class="format">Book</div>')
-        url = reverse('books:book-detail', kwargs={'pk': periodical.pk})
+        url = reverse('books:book-detail', kwargs={'slug': periodical.slug})
         response = self.client.get(url)
-        self.assertContains(response, '<div class="format">Periodical</div>')  
+        self.assertContains(response, '<div class="format">Periodical</div>')
 
     @login_temporarily_required
     def test_read_link_display(self):
         # fetch a work with an ebook url
         work = Work.objects.get(title='The Dial')
-        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        url = reverse('books:book-detail', kwargs={'slug': work.slug})
         response = self.client.get(url)
         # check that a link was rendered
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<a class="read" href="%s">Read online</a>' % work.ebook_url)
 
     @login_temporarily_required
     def test_notes_display(self):
         # fetch a work with public notes
         work = Work.objects.get(title='Chronicle of my Life')
-        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        url = reverse('books:book-detail', kwargs={'slug': work.slug})
         response = self.client.get(url)
         # check that the notes are rendered as a <dd> under a <dt>
         self.assertContains(response, '<dt>Notes</dt>')
@@ -273,7 +275,7 @@ class TestWorkDetailView(TestCase):
         # fetch a periodical with issue information
         work = Work.objects.get(title='The Dial')
         issues = Edition.objects.filter(work=work)
-        url = reverse('books:book-detail', kwargs={'pk': work.pk})
+        url = reverse('books:book-detail', kwargs={'slug': work.slug})
         response = self.client.get(url)
         # check that all issues are rendered in a list format
         self.assertContains(response, '<h2>Volume/Issue</h2>')

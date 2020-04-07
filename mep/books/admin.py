@@ -19,7 +19,7 @@ from mep.common.admin import CollapsibleTabularInline
 class WorkCreatorInlineForm(forms.ModelForm):
     class Meta:
         model = Creator
-        fields = ('creator_type', 'person', 'notes')
+        fields = ('creator_type', 'person', 'order', 'notes')
         widgets = {
             'person': AUTOCOMPLETE['person'],
         }
@@ -85,11 +85,12 @@ class WorkAdmin(admin.ModelAdmin):
     list_filter = ('genres', 'work_format')
     inlines = [EditionInline, WorkCreatorInline]
     search_fields = ('mep_id', 'title', 'notes', 'public_notes',
-                     'creator__person__name', 'id')
+                     'creator__person__name', 'id', 'slug')
     fieldsets = (
         ('Basic metadata', {
             'fields': ('title', 'year',
-                       ('events', 'borrows', 'purchases'))
+                       ('events', 'borrows', 'purchases'),
+                       'slug')
         }),
         ('Additional metadata', {
             'fields': (
@@ -154,7 +155,7 @@ class WorkAdmin(admin.ModelAdmin):
 
     #: fields to be included in CSV export
     export_fields = [
-        'admin_url', 'id', 'title', 'year', 'author_list', 'mep_id',
+        'admin_url', 'id', 'slug', 'title', 'year', 'author_list', 'mep_id',
         'uri', 'edition_uri', 'genre_list', 'format', 'subject_list',
         'event_count', 'borrow_count', 'purchase_count',
         'notes'
