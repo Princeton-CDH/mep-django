@@ -8,6 +8,8 @@ database, with summary details and coordinates for associated addresses.
 
 from collections import OrderedDict
 
+from django.db.models import F
+
 from mep.books.models import CreatorType, Work
 from mep.common.management.export import BaseExport
 from mep.common.utils import absolutize_url
@@ -48,7 +50,8 @@ class Command(BaseExport):
     def get_queryset(self):
         '''prefetch and annotate to make the export more efficient'''
         return super().get_queryset().prefetch_related('creator_set') \
-                      .count_events()
+                      .count_events() \
+                      .order_by(F('year').asc(nulls_last=True), 'title')
 
     def get_object_data(self, work):
         '''
