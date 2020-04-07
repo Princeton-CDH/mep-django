@@ -614,13 +614,10 @@ class Creator(Notable):
         help_text='Order for multiple creators of the same type (optional)')
 
     class Meta:
-        ordering = ['creator_type', 'order', 'person__sort_name']
+        ordering = ['creator_type__order', 'order', 'person__sort_name']
 
     def __str__(self):
         return '%s %s %s' % (self.person, self.creator_type, self.work)
-
-    class Meta:
-        ordering = ['creator_type__order', 'person__sort_name']
 
 
 class EditionCreator(Notable):
