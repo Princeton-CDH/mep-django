@@ -48,7 +48,9 @@ class Command(BaseExport):
         return 'books'
 
     def get_queryset(self):
-        '''prefetch and annotate to make the export more efficient'''
+        '''Retrieve all books, with creators prefetched and annotations
+        for event counts to make the export more efficient; sort by year
+        (missing last) and then title.'''
         return super().get_queryset().prefetch_related('creator_set') \
                       .count_events() \
                       .order_by(F('year').asc(nulls_last=True), 'title')
