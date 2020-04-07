@@ -26,6 +26,8 @@ class Command(BaseExport):
     creator_types = CreatorType.objects.all().filter(creator__isnull=False) \
                                .distinct() \
                                .values_list('name', flat=True)
+    # NOTE: might want to move csv fields this into a method so we don't
+    # query the database at load time (but maybe only a problem for tests)
 
     csv_fields = ['uri', 'title'] + \
         [creator.lower() for creator in creator_types] + [
