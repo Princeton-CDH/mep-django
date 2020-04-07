@@ -178,7 +178,7 @@
         "model": "books.work",
         "pk": 3529,
         "fields": {
-            "notes": "",
+            "notes": "UNCERTAINTYICON",
             "mep_id": "",
             "title": "The Awakening of Helena Richie",
             "year": 1906,

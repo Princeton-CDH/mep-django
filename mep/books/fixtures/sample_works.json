@@ -42,7 +42,7 @@
 		"model": "books.work",
 		"pk": 4,
 		"fields": {
-			"notes": "",
+			"notes": "UNCERTAINTYICON",
 			"mep_id": null,
 			"title": "Chronicle of my Life",
 			"year": null,
