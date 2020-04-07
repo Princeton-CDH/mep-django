@@ -24,6 +24,7 @@
 
         .title {
             padding-right: 35%;
+            margin-bottom: .2rem;
         }
 
         .pubdate {
@@ -47,6 +48,19 @@
             height: 100%;
             text-align: right;
         }
+
+        // uncertainty icon displayed at bottom of card
+        tr.uncertain {
+            padding-bottom: 1.5rem;
+
+            &::after {
+                content: url('/static/img/icons/uncertainty.svg');
+                width: .75rem;
+                height:  .75rem;
+                position: absolute;
+                bottom: .75rem;
+            }
+        }
     }
 
     // tablet and desktop styles
@@ -60,6 +74,29 @@
 
         .activity {
             min-width: 5rem;
+        }
+
+        // uncertainty icon displayed to the right of titles
+        tr.uncertain {
+            .title a { position: relative; }
+
+            .title a::after {
+                z-index: 0;
+                content: url('/static/img/icons/uncertainty.svg');
+                width: .75rem;
+                height:  .75rem;
+                position: absolute;
+                bottom: .25rem;
+                right: -1rem;
+            }
+        }
+    }
+
+    // desktop-only styles
+    @media (min-width: $breakpoint-m) {
+        tr.uncertain .title a::after {
+            right: 0;
+            left: -1.5rem;
         }
     }
 }

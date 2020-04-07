@@ -24,6 +24,30 @@ section[aria-label=bibliography] {
     .notes dt { @include sr-only; }
     .notes dd { margin: 0; }
 
+    /* uncertainty icon is displayed above the notes on mobile; to the left on
+        all other screens */
+    .notes.uncertain {
+        position: relative;
+        margin-top: 2.75rem;    // create extra space on top
+
+        &::before {
+            content: url('/static/img/icons/uncertainty.svg');
+            width: .75rem;
+            height:  .75rem;
+            position: absolute;
+            bottom: 1.75rem;
+        }
+
+        @media (min-width: $breakpoint-s) {
+            margin-top: 2rem;
+
+            &::before {
+                bottom: .5rem;
+                left: -1rem;
+            }
+        }
+    }
+
     .format {
         display: inline-block;
         text-align: center;

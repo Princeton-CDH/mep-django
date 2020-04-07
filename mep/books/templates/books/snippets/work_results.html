@@ -6,13 +6,13 @@
 <ol class="work-results">
     {% for work in works %}
     <li class="books result{% if work.is_uncertain %} uncertain{% endif %}">
-        <a href="{% url 'books:book-detail' slug=work.slug %}" aria-label="{{ work.title }}">
+        <a href="{% url 'books:book-detail' slug=work.slug %}" aria-label="{{ work.title.0 }}">
             <div class="container">
                 {# counter for search results #}
                 <span class="counter"></span>
                 {# indicator for SRs if work details are uncertain (icon) #}
                 {% if work.is_uncertain %}
-                <span class="sr-only">work data is uncertain or incomplete</span>
+                <span class="sr-only">{{ uncertainty_message }}</span>
                 {% endif %}
                 {# book details #}
                 <dl class="book">

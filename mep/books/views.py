@@ -101,7 +101,8 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         context.update({
             'page_title': self.page_title,
             'page_description': self.page_description,
-            'error_message': error_message
+            'error_message': error_message,
+            'uncertainty_message': Work.UNCERTAINTY_MESSAGE
         })
         return context
 
