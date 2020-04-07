@@ -20,7 +20,8 @@ section[aria-label=bibliography] {
         text-align: right;
     }
 
-    .notes { margin-top: 2rem; }
+    dd + .notes { margin-top: 2rem; }
+
     .notes dt { @include sr-only; }
     
     .notes dd {
@@ -30,9 +31,13 @@ section[aria-label=bibliography] {
 
     /* uncertainty icon is displayed above the notes on mobile; to the left on
         all other screens */
+
+    @media (max-width: calc(#{$breakpoint-xs + 1px})) {
+        dd + .notes.uncertain { margin-top: 2.75rem; }
+    }
+
     .notes.uncertain {
         position: relative;
-        margin-top: 2.75rem;    // create extra space on top
 
         &::before {
             content: url('/static/img/icons/uncertainty.svg');
@@ -43,8 +48,6 @@ section[aria-label=bibliography] {
         }
 
         @media (min-width: $breakpoint-s) {
-            margin-top: 2rem;
-
             &::before {
                 top: -.1rem;
                 left: -1rem;
