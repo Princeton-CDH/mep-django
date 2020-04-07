@@ -8,8 +8,6 @@ database, with summary details and coordinates for associated addresses.
 
 from collections import OrderedDict
 
-from django.db.models import Count
-
 from mep.common.management.export import BaseExport
 from mep.common.templatetags.mep_tags import domain
 from mep.common.utils import absolutize_url
@@ -34,7 +32,8 @@ class Command(BaseExport):
         # related location
         'addresses', 'coordinates',
         # generic
-        'notes'
+        'notes',
+        'updated'
     ]
 
     def get_queryset(self):
@@ -101,5 +100,8 @@ class Command(BaseExport):
         # add public notes
         if obj.public_notes:
             data['notes'] = obj.public_notes
+
+        # last modified
+        data['updated'] = obj.updated_at.isoformat()
 
         return data
