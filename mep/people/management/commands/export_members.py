@@ -8,6 +8,8 @@ database, with summary details and coordinates for associated addresses.
 
 from collections import OrderedDict
 
+from django.db.models import Count
+
 from mep.common.management.export import BaseExport
 from mep.common.templatetags.mep_tags import domain
 from mep.common.utils import absolutize_url
@@ -43,10 +45,10 @@ class Command(BaseExport):
         '''set the filename to "members.csv" since it's a subset of people'''
         return 'members'
 
-    def get_object_data(self, obj: Person):
+    def get_object_data(self, obj):
         '''
         Generate dictionary of data to export for a single
-        :class:`~mep.accounts.models.Person`
+        :class:`~mep.people.models.Person`
         '''
         # required properties
         data = OrderedDict([
@@ -99,5 +101,5 @@ class Command(BaseExport):
         # add public notes
         if obj.public_notes:
             data['notes'] = obj.public_notes
-    
+
         return data

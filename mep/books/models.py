@@ -604,6 +604,9 @@ class CreatorType(Named, Notable):
     order = models.PositiveSmallIntegerField(
         help_text='order in which creator types will be listed')
 
+    class Meta:
+        ordering = ['order']
+
 
 class Creator(Notable):
     creator_type = models.ForeignKey(CreatorType, on_delete=models.CASCADE)
