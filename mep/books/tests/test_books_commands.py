@@ -3,7 +3,7 @@ from collections import defaultdict
 import datetime
 from io import StringIO
 import os
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest.mock import patch, Mock
 
 from django.contrib.admin.models import LogEntry, CHANGE
@@ -11,11 +11,13 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 import pymarc
+import pytest
 
 from mep.books.management.commands import reconcile_oclc
-from mep.books.models import Work, CreatorType, Creator
-from mep.people.models import Person
+from mep.books.models import Creator, CreatorType, Work
 from mep.books.tests.test_oclc import get_srwresponse_xml_fixture
+from mep.people.models import Person
+from mep.common.utils import absolutize_url
 
 
 class TestReconcileOCLC(TestCase):
@@ -366,3 +368,72 @@ class TestReconcileOCLC(TestCase):
             call_args = self.cmd.sru_search.get_worldcat_rdf.call_args[0]
             # can't compare pymarc records exactly so check type
             assert isinstance(call_args[0], pymarc.record.Record)
+
+
+@pytest.mark.django_db
+class TestExportBooks(TestCase):
+    fixtures = ['sample_works']
+
+    def setUp(self):
+        # importing here because it queries the database at definition time
+        from mep.books.management.commands import export_books
+
+        self.cmd = export_books.Command()
+        self.cmd.stdout = StringIO()
+
+    def test_filename(self):
+        assert self.cmd.get_base_filename() == 'books'
+
+    def test_get_object_data(self):
+        exit_e = Work.objects.count_events().get(slug='exit-eliza')
+        data = self.cmd.get_object_data(exit_e)
+        assert data['uri'] == absolutize_url(exit_e.get_absolute_url())
+        assert data['title'] == exit_e.title
+        assert data['year'] == exit_e.year
+        assert data['format'] == exit_e.work_format.name
+        assert data['identified']  # not marked uncertain
+        assert data['work uri'] == exit_e.uri
+        assert 'author' in data
+        # missing data should not be in the dict
+        for field in ['edition uri', 'ebook url', 'volumes/issues']:
+            assert field not in data
+        assert data['event count'] == exit_e.event__count
+        assert data['borrow count'] == exit_e.event__borrow__count
+        assert data['purchase count'] == exit_e.event__purchase__count
+        assert data['updated'] == exit_e.updated_at.isoformat()
+
+        # record with different data
+        dial = Work.objects.count_events().get(slug='dial')
+        data = self.cmd.get_object_data(dial)
+        assert 'year' not in data
+        assert data['edition uri'] == dial.edition_uri
+        assert data['ebook url'] == dial.ebook_url
+        assert 'volumes/issues' in data
+        for vol in dial.edition_set.all():
+            assert vol.display_text() in data['volumes/issues']
+
+    def test_creator_info(self):
+        exit_e = Work.objects.count_events().get(slug='exit-eliza')
+        data = self.cmd.creator_info(exit_e)
+        assert data['author'] == [exit_e.authors[0].sort_name]
+        for creator in ['editor', 'translator', 'illustrator']:
+            assert creator not in data
+
+    def test_command_line(self):
+        # test calling via command line with args
+        tempdir = TemporaryDirectory()
+        stdout = StringIO()
+        call_command('export_books', '-d', tempdir.name, stdout=stdout)
+        output = stdout.getvalue()
+        assert 'Exporting JSON' in output
+        assert 'Exporting CSV' in output
+        assert os.path.exists(os.path.join(tempdir.name, 'books.json'))
+        assert os.path.exists(os.path.join(tempdir.name, 'books.csv'))
+
+        with patch('mep.books.management.commands.export_books' +
+                   '.Command.get_object_data') as mock_get_obj_data:
+            mock_get_obj_data.return_value = {'title': 'test'}
+            call_command('export_books', '-d', tempdir.name, '-m', 2,
+                         stdout=stdout)
+            # 2 mock objects * 2 (once each for CSV, JSON)
+            assert mock_get_obj_data.call_count == 4

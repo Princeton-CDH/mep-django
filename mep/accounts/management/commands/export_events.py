@@ -38,7 +38,7 @@ class Command(BaseExport):
         # purchase specific
         'purchase price',
         # related book/item
-        'item title', 'item work uri', 'item volume',
+        'item uri', 'item title', 'item work uri', 'item volume',
         'item notes',
         # footnote/citation
         'source citation', 'source manifest', 'source image'
@@ -147,6 +147,7 @@ class Command(BaseExport):
         '''associated work details for an event'''
         if event.work:
             item_info = OrderedDict([
+                ('uri', absolutize_url(event.work.get_absolute_url())),
                 ('title', event.work.title),
             ])
             if event.edition:

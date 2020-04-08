@@ -474,6 +474,7 @@ class TestExportEvents(TestCase):
             .exclude(work__uri='').exclude(work__public_notes='').first()
         info = self.cmd.item_info(event)
         assert info['title'] == event.work.title
+        assert info['uri'] == absolutize_url(event.work.get_absolute_url())
         assert info['work uri'] == event.work.uri
         assert info['notes'] == event.work.public_notes
         assert 'volume' not in info

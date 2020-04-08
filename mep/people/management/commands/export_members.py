@@ -32,7 +32,8 @@ class Command(BaseExport):
         # related location
         'addresses', 'coordinates',
         # generic
-        'notes'
+        'notes',
+        'updated'
     ]
 
     def get_queryset(self):
@@ -43,10 +44,10 @@ class Command(BaseExport):
         '''set the filename to "members.csv" since it's a subset of people'''
         return 'members'
 
-    def get_object_data(self, obj: Person):
+    def get_object_data(self, obj):
         '''
         Generate dictionary of data to export for a single
-        :class:`~mep.accounts.models.Person`
+        :class:`~mep.people.models.Person`
         '''
         # required properties
         data = OrderedDict([
@@ -99,5 +100,8 @@ class Command(BaseExport):
         # add public notes
         if obj.public_notes:
             data['notes'] = obj.public_notes
-    
+
+        # last modified
+        data['updated'] = obj.updated_at.isoformat()
+
         return data

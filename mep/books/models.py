@@ -220,6 +220,17 @@ class WorkSignalHandlers:
             ModelIndexable.index_items(works)
 
 
+class WorkQuerySet(models.QuerySet):
+    '''Custom :class:`models.QuerySet` for :class:`Work`'''
+
+    def count_events(self):
+        '''Annotate the queryset with counts for events, borrows,
+        and purchases.'''
+        return self.annotate(models.Count('event', distinct=True),
+                             models.Count('event__borrow', distinct=True),
+                             models.Count('event__purchase', distinct=True))
+
+
 class Work(Notable, ModelIndexable):
     '''Work record for an item that circulated in the library or was
     other referenced in library activities.'''
@@ -276,6 +287,9 @@ class Work(Notable, ModelIndexable):
         'Editing will change the public, citable URL for books.')
     # NOTE: null=true required to avoid validation error
     # when submitting admin edit form with no slug
+
+    # override default manager with customized version
+    objects = WorkQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         # override save to ensure mep ID is None rather than empty string
@@ -608,6 +622,9 @@ class CreatorType(Named, Notable):
 
     order = models.PositiveSmallIntegerField(
         help_text='order in which creator types will be listed')
+
+    class Meta:
+        ordering = ['order']
 
 
 class Creator(Notable):
