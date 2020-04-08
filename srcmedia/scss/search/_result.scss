@@ -1,3 +1,6 @@
+/* search result styles */
+
+// single search result display
 .result {
     counter-increment: results;
     position: relative;
@@ -22,6 +25,11 @@
         @media (min-width: $breakpoint-s) {
             flex-flow: row nowrap;
         }
+    }
+
+    dl {
+        display: flex;
+        flex: auto;
     }
 
     // remove extra margin in details
@@ -92,5 +100,18 @@
         a:hover & {
             visibility: visible;
         }
+    }
+}
+
+// empty results display
+.empty-results {
+    @include padding-container;
+    padding-top: 3.5rem;
+    text-align: center;
+    font-family: $serif;
+    min-height: 8rem;
+
+    img {
+        width: 50%;
     }
 }
