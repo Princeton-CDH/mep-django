@@ -92,10 +92,9 @@ class Command(BaseExport):
             data['notes'] = work.public_notes
 
         # always include event counts
-        # for efficiency, use queryset annotation counts instead of model prop
-        data['event count'] = work.event__count
-        data['borrow count'] = work.event__borrow__count
-        data['purchase count'] = work.event__purchase__count
+        data['event count'] = work.event_count
+        data['borrow count'] = work.borrow_count
+        data['purchase count'] = work.purchase_count
         # date last modified
         data['updated'] = work.updated_at.isoformat()
 
