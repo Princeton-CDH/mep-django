@@ -424,6 +424,12 @@ class Work(Notable, ModelIndexable):
         }
     }
 
+    @classmethod
+    def items_to_index(cls):
+        '''Modify the queryset used for indexing in bulk; prefetch
+        creators, annotate event counts.'''
+        return cls.objects.prefetch_related('creator_set').count_events()
+
     def index_data(self):
         '''data for indexing in Solr'''
 
@@ -441,6 +447,7 @@ class Work(Notable, ModelIndexable):
             'format_s_lower': self.format(),
             'notes_txt_en': self.public_notes,
             'is_uncertain_b': self.is_uncertain,
+            'borrow_count_i': self.borrow_count
         })
 
         return index_data
