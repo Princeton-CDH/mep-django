@@ -38,8 +38,6 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         # otherwise use default (sort by title)
         if form_data.get('query', None):
             form_data['sort'] = 'relevance'
-        else:
-            form_data['sort'] = self.initial['sort']
 
         # set defaults
         for key, val in self.initial.items():
@@ -57,9 +55,19 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     solr_sort = {
         'relevance': '-score',
         'title': 'sort_title_isort',
+        'title_za': '-sort_title_isort',
+        'author': 'sort_authors_isort',
+        'author_za': '-sort_authors_isort',
+        'borrowing': '-sort_authors_isort',
+        'borrowing_desc': '-borrow_count_i',
+        'borrowing': 'borrow_count_i',
+        'pubdate': 'pub_date_i',
+        'pubdate_desc': '-pub_date_i',
     }
+    # NOTE: might be able to infer reverse sort from _desc/_za
+    # instead of hard-coding here
 
-    #: bib data query alias field syntax (type defaults to edismax in solr config)
+    #: bib data query alias field syntax (configured defaults is edismax)
     search_bib_query = '{!qf=$bib_qf pf=$bib_pf v=$bib_query}'
 
     def get_queryset(self):
@@ -82,7 +90,11 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
                          .raw_query_parameters(bib_query=search_opts['query']) \
                          .also('score')  # include relevance score in results
 
-            sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
+            sort_opt = self.solr_sort[search_opts['sort']]
+            sqs = sqs.order_by(sort_opt)
+            # when not sorting by title, use title as secondary sort
+            if self.solr_sort['title'] not in sort_opt:
+                sqs = sqs.order_by(self.solr_sort['title'])
 
         self.queryset = sqs
         return sqs
