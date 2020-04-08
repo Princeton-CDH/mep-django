@@ -2,37 +2,7 @@
 
 .members.result {
 
-    // two-part layout: stacked on mobile; left/right 2:1 on tablet+
-    dl { flex-flow: row wrap; }
-
-    .primary {
-        flex: auto;
-        @media (min-width: $breakpoint-s) { flex: 2; }
-    }
-
-    .secondary {
-        flex: none;
-        width: 100%;
-        margin-top: 0.5rem;
-        @media (min-width: $breakpoint-s) { flex: 1; }
-    }
-
-    // items that go on the top on mobile/left on tablet+
-    .name,
-    .birth-death,
-    .reference {
-        text-align: left;
-    }
-
-    // items that go on the bottom on mobile/right on tablet+
-    .member-dates,
-    .nationality,
-    .profession,
-    .relevance {
-        text-align: right;
-    }
-
-    // hide implied headings for visual users
+    // some headings are only read via SRs since they're implied visually
     .birth-death dt,
     .name dt {
         @include sr-only;
@@ -40,13 +10,9 @@
 
     // emphasized name display
     .name dd {
-        line-height: 1.4rem;
         font-size: 1rem;
         font-family: $serif;
     }
-
-    // add spacing for relevance when shown
-    .relevance { margin-top: .35rem; }
 
     // show the "has card" icon if present
     &.has-card {

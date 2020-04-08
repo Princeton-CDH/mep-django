@@ -2,18 +2,12 @@
 dl {
     dt {
         text-transform: capitalize;
-        line-height: .7rem;
         font-size: .7rem;
         font-weight: bold;
-        
-        + dd {
-            margin-top: .35rem;
-        }
     }
 
     dd {
         font-size: .8rem;
-        line-height: 1.2rem;
 
         + dd {
             margin-top: .5rem;
@@ -23,4 +17,6 @@ dl {
             margin-top: 1rem;
         }
     }
+
+    dt, dd { line-height: 1.2rem; }
 }

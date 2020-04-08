@@ -6,9 +6,7 @@
     position: relative;
     border-top: 1px solid $white-two;
 
-    a {
-        text-decoration: none;
-    }
+    a { text-decoration: none; }
 
     .container {
         position: relative;
@@ -27,14 +25,30 @@
         }
     }
 
+    // two-part layout: stacked on mobile; left/right flex on tablet+
     dl {
         display: flex;
         flex: auto;
-    }
+        flex-flow: row wrap;
+        @media (min-width: $breakpoint-s) { flex-flow: row nowrap; }
 
-    // remove extra margin in details
-    dl dd {
-        margin-bottom: 0;
+        .primary {
+            flex: auto;
+            text-align: left;
+        }
+
+        .secondary {
+            flex: none;
+            text-align: right;
+            @media (min-width: $breakpoint-s) { padding-left: 1rem; }
+            @media (max-width: calc(#{$breakpoint-xs} + 1px)) { width: 100%; }
+        }
+
+        // spacing for stacked fields
+        .primary > div + div,
+        .secondary > div + div {
+            margin-top: .35rem;
+        }
     }
 
     // show the result counter/icons in the details

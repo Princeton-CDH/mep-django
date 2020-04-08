@@ -48,11 +48,8 @@
                     </div>
                     <div class="secondary">
                         {# format #}
-                        {% if work.work_format %}
-                        <div class="format">
-                            <dt>Format</dt>
-                            <dd>{{ work.work_format }}</dd>
-                        </div>
+                        {% if work.format %}
+                        <div class="format">{{ work.format }}</div>
                         {% endif %}
                         {# search result relevance (if user is logged in) #}
                         {% if user.is_authenticated and work.score %}
