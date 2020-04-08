@@ -86,7 +86,7 @@ class RdfViewMixin(ContextMixin):
         '''add jsonld and breadcrumb list to context dictionary'''
         context.update({
             'page_jsonld': self.as_rdf().serialize(format='json-ld',
-                                                   auto_compact=True),
+                                                   auto_compact=True).decode(),
             'breadcrumbs': self.get_breadcrumbs()
         })
         return context
