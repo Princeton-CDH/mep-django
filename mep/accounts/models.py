@@ -634,31 +634,6 @@ class Purchase(CurrencyMixin, Event):
         self.end_date = self.start_date
         super().save(*args, **kwargs)
 
-    def validate_unique(self, *args, **kwargs):
-        '''Validation check to prevent duplicate purchase events from happening.
-        Differs from
-        :class:`~mep.accounts.models.Reimbursement.validate_unique` by also
-        allowing for multiple purchases of different items per day. Used
-        instead of `unique_together` because of multi-table inheritance.
-        '''
-        super().validate_unique(*args, **kwargs)
-        # check to prevent duplicate event (date + account + item)
-        try:
-            qs = Purchase.objects.filter(start_date=self.start_date,
-                account=self.account, work=self.work)
-        except ObjectDoesNotExist:
-            # bail out without making any further assertions because
-            # we've had a missing required related field and other checks
-            # will catch it
-            return
-
-        # if current work is already saved, exclude it from the queryset
-        if not self._state.adding and self.pk is not None:
-            qs = qs.exclude(pk=self.pk)
-
-        if qs.exists():
-            raise ValidationError('Purchase event is not unique')
-
 
 class Reimbursement(Event, CurrencyMixin):
     '''Reimbursement event; extends :class:`Event`'''
