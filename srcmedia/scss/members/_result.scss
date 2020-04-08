@@ -3,15 +3,21 @@
 .members.result {
 
     // some headings are only read via SRs since they're implied visually
-    .birth-death dt,
-    .name dt {
+    dt.birth-death,
+    dt.name {
         @include sr-only;
     }
 
     // emphasized name display
-    .name dd {
+    dd.name {
         font-size: 1rem;
         font-family: $serif;
+    }
+
+    // gentler spacing on both sides
+    dd.birth-death,
+    dd.member-dates {
+        margin-top: .5rem;
     }
 
     // show the "has card" icon if present

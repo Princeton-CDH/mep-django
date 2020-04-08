@@ -25,19 +25,18 @@
 </nav>
 
 {# bibliographic details #}
-<section class="details" aria-label="bibliography">
-    <div class="split">
-        {# creators & publication date #}
-        <dl class="left">
+<section aria-label="bibliography">
+    <dl class="book">
+        <div class="primary">
             {% for creator in work.creator_set.all %}
             {% ifchanged %}
-            <dt>{{ creator.creator_type.name }}</dt>
+            <dt class="creator">{{ creator.creator_type.name }}</dt>
             {% endifchanged %}
-            <dd>{{ creator.person.name }}</dd>
+            <dd class="creator">{{ creator.person.name }}</dd>
             {% endfor %}
             {% if work.year %}
-            <dt>Publication Date</dt>
-            <dd>{{ work.year }}</dd>
+            <dt class="pubdate">Publication Date</dt>
+            <dd class="pubdate">{{ work.year }}</dd>
             {% endif %}
             {% if work.public_notes %}
             <div class="notes{% if work.is_uncertain %} uncertain{% endif %}">
@@ -45,17 +44,22 @@
                 <dd>{{ work.public_notes }}</dd>
             </div>
             {% endif %}
-        </dl>
-        {# format & view online link #}
-        <div class="right">
-            {% if work.work_format %}
-            <div class="format">{{ work.work_format }}</div>
-            {% endif %}
-            {% if work.ebook_url %}
-            <a class="read" href="{{ work.ebook_url }}">Read online</a>
-            {% endif %}
         </div>
-    </div>
+        <div class="secondary">
+        {# format #}
+        {% if work.work_format %}
+        <dt class="format">Format</dt>
+        <dd class="format">{{ work.work_format }}</dd>
+        {% endif %}
+        {# link to read online #}
+        {% if work.ebook_url %}
+        <dt class="read-link">Link</dt>
+        <dd class="read-link">
+            <a href="{{ work.ebook_url }}">Read online</a>
+        </dd>
+        {% endif %}
+        </div>
+    </dl>
     {# volume/issue info #}
     {% if work.edition_set.exists %}
     <div class="volumes-issues">
@@ -68,5 +72,4 @@
     </div>
     {% endif %}
 </section>
-
 {% endblock %}

@@ -3,17 +3,24 @@
 .books.result {
 
     // some headings are only read via SRs since they're implied visually
-    .title dt,
-    .authors dt,
-    .pubdate dt {
+    dt.title,
+    dt.author,
+    dt.pubdate {
         @include sr-only;
     }
 
     // empasized title display
-    .title dd {
+    dd.title {
         font-size: 1rem;
         font-family: $serif;
     }
+
+    // add spacing on left side
+    dd.author {
+        margin-top: .5rem;
+        + dd.author { margin-top: 0; }
+    }
+    dd.pubdate { margin-top: .5rem; }
 
     // show the uncertainty icon if present
     &.uncertain {

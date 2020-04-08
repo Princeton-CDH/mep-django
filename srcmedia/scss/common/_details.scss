@@ -1,21 +1,32 @@
-// detail list for a book, person, etc.
+/* detail list for a book, person, etc.
+ * used for both search results and detail pages */
+
 dl {
+    // two-part layout with left portion flexing
+    display: flex;
+    flex: auto;
+    flex-flow: row nowrap;
+
+    .primary {
+        flex: auto;
+        text-align: left;
+    }
+
+    .secondary {
+        flex: none;
+        text-align: right;
+        padding-left: .5rem;
+        @media (min-width: $breakpoint-s) { padding-left: 1rem; }
+    }
+
     dt {
-        text-transform: capitalize;
         font-size: .7rem;
         font-weight: bold;
     }
 
     dd {
         font-size: .8rem;
-
-        + dd {
-            margin-top: .5rem;
-        }
-        
-        + dt {
-            margin-top: 1rem;
-        }
+        + dt { margin-top: 1rem; }
     }
 
     dt, dd { line-height: 1.2rem; }

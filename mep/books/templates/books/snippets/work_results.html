@@ -18,45 +18,38 @@
                 <dl class="book">
                     <div class="primary">
                         {# title #}
-                        <div class="title">
-                            <dt>Title</dt>
-                            <dd>{{ work.title.0 }}</dt>
-                        </div>
+                        <dt class="title">Title</dt>
+                        <dd class="title">{{ work.title.0 }}</dt>
                         {# authors (first three) #}
                         {% if work.sort_authors %}
-                        <div class="authors">
-                            <dt>Authors</dt>
-                            {% for author in work.sort_authors %}
-                                {% if forloop.counter <= 3 %}
-                                <dd>{{ author }}</dd>
-                                {% endif %}
-                            {% endfor %}
-                            {% if work.sort_authors|length > 3 %}
-                            {% with extra_authors=work.sort_authors|length|add:"-3" %}
-                            <dd>...{{ extra_authors }} more author{{ extra_authors|pluralize }}</dd>
-                            {% endwith %}
+                        <dt class="author">Author</dt>
+                        {% for author in work.sort_authors %}
+                            {% if forloop.counter <= 3 %}
+                            <dd class="author">{{ author }}</dd>
                             {% endif %}
-                        </div>
+                        {% endfor %}
+                        {% if work.sort_authors|length > 3 %}
+                        {% with extra_authors=work.sort_authors|length|add:"-3" %}
+                        <dd class="author">...{{ extra_authors }} more author{{ extra_authors|pluralize }}</dd>
+                        {% endwith %}
+                        {% endif %}
                         {% endif %}
                         {# publication date #}
                         {% if work.pub_date %}
-                        <div class="pubdate">
-                            <dt>Publication Date</dt>
-                            <dd>{{ work.pub_date }}</dd>
-                        </div>
+                        <dt class="pubdate">Publication Date</dt>
+                        <dd class="pubdate">{{ work.pub_date }}</dd>
                         {% endif %}
                     </div>
                     <div class="secondary">
                         {# format #}
                         {% if work.format %}
-                        <div class="format">{{ work.format }}</div>
+                        <dt class="format">Format</dt>
+                        <dd class="format">{{ work.format }}</dd>
                         {% endif %}
                         {# search result relevance (if user is logged in) #}
                         {% if user.is_authenticated and work.score %}
-                        <div class="relevance">
-                            <dt>Relevance</dt>
-                            <dd>{{ work.score }}</dd>
-                        </div>
+                        <dt class="relevance">Relevance</dt>
+                        <dd class="relevance">{{ work.score }}</dd>
                         {% endif %}
                     </div>
                 </dl>

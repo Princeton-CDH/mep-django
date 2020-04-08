@@ -4,18 +4,51 @@
     }
 </style>
 <ol class="member-results">
-    {% for person in members %}
-    <li class="members result{% if person.has_card %} has-card{% endif %}">
-        <a href="{% url 'people:member-detail' slug=person.slug %}" aria-label="{{ person.sort_name.0 }}">
+    {% for member in members %}
+    <li class="members result{% if member.has_card %} has-card{% endif %}">
+        <a href="{% url 'people:member-detail' slug=member.slug %}" aria-label="{{ person.sort_name.0 }}">
             <div class="container">
                 {# counter for search results #}
                 <span class="counter"></span>
                 {# indicator for SRs if person has card (icon) #}
                 {% if person.has_card %}
-                <span class="sr-only">member has card</span>
+                <span class="sr-only">Member has card</span>
                 {% endif %}
                 {# member details #}
-                {% include 'people/snippets/member_result.html' with member=person %}
+                <dl class="member">
+                    <div class="primary">
+                        {# name #}
+                        <dt class="name">Name</dt>
+                        <dd class="name">{{ member.sort_name.0 }}</dd>
+                        {# birth & death dates #}
+                        {% if member.birth_year or member.death_year %}
+                        <dt class="birth-death">Birth – Death</dt>
+                        <dd class="birth-death">
+                        {% if member.birth_year %}
+                        {{ member.birth_year }}{% endif %} – {% if member.death_year %}<span class="sr-only">to</span>{{ member.death_year }}
+                        {% endif %}
+                        </dd>
+                        {% endif %}
+                    </div>
+                    <div class="secondary">
+                        {# membership dates #}
+                        {% with account_start=member.account_start account_end=member.account_end %}
+                        {% if account_start or account_end %}
+                        <dt class="member-dates">Membership Dates</dt>
+                        <dd class="member-dates">
+                        {% if account_start %}
+                        {{ account_start }}{% endif %}{% if account_end and account_start != account_end %} – <span class="sr-only">to</span>{{ account_end }}
+                        {% endif %}
+                        </dd>
+                        {% endif %}
+                        {% endwith %}
+                        {# search result relevance (if user is logged in) #}
+                        {% if user.is_authenticated and member.score %}
+                        <dt class="relevance">Relevance</dt>
+                        <dd class="relevance">{{ member.score }}</dd>
+                        {% endif %}
+                    </div>
+                </dl>
                 {# link to view detail page #}
                 <span class="see-more">
                     See more details

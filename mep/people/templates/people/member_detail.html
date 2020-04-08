@@ -37,11 +37,69 @@
 </nav>
 
 {# biography section #}
-{% with account_start=member.account_set.first.earliest_date account_end=member.account_set.first.last_date %}
-<section class="biography" aria-label="biography">
-    <div class="details">
-        {% include 'people/snippets/member_result.html' %}
-    </div>
+<section aria-label="biography">
+    <dl class="member">
+        <div class="primary">
+            {# name #}
+            <dt class="name">Name</dt>
+            <dd class="name">{{ member.name }}</dd>
+            {# membership dates #}
+            {% with account_start=member.account_set.first.earliest_date account_end=member.account_set.first.last_date %}
+            {% if account_start or account_end %}
+            <dt class="member-dates">Membership Dates</dt>
+            <dd class="member-dates">
+            {% if account_start %}
+            {{ account_start }}{% endif %}{% if account_end and account_start != account_end %} – <span class="sr-only">to</span>{{ account_end }}
+            {% endif %}
+            </dd>
+            {% endif %}
+            {% endwith %}
+            {# public notes #}
+            {% if member.public_notes %}
+            <dt class="notes">Notes</dt>
+            <dd class="notes">{{ member.public_notes }}</dd>
+            {% endif %}
+        </div>
+        <div class="secondary">
+            {# birth/death dates #}
+            {% if member.birth_year or member.death_year %}
+            <dt class="birth-death">Birth – Death</dt>
+            <dd class="birth-death">
+            {% if member.birth_year %}
+            {{ member.birth_year }}{% endif %} – {% if member.death_year %}<span class="sr-only">to</span>{{ member.death_year }}
+            {% endif %}
+            </dd>
+            {% endif %}
+            {# nationality #}
+            {% if member.nationalities.exists %}
+            <dt class="nationality">Nationality</dt>
+            {% for country in member.nationalities.all %}
+            <dd class="nationality">{{ country.name }}</dd>
+            {% endfor %}
+            {% endif %}
+            {# profession #}
+            {% if member.profession %}
+            <dt class="profession">Profession</dt>
+            <dd>{{ member.profession.name }}</dd>
+            {% endif %}
+            {# reference #}
+            {% if member.viaf or member.urls.exists %}
+            <dt class="reference">Reference</dt>
+            {% if member.viaf %}
+            <dd class="reference">
+                <a href="{{ member.viaf.uri }}">VIAF</a>
+            </dd>
+            {% endif %}
+            {% if member.urls.exists %}
+            {% for reference in member.urls.all %}
+            <dd class="reference">
+                <a href="{{ reference }}">{{ reference.url|domain|capfirst }}</a>
+            </dd>
+            {% endfor %}
+            {% endif %}
+            {% endif %}
+        </div>
+    </dl>
 </section>
 
 {# membership timeline graph(s) #}
@@ -58,14 +116,13 @@
             for {{ account_start.year }}{% endif %}.
         See the activities tab for more details.</p>
     </div>
-{% include 'people/snippets/member_graph.html' %}
+    {% include 'people/snippets/member_graph.html' %}
 </section>
 {% endif %}
-{% endwith %}
 
 {# address map #}
 {% if addresses %}
-<section class="map">
+<section aria-label="map">
     <div class="header">
         <hr/>
         <h2>Addresses</h2>

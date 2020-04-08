@@ -1,0 +1,8 @@
+/* member timeline graphs */
+section[aria-label=timeline] {
+    @include container;
+
+    .timeline .description {
+        @include sr-only;
+    }
+}
