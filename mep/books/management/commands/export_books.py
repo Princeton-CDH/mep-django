@@ -1,8 +1,9 @@
 '''
-Manage command to export member data for use by others.
+Manage command to export book data for use by others.
 
-Generates a CSV and JSON file including details on every library member in the
-database, with summary details and coordinates for associated addresses.
+Generates a CSV and JSON file including details on every book in the
+database, with bibliographic details and counts for all events, borrows,
+and purchases.
 
 '''
 
