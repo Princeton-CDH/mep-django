@@ -17,4 +17,14 @@
             }
         }   
     }
+
+    // relevance bar & score display
+    .relevance {
+        .score {
+            font-size: .5rem;
+            vertical-align: middle;
+        }
+        
+        progress { max-width: 4rem; }
+    }
 }

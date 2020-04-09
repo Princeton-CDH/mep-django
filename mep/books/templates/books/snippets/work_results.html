@@ -49,7 +49,12 @@
                         {# search result relevance (if user is logged in) #}
                         {% if user.is_authenticated and work.score %}
                         <dt class="relevance">Relevance</dt>
-                        <dd class="relevance">{{ work.score }}</dd>
+                        <dd class="relevance">
+                            <span class="score">{{ work.score|floatformat }}</span>
+                            <progress max="300" value="{{ work.score }}">
+                                {{ work.score }}
+                            </progress>
+                        </dd>
                         {% endif %}
                     </div>
                 </dl>
