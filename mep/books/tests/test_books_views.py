@@ -88,10 +88,21 @@ class TestWorkListView(TestCase):
             self.assertContains(response, work.year)
             self.assertContains(response,
                                 reverse('books:book-detail', args=[work.slug]))
-            # TODO: get abs url not yet implemented, should be used here
-            # self.assertContains(response, work.get_absolute_url())
+            self.assertContains(response, work.get_absolute_url())
+            self.assertContains(response, work.work_format)
+
+        # item with UNCERTAINTYICON in notes should show text to SRs
+        self.assertContains(response, Work.UNCERTAINTY_MESSAGE)
 
         # NOTE publishers display is designed but data not yet available
+
+    @login_temporarily_required
+    def test_relevance(self):
+        response = self.client.get(self.url, {'query': 'eliza'})
+        # relevance score should be shown to logged-in users
+        self.assertContains(
+            response, '<dt class="relevance">Relevance</dt>',
+            msg_prefix='relevance score displayed for logged in users')
 
     @login_temporarily_required
     def test_form(self):
@@ -133,12 +144,6 @@ class TestWorkListView(TestCase):
 
         # should show "...x more authors" text
         self.assertContains(response, '...15 more authors')
-
-    @login_temporarily_required
-    def test_uncertain_work(self):
-        response = self.client.get(self.url)
-        # item with UNCERTAINTYICON in notes should show text to SRs
-        self.assertContains(response, Work.UNCERTAINTY_MESSAGE)
 
     def test_get_queryset(self):
         # create a mocked form

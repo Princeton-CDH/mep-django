@@ -727,7 +727,7 @@ class TestMembersListView(TestCase):
         self.client.login(username=staffuser.username, password=staff_password)
         response = self.client.get(self.members_url, {'query': card_member.name})
         self.assertContains(
-            response, '<dt>relevance</dt>',
+            response, '<dt class="relevance">Relevance</dt>',
             msg_prefix='relevance score displayed for logged in users')
 
         # no results - display error text & image
