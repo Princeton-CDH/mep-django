@@ -1,23 +1,23 @@
 /* common search result styles */
 
 .result {
-
+    
     // override two-part layout to allow on mobile
     dl {
-        flex-wrap: wrap; 
+        flex-wrap: wrap;
         @media (min-width: $breakpoint-s) { flex-wrap: nowrap; }
-
+        
         .secondary {
             width: 100%;
             padding-left: 0;
-
+            
             @media (min-width: $breakpoint-s) {
                 width: initial;
                 padding-left: 1rem;
             }
-        }   
+        }
     }
-
+    
     // relevance bar & score display
     .relevance {
         .score {
