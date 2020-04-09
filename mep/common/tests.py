@@ -691,6 +691,8 @@ class TestRdfViewMixin(TestCase):
         context = view.get_context_data()
         assert context['breadcrumbs'] == [('Home', '/'),
                                           ('My Page', '/my-page')]
+        # should be string and not bytes, to render properly
+        assert isinstance(context['page_jsonld'], str)
 
     def test_rdf_graph(self):
         class MyRdfView(views.RdfViewMixin):

@@ -157,6 +157,7 @@
             "title": "The Sun Also Rises",
             "year": 1926,
             "uri": "",
+            "slug": "sun-rises",
             "updated_at": "2018-07-13T23:19:49Z"
         }
     },
@@ -169,6 +170,7 @@
             "title": "Suppliant Maidens",
             "year": 1922,
             "uri": "",
+            "slug": "aeschylus-suppliant-maidens",
             "updated_at": "2018-07-02T00:24:06Z"
         }
     },
@@ -176,11 +178,12 @@
         "model": "books.work",
         "pk": 3529,
         "fields": {
-            "notes": "",
+            "notes": "UNCERTAINTYICON",
             "mep_id": "",
             "title": "The Awakening of Helena Richie",
             "year": 1906,
             "uri": "",
+            "slug": "Awakening-helena-richie",
             "updated_at": "2018-07-02T00:24:06Z"
         }
     },
@@ -189,7 +192,8 @@
         "pk": 1,
         "fields": {
             "name": "Author",
-            "notes": ""
+            "notes": "",
+            "order": 1
         }
     },
     {
@@ -229,6 +233,6 @@
             "notes": "Added for testing",
             "url": "https://en.wikipedia.org/wiki/Ernest_Hemingway",
             "person": 224
-        }       
+        }
     }
 ]

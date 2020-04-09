@@ -1,19 +1,21 @@
 // normal links with green underline
 main a {
     color: $black;
-    text-decoration: none;
-    border-bottom: 2px solid $green;
+    text-decoration: underline;
+    text-decoration-color: $green;
+    text-decoration-thickness: .1rem;
+    text-underline-offset: .2rem;
     transition: all 0.2s;
 
     &:hover, &:focus {
-        border-bottom: 2px solid $dark-green;
+        text-decoration-color: $dark-green;
     }
 }
 
 // '¶' links to linkable sections in body text
 .headerlink {
     color: $green;
-    border: none;
+    text-decoration: none;
     opacity: 0;
     font-size: 1rem;
     transition: opacity 0.2s ease-in-out;
@@ -21,7 +23,7 @@ main a {
     top: -0.2rem;
 
     &:hover, &:focus {
-        border: none;
+        text-decoration: none;
     }
 }
 
@@ -31,7 +33,7 @@ h2:hover > .headerlink {
 
 // info links using 'link' icon
 .info-link {
-    border: none;
+    text-decoration: none;
     width: 2rem;
     height: 2rem;
     background-image: url('/static/img/icons/link-circle.svg');
@@ -41,6 +43,6 @@ h2:hover > .headerlink {
     display: inline-block;
 
     &:hover, &:focus {
-        border: none;
+        text-decoration: none;
     }
 }

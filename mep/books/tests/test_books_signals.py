@@ -36,7 +36,7 @@ def test_creatortype_save(mock_indexitems):
 @patch.object(ModelIndexable, 'index_items')
 def test_creatortype_delete(mock_indexitems):
     # no associated works - ignored
-    new_type = CreatorType.objects.create(name='Typesetter')
+    new_type = CreatorType.objects.create(name='Typesetter', order=6)
     WorkSignalHandlers.creatortype_delete(CreatorType, new_type)
     mock_indexitems.assert_not_called()
 

@@ -833,35 +833,8 @@ class TestPurchase(TestCase):
         self.purchase.save()
         # save should set end_date and end_date_precision
         assert self.purchase.end_date == self.purchase.start_date
-        assert self.purchase.end_date_precision == self.purchase.start_date_precision
-
-    def test_validate_unique(self):
-        # resaving existing record should not error
-        self.purchase.validate_unique()
-
-        # creating new purchase for same account, date, and work should error
-        with pytest.raises(ValidationError):
-            purchase = Purchase(
-                account=self.account,
-                start_date=self.purchase.start_date,
-                work=self.purchase.work,
-                price=self.purchase.price
-            )
-            purchase.validate_unique()
-
-        # a new purchase on same date and account, but different work,
-        # should not trigger ValidationError
-        purchase = Purchase(
-            account=self.account,
-            start_date=self.purchase.start_date,
-            work=Work.objects.create(title='Le Bar'),
-            price=self.purchase.price
-        )
-        purchase.validate_unique()
-
-        # not setting an account should not raise an error (caught by other
-        # checks)
-        Purchase().validate_unique()
+        assert self.purchase.end_date_precision == \
+            self.purchase.start_date_precision
 
 
 class TestReimbursement(TestCase):

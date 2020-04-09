@@ -24,3 +24,4 @@ django-csp
 bleach
 django-fullurl
 unidecode
+stop_words

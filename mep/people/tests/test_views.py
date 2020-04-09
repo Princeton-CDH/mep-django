@@ -641,7 +641,7 @@ class TestMembersListView(TestCase):
         self.assertNotContains(response, '<dt>relevance</dt>')
 
         # hidden text for 'has card' icon should be rendered
-        self.assertContains(response, 'member has card')
+        self.assertContains(response, 'Member has card')
 
         # pagination options set in context
         assert response.context['page_labels']
@@ -727,7 +727,7 @@ class TestMembersListView(TestCase):
         self.client.login(username=staffuser.username, password=staff_password)
         response = self.client.get(self.members_url, {'query': card_member.name})
         self.assertContains(
-            response, '<dt>relevance</dt>',
+            response, '<dt class="relevance">Relevance</dt>',
             msg_prefix='relevance score displayed for logged in users')
 
         # no results - display error text & image
@@ -1257,6 +1257,9 @@ class TestBorrowingActivities(TestCase):
         assert crumbs[-2][1] == absolutize_url(self.member.get_absolute_url())
 
     def test_view_template(self):
+        maidens = Work.objects.get(title='Suppliant Maidens')
+        awakening = Work.objects.get(title='The Awakening of Helena Richie')
+        rises = Work.objects.get(title='The Sun Also Rises')
         response = self.client.get(reverse('people:borrowing-activities',
                                    kwargs={'slug': self.member.slug}))
         # table headers
@@ -1276,6 +1279,7 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'March 1924')  # partial end date
         self.assertContains(response, 'data-sort="1924-02"')  # sorting
         self.assertContains(response, 'data-sort="1924-03"')  # sorting
+        self.assertContains(response, maidens.get_absolute_url()) # link
 
         # event details - purchase
         self.assertContains(response, 'Purchase')  # type
@@ -1284,6 +1288,8 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, '1906')  # pub date
         self.assertContains(response, 'Nov. 27')  # partial start date
         self.assertContains(response, 'data-sort="--11-27"')  # sorting
+        self.assertContains(response, Work.UNCERTAINTY_MESSAGE) # uncertainty
+        self.assertContains(response, awakening.get_absolute_url()) # link
 
         # event details - generic
         self.assertContains(response, '-')  # type
@@ -1292,6 +1298,7 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, '1926')  # pub date
         self.assertContains(response, 'June 3, 1922')  # start date
         self.assertContains(response, 'data-sort="1922-06-03"')  # sorting
+        self.assertContains(response, rises.get_absolute_url()) # link
 
         # test member with no borrowing activity
         response = self.client.get(reverse('people:borrowing-activities',

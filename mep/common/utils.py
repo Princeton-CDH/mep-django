@@ -41,10 +41,11 @@ def absolutize_url(local_url, request=None):
 def alpha_pagelabels(paginator, objects, attr_meth):
     """Generate abbreviated, alphabetical page labels for pagination items.
     Label format should be something like 'Ab - Ad', 'Ard - Art'.
+
     :param paginator: a django paginator
     :param objects: the complete list of objects paginated by the paginator
     :param attr_meth: method or lambda to retrieve the attribute on the
-        object that shoudl be used for page labels
+        object that should be used for page labels
     :returns: :class:`~collections.OrderedDict` where keys are page
         numbers and values are page labels
     """

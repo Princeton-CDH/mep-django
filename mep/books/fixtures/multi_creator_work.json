@@ -194,29 +194,6 @@
 },
 {
     "model": "people.person",
-    "pk": 6103,
-    "fields": {
-        "notes": "",
-        "start_year": 1900,
-        "end_year": 1991,
-        "mep_id": "",
-        "name": "Se\u00e1n O'Faol\u00e1in",
-        "sort_name": "O'Faol\u00e1in, Sean",
-        "viaf_id": "http://viaf.org/viaf/59087224/",
-        "is_organization": false,
-        "verified": false,
-        "updated_at": "2018-06-22T19:13:53Z",
-        "gender": "M",
-        "title": "",
-        "slug": "ofaolin",
-        "profession": null,
-        "nationalities": [
-            16
-        ]
-    }
-},
-{
-    "model": "people.person",
     "pk": 7366,
     "fields": {
         "notes": "",
@@ -413,7 +390,8 @@
     "pk": 1,
     "fields": {
         "name": "Author",
-        "notes": ""
+        "notes": "",
+        "order": 1
     }
 },
 {
@@ -425,7 +403,8 @@
         "title": "The English Novelists: A Survey of the Novel by Twenty Contemporary Novelists",
         "year": 1936,
         "uri": "",
-        "updated_at": "2018-08-27T14:44:31Z"
+        "updated_at": "2018-08-27T14:44:31Z",
+        "slug": "english-novelists"
     }
 },
 {
@@ -454,7 +433,8 @@
     "pk": 2,
     "fields": {
         "name": "Editor",
-        "notes": ""
+        "notes": "",
+        "order": 2
     }
 },
 {
@@ -544,16 +524,6 @@
         "notes": "",
         "creator_type": 1,
         "person": 8230,
-        "work": 4126
-    }
-},
-{
-    "model": "books.creator",
-    "pk": 7494,
-    "fields": {
-        "notes": "",
-        "creator_type": 1,
-        "person": 6103,
         "work": 4126
     }
 },

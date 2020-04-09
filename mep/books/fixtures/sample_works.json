@@ -7,7 +7,10 @@
 			"mep_id": "exite",
 			"title": "Exit Eliza",
 			"year": 1912,
-			"uri": "http://www.worldcat.org/oclc/2777112"
+			"slug": "exit-eliza",
+			"work_format": 1,
+			"uri": "http://www.worldcat.org/oclc/2777112",
+			"updated_at": "2020-03-27T13:26:15Z"
 		}
 	},
 	{
@@ -18,7 +21,10 @@
 			"mep_id": null,
 			"title": "Grimm Fairy Tales",
 			"year": null,
-			"uri": ""
+			"uri": "",
+			"slug": "grimm-fairy-tales",
+			"work_format": 1,
+			"updated_at": "2020-03-27T13:26:15Z"
 		}
 	},
 	{
@@ -29,18 +35,25 @@
 			"mep_id": null,
 			"title": "The Kreutzer sonata",
 			"year": null,
-			"uri": "http://worldcat.org/entity/work/id/4918580916"
+			"work_format": 1,
+			"uri": "http://worldcat.org/entity/work/id/4918580916",
+			"slug": "kreutzer-sonata",
+			"updated_at": "2020-03-27T13:26:15Z"
 		}
 	},
 	{
 		"model": "books.work",
 		"pk": 4,
 		"fields": {
-			"notes": "",
+			"notes": "UNCERTAINTYICON",
 			"mep_id": null,
 			"title": "Chronicle of my Life",
 			"year": null,
-			"uri": ""
+			"uri": "",
+			"slug": "chronicle-life",
+			"work_format": 1,
+			"public_notes": "Here are some public notes.",
+			"updated_at": "2020-03-27T13:26:15Z"
 		}
 	},
 	{
@@ -51,9 +64,85 @@
 			"mep_id": null,
 			"title": "Murder on the Blue Train",
 			"year": null,
-			"uri": ""
+			"uri": "",
+			"slug": "murder-blue-train",
+			"work_format": 1,
+			"updated_at": "2020-03-27T13:26:15Z"
 		}
-    },
+	},
+	{
+		"model": "books.work",
+		"pk": 4598,
+		"fields": {
+			"notes": "PERIODICAL\r\nMerged on 2019-09-12 with MEP id mep:00c75t",
+			"mep_id": "mep:007q5q",
+			"title": "The Dial",
+			"year": null,
+			"uri": "http://worldcat.org/entity/work/id/53956220",
+			"edition_uri": "http://www.worldcat.org/oclc/243873605",
+			"ebook_url": "http://example.com",
+			"work_format": 2,
+			"slug": "dial",
+			"updated_at": "2020-03-27T13:26:15Z"
+		}
+	},
+	{
+		"model": "books.edition",
+		"pk": 39,
+		"fields": {
+			"notes": "",
+			"work": 4598,
+			"title": "",
+			"volume": 70,
+			"number": "6",
+			"date": "1921-01-01",
+			"date_precision": 1,
+			"season": "June",
+			"edition": "",
+			"uri": "",
+			"updated_at": "2020-03-27T13:26:15Z",
+			"publisher": [],
+			"pub_places": []
+		}
+	},
+	{
+		"model": "books.edition",
+		"pk": 37,
+		"fields": {
+			"notes": "",
+			"work": 4598,
+			"title": "",
+			"volume": 70,
+			"number": "5",
+			"date": "1921-01-01",
+			"date_precision": 1,
+			"season": "May",
+			"edition": "",
+			"uri": "",
+			"updated_at": "2020-03-27T13:26:15Z",
+			"publisher": [],
+			"pub_places": []
+		}
+	},
+	{
+		"model": "books.edition",
+		"pk": 38,
+		"fields": {
+			"notes": "",
+			"work": 4598,
+			"title": "",
+			"volume": 69,
+			"number": "4",
+			"date": "1920-01-01",
+			"date_precision": 1,
+			"season": "October",
+			"edition": "",
+			"uri": "",
+			"updated_at": "2020-03-27T13:26:15Z",
+			"publisher": [],
+			"pub_places": []
+		}
+	},
 	{
 		"model": "books.creator",
 		"pk": 1,
@@ -141,6 +230,24 @@
 			"persons": [
 				189
 			]
+		}
+	},
+	{
+		"model": "books.format",
+		"pk": 1,
+		"fields": {
+			"name": "Book",
+			"notes": "",
+			"uri": "http://schema.org/Book"
+		}
+	},
+	{
+		"model": "books.format",
+		"pk": 2,
+		"fields": {
+			"name": "Periodical",
+			"notes": "",
+			"uri": "http://schema.org/Periodical"
 		}
 	}
 ]

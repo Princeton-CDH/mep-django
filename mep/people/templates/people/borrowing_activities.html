@@ -72,9 +72,16 @@
             </tr>
         </thead>
         {% for event in event_list %}
-        <tr>
+        <tr {% if event.work.is_uncertain %}class="uncertain"{% endif %}>
             <td class="title{% if not event.work.title %} empty{% endif %}">
-                {{ event.work.title|default:'-' }}
+                <a href="{{ event.work.get_absolute_url }}">
+                    {{ event.work.title|default:'-' }}
+                </a>
+                {% if event.work.is_uncertain %}
+                <span class="sr-only">
+                    {{ event.work.UNCERTAINTY_MESSAGE }}
+                </span>
+                {% endif %}
             </td>
             <td class="author{% if not event.work.author_list %} empty{% endif %}"
                 data-sort="{{ event.work.sort_author_list|default:'' }}">

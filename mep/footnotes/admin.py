@@ -10,18 +10,23 @@ from mep.common.admin import NamedNotableAdmin
 from mep.footnotes.models import Bibliography, Footnote, SourceType
 
 
+AUTOCOMPLETE = {
+    'bibliography': autocomplete.ModelSelect2(
+        url='footnotes:bibliography-autocomplete',
+        attrs={
+            'data-placeholder': 'Type to search for bibliography... ',
+            'data-minimum-input-length': 3
+        }
+    ),
+}
+
+
 class FootnoteAdminForm(forms.ModelForm):
     class Meta:
         model = Footnote
         fields = ('__all__')
         widgets = {
-            'bibliography': autocomplete.ModelSelect2(
-                url='footnotes:bibliography-autocomplete',
-                attrs={
-                    'data-placeholder': 'Type to search for bibliography... ',
-                    'data-minimum-input-length': 3
-                }
-            ),
+            'bibliography': AUTOCOMPLETE['bibliography']
         }
 
     def __init__(self, *args, **kwargs):

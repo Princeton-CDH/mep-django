@@ -3,7 +3,7 @@ from collections import defaultdict
 import datetime
 from io import StringIO
 import os
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest.mock import patch, Mock
 
 from django.contrib.admin.models import LogEntry, CHANGE
@@ -11,11 +11,13 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 import pymarc
+import pytest
 
 from mep.books.management.commands import reconcile_oclc
-from mep.books.models import Work, CreatorType, Creator
-from mep.people.models import Person
+from mep.books.models import Creator, CreatorType, Work
 from mep.books.tests.test_oclc import get_srwresponse_xml_fixture
+from mep.people.models import Person
+from mep.common.utils import absolutize_url
 
 
 class TestReconcileOCLC(TestCase):
@@ -42,15 +44,17 @@ class TestReconcileOCLC(TestCase):
 
         # create works that should be ignored
         # generic, problem, title*, zero, existing uri, previous no match
-        Work.objects.create(notes="GENERIC can't identify")
-        Work.objects.create(notes="PROBLEM some problematic issue here")
-        Work.objects.create(notes="OBSCURE")
-        Work.objects.create(title="Plays*")
-        Work.objects.create(notes="ZERO no borrows")
-        Work.objects.create(notes="OCLCNoMatch")
+        Work.objects.create(notes="GENERIC can't identify", slug='generic')
+        Work.objects.create(notes="PROBLEM some problematic issue here",
+                            slug='problem')
+        Work.objects.create(notes="OBSCURE", slug="obscure")
+        Work.objects.create(title="Plays*", slug="plays")
+        Work.objects.create(notes="ZERO no borrows", slug="zero")
+        Work.objects.create(notes="OCLCNoMatch", slug="nomatch")
         Work.objects.create(
             title='Mark Twain\'s notebook',
-            uri='http://experiment.worldcat.org/entity/work/data/477260')
+            uri='http://experiment.worldcat.org/entity/work/data/477260',
+            slug="mark-twains-notebook")
         stdout = StringIO()
         call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
                      stdout=stdout)
@@ -62,12 +66,14 @@ class TestReconcileOCLC(TestCase):
         mockprogressbar.ProgressBar.assert_not_called()
 
         # create works that should be processed
-        work1 = Work.objects.create(title="Patriotic Adventurer", year=1936)
+        work1 = Work.objects.create(title="Patriotic Adventurer", year=1936,
+                                    slug="patriotic")
         # with one author to sanity-check included in output
         ctype = CreatorType.objects.get(name='Author')
         person = Person.objects.create(sort_name='Ireland, Denis')
         Creator.objects.create(creator_type=ctype, person=person, work=work1)
-        work2 = Work.objects.create(title="Crowded House", notes="Variant title")
+        work2 = Work.objects.create(title="Crowded House",
+                                    notes="Variant title", slug="crowded")
         stdout = StringIO()
         # return no matches for one, some for the second
         mock_oclc_info.side_effect = {'# matches': 0}, {"# matches": 5}
@@ -95,7 +101,7 @@ class TestReconcileOCLC(TestCase):
 
         # create enough works to trigger progressbar
         for title in range(6):
-            Work.objects.create(title=title)
+            Work.objects.create(title=title, slug='%s' % title)
         mock_oclc_info.side_effect = None
         call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
                      stdout=stdout)
@@ -121,21 +127,23 @@ class TestReconcileOCLC(TestCase):
                 'OCLC Date': 1936,
                 'OCLC URI': 'http://worldcat.org/entity/work/id/49679151',
                 'Work URI': 'http://www.worldcat.org/oclc/65986486'
-                }
+            }
             mock_oclc_info.side_effect = mock_result_info, {'# matches': 0}
 
             # create works to be processed
-            work1 = Work.objects.create(title="Patriotic Adventurer", year=1936)
+            work1 = Work.objects.create(title="Patriotic Adventurer",
+                                        year=1936, slug="patriotic-adv")
             # with one author to sanity-check included in output
             ctype = CreatorType.objects.get(name='Author')
-            person = Person.objects.create(sort_name='Ireland, Denis')
+            person = Person.objects.create(sort_name='Ireland, Denis', slug='d')
             Creator.objects.create(creator_type=ctype, person=person, work=work1)
-            work2 = Work.objects.create(title="Crowded House", notes="Variant title")
+            work2 = Work.objects.create(title="Crowded House",
+                                        notes="Variant title", slug="crowd")
 
             csvtempfile = NamedTemporaryFile(suffix='csv')
             self.cmd.report([work1, work2], csvtempfile.name)
 
-       # check csvfile contents
+        # check csvfile contents
         csvtempfile.seek(0)
         csv_content = csvtempfile.read().decode()
         # csv output should have byte-order marck
@@ -156,7 +164,8 @@ class TestReconcileOCLC(TestCase):
         assert self.cmd.stats['found'] == 1
 
     def test_update_works(self):
-        work1 = Work.objects.create(title="Time + Tide", notes='some notes')
+        work1 = Work.objects.create(title="Time + Tide", notes='some notes',
+                                    slug="time-tide")
         with patch.object(self.cmd, 'oclc_search_record') as mock_oclc_search:
             # use a mock for the world cat entity
             worldcat_entity = Mock(
@@ -233,11 +242,13 @@ class TestReconcileOCLC(TestCase):
         }
 
         # search work with title, author, year
-        work = Work.objects.create(title="Patriotic Adventurer", year=1936)
+        work = Work.objects.create(title="Patriotic Adventurer", year=1936,
+                                   slug="patriotic-adventurer")
         # with one author to sanity-check included in output
         ctype = CreatorType.objects.get(name='Author')
-        person = Person.objects.create(sort_name='Ireland, Denis')
-        creator = Creator.objects.create(creator_type=ctype, person=person, work=work)
+        person = Person.objects.create(sort_name='Ireland, Denis', slug='di')
+        creator = Creator.objects.create(creator_type=ctype, person=person,
+                                         work=work)
 
         result = self.cmd.oclc_search(work)
         assert result == srwresponse
@@ -247,7 +258,7 @@ class TestReconcileOCLC(TestCase):
             title__exact=work.title, author__all=str(person),
             year=work.year, material_type__exact='book',
             **default_filters
-            )
+        )
 
         # search does not include missing fields
         # - delete all but title, no events for first known interaction
@@ -357,3 +368,72 @@ class TestReconcileOCLC(TestCase):
             call_args = self.cmd.sru_search.get_worldcat_rdf.call_args[0]
             # can't compare pymarc records exactly so check type
             assert isinstance(call_args[0], pymarc.record.Record)
+
+
+@pytest.mark.django_db
+class TestExportBooks(TestCase):
+    fixtures = ['sample_works']
+
+    def setUp(self):
+        # importing here because it queries the database at definition time
+        from mep.books.management.commands import export_books
+
+        self.cmd = export_books.Command()
+        self.cmd.stdout = StringIO()
+
+    def test_filename(self):
+        assert self.cmd.get_base_filename() == 'books'
+
+    def test_get_object_data(self):
+        exit_e = Work.objects.count_events().get(slug='exit-eliza')
+        data = self.cmd.get_object_data(exit_e)
+        assert data['uri'] == absolutize_url(exit_e.get_absolute_url())
+        assert data['title'] == exit_e.title
+        assert data['year'] == exit_e.year
+        assert data['format'] == exit_e.work_format.name
+        assert data['identified']  # not marked uncertain
+        assert data['work uri'] == exit_e.uri
+        assert 'author' in data
+        # missing data should not be in the dict
+        for field in ['edition uri', 'ebook url', 'volumes/issues']:
+            assert field not in data
+        assert data['event count'] == exit_e.event__count
+        assert data['borrow count'] == exit_e.event__borrow__count
+        assert data['purchase count'] == exit_e.event__purchase__count
+        assert data['updated'] == exit_e.updated_at.isoformat()
+
+        # record with different data
+        dial = Work.objects.count_events().get(slug='dial')
+        data = self.cmd.get_object_data(dial)
+        assert 'year' not in data
+        assert data['edition uri'] == dial.edition_uri
+        assert data['ebook url'] == dial.ebook_url
+        assert 'volumes/issues' in data
+        for vol in dial.edition_set.all():
+            assert vol.display_text() in data['volumes/issues']
+
+    def test_creator_info(self):
+        exit_e = Work.objects.count_events().get(slug='exit-eliza')
+        data = self.cmd.creator_info(exit_e)
+        assert data['author'] == [exit_e.authors[0].sort_name]
+        for creator in ['editor', 'translator', 'illustrator']:
+            assert creator not in data
+
+    def test_command_line(self):
+        # test calling via command line with args
+        tempdir = TemporaryDirectory()
+        stdout = StringIO()
+        call_command('export_books', '-d', tempdir.name, stdout=stdout)
+        output = stdout.getvalue()
+        assert 'Exporting JSON' in output
+        assert 'Exporting CSV' in output
+        assert os.path.exists(os.path.join(tempdir.name, 'books.json'))
+        assert os.path.exists(os.path.join(tempdir.name, 'books.csv'))
+
+        with patch('mep.books.management.commands.export_books' +
+                   '.Command.get_object_data') as mock_get_obj_data:
+            mock_get_obj_data.return_value = {'title': 'test'}
+            call_command('export_books', '-d', tempdir.name, '-m', 2,
+                         stdout=stdout)
+            # 2 mock objects * 2 (once each for CSV, JSON)
+            assert mock_get_obj_data.call_count == 4

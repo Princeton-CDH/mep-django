@@ -1,38 +1,23 @@
+/* single member search result styles */
+
 .members.result {
-    .member {
-        flex-flow: row wrap;
-    }
 
-    .primary {
-        flex: auto;
-
-        @media (min-width: $breakpoint-s) {
-            flex: 2;
-        }
-    }
-
-    // hide the "birth/death dates" label
-    .birth-death dt {
+    // some headings are only read via SRs since they're implied visually
+    dt.birth-death,
+    dt.name {
         @include sr-only;
     }
 
-    .birth-death dd {
+    // emphasized name display
+    dd.name {
+        font-size: 1rem;
+        font-family: $serif;
+    }
+
+    // gentler spacing on both sides
+    dd.birth-death,
+    dd.member-dates {
         margin-top: .5rem;
-    }
-
-    .secondary {
-        flex: none;
-        width: 100%;
-        margin-top: 0.5rem;
-
-        @media (min-width: $breakpoint-s) {
-            flex: 1;
-        }
-    }
-
-    // show the name
-    .name {
-        display: block;
     }
 
     // show the "has card" icon if present
@@ -71,17 +56,5 @@
                 }
             }
         }
-    }
-}
-
-.empty-results {
-    @include padding-container;
-    padding-top: 3.5rem;
-    text-align: center;
-    font-family: $serif;
-    min-height: 8rem;
-
-    img {
-        width: 50%;
     }
 }

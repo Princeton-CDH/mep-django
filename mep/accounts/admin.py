@@ -11,7 +11,8 @@ from mep.accounts.models import Account, Address, Subscription,\
     Reimbursement, Event, SubscriptionType, Borrow, Purchase
 from mep.books.models import Edition
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
-from mep.footnotes.admin import FootnoteInline
+from mep.footnotes.admin import FootnoteInline, AUTOCOMPLETE as \
+    footnote_autocomplete
 
 
 # predefine autocomplete lookups (most are used on more than one form)
@@ -366,6 +367,7 @@ class AccountAdminForm(forms.ModelForm):
         fields = ('__all__')
         widgets = {
             'persons': AUTOCOMPLETE['person-multiple'],
+            'card': footnote_autocomplete['bibliography']
         }
 
 

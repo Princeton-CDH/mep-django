@@ -159,6 +159,7 @@
         "work_format": 1,
         "updated_at": "2019-06-14T17:23:00Z",
         "public_notes": "",
+        "slug": "three-black-pennys",
         "genres": [
             158,
             2,
@@ -186,6 +187,7 @@
         "work_format": 1,
         "updated_at": "2019-09-12T17:32:59Z",
         "public_notes": "",
+        "slug": "study-modern-novel",
         "genres": [
             12
         ],
@@ -216,6 +218,7 @@
         "work_format": 2,
         "updated_at": "2019-09-12T17:33:29Z",
         "public_notes": "",
+        "slug": "dial",
         "genres": [
             31
         ],

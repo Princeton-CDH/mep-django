@@ -1,29 +1,62 @@
+/* single book search result styles */
+
 .books.result {
 
-    .primary {
-        flex: 2;
-    }
-
-    // show the title
-    .title {
-        display: block;
-    }
-
-    .authors dt,
-    .pubdate dt {
+    // some headings are only read via SRs since they're implied visually
+    dt.title,
+    dt.author,
+    dt.pubdate {
         @include sr-only;
     }
 
-    .authors dd {
-        margin-top: 0.5rem;
+    // empasized title display
+    dd.title {
+        font-size: 1rem;
+        font-family: $serif;
     }
 
-    .pubdate dd {
-        margin-top: 0.75rem;
+    // add spacing on left side
+    dd.author {
+        margin-top: .5rem;
+        + dd.author { margin-top: 0; }
     }
+    dd.pubdate { margin-top: .5rem; }
 
-    // hide the "view cards" link
-    .view-cards {
-        display: none;
+    // show the uncertainty icon if present
+    &.uncertain {
+
+        // on mobile, the icon is positioned relative to the "primary"
+        // portion of the result
+        @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+
+            .primary {
+                position: relative;
+
+                &::after {
+                    content: url('/static/img/icons/uncertainty.svg');
+                    width: .75rem;
+                    height:  .75rem;
+                    position: absolute;
+                    bottom: -1rem;
+                }
+            }
+        }
+
+        // on tablet/desktop, the icon is positioned relative to the counter
+        // portion of the result
+        @media (min-width: $breakpoint-s) {
+
+            .counter {
+                position: relative;
+
+                &::before {
+                    content: url('/static/img/icons/uncertainty.svg');
+                    width: .75rem;
+                    height:  .75rem;
+                    position: absolute;
+                    left: -1.25rem;
+                }
+            }
+        }
     }
 }

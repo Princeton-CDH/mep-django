@@ -1,30 +1,33 @@
-dl { // detail display for an item, person, etc.
+/* detail list for a book, person, etc.
+ * used for both search results and detail pages */
+
+dl {
+    // two-part layout with left portion flexing
     display: flex;
     flex: auto;
-   
-    .primary,
-    .secondary {
-        flex: 1;
+    flex-flow: row nowrap;
+
+    .primary {
+        flex: auto;
+        text-align: left;
     }
 
-    dt,
-    dd {
-        line-height: 0.7rem;
+    .secondary {
+        flex: none;
+        text-align: right;
+        padding-left: .5rem;
+        @media (min-width: $breakpoint-s) { padding-left: 1rem; }
     }
 
     dt {
-        text-transform: capitalize;
-        font-size: 0.7rem;
+        font-size: .7rem;
         font-weight: bold;
-        margin-bottom: 0.7rem;
     }
 
     dd {
-        font-size: 0.8rem;
-        margin-bottom: .5rem;
-
-        &:last-child {
-            margin-bottom: 1rem;
-        }
+        font-size: .8rem;
+        + dt { margin-top: 1rem; }
     }
+
+    dt, dd { line-height: 1.2rem; }
 }

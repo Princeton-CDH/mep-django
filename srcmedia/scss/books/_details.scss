@@ -1,72 +1,17 @@
+/* book detail list (<dl>) styles */
+
 dl.book {
-    .title {
-        display: none;
+    // format heading is only shown to SRs
+    dt.format { @include sr-only; }
 
-        dt {
-            @include sr-only;
-        }
-
-        dd {
-            line-height: 1.4rem;
-            font-size: 1rem;
-            font-family: $serif;
-        }
-    }
-
-    // items that go on left/top on mobile
-    .title,
-    .authors,
-    .editors,
-    .translators,
-    .pubdate {
-        text-align: left;
-    }
-
-    // items that go on the right/bottom on mobile
-    .translators,
-    .format,
-    .relevance {
-        text-align: right;
-    }
-
-    // display when on detail pages
-    .details & {
-        max-width: $result-width;
-        margin: 2rem auto;
-
-        @media (min-width: $breakpoint-s) {
-            margin: 3rem auto;
-        }
-    }
-
-    // .creator-label {
-    //     text-align: left;
-    // }
-
-    // .publisher-label {
-    //     text-align: right;
-    // }
-
-    // .authors {
-    //     font-size: 0.8rem;
-    //     padding: 0.35rem 0 0;
-    // }
-
-    // .publishers {
-    //     font-size: 0.8rem;
-    // }
-
-    // .view-cards {
-    //     display: inline-block;
-    //     font-size: 0.7rem;
-    //     color: $dark-green;
-    //     font-weight: bold;
-    //     margin-top: 1rem;
-    // }
-}
-
-.volumes-issues {
-    em {
-        font-style: italic;
+    // small format "button" display
+    dd.format {
+        display: inline-block;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 0.8rem;
+        padding: .4rem .5rem .25rem;
+        border: 1px solid $light-grey;
+        line-height: .75rem;
     }
 }

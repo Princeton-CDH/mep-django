@@ -20,6 +20,9 @@ media/
 bundles/
 sitemedia/fonts/
 
+# pylint config
+.pylintrc
+
 # stock python git-ignores provided by github
 
 # Byte-compiled / optimized / DLL files

@@ -5,13 +5,59 @@
 </style>
 <ol class="work-results">
     {% for work in works %}
-    <li class="books result">
-        <a href="{% url 'books:book-detail' pk=work.pk %}" aria-label="{{ work.title }}">
+    <li class="books result{% if work.is_uncertain %} uncertain{% endif %}">
+        <a href="{% url 'books:book-detail' slug=work.slug %}" aria-label="{{ work.title.0 }}">
             <div class="container">
                 {# counter for search results #}
                 <span class="counter"></span>
+                {# indicator for SRs if work details are uncertain (icon) #}
+                {% if work.is_uncertain %}
+                <span class="sr-only">{{ uncertainty_message }}</span>
+                {% endif %}
                 {# book details #}
-                {% include 'books/snippets/work_result.html' %}
+                <dl class="book">
+                    <div class="primary">
+                        {# title #}
+                        <dt class="title">Title</dt>
+                        <dd class="title">{{ work.title.0 }}</dt>
+                        {# authors (first three) #}
+                        {% if work.sort_authors %}
+                        <dt class="author">Author</dt>
+                        {% for author in work.sort_authors %}
+                            {% if forloop.counter <= 3 %}
+                            <dd class="author">{{ author }}</dd>
+                            {% endif %}
+                        {% endfor %}
+                        {% if work.sort_authors|length > 3 %}
+                        {% with extra_authors=work.sort_authors|length|add:"-3" %}
+                        <dd class="author">...{{ extra_authors }} more author{{ extra_authors|pluralize }}</dd>
+                        {% endwith %}
+                        {% endif %}
+                        {% endif %}
+                        {# publication date #}
+                        {% if work.pub_date %}
+                        <dt class="pubdate">Publication Date</dt>
+                        <dd class="pubdate">{{ work.pub_date }}</dd>
+                        {% endif %}
+                    </div>
+                    <div class="secondary">
+                        {# format #}
+                        {% if work.format %}
+                        <dt class="format">Format</dt>
+                        <dd class="format">{{ work.format }}</dd>
+                        {% endif %}
+                        {# search result relevance (if user is logged in) #}
+                        {% if user.is_authenticated and work.score %}
+                        <dt class="relevance">Relevance</dt>
+                        <dd class="relevance">
+                            <span class="score">{{ work.score|floatformat }}</span>
+                            <progress max="300" value="{{ work.score }}">
+                                {{ work.score }}
+                            </progress>
+                        </dd>
+                        {% endif %}
+                    </div>
+                </dl>
                 {# link to view detail page #}
                 <span class="see-more">
                     See more details

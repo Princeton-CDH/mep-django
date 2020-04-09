@@ -17,8 +17,9 @@ class WorkSolrQuerySet(AliasedSolrQuerySet):
         'creators': 'creators_t',
         'pub_date': 'pub_date_i',
         'format': 'format_s_lower',
-        'pk': 'pk_i',
+        'slug': 'slug_s',
         'notes': 'notes_txt_en',
         'account_start': 'account_start_i',
-        'account_end': 'account_end_i'
+        'account_end': 'account_end_i',
+        'is_uncertain': 'is_uncertain_b',
     }
