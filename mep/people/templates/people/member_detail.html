@@ -36,6 +36,8 @@
     </li>
 </nav>
 
+{% with account_start=member.account_set.first.earliest_date account_end=member.account_set.first.last_date %}
+
 {# biography section #}
 <section aria-label="biography">
     <dl class="member">
@@ -44,7 +46,6 @@
             <dt class="name">Name</dt>
             <dd class="name">{{ member.name }}</dd>
             {# membership dates #}
-            {% with account_start=member.account_set.first.earliest_date account_end=member.account_set.first.last_date %}
             {% if account_start or account_end %}
             <dt class="member-dates">Membership Dates</dt>
             <dd class="member-dates">
@@ -53,7 +54,6 @@
             {% endif %}
             </dd>
             {% endif %}
-            {% endwith %}
             {# public notes #}
             {% if member.public_notes %}
             <dt class="notes">Notes</dt>
@@ -119,6 +119,8 @@
     {% include 'people/snippets/member_graph.html' %}
 </section>
 {% endif %}
+
+{% endwith %}
 
 {# address map #}
 {% if addresses %}
