@@ -1,5 +1,15 @@
-section.biography {
-    .timeline {
-        margin-bottom: 1rem;
+section[aria-label=biography] {
+    max-width: calc(#{$breakpoint-s} - #{$breakpoint-xs});
+    margin-top: $gutter-xs;
+    margin-bottom: $gutter-xs;
+
+    @media (min-width: $breakpoint-s) {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (min-width: $breakpoint-m) {
+        margin-top: 3rem;
+        margin-bottom: 3rem;
     }
 }

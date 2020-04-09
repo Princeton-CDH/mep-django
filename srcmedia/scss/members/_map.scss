@@ -1,6 +1,8 @@
-// member address map
-section.map  {
+/* member address map */
+
+section[aria-label=map]  {
     margin-bottom: 2rem;
+    z-index: 0; // strange bug...map will be on top of main menu when it's open unless this is set
 
     // on mobile, the map part only is full-width.
     // on all other screens, the entire content of the section has margins.
