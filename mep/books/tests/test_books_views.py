@@ -223,13 +223,13 @@ class TestWorkDetailView(TestCase):
         url = reverse('books:book-detail', kwargs={'slug': work.slug})
         response = self.client.get(url)
         # all authors should be listed as <dd> elements under <dt>
-        self.assertContains(response, '<dt>Author</dt>')
+        self.assertContains(response, '<dt class="creator">Author</dt>')
         for author in work.authors:
-            self.assertContains(response, '<dd>%s</dd>' % author.name)
+            self.assertContains(response, '<dd class="creator">%s</dd>' % author.name)
         # editors should be listed as <dd> elements under <dt>
-        self.assertContains(response, '<dt>Editor</dt>')
+        self.assertContains(response, '<dt class="creator">Editor</dt>')
         for editor in work.editors:
-            self.assertContains(response, '<dd>%s</dd>' % editor.name)
+            self.assertContains(response, '<dd class="creator">%s</dd>' % editor.name)
 
     @login_temporarily_required
     def test_pubdate_display(self):
@@ -238,8 +238,8 @@ class TestWorkDetailView(TestCase):
         url = reverse('books:book-detail', kwargs={'slug': work.slug})
         response = self.client.get(url)
         # check that the publication date is a <dd> under a <dt>
-        self.assertContains(response, '<dt>Publication Date</dt>')
-        self.assertContains(response, '<dd>%s</dd>' % work.year)
+        self.assertContains(response, '<dt class="pubdate">Publication Date</dt>')
+        self.assertContains(response, '<dd class="pubdate">%s</dd>' % work.year)
 
     @login_temporarily_required
     def test_format_display(self):
@@ -249,10 +249,10 @@ class TestWorkDetailView(TestCase):
         # check the rendering of the format indicator
         url = reverse('books:book-detail', kwargs={'slug': book.slug})
         response = self.client.get(url)
-        self.assertContains(response, '<div class="format">Book</div>')
+        self.assertContains(response, '<dd class="format">Book</dd>')
         url = reverse('books:book-detail', kwargs={'slug': periodical.slug})
         response = self.client.get(url)
-        self.assertContains(response, '<div class="format">Periodical</div>')
+        self.assertContains(response, '<dd class="format">Periodical</dd>')
 
     @login_temporarily_required
     def test_read_link_display(self):
@@ -261,9 +261,8 @@ class TestWorkDetailView(TestCase):
         url = reverse('books:book-detail', kwargs={'slug': work.slug})
         response = self.client.get(url)
         # check that a link was rendered
-        self.assertContains(
-            response,
-            '<a class="read" href="%s">Read online</a>' % work.ebook_url)
+        self.assertContains(response,
+            '<a href="%s">Read online</a>' % work.ebook_url)
 
     @login_temporarily_required
     def test_notes_display(self):

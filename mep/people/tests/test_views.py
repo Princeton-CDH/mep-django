@@ -641,7 +641,7 @@ class TestMembersListView(TestCase):
         self.assertNotContains(response, '<dt>relevance</dt>')
 
         # hidden text for 'has card' icon should be rendered
-        self.assertContains(response, 'member has card')
+        self.assertContains(response, 'Member has card')
 
         # pagination options set in context
         assert response.context['page_labels']
