@@ -12,4 +12,12 @@ section[aria-label=biography] {
         margin-top: 3rem;
         margin-bottom: 3rem;
     }
+
+    // special display for notes
+    dt.notes { @include sr-only; }
+
+    dd.notes {
+        margin-top: 2rem;
+        white-space: pre-line;
+    }
 }
