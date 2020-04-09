@@ -3,6 +3,17 @@
 CHANGELOG
 =========
 
+0.28
+----
+* As an admin, I want to generate a data download for books so that I can deposit and version the data for others to use.
+* As an admin, I want library items to have unique identifiers that can be included for use in URLs in the public site.
+* As a user, I want to see bibliographic information (title, publication date, publisher, link to OCLC if available) for an individual library item, so that I can more accurately identify the item.
+* As a user, I want to see notes about a person added by project team members so that I have more information about unusual library members.
+* As a user viewing books, I want to see an indicator if there's a problem with the data and have a way to get more details, so that I know how to interpret the data.
+* Chore: fix line spacing/leading on member pages for members with long/multiple names
+* Bugfix: member card detail page should only show events for current member
+
+
 0.27
 ----
 
