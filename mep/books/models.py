@@ -1,4 +1,6 @@
 import logging
+import re
+from string import punctuation
 
 import rdflib
 import requests
@@ -10,7 +12,7 @@ from parasolr.django.indexing import ModelIndexable
 
 from mep.accounts.partial_date import (DatePrecisionField, PartialDate,
                                        PartialDateMixin)
-from mep.books.utils import nonstop_words, work_slug
+from mep.books.utils import nonstop_words, work_slug, STOP_WORDS
 from mep.common.models import Named, Notable
 from mep.common.validators import verify_latlon
 from mep.people.models import Person
@@ -430,6 +432,23 @@ class Work(Notable, ModelIndexable):
         creators, annotate event counts.'''
         return cls.objects.prefetch_related('creator_set').count_events()
 
+    # english & french definite/indefinite articles
+    non_sort = ('the', 'a', 'an', 'la', 'le', 'les', 'l')
+
+    @property
+    def sort_title(self):
+        '''Sort title based on title. Removes leading punctuation and
+        stop word.'''
+        # remove leading punctuation (quotes, brackets, etc)
+        sort_title = self.title.lstrip(punctuation)
+        # split on punctuation or whitespace to get the first word
+        title_parts = [w for w in re.split(r'[\s\W]+', sort_title, maxsplit=1)
+                       if w]   # skip blank string
+        # if more than one word and first word is an article, skip it
+        if len(title_parts) > 1 and title_parts[0].lower() in self.non_sort:
+            return title_parts[1]
+        return sort_title
+
     def index_data(self):
         '''data for indexing in Solr'''
 
@@ -437,7 +456,7 @@ class Work(Notable, ModelIndexable):
 
         index_data.update({
             'title_t': self.title,
-            'sort_title_isort': self.title,  # use title directly for sorting for now
+            'sort_title_isort': self.sort_title,
             'slug_s': self.slug,
             'authors_t': [a.name for a in self.authors] if self.authors else None,
             'sort_authors_t': [str(a) for a in self.authors] if self.authors else None,

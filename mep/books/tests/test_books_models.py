@@ -346,6 +346,24 @@ class TestWork(TestCase):
         work3 = Work(title='Uncertain', notes='foo UNCERTAINTYICON bar')
         assert work3.is_uncertain
 
+    def test_sort_title(self):
+        work = Work(title='My Book')
+        assert work.sort_title == "My Book"
+        work.title = 'Book'
+        assert work.sort_title == "Book"
+        work.title = 'The Book'
+        assert work.sort_title == "Book"
+        work.title = '"Car"'
+        assert work.sort_title == 'Car"'
+        work.title = '[unclear]'
+        assert work.sort_title == 'unclear]'
+        work.title = 'L\'Infini'
+        assert work.sort_title == 'Infini'
+        work.title = 'Of Mice and Men'
+        assert work.sort_title == 'Of Mice and Men'
+        work.title = 'A Portrait of the Artist'
+        assert work.sort_title == 'Portrait of the Artist'
+
 
 class TestCreator(TestCase):
 
