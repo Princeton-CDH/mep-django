@@ -33,7 +33,7 @@ class CaptionedImageBlock(blocks.StructBlock):
     alternative_text = blocks.TextBlock(required=True, help_text=ALT_TEXT_HELP)
     caption = blocks.RichTextBlock(
         features=['bold', 'italic', 'link', 'superscript'],
-       required=False)
+        required=False)
 
     class Meta:
         icon = 'image'
@@ -62,6 +62,13 @@ class SVGImageBlock(blocks.StructBlock):
         label = 'SVG'
         template = 'pages/blocks/svg_image_block.html'
 
+#: common features for paragraph text
+bodytext_features = [
+    'h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul',
+    'hr', 'blockquote', 'document', 'superscript', 'subscript',
+    'strikethrough', 'code'
+]
+
 
 class LinkableSectionBlock(blocks.StructBlock):
     ''':class:`~wagtail.core.blocks.StructBlock` for a rich text block and an
@@ -69,7 +76,7 @@ class LinkableSectionBlock(blocks.StructBlock):
     so that the section can be directly linked to using a url fragment.'''
     title = blocks.CharBlock()
     anchor_text = blocks.CharBlock(help_text='Short label for anchor link')
-    body = blocks.RichTextBlock()
+    body = blocks.RichTextBlock(features=bodytext_features)
     panels = [
         FieldPanel('title'),
         FieldPanel('slug'),
@@ -90,11 +97,9 @@ class LinkableSectionBlock(blocks.StructBlock):
 
 class BodyContentBlock(blocks.StreamBlock):
     '''Common set of content blocks for content/analysis pages.'''
+    # allow H2 in regular paragraphs; insert before h3 for logical display
     paragraph = blocks.RichTextBlock(
-        features=['h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul',
-                  'hr', 'blockquote', 'document', 'superscript', 'subscript',
-                  'strikethrough', 'code']
-    )
+        features=bodytext_features.insert(bodytext_features.index('h3'), 'h2'))
     image = CaptionedImageBlock()
     svg_image = SVGImageBlock()
     document = DocumentChooserBlock()
