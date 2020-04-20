@@ -346,6 +346,42 @@ class TestWork(TestCase):
         work3 = Work(title='Uncertain', notes='foo UNCERTAINTYICON bar')
         assert work3.is_uncertain
 
+    def test_index_data(self):
+        work1 = Work.objects.create(
+            title='poems', slug='poems', year=1801,
+            notes='PROBX', public_notes='some edition')
+
+        data = work1.index_data()
+        assert 'item_type' in data
+        assert data['pk_i'] == work1.pk
+        assert data['title_t'] == work1.title
+        assert data['sort_title_isort'] == work1.title
+        assert data['slug_s'] == work1.slug
+        assert not data['authors_t']
+        assert not data['sort_authors_t']
+        assert not data['sort_authors_isort']
+        assert not data['creators_t']
+        assert data['pub_date_i'] == work1.year
+        assert data['format_s_lower'] == ''
+        assert data['notes_txt_en'] == work1.public_notes
+        assert data['admin_notes_txt_en'] == work1.notes
+        assert not data['is_uncertain_b']
+
+        # add creators
+        ctype = CreatorType.objects.get(name='Author')
+        person = Person.objects.create(name='Joyce', slug='joyce',
+                                       sort_name='Joyce, J.')
+        translator_type = CreatorType.objects.get(name='Translator')
+        translator = Person.objects.create(name='Juan Smythe', slug='sm')
+        Creator.objects.create(creator_type=ctype, person=person, work=work1)
+        Creator.objects.create(creator_type=translator_type, person=translator,
+                               work=work1)
+        data = work1.index_data()
+        assert data['authors_t'] == [a.name for a in work1.authors]
+        assert data['sort_authors_t'] == [a.sort_name for a in work1.authors]
+        assert data['sort_authors_isort'] == work1.sort_author_list
+        assert data['creators_t'] == [c.name for c in work1.creators.all()]
+
 
 class TestCreator(TestCase):
 
