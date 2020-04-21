@@ -209,6 +209,11 @@ class TestWorkAdmin(TestCase):
         assert queryset.count() == 1
         assert isinstance(queryset.first(), Work)
 
+        # empty search term should return all records
+        queryset, needs_distinct = self.work_admin.get_search_results(
+            Mock(), Work.objects.all(), "")
+        assert queryset.count() == Work.objects.all().count()
+
 
 class TestEditionForm(TestCase):
 
