@@ -132,7 +132,7 @@ class WorkAdmin(admin.ModelAdmin):
         if sqs:
             queryset = queryset.filter(pk__in=pks)
         else:
-            queryset = queryset.empty()
+            queryset = queryset.none()
 
         # return queryset, use distinct not needed
         return queryset, False
