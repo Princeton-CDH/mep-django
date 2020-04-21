@@ -85,7 +85,10 @@ class WorkAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'title')
     list_filter = ('genres', 'work_format')
     inlines = [EditionInline, WorkCreatorInline]
-    # NOTE: admin search uses Solr, fields configured in solrconfig.xml
+    # NOTE: admin search uses Solr, actual fields configured in solrconfig.xml
+    # but search fields must be defined for search to be turned on
+    search_fields = ('mep_id', 'title', 'notes', 'public_notes',
+                     'creator__person__name', 'id', 'slug')
     fieldsets = (
         ('Basic metadata', {
             'fields': ('title', 'year',
