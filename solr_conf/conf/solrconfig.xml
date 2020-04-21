@@ -789,6 +789,7 @@
         admin_notes_txt_en
         creators_t
         title_txt_en
+        pk_i
       </str>
       <str name="admin_work_pf">
         title_t
@@ -796,6 +797,7 @@
         admin_notes_txt_en
         creators_t
         title_txt_en
+        pk_i
       </str>
 
     </lst>
