@@ -455,6 +455,7 @@ class Work(Notable, ModelIndexable):
         index_data = super().index_data()
 
         index_data.update({
+            'pk_i': self.pk,
             'title_t': self.title,
             'sort_title_isort': self.sort_title,
             'slug_s': self.slug,
@@ -466,9 +467,9 @@ class Work(Notable, ModelIndexable):
             'format_s_lower': self.format(),
             'notes_txt_en': self.public_notes,
             'is_uncertain_b': self.is_uncertain,
-            'event_count_i': self.event_count
+            'event_count_i': self.event_count,
+            'admin_notes_txt_en': self.notes,
         })
-
         return index_data
 
     @property

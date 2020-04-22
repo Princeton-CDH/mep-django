@@ -10,6 +10,7 @@ class WorkSolrQuerySet(AliasedSolrQuerySet):
 
     #: map readable field names to actual solr fields
     field_aliases = {
+        'pk': 'pk_i',
         'title': 'title_t',
         'sort_title': 'sort_title_isort',
         'authors': 'authors_t',
@@ -24,3 +25,10 @@ class WorkSolrQuerySet(AliasedSolrQuerySet):
         'is_uncertain': 'is_uncertain_b',
         'event_count': 'borrow_count_i',
     }
+
+    # edismax alias for searching on admin work pseudo-field
+    admin_work_qf = '{!qf=$admin_work_qf pf=$admin_work_pf v=$work_query}'
+
+    def search_admin_work(self, search_term):
+        return self.search(self.admin_work_qf) \
+            .raw_query_parameters(work_query=search_term)

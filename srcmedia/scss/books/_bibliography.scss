@@ -1,0 +1,81 @@
+/* book detail page - bibliography section styles */
+
+section[aria-label=bibliography] {
+    max-width: calc(#{$breakpoint-s} - #{$breakpoint-xs});
+    margin-top: $gutter-xs;
+    margin-bottom: $gutter-xs;
+
+    @media (min-width: $breakpoint-s) {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (min-width: $breakpoint-m) {
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    // some headings are only shown to SRs
+    .notes dt,
+    dt.read-link {
+        @include sr-only;
+    }
+
+    /* uncertainty icon is displayed above the notes on mobile; to the left on
+    all other screens */
+    .notes {
+        dd { white-space: pre-line; }
+
+        &.uncertain {
+            position: relative;
+            margin: 2.75rem 0 2rem;
+
+            &::before {
+                content: url('/static/img/icons/uncertainty.svg');
+                width: .75rem;
+                height:  .75rem;
+                position: absolute;
+                top: -1.5rem;
+            }
+    
+            @media (min-width: $breakpoint-s) {
+                margin: 2rem 0;
+
+                &::before {
+                    top: -.1rem;
+                    left: -1rem;
+                }
+            }
+        }
+    }
+
+    .read-link a {
+        display: block;
+        font-size: 0.8rem;
+        line-height: 1.2rem;
+        margin-top: 1rem;
+    }
+
+    .volumes-issues {
+        margin-top: 2rem;
+        margin-bottom: 2.5rem;
+
+        h2 {
+            font-family: $sans;
+            text-transform: capitalize;
+            line-height: .7rem;
+            font-size: .7rem;
+            font-weight: bold;
+        }
+
+        li {
+            margin-top: .35rem;
+            font-size: .8rem;
+            line-height: 1.2rem;
+        }
+
+        em {
+            font-style: italic;
+        }
+    }
+}

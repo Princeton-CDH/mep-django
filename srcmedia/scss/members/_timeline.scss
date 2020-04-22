@@ -1,0 +1,10 @@
+/* member timeline graphs */
+section[aria-label=timeline] {
+    @include container;
+
+    .timeline .description {
+        @include sr-only;
+    }
+
+    .timeline { margin-bottom: 1rem; }
+}

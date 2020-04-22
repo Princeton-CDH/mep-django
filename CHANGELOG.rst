@@ -3,6 +3,31 @@
 CHANGELOG
 =========
 
+0.28.2
+------
+
+* bugfix: use Solr for django admin search for works, to avoid django admin
+  database queries causing timeouts that bring down the site
+
+
+0.28.1
+------
+
+* Disable book links in member borrowing activity until book pages are public
+* Allow editors to use the same tags in linkable sections as paragraphs
+
+0.28
+----
+* As an admin, I want to generate a data download for books so that I can deposit and version the data for others to use.
+* As an admin, I want library items to have unique identifiers that can be included for use in URLs in the public site.
+* As a user, I want to see bibliographic information (title, publication date, publisher, link to OCLC if available) for an individual library item, so that I can more accurately identify the item.
+* As a user, I want to see notes about a person added by project team members so that I have more information about unusual library members.
+* As a user viewing books, I want to see an indicator if there's a problem with the data and have a way to get more details, so that I know how to interpret the data.
+* As data editor I want to search for footnote bibliography records by autocomplete so that I can more easily document accounts associated with cards.
+* Chore: fix line spacing/leading on member pages for members with long/multiple names
+* Bugfix: member card detail page should only show events for current member
+* Bugfix: As an admin, I want to be able to enter duplicate events in the case where multiple purchases were made at the same time without title information.
+
 0.27
 ----
 

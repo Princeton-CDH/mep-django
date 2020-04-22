@@ -1,61 +1,11 @@
-// book detail page styles
+/* book detail list (<dl>) styles */
 
-section[aria-label=bibliography] {
-    max-width: calc(#{$breakpoint-s} - #{$breakpoint-xs});
+dl.book {
+    // format heading is only shown to SRs
+    dt.format { @include sr-only; }
 
-    .split {
-        display: flex;
-        flex-direction: row;
-        margin: 2.5rem 0;
-
-        + .volumes-issues {
-            margin-top: 0;
-        }
-    }
-
-    .left { flex: auto; }
-
-    .right {
-        flex: none;
-        text-align: right;
-    }
-
-    dd + .notes { margin-top: 2rem; }
-
-    .notes dt { @include sr-only; }
-    
-    .notes dd {
-        white-space: pre-line;
-        margin: 0;
-    }
-
-    /* uncertainty icon is displayed above the notes on mobile; to the left on
-        all other screens */
-
-    @media (max-width: calc(#{$breakpoint-xs + 1px})) {
-        dd + .notes.uncertain { margin-top: 2.75rem; }
-    }
-
-    .notes.uncertain {
-        position: relative;
-
-        &::before {
-            content: url('/static/img/icons/uncertainty.svg');
-            width: .75rem;
-            height:  .75rem;
-            position: absolute;
-            top: -1.5rem;
-        }
-
-        @media (min-width: $breakpoint-s) {
-            &::before {
-                top: -.1rem;
-                left: -1rem;
-            }
-        }
-    }
-
-    .format {
+    // small format "button" display
+    dd.format {
         display: inline-block;
         text-align: center;
         vertical-align: middle;
@@ -63,35 +13,5 @@ section[aria-label=bibliography] {
         padding: .4rem .5rem .25rem;
         border: 1px solid $light-grey;
         line-height: .75rem;
-    }
-
-    a.read {
-        display: block;
-        font-size: 0.8rem;
-        line-height: 1.2rem;
-        margin-top: 1rem;
-    }
-
-    .volumes-issues {
-        margin-top: 2rem;
-        margin-bottom: 2.5rem;
-
-        h2 {
-            font-family: $sans;
-            text-transform: capitalize;
-            line-height: .7rem;
-            font-size: .7rem;
-            font-weight: bold;
-        }
-
-        li {
-            margin-top: .35rem;
-            font-size: .8rem;
-            line-height: 1.2rem;
-        }
-
-        em {
-            font-style: italic;
-        }
     }
 }

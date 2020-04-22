@@ -1,11 +1,12 @@
+/* search result styles */
+
+// single search result display
 .result {
     counter-increment: results;
     position: relative;
     border-top: 1px solid $white-two;
 
-    a {
-        text-decoration: none;
-    }
+    a { text-decoration: none; }
 
     .container {
         position: relative;
@@ -24,11 +25,6 @@
         }
     }
 
-    // remove extra margin in details
-    dl dd {
-        margin-bottom: 0;
-    }
-
     // show the result counter/icons in the details
     .counter {
         display: block;
@@ -43,11 +39,6 @@
             font-size: 0.8rem;
             margin-right: 0.5rem;
         }
-    }
-
-    // can be displayed for debug purposes
-    .relevance {
-        font-size: 0.8rem;
     }
 
     // links to "see more" only shown on hover
@@ -92,5 +83,18 @@
         a:hover & {
             visibility: visible;
         }
+    }
+}
+
+// empty results display
+.empty-results {
+    @include padding-container;
+    padding-top: 3.5rem;
+    text-align: center;
+    font-family: $serif;
+    min-height: 8rem;
+
+    img {
+        width: 50%;
     }
 }
