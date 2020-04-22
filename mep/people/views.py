@@ -217,7 +217,8 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin,
         pagination_qs = self.queryset.only('sort_name') \
                                      .get_results(rows=100000)
         alpha_labels = alpha_pagelabels(paginator, pagination_qs,
-                                        lambda x: x['sort_name'][0])
+                                        lambda x: x['sort_name'][0],
+                                        max_chars=4)
 
         # alpha labels is a dict; use items to return list of tuples
         return alpha_labels.items()
