@@ -8,7 +8,7 @@ from mep.books.forms import WorkSearchForm
 from mep.books.models import Work
 from mep.books.queryset import WorkSolrQuerySet
 from mep.common import SCHEMA_ORG
-from mep.common.utils import absolutize_url
+from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
     LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
 
@@ -59,8 +59,8 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         'author': 'sort_authors_isort',
         'author_za': '-sort_authors_isort',
         'borrowing': '-sort_authors_isort',
-        'borrowing_desc': '-borrow_count_i',
-        'borrowing': 'borrow_count_i',
+        'borrowing_desc': '-event_count_i',
+        'borrowing': 'event_count_i',
         'pubdate': 'pub_date_i',
         'pubdate_desc': '-pub_date_i',
     }
@@ -120,13 +120,28 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
 
     def get_page_labels(self, paginator):
         '''generate labels for pagination'''
+
+        # if form is invalid, page labels should show 'N/A'
         form = self.get_form()
-        # if invalid, should show 'N/A'
         if not form.is_valid():
             return [(1, 'N/A')]
+        sort = form.cleaned_data['sort']
 
-        # otherwise default to numbered pages for now
-        # NOTE could implement alpha here, but tougher for titles
+        if sort.split('_')[0] in ['title', 'author', 'pubdate']:
+            sort_opt = self.solr_sort[sort].lstrip('-')
+            # otherwise, when sorting by alpha, generate alpha page labels
+            # Only return sort name; get everything at once to avoid
+            # hitting Solr for each page / item.
+            pagination_qs = self.queryset.only(sort_opt) \
+                                         .get_results(rows=100000)
+            # cast to string so integers (year) can be treated the same
+            alpha_labels = alpha_pagelabels(paginator, pagination_qs,
+                                            lambda x: str(x.get(sort_opt, '')),
+                                            max_chars=4)
+            # alpha labels is a dict; use items to return list of tuples
+            return alpha_labels.items()
+
+        # otherwise use default page label logic
         return super().get_page_labels(paginator)
 
     def get_absolute_url(self):
