@@ -8,13 +8,10 @@ class WorkSearchForm(FacetForm):
 
     SORT_CHOICES = [
         ('title', 'Title A – Z'),
-        ('title_za', 'Title Z – A'),
         ('author', 'Author A – Z'),
-        ('author_za', 'Author Z – A'),
-        ('borrowing_desc', 'Borrowing Frequency Highest – Lowest'),
-        ('borrowing', 'Borrowing Frequency Lowest – Highest'),
-        ('pubdate', 'Publication Date Oldest – Newest'),
-        ('pubdate_desc', 'Publication Date Newest – Oldest'),
+        ('pubdate', 'Publication Date (Newest – Oldest)'),
+        ('circulation', 'Circulation (Highest – Lowest)'),
+        ('circulation_date', 'Circulation Date (Oldest – Newest)'),
         ('relevance', 'Relevance'),
     ]
 

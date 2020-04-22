@@ -462,7 +462,7 @@ class Work(Notable, ModelIndexable, EventSetMixin):
 
         earliest_date = self.earliest_date()
         if earliest_date:
-            index_data['first_event_date_i'] = earliest_date.strftime('%Y%M%d')
+            index_data['first_event_date_i'] = earliest_date.strftime('%Y%m%d')
 
         return index_data
 

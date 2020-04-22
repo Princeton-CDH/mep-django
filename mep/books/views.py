@@ -55,14 +55,12 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     solr_sort = {
         'relevance': '-score',
         'title': 'sort_title_isort',
-        'title_za': '-sort_title_isort',
         'author': 'sort_authors_isort',
-        'author_za': '-sort_authors_isort',
-        'borrowing': '-sort_authors_isort',
-        'borrowing_desc': '-event_count_i',
-        'borrowing': 'event_count_i',
+        'pubdate': '-pub_date_i',
+        'circulation': '-event_count_i',
+        'circulation_date': 'first_event_date_i',
         'pubdate': 'pub_date_i',
-        'pubdate_desc': '-pub_date_i',
+
     }
     # NOTE: might be able to infer reverse sort from _desc/_za
     # instead of hard-coding here
@@ -127,7 +125,7 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
             return [(1, 'N/A')]
         sort = form.cleaned_data['sort']
 
-        if sort.split('_')[0] in ['title', 'author', 'pubdate']:
+        if sort in ['title', 'author', 'pubdate', 'circulation_date']:
             sort_field = self.solr_sort[sort].lstrip('-')
             # otherwise, when sorting by alpha, generate alpha page labels
             # Only return sort name; get everything at once to avoid

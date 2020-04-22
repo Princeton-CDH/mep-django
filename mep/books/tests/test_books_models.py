@@ -347,7 +347,6 @@ class TestWork(TestCase):
         work3 = Work(title='Uncertain', notes='foo UNCERTAINTYICON bar')
         assert work3.is_uncertain
 
-
     def test_index_data(self):
         work1 = Work.objects.create(
             title='poems', slug='poems', year=1801,
@@ -369,6 +368,7 @@ class TestWork(TestCase):
         assert data['admin_notes_txt_en'] == work1.notes
         assert data['event_count_i'] == work1.event_set.count()
         assert not data['is_uncertain_b']
+        assert 'first_event_date_i' not in data
 
         # add creators
         ctype = CreatorType.objects.get(name='Author')
@@ -384,6 +384,13 @@ class TestWork(TestCase):
         assert data['sort_authors_t'] == [a.sort_name for a in work1.authors]
         assert data['sort_authors_isort'] == work1.sort_author_list
         assert data['creators_t'] == [c.name for c in work1.creators.all()]
+
+        # add an event
+        acct = Account.objects.create()
+        Event.objects.create(account=acct, work=work1,
+                             start_date=datetime.date(1919, 11, 15))
+        data = work1.index_data()
+        assert data['first_event_date_i'] == '19191115'
 
 
 class TestCreator(TestCase):
