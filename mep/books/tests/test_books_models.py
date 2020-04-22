@@ -8,8 +8,8 @@ import requests
 from mep.accounts.models import Account, Borrow, Event, Purchase
 from mep.books.models import Creator, CreatorType, Edition, EditionCreator, \
     Format, Genre, Subject, Work
-from mep.books.utils import work_slug
 from mep.books.tests.test_oclc import FIXTURE_DIR
+from mep.books.utils import work_slug
 from mep.people.models import Person
 
 
@@ -391,6 +391,19 @@ class TestWork(TestCase):
                              start_date=datetime.date(1919, 11, 15))
         data = work1.index_data()
         assert data['first_event_date_i'] == '19191115'
+
+    def test_items_to_index(self):
+        # not sure how to test this directly (esp. with no fixture)
+
+        # run without mocking to confirm that it doesn't cause an error
+        Work.items_to_index()
+
+        # check that it calls the methods we expect
+        with patch.object(Work, 'objects') as mockobjects:
+            Work.items_to_index()
+            mockobjects.prefetch_related.assert_called_with('creator_set')
+            mockobjects.prefetch_related.return_value.count_events \
+                .assert_any_call()
 
 
 class TestCreator(TestCase):
