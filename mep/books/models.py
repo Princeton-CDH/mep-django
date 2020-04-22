@@ -1,5 +1,4 @@
 import logging
-import re
 
 import rdflib
 import requests
@@ -9,6 +8,7 @@ from django.urls import reverse
 from django.utils.html import format_html, strip_tags
 from parasolr.django.indexing import ModelIndexable
 
+from mep.accounts.event_set import EventSetMixin
 from mep.accounts.partial_date import (DatePrecisionField, PartialDate,
                                        PartialDateMixin)
 from mep.books.utils import nonstop_words, work_slug, generate_sort_title
@@ -232,7 +232,7 @@ class WorkQuerySet(models.QuerySet):
                              models.Count('event__purchase', distinct=True))
 
 
-class Work(Notable, ModelIndexable):
+class Work(Notable, ModelIndexable, EventSetMixin):
     '''Work record for an item that circulated in the library or was
     other referenced in library activities.'''
 
@@ -297,7 +297,6 @@ class Work(Notable, ModelIndexable):
 
     class Meta:
         ordering = ['sort_title']
-
 
     def save(self, *args, **kwargs):
         # override save to ensure mep ID is None rather than empty string
@@ -460,6 +459,11 @@ class Work(Notable, ModelIndexable):
             'event_count_i': self.event_count,
             'admin_notes_txt_en': self.notes,
         })
+
+        earliest_date = self.earliest_date()
+        if earliest_date:
+            index_data['first_event_date_i'] = earliest_date.strftime('%Y%M%d')
+
         return index_data
 
     @property
