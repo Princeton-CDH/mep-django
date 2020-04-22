@@ -128,16 +128,16 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         sort = form.cleaned_data['sort']
 
         if sort.split('_')[0] in ['title', 'author', 'pubdate']:
-            sort_opt = self.solr_sort[sort].lstrip('-')
+            sort_field = self.solr_sort[sort].lstrip('-')
             # otherwise, when sorting by alpha, generate alpha page labels
             # Only return sort name; get everything at once to avoid
             # hitting Solr for each page / item.
-            pagination_qs = self.queryset.only(sort_opt) \
+            pagination_qs = self.queryset.only(sort_field) \
                                          .get_results(rows=100000)
             # cast to string so integers (year) can be treated the same
-            alpha_labels = alpha_pagelabels(paginator, pagination_qs,
-                                            lambda x: str(x.get(sort_opt, '')),
-                                            max_chars=4)
+            alpha_labels = alpha_pagelabels(
+                paginator, pagination_qs, lambda x: str(x.get(sort_field, '')),
+                max_chars=4)
             # alpha labels is a dict; use items to return list of tuples
             return alpha_labels.items()
 
