@@ -466,7 +466,7 @@ class Work(Notable, ModelIndexable):
             'format_s_lower': self.format(),
             'notes_txt_en': self.public_notes,
             'is_uncertain_b': self.is_uncertain,
-            'borrow_count_i': self.borrow_count
+            'event_count_i': self.event_count
         })
 
         return index_data
