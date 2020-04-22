@@ -299,12 +299,13 @@ class TestWork(TestCase):
 
     def test_save(self):
         with patch.object(Work, 'generate_slug') as mock_generate_slug:
-            work = Work(title='Topicless', slug='notopic', mep_id='')
+            work = Work(title='The Topicless', slug='notopic', mep_id='')
             work.save()
             # empty string converted to None
             assert work.mep_id is None
             # generate slug not called
             assert mock_generate_slug.call_count == 0
+            assert work.sort_title == 'Topicless'
 
             # generate slug called if no slug is set
             work.slug = ''
@@ -346,23 +347,6 @@ class TestWork(TestCase):
         work3 = Work(title='Uncertain', notes='foo UNCERTAINTYICON bar')
         assert work3.is_uncertain
 
-    def test_sort_title(self):
-        work = Work(title='My Book')
-        assert work.sort_title == "My Book"
-        work.title = 'Book'
-        assert work.sort_title == "Book"
-        work.title = 'The Book'
-        assert work.sort_title == "Book"
-        work.title = '"Car"'
-        assert work.sort_title == 'Car"'
-        work.title = '[unclear]'
-        assert work.sort_title == 'unclear]'
-        work.title = 'L\'Infini'
-        assert work.sort_title == 'Infini'
-        work.title = 'Of Mice and Men'
-        assert work.sort_title == 'Of Mice and Men'
-        work.title = 'A Portrait of the Artist'
-        assert work.sort_title == 'Portrait of the Artist'
 
     def test_index_data(self):
         work1 = Work.objects.create(
@@ -383,6 +367,7 @@ class TestWork(TestCase):
         assert data['format_s_lower'] == ''
         assert data['notes_txt_en'] == work1.public_notes
         assert data['admin_notes_txt_en'] == work1.notes
+        assert data['event_count_i'] == work1.event_set.count()
         assert not data['is_uncertain_b']
 
         # add creators

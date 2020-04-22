@@ -79,10 +79,10 @@ class EditionInline(admin.StackedInline):
 
 class WorkAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'title', 'author_list', 'notes',
+        'id', 'display_title', 'author_list', 'notes',
         'events', 'borrows', 'purchases',
         'updated_at', 'has_uri')
-    list_display_links = ('id', 'title')
+    list_display_links = ('id', 'display_title')
     list_filter = ('genres', 'work_format')
     inlines = [EditionInline, WorkCreatorInline]
     # NOTE: admin search uses Solr, actual fields configured in solrconfig.xml
@@ -91,7 +91,7 @@ class WorkAdmin(admin.ModelAdmin):
                      'creator__person__name', 'id', 'slug')
     fieldsets = (
         ('Basic metadata', {
-            'fields': ('title', 'year',
+            'fields': ('title', 'year', 'sort_title',
                        ('events', 'borrows', 'purchases'),
                        'slug')
         }),
@@ -108,7 +108,8 @@ class WorkAdmin(admin.ModelAdmin):
             )
         })
     )
-    readonly_fields = ('mep_id', 'events', 'borrows', 'purchases')
+    readonly_fields = ('mep_id', 'events', 'borrows', 'purchases',
+                       'sort_title')
     filter_horizontal = ('genres', 'subjects')
 
     actions = ['export_to_csv']
@@ -156,6 +157,12 @@ class WorkAdmin(admin.ModelAdmin):
             reverse(admin_link_url), str(obj.id),
             getattr(obj, count_attr)
         )
+
+    def display_title(self, obj):
+        '''Display actual title, but sort on sort title'''
+        return obj.title
+    display_title.admin_order_field = 'sort_title'
+    display_title.short_description = 'title'
 
     def events(self, obj):
         '''Display total event count as a link to view associated events'''

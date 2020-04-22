@@ -101,7 +101,7 @@ class TestReconcileOCLC(TestCase):
 
         # create enough works to trigger progressbar
         for title in range(6):
-            Work.objects.create(title=title, slug='%s' % title)
+            Work.objects.create(title=str(title), slug='%s' % title)
         mock_oclc_info.side_effect = None
         call_command('reconcile_oclc', 'report', '-o', csvtempfile.name,
                      stdout=stdout)

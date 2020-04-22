@@ -1,7 +1,8 @@
 from django.test import TestCase
 
 from mep.books.models import Work
-from mep.books.utils import creator_lastname, nonstop_words, work_slug
+from mep.books.utils import creator_lastname, generate_sort_title, \
+    nonstop_words, work_slug
 
 
 def test_nonstop_words():
@@ -51,3 +52,15 @@ class TestWorkSlug(TestCase):
         assert work_slug(work) == "didnt-ask-evans"
         work.title = '"Car"'
         assert work_slug(work) == "car"
+
+
+def test_generate_sort_title():
+    assert generate_sort_title('My Book') == 'My Book'
+    assert generate_sort_title('Book') == 'Book'
+    assert generate_sort_title('The Book') == 'Book'
+    assert generate_sort_title('"Car"') == 'Car"'
+    assert generate_sort_title('[unclear]') == 'unclear]'
+    assert generate_sort_title('L\'Infini') == 'Infini'
+    assert generate_sort_title('Of Mice and Men') == 'Of Mice and Men'
+    assert generate_sort_title('A Portrait of the Artist') == \
+        'Portrait of the Artist'
