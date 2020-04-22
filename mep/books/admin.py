@@ -13,6 +13,7 @@ from mep.accounts.admin import AUTOCOMPLETE
 from mep.accounts.partial_date import PartialDateFormMixin
 from mep.books.models import Creator, CreatorType, Work, Subject, Format, \
     Genre, Edition
+from mep.books.queryset import WorkSolrQuerySet
 from mep.common.admin import CollapsibleTabularInline
 
 
@@ -84,6 +85,8 @@ class WorkAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'title')
     list_filter = ('genres', 'work_format')
     inlines = [EditionInline, WorkCreatorInline]
+    # NOTE: admin search uses Solr, actual fields configured in solrconfig.xml
+    # but search fields must be defined for search to be turned on
     search_fields = ('mep_id', 'title', 'notes', 'public_notes',
                      'creator__person__name', 'id', 'slug')
     fieldsets = (
@@ -115,6 +118,29 @@ class WorkAdmin(admin.ModelAdmin):
         and purchases for sorting and display.'''
         return super(WorkAdmin, self) \
             .get_queryset(request).count_events()
+
+    def get_search_results(self, request, queryset, search_term):
+        '''Override admin search to use Solr.'''
+
+        # if search term is not blank, filter the queryset via solr search
+        if search_term:
+            # - use AND instead of OR to get smaller result sets, more
+            #  similar to default admin search behavior
+            # - return pks for all matching records
+            sqs = WorkSolrQuerySet().search_admin_work(search_term) \
+                .raw_query_parameters(**{'q.op': 'AND'}) \
+                .only('pk') \
+                .get_results(rows=100000)
+
+            pks = [r['pk'] for r in sqs]
+            # filter queryset by id if there are results
+            if sqs:
+                queryset = queryset.filter(pk__in=pks)
+            else:
+                queryset = queryset.none()
+
+        # return queryset, use distinct not needed
+        return queryset, False
 
     def _event_count(self, obj, event_type='event'):
         '''Display an event count as a link to associated event.
