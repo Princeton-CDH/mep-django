@@ -38,7 +38,7 @@ def absolutize_url(local_url, request=None):
     return root + local_url
 
 
-def alpha_pagelabels(paginator, objects, attr_meth):
+def alpha_pagelabels(paginator, objects, attr_meth, max_chars=None):
     """Generate abbreviated, alphabetical page labels for pagination items.
     Label format should be something like 'Ab - Ad', 'Ard - Art'.
 
@@ -63,45 +63,59 @@ def alpha_pagelabels(paginator, objects, attr_meth):
     for i in range(paginator.num_pages):
         page = paginator.page(i + 1)  # paginator page is 1-based
         # get objects at start & end of each page (paginator index also 1-based)
-        labels.append(attr_meth(objects[page.start_index() - 1]))
+        page_label = attr_meth(objects[page.start_index() - 1])
+        if max_chars:
+            page_label = page_label[:max_chars]
+        labels.append(page_label)
         # don't go beyond the end of the actual number of objects
         end_index = min(page.end_index() - 1, paginator.count)
         # add end label only if not the same as first (e.g., page of a single item)
         if page.start_index() - 1 != end_index:
-            labels.append(attr_meth(objects[end_index]))
+            end_label = attr_meth(objects[end_index])
+            if max_chars:
+                end_label = end_label[:max_chars]
+            labels.append(end_label)
 
-    # abbreviate labels so they are as short as possible but distinct from
-    # preceding and following labels
-    abbreviated_labels = []
-    # iterate over all labels and generate the shortest distinct version
-    for i, label in enumerate(labels):
-        next_label = labels[i + 1] if i + 1 < len(labels) else ''
-        prev_label = labels[i - 1] if i > 0 else ''
+    if max_chars:
+        abbreviated_labels = labels
 
-        # In the rare case that two labels are *exactly* the same,
-        # just add the full label.
-        if label in (next_label, prev_label):
-            abbreviated_labels.append(label)
-            continue
+    else:
+        # abbreviate labels so they are as short as possible but distinct from
+        # preceding and following labels
+        abbreviated_labels = []
+        # iterate over all labels and generate the shortest distinct version
+        for i, label in enumerate(labels):
 
-        # iterate through the label one letter at a time
-        # to determine the minimum length needed to differentiate
-        # start with one letter, go up to full length of the label if necessary
-        abbr = ''
-        for j, char in enumerate(label, 1):
-            abbr += char   # or abbr = label[:j]
-            # if abbreviation is different from neighboring labels
-            # at the current length, then use it
-            # - compare case-insensitively
-            # NOTE: should possibly ignore trailing punctuation here...
-            # possible to get "Gray" / "Gray,"
-            if abbr.lower() not in (next_label[:j].lower(),
-                                    prev_label[:j].lower()):
-                break
-            # if we don't break before the loop finishes, use
-            # the whole label
+            next_label = labels[i + 1] if i + 1 < len(labels) else ''
+            prev_label = labels[i - 1] if i > 0 else ''
 
-        abbreviated_labels.append(abbr)
+            # In the rare case that two labels are *exactly* the same,
+            # just add the full label.
+            if label in (next_label, prev_label):
+                abbreviated_labels.append(label)
+                continue
+
+            # iterate through the label one letter at a time
+            # to determine the minimum length needed to differentiate
+            # start with one letter, go up to full length of the label if necessary
+            abbr = ''
+            for j, char in enumerate(label, 1):
+                abbr += char   # or abbr = label[:j]
+                if max_chars and j > max_chars:
+                    break
+
+                # if abbreviation is different from neighboring labels
+                # at the current length, then use it
+                # - compare case-insensitively
+                # NOTE: should possibly ignore trailing punctuation here...
+                # possible to get "Gray" / "Gray,"
+                if abbr.lower() not in (next_label[:j].lower(),
+                                        prev_label[:j].lower()):
+                    break
+                # if we don't break before the loop finishes, use
+                # the whole label
+
+            abbreviated_labels.append(abbr)
 
     # iterate over the abbreviate labels in pairs and generate page labels
     for i in range(0, len(abbreviated_labels), 2):
