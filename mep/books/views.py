@@ -59,8 +59,6 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         'pubdate': '-pub_date_i',
         'circulation': '-event_count_i',
         'circulation_date': 'first_event_date_i',
-        'pubdate': 'pub_date_i',
-
     }
     # NOTE: might be able to infer reverse sort from _desc/_za
     # instead of hard-coding here
