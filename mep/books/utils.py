@@ -5,6 +5,7 @@ model save method and model migration.
 '''
 
 import re
+from string import punctuation
 
 from django.utils.text import slugify
 import stop_words
@@ -55,3 +56,21 @@ def work_slug(work, max_words=3):
     # by default, use at most first three words in the title
     slug_text = '%s %s' % (lastname, nonstop_title_words[:max_words])
     return slugify(unidecode(slug_text))
+
+
+def generate_sort_title(title):
+    '''Generate sort title based on title. Removes leading punctuation and
+    stop word.'''
+
+    # english & french definite/indefinite articles
+    non_sort = ('the', 'a', 'an', 'la', 'le', 'les', 'l')
+
+    # remove leading punctuation (quotes, brackets, etc)
+    sort_title = title.lstrip(punctuation)
+    # split on punctuation or whitespace to get the first word
+    title_parts = [w for w in re.split(r'[\s\W]+', sort_title, maxsplit=1)
+                   if w]   # skip blank string
+    # if more than one word and first word is an article, skip it
+    if len(title_parts) > 1 and title_parts[0].lower() in non_sort:
+        return title_parts[1]
+    return sort_title
