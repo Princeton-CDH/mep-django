@@ -11,4 +11,6 @@ urlpatterns = [
         name='work-autocomplete'),
     url(r'^books/(?P<slug>[\w-]+)/$', views.WorkDetail.as_view(),
         name='book-detail'),
+    url(r'^books/(?P<slug>[\w-]+)/circulation$', views.WorkCirculation.as_view(),
+        name='book-circ'),
 ]

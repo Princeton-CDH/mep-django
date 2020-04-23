@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+{% load static humanize %}
+
+{% block page-subtitle %}{{ work.title }} Circulation · Library Holdings · {% endblock %}
+
+{% block js %}
+{% render_bundle 'activities' 'js' %}
+{% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title=work.title style="detail" %}
+{% endblock %}
+
+{% block main-style %}tabbed white{% endblock %}
+
+{% block content %}
+{# breadcrumbs & tabs #}
+{% include 'snippets/breadcrumbs.html' %}
+<nav class="tabs" aria-label="tabs">
+    <li class="tab">
+        <a href="{% url 'books:book-detail' slug=work.slug %}">bibliography</a>
+    </li>
+    <li class="tab" aria-selected="true">
+        <a href="{% url 'books:book-circ' slug=work.slug %}">circulation</a>
+    </li>
+</nav>
+
+{# circulation activity table #}
+<div class="activities">
+    {% if not event_list.count %}
+    <p>No documented circulation activity.</p>
+    {% else %}
+    <div class="wrapper">
+    <table id="activity-table" class="circulation">
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th data-sort-default>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Volume/Issue</th>
+            </tr>
+        </thead>
+        {% for event in event_list %}
+        <tr>
+            {% with member=event.account.persons.first %}
+            <td class="member" data-sort="{{ member.sort_name }}">
+                <a href="{{ member.get_absolute_url }}">
+                {{ member.firstname_last }}
+                </a>
+            </td>
+            {% endwith %}
+            <td class="start{% if not event.partial_start_date %} empty{% endif %}"
+                data-sort="{{ event.partial_start_date|default:'' }}">
+                {{ event.partial_start_date|partialdate|default:'-' }}
+            </td>
+            <td class="end{% if not event.partial_end_date %} empty{% endif %}"
+                data-sort="{{ event.partial_end_date|default:'' }}">
+                {{ event.partial_end_date|partialdate|default:'-' }}
+            </td>
+            {% with event.event_type as event_type %}
+            <td class="activity{% if event_type == 'Generic' %} empty{% endif %}">
+                {% if event_type == 'Generic' %} -
+                {% else %}{{ event_type }}{% endif %}
+            </td>
+            {% endwith %}
+            <td class="edition{% if not event.edition %} empty{% endif %}">
+                {% if not event.edition %} -
+                {% else %}{{ event.edition }}{% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
