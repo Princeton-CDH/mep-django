@@ -10,8 +10,8 @@ class WorkSearchForm(FacetForm):
         ('title', 'Title A – Z'),
         ('author', 'Author A – Z'),
         ('pubdate', 'Publication Date (Newest – Oldest)'),
-        ('circulation', 'Circulation (Highest – Lowest)'),
         ('circulation_date', 'Circulation Date (Oldest – Newest)'),
+        ('circulation', 'Circulation (Highest – Lowest)'),
         ('relevance', 'Relevance'),
     ]
 
