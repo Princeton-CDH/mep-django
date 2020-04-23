@@ -23,7 +23,7 @@ class WorkSolrQuerySet(AliasedSolrQuerySet):
         'account_start': 'account_start_i',
         'account_end': 'account_end_i',
         'is_uncertain': 'is_uncertain_b',
-        'event_count': 'borrow_count_i',
+        'event_count': 'event_count_i',
     }
 
     # edismax alias for searching on admin work pseudo-field
