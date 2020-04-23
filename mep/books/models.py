@@ -462,7 +462,12 @@ class Work(Notable, ModelIndexable, EventSetMixin):
 
         earliest_date = self.earliest_date()
         if earliest_date:
+            # FIXME: acceptable for partial dates? (probably)
             index_data['first_event_date_i'] = earliest_date.strftime('%Y%m%d')
+
+            # if there is at least one date, also include circulation years
+            index_data['event_years_is'] = list(set(d.year for d in
+                                                    self.event_dates))
 
         return index_data
 

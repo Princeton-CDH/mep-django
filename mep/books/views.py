@@ -30,6 +30,14 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     _form = None
     initial = {'sort': 'title'}
 
+    #: mappings for Solr field names to form aliases
+    range_field_map = {
+        'event_years': 'circulation_dates',
+    }
+
+    #: fields to generate stats on in self.get_ranges
+    stats_fields = ('event_years',)
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         form_data = self.request.GET.copy()
@@ -44,7 +52,39 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
             form_data.setdefault(key, val)
 
         kwargs['data'] = form_data
+        # get min/max configuration for range fields
+        kwargs['range_minmax'] = self.get_range_stats()
+
         return kwargs
+
+    # adapted from member list view
+    def get_range_stats(self):
+        """Return the min and max for fields specified in
+        :class:`WorkList`'s stats_fields
+
+        :returns: Dictionary keyed on form field name with a tuple of
+            (min, max) as integers. If stats are not returned from the field,
+            the key is not added to a dictionary.
+        :rtype: dict
+        """
+        stats = WorkSolrQuerySet().stats(*self.stats_fields).get_stats()
+        min_max_ranges = {}
+        if not stats:
+            return min_max_ranges
+        for name in self.stats_fields:
+            try:
+                min_year = int(stats['stats_fields'][name]['min'])
+                max_year = int(stats['stats_fields'][name]['max'])
+                # map to form field name if an alias is provided
+                min_max_ranges[self.range_field_map.get(name, name)] \
+                    = (min_year, max_year)
+            # If the field stats are missing, min and max will be NULL,
+            # rendered as None.
+            # The TypeError will catch and pass returning an empty entry
+            # for that field but allowing others to be passed on.
+            except TypeError:
+                pass
+        return min_max_ranges
 
     def get_form(self, *args, **kwargs):
         if not self._form:
@@ -91,6 +131,11 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
             # when not sorting by title, use title as secondary sort
             if self.solr_sort['title'] not in sort_opt:
                 sqs = sqs.order_by(self.solr_sort['title'])
+
+            # range filter by circulation dates, if set
+            if search_opts['circulation_dates']:
+                sqs = sqs.filter(
+                    event_years__range=search_opts['circulation_dates'])
 
         self.queryset = sqs
         return sqs

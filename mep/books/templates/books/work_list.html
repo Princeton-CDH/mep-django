@@ -20,8 +20,13 @@
         <label for="{{ form.query.id_for_label }}"></label>
         {% include 'common/form_errors.html' %}
         <fieldset class="group">
-            {% comment %}
             <legend>Filter by:</legend>
+            <div class="inner">
+                <fieldset class="range facet {{ form.circulation_dates.css_classes }}" id="id_{{ form.circulation_dates.name }}">
+                    <legend>{{ form.circulation_dates.label }}</legend>
+                    {{ form.circulation_dates }}
+                </fieldset>
+            {% comment %}
             <div class="inner">
                 <div class="creators tab" role="tab" aria-setsize="2" aria-posinset="1" aria-selected="false" aria-controls="creators-panel" aria-disabled>Creators*</div>
                 <div class="publishers tab" role="tab" aria-setsize="2" aria-posinset="2" aria-selected="false" aria-controls="publishers-panel" aria-disabled>Publishers*</div>

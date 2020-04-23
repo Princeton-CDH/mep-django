@@ -24,6 +24,7 @@ class WorkSolrQuerySet(AliasedSolrQuerySet):
         'account_end': 'account_end_i',
         'is_uncertain': 'is_uncertain_b',
         'event_count': 'event_count_i',
+        'event_years': 'event_years_is',
     }
 
     # edismax alias for searching on admin work pseudo-field
