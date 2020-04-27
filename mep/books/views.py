@@ -34,14 +34,13 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         kwargs = super().get_form_kwargs()
         form_data = self.request.GET.copy()
 
-        # always use relevance sort for keyword search;
-        # otherwise use default (sort by title)
-        if form_data.get('query', None):
-            form_data['sort'] = 'relevance'
-
         # set defaults
         for key, val in self.initial.items():
             form_data.setdefault(key, val)
+
+        # set relevance sort as default when there is a search term
+        if form_data.get('query', None):
+            form_data.setdefault('sort', 'relevance')
 
         kwargs['data'] = form_data
         return kwargs
