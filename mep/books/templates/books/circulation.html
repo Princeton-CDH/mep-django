@@ -67,7 +67,7 @@
             {% endwith %}
             <td class="edition{% if not event.edition %} empty{% endif %}">
                 {% if not event.edition %} -
-                {% else %}{{ event.edition }}{% endif %}
+                {% else %}{{ event.edition.display_html }}{% endif %}
             </td>
         </tr>
         {% endfor %}

@@ -1,0 +1,27 @@
+/* book circulation activity table */
+
+.circulation {
+
+    // italicize titles in edition info
+    .edition em { font-style: italic; }
+
+    // mobile styles
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+
+        // combine dates into one line with dash separator
+        .start, 
+        .end {
+            flex: none;
+            width: auto;
+        }
+
+        .start:not(.empty) + .end {
+            padding-left: 3px;
+
+            &::before {
+                content: ' — ';
+            }
+        }
+    }
+
+}
