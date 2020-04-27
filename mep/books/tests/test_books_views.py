@@ -364,7 +364,7 @@ class TestWorkCirculation(TestCase):
         # status
         self.assertContains(response, "Borrow")
         # issue info
-        self.assertContains(response, "vol. 69 no. 4 October")
+        self.assertContains(response, "Vol. 69, no. 4, October 1920")
 
     def test_no_events(self):
         # work with no events should show message instead of table
@@ -373,4 +373,3 @@ class TestWorkCirculation(TestCase):
                                    kwargs={"slug": work.slug}))
         self.assertNotContains(response, '<table')
         self.assertContains(response, 'No documented circulation activity')
-        
