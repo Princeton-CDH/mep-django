@@ -7,7 +7,7 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 from mep.books.models import Work, Edition
-from mep.books.views import WorkList
+from mep.books.views import WorkList, WorkCirculation
 from mep.common.utils import login_temporarily_required
 
 
@@ -291,3 +291,64 @@ class TestWorkDetailView(TestCase):
         self.assertContains(response, '<h2>Volume/Issue</h2>')
         for issue in issues:
             self.assertContains(response, issue.display_html())
+
+
+class TestWorkCirculation(TestCase):
+    fixtures = ['test_events.json']
+
+    def setUp(self):
+        self.work = Work.objects.get(title="The Dial")
+        self.view = WorkCirculation()
+        self.view.kwargs = { 'slug': self.work.slug }
+
+    def test_get_queryset(self):
+        # make sure that works only get events associated with them
+        events = self.view.get_queryset()
+        for event in events:
+            assert event.work == self.work
+
+    def test_get_context_data(self):
+        # ensure work and page title are stored in context
+        self.view.object_list = self.view.get_queryset()
+        context = self.view.get_context_data()
+        assert context['work'] == self.work
+        assert context['page_title'] == 'The Dial Circulation Activity'
+
+    def test_get_breadcrumbs(self):
+        # breadcrumbs order should be: home, works list, work detail, work circ.
+        self.view.object_list = self.view.get_queryset()
+        self.view.get_context_data()
+        crumbs = self.view.get_breadcrumbs()
+        assert crumbs[0][0] == "Home"
+        assert crumbs[1][0] == "Books"
+        assert crumbs[2][0] == "The Dial"
+        assert crumbs[3][0] == "Circulation"
+
+    def test_template(self):
+        response = self.client.get(reverse("books:book-circ",
+                                   kwargs={"slug": self.work.slug}))
+        # table headers
+        self.assertContains(response, "Member")
+        self.assertContains(response, "Start Date")
+        self.assertContains(response, "End Date")
+        self.assertContains(response, "Status")
+        self.assertContains(response, "Volume/Issue")
+        # name & link to member who borrowed book
+        self.assertContains(response, "L. Michaelides")
+        self.assertContains(response, "/members/michaelides-l")
+        # start/end date of borrow
+        self.assertContains(response, "Oct. 21, 1920")
+        self.assertContains(response, "Oct. 25, 1920")
+        # status
+        self.assertContains(response, "Borrow")
+        # issue info
+        self.assertContains(response, "vol. 69 no. 4 October")
+
+    def test_no_events(self):
+        # work with no events should show message instead of table
+        work = Work.objects.create(title="fake book")
+        response = self.client.get(reverse("books:book-circ",
+                                   kwargs={"slug": work.slug}))
+        self.assertNotContains(response, '<table')
+        self.assertContains(response, 'No documented circulation activity')
+        
