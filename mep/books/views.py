@@ -10,7 +10,7 @@ from mep.books.forms import WorkSearchForm
 from mep.books.models import Work
 from mep.books.queryset import WorkSolrQuerySet
 from mep.common import SCHEMA_ORG
-from mep.common.utils import absolutize_url
+from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
                               LabeledPagesMixin, LoginRequiredOr404Mixin,
                               RdfViewMixin)
@@ -41,8 +41,6 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         # otherwise use default (sort by title)
         if form_data.get('query', None):
             form_data['sort'] = 'relevance'
-        else:
-            form_data['sort'] = self.initial['sort']
 
         # set defaults
         for key, val in self.initial.items():
@@ -60,9 +58,15 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     solr_sort = {
         'relevance': '-score',
         'title': 'sort_title_isort',
+        'author': 'sort_authors_isort',
+        'pubdate': '-pub_date_i',
+        'circulation': '-event_count_i',
+        'circulation_date': 'first_event_date_i',
     }
+    # NOTE: might be able to infer reverse sort from _desc/_za
+    # instead of hard-coding here
 
-    #: bib data query alias field syntax (type defaults to edismax in solr config)
+    #: bib data query alias field syntax (configured defaults is edismax)
     search_bib_query = '{!qf=$bib_qf pf=$bib_pf v=$bib_query}'
 
     def get_queryset(self):
@@ -85,7 +89,11 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
                          .raw_query_parameters(bib_query=search_opts['query']) \
                          .also('score')  # include relevance score in results
 
-            sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
+            sort_opt = self.solr_sort[search_opts['sort']]
+            sqs = sqs.order_by(sort_opt)
+            # when not sorting by title, use title as secondary sort
+            if self.solr_sort['title'] not in sort_opt:
+                sqs = sqs.order_by(self.solr_sort['title'])
 
         self.queryset = sqs
         return sqs
@@ -111,13 +119,28 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
 
     def get_page_labels(self, paginator):
         '''generate labels for pagination'''
+
+        # if form is invalid, page labels should show 'N/A'
         form = self.get_form()
-        # if invalid, should show 'N/A'
         if not form.is_valid():
             return [(1, 'N/A')]
+        sort = form.cleaned_data['sort']
 
-        # otherwise default to numbered pages for now
-        # NOTE could implement alpha here, but tougher for titles
+        if sort in ['title', 'author', 'pubdate', 'circulation_date']:
+            sort_field = self.solr_sort[sort].lstrip('-')
+            # otherwise, when sorting by alpha, generate alpha page labels
+            # Only return sort name; get everything at once to avoid
+            # hitting Solr for each page / item.
+            pagination_qs = self.queryset.only(sort_field) \
+                                         .get_results(rows=100000)
+            # cast to string so integers (year) can be treated the same
+            alpha_labels = alpha_pagelabels(
+                paginator, pagination_qs, lambda x: str(x.get(sort_field, '')),
+                max_chars=4)
+            # alpha labels is a dict; use items to return list of tuples
+            return alpha_labels.items()
+
+        # otherwise use default page label logic
         return super().get_page_labels(paginator)
 
     def get_absolute_url(self):

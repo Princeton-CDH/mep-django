@@ -155,7 +155,7 @@ class TestWorkListView(TestCase):
         form.is_valid.return_value = True
         form.cleaned_data = {'sort': 'title'}
         solr_qs = view.get_queryset()
-        db_qs = Work.objects.order_by('title')
+        db_qs = Work.objects.order_by('sort_title')
         # querysets from solr and db should match
         for index, item in enumerate(solr_qs):
             assert db_qs[index].title == item['title'][0]
@@ -177,12 +177,34 @@ class TestWorkListView(TestCase):
         # if form is valid, should use default implementation (numbered pages)
         # NOTE this will change if we implement alpha pagination for this view
         form.is_valid.return_value = True
+        form.cleaned_data = {'sort': 'relevance'}
         page_labels = view.get_page_labels(paginator)
         assert page_labels == [(1, '1 – 100'), (2, '101 – 120')]
         # if invalid, should return one page with 'N/A' label
         form.is_valid.return_value = False
         page_labels = view.get_page_labels(paginator)
         assert page_labels == [(1, 'N/A')]
+
+        # alpha page labels depending on sort
+        form.is_valid.return_value = True
+        view.queryset = Mock()
+        page_label_results = [
+            {'sort_title_isort': 'ABC books'},
+            {'sort_title_isort': 'Charlie Day'},
+        ]
+        view.queryset.only.return_value.get_results \
+            .return_value = page_label_results
+        form.cleaned_data = {'sort': 'title'}
+        paginator = Paginator(page_label_results, per_page=view.paginate_by)
+        page_labels = view.get_page_labels(paginator)
+        # assert page_labels == [(1, 'ABC – Char')]
+        # only one entry; couldn't get odict items comparison to work otherwise
+        for i, val in page_labels:
+            assert i == 1
+            assert val == 'ABC – Char'
+        view.queryset.only.assert_called_with(view.solr_sort['title'])
+        view.queryset.only.return_value.get_results \
+            .assert_called_with(rows=100000)
 
     @login_temporarily_required
     def test_pagination(self):

@@ -103,7 +103,7 @@ class TestMergeWorks(TestCase):
         # test basic merge functionality
 
         # get a work from the fixture and make a copy to merge
-        work = Work.objects.filter(uri__isnull=False).first()
+        work = Work.objects.exclude(uri="").first()
         work2 = Work.objects.create(title=work.title, uri=work.uri,
                                     ebook_url='http://example.com/mybook.pub')
 

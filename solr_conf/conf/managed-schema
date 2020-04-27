@@ -133,7 +133,7 @@
        RESTRICTION: the glob-like pattern in the name attribute must have
        a "*" only at the start or the end.  -->
 
-    <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
+    <dynamicField name="*_i"  type="int"    indexed="true"  stored="true" sortMissingLast="true"/>
     <dynamicField name="*_is" type="ints"    indexed="true"  stored="true"/>
     <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" />
     <dynamicField name="*_ss" type="strings"  indexed="true"  stored="true"/>
