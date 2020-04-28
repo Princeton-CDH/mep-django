@@ -450,6 +450,13 @@ class TestExportEvents(TestCase):
         assert info['duration days'] == subs.duration
         assert info['volumes'] == subs.volumes
         assert 'category' not in info
+        # fixture has no purchase date
+        assert 'purchase date' not in info
+
+        # add partial purchase date to test
+        event.subscription.partial_purchase_date = '1920-05'
+        info = self.cmd.subscription_info(event)
+        assert info['purchase date'] == '1920-05'
 
         # category subtype
         event = Event.objects.filter(
@@ -463,6 +470,7 @@ class TestExportEvents(TestCase):
         info = self.cmd.subscription_info(event)
         assert 'duration' not in info
         assert 'duration days' not in info
+
 
         # non-subscription
         event = Event.objects.filter(subscription__isnull=True).first()

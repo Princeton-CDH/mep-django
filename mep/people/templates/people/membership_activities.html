@@ -77,8 +77,9 @@
             </tr>
         </thead>
         {% for event in event_list %}
-        <tr>
-            <td class="activity">{{ event.event_type }}</td>
+        {% with event.event_type as event_type %}
+        <tr class="{{ event_type|lower }}">
+            <td class="activity">{{ event_type }}</td>
             <td class="plan{% if not event.subscription.category %} empty{% endif %}">
                 {{ event.subscription.category|default:'-' }}
                 {# render info link here so it can be shown on mobile too #}
@@ -113,6 +114,7 @@
             {% endwith %}
             </td>
         </tr>
+        {% endwith %}
         {% endfor %}
     </table>
     </div>

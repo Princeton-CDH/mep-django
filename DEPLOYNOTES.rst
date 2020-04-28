@@ -3,6 +3,18 @@
 Deploy and Upgrade notes
 ========================
 
+0.29
+----
+
+Updates to the book search & browse require a Solr configuration b
+update and work reindex. Copy all files under `solr_conf/conf/` to your
+configured Solr configset and restart Solr to ensure the managed schema is
+loaded. Then update the schema, clear works from the index, and reindex::
+
+  python manage.py solr_schema
+  python manage.py index -c work -i none
+  python manage.py index -i work
+
 0.28.2
 ------
 

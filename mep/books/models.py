@@ -458,12 +458,14 @@ class Work(Notable, ModelIndexable, EventSetMixin):
             'is_uncertain_b': self.is_uncertain,
             'event_count_i': self.event_count,
             'admin_notes_txt_en': self.notes,
+            'edition_titles': [ed.title for ed in self.edition_set.all()],
         })
 
         earliest_date = self.earliest_date()
         if earliest_date:
             # NOTE: doesn't matter if partial, will still sort as expected
             index_data['first_event_date_i'] = earliest_date.strftime('%Y%m%d')
+        index_data['edition_titles'] = [ed.title for ed in self.edition_set.all()]
 
             # if there is at least one date, also include circulation years
             index_data['event_years_is'] = list(set(d.year for d in

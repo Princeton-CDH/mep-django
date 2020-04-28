@@ -369,6 +369,7 @@ class TestWork(TestCase):
         assert data['event_count_i'] == work1.event_set.count()
         assert not data['is_uncertain_b']
         assert 'first_event_date_i' not in data
+        assert not data['edition_titles']
 
         # add creators
         ctype = CreatorType.objects.get(name='Author')
@@ -391,6 +392,11 @@ class TestWork(TestCase):
                              start_date=datetime.date(1919, 11, 15))
         data = work1.index_data()
         assert data['first_event_date_i'] == '19191115'
+
+        # add an edition with a title
+        edition = Edition.objects.create(work=work1, title='Pointed Roofs')
+        data = work1.index_data()
+        assert data['edition_titles'] == [edition.title]
 
     def test_items_to_index(self):
         # not sure how to test this directly (esp. with no fixture)

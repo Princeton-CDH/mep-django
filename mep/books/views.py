@@ -1,16 +1,19 @@
 from dal import autocomplete
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
 
+from mep.accounts.models import Event
 from mep.books.forms import WorkSearchForm
 from mep.books.models import Work
 from mep.books.queryset import WorkSolrQuerySet
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
-    LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, LoginRequiredOr404Mixin,
+                              RdfViewMixin)
 
 
 class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
@@ -42,14 +45,13 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         kwargs = super().get_form_kwargs()
         form_data = self.request.GET.copy()
 
-        # always use relevance sort for keyword search;
-        # otherwise use default (sort by title)
-        if form_data.get('query', None):
-            form_data['sort'] = 'relevance'
-
         # set defaults
         for key, val in self.initial.items():
             form_data.setdefault(key, val)
+
+        # set relevance sort as default when there is a search term
+        if form_data.get('query', None):
+            form_data.setdefault('sort', 'relevance')
 
         kwargs['data'] = form_data
         # get min/max configuration for range fields
@@ -216,6 +218,44 @@ class WorkDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
             ('Home', absolutize_url('/')),
             (WorkList.page_title, WorkList().get_absolute_url()),
             (self.object.title, self.get_absolute_url())
+        ]
+
+
+class WorkCirculation(ListView, RdfViewMixin):
+    '''Display a list of circulation events (borrows, purchases) for an
+    individual work.'''
+    model = Event
+    template_name = 'books/circulation.html'
+
+    def get_queryset(self):
+        '''Fetch all events associated with this work.'''
+        return super().get_queryset() \
+                      .filter(work__slug=self.kwargs['slug']) \
+                      .select_related('borrow', 'purchase', 'account', 'edition') \
+                      .prefetch_related('account__persons')
+
+    def get_context_data(self, **kwargs):
+        # should 404 if invalid work slug
+        # store work before calling super() so available for breadcrumbs
+        self.work = get_object_or_404(Work, slug=self.kwargs['slug'])
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'work': self.work,
+            'page_title': '%s Circulation Activity' % self.work.title
+        })
+        return context
+
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
+        return absolutize_url(reverse('books:book-circ', kwargs=self.kwargs))
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            (WorkList.page_title, WorkList().get_absolute_url()),
+            (self.work.title, absolutize_url(self.work.get_absolute_url())),
+            ('Circulation', self.get_absolute_url())
         ]
 
 class WorkAutocomplete(autocomplete.Select2QuerySetView):
