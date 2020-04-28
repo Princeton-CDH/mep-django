@@ -157,7 +157,6 @@ class TestWorkListView(TestCase):
         form.cleaned_data = {'sort': 'title', 'circulation_dates': ''}
         solr_qs = view.get_queryset()
         db_qs = Work.objects.order_by('sort_title')
-        print(db_qs)
         # querysets from solr and db should match
         for index, item in enumerate(solr_qs):
             assert db_qs[index].title == item['title'][0]
