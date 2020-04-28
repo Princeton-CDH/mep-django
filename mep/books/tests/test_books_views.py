@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from parasolr.query.queryset import EmptySolrQuerySet
 
 from mep.books.models import Work, Edition
 from mep.books.views import WorkList, WorkCirculation
@@ -153,7 +154,7 @@ class TestWorkListView(TestCase):
         view.request = self.factory.get(self.url)
         # if form is valid, should return all works sorted by chosen sort
         form.is_valid.return_value = True
-        form.cleaned_data = {'sort': 'title'}
+        form.cleaned_data = {'sort': 'title', 'circulation_dates': ''}
         solr_qs = view.get_queryset()
         db_qs = Work.objects.order_by('sort_title')
         # querysets from solr and db should match
@@ -163,7 +164,21 @@ class TestWorkListView(TestCase):
         # if form is invalid, should return empty queryset
         form.is_valid.return_value = False
         solr_qs = view.get_queryset()
-        # NOTE replace with EmptySolrQueryset check when implemented in parasolr
+        assert isinstance(solr_qs, EmptySolrQuerySet)
+
+        # circulation dates set
+        form.cleaned_data = {'sort': 'title',
+                             'circulation_dates': (1935, None)}
+        form.is_valid.return_value = True
+        solr_qs = view.get_queryset()
+        db_qs = Work.objects.filter(event__start_date__year__gt=1935)
+        # currently only one record in the db with an event (1936)
+        assert solr_qs.count() == db_qs.count()
+        assert db_qs[0].slug == solr_qs[0]['slug']
+
+        form.cleaned_data = {'sort': 'title',
+                             'circulation_dates': (1919, 1922)}
+        solr_qs = view.get_queryset()
         assert solr_qs.count() == 0
 
     def test_get_page_labels(self):
@@ -220,6 +235,39 @@ class TestWorkListView(TestCase):
             response,
             '<option value="1" selected="selected">%s</option>' %
             list(response.context['page_labels'])[0][1])
+
+    @patch('mep.books.views.WorkSolrQuerySet')
+    def test_get_range_stats(self, mock_wsq):
+        # NOTE: This depends on configuration for mapping the fields
+        # in the range_field_map class attribute of MembersList
+        mock_stats = {
+            'stats_fields': {
+                'event_years': {
+                    'min': 1919.0,
+                    'max': 1962.0
+                }
+            }
+        }
+        mock_wsq.return_value.stats.return_value.get_stats.return_value \
+            = mock_stats
+        range_minmax = WorkList().get_range_stats()
+        # returns integer years
+        # also converts membership_dates to
+        assert range_minmax == {
+            'circulation_dates': (1919, 1962)
+        }
+        # call for the correct field in stats
+        args, kwargs = mock_wsq.return_value.stats.call_args_list[0]
+        assert 'event_years' in args
+        # if get stats returns None, should return an empty dict
+        mock_wsq.return_value.stats.return_value.get_stats.return_value = None
+        assert WorkList().get_range_stats() == {}
+        # None set for min or max should result in the field not being
+        # returned (but the other should be passed through as expected)
+        mock_wsq.return_value.stats.return_value.get_stats.return_value\
+            = mock_stats
+        mock_stats['stats_fields']['event_years']['min'] = None
+        assert WorkList().get_range_stats() == {}
 
 
 class TestWorkDetailView(TestCase):

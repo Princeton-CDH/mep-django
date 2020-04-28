@@ -1,9 +1,10 @@
 from django import forms
 
-from mep.common.forms import FacetForm, SelectWithDisabled
+from mep.common.forms import FacetForm, RangeField, RangeForm, RangeWidget, \
+    SelectWithDisabled
 
 
-class WorkSearchForm(FacetForm):
+class WorkSearchForm(RangeForm, FacetForm):
     '''Book search form'''
 
     SORT_CHOICES = [
@@ -27,3 +28,5 @@ class WorkSearchForm(FacetForm):
         }))
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False,
                              widget=SelectWithDisabled)
+    circulation_dates = RangeField(label='Circulation Dates', required=False,
+                                   widget=RangeWidget(attrs={'size': 4}))

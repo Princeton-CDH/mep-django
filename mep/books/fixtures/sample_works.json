@@ -239,6 +239,20 @@
 		}
 	},
 	{
+	    "model": "accounts.event",
+	    "pk": 14973,
+	    "fields": {
+	        "notes": "",
+	        "start_date_precision": 7,
+	        "end_date_precision": 7,
+	        "account": 4852,
+	        "start_date": "1936-11-19",
+	        "end_date": "1936-11-25",
+	        "work": 4598,
+	        "edition": null
+	    }
+	},
+	{
 		"model": "books.format",
 		"pk": 1,
 		"fields": {
