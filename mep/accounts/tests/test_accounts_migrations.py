@@ -58,17 +58,17 @@ class DatePrecisionCopies(TestMigrations):
 
         # Create some objects with partial dates
         Borrow.objects.create(
-                account=account,
-                start_date=datetime.date(1950, 1, 5),
-                end_date=datetime.date(1950, 1, 6),
-                start_date_precision=DatePrecision.year,
-                end_date_precision=DatePrecision.month
+            account=account,
+            start_date=datetime.date(1950, 1, 5),
+            end_date=datetime.date(1950, 1, 6),
+            start_date_precision=DatePrecision.year,
+            end_date_precision=DatePrecision.month
         )
         Borrow.objects.create(
-                account=account,
-                start_date=datetime.date(1900, 2, 10),
-                end_date=datetime.date(1900, 2, 12),
-                start_date_precision=DatePrecision.day | DatePrecision.month
+            account=account,
+            start_date=datetime.date(1900, 2, 10),
+            end_date=datetime.date(1900, 2, 12),
+            start_date_precision=DatePrecision.day | DatePrecision.month
         )
 
         Purchase.objects.create(
@@ -115,15 +115,15 @@ class DatePrecisionCopies(TestMigrations):
         ))
 
     @staticmethod
-    def check_copy_precisions(old_values, Model):
+    def check_copy_precisions(old_values, model):
         '''Test that a Model and its pre-migration/reversion values were
         copied over as expected.'''
-        for tup in old_values:
-            model = Model.objects.get(pk=tup[0])
+        for pk, start_precision, end_precision in old_values:
+            mymodel = model.objects.get(pk=pk)
             # these precisions should be the same, regardless of whether Event
             # or one of its subclasses holds the field
-            assert model.start_date_precision == tup[1]
-            assert model.end_date_precision == tup[2]
+            assert mymodel.start_date_precision == start_precision
+            assert mymodel.end_date_precision == end_precision
 
 
 # NOTE: TransactionTestCase must be run after all other test cases,
@@ -187,3 +187,110 @@ class TestRevertPrecisionCopy(DatePrecisionCopies):
         # and purchase
         self.check_copy_precisions(self.old_borrows, Borrow)
         self.check_copy_precisions(self.old_purchases, Purchase)
+
+
+@pytest.mark.last
+class TestSubscriptionPurchaseDateAdjustments(TestMigrations):
+
+    app = 'accounts'
+    migrate_from = '0032_subscription_add_purchase_date'
+    migrate_to = '0033_subscription_purchase_date_adjustments'
+
+    def setUpBeforeMigration(self, apps):
+        Account = apps.get_model('accounts', 'Account')
+        Subscription = apps.get_model('accounts', 'Subscription')
+
+        # Account to hold events
+        account = Account.objects.create()
+        # subscription with two renewals that overlap previous dates
+        self.sub = Subscription.objects.create(
+            account=account,
+            start_date=datetime.date(1920, 4, 30),
+            end_date=datetime.date(1920, 7, 30),
+        )
+        self.renew1 = Subscription.objects.create(
+            account=account,
+            start_date=datetime.date(1920, 7, 27),
+            end_date=datetime.date(1920, 10, 27),
+            subtype='ren'
+        )
+        self.renew2 = Subscription.objects.create(
+            account=account,
+            start_date=datetime.date(1920, 10, 26),
+            end_date=datetime.date(1921, 4, 26),
+            subtype='ren'
+        )
+        # third renewal with no overlap
+        self.renew3 = Subscription.objects.create(
+            account=account,
+            start_date=datetime.date(1921, 6, 1),
+            end_date=datetime.date(1921, 8, 1),
+            subtype='ren'
+        )
+
+        # renewal with no preceding subscription
+        account2 = Account.objects.create()
+        self.account2_renew = Subscription.objects.create(
+            account=account2,
+            start_date=datetime.date(1920, 7, 27),
+            end_date=datetime.date(1920, 10, 27),
+            subtype='ren'
+        )
+
+        # renewal with preceding subscription but no end date
+        account3 = Account.objects.create()
+        self.sub = Subscription.objects.create(
+            account=account3,
+            start_date=datetime.date(1920, 4, 30),
+        )
+        self.account3_renew = Subscription.objects.create(
+            account=account3,
+            start_date=datetime.date(1920, 7, 27),
+            end_date=datetime.date(1920, 10, 27),
+            subtype='ren'
+        )
+
+    def test_adjust_subscriptions(self):
+        Subscription = self.apps.get_model('accounts', 'Subscription')
+        sub = Subscription.objects.get(pk=self.sub.pk)
+        # subscription purchase date should be set from start date
+        assert sub.purchase_date == self.sub.start_date
+        assert sub.purchase_date_precision == self.sub.start_date_precision
+
+        # first renewal should start after the first subscription ends
+        renew1 = Subscription.objects.get(pk=self.renew1.pk)
+        # purchase date set from old start date
+        assert renew1.purchase_date == self.renew1.start_date
+        # renewal starts day after subscription end date
+        assert renew1.start_date == datetime.date(1920, 7, 31)
+        # renewal has same duration, end date adjusted
+        assert renew1.end_date == datetime.date(1920, 10, 31)
+
+        # second renewal should start after *adjusted* first renewal
+        renew2 = Subscription.objects.get(pk=self.renew2.pk)
+        # purchase date set from original start date
+        assert renew2.purchase_date == self.renew2.start_date
+        # renewal starts day after adusted renewal end date
+        assert renew2.start_date == datetime.date(1920, 11, 1)
+        # same duration, end date adjusted
+        assert renew2.end_date == datetime.date(1921, 5, 2)
+
+        # third renewal should not be adjusted
+        renew3 = Subscription.objects.get(pk=self.renew3.pk)
+        # purchase date set from original start date
+        assert renew3.purchase_date == self.renew3.start_date
+        # start date and end date unchanged
+        assert renew3.start_date == self.renew3.start_date
+        assert renew3.end_date == self.renew3.end_date
+
+        # renewal with no preceding subscription should not change
+        account2_renew = Subscription.objects.get(pk=self.account2_renew.pk)
+        assert account2_renew.purchase_date == self.account2_renew.start_date
+        assert account2_renew.start_date == self.account2_renew.start_date
+        assert account2_renew.end_date == self.account2_renew.end_date
+
+        # renewal with preceding subscription with noend date should not change
+        account3_renew = Subscription.objects.get(pk=self.account3_renew.pk)
+        assert account3_renew.purchase_date == self.account3_renew.start_date
+        assert account3_renew.start_date == self.account3_renew.start_date
+        assert account3_renew.end_date == self.account3_renew.end_date
