@@ -185,7 +185,10 @@ class WorkCirculation(ListView, RdfViewMixin):
 
     def get_queryset(self):
         '''Fetch all events associated with this work.'''
-        return super().get_queryset().filter(work__slug=self.kwargs['slug'])
+        return super().get_queryset() \
+                      .filter(work__slug=self.kwargs['slug']) \
+                      .select_related('borrow', 'purchase', 'account', 'edition') \
+                      .prefetch_related('account__persons')
 
     def get_context_data(self, **kwargs):
         # should 404 if invalid work slug
