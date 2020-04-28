@@ -8,11 +8,46 @@
     // mobile styles
     @media (max-width: calc(#{$breakpoint-s} - 1px)) {
 
+        td {
+            padding-right: calc(40% + 1rem);
+            display: inline-block;
+        }
+
         // combine dates into one line with dash separator
-        .start, 
+        .start,
         .end {
             flex: none;
+            padding: 0;
             width: auto;
+        }
+
+        .member {
+            order: 1;
+        }
+        .activity {
+            order: 2;
+        }
+        .start {
+            order: 3;
+        }
+        .end {
+            order: 4;
+        }
+        .edition {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 40%;
+            text-align: right;
+            padding: 1rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 2.25rem;
+            overflow: hidden;
+        }
+
+        .empty, .purchase .end {
+            display: none;
         }
 
         .start:not(.empty) + .end {

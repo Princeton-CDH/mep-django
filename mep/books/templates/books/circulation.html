@@ -43,7 +43,8 @@
             </tr>
         </thead>
         {% for event in event_list %}
-        <tr>
+        {% with event.event_type as event_type %}
+        <tr class="{{ event_type|lower }}">
             {% with member=event.account.persons.first %}
             <td class="member" data-sort="{{ member.sort_name }}">
                 <a href="{{ member.get_absolute_url }}">
@@ -59,17 +60,16 @@
                 data-sort="{{ event.partial_end_date|default:'' }}">
                 {{ event.partial_end_date|partialdate|default:'-' }}
             </td>
-            {% with event.event_type as event_type %}
             <td class="activity{% if event_type == 'Generic' %} empty{% endif %}">
                 {% if event_type == 'Generic' %} -
                 {% else %}{{ event_type }}{% endif %}
             </td>
-            {% endwith %}
             <td class="edition{% if not event.edition %} empty{% endif %}">
                 {% if not event.edition %} -
                 {% else %}{{ event.edition.display_html }}{% endif %}
             </td>
         </tr>
+        {% endwith %}
         {% endfor %}
     </table>
     </div>
