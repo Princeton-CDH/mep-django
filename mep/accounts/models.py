@@ -8,7 +8,7 @@ from django.db import models
 from django.template.defaultfilters import pluralize
 
 from mep.accounts.event_set import EventSetMixin
-from mep.accounts.partial_date import DatePrecision, DatePrecisionField, \
+from mep.accounts.partial_date import DatePrecisionField, PartialDate, \
     PartialDateMixin
 from mep.books.models import Edition, Work
 from mep.common.models import Named, Notable
@@ -350,8 +350,16 @@ class Subscription(Event, CurrencyMixin):
         SubscriptionType, null=True, blank=True, on_delete=models.SET_NULL,
         help_text='Code to indicate the kind of subscription')
 
+    #: date the purchase was bought; not necessarily the day it started!
+    purchase_date = models.DateField(
+        blank=True, null=True,
+        help_text='Date the subscription was purchased.')
+    purchase_date_precision = DatePrecisionField(null=True, blank=True)
+    partial_purchase_date = PartialDate(
+        'purchase_date', 'purchase_date_precision',
+        PartialDateMixin.UNKNOWN_YEAR, label='purchase date')
+
     # NOTE: Using decimal field to take advantage of Python's decimal handling
-    # Can store up to 99999999.99 -- which is *probably* safe.
     price_paid = models.DecimalField(max_digits=10, decimal_places=2,
                                      blank=True, null=True)
     deposit = models.DecimalField(

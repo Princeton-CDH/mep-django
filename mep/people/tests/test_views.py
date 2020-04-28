@@ -987,7 +987,7 @@ class TestMembersListView(TestCase):
             = mock_stats
         range_minmax = MembersList().get_range_stats()
         # returns integer years
-        # also converst membership_dates to
+        # also converts membership_dates to
         assert range_minmax == {
             'membership_dates': (1928, 1940),
             'birth_year': (1910, 1932)
