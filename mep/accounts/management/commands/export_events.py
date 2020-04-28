@@ -31,6 +31,7 @@ class Command(BaseExport):
         'subscription price paid', 'subscription deposit',
         'subscription duration', 'subscription duration days',
         'subscription volumes', 'subscription category',
+        'subscription purchase date',
         # reimbursement specific
         'reimbursement refund',
         # borrow specific
@@ -141,6 +142,8 @@ class Command(BaseExport):
             info['volumes'] = int(subs.volumes)
         if subs.category:
             info['category'] = subs.category.name
+        if subs.purchase_date:
+            info['purchase date'] = subs.partial_purchase_date
         return info
 
     def item_info(self, event):
