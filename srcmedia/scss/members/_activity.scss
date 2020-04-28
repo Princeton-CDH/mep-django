@@ -39,9 +39,11 @@ $shadow: rgba(0, 0, 0, 0.2);
             font-size: 0.7rem;
         }
 
-        .empty {
-            display: none;
+        .empty, .purchase .end, .reimbursement .end {
+            opacity: 0;
         }
+
+
     }
 
     // tablet and desktop styles
