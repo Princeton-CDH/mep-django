@@ -30,3 +30,17 @@ class WorkSearchForm(RangeForm, FacetForm):
                              widget=SelectWithDisabled)
     circulation_dates = RangeField(label='Circulation Dates', required=False,
                                    widget=RangeWidget(attrs={'size': 4}))
+
+    def __init__(self, data=None, *args, **kwargs):
+        '''
+        Override to disable relevance sort when there are no keyword
+        search terms active.
+        '''
+        super().__init__(data=data, *args, **kwargs)
+
+        # if a keyword search term is not present, disable relevance sort
+        if data and not data.get('query', None):
+            self.fields['sort'].widget.choices[-1] = \
+                (self.SORT_CHOICES[-1][0], {
+                    'label': self.SORT_CHOICES[-1][1],
+                    'disabled': True})
