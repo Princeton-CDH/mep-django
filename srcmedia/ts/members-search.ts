@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const barHeight = $pageControls.getBoundingClientRect().height
         const listOffset = ($resultsOutput.getBoundingClientRect() as DOMRect).y
         if ((listOffset - barHeight) < 0) {
-            window.scroll({ top: bottomOfForm, behavior: 'smooth' }) 
+            window.scroll({ top: bottomOfForm, behavior: 'smooth' })
         }
     })
 
