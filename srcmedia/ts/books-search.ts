@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
+    const $relevanceSortOption = document.querySelector('select[name=sort] option[value="relevance"]') as HTMLElement
     const $resultsOutput = document.querySelector('output.results') as HTMLOutputElement
     const $totalResultsOutput = document.querySelector('output.total-results') as HTMLOutputElement
     const $errors = document.querySelector('div[role=alert].errors')
@@ -144,6 +145,25 @@ document.addEventListener('DOMContentLoaded', () => {
             $circDateFacet.classList.remove('error')
         })
     }
+
+    noKeyword$.subscribe((noKeyword) => {
+        // disable relevance sort option if there is no keyword search
+        const sortOptionsArray = Array.from($sortSelect.options)
+        const sortSelectRelevanceIndex = sortOptionsArray.findIndex(opt => opt.value == 'relevance')
+        const sortSelectTitleIndex = sortOptionsArray.findIndex(opt => opt.value == 'title')
+        if (noKeyword) {
+            // disable relevance sort option
+            $relevanceSortOption.setAttribute('disabled', 'true')
+            // if current sort is relevance, switch to title
+            if ($sortSelect.selectedIndex == sortSelectRelevanceIndex) {
+                $sortSelect.selectedIndex = sortSelectTitleIndex
+            }
+        } else {
+            // un-disable relevance sort option and select it
+            $relevanceSortOption.removeAttribute('disabled')
+            $sortSelect.selectedIndex = sortSelectRelevanceIndex
+        }
+    })
 
 
     // When results are loaded, remove loading styles and display the results
