@@ -46,10 +46,14 @@ class RxSelect extends Component {
      * @memberof RxSelect
      */
     render = async (options: Array<RxOption>): Promise<void> => {
+        // save the old value since it will be cleared when we re-render options
+        const tempValue = this.element.value
         // clear out the options
         this.element.innerHTML = ''
         // render new options and add them to the element
         options.map(this.createOption).forEach(e => this.element.add(e))
+        // restore the saved value prior to re-rendering
+        this.element.value = tempValue
     }
 
     /**

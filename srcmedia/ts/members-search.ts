@@ -97,9 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
         distinctUntilChanged()
     )
     const pageLabels$ = membersSearchForm.pageLabels.pipe(
-        startWith([...Array(pageSelect.element.options.length)].map((_, i) => {
-            return pageSelect.element.options[i].innerHTML // compare with the initial page labels
-        })),
         distinctUntilChanged(arraysAreEqual),
         filter(l => !arraysAreEqual(l, [""])) // ignore empty page labels
     )
