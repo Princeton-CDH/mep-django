@@ -39,10 +39,15 @@ $shadow: rgba(0, 0, 0, 0.2);
             font-size: 0.7rem;
         }
 
-        .empty, .purchase .end, .reimbursement .end {
+        /* hide end dates for single-day events */
+        .purchase .end, .reimbursement .end {
             opacity: 0;
         }
 
+        /* add spacing around notice for no activity content */
+        > p {
+            padding: 1rem;
+        }
 
     }
 
