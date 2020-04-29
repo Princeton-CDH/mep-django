@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         booksSearchForm.getResults()
         pageControls.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
         resultsOutput.element.setAttribute('aria-busy', '')
+        window.scroll({ top: 0, behavior: 'smooth' }) // scroll to the top smoothly
     })
 
     // When next/previous page links are clicked, go to the next page
