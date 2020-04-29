@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $booksTab = document.querySelector('.books.tab') as HTMLDivElement
     const $nationalityExpander = document.querySelector('.expander[aria-controls="id_nationality"]') as HTMLDivElement
     const $arrondissementExpander = document.querySelector('.expander[aria-controls="id_arrondissement"]') as HTMLDivElement
+    const bottomOfForm = $membersSearchForm.getBoundingClientRect().bottom
 
     /* COMPONENTS */
     const membersSearchForm = new RxFacetedSearchForm($membersSearchForm)
@@ -215,7 +216,12 @@ document.addEventListener('DOMContentLoaded', () => {
         membersSearchForm.getResults()
         pageControls.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
         resultsOutput.element.setAttribute('aria-busy', '')
-        window.scroll({ top: 0, behavior: 'smooth' }) // scroll to the top smoothly
+        // scroll up to put top in view, if needed
+        const barHeight = $pageControls.getBoundingClientRect().height
+        const listOffset = ($resultsOutput.getBoundingClientRect() as DOMRect).y
+        if ((listOffset - barHeight) < 0) {
+            window.scroll({ top: bottomOfForm, behavior: 'smooth' }) 
+        }
     })
 
     // When next/previous page links are clicked, go to the next page

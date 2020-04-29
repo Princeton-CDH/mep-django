@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $totalResultsOutput = document.querySelector('output.total-results') as HTMLOutputElement
     const $errors = document.querySelector('div[role=alert].errors')
     const $circDateFacet = document.querySelector('#id_circulation_dates') as HTMLFieldSetElement
+    const bottomOfForm = $booksSearchForm.getBoundingClientRect().bottom
 
     /* COMPONENTS */
     const booksSearchForm = new RxFacetedSearchForm($booksSearchForm)
@@ -128,7 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
         booksSearchForm.getResults()
         pageControls.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
         resultsOutput.element.setAttribute('aria-busy', '')
-        window.scroll({ top: 0, behavior: 'smooth' }) // scroll to the top smoothly
+
+        // scroll up to put top in view, if needed
+        const barHeight = $pageControls.getBoundingClientRect().height
+        const listOffset = ($resultsOutput.getBoundingClientRect() as DOMRect).y
+        if ((listOffset - barHeight) < 0) {
+            window.scroll({ top: bottomOfForm, behavior: 'smooth' }) 
+        }
     })
 
     // When next/previous page links are clicked, go to the next page
