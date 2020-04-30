@@ -24,7 +24,6 @@ CHANGELOG
 * bugfix: use Solr for django admin search for works, to avoid django admin
   database queries causing timeouts that bring down the site
 
-
 0.28.1
 ------
 
