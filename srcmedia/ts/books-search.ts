@@ -7,6 +7,7 @@ import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
 import { RxTextInput } from './lib/input'
 import { arraysAreEqual } from './lib/common'
+import { RxRangeFilter, rangesAreEqual } from './lib/filter'
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -16,9 +17,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
+    const $relevanceSortOption = document.querySelector('select[name=sort] option[value="relevance"]') as HTMLElement
     const $resultsOutput = document.querySelector('output.results') as HTMLOutputElement
     const $totalResultsOutput = document.querySelector('output.total-results') as HTMLOutputElement
     const $errors = document.querySelector('div[role=alert].errors')
+    const $circDateFacet = document.querySelector('#id_circulation_dates') as HTMLFieldSetElement
+    const bottomOfForm = $booksSearchForm.getBoundingClientRect().bottom
 
     /* COMPONENTS */
     const booksSearchForm = new RxFacetedSearchForm($booksSearchForm)
@@ -28,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortSelect = new RxSelect($sortSelect)
     const resultsOutput = new RxOutput($resultsOutput)
     const totalResultsOutput = new RxOutput($totalResultsOutput)
+    const circDateFacet = new RxRangeFilter($circDateFacet)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
@@ -80,8 +85,20 @@ document.addEventListener('DOMContentLoaded', () => {
         map(([a, c]) => a === 'next' ? c + 1 : c - 1), // if 'next', add 1, otherwise subtract 1
         map(c => c.toString()) // map to a string for passing as pageSelect value
     )
+    const circDateChange$ = circDateFacet.value$.pipe( // debounced, deduped and valid changes
+        debounceTime(500), // debounce
+        withLatestFrom(circDateFacet.valid$), // check validity
+        distinctUntilChanged(([a, aValid], [b, bValid]) => { // for the first entry (used only for comparison),
+            return rangesAreEqual(a, b) && (aValid == bValid) // we care whether there was a change in validity OR values
+        }),
+        skip(1), // for all other entries (used to actually update)
+        filter(([range, valid]) => valid), // only accept valid submissions
+        map(([range, valid]) => range), // only need range
+        distinctUntilChanged(rangesAreEqual) // ignore identical ranges, since we will always have valid ones
+    )
     const reloadFacets$ = merge( // a list of all the things that require fetching new facets
         keywordChange$,
+        circDateChange$,
     )
     const reloadResults$ = merge( // a list of all the things that require fetching new results (jump to page 1)
         reloadFacets$, // anything that changes facets also triggers new results
@@ -112,6 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
         booksSearchForm.getResults()
         pageControls.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
         resultsOutput.element.setAttribute('aria-busy', '')
+
+        // scroll up to put top in view, if needed
+        const barHeight = $pageControls.getBoundingClientRect().height
+        const listOffset = ($resultsOutput.getBoundingClientRect() as DOMRect).y
+        if ((listOffset - barHeight) < 0) {
+            window.scroll({ top: bottomOfForm, behavior: 'smooth' })
+        }
     })
 
     // When next/previous page links are clicked, go to the next page
@@ -122,6 +146,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Keep the "total results" text updated
     totalResultsText$.subscribe(totalResultsOutput.update)
+
+    // If the circulation date facet had an error, make sure it's cleared when it becomes valid
+    if ($circDateFacet.classList.contains('error')) {
+        circDateFacet.valid$.pipe(filter(v => v)).subscribe(() => {
+            $circDateFacet.classList.remove('error')
+        })
+    }
+
+    noKeyword$.subscribe((noKeyword) => {
+        // disable relevance sort option if there is no keyword search
+        const sortOptionsArray = Array.from($sortSelect.options)
+        const sortSelectRelevanceIndex = sortOptionsArray.findIndex(opt => opt.value == 'relevance')
+        const sortSelectTitleIndex = sortOptionsArray.findIndex(opt => opt.value == 'title')
+        if (noKeyword) {
+            // disable relevance sort option
+            $relevanceSortOption.setAttribute('disabled', 'true')
+            // if current sort is relevance, switch to title
+            if ($sortSelect.selectedIndex == sortSelectRelevanceIndex) {
+                $sortSelect.selectedIndex = sortSelectTitleIndex
+            }
+        } else {
+            // un-disable relevance sort option and select it
+            $relevanceSortOption.removeAttribute('disabled')
+            $sortSelect.selectedIndex = sortSelectRelevanceIndex
+        }
+    })
+
 
     // When results are loaded, remove loading styles and display the results
     // Also update the next/prev buttons in case they become disabled

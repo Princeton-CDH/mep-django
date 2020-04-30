@@ -1,8 +1,8 @@
 from django import forms
 from django.template.loader import get_template
 
-from mep.common.forms import (CheckboxFieldset, FacetChoiceField, FacetForm,
-                              RangeField, RangeWidget, SelectWithDisabled)
+from mep.common.forms import CheckboxFieldset, FacetChoiceField, FacetForm, \
+    RangeField, RangeForm, RangeWidget, SelectWithDisabled
 from mep.people.models import Person
 
 
@@ -33,7 +33,7 @@ class PersonMergeForm(forms.Form):
             Person.objects.filter(id__in=person_ids)
 
 
-class MemberSearchForm(FacetForm):
+class MemberSearchForm(RangeForm, FacetForm):
     '''Member search form'''
 
     SORT_CHOICES = [
@@ -83,32 +83,11 @@ class MemberSearchForm(FacetForm):
         widget=CheckboxFieldset(attrs={'class': 'text facet'})
     )
 
-    def set_range_minmax(self, range_minmax):
-        '''Set the min, max, and placeholder values for all
-        :class:`~mep.common.forms.RangeField` instances.
-
-        :param range_minmax: a dictionary with form fields as key names and
-            tuples of min and max integers as values.
-        :type range_minmax: dict
-
-        :rtype: None
-        '''
-        for field_name, min_max in range_minmax.items():
-            self.fields[field_name].set_min_max(min_max[0], min_max[1])
-
     def __init__(self, data=None, *args, **kwargs):
         '''
-        Override to set choices dynamically and configure min-max range values
-        based on form kwargs.
+        Override to set choices dynamically based on form kwargs.
         '''
-        # pop range_minmax out of kwargs to avoid clashing
-        # with django args
-        range_minmax = kwargs.pop('range_minmax', {})
-
         super().__init__(data=data, *args, **kwargs)
-
-        # call function to set min_max and placeholders
-        self.set_range_minmax(range_minmax)
 
         # if a keyword search term is present, only relevance sort is allowed
         if data and data.get('query', None):

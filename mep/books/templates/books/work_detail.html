@@ -17,10 +17,7 @@
         <a href="{% url 'books:book-detail' slug=work.slug %}">bibliography</a>
     </li>
     <li class="tab">
-        <a href="">activities</a>
-    </li>
-    <li class="tab">
-        <a href="">cards</a>
+        <a href="{% url 'books:book-circ' slug=work.slug %}">circulation</a>
     </li>
 </nav>
 

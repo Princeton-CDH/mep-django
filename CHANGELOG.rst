@@ -3,6 +3,27 @@
 CHANGELOG
 =========
 
+0.29
+----
+
+* As a user, I want to sort works by title, author, publication date, or borrow count so that I can view and investigate by author, chronologically, or by popularity.
+* As a user, I want to be able to search by titles of individual volumes of a multivolume book so that I can find the book by its parts.
+* As a user, I want items automatically sorted by relevance if I have a keyword search term active and otherwise by title (by default), so that I see best matches first for keyword searches.
+* As a user, I want to filter library items by circulation dates so that I can see items that circulated in the library in a particular time period.
+* As a user, I want to see a chronological list of circulation activity for a single library item so that I can see which library members interacted with it.
+* bugfix: search page dropdown shows incorrect page of results
+* bugfix: single-day events on activity pages display as ranges on mobile display
+* bugfix: mobile display of membership activity broken when dates are missing
+* bugfix: navigating from detail pages back to search should return to the correct page of results
+* bugfix: changing pages should scroll back to the top of search pages
+* bugfix: django admin queries causing site timeout/unavailability
+
+0.28.2
+------
+
+* bugfix: use Solr for django admin search for works, to avoid django admin
+  database queries causing timeouts that bring down the site
+
 0.28.1
 ------
 

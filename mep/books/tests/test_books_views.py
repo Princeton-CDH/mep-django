@@ -5,9 +5,10 @@ from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from parasolr.query.queryset import EmptySolrQuerySet
 
 from mep.books.models import Work, Edition
-from mep.books.views import WorkList
+from mep.books.views import WorkList, WorkCirculation
 from mep.common.utils import login_temporarily_required
 
 
@@ -153,9 +154,9 @@ class TestWorkListView(TestCase):
         view.request = self.factory.get(self.url)
         # if form is valid, should return all works sorted by chosen sort
         form.is_valid.return_value = True
-        form.cleaned_data = {'sort': 'title'}
+        form.cleaned_data = {'sort': 'title', 'circulation_dates': ''}
         solr_qs = view.get_queryset()
-        db_qs = Work.objects.order_by('title')
+        db_qs = Work.objects.order_by('sort_title')
         # querysets from solr and db should match
         for index, item in enumerate(solr_qs):
             assert db_qs[index].title == item['title'][0]
@@ -163,7 +164,21 @@ class TestWorkListView(TestCase):
         # if form is invalid, should return empty queryset
         form.is_valid.return_value = False
         solr_qs = view.get_queryset()
-        # NOTE replace with EmptySolrQueryset check when implemented in parasolr
+        assert isinstance(solr_qs, EmptySolrQuerySet)
+
+        # circulation dates set
+        form.cleaned_data = {'sort': 'title',
+                             'circulation_dates': (1935, None)}
+        form.is_valid.return_value = True
+        solr_qs = view.get_queryset()
+        db_qs = Work.objects.filter(event__start_date__year__gt=1935)
+        # currently only one record in the db with an event (1936)
+        assert solr_qs.count() == db_qs.count()
+        assert db_qs[0].slug == solr_qs[0]['slug']
+
+        form.cleaned_data = {'sort': 'title',
+                             'circulation_dates': (1919, 1922)}
+        solr_qs = view.get_queryset()
         assert solr_qs.count() == 0
 
     def test_get_page_labels(self):
@@ -177,12 +192,34 @@ class TestWorkListView(TestCase):
         # if form is valid, should use default implementation (numbered pages)
         # NOTE this will change if we implement alpha pagination for this view
         form.is_valid.return_value = True
+        form.cleaned_data = {'sort': 'relevance'}
         page_labels = view.get_page_labels(paginator)
         assert page_labels == [(1, '1 – 100'), (2, '101 – 120')]
         # if invalid, should return one page with 'N/A' label
         form.is_valid.return_value = False
         page_labels = view.get_page_labels(paginator)
         assert page_labels == [(1, 'N/A')]
+
+        # alpha page labels depending on sort
+        form.is_valid.return_value = True
+        view.queryset = Mock()
+        page_label_results = [
+            {'sort_title_isort': 'ABC books'},
+            {'sort_title_isort': 'Charlie Day'},
+        ]
+        view.queryset.only.return_value.get_results \
+            .return_value = page_label_results
+        form.cleaned_data = {'sort': 'title'}
+        paginator = Paginator(page_label_results, per_page=view.paginate_by)
+        page_labels = view.get_page_labels(paginator)
+        # assert page_labels == [(1, 'ABC – Char')]
+        # only one entry; couldn't get odict items comparison to work otherwise
+        for i, val in page_labels:
+            assert i == 1
+            assert val == 'ABC – Char'
+        view.queryset.only.assert_called_with(view.solr_sort['title'])
+        view.queryset.only.return_value.get_results \
+            .assert_called_with(rows=100000)
 
     @login_temporarily_required
     def test_pagination(self):
@@ -198,6 +235,39 @@ class TestWorkListView(TestCase):
             response,
             '<option value="1" selected="selected">%s</option>' %
             list(response.context['page_labels'])[0][1])
+
+    @patch('mep.books.views.WorkSolrQuerySet')
+    def test_get_range_stats(self, mock_wsq):
+        # NOTE: This depends on configuration for mapping the fields
+        # in the range_field_map class attribute of MembersList
+        mock_stats = {
+            'stats_fields': {
+                'event_years': {
+                    'min': 1919.0,
+                    'max': 1962.0
+                }
+            }
+        }
+        mock_wsq.return_value.stats.return_value.get_stats.return_value \
+            = mock_stats
+        range_minmax = WorkList().get_range_stats()
+        # returns integer years
+        # also converts membership_dates to
+        assert range_minmax == {
+            'circulation_dates': (1919, 1962)
+        }
+        # call for the correct field in stats
+        args, kwargs = mock_wsq.return_value.stats.call_args_list[0]
+        assert 'event_years' in args
+        # if get stats returns None, should return an empty dict
+        mock_wsq.return_value.stats.return_value.get_stats.return_value = None
+        assert WorkList().get_range_stats() == {}
+        # None set for min or max should result in the field not being
+        # returned (but the other should be passed through as expected)
+        mock_wsq.return_value.stats.return_value.get_stats.return_value\
+            = mock_stats
+        mock_stats['stats_fields']['event_years']['min'] = None
+        assert WorkList().get_range_stats() == {}
 
 
 class TestWorkDetailView(TestCase):
@@ -291,3 +361,63 @@ class TestWorkDetailView(TestCase):
         self.assertContains(response, '<h2>Volume/Issue</h2>')
         for issue in issues:
             self.assertContains(response, issue.display_html())
+
+
+class TestWorkCirculation(TestCase):
+    fixtures = ['test_events.json']
+
+    def setUp(self):
+        self.work = Work.objects.get(title="The Dial")
+        self.view = WorkCirculation()
+        self.view.kwargs = { 'slug': self.work.slug }
+
+    def test_get_queryset(self):
+        # make sure that works only get events associated with them
+        events = self.view.get_queryset()
+        for event in events:
+            assert event.work == self.work
+
+    def test_get_context_data(self):
+        # ensure work and page title are stored in context
+        self.view.object_list = self.view.get_queryset()
+        context = self.view.get_context_data()
+        assert context['work'] == self.work
+        assert context['page_title'] == 'The Dial Circulation Activity'
+
+    def test_get_breadcrumbs(self):
+        # breadcrumbs order should be: home, works list, work detail, work circ.
+        self.view.object_list = self.view.get_queryset()
+        self.view.get_context_data()
+        crumbs = self.view.get_breadcrumbs()
+        assert crumbs[0][0] == "Home"
+        assert crumbs[1][0] == "Books"
+        assert crumbs[2][0] == "The Dial"
+        assert crumbs[3][0] == "Circulation"
+
+    def test_template(self):
+        response = self.client.get(reverse("books:book-circ",
+                                   kwargs={"slug": self.work.slug}))
+        # table headers
+        self.assertContains(response, "Member")
+        self.assertContains(response, "Start Date")
+        self.assertContains(response, "End Date")
+        self.assertContains(response, "Status")
+        self.assertContains(response, "Volume/Issue")
+        # name & link to member who borrowed book
+        self.assertContains(response, "L. Michaelides")
+        self.assertContains(response, "/members/michaelides-l")
+        # start/end date of borrow
+        self.assertContains(response, "Oct. 21, 1920")
+        self.assertContains(response, "Oct. 25, 1920")
+        # status
+        self.assertContains(response, "Borrow")
+        # issue info
+        self.assertContains(response, "Vol. 69, no. 4, October 1920")
+
+    def test_no_events(self):
+        # work with no events should show message instead of table
+        work = Work.objects.create(title="fake book")
+        response = self.client.get(reverse("books:book-circ",
+                                   kwargs={"slug": work.slug}))
+        self.assertNotContains(response, '<table')
+        self.assertContains(response, 'No documented circulation activity')

@@ -1,0 +1,10 @@
+#books-form {
+
+    @media (min-width: $breakpoint-s) {
+        #id_circulation_dates {
+            width: 50%;
+        }
+
+    }
+
+}

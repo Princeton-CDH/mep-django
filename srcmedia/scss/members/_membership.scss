@@ -60,6 +60,7 @@
 
             &.empty {
                 display: inline-block;
+                opacity: 1;
             }
 
             &::before {
@@ -86,8 +87,8 @@
 // "plan" tooltip for mobile
 #plan-tip-2 {
     position: absolute;
-    top: -.7rem;
-    right: calc(50% - 1.75rem);
+    top: -1.25rem;
+    right: calc(50% - 2.75rem);
 
     @media (min-width: $breakpoint-s) {
         display: none;

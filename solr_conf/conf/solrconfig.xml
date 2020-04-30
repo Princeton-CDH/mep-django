@@ -773,6 +773,7 @@
         creators_t^20
         format_s_lower^10
         notes_txt_en
+        edition_titles^10
       </str>
       <str name="bib_pf">
         authors_t^2000
@@ -780,6 +781,27 @@
         title_txt_en^400
         creators_t^200
         notes_txt_en^10
+        edition_titles^10
+      </str>
+
+      <!-- admin search field for Work model (no boosting because no relevance sort) -->
+      <str name="admin_work_qf">
+        title_t
+        notes_txt_en
+        admin_notes_txt_en
+        creators_t
+        title_txt_en
+        pk_i
+        edition_titles
+      </str>
+      <str name="admin_work_pf">
+        title_t
+        notes_txt_en
+        admin_notes_txt_en
+        creators_t
+        title_txt_en
+        pk_i
+        edition_titles
       </str>
 
     </lst>

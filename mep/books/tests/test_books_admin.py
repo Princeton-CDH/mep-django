@@ -1,7 +1,9 @@
 import datetime
+import time
 from unittest.mock import Mock, patch
 
 from django.contrib import admin
+from django.db.models.query import EmptyQuerySet
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.timezone import now
@@ -190,6 +192,27 @@ class TestWorkAdmin(TestCase):
             assert 'Events' in headers
             assert 'Borrows' in headers
             assert 'Purchases' in headers
+
+    def test_get_search_results(self):
+        # index fixture data in solr
+        Work.index_items(Work.objects.all())
+        time.sleep(1)
+
+        queryset, needs_distinct = self.work_admin.get_search_results(
+            Mock(), Work.objects.all(), "bogus")
+        assert not queryset.count()
+        assert not needs_distinct
+        assert isinstance(queryset, EmptyQuerySet)
+
+        queryset, needs_distinct = self.work_admin.get_search_results(
+            Mock(), Work.objects.all(), "fairy tales")
+        assert queryset.count() == 1
+        assert isinstance(queryset.first(), Work)
+
+        # empty search term should return all records
+        queryset, needs_distinct = self.work_admin.get_search_results(
+            Mock(), Work.objects.all(), "")
+        assert queryset.count() == Work.objects.all().count()
 
 
 class TestEditionForm(TestCase):

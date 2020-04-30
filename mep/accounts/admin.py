@@ -160,6 +160,10 @@ class SubscriptionAdminForm(PartialDateFormMixin):
                                    message=duration_msg)
                     ]
     )
+    partial_purchase_date = forms.CharField(
+        validators=[PartialDateFormMixin.partial_date_validator],
+        required=False, help_text=PartialDateFormMixin.partial_date_help_text,
+        label="Purchase date")
 
     class Meta:
         model = Subscription
@@ -179,6 +183,8 @@ class SubscriptionAdminForm(PartialDateFormMixin):
         # set initial value for duration units
         if field_name == 'duration_units':
             return self.instance.readable_duration()
+        if field_name == 'partial_purchase_date':
+            return self.instance.partial_purchase_date
         # handle everything else normally
         return super(SubscriptionAdminForm, self) \
             .get_initial_for_field(field, field_name)
@@ -193,6 +199,8 @@ class SubscriptionAdminForm(PartialDateFormMixin):
         subs = self.instance
         subs.partial_start_date = cleaned_data.get('partial_start_date', None)
         subs.partial_end_date = cleaned_data.get('partial_end_date', None)
+        subs.partial_purchase_date = cleaned_data.get('partial_purchase_date',
+                                                      None)
         duration_units = cleaned_data.get('duration_units', None)
         if subs.partial_start_date and duration_units and \
            not subs.partial_end_date:
@@ -220,12 +228,14 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ('account', 'category', 'subtype',
                     'readable_duration', 'duration',
                     'partial_start_date', 'partial_end_date',
+                    'partial_purchase_date',
                     'volumes', 'price_paid', 'deposit', 'currency_symbol')
     list_filter = ('category', 'subtype', 'currency')
     search_fields = ('account__persons__name', 'account__persons__mep_id',
                      'notes')
     fields = ('account',
-              ('partial_start_date', 'partial_end_date'),
+              ('partial_start_date', 'partial_end_date',
+               'partial_purchase_date'),
               'subtype', 'category',
               'volumes', ('duration_units', 'duration'),
               'deposit', 'price_paid',
@@ -237,8 +247,8 @@ class SubscriptionInline(CollapsibleTabularInline):
     model = Subscription
     form = SubscriptionAdminForm
     extra = 1
-    fields = ('partial_start_date', 'partial_end_date', 'subtype', 'category',
-              'volumes',
+    fields = ('partial_start_date', 'partial_end_date', 'partial_purchase_date',
+              'subtype', 'category', 'volumes',
               'duration_units', 'deposit', 'price_paid', 'currency', 'notes')
 
 

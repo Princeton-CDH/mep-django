@@ -8,8 +8,8 @@ import requests
 from mep.accounts.models import Account, Borrow, Event, Purchase
 from mep.books.models import Creator, CreatorType, Edition, EditionCreator, \
     Format, Genre, Subject, Work
-from mep.books.utils import work_slug
 from mep.books.tests.test_oclc import FIXTURE_DIR
+from mep.books.utils import work_slug
 from mep.people.models import Person
 
 
@@ -299,12 +299,13 @@ class TestWork(TestCase):
 
     def test_save(self):
         with patch.object(Work, 'generate_slug') as mock_generate_slug:
-            work = Work(title='Topicless', slug='notopic', mep_id='')
+            work = Work(title='The Topicless', slug='notopic', mep_id='')
             work.save()
             # empty string converted to None
             assert work.mep_id is None
             # generate slug not called
             assert mock_generate_slug.call_count == 0
+            assert work.sort_title == 'Topicless'
 
             # generate slug called if no slug is set
             work.slug = ''
@@ -345,6 +346,70 @@ class TestWork(TestCase):
         # work with UNCERTAINTYICON tag should show icon
         work3 = Work(title='Uncertain', notes='foo UNCERTAINTYICON bar')
         assert work3.is_uncertain
+
+    def test_index_data(self):
+        work1 = Work.objects.create(
+            title='poems', slug='poems', year=1801,
+            notes='PROBX', public_notes='some edition')
+
+        data = work1.index_data()
+        assert 'item_type' in data
+        assert data['pk_i'] == work1.pk
+        assert data['title_t'] == work1.title
+        assert data['sort_title_isort'] == work1.title
+        assert data['slug_s'] == work1.slug
+        assert not data['authors_t']
+        assert not data['sort_authors_t']
+        assert not data['sort_authors_isort']
+        assert not data['creators_t']
+        assert data['pub_date_i'] == work1.year
+        assert data['format_s_lower'] == ''
+        assert data['notes_txt_en'] == work1.public_notes
+        assert data['admin_notes_txt_en'] == work1.notes
+        assert data['event_count_i'] == work1.event_set.count()
+        assert not data['is_uncertain_b']
+        assert 'first_event_date_i' not in data
+        assert not data['edition_titles']
+
+        # add creators
+        ctype = CreatorType.objects.get(name='Author')
+        person = Person.objects.create(name='Joyce', slug='joyce',
+                                       sort_name='Joyce, J.')
+        translator_type = CreatorType.objects.get(name='Translator')
+        translator = Person.objects.create(name='Juan Smythe', slug='sm')
+        Creator.objects.create(creator_type=ctype, person=person, work=work1)
+        Creator.objects.create(creator_type=translator_type, person=translator,
+                               work=work1)
+        data = work1.index_data()
+        assert data['authors_t'] == [a.name for a in work1.authors]
+        assert data['sort_authors_t'] == [a.sort_name for a in work1.authors]
+        assert data['sort_authors_isort'] == work1.sort_author_list
+        assert data['creators_t'] == [c.name for c in work1.creators.all()]
+
+        # add an event
+        acct = Account.objects.create()
+        Event.objects.create(account=acct, work=work1,
+                             start_date=datetime.date(1919, 11, 15))
+        data = work1.index_data()
+        assert data['first_event_date_i'] == '19191115'
+
+        # add an edition with a title
+        edition = Edition.objects.create(work=work1, title='Pointed Roofs')
+        data = work1.index_data()
+        assert data['edition_titles'] == [edition.title]
+
+    def test_items_to_index(self):
+        # not sure how to test this directly (esp. with no fixture)
+
+        # run without mocking to confirm that it doesn't cause an error
+        Work.items_to_index()
+
+        # check that it calls the methods we expect
+        with patch.object(Work, 'objects') as mockobjects:
+            Work.items_to_index()
+            mockobjects.prefetch_related.assert_called_with('creator_set')
+            mockobjects.prefetch_related.return_value.count_events \
+                .assert_any_call()
 
 
 class TestCreator(TestCase):

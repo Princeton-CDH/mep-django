@@ -275,6 +275,15 @@ def test_alpha_pagelabels():
     assert labels[4] == 'Anna – Anne'
     assert labels[5] == 'Az'
 
+    # with max chars option
+    labels = alpha_pagelabels(paginator, items, lambda x: getattr(x, 'title'),
+                              max_chars=3)
+    assert labels[1] == 'Abi – Abn'
+    assert labels[2] == 'Ada – All'
+    assert labels[3] == 'Amy – And'
+    assert labels[4] == 'Ann – Ann'
+    assert labels[5] == 'Aza'
+
     # exact match on labels for page boundary
     titles.insert(1, 'Abner')
     items = [Item(t) for t in titles]

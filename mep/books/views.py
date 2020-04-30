@@ -1,16 +1,19 @@
 from dal import autocomplete
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
 
+from mep.accounts.models import Event
 from mep.books.forms import WorkSearchForm
 from mep.books.models import Work
 from mep.books.queryset import WorkSolrQuerySet
 from mep.common import SCHEMA_ORG
-from mep.common.utils import absolutize_url
-from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
-    LabeledPagesMixin, LoginRequiredOr404Mixin, RdfViewMixin
+from mep.common.utils import absolutize_url, alpha_pagelabels
+from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
+                              LabeledPagesMixin, LoginRequiredOr404Mixin,
+                              RdfViewMixin)
 
 
 class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
@@ -30,23 +33,60 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     _form = None
     initial = {'sort': 'title'}
 
+    #: mappings for Solr field names to form aliases
+    range_field_map = {
+        'event_years': 'circulation_dates',
+    }
+
+    #: fields to generate stats on in self.get_ranges
+    stats_fields = ('event_years',)
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         form_data = self.request.GET.copy()
-
-        # always use relevance sort for keyword search;
-        # otherwise use default (sort by title)
-        if form_data.get('query', None):
-            form_data['sort'] = 'relevance'
-        else:
-            form_data['sort'] = self.initial['sort']
 
         # set defaults
         for key, val in self.initial.items():
             form_data.setdefault(key, val)
 
+        # set relevance sort as default when there is a search term
+        if form_data.get('query', None):
+            form_data.setdefault('sort', 'relevance')
+
         kwargs['data'] = form_data
+        # get min/max configuration for range fields
+        kwargs['range_minmax'] = self.get_range_stats()
+
         return kwargs
+
+    # adapted from member list view
+    def get_range_stats(self):
+        """Return the min and max for fields specified in
+        :class:`WorkList`'s stats_fields
+
+        :returns: Dictionary keyed on form field name with a tuple of
+            (min, max) as integers. If stats are not returned from the field,
+            the key is not added to a dictionary.
+        :rtype: dict
+        """
+        stats = WorkSolrQuerySet().stats(*self.stats_fields).get_stats()
+        min_max_ranges = {}
+        if not stats:
+            return min_max_ranges
+        for name in self.stats_fields:
+            try:
+                min_year = int(stats['stats_fields'][name]['min'])
+                max_year = int(stats['stats_fields'][name]['max'])
+                # map to form field name if an alias is provided
+                min_max_ranges[self.range_field_map.get(name, name)] \
+                    = (min_year, max_year)
+            # If the field stats are missing, min and max will be NULL,
+            # rendered as None.
+            # The TypeError will catch and pass returning an empty entry
+            # for that field but allowing others to be passed on.
+            except TypeError:
+                pass
+        return min_max_ranges
 
     def get_form(self, *args, **kwargs):
         if not self._form:
@@ -57,9 +97,15 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
     solr_sort = {
         'relevance': '-score',
         'title': 'sort_title_isort',
+        'author': 'sort_authors_isort',
+        'pubdate': '-pub_date_i',
+        'circulation': '-event_count_i',
+        'circulation_date': 'first_event_date_i',
     }
+    # NOTE: might be able to infer reverse sort from _desc/_za
+    # instead of hard-coding here
 
-    #: bib data query alias field syntax (type defaults to edismax in solr config)
+    #: bib data query alias field syntax (configured defaults is edismax)
     search_bib_query = '{!qf=$bib_qf pf=$bib_pf v=$bib_query}'
 
     def get_queryset(self):
@@ -82,7 +128,16 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
                          .raw_query_parameters(bib_query=search_opts['query']) \
                          .also('score')  # include relevance score in results
 
-            sqs = sqs.order_by(self.solr_sort[search_opts['sort']])
+            sort_opt = self.solr_sort[search_opts['sort']]
+            sqs = sqs.order_by(sort_opt)
+            # when not sorting by title, use title as secondary sort
+            if self.solr_sort['title'] not in sort_opt:
+                sqs = sqs.order_by(self.solr_sort['title'])
+
+            # range filter by circulation dates, if set
+            if search_opts['circulation_dates']:
+                sqs = sqs.filter(
+                    event_years__range=search_opts['circulation_dates'])
 
         self.queryset = sqs
         return sqs
@@ -108,13 +163,28 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
 
     def get_page_labels(self, paginator):
         '''generate labels for pagination'''
+
+        # if form is invalid, page labels should show 'N/A'
         form = self.get_form()
-        # if invalid, should show 'N/A'
         if not form.is_valid():
             return [(1, 'N/A')]
+        sort = form.cleaned_data['sort']
 
-        # otherwise default to numbered pages for now
-        # NOTE could implement alpha here, but tougher for titles
+        if sort in ['title', 'author', 'pubdate', 'circulation_date']:
+            sort_field = self.solr_sort[sort].lstrip('-')
+            # otherwise, when sorting by alpha, generate alpha page labels
+            # Only return sort name; get everything at once to avoid
+            # hitting Solr for each page / item.
+            pagination_qs = self.queryset.only(sort_field) \
+                                         .get_results(rows=100000)
+            # cast to string so integers (year) can be treated the same
+            alpha_labels = alpha_pagelabels(
+                paginator, pagination_qs, lambda x: str(x.get(sort_field, '')),
+                max_chars=4)
+            # alpha labels is a dict; use items to return list of tuples
+            return alpha_labels.items()
+
+        # otherwise use default page label logic
         return super().get_page_labels(paginator)
 
     def get_absolute_url(self):
@@ -148,6 +218,44 @@ class WorkDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
             ('Home', absolutize_url('/')),
             (WorkList.page_title, WorkList().get_absolute_url()),
             (self.object.title, self.get_absolute_url())
+        ]
+
+
+class WorkCirculation(ListView, RdfViewMixin):
+    '''Display a list of circulation events (borrows, purchases) for an
+    individual work.'''
+    model = Event
+    template_name = 'books/circulation.html'
+
+    def get_queryset(self):
+        '''Fetch all events associated with this work.'''
+        return super().get_queryset() \
+                      .filter(work__slug=self.kwargs['slug']) \
+                      .select_related('borrow', 'purchase', 'account', 'edition') \
+                      .prefetch_related('account__persons')
+
+    def get_context_data(self, **kwargs):
+        # should 404 if invalid work slug
+        # store work before calling super() so available for breadcrumbs
+        self.work = get_object_or_404(Work, slug=self.kwargs['slug'])
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'work': self.work,
+            'page_title': '%s Circulation Activity' % self.work.title
+        })
+        return context
+
+    def get_absolute_url(self):
+        '''Get the full URI of this page.'''
+        return absolutize_url(reverse('books:book-circ', kwargs=self.kwargs))
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            (WorkList.page_title, WorkList().get_absolute_url()),
+            (self.work.title, absolutize_url(self.work.get_absolute_url())),
+            ('Circulation', self.get_absolute_url())
         ]
 
 class WorkAutocomplete(autocomplete.Select2QuerySetView):

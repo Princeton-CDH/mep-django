@@ -13,6 +13,7 @@ from mep.accounts.admin import AUTOCOMPLETE
 from mep.accounts.partial_date import PartialDateFormMixin
 from mep.books.models import Creator, CreatorType, Work, Subject, Format, \
     Genre, Edition
+from mep.books.queryset import WorkSolrQuerySet
 from mep.common.admin import CollapsibleTabularInline
 
 
@@ -78,17 +79,19 @@ class EditionInline(admin.StackedInline):
 
 class WorkAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'title', 'author_list', 'notes',
+        'id', 'display_title', 'author_list', 'notes',
         'events', 'borrows', 'purchases',
         'updated_at', 'has_uri')
-    list_display_links = ('id', 'title')
+    list_display_links = ('id', 'display_title')
     list_filter = ('genres', 'work_format')
     inlines = [EditionInline, WorkCreatorInline]
+    # NOTE: admin search uses Solr, actual fields configured in solrconfig.xml
+    # but search fields must be defined for search to be turned on
     search_fields = ('mep_id', 'title', 'notes', 'public_notes',
                      'creator__person__name', 'id', 'slug')
     fieldsets = (
         ('Basic metadata', {
-            'fields': ('title', 'year',
+            'fields': ('title', 'year', 'sort_title',
                        ('events', 'borrows', 'purchases'),
                        'slug')
         }),
@@ -105,7 +108,8 @@ class WorkAdmin(admin.ModelAdmin):
             )
         })
     )
-    readonly_fields = ('mep_id', 'events', 'borrows', 'purchases')
+    readonly_fields = ('mep_id', 'events', 'borrows', 'purchases',
+                       'sort_title')
     filter_horizontal = ('genres', 'subjects')
 
     actions = ['export_to_csv']
@@ -115,6 +119,29 @@ class WorkAdmin(admin.ModelAdmin):
         and purchases for sorting and display.'''
         return super(WorkAdmin, self) \
             .get_queryset(request).count_events()
+
+    def get_search_results(self, request, queryset, search_term):
+        '''Override admin search to use Solr.'''
+
+        # if search term is not blank, filter the queryset via solr search
+        if search_term:
+            # - use AND instead of OR to get smaller result sets, more
+            #  similar to default admin search behavior
+            # - return pks for all matching records
+            sqs = WorkSolrQuerySet().search_admin_work(search_term) \
+                .raw_query_parameters(**{'q.op': 'AND'}) \
+                .only('pk') \
+                .get_results(rows=100000)
+
+            pks = [r['pk'] for r in sqs]
+            # filter queryset by id if there are results
+            if sqs:
+                queryset = queryset.filter(pk__in=pks)
+            else:
+                queryset = queryset.none()
+
+        # return queryset, use distinct not needed
+        return queryset, False
 
     def _event_count(self, obj, event_type='event'):
         '''Display an event count as a link to associated event.
@@ -130,6 +157,12 @@ class WorkAdmin(admin.ModelAdmin):
             reverse(admin_link_url), str(obj.id),
             getattr(obj, count_attr)
         )
+
+    def display_title(self, obj):
+        '''Display actual title, but sort on sort title'''
+        return obj.title
+    display_title.admin_order_field = 'sort_title'
+    display_title.short_description = 'title'
 
     def events(self, obj):
         '''Display total event count as a link to view associated events'''
