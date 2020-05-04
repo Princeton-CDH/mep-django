@@ -1,5 +1,6 @@
 from dal import autocomplete
 from django.db.models import Q
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import DetailView, ListView
@@ -14,6 +15,7 @@ from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
                               LabeledPagesMixin, LoginRequiredOr404Mixin,
                               RdfViewMixin)
+from mep.footnotes.models import Footnote
 
 
 class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
@@ -257,6 +259,64 @@ class WorkCirculation(ListView, RdfViewMixin):
             (self.work.title, absolutize_url(self.work.get_absolute_url())),
             ('Circulation', self.get_absolute_url())
         ]
+
+
+class WorkCardList(ListView, RdfViewMixin):
+    '''Card thumbnails for lending card associated with a single library
+    member.'''
+    model = Footnote
+    template_name = 'books/work_cardlist.html'
+    context_object_name = 'footnotes'
+
+    def get_queryset(self):
+        # find the associated book; 404 if not found
+        self.work = get_object_or_404(Work, slug=self.kwargs['slug'])
+
+        # find footnotes for events associated with this work
+        # that have iamges
+        qs = super().get_queryset() \
+                    .on_events() \
+                    .filter(Q(borrows__work__pk=self.work.pk) |
+                            Q(events__work__pk=self.work.pk) |
+                            Q(purchases__work__pk=self.work.pk)) \
+                    .filter(image__isnull=False) \
+                    .order_by(Coalesce('borrows__start_date',
+                                       'events__start_date',
+                                       'purchases__start_date'))
+
+        # filter list so we only show a card image once, even if
+        # there are multiple events for this book on the card
+        image_ids = set()
+        footnotes = []
+        for footnote in qs:
+            # if canvas has already been seen, skip it
+            if footnote.image.pk in image_ids:
+                continue
+            footnotes.append(footnote)
+            image_ids.add(footnote.image.pk)
+
+        return footnotes
+
+    def get_absolute_url(self):
+        '''Full URI for member card list page.'''
+        return absolutize_url(reverse('books:book-card-list',
+                                      kwargs=self.kwargs))
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            (WorkList.page_title, WorkList().get_absolute_url()),
+            (self.work.title,
+             absolutize_url(self.work.get_absolute_url())),
+            ('Cards', self.get_absolute_url())
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['work'] = self.work
+        return context
+
 
 class WorkAutocomplete(autocomplete.Select2QuerySetView):
     '''Basic autocomplete lookup, for use with django-autocomplete-light and
