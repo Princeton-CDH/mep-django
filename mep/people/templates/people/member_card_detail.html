@@ -80,11 +80,12 @@
             </tr>
         </thead>
         {% for event in events %}
-        <tr>
+        <tr id="{{ event.work.slug }}">
             <td class="start{% if not event.partial_start_date %} empty{% endif %}">
                 {{ event.partial_start_date|partialdate|default:'-' }}
             </td>
             <td class="title{% if not event.work.title %} empty{% endif %}">
+
                 {{ event.work.title|default:'-' }}
             </td>
             {% with event.event_type as event_type %}
