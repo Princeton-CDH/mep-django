@@ -38,7 +38,7 @@
                 <picture>
                   {% with card.image|iiif_image:"size:width=225" as 1xthumbnail %}
                     <source srcset="{{ 1xthumbnail }}, {{ card.image|iiif_image:"size:width=450" }} 2x">
-                    <img src="{{ 1xthumbnail }}" alt="">
+                    <img src="{{ 1xthumbnail }}" alt="" loading="lazy">
                   {% endwith %}
                 </picture>
                 {% with card.footnote_set.event_date_range as dates %}
