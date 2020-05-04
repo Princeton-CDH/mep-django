@@ -1,0 +1,61 @@
+// active filters display
+.active-filters {
+    margin-top: 1rem;
+    font-size: .8rem;
+    @media (min-width: $breakpoint-s) { margin-top: 3rem; }
+
+    > .inner {
+        @include flex-gap(.3rem);
+        display: flex;
+        flex-flow: row wrap;
+        width: 100%;
+        align-items: center;
+        @media (min-width: $breakpoint-s) { justify-content: center; }
+    }
+
+    legend, label, button {
+        flex: none;
+    }
+
+    legend {
+        width: 100%;
+        text-align: left;
+        margin-bottom: .5rem;
+
+        @media (min-width: $breakpoint-s) {
+            width: initial;
+            padding-right: .6rem;
+            margin-bottom: 0;
+        }
+    }
+
+    label {
+        padding: .2rem .4rem;
+        background: white;
+        cursor: pointer;
+        &::after { content: '×'; }
+    }
+
+    input[type=checkbox] {
+        @include sr-only;
+    }
+
+    button {
+        width: 100%;
+        text-align: right;
+        margin-top: .5rem;
+        @include green-link;
+        color: $dark-green;
+        text-decoration-color: $dark-green;
+        font-size: .8rem;
+        padding: 0;
+        background: none;
+        box-shadow: none;
+
+        @media (min-width: $breakpoint-s) {
+            width: initial;
+            padding-left: .6rem;
+            margin-top: 0;
+        }
+    }
+}

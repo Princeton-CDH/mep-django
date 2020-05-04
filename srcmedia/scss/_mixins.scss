@@ -153,3 +153,27 @@
         border-color: $mid-grey $transparent $transparent $transparent;
     }
 }
+
+// green text with underline that darkens when hovered/focused
+@mixin green-link {
+    text-decoration: underline;
+    text-decoration-color: $green;
+    text-decoration-thickness: .1rem;
+    text-underline-offset: .2rem;
+    transition: all 0.2s;
+
+    &:hover, &:focus {
+        text-decoration-color: $dark-green;
+        cursor: pointer;
+    }
+}
+
+// emulate gap() property on flexbox elements for browsers that don't support it
+// adapted from https://coryrylan.com/blog/css-gap-space-with-flexbox
+@mixin flex-gap($gap) {
+    display: inline-flex;
+    flex-wrap: wrap;
+    margin: calc(-1 * #{$gap}) 0 0 calc(-1 * #{$gap});
+    width: calc(100% + #{$gap});
+    > * { margin: #{$gap} 0 0 #{$gap}; }
+}
