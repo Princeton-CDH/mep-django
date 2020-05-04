@@ -155,6 +155,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Use three-letter month names everywhere (instead of default AP style)
+DATE_FORMAT = 'M j, Y'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
@@ -239,6 +241,7 @@ CSP_EXCLUDE_URL_PREFIXES = ('/admin', '/cms')
 
 # allow usage of nonce for inline js (for analytics)
 CSP_INCLUDE_NONCE_IN = ('script-src', 'style-src')
+
 
 
 ##################
