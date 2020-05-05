@@ -1275,8 +1275,8 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'Suppliant Maidens')  # title
         self.assertContains(response, 'Aeschylus')  # author
         self.assertContains(response, '1922')  # pub date
-        self.assertContains(response, 'Feb. 1924')  # partial start date
-        self.assertContains(response, 'March 1924')  # partial end date
+        self.assertContains(response, 'Feb 1924')  # partial start date
+        self.assertContains(response, 'Mar 1924')  # partial end date
         self.assertContains(response, 'data-sort="1924-02"')  # sorting
         self.assertContains(response, 'data-sort="1924-03"')  # sorting
         # NOTE: link suppressed until books are public
@@ -1287,7 +1287,7 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'The Awakening of Helena Richie')  # title
         self.assertContains(response, 'Margaret Deland')  # author
         self.assertContains(response, '1906')  # pub date
-        self.assertContains(response, 'Nov. 27')  # partial start date
+        self.assertContains(response, 'Nov 27')  # partial start date
         self.assertContains(response, 'data-sort="--11-27"')  # sorting
         self.assertContains(response, Work.UNCERTAINTY_MESSAGE)  # uncertainty
         # NOTE: suppressed, books not yet public
@@ -1298,7 +1298,7 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'The Sun Also Rises')  # title
         self.assertContains(response, 'Ernest Hemingway')  # author
         self.assertContains(response, '1926')  # pub date
-        self.assertContains(response, 'June 3, 1922')  # start date
+        self.assertContains(response, 'Jun 3, 1922')  # start date
         self.assertContains(response, 'data-sort="1922-06-03"')  # sorting
         # NOTE: suppressed until books are public
         # self.assertContains(response, rises.get_absolute_url())  # link

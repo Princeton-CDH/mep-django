@@ -407,8 +407,8 @@ class TestWorkCirculation(TestCase):
         self.assertContains(response, "L. Michaelides")
         self.assertContains(response, "/members/michaelides-l")
         # start/end date of borrow
-        self.assertContains(response, "Oct. 21, 1920")
-        self.assertContains(response, "Oct. 25, 1920")
+        self.assertContains(response, "Oct 21, 1920")
+        self.assertContains(response, "Oct 25, 1920")
         # status
         self.assertContains(response, "Borrow")
         # issue info
