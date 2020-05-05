@@ -33,12 +33,10 @@
                     </div>
                     <div class="secondary">
                         {# membership dates #}
-                        {% if member.account_years %}
                         <dt class="member-dates">Membership Dates</dt>
                         <dd class="member-dates">
-                            {{ member.account_years|as_ranges }}
+                            {{ member.account_years|as_ranges|default:'-' }}
                         </dd>
-                        {% endif %}
                         {# search result relevance (if user is logged in) #}
                         {% if user.is_authenticated and member.score %}
                         <dt class="relevance">Relevance</dt>
