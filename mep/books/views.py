@@ -273,7 +273,7 @@ class WorkCardList(ListView, RdfViewMixin):
         self.work = get_object_or_404(Work, slug=self.kwargs['slug'])
 
         # find footnotes for events associated with this work
-        # that have iamges
+        # that have images
         return super().get_queryset() \
                       .on_events() \
                       .filter(Q(borrows__work__pk=self.work.pk) |
@@ -283,8 +283,10 @@ class WorkCardList(ListView, RdfViewMixin):
                       .annotate(date=Coalesce('borrows__start_date',
                                               'events__start_date',
                                               'purchases__start_date')) \
-                      .prefetch_related('content_object') \
+                      .prefetch_related('content_object', 'image') \
                       .order_by(F('date').asc(nulls_last=True))
+
+        # NOTE: not sure how to sort dates with missing years last
 
     def get_absolute_url(self):
         '''Full URI for work card list page.'''

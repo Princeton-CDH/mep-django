@@ -457,7 +457,7 @@ class TestWorkCardList(TestCase):
 
         card_footnotes = list(self.view.get_queryset())
         assert fn_noimage not in card_footnotes
-        assert fn2 not in card_footnotes
+        assert fn2 in card_footnotes
         assert fn1 in card_footnotes
 
     def test_get_queryset_notfound(self):
