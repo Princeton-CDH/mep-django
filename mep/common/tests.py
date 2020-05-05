@@ -388,7 +388,8 @@ def test_iiif_image():
         str(myimg.size(width=250))
     assert str(mep_tags.iiif_image(myimg, 'size:width=250,height=300')) == \
         str(myimg.size(width=250, height=300))
-    assert str(mep_tags.iiif_image(myimg, 'format:png')) == str(myimg.format('png'))
+    assert str(mep_tags.iiif_image(myimg, 'format:png')) == \
+        str(myimg.format('png'))
 
     # check that errors don't raise exceptions
     assert mep_tags.iiif_image(myimg, 'bogus') == ''
@@ -396,7 +397,8 @@ def test_iiif_image():
     assert mep_tags.iiif_image(myimg, 'size:bogus=1') == ''
 
 
-def test_partialdate_filter(self):
+@pytest.mark.django_db
+def test_partialdate_filter():
     # None should return None
     assert mep_tags.partialdate(None, 'c') is None
     # unset date should return None
