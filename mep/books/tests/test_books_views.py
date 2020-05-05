@@ -110,7 +110,8 @@ class TestWorkListView(TestCase):
     def test_form(self):
         response = self.client.get(self.url)
         # filter form should be displayed with filled-in query field one time
-        self.assertContains(response, 'Search book', count=1)
+        self.assertContains(response, 'Search by title, author, or keyword',
+                            count=1)
         # should show total result count
         self.assertContains(response, '%d total results' % Work.objects.count())
 
