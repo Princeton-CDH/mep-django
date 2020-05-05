@@ -3,12 +3,12 @@
     <div class="inner">
         <span class="legend">Selected Filters</span>
         <span class="sr-only">Select to clear active filter.</span>
-        <a href="">United States</a>
-        <a href="">Female</a>
-        <a href="">Has Card</a>
-        <a href="">Born 1875 – 1890</a>
-        <a href="">8th Arrondissement</a>
-        <a href="" class="clear-all">Clear All</a>
+        {% for field in form %}
+            {% if field.name == 'query' or field.name == 'sort' %} {# ignore #}
+            {% else %}
+            {% formfield_selected_filter field %}
+            {% endif %}
+        {% endfor %}
     </div>
     {% endspaceless %}
 </div>

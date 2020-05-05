@@ -3,12 +3,15 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django import forms
 from django.template.defaultfilters import date
 from django.template.defaulttags import register
+from django.utils.safestring import mark_safe
 from piffle.iiif import IIIFImageClientException
 
 from mep.accounts.models import Event
 from mep.accounts.partial_date import DatePrecision
+from mep.common.forms import FacetChoiceField, RangeField
 
 
 @register.filter
@@ -40,6 +43,67 @@ def domain(url):
         return netloc_parts[-2]  # piece right before the top-level domain
     except (TypeError, IndexError, ValueError, AttributeError):
         return None
+
+
+def querystring_remove(querystring, *keys, **kwargs):
+    '''Remove a particular value from query string parameters.
+    Takes a list of field names to be removed, and list of
+    keyword arguments for name=value combinations to remove.
+    '''
+    qs = querystring.copy()
+    for key in keys:
+        try:
+            del qs[key]
+        except KeyError:
+            pass
+    for key, val in kwargs.items():
+        list_values = qs.getlist(key)
+        try:
+            list_values.remove(val)
+            qs.setlist(key, list_values)
+        except ValueError:
+            pass
+    return qs.urlencode()
+
+
+@register.simple_tag(takes_context=True)
+def formfield_selected_filter(context, boundfield):
+    '''Generate selected filter remove link(s) for a form field.'''
+    # default label is field label
+    label = boundfield.label
+    value = boundfield.value()
+    link = ''
+
+    # get a mutable copy of the current request
+    querystring = context['request'].GET.copy()
+    # any filter change should reset to page 1
+    if 'page' in querystring:
+        del querystring['page']
+
+    if isinstance(boundfield.field, forms.BooleanField):
+        if value:
+            link = '<a href="?%s">%s</a>' % (
+                querystring_remove(querystring, boundfield.name), label)
+    elif isinstance(boundfield.field, RangeField):
+        # list of start, end; display if at least one is set
+        if any(value):
+            start, end = value
+            label += ' %s – %s' % (start or '&nbsp;', end or '&nbsp;')
+            # stored in querystring as name_0 and name_1
+            fieldnames = ['%s_%d' % (boundfield.name, i) for i in range(2)]
+            link = '<a href="?%s">%s</a>' % (
+                querystring_remove(querystring, *fieldnames), label)
+    elif isinstance(boundfield.field, FacetChoiceField):
+        # could have multiple filters active
+        links = []
+        for val in value:
+            # use selected value as label
+            query_value = {boundfield.name: val}
+            links.append('<a href="?%s">%s</a>' % (
+                querystring_remove(querystring, **query_value), val))
+        link = ' '.join(links)
+
+    return mark_safe(link)
 
 
 @register.filter
