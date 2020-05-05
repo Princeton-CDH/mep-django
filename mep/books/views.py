@@ -1,5 +1,5 @@
 from dal import autocomplete
-from django.db.models import Q
+from django.db.models import F, Q
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -274,28 +274,17 @@ class WorkCardList(ListView, RdfViewMixin):
 
         # find footnotes for events associated with this work
         # that have iamges
-        qs = super().get_queryset() \
-                    .on_events() \
-                    .filter(Q(borrows__work__pk=self.work.pk) |
-                            Q(events__work__pk=self.work.pk) |
-                            Q(purchases__work__pk=self.work.pk)) \
-                    .filter(image__isnull=False) \
-                    .order_by(Coalesce('borrows__start_date',
-                                       'events__start_date',
-                                       'purchases__start_date'))
-
-        # filter list so we only show a card image once, even if
-        # there are multiple events for this book on the card
-        image_ids = set()
-        footnotes = []
-        for footnote in qs:
-            # if canvas has already been seen, skip it
-            if footnote.image.pk in image_ids:
-                continue
-            footnotes.append(footnote)
-            image_ids.add(footnote.image.pk)
-
-        return footnotes
+        return super().get_queryset() \
+                      .on_events() \
+                      .filter(Q(borrows__work__pk=self.work.pk) |
+                              Q(events__work__pk=self.work.pk) |
+                              Q(purchases__work__pk=self.work.pk)) \
+                      .filter(image__isnull=False) \
+                      .annotate(date=Coalesce('borrows__start_date',
+                                              'events__start_date',
+                                              'purchases__start_date')) \
+                      .prefetch_related('content_object') \
+                      .order_by(F('date').asc(nulls_last=True))
 
     def get_absolute_url(self):
         '''Full URI for work card list page.'''
