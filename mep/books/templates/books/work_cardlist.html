@@ -35,7 +35,7 @@
     {% for footnote in footnotes %}
     <li class="card result">
         {% with card=footnote.image member=footnote.content_object.account.persons.first %}
-        <a href="{% url 'people:member-card-detail' member.slug card.short_id %}#{{ work.slug }}">
+        <a href="{% url 'people:member-card-detail' member.slug card.short_id %}#{{ work.slug }}_{{ footnote.content_object.partial_start_date }}">
                 {# card thumbnails with member name and event year #}
                 <picture>
                   {% with card.image|iiif_image:"size:width=225" as 1xthumbnail %}
