@@ -298,7 +298,7 @@ class WorkCardList(ListView, RdfViewMixin):
         return footnotes
 
     def get_absolute_url(self):
-        '''Full URI for member card list page.'''
+        '''Full URI for work card list page.'''
         return absolutize_url(reverse('books:book-card-list',
                                       kwargs=self.kwargs))
 

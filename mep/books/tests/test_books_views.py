@@ -3,13 +3,16 @@ from unittest.mock import Mock, patch
 
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
+from django.http import Http404
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from parasolr.query.queryset import EmptySolrQuerySet
+import pytest
 
-from mep.books.models import Work, Edition
-from mep.books.views import WorkList, WorkCirculation
-from mep.common.utils import login_temporarily_required
+from mep.books.models import Edition, Work
+from mep.books.views import WorkCirculation, WorkCardList, WorkList
+from mep.common.utils import absolutize_url, login_temporarily_required
+from mep.footnotes.models import Footnote
 
 
 class BooksViews(TestCase):
@@ -369,7 +372,7 @@ class TestWorkCirculation(TestCase):
     def setUp(self):
         self.work = Work.objects.get(title="The Dial")
         self.view = WorkCirculation()
-        self.view.kwargs = { 'slug': self.work.slug }
+        self.view.kwargs = {'slug': self.work.slug}
 
     def test_get_queryset(self):
         # make sure that works only get events associated with them
@@ -421,3 +424,96 @@ class TestWorkCirculation(TestCase):
                                    kwargs={"slug": work.slug}))
         self.assertNotContains(response, '<table')
         self.assertContains(response, 'No documented circulation activity')
+
+
+class TestWorkCardList(TestCase):
+    fixtures = ['test_events.json']
+
+    def setUp(self):
+        self.work = Work.objects.get(slug='lonigan-young-manhood')
+        self.view = WorkCardList()
+        self.view.kwargs = {'slug': self.work.slug}
+
+    def test_get_queryset(self):
+        queryset = self.view.get_queryset()
+        # retrieves and stores work
+        assert self.view.work == self.work
+        work_borrow = self.work.event_set.first().borrow
+        work_footnotes = work_borrow.footnotes.all()
+
+        # finds footnotes for this work with images and de-dupes based on image
+        assert list(queryset) == list(work_footnotes)
+
+        # ignores footnote with no image
+        fn1 = work_footnotes.first()
+        # Create footnote on the same event object but with no image
+        fn_noimage = Footnote.objects.create(
+            bibliography=fn1.bibliography, content_type=fn1.content_type,
+            object_id=fn1.object_id)
+        # create second footnote on the same image
+        fn2 = Footnote.objects.create(
+            bibliography=fn1.bibliography, content_type=fn1.content_type,
+            object_id=fn1.object_id, image=fn1.image)
+
+        card_footnotes = list(self.view.get_queryset())
+        assert fn_noimage not in card_footnotes
+        assert fn2 not in card_footnotes
+        assert fn1 in card_footnotes
+
+    def test_get_queryset_notfound(self):
+        view = WorkCardList()
+        view.kwargs = {'slug': 'bogus'}
+        with pytest.raises(Http404):
+            view.get_queryset()
+
+    def test_get_absolute_url(self):
+        '''Full URI for work card list page.'''
+        assert self.view.get_absolute_url() == \
+            absolutize_url(reverse('books:book-card-list',
+                                   args=[self.work.slug]))
+
+    def test_get_breadcrumbs(self):
+        self.view.work = self.work  # normally set by get_queryset
+        crumbs = self.view.get_breadcrumbs()
+        assert crumbs[-1][0] == 'Cards'
+        assert crumbs[-1][1] == self.view.get_absolute_url()
+        assert crumbs[2][0] == self.work.title
+        assert crumbs[2][1] == absolutize_url(self.work.get_absolute_url())
+
+    def test_get_breadcrumbs_display(self):
+        # confirm that breadcrumbs are rendered by the template
+        url = reverse('books:book-card-list', kwargs={'slug': self.work.slug})
+        response = self.client.get(url)
+        self.assertContains(response, '<nav class="breadcrumbs">')
+        self.assertContains(response, self.view.get_absolute_url())
+        self.assertContains(response, self.work.title)
+
+    def test_get_context_data(self):
+        self.view.object_list = self.view.get_queryset()
+        context = self.view.get_context_data()
+        assert context['work'] == self.work
+        assert context['footnotes'] == self.view.object_list
+
+    def test_template(self):
+        url = reverse('books:book-card-list', kwargs={'slug': self.work.slug})
+        response = self.client.get(url)
+
+        work_borrow = self.work.event_set.first().borrow
+        work_footnote = work_borrow.footnotes.first()
+        # image included in two sizes
+        self.assertContains(
+            response, work_footnote.image.image.size(width=225))
+        self.assertContains(
+            response, work_footnote.image.image.size(width=450))
+        # member name
+        member = work_borrow.account.persons.first()
+        self.assertContains(response, member.sort_name)
+        # event date
+        self.assertContains(
+            response, work_borrow.start_date.strftime('%b %d, %Y'))
+        # link to card detail view with work slug
+        self.assertContains(
+            response, '%s#%s' %
+            (reverse('people:member-card-detail',
+                     args=[member.slug, work_footnote.image.short_id]),
+             self.work.slug))
