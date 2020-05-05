@@ -50,7 +50,7 @@ page_description, and page_meta_image if set in context.
 {# <meta name="twitter:site" content="" /> add if/when S&co project has a twitter account#}
 
 {% if request %} {# full urls required for image, dependent on request in context #}
-{% with default_image="img/social-launching-2020.png" %}
+{% with default_image="img/social.png" %}
 {% if page.contentpage.featured_image %}
     {% image page.contentpage.featured_image max-1080x1080 as featured_image %}
 {% elif page.essaypage.featured_image %}
