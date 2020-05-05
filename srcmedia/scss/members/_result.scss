@@ -24,7 +24,7 @@
     .member-dates {
         /* use padding to constrain size without messing up layout */
         /* no more than 2 date ranges per line */
-        padding-left: calc(100% - 12em);
+        padding-left: calc(100% - 10rem);
 
         .date-range {
             white-space: nowrap;
