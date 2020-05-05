@@ -5,7 +5,7 @@
             <ul class="primary" aria-label="primary navigation">
                 <li><a href="{% slugurl 'home' %}">Home</a><li>
                 <li><a href="{% url 'people:members-list' %}">Members</a><li>
-                <li><span class="pending">Books</span><li>
+                <li><a href="{% url 'books:books-list' %}">Books</a><li>
                 <li><a href="{% slugurl 'analysis' %}">Analysis</a><li>
                 <li><a href="{% slugurl 'sources' %}">Sources</a><li>
                 <li><a href="{% slugurl 'about' %}">About</a><li>
