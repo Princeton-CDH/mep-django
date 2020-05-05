@@ -1,3 +1,4 @@
+{% load account_tags %}
 <style nonce="{{ request.csp_nonce }}">
     .member-results {
         counter-reset: results {{ page_obj.start_index|add:'-1' }};
@@ -32,16 +33,12 @@
                     </div>
                     <div class="secondary">
                         {# membership dates #}
-                        {% with account_start=member.account_start account_end=member.account_end %}
-                        {% if account_start or account_end %}
+                        {% if member.account_years %}
                         <dt class="member-dates">Membership Dates</dt>
                         <dd class="member-dates">
-                        {% if account_start %}
-                        {{ account_start }}{% endif %}{% if account_end and account_start != account_end %} – <span class="sr-only">to</span>{{ account_end }}
-                        {% endif %}
+                            {{ member.account_years|as_ranges }}
                         </dd>
                         {% endif %}
-                        {% endwith %}
                         {# search result relevance (if user is logged in) #}
                         {% if user.is_authenticated and member.score %}
                         <dt class="relevance">Relevance</dt>

@@ -20,6 +20,18 @@
         margin-top: .5rem;
     }
 
+
+    .member-dates {
+        /* use padding to constrain size without messing up layout */
+        /* no more than 2 date ranges per line */
+        padding-left: calc(100% - 10em);
+
+        .date-range {
+            white-space: nowrap;
+        }
+
+    }
+
     // show the "has card" icon if present
     &.has-card {
 
