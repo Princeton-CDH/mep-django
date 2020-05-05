@@ -13,11 +13,11 @@
         @media (min-width: $breakpoint-s) { justify-content: center; }
     }
 
-    legend, label, button {
+    .legend, a {
         flex: none;
     }
 
-    legend {
+    .legend {
         width: 100%;
         text-align: left;
         margin-bottom: .5rem;
@@ -29,28 +29,18 @@
         }
     }
 
-    label {
+    a:not(.clear-all) {
         padding: .2rem .4rem;
         background: white;
-        cursor: pointer;
-        &::after { content: '×'; }
+        text-decoration: none;
+        &::after { content: ' ×'; }
     }
 
-    input[type=checkbox] {
-        @include sr-only;
-    }
-
-    button {
+    .clear-all {
         width: 100%;
         text-align: right;
         margin-top: .5rem;
-        @include green-link;
         color: $dark-green;
-        text-decoration-color: $dark-green;
-        font-size: .8rem;
-        padding: 0;
-        background: none;
-        box-shadow: none;
 
         @media (min-width: $breakpoint-s) {
             width: initial;
