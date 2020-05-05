@@ -12,11 +12,10 @@ from mep.books.queryset import WorkSolrQuerySet
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, LoginRequiredOr404Mixin,
-                              RdfViewMixin)
+                              LabeledPagesMixin, RdfViewMixin)
 
 
-class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
+class WorkList(LabeledPagesMixin, ListView,
                FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library items.'''
     model = Work
@@ -201,7 +200,7 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         ]
 
 
-class WorkDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
+class WorkDetail(DetailView, RdfViewMixin):
     '''Detail page for a single library book.'''
     model = Work
     template_name = 'books/work_detail.html'
@@ -257,6 +256,7 @@ class WorkCirculation(ListView, RdfViewMixin):
             (self.work.title, absolutize_url(self.work.get_absolute_url())),
             ('Circulation', self.get_absolute_url())
         ]
+
 
 class WorkAutocomplete(autocomplete.Select2QuerySetView):
     '''Basic autocomplete lookup, for use with django-autocomplete-light and

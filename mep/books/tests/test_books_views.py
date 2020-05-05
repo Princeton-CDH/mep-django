@@ -73,11 +73,6 @@ class TestWorkListView(TestCase):
         self.factory = RequestFactory()
         self.url = reverse('books:books-list')
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        assert self.client.get(self.url).status_code == 404
-
-    @login_temporarily_required
     def test_list(self):
         response = self.client.get(self.url)
 
@@ -97,15 +92,21 @@ class TestWorkListView(TestCase):
 
         # NOTE publishers display is designed but data not yet available
 
+    def test_no_relevance_anonymous(self):
+        response = self.client.get(self.url, {'query': 'eliza'})
+        # relevance score should not be shown to anynmous user
+        self.assertNotContains(
+            response, '<dt class="relevance">Relevance</dt>',
+            msg_prefix='relevance score not displayed for anonymous users')
+
     @login_temporarily_required
-    def test_relevance(self):
+    def test_relevance_logged_in(self):
         response = self.client.get(self.url, {'query': 'eliza'})
         # relevance score should be shown to logged-in users
         self.assertContains(
             response, '<dt class="relevance">Relevance</dt>',
             msg_prefix='relevance score displayed for logged in users')
 
-    @login_temporarily_required
     def test_form(self):
         response = self.client.get(self.url)
         # filter form should be displayed with filled-in query field one time
@@ -113,7 +114,6 @@ class TestWorkListView(TestCase):
         # should show total result count
         self.assertContains(response, '%d total results' % Work.objects.count())
 
-    @login_temporarily_required
     def test_form_no_result(self):
         # no results - display error text & image
         response = self.client.get(self.url, {'query': 'foobar'})
@@ -121,7 +121,6 @@ class TestWorkListView(TestCase):
         # empty search - no image
         self.assertNotContains(response, 'img/no-results-error-1x.png')
 
-    @login_temporarily_required
     @patch.dict(WorkList.solr_sort, {'title': 'undefined'})
     def test_form_errors(self):
         # force solr error by sending garbage sort value
@@ -130,7 +129,6 @@ class TestWorkListView(TestCase):
         # error - show image
         self.assertContains(response, 'img/no-results-error-1x.png')
 
-    @login_temporarily_required
     def test_many_authors(self):
         response = self.client.get(self.url)
 
@@ -221,7 +219,6 @@ class TestWorkListView(TestCase):
         view.queryset.only.return_value.get_results \
             .assert_called_with(rows=100000)
 
-    @login_temporarily_required
     def test_pagination(self):
         response = self.client.get(self.url)
         # pagination options set in context
@@ -273,13 +270,6 @@ class TestWorkListView(TestCase):
 class TestWorkDetailView(TestCase):
     fixtures = ['sample_works', 'multi_creator_work']
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        work = Work.objects.first()
-        url = reverse('books:book-detail', kwargs={'slug': work.slug})
-        assert self.client.get(url).status_code == 404
-
-    @login_temporarily_required
     def test_get_breadcrumbs(self):
         # fetch any work and check breadcrumbs
         work = Work.objects.first()
@@ -291,7 +281,6 @@ class TestWorkDetailView(TestCase):
         # second to last crumb should be the work list
         self.assertEqual(breadcrumbs[-2][0], WorkList.page_title)
 
-    @login_temporarily_required
     def test_creators_display(self):
         # fetch a multi-creator work
         work = Work.objects.get(pk=4126)
@@ -306,7 +295,6 @@ class TestWorkDetailView(TestCase):
         for editor in work.editors:
             self.assertContains(response, '<dd class="creator">%s</dd>' % editor.name)
 
-    @login_temporarily_required
     def test_pubdate_display(self):
         # fetch a work with a publication date
         work = Work.objects.get(pk=1)
@@ -316,7 +304,6 @@ class TestWorkDetailView(TestCase):
         self.assertContains(response, '<dt class="pubdate">Publication Date</dt>')
         self.assertContains(response, '<dd class="pubdate">%s</dd>' % work.year)
 
-    @login_temporarily_required
     def test_format_display(self):
         # fetch some works with different formats
         book = Work.objects.get(title='Murder on the Blue Train')
@@ -329,7 +316,6 @@ class TestWorkDetailView(TestCase):
         response = self.client.get(url)
         self.assertContains(response, '<dd class="format">Periodical</dd>')
 
-    @login_temporarily_required
     def test_read_link_display(self):
         # fetch a work with an ebook url
         work = Work.objects.get(title='The Dial')
@@ -339,7 +325,6 @@ class TestWorkDetailView(TestCase):
         self.assertContains(response,
             '<a href="%s">Read online</a>' % work.ebook_url)
 
-    @login_temporarily_required
     def test_notes_display(self):
         # fetch a work with public notes
         work = Work.objects.get(title='Chronicle of my Life')
@@ -350,7 +335,6 @@ class TestWorkDetailView(TestCase):
         self.assertContains(response, '<dd>%s</dd>' % work.public_notes)
         # NOTE check that uncertainty icon is rendered when implemented
 
-    @login_temporarily_required
     def test_edition_volume_display(self):
         # fetch a periodical with issue information
         work = Work.objects.get(title='The Dial')
