@@ -28,6 +28,11 @@
 
         .date-range {
             white-space: nowrap;
+
+            /* separate date ranges with commas */
+            &:not(:last-child):after {
+              content: ", ";
+            }
         }
 
     }

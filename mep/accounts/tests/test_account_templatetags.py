@@ -25,7 +25,7 @@ def test_as_ranges():
         '<span class="date-range">1919 – 1921</span>'
     # multiple dates
     assert as_ranges(['1919', '1920', '1930']) == \
-        '<span class="date-range">1919 – 1920</span>, ' + \
+        '<span class="date-range">1919 – 1920</span> ' + \
         '<span class="date-range">1930</span>'
     # error on non-integer
     with pytest.raises(TemplateSyntaxError):

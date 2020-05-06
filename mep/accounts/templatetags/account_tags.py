@@ -48,6 +48,6 @@ def as_ranges(years):
         for start, end in ranges
     ]
     # output as html
-    result = ', '.join(['<span class="date-range">%s</span>' % dates
-                        for dates in range_values])
+    result = ' '.join(['<span class="date-range">%s</span>' % dates
+                       for dates in range_values])
     return mark_safe(result)

@@ -266,6 +266,13 @@ class MemberDetail(DetailView, RdfViewMixin):
             if event.end_date and event.start_date != event.end_date:
                 month_counts[event.end_date.strftime('%Y-%m-01')] += 1
 
+        account_date_ranges = account.event_date_ranges()
+        account_years = set()   # initialize as empty set in case no dates
+        for start, end in account.event_date_ranges():
+            account_years = set(start.year for start, end
+                                in account_date_ranges) | \
+                set(end.year for start, end in account_date_ranges)
+
         # data for member timeline visualization
         context['timeline'] = {
             'membership_activities': [{
@@ -283,7 +290,7 @@ class MemberDetail(DetailView, RdfViewMixin):
             'activity_ranges': [{
                 'startDate': start.isoformat(),
                 'endDate': end.isoformat()
-            } for start, end in account.event_date_ranges()]
+            } for start, end in account_date_ranges]
         }
 
         # plottable locations for member address map visualization, which
@@ -331,7 +338,8 @@ class MemberDetail(DetailView, RdfViewMixin):
             'mapbox_basemap': getattr(settings, 'MAPBOX_BASEMAP', ''),
             'paris_overlay': getattr(settings, 'PARIS_OVERLAY', ''),
             # metadata for social preview
-            'page_title': self.object.firstname_last
+            'page_title': self.object.firstname_last,
+            'account_years': account_years,
         })
 
         return context
