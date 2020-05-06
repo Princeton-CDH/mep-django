@@ -467,7 +467,13 @@ def test_formfield_selected_filter():
     context = {'request': Mock(GET=querystring)}
     # boolean field
     link = mep_tags.formfield_selected_filter(context, form['has_card'])
-    assert link == '<a href="?sort=relevance&query=stein">Card</a>'
+    # still on python 3.5, can't assume order doesn't change
+    # assert link == '<a href="?sort=relevance&query=stein">Card</a>'
+    assert link.startswith('<a href="?')
+    assert link.endswith('">Card</a>')
+    for query_param in ['sort=relevance', 'query=stein']:
+        assert query_param in link
+    assert 'has_card=1' not in link
 
     # range field - first date only
     querystring = QueryDict('has_card=1&page=2&sort=relevance&query=stein' +
@@ -476,7 +482,11 @@ def test_formfield_selected_filter():
     link = mep_tags.formfield_selected_filter(context,
                                               form['membership_dates'])
     assert "Membership Dates 1920 – &nbsp;" in link
-    assert 'href="?has_card=1&sort=relevance&query=stein"' in link
+    for query_param in ['sort=relevance', 'query=stein', 'has_card=1']:
+        assert query_param in link
+    for membership_param in ['membership_dates_0', 'membership_dates_1']:
+        assert membership_param not in link
+    # assert 'href="?has_card=1&sort=relevance&query=stein"' in link
 
     # range field - second date only
     querystring = QueryDict('query=stein&birth_year_0=&birth_year_1=1950')
@@ -486,6 +496,8 @@ def test_formfield_selected_filter():
                                               form['birth_year'])
     assert "Birth Year &nbsp; – 1950" in link
     assert 'href="?query=stein"' in link
+    for birth_param in ['birth_year_0', 'birth_year_1']:
+        assert birth_param not in link
 
     # facet choice field with multiple values
     querystring = QueryDict('query=stein&gender=Female&gender=Male')
@@ -493,8 +505,11 @@ def test_formfield_selected_filter():
     link = mep_tags.formfield_selected_filter(context,
                                               form['gender'])
     # generates two links; each preserves the *other* filter
-    assert '<a href="?query=stein&gender=Male">Female</a>' in link
-    assert '<a href="?query=stein&gender=Female">Male</a>' in link
+    assert re.search(r'<a href="\?[^"]*gender=Male[^"]*">Female</a>', link)
+    assert re.search(r'<a href="\?[^"]*gender=Female[^"]*">Male</a>', link)
+    assert not re.search(r'<a href="\?[^"]*gender=Female[^"]*">Female</a>', link)
+    assert not re.search(r'<a href="\?[^"]*gender=Male[^"]*">Male</a>', link)
+    # assert '<a href="?query=stein&gender=Female">Male</a>' in link
 
 
 class TestCheckboxFieldset(TestCase):
