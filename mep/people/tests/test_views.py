@@ -19,9 +19,9 @@ import pytest
 from mep.accounts.models import (Account, Address, Borrow, Event, Purchase,
                                  Reimbursement, Subscription, SubscriptionType)
 from mep.accounts.partial_date import DatePrecision
-from mep.books.models import Creator, CreatorType, Work
+from mep.books.models import Creator, CreatorType, Edition, Work
 from mep.common.templatetags.mep_tags import partialdate
-from mep.common.utils import absolutize_url, login_temporarily_required
+from mep.common.utils import absolutize_url
 from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
@@ -1194,20 +1194,25 @@ class TestBorrowingActivities(TestCase):
         maidens = Work.objects.get(title='Suppliant Maidens')
         awakening = Work.objects.get(title='The Awakening of Helena Richie')
         rises = Work.objects.get(title='The Sun Also Rises')
+        # add an edition to one for testing
+        maidens_vol = Edition.objects.create(work=maidens, volume=1)
 
         # create one event of each type to test with
         self.events = {
-            'borrow': Borrow.objects.create(account=acct, work=maidens,
+            'borrow': Borrow.objects.create(
+                account=acct, work=maidens, edition=maidens_vol,
                 start_date=date(1924, 2, 1),
                 end_date=date(1924, 3, 1),
                 start_date_precision=(DatePrecision.year | DatePrecision.month),
                 end_date_precision=(DatePrecision.year | DatePrecision.month),
             ),
-            'purchase': Purchase.objects.create(account=acct, work=awakening,
+            'purchase': Purchase.objects.create(
+                account=acct, work=awakening,
                 start_date=date(1900, 11, 27),
                 start_date_precision=(DatePrecision.month | DatePrecision.day),
             ),
-            'generic': Event.objects.create(account=acct, work=rises,
+            'generic': Event.objects.create(
+                account=acct, work=rises,
                 start_date=date(1922, 6, 3),
             )
         }
@@ -1263,6 +1268,8 @@ class TestBorrowingActivities(TestCase):
         rises = Work.objects.get(title='The Sun Also Rises')
         response = self.client.get(reverse('people:borrowing-activities',
                                    kwargs={'slug': self.member.slug}))
+        maidens_vol = Edition.objects.get(work=maidens)
+
         # table headers
         self.assertContains(response, 'Title')
         self.assertContains(response, 'Author')
@@ -1280,19 +1287,18 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'March 1924')  # partial end date
         self.assertContains(response, 'data-sort="1924-02"')  # sorting
         self.assertContains(response, 'data-sort="1924-03"')  # sorting
-        # NOTE: link suppressed until books are public
-        # self.assertContains(response, maidens.get_absolute_url()) # link
+        self.assertContains(response, maidens.get_absolute_url())  # link
+        self.assertContains(response, maidens_vol.display_html())  # edition
 
         # event details - purchase
         self.assertContains(response, 'Purchase')  # type
-        self.assertContains(response, 'The Awakening of Helena Richie')  # title
+        self.assertContains(response, 'The Awakening of Helena Richie')
         self.assertContains(response, 'Margaret Deland')  # author
         self.assertContains(response, '1906')  # pub date
         self.assertContains(response, 'Nov. 27')  # partial start date
         self.assertContains(response, 'data-sort="--11-27"')  # sorting
         self.assertContains(response, Work.UNCERTAINTY_MESSAGE)  # uncertainty
-        # NOTE: suppressed, books not yet public
-        # self.assertContains(response, awakening.get_absolute_url()) # link
+        self.assertContains(response, awakening.get_absolute_url())  # link
 
         # event details - generic
         self.assertContains(response, '-')  # type
@@ -1301,8 +1307,7 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, '1926')  # pub date
         self.assertContains(response, 'June 3, 1922')  # start date
         self.assertContains(response, 'data-sort="1922-06-03"')  # sorting
-        # NOTE: suppressed until books are public
-        # self.assertContains(response, rises.get_absolute_url())  # link
+        self.assertContains(response, rises.get_absolute_url())  # link
 
         # test member with no borrowing activity
         response = self.client.get(reverse('people:borrowing-activities',

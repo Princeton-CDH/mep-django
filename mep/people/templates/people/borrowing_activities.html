@@ -78,6 +78,11 @@
                 <a href="{{ event.work.get_absolute_url }}">
                     {{ event.work.title|default:'-' }}
                 </a>
+                {% if event.edition %}
+                <div class="edition">
+                    {{ event.edition.display_html }}
+                </div>
+                {% endif %}
                 {% if event.work.is_uncertain %}
                 <span class="sr-only">
                     {{ event.work.UNCERTAINTY_MESSAGE }}
