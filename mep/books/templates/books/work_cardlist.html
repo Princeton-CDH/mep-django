@@ -34,8 +34,9 @@
     <ol class="card-results">
     {% for footnote in footnotes %}
     <li class="card result">
-        {% with card=footnote.image member=footnote.content_object.account.persons.first %}
-        <a href="{% url 'people:member-card-detail' member.slug card.short_id %}#{{ work.slug }}_{{ footnote.content_object.partial_start_date }}">
+        {% with card=footnote.image member=footnote.content_object.account.persons.first start_date=footnote.content_object.partial_start_date %}
+        <a href="{% url 'people:member-card-detail' member.slug card.short_id %}#e{{ footnote.content_object.pk }}"
+            aria-label="{{ start_date|partialdate:"Y"|default:'' }} lending card for {{ member.sort_name }}">
                 {# card thumbnails with member name and event year #}
                 <picture>
                   {% with card.image|iiif_image:"size:width=225" as 1xthumbnail %}
@@ -44,15 +45,13 @@
                   {% endwith %}
                 </picture>
 
-                <div class="name">
-                    <dt>Card Holder</dt>
-                    <dd>{{ member.sort_name }}</dd>
-                </div>
+                <dl>
+                    <dt class="name">Card Holder</dt>
+                    <dd class="name">{{ member.sort_name }}</dd>
 
-                <div class="card-dates">
-                    <dt>Event Date</dt>
-                    <dd>{{ footnote.content_object.partial_start_date|partialdate|default:'-' }}</dd>
-                </div>
+                    <dt class="card-dates">Event Date</dt>
+                    <dd class="card-dates">{{ footnote.content_object.partial_start_date|partialdate|default:'-' }}</dd>
+                </dl>
         </a>
         {% endwith %}
     </li>

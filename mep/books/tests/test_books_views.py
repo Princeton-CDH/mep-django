@@ -511,9 +511,9 @@ class TestWorkCardList(TestCase):
         # event date
         self.assertContains(
             response, work_borrow.start_date.strftime('%b %d, %Y'))
-        # link to card detail view with work slug
+        # link to card detail view with event id
         self.assertContains(
-            response, '%s#%s' %
+            response, '%s#e%d' %
             (reverse('people:member-card-detail',
                      args=[member.slug, work_footnote.image.short_id]),
-             self.work.slug))
+             work_borrow.pk))
