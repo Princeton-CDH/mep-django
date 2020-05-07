@@ -726,10 +726,14 @@ class TestRdfViewMixin(TestCase):
                                  object=rdflib.Literal('/my-page'),
                                  any=False)
         # crumbs should have the correct name and position values
-        assert graph.value(home_crumb, SCHEMA_ORG.name) == rdflib.Literal('Home')
-        assert graph.value(page_crumb, SCHEMA_ORG.name) == rdflib.Literal('My Page')
-        assert graph.value(home_crumb, SCHEMA_ORG.position) == rdflib.Literal(1)
-        assert graph.value(page_crumb, SCHEMA_ORG.position) == rdflib.Literal(2)
+        assert graph.value(home_crumb, SCHEMA_ORG.name) == \
+            rdflib.Literal('Home')
+        assert graph.value(page_crumb, SCHEMA_ORG.name) == \
+            rdflib.Literal('My Page')
+        assert graph.value(home_crumb, SCHEMA_ORG.position) == \
+            rdflib.Literal(1)
+        assert graph.value(page_crumb, SCHEMA_ORG.position) == \
+            rdflib.Literal(2)
         # page should have breadcrumb list
         crumb_list = graph.value(page_node, SCHEMA_ORG.breadcrumb, any=False)
         # crumbs should belong to the list as itemListElements
@@ -748,7 +752,7 @@ class TestBreadcrumbsTemplate(TestCase):
         response = self.template.render(context={
             'breadcrumbs': [('My Page', '/my-page')]
         })
-        assert not '<li class="home">' in response
+        assert '<li class="home">' not in response
         # with a 'home' crumb
         response = self.template.render(context={
             'breadcrumbs': [('Home', '/')]
@@ -788,10 +792,10 @@ class TestBaseExport(TestCase):
             }
         }
         flat_nested = BaseExport.flatten_dict(nested)
-        assert 'page id' in flat_nested
-        assert 'page label' in flat_nested
-        assert flat_nested['page id'] == nested['page']['id']
-        assert flat_nested['page label'] == nested['page']['label']
+        assert 'page_id' in flat_nested
+        assert 'page_label' in flat_nested
+        assert flat_nested['page_id'] == nested['page']['id']
+        assert flat_nested['page_label'] == nested['page']['label']
 
         # nested with list
         nested_list = {
@@ -801,7 +805,7 @@ class TestBaseExport(TestCase):
             }
         }
         flat_nested = BaseExport.flatten_dict(nested_list)
-        assert flat_nested['page label'] == 'one;two'
+        assert flat_nested['page_label'] == 'one;two'
 
 
 @patch('mep.common.management.export.progressbar')

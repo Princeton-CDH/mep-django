@@ -35,14 +35,14 @@ class Command(BaseExport):
         "year",
         "format",
         "identified",
-        "work uri",
-        "edition uri",
-        "ebook url",
-        "volumes/issues",
+        "work_uri",
+        "edition_uri",
+        "ebook_url",
+        "volumes_issues",
         "notes",
-        "event count",
-        "borrow count",
-        "purchase count",
+        "event_count",
+        "borrow_count",
+        "purchase_count",
         "updated"
     ]
 
@@ -79,23 +79,23 @@ class Command(BaseExport):
         data['identified'] = not work.is_uncertain
 
         if work.uri:
-            data['work uri'] = work.uri
+            data['work_uri'] = work.uri
         if work.edition_uri:
-            data['edition uri'] = work.edition_uri
+            data['edition_uri'] = work.edition_uri
         if work.ebook_url:
-            data['ebook url'] = work.ebook_url
+            data['ebook_url'] = work.ebook_url
         # text listing of volumes/issues
         if work.edition_set.exists():
-            data['volumes/issues'] = [vol.display_text() for vol in
+            data['volumes_issues'] = [vol.display_text() for vol in
                                       work.edition_set.all()]
         # public notes
         if work.public_notes:
             data['notes'] = work.public_notes
 
         # always include event counts
-        data['event count'] = work.event_count
-        data['borrow count'] = work.borrow_count
-        data['purchase count'] = work.purchase_count
+        data['event_count'] = work.event_count
+        data['borrow_count'] = work.borrow_count
+        data['purchase_count'] = work.purchase_count
         # date last modified
         data['updated'] = work.updated_at.isoformat()
 

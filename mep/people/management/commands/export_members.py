@@ -22,11 +22,11 @@ class Command(BaseExport):
 
     csv_fields = [
         'uri',
-        'name', 'sort name',
+        'name', 'sort_name',
         'gender', 'title',
-        'birth year', 'death year',
-        'is organization', 'has card',
-        'viaf url', 'wikipedia url',
+        'birth_year', 'death_year',
+        'is_organization', 'has_card',
+        'viaf_url', 'wikipedia_url',
         # related country
         'nationalities',
         # related location
@@ -53,9 +53,9 @@ class Command(BaseExport):
         data = OrderedDict([
             ('uri', absolutize_url(obj.get_absolute_url())),
             ('name', obj.name),
-            ('sort name', obj.sort_name),
-            ('is organization', obj.is_organization),
-            ('has card', obj.has_card()),
+            ('sort_name', obj.sort_name),
+            ('is_organization', obj.is_organization),
+            ('has_card', obj.has_card()),
         ])
 
         # add gender
@@ -68,16 +68,16 @@ class Command(BaseExport):
 
         # add birth/death dates
         if obj.birth_year:
-            data['birth year'] = obj.birth_year
+            data['birth_year'] = obj.birth_year
         if obj.death_year:
-            data['death year'] = obj.death_year
+            data['death_year'] = obj.death_year
 
         # viaf & wikipedia URLs
         if obj.viaf_id:
-            data['viaf url'] = obj.viaf_id
+            data['viaf_url'] = obj.viaf_id
         for info_url in obj.urls.all():
             if domain(info_url.url) == 'wikipedia':
-                data['wikipedia url'] = info_url.url
+                data['wikipedia_url'] = info_url.url
                 break
 
         # add all nationalities

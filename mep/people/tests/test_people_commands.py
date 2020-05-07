@@ -31,9 +31,9 @@ class TestExportMembers(TestCase):
         # check some basic data
         assert gay_data['name'] == 'Francisque Gay'
         assert gay_data['gender'] == 'Male'
-        assert gay_data['birth year'] == 1885
-        assert hemingway_data['sort name'] == 'Hemingway, Ernest'
-        assert hemingway_data['death year'] == 1961
+        assert gay_data['birth_year'] == 1885
+        assert hemingway_data['sort_name'] == 'Hemingway, Ernest'
+        assert hemingway_data['death_year'] == 1961
         assert 'title' not in hemingway_data   # empty fields not present
 
         # check nationalities
@@ -41,9 +41,9 @@ class TestExportMembers(TestCase):
         assert 'United States' in hemingway_data['nationalities']
 
         # check viaf & wikipedia urls
-        assert hemingway_data['wikipedia url'] == \
+        assert hemingway_data['wikipedia_url'] == \
             'https://en.wikipedia.org/wiki/Ernest_Hemingway'
-        assert gay_data['viaf url'] == 'http://viaf.org/viaf/9857613'
+        assert gay_data['viaf_url'] == 'http://viaf.org/viaf/9857613'
 
         # check addresses & coordinates
         assert '3 Rue Garancière, Paris' in gay_data['addresses']
