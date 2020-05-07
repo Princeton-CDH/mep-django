@@ -452,9 +452,15 @@ class MemberCardList(ListView, RdfViewMixin):
                                         slug=self.kwargs['slug'])
         # find all canvas objects for this person, via manifest
         # associated with lending card bibliography
-        return super().get_queryset() \
-                      .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
-                      .order_by('order')
+
+        card_filter = (
+            Q(manifest__bibliography__account__persons__pk=self.member.pk) |
+            Q(footnote__events__account__persons__pk=self.member.pk) |
+            Q(footnote__borrows__account__persons__pk=self.member.pk) |
+            Q(footnote__purchases__account__persons__pk=self.member.pk))
+
+        return super().get_queryset().filter(card_filter) \
+                      .distinct().order_by('order')
 
     def get_absolute_url(self):
         '''Full URI for member card list page.'''
