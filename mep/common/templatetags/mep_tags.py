@@ -82,7 +82,8 @@ def formfield_selected_filter(context, boundfield):
 
     if isinstance(boundfield.field, forms.BooleanField):
         if value:
-            link = '<a href="?%s">%s</a>' % (
+            link = '<a data-input="%s" href="?%s">%s</a>' % (
+                boundfield.id_for_label,
                 querystring_remove(querystring, boundfield.name), label)
     elif isinstance(boundfield.field, RangeField):
         # list of start, end; display if at least one is set
@@ -91,7 +92,8 @@ def formfield_selected_filter(context, boundfield):
             label += ' %s – %s' % (start or '&nbsp;', end or '&nbsp;')
             # stored in querystring as name_0 and name_1
             fieldnames = ['%s_%d' % (boundfield.name, i) for i in range(2)]
-            link = '<a href="?%s">%s</a>' % (
+            link = '<a data-input="%s" href="?%s">%s</a>' % (
+                boundfield.id_for_label,
                 querystring_remove(querystring, *fieldnames), label)
     elif isinstance(boundfield.field, FacetChoiceField):
         # could have multiple filters active
@@ -99,7 +101,12 @@ def formfield_selected_filter(context, boundfield):
         for val in value:
             # use selected value as label
             query_value = {boundfield.name: val}
-            links.append('<a href="?%s">%s</a>' % (
+            # id of this choice's corresponding input
+            input_id = boundfield.subwidgets[
+                [idx for (idx, choice) in enumerate(boundfield.field.choices)
+                    if choice[0] == val][0]
+                ].id_for_label
+            links.append('<a data-input="%s" href="?%s">%s</a>' % (input_id,
                 querystring_remove(querystring, **query_value), val))
         link = ' '.join(links)
 
