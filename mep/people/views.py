@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, strip_tags
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
@@ -19,6 +19,7 @@ from django.views.generic.edit import FormMixin, FormView
 from djiffy.models import Canvas
 
 from mep.accounts.models import Address, Event
+from mep.accounts.templatetags.account_tags import as_ranges
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
@@ -36,7 +37,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin,
     model = Person
     page_title = "Members"
     page_description = "Search and browse members by name and filter " + \
-        "by date and demographics."
+        "by membership dates, birth date, and demographics."
     template_name = 'people/member_list.html'
     ajax_template_name = 'people/snippets/member_results.html'
     paginate_by = 100
@@ -241,6 +242,8 @@ class MemberDetail(DetailView, RdfViewMixin):
     template_name = 'people/member_detail.html'
     context_object_name = 'member'
     rdf_type = SCHEMA_ORG.ProfilePage
+    # format string for page description
+    page_description = 'Shakespeare and Company lending library member %s'
 
     def get_queryset(self):
         # throw a 404 if a non-member is accessed via this route
@@ -332,14 +335,19 @@ class MemberDetail(DetailView, RdfViewMixin):
             # if we can't find library's address send 'null' & don't render it
             context['library_address'] = None
 
+        # text-only readable version of membership years for meta description
+        membership_years = strip_tags(as_ranges(account_years)
+                                      .replace('</span>', ','))
+
         # config settings used to render the map; set in local_settings.py
         context.update({
             'mapbox_token': getattr(settings, 'MAPBOX_ACCESS_TOKEN', ''),
             'mapbox_basemap': getattr(settings, 'MAPBOX_BASEMAP', ''),
             'paris_overlay': getattr(settings, 'PARIS_OVERLAY', ''),
+            'account_years': account_years,
             # metadata for social preview
             'page_title': self.object.firstname_last,
-            'account_years': account_years,
+            'page_description': self.page_description % membership_years
         })
 
         return context
