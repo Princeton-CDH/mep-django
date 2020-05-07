@@ -2,57 +2,58 @@
 {% load render_bundle from webpack_loader %}
 {% load static mep_tags %}
 
-{% block page-subtitle %}{{ member.firstname_last }} Cards · Library Members · {% endblock %}
+{% block page-subtitle %}{{ work.title }} Cards · Library Holdings · {% endblock %}
 
 {% block js %}
 {% render_bundle 'activities' 'js' %}
 {% endblock %}
 
 {% block header %}
-{% include 'snippets/header.html' with title=member.firstname_last style="detail" %}
+{% include 'snippets/header.html' with title=work.title style="detail" %}
 {% endblock %}
 
 {% block main-style %}tabbed white{% endblock %}
 
 {% block content %}
+{# breadcrumbs & tabs #}
 {% include 'snippets/breadcrumbs.html' %}
-<nav class="tabs" aria-label="sections">
+<nav class="tabs" aria-label="tabs">
     <li class="tab">
-        <a href="{% url 'people:member-detail' slug=member.slug %}">biography</a>
+        <a href="{% url 'books:book-detail' slug=work.slug %}">bibliography</a>
     </li>
     <li class="tab">
-        <a href="{% url 'people:membership-activities' slug=member.slug %}">activities</a>
+        <a href="{% url 'books:book-circ' slug=work.slug %}">circulation</a>
     </li>
     <li class="tab" aria-selected="true">
-        <span>cards</span>
+        <a href="{% url 'books:book-card-list' slug=work.slug %}">cards</a>
     </li>
 </nav>
 
-<section class="member-cards">
-    {% if cards %}
+<section class="book-cards">
+    {% if footnotes %}
     <ol class="card-results">
-    {% for card in cards %}
+    {% for footnote in footnotes %}
     <li class="card result">
-        <a href="{% url 'people:member-card-detail' member.slug card.short_id %}">
-                {# card thumbnails and year if known #}
+        {% with card=footnote.image member=footnote.content_object.account.persons.first start_date=footnote.content_object.partial_start_date %}
+        <a href="{% url 'people:member-card-detail' member.slug card.short_id %}#e{{ footnote.content_object.pk }}"
+            aria-label="{{ start_date|partialdate:"Y"|default:'' }} lending card for {{ member.sort_name }}">
+                {# card thumbnails with member name and event year #}
                 <picture>
                   {% with card.image|iiif_image:"size:width=225" as 1xthumbnail %}
                     <source srcset="{{ 1xthumbnail }}, {{ card.image|iiif_image:"size:width=450" }} 2x">
                     <img src="{{ 1xthumbnail }}" alt="" loading="lazy">
                   {% endwith %}
                 </picture>
-                {% with card.footnote_set.event_date_range as dates %}
-                <div class="card-dates {% if card.footnote_set.exists and not dates %}unknown{% endif %}">
-                    <span class="label">Card Years</span>
-                    <span>{% if dates.0 %}{{ dates.0.year }}
-                        {% if dates.0.year != dates.1.year %} – <span class="sr-only">to</span>{{ dates.1.year }}{% endif %}
-                        {% elif card.footnote_set.exists %}
-                        Unknown
-                        {% endif %}
-                    </span>
-                </div>
-                {% endwith %}
+
+                <dl>
+                    <dt class="name">Card Holder</dt>
+                    <dd class="name">{{ member.sort_name }}</dd>
+
+                    <dt class="card-dates">Event Date</dt>
+                    <dd class="card-dates">{{ footnote.content_object.partial_start_date|partialdate|default:'-' }}</dd>
+                </dl>
         </a>
+        {% endwith %}
     </li>
     {% endfor %}
     </ol>

@@ -6,20 +6,19 @@
                 {# card image and summary details #}
                 <picture>
                     <source srcset="{{ card.thumbnail.0 }}, {{ card.thumbnail2x.0 }} 2x">
-                    <img src="{{ card.thumbnail.0 }}" alt="">
+                    <img src="{{ card.thumbnail.0 }}" alt="" loading="lazy">
                 </picture>
-                <div class="name">
-                    <dt>Card Holder</dt>
-                    <dd>{{ card.cardholder|join:'; ' }}</dd>
-                </div>
 
-                <div class="card-dates">
-                    <dt>Card Dates</dt>
-                    <dd>{% if card.years %}
+                <dl>
+                    <dt class="name">Card Holder</dt>
+                    <dd class="name">{{ card.cardholder|join:'; ' }}</dd>
+
+                    <dt class="card-dates">Card Dates</dt>
+                    <dd class="card-dates">{% if card.years %}
                         {{ card.start }}{% if card.start != card.end %} – <span class="sr-only">to</span>{{ card.end }}{% endif %}
                         {% endif %}
                     </dd>
-                </div>
+                </dl>
         </a>
     </li>
     {% endfor %}

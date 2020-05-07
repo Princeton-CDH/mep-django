@@ -13,6 +13,11 @@ $shadow: rgba(0, 0, 0, 0.2);
         width: 100%;
     }
 
+    :target {
+        border-left: none;
+        background-color: $ice;
+    }
+
     // mobile styles: table rows are expandable cards, no headers
     @media (max-width: calc(#{$breakpoint-s} - 1px)) {
 
