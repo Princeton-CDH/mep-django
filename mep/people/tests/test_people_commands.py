@@ -1,7 +1,9 @@
+import datetime
 from io import StringIO
 
 from django.test import TestCase
 
+from mep.accounts.models import Event
 from mep.people.management.commands import export_members
 from mep.people.models import Person
 
@@ -35,6 +37,8 @@ class TestExportMembers(TestCase):
         assert hemingway_data['sort_name'] == 'Hemingway, Ernest'
         assert hemingway_data['death_year'] == 1961
         assert 'title' not in hemingway_data   # empty fields not present
+        # fixture has no events, so no years are set
+        assert hemingway_data['membership_years'] == []
 
         # check nationalities
         assert 'France' in gay_data['nationalities']
@@ -51,3 +55,13 @@ class TestExportMembers(TestCase):
 
         assert gay_data['updated'] == gay.updated_at.isoformat()
         assert hemingway_data['updated'] == hemingway.updated_at.isoformat()
+
+        # add events to check membership years
+        account = gay.account_set.first()
+        Event.objects.create(
+            account=account, start_date=datetime.date(1920, 5, 1),
+            end_date=datetime.date(1921, 2, 1))
+        Event.objects.create(
+            account=account, start_date=datetime.date(1935, 5, 1))
+        gay_data = self.cmd.get_object_data(gay)
+        assert gay_data['membership_years'] == [1920, 1921, 1935]

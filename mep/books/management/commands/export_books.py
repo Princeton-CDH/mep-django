@@ -43,6 +43,7 @@ class Command(BaseExport):
         "event_count",
         "borrow_count",
         "purchase_count",
+        "circulation_years",
         "updated"
     ]
 
@@ -96,6 +97,9 @@ class Command(BaseExport):
         data['event_count'] = work.event_count
         data['borrow_count'] = work.borrow_count
         data['purchase_count'] = work.purchase_count
+        # set for unique, list for json serialization
+        data['circulation_years'] = list(set(d.year for d in work.event_dates))
+
         # date last modified
         data['updated'] = work.updated_at.isoformat()
 

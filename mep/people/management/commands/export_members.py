@@ -22,10 +22,13 @@ class Command(BaseExport):
 
     csv_fields = [
         'uri',
-        'name', 'sort_name',
-        'gender', 'title',
-        'birth_year', 'death_year',
+        'name',
+        'sort_name',
+        'title',
+        'gender',
         'is_organization', 'has_card',
+        'birth_year', 'death_year',
+        'membership_years',
         'viaf_url', 'wikipedia_url',
         # related country
         'nationalities',
@@ -57,20 +60,24 @@ class Command(BaseExport):
             ('is_organization', obj.is_organization),
             ('has_card', obj.has_card()),
         ])
-
-        # add gender
+        # add title if set
+        if obj.title:
+            data['title'] = obj.title
+        # add gender if set
         if obj.gender:
             data['gender'] = obj.get_gender_display()
 
-        # add title
-        if obj.title:
-            data['title'] = obj.title
+        data['is_organization'] = obj.is_organization
+        data['has_card'] = obj.has_card()
 
-        # add birth/death dates
+        # add birth/death dates if known
         if obj.birth_year:
             data['birth_year'] = obj.birth_year
         if obj.death_year:
             data['death_year'] = obj.death_year
+        # set for unique, list for json serialization
+        data['membership_years'] = list(
+            set(d.year for d in obj.account_set.first().event_dates))
 
         # viaf & wikipedia URLs
         if obj.viaf_id:

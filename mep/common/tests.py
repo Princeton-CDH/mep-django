@@ -807,6 +807,11 @@ class TestBaseExport(TestCase):
         flat_nested = BaseExport.flatten_dict(nested_list)
         assert flat_nested['page_label'] == 'one;two'
 
+        # handle list of integer
+        nested_list['page']['label'] = [1, 2, 3]
+        flat_nested = BaseExport.flatten_dict(nested_list)
+        assert flat_nested['page_label'] == '1;2;3'
+
 
 @patch('mep.common.management.export.progressbar')
 class TestStreamArray(TestCase):

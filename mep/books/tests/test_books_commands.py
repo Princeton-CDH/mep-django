@@ -401,6 +401,8 @@ class TestExportBooks(TestCase):
         assert data['borrow_count'] == exit_e.event__borrow__count
         assert data['purchase_count'] == exit_e.event__purchase__count
         assert data['updated'] == exit_e.updated_at.isoformat()
+        # fixture has no events for exit eliza, so no years are set
+        assert data['circulation_years'] == []
 
         # record with different data
         dial = Work.objects.count_events().get(slug='dial')
@@ -411,6 +413,7 @@ class TestExportBooks(TestCase):
         assert 'volumes_issues' in data
         for vol in dial.edition_set.all():
             assert vol.display_text() in data['volumes_issues']
+        assert data['circulation_years'] == [1936]
 
     def test_creator_info(self):
         exit_e = Work.objects.count_events().get(slug='exit-eliza')
