@@ -447,6 +447,10 @@ class TestPersonQuerySet(TestCase):
         jones_str = 'Merged Jones on %s' % iso_date
         # Jones will appear twice from being merged into Jonas
         assert main_person.notes.count(jones_str) == 2
+        # merged slugs saved as past slugs
+        past_slugs = (p.slug for p in main_person.past_slugs.all())
+        assert 'jones' in past_slugs
+        assert 'jones-2' in past_slugs
 
         # error on attempt to merge to person with multiple accounts
         second_acct = Account.objects.create()
