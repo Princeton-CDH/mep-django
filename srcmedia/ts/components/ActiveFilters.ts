@@ -58,12 +58,12 @@ export default class ActiveFilters extends Component {
      * Given an anchor element (in this case we use <a> as buttons), binds a
      * click handler that clears the input whose id is stored in the data-input
      * attribute of the anchor element.
-     * 
-     * Handler clears the provided input element, either by untoggling or 
+     *
+     * Handler clears the provided input element, either by untoggling or
      * removing its current value. Dispatches the appropriate event as though
      * the user had cleared it manually.
-     * 
-     * @param $button 
+     *
+     * @param $button
      */
     protected bindClearHandler($button: HTMLAnchorElement): void {
         const inputId = $button.dataset.input
@@ -120,7 +120,7 @@ export default class ActiveFilters extends Component {
     /**
      * Handle events originating from the form itself, e.g. the user typing into
      * a range filter or clicking a checkbox.
-     * 
+     *
      * @param event form events
      */
     protected handleFormInput(event: InputEvent): void {
@@ -142,7 +142,7 @@ export default class ActiveFilters extends Component {
             else this.remove({              // unchecked = remove filter
                 type: 'checkbox',
                 input: target.id
-            })     
+            })
         }
 
         // range filters
@@ -190,7 +190,7 @@ export default class ActiveFilters extends Component {
     /**
      * Create a new button for a provided filter and add it inside the element.
      * If the element was hidden, show it so the filter is visible.
-     * 
+     *
      * @param filter values to use for button
      */
     add(filter: Filter): void {
@@ -216,7 +216,7 @@ export default class ActiveFilters extends Component {
     /**
      * Remove a filter's button. If there are no remaining active filters, hide
      * the entire element.
-     * 
+     *
      * @param filter filter to remove
      */
     remove(filter: { input: string; type: string }): void {
@@ -226,7 +226,7 @@ export default class ActiveFilters extends Component {
         if (filter.input && filter.type) {
             if (filter.type == 'range')
                 $button = this.$inner.querySelector(`a[data-fieldset=${filter.input}`) as HTMLAnchorElement
-            else 
+            else
                 $button = this.$inner.querySelector(`a[data-input=${filter.input}`) as HTMLAnchorElement
         }
 
@@ -239,7 +239,7 @@ export default class ActiveFilters extends Component {
     /**
      * Update the text displayed on a filter's button. If the button doesn't
      * exist, create a new one instead.
-     * 
+     *
      * @param filter filter to update
      */
     update(filter: Filter): void {
