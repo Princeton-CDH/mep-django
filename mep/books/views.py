@@ -20,8 +20,8 @@ class WorkList(LabeledPagesMixin, ListView,
     '''List page for searching and browsing library items.'''
     model = Work
     page_title = "Books"
-    page_description = "Search and browse books by title and filter " + \
-        "by bibliographic metadata."
+    page_description = "Search and lending library books by title, author," + \
+        "or keyword and filter by circulation date."
     template_name = 'books/work_list.html'
     ajax_template_name = 'books/snippets/work_results.html'
     paginate_by = 100
@@ -218,6 +218,23 @@ class WorkDetail(DetailView, RdfViewMixin):
             (WorkList.page_title, WorkList().get_absolute_url()),
             (self.object.title, self.get_absolute_url())
         ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        description = ''
+        if self.object.authors:
+            description = 'By %s' % ','.join(
+                [a.name for a in self.object.authors])
+        if self.object.year:
+            description += ', %s' % self.object.year
+        if self.object.public_notes:
+            description += self.object.public_notes
+
+        context.update({
+            'page_title': self.object.title,
+            'page_description': description,
+        })
+        return context
 
 
 class WorkCirculation(ListView, RdfViewMixin):
