@@ -8,7 +8,7 @@ from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html, strip_tags
@@ -458,11 +458,8 @@ class MemberCardList(ListView, RdfViewMixin):
         # find the associated member; 404 if not found or not a library member
         self.member = get_object_or_404(Person.objects.library_members(),
                                         slug=self.kwargs['slug'])
-        # find all canvas objects for this person, via manifest
-        # associated with lending card bibliography
-        return super().get_queryset() \
-                      .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
-                      .order_by('order')
+        # return all canvas objects for this member
+        return self.member.account_set.first().member_card_images()
 
     def get_absolute_url(self):
         '''Full URI for member card list page.'''
@@ -504,15 +501,20 @@ class MemberCardDetail(DetailView, RdfViewMixin):
         # find the associated member; 404 if not found or not a library member
         self.member = get_object_or_404(Person.objects.library_members(),
                                         slug=self.kwargs['slug'])
-        # find requested canvas objects for this person, via manifest
-        # associated with lending card bibliography
-        filters = {
-            'short_id': self.kwargs['short_id'],
-            'manifest__bibliography__account__persons__slug':
-            self.kwargs['slug']
-        }
-        # return super().get_queryset().filter(**filters)
-        card = get_object_or_404(Canvas.objects.all(), **filters)
+
+        # images associated with lending card bibliography OR footnote events
+        self.cards = self.member.account_set.first().member_card_images()
+
+        # because this is a union queryset, filter by id manually
+        card = None
+        for image in self.cards:
+            if image.short_id == self.kwargs['short_id']:
+                card = image
+                break
+        if not card:
+            # 404 if we didn't find the requested card
+            raise Http404
+
         # use card dates for label
         card_dates = card.footnote_set.event_date_range()
         # used for page title and breadcrumb label;
@@ -551,8 +553,7 @@ class MemberCardDetail(DetailView, RdfViewMixin):
         context = super().get_context_data(**kwargs)
 
         # get all cards (canvases) from the manifest and store their ids
-        cards = self.object.manifest.canvases
-        card_ids = list(cards.values_list('short_id', flat=True))
+        card_ids = list(card.short_id for card in self.cards)
 
         # create a paginator with 1 card per page and get the current "page"
         paginator = Paginator(card_ids, 1)
@@ -575,7 +576,7 @@ class MemberCardDetail(DetailView, RdfViewMixin):
             'label': self.label,
             'events': member_events,
             'card_page': card_page,
-            'cards': cards,
+            'cards': self.cards,
             # metadata for social preview
             'page_title': '%s lending library card for %s' % \
             (self.label, self.member.firstname_last),

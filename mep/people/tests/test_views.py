@@ -1283,8 +1283,8 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'Suppliant Maidens')  # title
         self.assertContains(response, 'Aeschylus')  # author
         self.assertContains(response, '1922')  # pub date
-        self.assertContains(response, 'Feb. 1924')  # partial start date
-        self.assertContains(response, 'March 1924')  # partial end date
+        self.assertContains(response, 'Feb 1924')  # partial start date
+        self.assertContains(response, 'Mar 1924')  # partial end date
         self.assertContains(response, 'data-sort="1924-02"')  # sorting
         self.assertContains(response, 'data-sort="1924-03"')  # sorting
         self.assertContains(response, maidens.get_absolute_url())  # link
@@ -1295,7 +1295,7 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'The Awakening of Helena Richie')
         self.assertContains(response, 'Margaret Deland')  # author
         self.assertContains(response, '1906')  # pub date
-        self.assertContains(response, 'Nov. 27')  # partial start date
+        self.assertContains(response, 'Nov 27')  # partial start date
         self.assertContains(response, 'data-sort="--11-27"')  # sorting
         self.assertContains(response, Work.UNCERTAINTY_MESSAGE)  # uncertainty
         self.assertContains(response, awakening.get_absolute_url())  # link
@@ -1305,7 +1305,7 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'The Sun Also Rises')  # title
         self.assertContains(response, 'Ernest Hemingway')  # author
         self.assertContains(response, '1926')  # pub date
-        self.assertContains(response, 'June 3, 1922')  # start date
+        self.assertContains(response, 'Jun 3, 1922')  # start date
         self.assertContains(response, 'data-sort="1922-06-03"')  # sorting
         self.assertContains(response, rises.get_absolute_url())  # link
 
@@ -1377,7 +1377,7 @@ class TestMemberCardList(TestCase):
             self.view.get_queryset()
 
         self.view.kwargs = {'slug': 'stein-gertrude'}
-        canvas_ids = list(self.view.get_queryset().values_list('pk', flat=True))
+        canvas_ids = list(c.pk for c in self.view.get_queryset())
         # member should be stored on the view
         assert self.view.member == Person.objects.get(slug='stein-gertrude')
         # queryset should be canvas ids for footnotes associated with Stein
@@ -1553,7 +1553,8 @@ class TestMemberCardDetail(TestCase):
         # should have a page object & paginator stored in context
         assert isinstance(context['card_page'].paginator, Paginator)
         # list of other cards (canvases) stored in context
-        assert context['cards'] == self.view.get_object().manifest.canvases
+        assert list(context['cards']) == \
+            list(self.view.member.account_set.first().member_card_images())
 
     def test_view_template(self):
         member = Person.objects.get(slug='stein-gertrude')

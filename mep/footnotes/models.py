@@ -301,35 +301,35 @@ class Bibliography(Notable, ModelIndexable):
 class FootnoteQuerySet(models.QuerySet):
     '''Custom :class:`models.QuerySet` for :class:`Footnote`'''
 
+    def on_events(self):
+        '''Filter to footnotes that are associated with events'''
+        return self.filter(
+            content_type__app_label='accounts',
+            content_type__model__in=['event', 'borrow', 'purchase'])
+
     def events(self):
         '''Return an Events queryset of any events (including borrows and
         purchases) associated with the current footnote queryset.'''
 
         # use get model to avoid circular import
         Event = apps.get_model('accounts', 'Event')
-        # get a list of the event content types we care about
-        event_content_types = ContentType.objects.filter(
-            app_label='accounts',
-            model__in=['event', 'borrow', 'purchase'])
-        # lookup dict: content type pk and model name
-        ctype_lookup = {ctype.pk: ctype.name for ctype in event_content_types}
 
         # get event ids and content types from the current footnote queryset
-        event_refs = self.filter(content_type__in=event_content_types) \
-                         .values('object_id', 'content_type')
+        event_refs = self.on_events() \
+                         .values('object_id', 'content_type__model')
         # group event ids by content type
         event_ids_by_type = defaultdict(list)
         for ref in event_refs:
-            event_ids_by_type[ref['content_type']].append(ref['object_id'])
+            event_ids_by_type[ref['content_type__model']].append(ref['object_id'])
         # construct an OR filter query for each content type and list of ids
         # - look for nothing OR for events and event subtypes by id
         filter_q = models.Q(pk__in=[])
         for ctype, pk_list in event_ids_by_type.items():
-            if ctype_lookup[ctype] == 'borrow':
+            if ctype == 'borrow':
                 filter_q |= models.Q(borrow__pk__in=pk_list)
-            elif ctype_lookup[ctype] == 'purchase':
+            elif ctype == 'purchase':
                 filter_q |= models.Q(purchase__pk__in=pk_list)
-            elif ctype_lookup[ctype] == 'event':
+            elif ctype == 'event':
                 filter_q |= models.Q(pk__in=pk_list)
 
         # find and return corresponding events

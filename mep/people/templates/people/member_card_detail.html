@@ -80,7 +80,7 @@
             </tr>
         </thead>
         {% for event in events %}
-        <tr>
+        <tr id="e{{ event.pk }}">
             <td class="start{% if not event.partial_start_date %} empty{% endif %}">
                 {{ event.partial_start_date|partialdate|default:'-' }}
             </td>
