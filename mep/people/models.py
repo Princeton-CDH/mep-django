@@ -5,6 +5,7 @@ from django.apps import apps
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import MultipleObjectsReturned
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
@@ -468,10 +469,19 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
 
         # if slug has changed, save the old one as a past slug
         if self.has_changed('slug'):
-            PastPersonSlug.objects.create(slug=self.initial_value('slug'),
-                                          person=self)
+            PastPersonSlug.objects.get_or_create(slug=self.initial_value('slug'),
+                                                 person=self)
 
         super(Person, self).save(*args, **kwargs)
+
+    def validate_unique(self, exclude=None):
+        # customize uniqueness validation to ensure new slugs don't
+        # conflict with past slugs
+        super().validate_unique(exclude)
+        if PastPersonSlug.objects.filter(slug=self.slug) \
+                         .exclude(person=self).count():
+            raise ValidationError('Slug is not unique ' +
+                                  '(conflicts with previously used slugs)')
 
     def get_absolute_url(self):
         '''

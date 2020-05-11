@@ -14,8 +14,8 @@ from mep.accounts.models import Account, Address, Borrow, Reimbursement, \
     Subscription
 from mep.books.models import Creator, CreatorType, Work
 from mep.footnotes.models import Bibliography, Footnote, SourceType
-from mep.people.models import (Country, InfoURL, Location, Person, Profession,
-                               Relationship, RelationshipType)
+from mep.people.models import Country, InfoURL, Location, Person, \
+    PastPersonSlug, Profession, Relationship, RelationshipType
 
 
 class TestLocation(TestCase):
@@ -160,6 +160,18 @@ class TestPerson(TestCase):
         pers.slug = 'hum'
         pers.save()
         assert pers.past_slugs.first().slug == 'hp'
+
+    def test_validate_unique(self):
+        # create a person
+        pers = Person.objects.create(name='Humperdinck', slug='hum')
+        # with a past slug
+        PastPersonSlug.objects.create(person=pers, slug='hp')
+        # no errors
+        pers.validate_unique()
+        # attempt to re-use past slug
+        hp = Person(name='Harry Potter', slug='hp')
+        with pytest.raises(ValidationError):
+            hp.validate_unique()
 
     def test_address_count(self):
         # create a person
