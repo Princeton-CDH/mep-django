@@ -92,8 +92,8 @@ def formfield_selected_filter(context, boundfield):
             label += ' %s – %s' % (start or '&nbsp;', end or '&nbsp;')
             # stored in querystring as name_0 and name_1
             fieldnames = ['%s_%d' % (boundfield.name, i) for i in range(2)]
-            link = '<a data-input="%s" href="?%s">%s</a>' % (
-                boundfield.id_for_label,
+            link = '<a data-fieldset="%s" href="?%s">%s</a>' % (
+                boundfield.auto_id, # use fieldset's id, not the inputs
                 querystring_remove(querystring, *fieldnames), label)
     elif isinstance(boundfield.field, FacetChoiceField):
         # could have multiple filters active
