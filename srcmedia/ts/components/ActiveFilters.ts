@@ -1,7 +1,7 @@
 import { Component } from '../lib/common'
 
 type Filter = {
-    type: 'boolean' | 'text' | 'range'
+    type: 'checkbox' | 'range'
     input: string,
     name: string,
     value: string,
@@ -12,6 +12,9 @@ export default class ActiveFilters extends Component {
     $inner: HTMLElement            // container for list of buttons
     $legend: HTMLElement           // 'active filters' text
     $clearAll: HTMLAnchorElement   // 'clear all' button
+
+    // inputs in a range filter fieldset have this pattern, e.g. field_id_1
+    rangeFilterPattern: RegExp = /^(.*)_\d+$/
 
     constructor(element: HTMLElement) {
         super(element)
@@ -41,7 +44,7 @@ export default class ActiveFilters extends Component {
         $anchors.forEach(($anchor: HTMLAnchorElement) => {
             $anchor.removeAttribute('href')
             $anchor.setAttribute('role', 'button')
-            ActiveFilters.bindClearHandler($anchor)
+            this.bindClearHandler($anchor)
         })
 
         // add a special handler to the "clear all" button
@@ -62,7 +65,7 @@ export default class ActiveFilters extends Component {
      * 
      * @param $button 
      */
-    static bindClearHandler($button: HTMLAnchorElement): void {
+    protected bindClearHandler($button: HTMLAnchorElement): void {
         const inputId = $button.dataset.input
         const fieldsetId = $button.dataset.fieldset
 
@@ -91,7 +94,7 @@ export default class ActiveFilters extends Component {
                     $input.value = ''
                     $input.dispatchEvent(new Event('input', { bubbles: true }))
                 })
-                this.removeFilter($button)
+                // this.remove($button)
             })
         }
 
@@ -109,52 +112,84 @@ export default class ActiveFilters extends Component {
                 $input.checked = false
                 $input.dispatchEvent(new Event('change', { bubbles: true }))
                 $input.dispatchEvent(new Event('input', { bubbles: true }))
-                this.removeFilter($button)
+                // this.remove($button)
             })
         }
     }
 
     /**
-     * Remove all active filters by "clicking" each button.
+     * Handle events originating from the form itself, e.g. the user typing into
+     * a range filter or clicking a checkbox.
+     * 
+     * @param event form events
      */
-    protected clearAll(): void {
-        const $buttons = this.$inner.querySelectorAll('a:not(.clear-all)')
-        $buttons.forEach($button => $button.dispatchEvent(new Event('click')))
-    }
-
-    protected handleFormInput(event: Event): void {
+    protected handleFormInput(event: InputEvent): void {
         const target = event.target as HTMLInputElement
+
+        // determine the type of filter that is affected, then delegate to the
+        // add(), remove(), or change() functions.
+
+        // boolean filters and text facets
         if (target.type == 'checkbox') {
-            if (target.checked) {
+            if (target.checked) {           // checked = add new filter
                 this.add({
-                    type: 'text',
+                    type: 'checkbox',
                     input: target.id,
                     name: target.name,
                     value: target.value
                 })
             }
+            else this.remove({              // unchecked = remove filter
+                type: 'checkbox',
+                input: target.id
+            })     
+        }
+
+        // range filters
+        else if (target.type == 'number') {
+            
+            // find both inputs via parent fieldset
+            const idMatch = target.id.match(this.rangeFilterPattern) as RegExpMatchArray
+            const $fieldset = document.getElementById(idMatch[1]) as HTMLFieldSetElement
+            const [$rangeStart, $rangeStop]: HTMLInputElement[] = Array.from($fieldset.querySelectorAll('input'))
+            
+            // if both inputs are empty, delete button
+            if ($rangeStart.value == '' && $rangeStop.value == '')
+                this.remove({
+                    type: 'range',
+                    input: idMatch[1]
+                })
+
+            // otherwise create/update existing button
             else {
-                const $button = this.$inner.querySelector(`a[data-input=${target.id}`) as HTMLAnchorElement
-                if ($button) this.removeFilter($button)
+                // generate inner text using both values + legend
+                const $legend = $fieldset.querySelector('legend') as HTMLLegendElement
+                const buttonContent = `${$rangeStart.value} – ${$rangeStop.value}`
+
+                // store the button using the fieldset's id
+                this.update({
+                    type: 'range',
+                    input: idMatch[1],
+                    name: $legend.textContent as string,
+                    value: buttonContent
+                })
             }
         }
-        else {
-            if (target.value != '') {
-                this.add({
-                    type: 'range',
-                    input: target.id,
-                    name: target.name,
-                    value: target.value
-                })
-            }
-            else {
-                // const $button = 
-            }
+    }
+
+    protected buttonText(filter: Filter) {
+        switch(filter.type) {
+            case 'range':
+                return `${filter.name}: ${filter.value}`
+            case 'checkbox':
+            default:
+                return filter.name
         }
     }
 
     /**
      * Create a new button for a provided filter and add it inside the element.
+     * If the element was hidden, show it so the filter is visible.
      * 
      * @param filter values to use for button
      */
@@ -163,10 +198,13 @@ export default class ActiveFilters extends Component {
         const $button = document.createElement('a')
         $button.setAttribute('role', 'button')
         $button.innerText = filter.value
-        $button.dataset.input = filter.input
+        if (filter.type == 'range')
+            $button.dataset.fieldset = filter.input
+        else
+            $button.dataset.input = filter.input
 
         // bind click handler
-        ActiveFilters.bindClearHandler($button)
+        this.bindClearHandler($button)
 
         // add it to the inside of the element
         this.$inner.appendChild($button)
@@ -175,17 +213,44 @@ export default class ActiveFilters extends Component {
         this.element.classList.remove('hidden')
     }
 
-    public removeFilter($button: HTMLAnchorElement): void {
-        $button.remove()
+    /**
+     * Remove a filter's button. If there are no remaining active filters, hide
+     * the entire element.
+     * 
+     * @param filter filter to remove
+     */
+    remove(filter: { input: string; type: string }): void {
+        let $button: HTMLAnchorElement
+
+        // find the corresponding filter button
+        if (filter.input && filter.type) {
+            if (filter.type == 'range')
+                $button = this.$inner.querySelector(`a[data-fieldset=${filter.input}`) as HTMLAnchorElement
+            else 
+                $button = this.$inner.querySelector(`a[data-input=${filter.input}`) as HTMLAnchorElement
+        }
+
+        // remove the button and hide the element if it's now empty
+        //@ts-ignore
+        if ($button) $button.remove()
         if (this.count() == 0) this.element.classList.add('hidden')
     }
 
-    update(id: string, filter: Filter): void {
-        
-    }
+    /**
+     * Update the text displayed on a filter's button. If the button doesn't
+     * exist, create a new one instead.
+     * 
+     * @param filter filter to update
+     */
+    update(filter: Filter): void {
+        let $button: HTMLAnchorElement
 
-    contains(id: string) {
+        // find the corresponding button - if none exists, delegate to add()
+        $button = this.$inner.querySelector(`a[data-fieldset=${filter.input}`) as HTMLAnchorElement
+        if (!$button) return this.add(filter)
 
+        // update the button's content
+        $button.innerText = this.buttonText(filter)
     }
 
     /**
@@ -194,5 +259,13 @@ export default class ActiveFilters extends Component {
      */
     count(): number {
         return this.$inner.querySelectorAll('a:not(.clear-all)').length
+    }
+
+    /**
+     * Remove all active filters by "clicking" each button.
+     */
+    clearAll(): void {
+        const $buttons = this.$inner.querySelectorAll('a:not(.clear-all)')
+        $buttons.forEach($button => $button.dispatchEvent(new Event('click')))
     }
 }
