@@ -568,6 +568,10 @@ class MemberCardDetail(DetailView, RdfViewMixin):
             'events': member_events,
             'card_page': card_page,
             'cards': cards,
+            # metadata for social preview
+            'page_title': '%s lending library card for %s' % \
+            (self.label, self.member.firstname_last)
+
         })
         return context
 
