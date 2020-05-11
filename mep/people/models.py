@@ -11,9 +11,9 @@ from django.utils import timezone
 from parasolr.django.indexing import ModelIndexable
 from viapy.api import ViafEntity
 
-from mep.common.models import AliasIntegerField, DateRange, Named, Notable
+from mep.common.models import AliasIntegerField, DateRange, Named, Notable, \
+    TrackChangesModel
 from mep.common.validators import verify_latlon
-from mep.accounts.partial_date import DatePrecision
 from mep.footnotes.models import Footnote
 
 
@@ -362,7 +362,7 @@ class PersonSignalHandlers:
                 ModelIndexable.index_items(members)
 
 
-class Person(Notable, DateRange, ModelIndexable):
+class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
     '''Model for people in the MEP dataset'''
 
     #: MEP xml id
@@ -465,6 +465,11 @@ class Person(Notable, DateRange, ModelIndexable):
 
         if self.viaf_id and not self.birth_year and not self.death_year:
             self.set_birth_death_years()
+
+        # if slug has changed, save the old one as a past slug
+        if self.has_changed('slug'):
+            PastPersonSlug.objects.create(slug=self.initial_value('slug'),
+                                          person=self)
 
         super(Person, self).save(*args, **kwargs)
 

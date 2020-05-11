@@ -155,6 +155,12 @@ class TestPerson(TestCase):
             pers.save()
             mock_setbirthdeath.assert_called_with()
 
+    def test_save_old_slug(self):
+        pers = Person.objects.create(name='Humperdinck', slug='hp')
+        pers.slug = 'hum'
+        pers.save()
+        assert pers.past_slugs.first().slug == 'hp'
+
     def test_address_count(self):
         # create a person
         pers = Person.objects.create(name='Foobar', slug='foobar')
