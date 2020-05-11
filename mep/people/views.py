@@ -337,7 +337,7 @@ class MemberDetail(DetailView, RdfViewMixin):
 
         # text-only readable version of membership years for meta description
         membership_years = strip_tags(as_ranges(account_years)
-                                      .replace('</span>', ','))
+                                      .replace('</span>', ',')).rstrip(',')
 
         # config settings used to render the map; set in local_settings.py
         context.update({
@@ -481,7 +481,15 @@ class MemberCardList(ListView, RdfViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['member'] = self.member
+        page_title = 'Lending library cards for %s' % self.member.firstname_last
+        context.update({
+            'member': self.member,
+            # social preview
+            'page_title': page_title,
+            'page_description': '%d cards' % self.object_list.count(),
+            'page_iiif_image': self.object_list.first().image
+        })
+
         return context
 
 
@@ -570,8 +578,8 @@ class MemberCardDetail(DetailView, RdfViewMixin):
             'cards': cards,
             # metadata for social preview
             'page_title': '%s lending library card for %s' % \
-            (self.label, self.member.firstname_last)
-
+            (self.label, self.member.firstname_last),
+            'page_iiif_image': context['card'].image
         })
         return context
 
