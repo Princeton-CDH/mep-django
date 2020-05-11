@@ -496,7 +496,7 @@ class MemberCardDetail(DetailView, RdfViewMixin):
                 card = image
                 break
         if not card:
-            # 404 if we didn't find the requested it
+            # 404 if we didn't find the requested card
             raise Http404
 
         # use card dates for label
