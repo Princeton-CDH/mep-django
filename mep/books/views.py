@@ -328,7 +328,14 @@ class WorkCardList(ListView, RdfViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['work'] = self.work
+        page_title = 'Lending library cards that reference %s' % \
+            self.work.title
+        context.update({
+            'work': self.work,
+            'page_title': page_title,
+            'page_description': '%d cards' % self.object_list.count(),
+            'page_iiif_image': self.object_list.first().image.image
+        })
         return context
 
 
