@@ -282,11 +282,17 @@ class WorkCardList(ListView, RdfViewMixin):
                       .filter(image__isnull=False) \
                       .annotate(date=Coalesce('borrows__start_date',
                                               'events__start_date',
-                                              'purchases__start_date')) \
+                                              'purchases__start_date'),
+                                start_date_precision=Coalesce(
+                                    'borrows__start_date_precision',
+                                    'events__start_date_precision',
+                                    'purchases__start_date_precision')) \
                       .prefetch_related('content_object', 'image') \
-                      .order_by(F('date').asc(nulls_last=True))
+                      .order_by(F('start_date_precision').desc(),
+                                F('date').asc(nulls_last=True))
 
-        # NOTE: not sure how to sort dates with missing years last
+        # NOTE: sorting by date precision decending (with default nulls first)
+        # so that full precision dates (null or 7) come before partiald ates
 
     def get_absolute_url(self):
         '''Full URI for work card list page.'''
