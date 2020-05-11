@@ -1377,7 +1377,7 @@ class TestMemberCardList(TestCase):
             self.view.get_queryset()
 
         self.view.kwargs = {'slug': 'stein-gertrude'}
-        canvas_ids = list(self.view.get_queryset().values_list('pk', flat=True))
+        canvas_ids = list(c.pk for c in self.view.get_queryset())
         # member should be stored on the view
         assert self.view.member == Person.objects.get(slug='stein-gertrude')
         # queryset should be canvas ids for footnotes associated with Stein
@@ -1553,7 +1553,8 @@ class TestMemberCardDetail(TestCase):
         # should have a page object & paginator stored in context
         assert isinstance(context['card_page'].paginator, Paginator)
         # list of other cards (canvases) stored in context
-        assert context['cards'] == self.view.get_object().manifest.canvases
+        assert list(context['cards']) == \
+            list(self.view.member.account_set.first().member_card_images())
 
     def test_view_template(self):
         member = Person.objects.get(slug='stein-gertrude')

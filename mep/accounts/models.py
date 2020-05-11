@@ -6,14 +6,15 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
+from djiffy.models import Canvas
 
 from mep.accounts.event_set import EventSetMixin
 from mep.accounts.partial_date import DatePrecisionField, PartialDate, \
     PartialDateMixin
 from mep.books.models import Edition, Work
 from mep.common.models import Named, Notable
-from mep.people.models import Person, Location
 from mep.footnotes.models import Bibliography, Footnote
+from mep.people.models import Location, Person
 
 
 class Account(models.Model, EventSetMixin):
@@ -67,8 +68,6 @@ class Account(models.Model, EventSetMixin):
         return ', '.join(person.name for
                          person in self.persons.all().order_by('name'))
     list_persons.short_description = 'Account holder(s)'
-
-
 
     @property
     def subscription_set(self):
@@ -150,6 +149,31 @@ class Account(models.Model, EventSetMixin):
         # Catch an invalid class of event or subevent
         self.validate_etype(etype)
         return self.str_to_model(etype).objects.filter(account=self, **kwargs)
+
+    def member_card_images(self):
+        '''Return a queryset for card images that are part of this account's
+        associated card manifest OR that have events for this account.
+        Note that this returns a union queryset, which puts some retrictions
+        on supported operations.
+        '''
+
+        if not self.card or not self.card.manifest:
+            return Canvas.objects.none()
+
+        # get all canvases that belong to the manifest assigned as the
+        # card for this account (including blanks)
+        manifest_cards = self.card.manifest.canvases.all().order_by('order')
+
+        # find all canvas associated with events for this account via footnote
+        event_cards = Canvas.objects.filter(
+            models.Q(footnote__events__account__pk=self.pk) |
+            models.Q(footnote__borrows__account__pk=self.pk) |
+            models.Q(footnote__purchases__account__pk=self.pk)) \
+            .distinct()
+
+        # combine the two sets; removes duplicates by default, and will
+        # list manifest cards first
+        return manifest_cards.union(event_cards).distinct()
 
 
 class Address(Notable, PartialDateMixin):
