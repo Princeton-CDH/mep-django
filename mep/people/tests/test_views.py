@@ -26,8 +26,8 @@ from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import (Country, Location, Person, Relationship,
-                               RelationshipType)
+from mep.people.models import (Country, Location, Person, PastPersonSlug,
+                               Relationship, RelationshipType)
 from mep.people.views import (BorrowingActivities, GeoNamesLookup,
                               MemberCardDetail, MemberCardList,
                               MembershipActivities, MembershipGraphs,
@@ -1070,6 +1070,64 @@ class TestMemberDetailView(TestCase):
         response = self.client.get(url)
         assert response.status_code == 404, \
             'non-members should not have a detail page'
+
+
+class TestPastSlugRedirects(TestCase):
+    fixtures = ['footnotes_gstein', 'sample_people']
+
+    # short id for first canvas in manifest for stein's card
+    canvas_id = '68fd36f1-a463-441e-9f13-dfc4a6cd4114'
+    kwargs = {'slug': 'stein-gertrude', 'short_id': canvas_id}
+
+    def setUp(self):
+        self.member = Person.objects.get(slug="stein-gertrude")
+        self.slug = self.member.slug
+        self.old_slug = 'old_slug'
+        PastPersonSlug.objects.create(person=self.member,
+                                      slug=self.old_slug)
+        aeschylus = Person.objects.get(name='Aeschylus', slug='aeschylus')
+        self.nonmember_slug = 'aeschy'
+        PastPersonSlug.objects.create(person=aeschylus,
+                                      slug=self.nonmember_slug)
+
+    def test_member_detail_pages(self):
+        # single member detail pages that don't require extra args
+        for named_url in ['member-detail', 'membership-activities',
+                          'borrowing-activities', 'member-card-list']:
+
+            # old slug should return permanent redirect to equivalent new
+            route = 'people:%s' % named_url
+            response = self.client.get(reverse(route,
+                                       kwargs={'slug': self.old_slug}))
+
+            assert response.status_code == 301  # permanent redirect
+            # redirect to same view with the *correct* slug
+            assert response['location'].endswith(
+                reverse(route, kwargs={'slug': self.slug}))
+
+            # non-member old slug should still 404
+            response = self.client.get(
+                reverse(route, kwargs={'slug': self.nonmember_slug}))
+            assert response.status_code == 404
+
+    def test_member_card_detail_page(self):
+            # old slug should return permanent redirect to equivalent new
+            route = 'people:member-card-detail'
+            response = self.client.get(reverse(route,
+                                       kwargs={'slug': self.old_slug,
+                                               'short_id': self.canvas_id}))
+
+            assert response.status_code == 301  # permanent redirect
+            # redirect to same view with the *correct* slug
+            assert response['location'].endswith(
+                reverse(route, kwargs={'slug': self.slug,
+                                       'short_id': self.canvas_id}))
+
+            # non-member old slug should still 404
+            response = self.client.get(
+                reverse(route, kwargs={'slug': self.nonmember_slug,
+                                       'short_id': self.canvas_id}))
+            assert response.status_code == 404
 
 
 class TestMembershipActivities(TestCase):
