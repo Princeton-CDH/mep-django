@@ -2,68 +2,37 @@ import ActiveFilters from './ActiveFilters'
 
 describe('ActiveFilters component', () => {
 
-    it('finds the parent form on initialization', () => {
+    it('finds needed DOM elements on initialization', () => {
         // set up the DOM with no active filters
         document.body.innerHTML = `
-        <form id="test-form">
-        <div class="active-filters">
-            <span class="legend hidden">Selected Filters</span>
-            <a href="http://example.com/" class="clear-all hidden">Clear All</a>
-        </div></form>`
+        <form id="test-form"><div class="active-filters hidden"><div class="inner">
+            <span class="legend">Selected Filters</span>
+            <a href="http://example.com/" class="clear-all">Clear All</a>
+        </div></div></form>`
         const $target = document.querySelector('.active-filters') as HTMLDivElement
-        const af = new ActiveFilters($target)
-
-        // keeps reference to parent form
         const $form = document.querySelector('form') as HTMLFormElement
-        expect(af.$form).toBe($form)
-    })
-
-    it('finds the legend element on initialization', () => {
-        // set up the DOM with no active filters
-        document.body.innerHTML = `
-        <form id="test-form">
-        <div class="active-filters">
-            <span class="legend hidden">Selected Filters</span>
-            <a href="http://example.com/" class="clear-all hidden">Clear All</a>
-        </div></form>`
-        const $target = document.querySelector('.active-filters') as HTMLDivElement
-        const af = new ActiveFilters($target)
-
-        // keeps reference to legend element
-        const $legend = document.querySelector('.legend') as HTMLSpanElement
-        expect(af.$legend).toBe($legend)
-    })
-
-    it('finds the "clear all" button on initialization', () => {
-        // set up the DOM with no active filters
-        document.body.innerHTML = `
-        <form id="test-form">
-        <div class="active-filters">
-            <span class="legend hidden">Selected Filters</span>
-            <a href="http://example.com/" class="clear-all hidden">Clear All</a>
-        </div></form>`
-        const $target = document.querySelector('.active-filters') as HTMLDivElement
-        const af = new ActiveFilters($target)
-
-        // keeps reference to "clear all" button
         const $clearAll = document.querySelector('.clear-all') as HTMLAnchorElement
-        expect(af.$clearAll).toBe($clearAll)
+        const $inner = document.querySelector('.inner') as HTMLDivElement
+        
+        const af = new ActiveFilters($target)
+
+        expect(af.$form).toBe($form)            // parent form
+        expect(af.$clearAll).toBe($clearAll)    // 'clear all' button
+        expect(af.$inner).toBe($inner)          // container for filter buttons
     })
 
     it('converts all links into buttons on initialization', () => {
         // set up the DOM with some active filters
         document.body.innerHTML = `
-        <form id="test-form">
-        <div class='active-filters'>
-            <span class='legend'>Selected Filters</span>
-            <a href='http://example.com/'>United States</a>
-            <a href='http://example.com/'>France</a>
-            <a href='http://example.com/'>Female</a>
-            <a href='http://example.com/'>Has Card</a>
-            <a href='http://example.com/'>Member 1920 – 1940</a>
-            <a href='http://example.com/' class='clear-all'>Clear All</a>
-        </div></form>
-        `
+        <form id="test-form"><div class="active-filters"><div class="inner">
+            <span class="legend">Selected Filters</span>
+            <a href="http://example.com/">United States</a>
+            <a href="http://example.com/">France</a>
+            <a href="http://example.com/">Female</a>
+            <a href="http://example.com/">Has Card</a>
+            <a href="http://example.com/">Member 1920 – 1940</a>
+            <a href="http://example.com/" class="clear-all">Clear All</a>
+        </div></div></form>`
         const $target = document.querySelector('.active-filters') as HTMLDivElement
         const af = new ActiveFilters($target)
 
@@ -75,70 +44,44 @@ describe('ActiveFilters component', () => {
         })
     })
 
-    it.skip('reads boolean filter from form on initialization', () => {
-        // set up page with a boolean filter active
+    it('adds filter buttons when inputs are activated', () => {
+        // set up the DOM with no active filters and some test inputs
         document.body.innerHTML = `
         <form id="test-form">
-        <input type="checkbox" name="foo" checked="">
-        <div class="active-filters">
+        <input id="sprinkles" type="checkbox" name="add_sprinkles">
+        <label for="flavors_0">Chocolate</label>
+        <input id="flavors_0" type="checkbox" name="flavors" value="chocolate">
+        <label for="flavors_1">Vanilla</label>
+        <input id="flavors_1" type="checkbox" name="flavors" value="vanilla">
+        <fieldset>
+            <legend>Scoops</legend>
+            <input id="scoops_0" type="number" name="scoops_0">
+            <input id="scoops_1" type="number" name="scoops_1">
+        </fieldset>
+        <div class="active-filters hidden"><div class="inner">
             <span class="legend">Selected Filters</span>
-            <a href="http://example.com/">Is Cool</a>
             <a href="http://example.com/" class="clear-all">Clear All</a>
-        </div>
-        </form>`
+        </div></div></form>`
         const $target = document.querySelector('.active-filters') as HTMLDivElement
         const af = new ActiveFilters($target)
 
-        // boolean should be stored; value doesn't matter so we use it unchanged
+        // activate a boolean filter and check its button
+        const $boolFilter = document.getElementById('sprinkles') as HTMLInputElement
+        $boolFilter.checked = true
+        $boolFilter.dispatchEvent(new Event('input', { bubbles: true }))
+        const $boolButton = document.querySelector('a[data-input=sprinkles]') as HTMLAnchorElement
+        expect($boolButton).not.toBeNull()
+        expect($boolButton.dataset.input).toEqual('sprinkles')
+        expect($boolButton.getAttribute('role')).toEqual('button')
+        expect($boolButton.textContent).toBe('Add Sprinkles')
     })
 
-    it.skip('reads multivalued filter from form on initialization', () => {
-        // set up page with multivalued text facet active
-        document.body.innerHTML = `
-        <form id="test-form">
-        <div class="active-filters">
-            <span class="legend">Selected Filters</span>
-            <a href="http://example.com/">Bar</a>
-            <a href="http://example.com/">Baz</a>
-            <a href="http://example.com/" class="clear-all">Clear All</a>
-        </div></form>`
-        const $target = document.querySelector('.active-filters') as HTMLDivElement
-        const af = new ActiveFilters($target)
+    it.todo('removes filter buttons when their inputs are cleared')
 
-        // facet values should be collapsed into an array
-    })
+    it.todo('clears inputs when their filter buttons are clicked')
 
-    it.skip('reads range filter from form on initialization', () => {
-        // set up page with range filter active
-        document.body.innerHTML = `
-        <form id="test-form">
-        <div class="active-filters">
-            <span class="legend">Selected Filters</span>
-            <a href="http://example.com/">Foo: 100 - 150</a>
-            <a href="http://example.com/" class="clear-all">Clear All</a>
-        </div></form>`
-        const $target = document.querySelector('.active-filters') as HTMLDivElement
-        const af = new ActiveFilters($target)
+    it.todo('hides the display if no filters are active')
 
-        // both ends of range should be under name of property ('foo')
-    })
-
-    it.todo('renders a clickable button for each active filter', () => {
-        // set up the DOM with no active filters
-        document.body.innerHTML = `
-        <div class="active-filters">
-            <span class="legend hidden">Selected Filters</span>
-            <a href="http://example.com/" class="clear-all hidden">Clear All</a>
-        </div>`
-
-    })
-
-    it.todo('removes an active filter button when the user clicks it')
-
-    it.todo('emits an event when the user removes an active filter')
-
-    it.todo('hides the legend and "clear all" button if no active filters')
-
-    it.todo('shows the legend and "clear all" button if filters are active')
+    it.todo('shows the display if filters are active')
 
 })

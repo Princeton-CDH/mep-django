@@ -5,12 +5,11 @@ type Filter = {
     input: string,
     name: string,
     value: string,
-}
+}   
 
 export default class ActiveFilters extends Component {
     $form: HTMLFormElement         // form whose filters we want to track
     $inner: HTMLElement            // container for list of buttons
-    $legend: HTMLElement           // 'active filters' text
     $clearAll: HTMLAnchorElement   // 'clear all' button
 
     // inputs in a range filter or text facet fieldset have this pattern:
@@ -24,11 +23,6 @@ export default class ActiveFilters extends Component {
         const form = this.element.closest('form')
         if (!form) console.error(`No containing form found for ${element}`)
         else this.$form = form
-
-        // find the legend and store
-        const legend = this.element.querySelector('.legend')
-        if (!legend) console.error(`No .legend element found in ${element}`)
-        else this.$legend = (legend as HTMLElement)
 
         // find the 'clear all' button and store
         const clearAll = this.element.querySelector('.clear-all')
@@ -149,40 +143,31 @@ export default class ActiveFilters extends Component {
                 filter.value = target.labels[0].childNodes[0].textContent.trim()
             }
 
-            if (target.checked)             // checked = add new filter   
-                this.add(filter)
-            else                            // unchecked = remove filter
-                this.remove(filter)        
+            if (target.checked) this.add(filter)   // checked = add new filter     
+            else this.remove(filter)               // unchecked = remove filter
         }
 
         // range filters
         else if (target.type == 'number') {
             
-            // find both inputs via parent fieldset
+            // find both inputs via parent fieldset, generate inner text
             const $fieldset = document.getElementById(idMatch[1]) as HTMLFieldSetElement
             const [$rangeStart, $rangeStop]: HTMLInputElement[] = Array.from($fieldset.querySelectorAll('input'))
+            const $legend = $fieldset.querySelector('legend') as HTMLLegendElement
+            const buttonContent = `${$rangeStart.value} – ${$rangeStop.value}`
+            const filter: Filter = {
+                type: 'range',
+                input: idMatch[1],  // fieldset id
+                name: $legend.textContent as string,
+                value: buttonContent
+            }
             
             // if both inputs are empty, delete button
             if ($rangeStart.value == '' && $rangeStop.value == '')
-                this.remove({
-                    type: 'range',
-                    input: idMatch[1]
-                })
+                this.remove(filter)
 
             // otherwise create/update existing button
-            else {
-                // generate inner text using both values + legend
-                const $legend = $fieldset.querySelector('legend') as HTMLLegendElement
-                const buttonContent = `${$rangeStart.value} – ${$rangeStop.value}`
-
-                // store the button using the fieldset's id
-                this.update({
-                    type: 'range',
-                    input: idMatch[1],
-                    name: $legend.textContent as string,
-                    value: buttonContent
-                })
-            }
+            else this.update(filter)
         }
     }
 
@@ -234,7 +219,7 @@ export default class ActiveFilters extends Component {
         const $button = document.createElement('a')
         $button.setAttribute('role', 'button')
         $button.setAttribute('tabindex', '0')
-        $button.innerText = this.buttonText(filter)
+        $button.textContent = this.buttonText(filter)
         if (filter.type == 'range')
             $button.dataset.fieldset = filter.input
         else
