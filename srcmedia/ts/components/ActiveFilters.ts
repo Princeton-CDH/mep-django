@@ -5,7 +5,7 @@ type Filter = {
     input: string,
     name: string,
     value: string,
-}   
+}
 
 export default class ActiveFilters extends Component {
     $form: HTMLFormElement         // form whose filters we want to track
@@ -143,7 +143,7 @@ export default class ActiveFilters extends Component {
                 filter.value = target.labels[0].childNodes[0].textContent.trim()
             }
 
-            if (target.checked) this.add(filter)   // checked = add new filter     
+            if (target.checked) this.add(filter)   // checked = add new filter
             else this.remove(filter)               // unchecked = remove filter
         }
 
@@ -174,8 +174,8 @@ export default class ActiveFilters extends Component {
     /**
      * Generate the text that will appear on a filter's button, depending on
      * what type of filter was passed.
-     * 
-     * @param filter 
+     *
+     * @param filter
      */
     protected buttonText(filter: Filter) {
         switch(filter.type) {
