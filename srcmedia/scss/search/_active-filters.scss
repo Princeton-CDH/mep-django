@@ -38,7 +38,11 @@
         padding: .2rem .4rem;
         background: white;
         text-decoration: none;
+        box-sizing: border-box;
         &::after { content: ' ×'; }
+        &:focus {
+            border: .1rem solid $green;
+        }
     }
 
     .clear-all {

@@ -1,4 +1,4 @@
-import { Component } from '../lib/common'
+import { Component, unslugify } from '../lib/common'
 
 type Filter = {
     type: 'boolean' | 'facet' | 'range',
@@ -140,8 +140,14 @@ export default class ActiveFilters extends Component {
             }
 
             // text facets have ids that match the multiWidgetPattern
-            if (idMatch)
+            if (idMatch) {
                 filter.type = 'facet'
+
+                // scrape the value from the content of the label, so that we
+                // can handle null value cases like "Unidentified" correctly
+                //@ts-ignore
+                filter.value = target.labels[0].childNodes[0].textContent.trim()
+            }
 
             if (target.checked)             // checked = add new filter   
                 this.add(filter)
@@ -192,15 +198,29 @@ export default class ActiveFilters extends Component {
                 // append the filter's name in addition to the range
                 return `${filter.name}: ${filter.value}`
             case 'boolean':
-                // split on underscores and capitalize each word -> "Has Card"
-                return filter.name.split('_').map(w => {
-                    return w.charAt(0).toUpperCase() + w.substr(1)
-                }).join(' ')
+                // unslugify the filter's name
+                return unslugify(filter.name)
             case 'facet':
             default:
                 // just use the value of the selected option
                 return filter.value
         }
+    }
+
+    /**
+     * Hide the active filters list and make it non-interactive.
+     */
+    protected hide(): void {
+        this.element.classList.add('hidden')
+        this.$clearAll.removeAttribute('tabindex')
+    }
+
+    /**
+     * Show the active filters list and make it interactive.
+     */
+    protected show(): void {
+        this.element.classList.remove('hidden')
+        this.$clearAll.setAttribute('tabindex', '0')
     }
 
     /**
@@ -213,6 +233,7 @@ export default class ActiveFilters extends Component {
         // create the button element
         const $button = document.createElement('a')
         $button.setAttribute('role', 'button')
+        $button.setAttribute('tabindex', '0')
         $button.innerText = this.buttonText(filter)
         if (filter.type == 'range')
             $button.dataset.fieldset = filter.input
@@ -226,7 +247,7 @@ export default class ActiveFilters extends Component {
         this.$inner.insertBefore($button, this.$clearAll)
 
         // make sure active filters are now showing
-        this.element.classList.remove('hidden')
+        this.show()
     }
 
     /**
@@ -249,7 +270,7 @@ export default class ActiveFilters extends Component {
         // remove the button and hide the element if it's now empty
         //@ts-ignore
         if ($button) $button.remove()
-        if (this.count() == 0) this.element.classList.add('hidden')
+        if (this.count() == 0) this.hide()
     }
 
     /**

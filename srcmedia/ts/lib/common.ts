@@ -176,6 +176,18 @@ function setAllHeights($element: HTMLElement, height: string) {
     }
 }
 
+/**
+ * Reverse a slugify-like operation, decoding a string like one_two_three to one
+ * like "One Two Three".
+ * 
+ * @param str string to operate on
+ */
+function unslugify(str: string) {
+    return str.split('_')
+              .map(part => part.charAt(0).toUpperCase() + part.substr(1))
+              .join(' ')
+}
+
 export {
     Reactive,
     Component,
@@ -189,5 +201,6 @@ export {
     fakeToggle,
     toggleTab,
     pluralize,
-    setAllHeights
+    setAllHeights,
+    unslugify
 }
