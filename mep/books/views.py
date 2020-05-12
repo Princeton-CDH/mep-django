@@ -330,11 +330,16 @@ class WorkCardList(ListView, RdfViewMixin):
         context = super().get_context_data(**kwargs)
         page_title = 'Lending library cards that reference %s' % \
             self.work.title
+        # there should always be at least one card, but handle in
+        # case of data errors
+        page_image = None
+        if self.object_list.count():
+            page_image = self.object_list.first().image.image
         context.update({
             'work': self.work,
             'page_title': page_title,
             'page_description': '%d cards' % self.object_list.count(),
-            'page_iiif_image': self.object_list.first().image.image
+            'page_iiif_image': page_image
         })
         return context
 
