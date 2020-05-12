@@ -11,7 +11,7 @@ from django.utils.timezone import now
 from mep.accounts.models import Account, Subscription
 from mep.books.models import Creator, CreatorType, Work
 from mep.people.admin import PersonAdmin, PersonTypeListFilter
-from mep.people.models import Person
+from mep.people.models import Person, PastPersonSlug
 
 
 class TestPersonAdmin(TestCase):
@@ -47,7 +47,6 @@ class TestPersonAdmin(TestCase):
         # works either way
         assert mockrequest.session['people_merge_filter'] in \
             ['p=3&filter=foo', 'filter=foo&p=3']
-
 
     def test_tabulate_queryset(self):
         person_admin = PersonAdmin(model=Person, admin_site=admin.site)
@@ -99,6 +98,19 @@ class TestPersonAdmin(TestCase):
             assert 'Admin Link' in headers
             # or title case for property with no verbose name
             assert 'Is Creator' in headers
+
+    def test_past_slugs_list(self):
+        person_admin = PersonAdmin(model=Person, admin_site=admin.site)
+        person = Person.objects.order_by('id').first()
+        # no object = no error but no value
+        assert not person_admin.past_slugs_list()
+        # empty string for person with no past slugs
+        assert person_admin.past_slugs_list(person) == ''
+        # add slugs
+        old_slugs = ['old-slug1', 'old-slug2', 'snail']
+        for slug in old_slugs:
+            PastPersonSlug.objects.create(person=person, slug=slug)
+        assert person_admin.past_slugs_list(person) == ', '.join(old_slugs)
 
 
 class TestPersonTypeListFilter(TestCase):

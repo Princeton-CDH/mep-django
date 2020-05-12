@@ -29,6 +29,7 @@ from mep.common.templatetags.mep_tags import (dict_item, domain, iiif_image,
                                               partialdate)
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
+from mep.people.models import Person
 
 
 class TestNamed(TestCase):
@@ -849,3 +850,33 @@ class TestStreamArray(TestCase):
         assert streamer.progbar.update.call_count == total
         # progress bar finish should be called once when iteration completes
         assert streamer.progbar.finish.call_count == 1
+
+
+class TestTrackChangesModel(TestCase):
+    # track changes functions tested via Person subclass
+
+    def setUp(self):
+        self.instance = Person.objects.create(slug='old')
+
+    def test_has_changed(self):
+        person = Person.objects.get(pk=self.instance.pk)
+        # no modifications
+        assert not person.has_changed('slug')
+        # changed
+        person.slug = 'new'
+        assert person.has_changed('slug')
+
+    def test_initial_value(self):
+        person = Person.objects.get(pk=self.instance.pk)
+        assert person.initial_value('slug') == 'old'
+        # set a new valuef
+        person.slug = 'new'
+        # should still return the same initial value
+        assert person.initial_value('slug') == 'old'
+
+    def test_save(self):
+        person = Person.objects.get(pk=self.instance.pk)
+        person.slug = 'new'
+        person.save()
+        # should not detect as changed after save
+        assert not person.has_changed('slug')

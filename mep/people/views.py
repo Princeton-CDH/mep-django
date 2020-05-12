@@ -8,7 +8,7 @@ from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import JsonResponse, Http404
+from django.http import Http404, HttpResponsePermanentRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html, strip_tags
@@ -236,7 +236,32 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin,
         ]
 
 
-class MemberDetail(DetailView, RdfViewMixin):
+class MemberPastSlugMixin:
+    '''View mixin to handle redirects for previously used slugs.
+    If the main view logic raises a 404, looks for a library member
+    by past slug; if one is found, redirects to the corresponding
+    member detail page with the new slug.
+    '''
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            # if not found, check for a match on a past slug
+            person = Person.objects.library_members() \
+                .filter(past_slugs__slug=self.kwargs['slug']).first()
+            # if found, redirect to the correct url for this view
+            if person:
+                # patch in the correct slug for use with get absolute url
+                self.kwargs['slug'] = person.slug
+                self.object = person   # used by member detail absolute url
+                return HttpResponsePermanentRedirect(self.get_absolute_url())
+
+            # otherwise, raise the 404
+            raise
+
+
+class MemberDetail(MemberPastSlugMixin, DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -247,7 +272,7 @@ class MemberDetail(DetailView, RdfViewMixin):
 
     def get_queryset(self):
         # throw a 404 if a non-member is accessed via this route
-        return super().get_queryset().exclude(account=None)
+        return super().get_queryset().library_members()
 
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
@@ -361,7 +386,7 @@ class MemberDetail(DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(ListView, RdfViewMixin):
+class MembershipActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
     '''Display a list of membership activities (subscriptions, renewals,
     and reimbursements) for an individual member.'''
     model = Event
@@ -404,7 +429,7 @@ class MembershipActivities(ListView, RdfViewMixin):
         ]
 
 
-class BorrowingActivities(ListView, RdfViewMixin):
+class BorrowingActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
     '''Display a list of book-related activities (borrows, purchases, gifts)
     for an individual member.'''
     model = Event
@@ -447,7 +472,7 @@ class BorrowingActivities(ListView, RdfViewMixin):
         ]
 
 
-class MemberCardList(ListView, RdfViewMixin):
+class MemberCardList(MemberPastSlugMixin, ListView, RdfViewMixin):
     '''Card thumbnails for lending card associated with a single library
     member.'''
     model = Canvas
@@ -494,7 +519,7 @@ class MemberCardList(ListView, RdfViewMixin):
         return context
 
 
-class MemberCardDetail(DetailView, RdfViewMixin):
+class MemberCardDetail(MemberPastSlugMixin, DetailView, RdfViewMixin):
     '''Card image viewer for image of a single lending card page
     associated with a single library member.'''
     model = Canvas
