@@ -1,7 +1,7 @@
 import { Component } from '../lib/common'
 
 type Filter = {
-    type: 'checkbox' | 'range'
+    type: 'boolean' | 'facet' | 'range',
     input: string,
     name: string,
     value: string,
@@ -13,8 +13,9 @@ export default class ActiveFilters extends Component {
     $legend: HTMLElement           // 'active filters' text
     $clearAll: HTMLAnchorElement   // 'clear all' button
 
-    // inputs in a range filter fieldset have this pattern, e.g. field_id_1
-    rangeFilterPattern: RegExp = /^(.*)_\d+$/
+    // inputs in a range filter or text facet fieldset have this pattern:
+    // id_nationality_1, id_gender_10, etc.
+    multiWidgetPattern: RegExp = /^(.*)_\d+$/
 
     constructor(element: HTMLElement) {
         super(element)
@@ -94,7 +95,6 @@ export default class ActiveFilters extends Component {
                     $input.value = ''
                     $input.dispatchEvent(new Event('input', { bubbles: true }))
                 })
-                // this.remove($button)
             })
         }
 
@@ -112,7 +112,6 @@ export default class ActiveFilters extends Component {
                 $input.checked = false
                 $input.dispatchEvent(new Event('change', { bubbles: true }))
                 $input.dispatchEvent(new Event('input', { bubbles: true }))
-                // this.remove($button)
             })
         }
     }
@@ -125,31 +124,35 @@ export default class ActiveFilters extends Component {
      */
     protected handleFormInput(event: InputEvent): void {
         const target = event.target as HTMLInputElement
+        const idMatch = target.id.match(this.multiWidgetPattern) as RegExpMatchArray
 
         // determine the type of filter that is affected, then delegate to the
         // add(), remove(), or change() functions.
 
         // boolean filters and text facets
         if (target.type == 'checkbox') {
-            if (target.checked) {           // checked = add new filter
-                this.add({
-                    type: 'checkbox',
-                    input: target.id,
-                    name: target.name,
-                    value: target.value
-                })
+
+            let filter: Filter = {
+                type: 'boolean',
+                input: target.id,
+                name: target.name,
+                value: target.value
             }
-            else this.remove({              // unchecked = remove filter
-                type: 'checkbox',
-                input: target.id
-            })
+
+            // text facets have ids that match the multiWidgetPattern
+            if (idMatch)
+                filter.type = 'facet'
+
+            if (target.checked)             // checked = add new filter   
+                this.add(filter)
+            else                            // unchecked = remove filter
+                this.remove(filter)        
         }
 
         // range filters
         else if (target.type == 'number') {
             
             // find both inputs via parent fieldset
-            const idMatch = target.id.match(this.rangeFilterPattern) as RegExpMatchArray
             const $fieldset = document.getElementById(idMatch[1]) as HTMLFieldSetElement
             const [$rangeStart, $rangeStop]: HTMLInputElement[] = Array.from($fieldset.querySelectorAll('input'))
             
@@ -177,13 +180,26 @@ export default class ActiveFilters extends Component {
         }
     }
 
+    /**
+     * Generate the text that will appear on a filter's button, depending on
+     * what type of filter was passed.
+     * 
+     * @param filter 
+     */
     protected buttonText(filter: Filter) {
         switch(filter.type) {
             case 'range':
+                // append the filter's name in addition to the range
                 return `${filter.name}: ${filter.value}`
-            case 'checkbox':
+            case 'boolean':
+                // split on underscores and capitalize each word -> "Has Card"
+                return filter.name.split('_').map(w => {
+                    return w.charAt(0).toUpperCase() + w.substr(1)
+                }).join(' ')
+            case 'facet':
             default:
-                return filter.name
+                // just use the value of the selected option
+                return filter.value
         }
     }
 
@@ -197,7 +213,7 @@ export default class ActiveFilters extends Component {
         // create the button element
         const $button = document.createElement('a')
         $button.setAttribute('role', 'button')
-        $button.innerText = filter.value
+        $button.innerText = this.buttonText(filter)
         if (filter.type == 'range')
             $button.dataset.fieldset = filter.input
         else
