@@ -68,9 +68,19 @@ $card-width: 11.25rem;
         border: 0;
     }
 
+    picture {
+        display: block;
+        height: 15.75rem;
+    }
+
     img, source {
-        max-height: 315px;
+        max-height: 15.75rem;
         overflow: hidden;
+
+        /* sized for fallback image display */
+        min-height: 13.25rem;
+        min-width: 11rem;
+        @include missing-card-image;
     }
 
     dl {
