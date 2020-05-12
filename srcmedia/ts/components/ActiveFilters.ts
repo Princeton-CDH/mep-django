@@ -223,7 +223,7 @@ export default class ActiveFilters extends Component {
         this.bindClearHandler($button)
 
         // add it to the inside of the element
-        this.$inner.appendChild($button)
+        this.$inner.insertBefore($button, this.$clearAll)
 
         // make sure active filters are now showing
         this.element.classList.remove('hidden')
