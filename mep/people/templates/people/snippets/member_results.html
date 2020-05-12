@@ -1,5 +1,5 @@
 {% load account_tags %}
-<style nonce="{{ request.csp_nonce }}">
+<style>
     .member-results {
         counter-reset: results {{ page_obj.start_index|add:'-1' }};
     }
