@@ -15,14 +15,18 @@ from wagtail.documents import urls as wagtaildocs_urls
 from mep.accounts import urls as accounts_urls
 from mep.books import urls as books_urls
 from mep.footnotes import urls as footnote_urls
+from mep.people import sitemaps as member_sitemaps
 from mep.people import urls as people_urls
-from mep.people.sitemaps import MemberSitemap
 
 
 # sitemap configuration for sections of the site
 SITEMAPS = {
     'pages': Sitemap,  # wagtail content pages
-    'members': MemberSitemap,
+    'members': member_sitemaps.MemberSitemap,
+    'member-activities': member_sitemaps.MembershipActivitiesSitemap,
+    'member-borrowing': member_sitemaps.BorrowingActivitiesSitemap,
+    'member-card-list': member_sitemaps.MemberCardListSitemap
+
     # 'books': BooksSitemap, # not implemented
     # 'cards': CardsSitemap, # not implemented
 }
