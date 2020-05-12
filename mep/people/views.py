@@ -480,11 +480,14 @@ class MemberCardList(ListView, RdfViewMixin):
         context = super().get_context_data(**kwargs)
         page_title = 'Lending library cards for %s' % \
             self.member.firstname_last
+        card_count = self.object_list.count()
+        page_description = '%d card%s' % \
+            (card_count, 's' if card_count != 1 else '')
         context.update({
             'member': self.member,
             # social preview
             'page_title': page_title,
-            'page_description': '%d cards' % self.object_list.count(),
+            'page_description': page_description,
             'page_iiif_image': getattr(self.object_list.first(), 'image', None)
         })
 

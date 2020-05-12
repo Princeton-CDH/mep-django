@@ -335,10 +335,14 @@ class WorkCardList(ListView, RdfViewMixin):
         page_image = None
         if self.object_list.count():
             page_image = self.object_list.first().image.image
+        card_count = self.object_list.count()
+        page_description = '%d card%s' % \
+            (card_count, 's' if card_count != 1 else '')
+
         context.update({
             'work': self.work,
             'page_title': page_title,
-            'page_description': '%d cards' % self.object_list.count(),
+            'page_description': page_description,
             'page_iiif_image': page_image
         })
         return context
