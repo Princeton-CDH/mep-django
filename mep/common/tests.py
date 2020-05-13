@@ -469,7 +469,7 @@ def test_formfield_selected_filter():
     link = mep_tags.formfield_selected_filter(context, form['has_card'])
     # still on python 3.5, can't assume order doesn't change
     # assert link == '<a href="?sort=relevance&query=stein">Card</a>'
-    assert link.startswith('<a href="?')
+    assert link.startswith('<a data-input="id_has_card" href="?')
     assert link.endswith('">Card</a>')
     for query_param in ['sort=relevance', 'query=stein']:
         assert query_param in link
