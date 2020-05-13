@@ -49,6 +49,7 @@ def querystring_remove(querystring, *keys, **kwargs):
     '''Remove a particular value from query string parameters.
     Takes a list of field names to be removed, and list of
     keyword arguments for name=value combinations to remove.
+    Returns a QueryDict; use `urlencode()` to render.
     '''
     qs = querystring.copy()
     for key in keys:
@@ -63,7 +64,17 @@ def querystring_remove(querystring, *keys, **kwargs):
             qs.setlist(key, list_values)
         except ValueError:
             pass
-    return qs.urlencode()
+    return qs
+
+
+@register.simple_tag(takes_context=True)
+def querystring_minus(context, *keys):
+    '''Return the current request querystring with the specifield keys
+    removed. Example usage::
+
+        {% querystring_minus "query" "sort" "page" %}
+    '''
+    return querystring_remove(context['request'].GET.copy(), *keys)
 
 
 @register.simple_tag(takes_context=True)
@@ -84,7 +95,8 @@ def formfield_selected_filter(context, boundfield):
         if value:
             link = '<a data-input="%s" href="?%s">%s</a>' % (
                 boundfield.id_for_label,
-                querystring_remove(querystring, boundfield.name), label)
+                querystring_remove(querystring, boundfield.name).urlencode(),
+                label)
     elif isinstance(boundfield.field, RangeField):
         # list of start, end; display if at least one is set
         if any(value):
@@ -93,9 +105,10 @@ def formfield_selected_filter(context, boundfield):
             # stored in querystring as name_0 and name_1
             fieldnames = ['%s_%d' % (boundfield.name, i) for i in range(2)]
             link = '<a data-fieldset="%s" href="?%s">%s</a>' % (
-                boundfield.auto_id, # use fieldset's id, not the inputs
-                querystring_remove(querystring, *fieldnames), label)
-    elif isinstance(boundfield.field, FacetChoiceField):
+                boundfield.auto_id,  # use fieldset's id, not the inputs
+                querystring_remove(querystring, *fieldnames).urlencode(),
+                label)
+    elif isinstance(boundfield.field, FacetChoiceField) and boundfield.field.choices:
         # could have multiple filters active
         links = []
         for val in value:
@@ -105,9 +118,11 @@ def formfield_selected_filter(context, boundfield):
             input_id = boundfield.subwidgets[
                 [idx for (idx, choice) in enumerate(boundfield.field.choices)
                     if choice[0] == val][0]
-                ].id_for_label
-            links.append('<a data-input="%s" href="?%s">%s</a>' % (input_id,
-                querystring_remove(querystring, **query_value), val))
+            ].id_for_label
+            links.append('<a data-input="%s" href="?%s">%s</a>' % (
+                input_id,
+                querystring_remove(querystring, **query_value).urlencode(),
+                val))
         link = ' '.join(links)
 
     return mark_safe(link)

@@ -446,14 +446,23 @@ def test_partialdate_filter():
 def test_querystring_remove():
     # single value by key
     qs = mep_tags.querystring_remove(QueryDict('a=1&b=2'), 'a')
-    assert 'a=1' not in qs
-    assert 'b=2' in qs
+    assert 'a' not in qs
+    assert qs['b'] == '2'
     # multiple values by key
     qs = mep_tags.querystring_remove(QueryDict('a=1&b=2'), 'a', 'b')
     assert not qs   # empty string
     # one of a multivalue
     qs = mep_tags.querystring_remove(QueryDict('a=1&a=2&a=3'), a='2')
-    assert qs == 'a=1&a=3'
+    assert qs.urlencode() == 'a=1&a=3'
+
+
+def test_querystring_minus():
+    querystring = QueryDict('a=1&b=2&c=3')
+    context = {'request': Mock(GET=querystring)}
+    qs = mep_tags.querystring_minus(context, 'a', 'c')
+    assert qs == QueryDict('b=2')
+    qs = mep_tags.querystring_minus(context, 'a', 'b', 'c')
+    assert qs == QueryDict()
 
 
 def test_formfield_selected_filter():
@@ -463,6 +472,9 @@ def test_formfield_selected_filter():
         'birth_year_1': 1950,
         'gender': ['Female', 'Male']
     })
+    form.set_choices_from_facets(
+        {'gender': OrderedDict([('Female', 0), ('Male', 0)])})
+
     querystring = QueryDict('has_card=1&page=2&sort=relevance&query=stein')
     context = {'request': Mock(GET=querystring)}
     # boolean field
@@ -505,10 +517,13 @@ def test_formfield_selected_filter():
     link = mep_tags.formfield_selected_filter(context,
                                               form['gender'])
     # generates two links; each preserves the *other* filter
-    assert re.search(r'<a href="\?[^"]*gender=Male[^"]*">Female</a>', link)
-    assert re.search(r'<a href="\?[^"]*gender=Female[^"]*">Male</a>', link)
-    assert not re.search(r'<a href="\?[^"]*gender=Female[^"]*">Female</a>', link)
-    assert not re.search(r'<a href="\?[^"]*gender=Male[^"]*">Male</a>', link)
+    # NOTE: [^>]* pattern is to ignore data-input attribute
+    assert re.search(r'<a[^>]*href="\?[^"]*gender=Male[^"]*">Female</a>', link)
+    assert re.search(r'<a[^>]*href="\?[^"]*gender=Female[^"]*">Male</a>', link)
+    assert not re.search(r'<a[^>]*href="\?[^"]*gender=Female[^"]*">Female</a>',
+                         link)
+    assert not re.search(r'<a[^>]*href="\?[^"]*gender=Male[^"]*">Male</a>',
+                         link)
     # assert '<a href="?query=stein&gender=Female">Male</a>' in link
 
 
