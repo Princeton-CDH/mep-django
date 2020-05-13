@@ -1,6 +1,7 @@
 from datetime import date
 
 from django.contrib.sitemaps import Sitemap
+from django.db.models import F
 from django.urls import reverse
 from djiffy.models import Canvas
 
@@ -56,12 +57,21 @@ class MemberCardListSitemap(MemberSitemap):
 class MemberCardDetailSitemap(Sitemap):
     url_route = 'people:member-card-detail'
 
+    members_lastmod = None
+
     def items(self):
+        # query solr for member last modified dates
+        solr_lastmod = PersonSolrQuerySet().filter(has_card=True) \
+            .only('slug', 'last_modified').get_results(rows=10000)
+        # last modified date lookup dict keyed on member slug
+        self.members_lastmod = dict(
+            (d['slug'], solr_timestamp_to_date(d['last_modified']))
+            for d in solr_lastmod)
         # find canvas objects associated with members via account cards
         return Canvas.objects \
             .filter(manifest__bibliography__account__isnull=False) \
-            .values('short_id',
-                    'manifest__bibliography__account__persons__slug') \
+            .annotate(slug=F('manifest__bibliography__account__persons__slug')) \
+            .values('short_id', 'slug') \
             .distinct()
         # NOTE: this does not include the handful of cards that appear
         # at more than one url, because a member has an event on someone
@@ -69,10 +79,12 @@ class MemberCardDetailSitemap(Sitemap):
 
     def location(self, obj):
         return reverse(self.url_route, kwargs={
-            'slug': obj['manifest__bibliography__account__persons__slug'],
+            'slug': obj['slug'],
             'short_id': obj['short_id']
         })
 
-    # Not sure how to calculate last modified; member last indexed
-    # in Solr is probably a decent proxy, but requires a separate query
-    # (and also doesn't account for card image changes)
+    def lastmod(self, obj):
+        # using member last indexed in Solr as proxy, should
+        # reflect any member event changes
+        # (doesn't account for card image changes)
+        return self.members_lastmod.get(obj['slug'], None)

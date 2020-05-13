@@ -7,7 +7,7 @@ from django.conf.urls.static import serve
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 from wagtail.admin import urls as wagtailadmin_urls
-from wagtail.contrib.sitemaps import Sitemap
+from wagtail.contrib.sitemaps import Sitemap as WagtailSitemap
 from wagtail.contrib.sitemaps import views as sitemap_views
 from wagtail.core import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
@@ -21,7 +21,7 @@ from mep.people import urls as people_urls
 
 # sitemap configuration for sections of the site
 SITEMAPS = {
-    'pages': Sitemap,  # wagtail content pages
+    'pages': WagtailSitemap,  # wagtail content pages
     'members': member_sitemaps.MemberSitemap,
     'member-activities': member_sitemaps.MembershipActivitiesSitemap,
     'member-borrowing': member_sitemaps.BorrowingActivitiesSitemap,
@@ -29,7 +29,6 @@ SITEMAPS = {
     'member-card-detail': member_sitemaps.MemberCardDetailSitemap
 
     # 'books': BooksSitemap, # not implemented
-    # 'cards': CardsSitemap, # not implemented
 }
 
 urlpatterns = [
