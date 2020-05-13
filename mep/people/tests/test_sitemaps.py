@@ -18,8 +18,8 @@ class TestMemberSitemap:
     @patch('mep.people.sitemaps.PersonSolrQuerySet')
     def test_items(self, mock_psqs):
         sitemaps.MemberSitemap().items()
-        mock_psqs.assert_called_once()
-        mock_psqs.return_value.all.assert_called_once()
+        assert mock_psqs.call_count == 1
+        assert mock_psqs.return_value.all.call_count == 1
         mock_psqs.return_value.all.return_value.only \
             .assert_called_with('slug', 'last_modified')
 
@@ -40,8 +40,8 @@ class TestMemberCardListSitemap:
     @patch('mep.people.sitemaps.super')
     def test_items(self, mocksuper):
         sitemaps.MemberCardListSitemap().items()
-        mocksuper.assert_called_once
-        mocksuper.return_value.items.assert_called_once
+        assert mocksuper.call_count == 1
+        assert mocksuper.return_value.items.call_count == 1
         mocksuper.return_value.items.return_value \
             .only.assert_called_with('slug', 'last_modified', 'has_card')
 
@@ -76,7 +76,7 @@ class TestMemberCardDetailSitemap(TestCase):
             assert obj['slug'] == 'stein-gertrude'
 
         # solr queried
-        # mock_psqs.assert_called_once()
+        assert mock_psqs.call_count == 1
         mock_psqs.return_value.filter.assert_called_with(has_card=True)
         mock_psqs.return_value.filter.return_value.only \
             .assert_called_with('slug', 'last_modified')
