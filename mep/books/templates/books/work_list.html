@@ -36,6 +36,7 @@
             {% endcomment %}
             <input type="submit" value="submit"/>
         </fieldset>
+        {% include 'common/active_filters.html' %}
         <output class="total-results" id="total">{{ works.count|intcomma }} total result{{ works.count|pluralize }}</output>
     </form>
 </section>

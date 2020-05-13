@@ -67,6 +67,7 @@
             </div>
             <input type="submit" value="submit"/>
         </fieldset>
+        {% include 'common/active_filters.html' %}
         <output class="total-results" id="total">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
     </form>
 </div>
