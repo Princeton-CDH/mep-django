@@ -14,6 +14,7 @@ from wagtail.documents import urls as wagtaildocs_urls
 
 from mep.accounts import urls as accounts_urls
 from mep.books import urls as books_urls
+from mep.books import sitemaps as book_sitemaps
 from mep.footnotes import urls as footnote_urls
 from mep.people import sitemaps as member_sitemaps
 from mep.people import urls as people_urls
@@ -22,13 +23,16 @@ from mep.people import urls as people_urls
 # sitemap configuration for sections of the site
 SITEMAPS = {
     'pages': WagtailSitemap,  # wagtail content pages
+    # member pages
     'members': member_sitemaps.MemberSitemap,
     'member-activities': member_sitemaps.MembershipActivitiesSitemap,
     'member-borrowing': member_sitemaps.BorrowingActivitiesSitemap,
     'member-card-list': member_sitemaps.MemberCardListSitemap,
-    'member-card-detail': member_sitemaps.MemberCardDetailSitemap
-
-    # 'books': BooksSitemap, # not implemented
+    'member-card-detail': member_sitemaps.MemberCardDetailSitemap,
+    # book pages
+    'books': book_sitemaps.BookSitemap,
+    'book-circulation': book_sitemaps.BookCirculationSitemap,
+    'book-card-list': book_sitemaps.BookCardListSitemap
 }
 
 urlpatterns = [

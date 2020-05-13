@@ -19,8 +19,11 @@ def solr_timestamp_to_date(timestamp):
 class MemberSitemap(Sitemap):
     url_route = 'people:member-detail'
 
+    def get_queryset(self):
+        return PersonSolrQuerySet()
+
     def items(self):
-        return PersonSolrQuerySet().all().only('slug', 'last_modified')
+        return self.get_queryset().all().only('slug', 'last_modified')
 
     def location(self, obj):
         return reverse(self.url_route, kwargs={'slug': obj['slug']})
@@ -40,18 +43,27 @@ class MembershipActivitiesSitemap(MemberSitemap):
     url_route = 'people:membership-activities'
 
     # NOTE: set low priority for member with no membership activities
+    # (add membership event count to solr)
 
 
 class BorrowingActivitiesSitemap(MemberSitemap):
     url_route = 'people:borrowing-activities'
 
     # NOTE: set low priority for member with no borrowing activities
+    # (add book related event count to solr)
 
 
 class MemberCardListSitemap(MemberSitemap):
     url_route = 'people:member-card-list'
+    default_priority = 0.5
+    low_priority = 0.1
+
+    def items(self):
+        return super().items().only('slug', 'last_modified', 'has_card')
 
     # NOTE: set low priority for member with no cards
+    def priority(self, obj):
+        return self.default_priority if obj['has_card'] else self.low_priority
 
 
 class MemberCardDetailSitemap(Sitemap):
