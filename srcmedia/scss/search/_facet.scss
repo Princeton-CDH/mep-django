@@ -109,6 +109,11 @@
                 flex: auto;
                 border: 1px solid $light-grey;
                 padding-top: 0.1rem;
+                border-left: 0;
+
+                &:first-child {
+                    border-left: 1px solid $light-grey;
+                }
             }
 
             label {
@@ -136,6 +141,7 @@
 
             input:checked + label {
                 padding: 0;
+                background-color: $ice;
             }
         }
     }
@@ -260,5 +266,12 @@
     &[aria-expanded=true] ~ .facet {
         display: block;
         max-height: 11rem;
+    }
+}
+
+@media (max-width: calc(#{$breakpoint-s} - 1px)) {
+    input:checked + label {
+        /* can't figure out correct place to override white bg for card filter */
+        background-color: $ice !important;
     }
 }
