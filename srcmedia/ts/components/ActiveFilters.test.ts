@@ -101,8 +101,7 @@ describe('ActiveFilters component', () => {
         expect($rangeFilterButton.textContent).toEqual('Scoops: 2 – ')
         $rangeFilterMax.value = '4'
         $rangeFilterMax.dispatchEvent(new Event('input', { bubbles: true }))
-        // FIXME why isn't this working?
-        expect($rangeFilterButton.textContent).toEqual('Scoops: 2 – 4')
+        expect($rangeFilterButton.innerText).toEqual('Scoops: 2 – 4')
     })
 
     it('removes filter buttons when their inputs are cleared', () => {
