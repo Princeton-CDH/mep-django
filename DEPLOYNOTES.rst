@@ -10,6 +10,7 @@ XML sitemaps require update to Solr schema to track last modification
 time of indexed items. Update the schema and reindex everything.
 
   python manage.py solr_schema
+  python manage.py index -c all -i none
   python manage.py index
 
 0.29
