@@ -25,7 +25,8 @@ SITEMAPS = {
     'members': member_sitemaps.MemberSitemap,
     'member-activities': member_sitemaps.MembershipActivitiesSitemap,
     'member-borrowing': member_sitemaps.BorrowingActivitiesSitemap,
-    'member-card-list': member_sitemaps.MemberCardListSitemap
+    'member-card-list': member_sitemaps.MemberCardListSitemap,
+    'member-card-detail': member_sitemaps.MemberCardDetailSitemap
 
     # 'books': BooksSitemap, # not implemented
     # 'cards': CardsSitemap, # not implemented
