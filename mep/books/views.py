@@ -1,5 +1,6 @@
 from dal import autocomplete
-from django.db.models import Q
+from django.db.models import F, Q
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import DetailView, ListView
@@ -14,15 +15,16 @@ from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
                               LabeledPagesMixin, LoginRequiredOr404Mixin,
                               RdfViewMixin)
+from mep.footnotes.models import Footnote
 
 
-class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
+class WorkList(LabeledPagesMixin, ListView,
                FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library items.'''
     model = Work
     page_title = "Books"
-    page_description = "Search and browse books by title and filter " + \
-        "by bibliographic metadata."
+    page_description = "Search and lending library books by title, author," + \
+        "or keyword and filter by circulation date."
     template_name = 'books/work_list.html'
     ajax_template_name = 'books/snippets/work_results.html'
     paginate_by = 100
@@ -201,7 +203,7 @@ class WorkList(LoginRequiredOr404Mixin, LabeledPagesMixin, ListView,
         ]
 
 
-class WorkDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
+class WorkDetail(DetailView, RdfViewMixin):
     '''Detail page for a single library book.'''
     model = Work
     template_name = 'books/work_detail.html'
@@ -219,6 +221,23 @@ class WorkDetail(LoginRequiredOr404Mixin, DetailView, RdfViewMixin):
             (WorkList.page_title, WorkList().get_absolute_url()),
             (self.object.title, self.get_absolute_url())
         ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        description = ''
+        if self.object.authors:
+            description = 'By %s' % ','.join(
+                [a.name for a in self.object.authors])
+        if self.object.year:
+            description += ', %s' % self.object.year
+        if self.object.public_notes:
+            description += self.object.public_notes
+
+        context.update({
+            'page_title': self.object.title,
+            'page_description': description,
+        })
+        return context
 
 
 class WorkCirculation(ListView, RdfViewMixin):
@@ -257,6 +276,77 @@ class WorkCirculation(ListView, RdfViewMixin):
             (self.work.title, absolutize_url(self.work.get_absolute_url())),
             ('Circulation', self.get_absolute_url())
         ]
+
+
+class WorkCardList(ListView, RdfViewMixin):
+    '''Card thumbnails for lending card associated with a single library
+    member.'''
+    model = Footnote
+    template_name = 'books/work_cardlist.html'
+    context_object_name = 'footnotes'
+
+    def get_queryset(self):
+        # find the associated book; 404 if not found
+        self.work = get_object_or_404(Work, slug=self.kwargs['slug'])
+
+        # find footnotes for events associated with this work
+        # that have images
+        return super().get_queryset() \
+                      .on_events() \
+                      .filter(Q(borrows__work__pk=self.work.pk) |
+                              Q(events__work__pk=self.work.pk) |
+                              Q(purchases__work__pk=self.work.pk)) \
+                      .filter(image__isnull=False) \
+                      .annotate(date=Coalesce('borrows__start_date',
+                                              'events__start_date',
+                                              'purchases__start_date'),
+                                start_date_precision=Coalesce(
+                                    'borrows__start_date_precision',
+                                    'events__start_date_precision',
+                                    'purchases__start_date_precision')) \
+                      .prefetch_related('content_object', 'image') \
+                      .order_by(F('start_date_precision').desc(),
+                                F('date').asc(nulls_last=True))
+
+        # NOTE: sorting by date precision decending (with default nulls first)
+        # so that full precision dates (null or 7) come before partiald ates
+
+    def get_absolute_url(self):
+        '''Full URI for work card list page.'''
+        return absolutize_url(reverse('books:book-card-list',
+                                      kwargs=self.kwargs))
+
+    def get_breadcrumbs(self):
+        '''Get the list of breadcrumbs and links to display for this page.'''
+        return [
+            ('Home', absolutize_url('/')),
+            (WorkList.page_title, WorkList().get_absolute_url()),
+            (self.work.title,
+             absolutize_url(self.work.get_absolute_url())),
+            ('Cards', self.get_absolute_url())
+        ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        page_title = 'Lending library cards that reference %s' % \
+            self.work.title
+        # there should always be at least one card, but handle in
+        # case of data errors
+        page_image = None
+        if self.object_list.count():
+            page_image = self.object_list.first().image.image
+        card_count = self.object_list.count()
+        page_description = '%d card%s' % \
+            (card_count, 's' if card_count != 1 else '')
+
+        context.update({
+            'work': self.work,
+            'page_title': page_title,
+            'page_description': page_description,
+            'page_iiif_image': page_image
+        })
+        return context
+
 
 class WorkAutocomplete(autocomplete.Select2QuerySetView):
     '''Basic autocomplete lookup, for use with django-autocomplete-light and

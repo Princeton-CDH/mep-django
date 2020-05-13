@@ -5,15 +5,16 @@ from django.apps import apps
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import MultipleObjectsReturned
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 from parasolr.django.indexing import ModelIndexable
 from viapy.api import ViafEntity
 
-from mep.common.models import AliasIntegerField, DateRange, Named, Notable
+from mep.common.models import AliasIntegerField, DateRange, Named, Notable, \
+    TrackChangesModel
 from mep.common.validators import verify_latlon
-from mep.accounts.partial_date import DatePrecision
 from mep.footnotes.models import Footnote
 
 
@@ -157,7 +158,7 @@ class PersonQuerySet(models.QuerySet):
         Creator = apps.get_model('books', 'Creator')  # prevents circular import issue
 
         for merge_person in merge_people:
-            if merge_person.has_account(): # if the merged person had an account
+            if merge_person.has_account():  # if the merged person had an account
 
                 # store primary account card reference if there is one
                 account_card = primary_account.card if primary_account else None
@@ -174,19 +175,21 @@ class PersonQuerySet(models.QuerySet):
                             # unlikely, but if we're merging two accounts with cards
                             # log a warning so we can track it down later if necessary
                             logger.warning('Account %s card %s association will be lost in merge',
-                                            account, account.card)
+                                           account, account.card)
 
                     # if a merge person has an account, but the main person doesn't,
                     # swap the account's owner to the main person
                     if not person.has_account():
                         account.persons.add(person)
                         account.persons.remove(merge_person)
-                         # define the new primary account
+                        # define the new primary account
                         primary_account = person.account_set.first()
                     else:
-                        account.event_set.update(account=primary_account) # reassociate all events with the main account
-                        account.address_set.update(account=primary_account) # reassociate any addresses with the main account
-                        account.delete() # delete the empty account
+                        # reassociate all events with the main account
+                        # reassociate any addresses with the main account
+                        account.event_set.update(account=primary_account)
+                        account.address_set.update(account=primary_account)
+                        account.delete()  # delete the empty account
 
                 # if a card was present on the account to be merged and *not*
                 # on the primary account, copy it
@@ -194,9 +197,9 @@ class PersonQuerySet(models.QuerySet):
                     primary_account.card = account_card
                     primary_account.save()
 
-            if merge_person.is_creator(): # if the merged person was a creator
+            if merge_person.is_creator():  # if the merged person was a creator
                 for creator in merge_person.creator_set.all():
-                    creator.person = person # reassociate the creator relationship to the primary person
+                    creator.person = person  # reassociate the creator relationship to the primary person
                     creator.save()
 
             # update main person record with optional properties set on
@@ -218,6 +221,10 @@ class PersonQuerySet(models.QuerySet):
             merge_person.urls.update(person=person)
             # - footnotes
             merge_person.footnotes.update(object_id=person.id)
+            # - store merged slugs as past slugs
+            if merge_person.slug:
+                PastPersonSlug.objects.create(slug=merge_person.slug,
+                                              person=person)
 
         # consolidate notes and preserve any merged MEP ids
         # in case we need to find a record based on a deleted MEP id
@@ -356,7 +363,7 @@ class PersonSignalHandlers:
                 ModelIndexable.index_items(members)
 
 
-class Person(Notable, DateRange, ModelIndexable):
+class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
     '''Model for people in the MEP dataset'''
 
     #: MEP xml id
@@ -460,7 +467,21 @@ class Person(Notable, DateRange, ModelIndexable):
         if self.viaf_id and not self.birth_year and not self.death_year:
             self.set_birth_death_years()
 
+        # if slug has changed, save the old one as a past slug
+        if self.has_changed('slug'):
+            PastPersonSlug.objects.get_or_create(slug=self.initial_value('slug'),
+                                                 person=self)
+
         super(Person, self).save(*args, **kwargs)
+
+    def validate_unique(self, exclude=None):
+        # customize uniqueness validation to ensure new slugs don't
+        # conflict with past slugs
+        super().validate_unique(exclude)
+        if PastPersonSlug.objects.filter(slug=self.slug) \
+                         .exclude(person=self).count():
+            raise ValidationError('Slug is not unique ' +
+                                  '(conflicts with previously used slugs)')
 
     def get_absolute_url(self):
         '''
@@ -690,6 +711,20 @@ class Person(Notable, DateRange, ModelIndexable):
                 index_data['arrondissement_is'] = arrs
 
         return index_data
+
+
+class PastPersonSlug(models.Model):
+    '''A slug that was previously associated with a person; preserved
+    so that former slugs will resolve to the correct person.'''
+
+    #: person record this slug belonged to
+    person = models.ForeignKey(Person, related_name='past_slugs',
+                               on_delete=models.CASCADE)
+    #: slug
+    slug = models.SlugField(
+        max_length=100, unique=True,
+        help_text='Short, durable, unique identifier for use in URLs. ' +
+        'Editing will change the public, citable URL for library members.')
 
 
 class InfoURL(Notable):

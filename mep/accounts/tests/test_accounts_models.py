@@ -3,14 +3,15 @@ from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
 from django.core.validators import ValidationError
-from django.db.models.query import QuerySet
+from django.db.models.query import EmptyQuerySet, QuerySet
 from django.test import TestCase
+from djiffy.models import Canvas, Manifest
 import pytest
 
 from mep.accounts.models import Account, Address, Borrow, CurrencyMixin, \
     Event, Purchase, Reimbursement, Subscription
 from mep.books.models import Work
-from mep.footnotes.models import Bibliography, SourceType
+from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.models import Location, Person
 
 
@@ -378,6 +379,51 @@ class TestAccount(TestCase):
         assert account.active_months('membership') == \
             set(['192101', '192102', '192201'])
         assert account.active_months('books') == set(['192104'])
+
+    def test_member_card_images(self):
+        account = Account()
+        # should be empty, but not error
+        assert isinstance(account.member_card_images(), EmptyQuerySet)
+
+        # add card, manifest, canvases
+        test_manifest = Manifest.objects.create(short_id='m1')
+        img1 = Canvas.objects.create(
+            manifest=test_manifest, order=1, short_id='i1')
+        img2 = Canvas.objects.create(
+            manifest=test_manifest, order=2, short_id='i2')
+        src_type = SourceType.objects.get_or_create(
+            name='Lending Library Card')[0]
+        card = Bibliography.objects.create(
+            bibliographic_note='Jane\'s library card', source_type=src_type,
+            manifest=test_manifest)
+        account.card = card
+        account.save()
+
+        card_images = account.member_card_images()
+        assert card_images
+        assert card_images.count() == 2
+        assert img1 in card_images
+        assert img2 in card_images
+
+        # add an image to a different manifest
+        manifest2 = Manifest.objects.create(short_id='m2')
+        other_img = Canvas.objects.create(manifest=manifest2, short_id='other',
+                                          order=1)
+        assert other_img not in account.member_card_images()
+        # link via event + footnote
+        event = Event.objects.create(account=account)
+        # event_ctype = ContentType.objects.get_for_model(Event)
+        fn = Footnote.objects.create(
+            content_object=event,
+            # object_id=event, content_type=event_ctype,
+            image=other_img, bibliography=card)
+        event.event_footnotes.add(fn)
+        card_images = account.member_card_images()
+        assert other_img in card_images
+        # should come after main card images
+        assert card_images[0] == img1
+        assert card_images[1] == img2
+        assert card_images[2] == other_img
 
 
 class TestAddress(TestCase):

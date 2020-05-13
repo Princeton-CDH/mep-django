@@ -8,10 +8,10 @@ from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import Http404, HttpResponsePermanentRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, strip_tags
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
@@ -19,6 +19,7 @@ from django.views.generic.edit import FormMixin, FormView
 from djiffy.models import Canvas
 
 from mep.accounts.models import Address, Event
+from mep.accounts.templatetags.account_tags import as_ranges
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
@@ -36,7 +37,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin,
     model = Person
     page_title = "Members"
     page_description = "Search and browse members by name and filter " + \
-        "by date and demographics."
+        "by membership dates, birth date, and demographics."
     template_name = 'people/member_list.html'
     ajax_template_name = 'people/snippets/member_results.html'
     paginate_by = 100
@@ -235,16 +236,43 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin,
         ]
 
 
-class MemberDetail(DetailView, RdfViewMixin):
+class MemberPastSlugMixin:
+    '''View mixin to handle redirects for previously used slugs.
+    If the main view logic raises a 404, looks for a library member
+    by past slug; if one is found, redirects to the corresponding
+    member detail page with the new slug.
+    '''
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            # if not found, check for a match on a past slug
+            person = Person.objects.library_members() \
+                .filter(past_slugs__slug=self.kwargs['slug']).first()
+            # if found, redirect to the correct url for this view
+            if person:
+                # patch in the correct slug for use with get absolute url
+                self.kwargs['slug'] = person.slug
+                self.object = person   # used by member detail absolute url
+                return HttpResponsePermanentRedirect(self.get_absolute_url())
+
+            # otherwise, raise the 404
+            raise
+
+
+class MemberDetail(MemberPastSlugMixin, DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
     context_object_name = 'member'
     rdf_type = SCHEMA_ORG.ProfilePage
+    # format string for page description
+    page_description = 'Shakespeare and Company lending library member %s'
 
     def get_queryset(self):
         # throw a 404 if a non-member is accessed via this route
-        return super().get_queryset().exclude(account=None)
+        return super().get_queryset().library_members()
 
     def get_absolute_url(self):
         '''Get the full URI of this page.'''
@@ -266,6 +294,13 @@ class MemberDetail(DetailView, RdfViewMixin):
             if event.end_date and event.start_date != event.end_date:
                 month_counts[event.end_date.strftime('%Y-%m-01')] += 1
 
+        account_date_ranges = account.event_date_ranges()
+        account_years = set()   # initialize as empty set in case no dates
+        for start, end in account.event_date_ranges():
+            account_years = set(start.year for start, end
+                                in account_date_ranges) | \
+                set(end.year for start, end in account_date_ranges)
+
         # data for member timeline visualization
         context['timeline'] = {
             'membership_activities': [{
@@ -283,7 +318,7 @@ class MemberDetail(DetailView, RdfViewMixin):
             'activity_ranges': [{
                 'startDate': start.isoformat(),
                 'endDate': end.isoformat()
-            } for start, end in account.event_date_ranges()]
+            } for start, end in account_date_ranges]
         }
 
         # plottable locations for member address map visualization, which
@@ -325,13 +360,19 @@ class MemberDetail(DetailView, RdfViewMixin):
             # if we can't find library's address send 'null' & don't render it
             context['library_address'] = None
 
+        # text-only readable version of membership years for meta description
+        membership_years = strip_tags(as_ranges(account_years)
+                                      .replace('</span>', ',')).rstrip(',')
+
         # config settings used to render the map; set in local_settings.py
         context.update({
             'mapbox_token': getattr(settings, 'MAPBOX_ACCESS_TOKEN', ''),
             'mapbox_basemap': getattr(settings, 'MAPBOX_BASEMAP', ''),
             'paris_overlay': getattr(settings, 'PARIS_OVERLAY', ''),
+            'account_years': account_years,
             # metadata for social preview
-            'page_title': self.object.firstname_last
+            'page_title': self.object.firstname_last,
+            'page_description': self.page_description % membership_years
         })
 
         return context
@@ -345,7 +386,7 @@ class MemberDetail(DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(ListView, RdfViewMixin):
+class MembershipActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
     '''Display a list of membership activities (subscriptions, renewals,
     and reimbursements) for an individual member.'''
     model = Event
@@ -388,7 +429,7 @@ class MembershipActivities(ListView, RdfViewMixin):
         ]
 
 
-class BorrowingActivities(ListView, RdfViewMixin):
+class BorrowingActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
     '''Display a list of book-related activities (borrows, purchases, gifts)
     for an individual member.'''
     model = Event
@@ -431,7 +472,7 @@ class BorrowingActivities(ListView, RdfViewMixin):
         ]
 
 
-class MemberCardList(ListView, RdfViewMixin):
+class MemberCardList(MemberPastSlugMixin, ListView, RdfViewMixin):
     '''Card thumbnails for lending card associated with a single library
     member.'''
     model = Canvas
@@ -442,11 +483,8 @@ class MemberCardList(ListView, RdfViewMixin):
         # find the associated member; 404 if not found or not a library member
         self.member = get_object_or_404(Person.objects.library_members(),
                                         slug=self.kwargs['slug'])
-        # find all canvas objects for this person, via manifest
-        # associated with lending card bibliography
-        return super().get_queryset() \
-                      .filter(manifest__bibliography__account__persons__slug=self.kwargs['slug']) \
-                      .order_by('order')
+        # return all canvas objects for this member
+        return self.member.account_set.first().member_card_images()
 
     def get_absolute_url(self):
         '''Full URI for member card list page.'''
@@ -465,11 +503,23 @@ class MemberCardList(ListView, RdfViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['member'] = self.member
+        page_title = 'Lending library cards for %s' % \
+            self.member.firstname_last
+        card_count = self.object_list.count()
+        page_description = '%d card%s' % \
+            (card_count, 's' if card_count != 1 else '')
+        context.update({
+            'member': self.member,
+            # social preview
+            'page_title': page_title,
+            'page_description': page_description,
+            'page_iiif_image': getattr(self.object_list.first(), 'image', None)
+        })
+
         return context
 
 
-class MemberCardDetail(DetailView, RdfViewMixin):
+class MemberCardDetail(MemberPastSlugMixin, DetailView, RdfViewMixin):
     '''Card image viewer for image of a single lending card page
     associated with a single library member.'''
     model = Canvas
@@ -480,15 +530,20 @@ class MemberCardDetail(DetailView, RdfViewMixin):
         # find the associated member; 404 if not found or not a library member
         self.member = get_object_or_404(Person.objects.library_members(),
                                         slug=self.kwargs['slug'])
-        # find requested canvas objects for this person, via manifest
-        # associated with lending card bibliography
-        filters = {
-            'short_id': self.kwargs['short_id'],
-            'manifest__bibliography__account__persons__slug':
-            self.kwargs['slug']
-        }
-        # return super().get_queryset().filter(**filters)
-        card = get_object_or_404(Canvas.objects.all(), **filters)
+
+        # images associated with lending card bibliography OR footnote events
+        self.cards = self.member.account_set.first().member_card_images()
+
+        # because this is a union queryset, filter by id manually
+        card = None
+        for image in self.cards:
+            if image.short_id == self.kwargs['short_id']:
+                card = image
+                break
+        if not card:
+            # 404 if we didn't find the requested card
+            raise Http404
+
         # use card dates for label
         card_dates = card.footnote_set.event_date_range()
         # used for page title and breadcrumb label;
@@ -527,8 +582,7 @@ class MemberCardDetail(DetailView, RdfViewMixin):
         context = super().get_context_data(**kwargs)
 
         # get all cards (canvases) from the manifest and store their ids
-        cards = self.object.manifest.canvases
-        card_ids = list(cards.values_list('short_id', flat=True))
+        card_ids = list(card.short_id for card in self.cards)
 
         # create a paginator with 1 card per page and get the current "page"
         paginator = Paginator(card_ids, 1)
@@ -551,7 +605,11 @@ class MemberCardDetail(DetailView, RdfViewMixin):
             'label': self.label,
             'events': member_events,
             'card_page': card_page,
-            'cards': cards,
+            'cards': self.cards,
+            # metadata for social preview
+            'page_title': '%s lending library card for %s' % \
+            (self.label, self.member.firstname_last),
+            'page_iiif_image': context['card'].image
         })
         return context
 

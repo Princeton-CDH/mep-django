@@ -13,6 +13,14 @@ $shadow: rgba(0, 0, 0, 0.2);
         width: 100%;
     }
 
+    :target {
+        /* override default target styles */
+        border-left: none;
+        margin-left: 0;
+        /* add highlight color */
+        background-color: $ice;
+    }
+
     // mobile styles: table rows are expandable cards, no headers
     @media (max-width: calc(#{$breakpoint-s} - 1px)) {
 

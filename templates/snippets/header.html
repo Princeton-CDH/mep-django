@@ -3,6 +3,6 @@
     <img class="bookmark" src="{% static 'img/headers/header-bookmark.svg' %}" alt="">
     {% if title %}<h1>{{ title }}</h1>{% endif %}
     <img class="logotype" src="{% static 'img/logo/SCo_logo_text.svg' %}" alt="Shakespeare and Company Project">
-    <p class="tagline">Launching in 2020</p>
+    <p class="tagline">{{ page.search_description }}</p>
     <img class="chevron" src="{% static 'img/icons/chevron_down.png' %}" alt="">
 </header>

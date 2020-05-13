@@ -1,9 +1,5 @@
-<style nonce="{{ request.csp_nonce }}">
-    .member-results {
-        counter-reset: results {{ page_obj.start_index|add:'-1' }};
-    }
-</style>
-<ol class="member-results">
+{% load account_tags %}
+<ol class="member-results" start="{{ page_obj.start_index|add:'-1' }}">
     {% for member in members %}
     <li class="members result{% if member.has_card %} has-card{% endif %}">
         <a href="{% url 'people:member-detail' slug=member.slug %}" aria-label="{{ person.sort_name.0 }}">
@@ -32,16 +28,10 @@
                     </div>
                     <div class="secondary">
                         {# membership dates #}
-                        {% with account_start=member.account_start account_end=member.account_end %}
-                        {% if account_start or account_end %}
-                        <dt class="member-dates">Membership Dates</dt>
+                        <dt class="member-dates">Membership Years</dt>
                         <dd class="member-dates">
-                        {% if account_start %}
-                        {{ account_start }}{% endif %}{% if account_end and account_start != account_end %} – <span class="sr-only">to</span>{{ account_end }}
-                        {% endif %}
+                            {{ member.account_years|as_ranges|default:'-' }}
                         </dd>
-                        {% endif %}
-                        {% endwith %}
                         {# search result relevance (if user is logged in) #}
                         {% if user.is_authenticated and member.score %}
                         <dt class="relevance">Relevance</dt>

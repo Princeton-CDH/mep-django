@@ -1,8 +1,14 @@
 /* members borrowing activity table */
 .borrowing {
 
-    .title {
+    .title a, .edition em {
         font-style: italic;
+    }
+
+    .edition {
+        color: $brownish-grey;
+        font-size: 0.7rem;
+        line-height: 0.9rem;
     }
 
     // mobile styles

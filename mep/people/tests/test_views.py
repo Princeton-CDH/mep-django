@@ -19,15 +19,15 @@ import pytest
 from mep.accounts.models import (Account, Address, Borrow, Event, Purchase,
                                  Reimbursement, Subscription, SubscriptionType)
 from mep.accounts.partial_date import DatePrecision
-from mep.books.models import Creator, CreatorType, Work
+from mep.books.models import Creator, CreatorType, Edition, Work
 from mep.common.templatetags.mep_tags import partialdate
-from mep.common.utils import absolutize_url, login_temporarily_required
+from mep.common.utils import absolutize_url
 from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import (Country, Location, Person, Relationship,
-                               RelationshipType)
+from mep.people.models import (Country, Location, Person, PastPersonSlug,
+                               Relationship, RelationshipType)
 from mep.people.views import (BorrowingActivities, GeoNamesLookup,
                               MemberCardDetail, MemberCardList,
                               MembershipActivities, MembershipGraphs,
@@ -1025,13 +1025,14 @@ class TestMemberDetailView(TestCase):
         assert response.context['member'] == gay, \
             'page should correspond to the correct member'
         # check dates
+        assert response.context['account_years']
+        print(response.context['account_years'])
         self.assertContains(
             response, '1885 – <span class="sr-only">to</span>1963', html=True)
-        # check membership dates
-        self.assertContains(
-            response,
-            'March 4, 1934 – <span class="sr-only">to</span>Feb. 3, 1941',
-            html=True)
+        # check membership dates - years only
+        self.assertContains(response, '1934')
+        self.assertContains(response, '1941')
+
         # check VIAF
         self.assertContains(response, 'http://viaf.org/viaf/9857613')
         # check nationalities
@@ -1069,6 +1070,64 @@ class TestMemberDetailView(TestCase):
         response = self.client.get(url)
         assert response.status_code == 404, \
             'non-members should not have a detail page'
+
+
+class TestPastSlugRedirects(TestCase):
+    fixtures = ['footnotes_gstein', 'sample_people']
+
+    # short id for first canvas in manifest for stein's card
+    canvas_id = '68fd36f1-a463-441e-9f13-dfc4a6cd4114'
+    kwargs = {'slug': 'stein-gertrude', 'short_id': canvas_id}
+
+    def setUp(self):
+        self.member = Person.objects.get(slug="stein-gertrude")
+        self.slug = self.member.slug
+        self.old_slug = 'old_slug'
+        PastPersonSlug.objects.create(person=self.member,
+                                      slug=self.old_slug)
+        aeschylus = Person.objects.get(name='Aeschylus', slug='aeschylus')
+        self.nonmember_slug = 'aeschy'
+        PastPersonSlug.objects.create(person=aeschylus,
+                                      slug=self.nonmember_slug)
+
+    def test_member_detail_pages(self):
+        # single member detail pages that don't require extra args
+        for named_url in ['member-detail', 'membership-activities',
+                          'borrowing-activities', 'member-card-list']:
+
+            # old slug should return permanent redirect to equivalent new
+            route = 'people:%s' % named_url
+            response = self.client.get(reverse(route,
+                                       kwargs={'slug': self.old_slug}))
+
+            assert response.status_code == 301  # permanent redirect
+            # redirect to same view with the *correct* slug
+            assert response['location'].endswith(
+                reverse(route, kwargs={'slug': self.slug}))
+
+            # non-member old slug should still 404
+            response = self.client.get(
+                reverse(route, kwargs={'slug': self.nonmember_slug}))
+            assert response.status_code == 404
+
+    def test_member_card_detail_page(self):
+            # old slug should return permanent redirect to equivalent new
+            route = 'people:member-card-detail'
+            response = self.client.get(reverse(route,
+                                       kwargs={'slug': self.old_slug,
+                                               'short_id': self.canvas_id}))
+
+            assert response.status_code == 301  # permanent redirect
+            # redirect to same view with the *correct* slug
+            assert response['location'].endswith(
+                reverse(route, kwargs={'slug': self.slug,
+                                       'short_id': self.canvas_id}))
+
+            # non-member old slug should still 404
+            response = self.client.get(
+                reverse(route, kwargs={'slug': self.nonmember_slug,
+                                       'short_id': self.canvas_id}))
+            assert response.status_code == 404
 
 
 class TestMembershipActivities(TestCase):
@@ -1193,20 +1252,25 @@ class TestBorrowingActivities(TestCase):
         maidens = Work.objects.get(title='Suppliant Maidens')
         awakening = Work.objects.get(title='The Awakening of Helena Richie')
         rises = Work.objects.get(title='The Sun Also Rises')
+        # add an edition to one for testing
+        maidens_vol = Edition.objects.create(work=maidens, volume=1)
 
         # create one event of each type to test with
         self.events = {
-            'borrow': Borrow.objects.create(account=acct, work=maidens,
+            'borrow': Borrow.objects.create(
+                account=acct, work=maidens, edition=maidens_vol,
                 start_date=date(1924, 2, 1),
                 end_date=date(1924, 3, 1),
                 start_date_precision=(DatePrecision.year | DatePrecision.month),
                 end_date_precision=(DatePrecision.year | DatePrecision.month),
             ),
-            'purchase': Purchase.objects.create(account=acct, work=awakening,
+            'purchase': Purchase.objects.create(
+                account=acct, work=awakening,
                 start_date=date(1900, 11, 27),
                 start_date_precision=(DatePrecision.month | DatePrecision.day),
             ),
-            'generic': Event.objects.create(account=acct, work=rises,
+            'generic': Event.objects.create(
+                account=acct, work=rises,
                 start_date=date(1922, 6, 3),
             )
         }
@@ -1262,6 +1326,8 @@ class TestBorrowingActivities(TestCase):
         rises = Work.objects.get(title='The Sun Also Rises')
         response = self.client.get(reverse('people:borrowing-activities',
                                    kwargs={'slug': self.member.slug}))
+        maidens_vol = Edition.objects.get(work=maidens)
+
         # table headers
         self.assertContains(response, 'Title')
         self.assertContains(response, 'Author')
@@ -1275,33 +1341,31 @@ class TestBorrowingActivities(TestCase):
         self.assertContains(response, 'Suppliant Maidens')  # title
         self.assertContains(response, 'Aeschylus')  # author
         self.assertContains(response, '1922')  # pub date
-        self.assertContains(response, 'Feb. 1924')  # partial start date
-        self.assertContains(response, 'March 1924')  # partial end date
+        self.assertContains(response, 'Feb 1924')  # partial start date
+        self.assertContains(response, 'Mar 1924')  # partial end date
         self.assertContains(response, 'data-sort="1924-02"')  # sorting
         self.assertContains(response, 'data-sort="1924-03"')  # sorting
-        # NOTE: link suppressed until books are public
-        # self.assertContains(response, maidens.get_absolute_url()) # link
+        self.assertContains(response, maidens.get_absolute_url())  # link
+        self.assertContains(response, maidens_vol.display_html())  # edition
 
         # event details - purchase
         self.assertContains(response, 'Purchase')  # type
-        self.assertContains(response, 'The Awakening of Helena Richie')  # title
+        self.assertContains(response, 'The Awakening of Helena Richie')
         self.assertContains(response, 'Margaret Deland')  # author
         self.assertContains(response, '1906')  # pub date
-        self.assertContains(response, 'Nov. 27')  # partial start date
+        self.assertContains(response, 'Nov 27')  # partial start date
         self.assertContains(response, 'data-sort="--11-27"')  # sorting
         self.assertContains(response, Work.UNCERTAINTY_MESSAGE)  # uncertainty
-        # NOTE: suppressed, books not yet public
-        # self.assertContains(response, awakening.get_absolute_url()) # link
+        self.assertContains(response, awakening.get_absolute_url())  # link
 
         # event details - generic
         self.assertContains(response, '-')  # type
         self.assertContains(response, 'The Sun Also Rises')  # title
         self.assertContains(response, 'Ernest Hemingway')  # author
         self.assertContains(response, '1926')  # pub date
-        self.assertContains(response, 'June 3, 1922')  # start date
+        self.assertContains(response, 'Jun 3, 1922')  # start date
         self.assertContains(response, 'data-sort="1922-06-03"')  # sorting
-        # NOTE: suppressed until books are public
-        # self.assertContains(response, rises.get_absolute_url())  # link
+        self.assertContains(response, rises.get_absolute_url())  # link
 
         # test member with no borrowing activity
         response = self.client.get(reverse('people:borrowing-activities',
@@ -1371,7 +1435,7 @@ class TestMemberCardList(TestCase):
             self.view.get_queryset()
 
         self.view.kwargs = {'slug': 'stein-gertrude'}
-        canvas_ids = list(self.view.get_queryset().values_list('pk', flat=True))
+        canvas_ids = list(c.pk for c in self.view.get_queryset())
         # member should be stored on the view
         assert self.view.member == Person.objects.get(slug='stein-gertrude')
         # queryset should be canvas ids for footnotes associated with Stein
@@ -1547,7 +1611,8 @@ class TestMemberCardDetail(TestCase):
         # should have a page object & paginator stored in context
         assert isinstance(context['card_page'].paginator, Paginator)
         # list of other cards (canvases) stored in context
-        assert context['cards'] == self.view.get_object().manifest.canvases
+        assert list(context['cards']) == \
+            list(self.view.member.account_set.first().member_card_images())
 
     def test_view_template(self):
         member = Person.objects.get(slug='stein-gertrude')

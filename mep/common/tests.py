@@ -29,6 +29,7 @@ from mep.common.templatetags import mep_tags
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
 from mep.people.forms import MemberSearchForm
+from mep.people.models import Person
 
 
 class TestNamed(TestCase):
@@ -816,10 +817,14 @@ class TestRdfViewMixin(TestCase):
                                  object=rdflib.Literal('/my-page'),
                                  any=False)
         # crumbs should have the correct name and position values
-        assert graph.value(home_crumb, SCHEMA_ORG.name) == rdflib.Literal('Home')
-        assert graph.value(page_crumb, SCHEMA_ORG.name) == rdflib.Literal('My Page')
-        assert graph.value(home_crumb, SCHEMA_ORG.position) == rdflib.Literal(1)
-        assert graph.value(page_crumb, SCHEMA_ORG.position) == rdflib.Literal(2)
+        assert graph.value(home_crumb, SCHEMA_ORG.name) == \
+            rdflib.Literal('Home')
+        assert graph.value(page_crumb, SCHEMA_ORG.name) == \
+            rdflib.Literal('My Page')
+        assert graph.value(home_crumb, SCHEMA_ORG.position) == \
+            rdflib.Literal(1)
+        assert graph.value(page_crumb, SCHEMA_ORG.position) == \
+            rdflib.Literal(2)
         # page should have breadcrumb list
         crumb_list = graph.value(page_node, SCHEMA_ORG.breadcrumb, any=False)
         # crumbs should belong to the list as itemListElements
@@ -838,7 +843,7 @@ class TestBreadcrumbsTemplate(TestCase):
         response = self.template.render(context={
             'breadcrumbs': [('My Page', '/my-page')]
         })
-        assert not '<li class="home">' in response
+        assert '<li class="home">' not in response
         # with a 'home' crumb
         response = self.template.render(context={
             'breadcrumbs': [('Home', '/')]
@@ -878,10 +883,10 @@ class TestBaseExport(TestCase):
             }
         }
         flat_nested = BaseExport.flatten_dict(nested)
-        assert 'page id' in flat_nested
-        assert 'page label' in flat_nested
-        assert flat_nested['page id'] == nested['page']['id']
-        assert flat_nested['page label'] == nested['page']['label']
+        assert 'page_id' in flat_nested
+        assert 'page_label' in flat_nested
+        assert flat_nested['page_id'] == nested['page']['id']
+        assert flat_nested['page_label'] == nested['page']['label']
 
         # nested with list
         nested_list = {
@@ -891,7 +896,12 @@ class TestBaseExport(TestCase):
             }
         }
         flat_nested = BaseExport.flatten_dict(nested_list)
-        assert flat_nested['page label'] == 'one;two'
+        assert flat_nested['page_label'] == 'one;two'
+
+        # handle list of integer
+        nested_list['page']['label'] = [1, 2, 3]
+        flat_nested = BaseExport.flatten_dict(nested_list)
+        assert flat_nested['page_label'] == '1;2;3'
 
 
 @patch('mep.common.management.export.progressbar')
@@ -930,3 +940,33 @@ class TestStreamArray(TestCase):
         assert streamer.progbar.update.call_count == total
         # progress bar finish should be called once when iteration completes
         assert streamer.progbar.finish.call_count == 1
+
+
+class TestTrackChangesModel(TestCase):
+    # track changes functions tested via Person subclass
+
+    def setUp(self):
+        self.instance = Person.objects.create(slug='old')
+
+    def test_has_changed(self):
+        person = Person.objects.get(pk=self.instance.pk)
+        # no modifications
+        assert not person.has_changed('slug')
+        # changed
+        person.slug = 'new'
+        assert person.has_changed('slug')
+
+    def test_initial_value(self):
+        person = Person.objects.get(pk=self.instance.pk)
+        assert person.initial_value('slug') == 'old'
+        # set a new valuef
+        person.slug = 'new'
+        # should still return the same initial value
+        assert person.initial_value('slug') == 'old'
+
+    def test_save(self):
+        person = Person.objects.get(pk=self.instance.pk)
+        person.slug = 'new'
+        person.save()
+        # should not detect as changed after save
+        assert not person.has_changed('slug')

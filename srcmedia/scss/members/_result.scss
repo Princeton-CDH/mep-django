@@ -20,6 +20,23 @@
         margin-top: .5rem;
     }
 
+
+    .member-dates {
+        /* use padding to constrain size without messing up layout */
+        /* no more than 2 date ranges per line */
+        padding-left: calc(100% - 10rem);
+
+        .date-range {
+            white-space: nowrap;
+
+            /* separate date ranges with commas */
+            &:not(:last-child):after {
+              content: ", ";
+            }
+        }
+
+    }
+
     // show the "has card" icon if present
     &.has-card {
 

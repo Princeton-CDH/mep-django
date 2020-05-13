@@ -24,11 +24,25 @@
                 pointer-events: none;
             }
 
+            &:nth-last-child(4), &:nth-last-child(5) {
+                a {
+                    width: 1px;
+                    color: white;
+                }
+            }
+
+
             a {
                 border-left-width: 2px;
                 // don't show 'Home' text unless on larger screens
                 width: 1px;
                 color: white;
+
+                // don't show 'Home' whene there are 4 breadcrumbs
+                li:nth-last-child(4) & {
+                    width: 1px;
+                    color: white;
+                }
 
                 @media (min-width: $breakpoint-s) {
                     width: auto;
@@ -42,11 +56,10 @@
     span {
         height: 1.5rem;
         line-height: 1.5rem;
-        padding-top: 1px;
         position: relative;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: baseline;
         background: white;
         font-size: 0.7rem;
         padding-left: 1rem;
