@@ -76,7 +76,9 @@ $card-width: 11.25rem;
     img, source {
         max-height: 15.75rem;
         overflow: hidden;
+    }
 
+    img {
         /* sized for fallback image display */
         min-height: 13.25rem;
         min-width: 11rem;

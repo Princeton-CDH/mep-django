@@ -18,6 +18,7 @@
         picture img {
 
             /* minimum sizes for fallback image */
+            width: 9.25rem;
             min-width: 9.25rem;
             min-height: 11.25rem;
             @include missing-card-image;
@@ -156,6 +157,7 @@
 
     nav.cards {
         overflow-x: auto;
+        overflow-y:hidden;
         scrollbar-width: none;
 
         &::-webkit-scrollbar { display: none; }
@@ -185,7 +187,10 @@
 
             &.active img, &:hover img { opacity: 1; }
 
-            &.active img { border: 0.1rem solid $green; }
+            &.active img {
+                border: 0.1rem solid $green;
+                background-size: cover;  /* adjust background image to match outline */
+            }
         }
 
         a { text-decoration: none; }
