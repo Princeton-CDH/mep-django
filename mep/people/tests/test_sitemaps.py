@@ -35,6 +35,23 @@ class TestMemberSitemap:
             date(2020, 5, 12)
 
 
+class TestMemberCardListSitemap:
+
+    @patch('mep.people.sitemaps.super')
+    def test_items(self, mocksuper):
+        sitemaps.MemberCardListSitemap().items()
+        mocksuper.assert_called_once
+        mocksuper.return_value.items.assert_called_once
+        mocksuper.return_value.items.return_value \
+            .only.assert_called_with('slug', 'last_modified', 'has_card')
+
+    def test_priority(self):
+        sitemap = sitemaps.MemberCardListSitemap()
+        # has card = default priority
+        assert sitemap.priority({'has_card': True}) == sitemap.default_priority
+        assert sitemap.priority({'has_card': False}) == sitemap.low_priority
+
+
 class TestMemberCardDetailSitemap(TestCase):
     fixtures = ['footnotes_gstein', 'sample_people']
 
