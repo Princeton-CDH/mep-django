@@ -1,4 +1,5 @@
-<div class="active-filters">
+{% querystring_minus "query" "sort" "page"  as filter_qs %}
+<div class="active-filters {% if not filter_qs.values|join:'' %}hidden{% endif %}">
     {% spaceless %}
     <div class="inner">
         <span class="legend">Selected Filters</span>
