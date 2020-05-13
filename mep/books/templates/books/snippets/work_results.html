@@ -1,3 +1,8 @@
+<style>
+    .work-results {
+        counter-reset: results {{ page_obj.start_index|add:'-1' }};
+    }
+</style>
 <ol class="work-results" start="{{ page_obj.start_index|add:'-1' }}">
     {% for work in works %}
     <li class="books result{% if work.is_uncertain %} uncertain{% endif %}">

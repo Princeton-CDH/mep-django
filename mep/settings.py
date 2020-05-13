@@ -240,8 +240,7 @@ CSP_IMG_SRC = ("'self'", 'www.googletagmanager.com', '*.google-analytics.com',
 CSP_EXCLUDE_URL_PREFIXES = ('/admin', '/cms')
 
 # allow usage of nonce for inline js (for analytics)
-CSP_INCLUDE_NONCE_IN = ('script-src', 'style-src')
-
+CSP_INCLUDE_NONCE_IN = ('script-src', )
 
 
 ##################
