@@ -67,7 +67,7 @@ class MemberSearchForm(RangeForm, FacetForm):
             'aria-describedby': 'gender_tip'
         }),
         help_text='Click to learn more about gender representation in the Project.')
-    membership_dates = RangeField(label='Membership Dates', required=False,
+    membership_dates = RangeField(label='Membership Years', required=False,
                                   widget=RangeWidget(attrs={'size': 4}))
     birth_year = RangeField(label='Birth Year', required=False,
                             widget=RangeWidget(attrs={'size': 4}))
