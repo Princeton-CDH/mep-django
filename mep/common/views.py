@@ -191,7 +191,7 @@ class FacetJSONMixin(TemplateResponseMixin, VaryOnHeadersMixin):
         return JsonResponse(self.object_list.get_facets())
 
 
-# last modified view mixins copied from ppa (originally from winthrop)
+# last modified view mixin adapted from ppa
 
 
 class SolrLastModifiedMixin(View):
