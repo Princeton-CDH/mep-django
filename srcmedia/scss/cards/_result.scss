@@ -82,6 +82,7 @@ $card-width: 11.25rem;
         /* sized for fallback image display */
         min-height: 13.25rem;
         min-width: 11rem;
+        width: 11rem;
         @include missing-card-image;
     }
 
