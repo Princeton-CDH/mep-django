@@ -17,7 +17,7 @@ class LoginRequiredOr404Mixin(LoginRequiredMixin):
     to the login form.'''
 
     def handle_no_permission(self):
-        # if permission is denied, raise a 404
+        '''If permission is denied, raise an :class:`~django.http.Http404`'''
         raise Http404
 
 
@@ -55,12 +55,14 @@ class LabeledPagesMixin(ContextMixin):
         return context
 
     def dispatch(self, request, *args, **kwargs):
+        '''Wrap the dispatch method to patch in page label header for
+        ajax requests.'''
         response = super(LabeledPagesMixin, self).dispatch(request, *args, **kwargs)
-        if self.request.is_ajax():
         # NOTE we need to replace the en dashes in alpha pagelabels with a
         # hyphen when requested via ajax because unicode can't be sent via the
         # X-Page-Labels header. this needs to get converted back to an en dash
         # on the client side.
+        if self.request.is_ajax():
             response['X-Page-Labels'] = '|'.join(
                 [label.replace('–', '-') for index, label in self._page_labels])
         return response
@@ -165,6 +167,7 @@ class AjaxTemplateMixin(TemplateResponseMixin, VaryOnHeadersMixin):
         return super().get_template_names()
 
     def dispatch(self, request, *args, **kwargs):
+        '''Set a total result header on the response'''
         response = super(AjaxTemplateMixin, self).dispatch(request, *args, **kwargs)
         response['X-Total-Results'] = self.get_queryset().count()
         return response
@@ -197,14 +200,17 @@ class FacetJSONMixin(TemplateResponseMixin, VaryOnHeadersMixin):
 class SolrLastModifiedMixin(View):
     """View mixin to add last modified headers based on Solr"""
 
-    # solr query filter for getting last modified date
+    #: solr query filter for getting last modified date
     solr_lastmodified_filters = {}   # by default, find all
-    #     filter_qs = ['item_type:work']
 
     def get_solr_lastmodified_filters(self):
+        '''Get filters for last modified Solr query. By default returns
+        :attr:`solr_lastmodified_filters`.'''
         return self.solr_lastmodified_filters
 
     def last_modified(self):
+        '''Return last modified :class:`datetime.datetime` from the
+        specified Solr query'''
         filter_qs = self.get_solr_lastmodified_filters()
         sqs = SolrQuerySet().filter(**filter_qs) \
             .order_by('-last_modified').only('last_modified')
@@ -218,6 +224,9 @@ class SolrLastModifiedMixin(View):
             pass
 
     def dispatch(self, request, *args, **kwargs):
+        '''Wrap the dispatch method to add a last modified header if
+        one is available, then return a conditional response.'''
+
         # NOTE: this doesn't actually skip view processing,
         # but without it we could return a not modified for a non-200 response
         response = super(SolrLastModifiedMixin, self) \

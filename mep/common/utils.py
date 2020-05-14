@@ -97,8 +97,10 @@ def alpha_pagelabels(paginator, objects, attr_meth, max_chars=None):
 
 
 def abbreviate_labels(labels):
-    # abbreviate labels so they are as short as possible but distinct from
-    # preceding and following labels
+    '''Abbreviate labels so they are as short as possible but distinct from
+    preceding and following labels. Optionally used with
+    :meth:`alpha_pagelabels`
+    '''
     abbreviated_labels = []
     # iterate over all labels and generate the shortest distinct version
     for i, label in enumerate(labels):
