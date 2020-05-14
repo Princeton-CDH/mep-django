@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $arrondissementFacet = document.querySelector('#id_arrondissement') as HTMLFieldSetElement
     const $errors = document.querySelector('div[role=alert].errors')
     const $demographicsTab = document.querySelector('.demographics.tab') as HTMLDivElement
-    const $booksTab = document.querySelector('.books.tab') as HTMLDivElement
+    // const $booksTab = document.querySelector('.books.tab') as HTMLDivElement
     const $nationalityExpander = document.querySelector('.expander[aria-controls="id_nationality"]') as HTMLDivElement
     const $arrondissementExpander = document.querySelector('.expander[aria-controls="id_arrondissement"]') as HTMLDivElement
     const $activeFilters = document.querySelector('.active-filters') as HTMLDivElement
@@ -256,16 +256,17 @@ document.addEventListener('DOMContentLoaded', () => {
             filter(code => code == 'Space' || code == 'Enter')
         )
     )
-    .subscribe(() => toggleTab($demographicsTab, [$booksTab]))
+    .subscribe(() => toggleTab($demographicsTab, []))
+    // .subscribe(() => toggleTab($demographicsTab, [$booksTab]))
 
-    merge(
-        fromEvent($booksTab, 'click'),
-        fromEvent($booksTab, 'keydown').pipe(
-            map(e => (e as KeyboardEvent).code),
-            filter(code => code == 'Space' || code == 'Enter')
-        )
-    )
-    .subscribe(() => toggleTab($booksTab, [$demographicsTab]))
+    // merge(
+    //     fromEvent($booksTab, 'click'),
+    //     fromEvent($booksTab, 'keydown').pipe(
+    //         map(e => (e as KeyboardEvent).code),
+    //         filter(code => code == 'Space' || code == 'Enter')
+    //     )
+    // )
+    // .subscribe(() => toggleTab($booksTab, [$demographicsTab]))
 
     // Make clicking or pressing space/enter on the expanders for facets on
     // mobile toggle their aria-expanded attribute
