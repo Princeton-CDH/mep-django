@@ -14,13 +14,12 @@ from mep.books.queryset import WorkSolrQuerySet
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, LastModifiedMixin,
-                              LastModifiedListMixin, LoginRequiredOr404Mixin,
-                              RdfViewMixin)
+                              LabeledPagesMixin, SolrLastModifiedMixin,
+                              LoginRequiredOr404Mixin, RdfViewMixin)
 from mep.footnotes.models import Footnote
 
 
-class WorkList(LabeledPagesMixin, LastModifiedListMixin, ListView,
+class WorkList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
                FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library items.'''
     model = Work
@@ -32,6 +31,7 @@ class WorkList(LabeledPagesMixin, LastModifiedListMixin, ListView,
     paginate_by = 100
     context_object_name = 'works'
     rdf_type = SCHEMA_ORG.SearchResultPage
+    solr_lastmodified_filters = {'item_type': 'work'}
 
     form_class = WorkSearchForm
     _form = None
@@ -204,35 +204,13 @@ class WorkList(LabeledPagesMixin, LastModifiedListMixin, ListView,
             (self.page_title, self.get_absolute_url())
         ]
 
-    def last_modified(self):
-        '''customize last modified logic to use Solr'''
-        # use most recent book modification time in the solr index
-        try:
-            psq = WorkSolrQuerySet().order_by('-last_modified') \
-                .only('last_modified')
-            # Solr stores date in isoformat; convert to datetime
-            return solr_timestamp_to_datetime(psq[0]['last_modified'])
-            # skip extra call to Solr to check count and just grab the first
-            # item if it exists
-        except (IndexError, KeyError):
-            # if a syntax or other solr error happens, no date to return
-            pass
 
-
-class WorkLastModifiedListMixin(LastModifiedMixin):
+class WorkLastModifiedListMixin(SolrLastModifiedMixin):
     '''last modified mixin with common logic for all work detail views'''
 
-    def last_modified(self):
-        """get last index modification from Solr, since it will be more
-        current and exhaustive than object last modified, since the index
-        is updated when related models change."""
-
-        try:
-            psq = WorkSolrQuerySet().filter(slug=self.kwargs['slug']) \
-                .order_by('-last_modified').only('last_modified')
-            return solr_timestamp_to_datetime(psq[0]['last_modified'])
-        except (IndexError, KeyError):
-            pass
+    def get_solr_lastmodified_filters(self):
+        # NOTE: slug_s because not using aliased queryset
+        return {'item_type': 'work', 'slug_s': self.kwargs['slug']}
 
 
 class WorkDetail(WorkLastModifiedListMixin, DetailView, RdfViewMixin):

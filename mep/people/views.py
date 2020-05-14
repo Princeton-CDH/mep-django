@@ -17,23 +17,21 @@ from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormMixin, FormView
 from djiffy.models import Canvas
-from parasolr.utils import solr_timestamp_to_datetime
 
 from mep.accounts.models import Address, Event
 from mep.accounts.templatetags.account_tags import as_ranges
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, LastModifiedMixin,
-                              LastModifiedListMixin, LoginRequiredOr404Mixin,
-                              RdfViewMixin)
+                              LabeledPagesMixin, SolrLastModifiedMixin,
+                              LoginRequiredOr404Mixin, RdfViewMixin)
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-class MembersList(LabeledPagesMixin, LastModifiedListMixin, ListView,
+class MembersList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
                   FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
@@ -45,6 +43,7 @@ class MembersList(LabeledPagesMixin, LastModifiedListMixin, ListView,
     paginate_by = 100
     context_object_name = 'members'
     rdf_type = SCHEMA_ORG.SearchResultsPage
+    solr_lastmodified_filters = {'item_type': 'person'}
 
     form_class = MemberSearchForm
     # cached form instance for current request
@@ -237,20 +236,6 @@ class MembersList(LabeledPagesMixin, LastModifiedListMixin, ListView,
             (self.page_title, self.get_absolute_url()),
         ]
 
-    def last_modified(self):
-        '''customize last modified logic to use Solr'''
-        # use most recent member modification time in the solr index
-        try:
-            psq = PersonSolrQuerySet().order_by('-last_modified') \
-                .only('last_modified')
-            # Solr stores date in isoformat; convert to datetime
-            return solr_timestamp_to_datetime(psq[0]['last_modified'])
-            # skip extra call to Solr to check count and just grab the first
-            # item if it exists
-        except (IndexError, KeyError):
-            # if a syntax or other solr error happens, no date to return
-            pass
-
 
 class MemberPastSlugMixin:
     '''View mixin to handle redirects for previously used slugs.
@@ -277,20 +262,12 @@ class MemberPastSlugMixin:
             raise
 
 
-class MemberLastModifiedListMixin(LastModifiedMixin):
+class MemberLastModifiedListMixin(SolrLastModifiedMixin):
     '''last modified mixin with common logic for all single-member views'''
 
-    def last_modified(self):
-        """get last index modification from Solr, since it will be more
-        current and exhaustive than object last modified, since the index
-        is updated when related models change."""
-
-        try:
-            psq = PersonSolrQuerySet().filter(slug=self.kwargs['slug']) \
-                .order_by('-last_modified').only('last_modified')
-            return solr_timestamp_to_datetime(psq[0]['last_modified'])
-        except (IndexError, KeyError):
-            pass
+    def get_solr_lastmodified_filters(self):
+        # NOTE: slug_s because not using aliased queryset
+        return {'item_type': 'person', 'slug_s': self.kwargs['slug']}
 
 
 class MemberDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,

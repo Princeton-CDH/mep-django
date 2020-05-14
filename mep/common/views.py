@@ -1,10 +1,11 @@
 import calendar
-from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from django.utils.cache import get_conditional_response, patch_vary_headers
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
+from parasolr.django.queryset import SolrQuerySet
+from parasolr.utils import solr_timestamp_to_datetime
 import rdflib
 
 from mep.common import SCHEMA_ORG
@@ -193,24 +194,41 @@ class FacetJSONMixin(TemplateResponseMixin, VaryOnHeadersMixin):
 # last modified view mixins copied from ppa (originally from winthrop)
 
 
-class LastModifiedMixin(View):
-    """View mixin to add last modified headers"""
+class SolrLastModifiedMixin(View):
+    """View mixin to add last modified headers based on Solr"""
+
+    # solr query filter for getting last modified date
+    solr_lastmodified_filters = {}   # by default, find all
+    #     filter_qs = ['item_type:work']
+
+    def get_solr_lastmodified_filters(self):
+        return self.solr_lastmodified_filters
 
     def last_modified(self):
-        # for single-object displayable
-        return self.get_object().updated
+        filter_qs = self.get_solr_lastmodified_filters()
+        sqs = SolrQuerySet().filter(**filter_qs) \
+            .order_by('-last_modified').only('last_modified')
+        try:
+            # Solr stores date in isoformat; convert to datetime
+            print(sqs[0])
+            return solr_timestamp_to_datetime(sqs[0]['last_modified'])
+            # skip extra call to Solr to check count and just grab the first
+            # item if it exists
+        except (IndexError, KeyError):
+            # if a syntax or other solr error happens, no date to return
+            pass
 
     def dispatch(self, request, *args, **kwargs):
         # NOTE: this doesn't actually skip view processing,
         # but without it we could return a not modified for a non-200 response
-        response = super(LastModifiedMixin, self) \
+        response = super(SolrLastModifiedMixin, self) \
             .dispatch(request, *args, **kwargs)
 
         last_modified = self.last_modified()
         if last_modified:
             # remove microseconds so that comparison will pass,
             # since microseconds are not included in the last-modified header
-            last_modified = self.last_modified().replace(microsecond=0)
+            last_modified = last_modified.replace(microsecond=0)
             response['Last-Modified'] = last_modified \
                 .strftime('%a, %d %b %Y %H:%M:%S GMT')
             # convert the same way django does so that they will
@@ -221,7 +239,7 @@ class LastModifiedMixin(View):
                                         response=response)
 
 
-class LastModifiedListMixin(LastModifiedMixin):
+class LastModifiedListMixin(SolrLastModifiedMixin):
     """Variant of :class:`LastModifiedMixin` for use on a list view"""
 
     def last_modified(self):

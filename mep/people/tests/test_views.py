@@ -1006,6 +1006,15 @@ class TestMembersListView(TestCase):
         mock_stats['stats_fields']['account_years']['min'] = None
         assert MembersList().get_range_stats() == {'birth_year': (1910, 1932)}
 
+    @patch('mep.common.views.SolrQuerySet')
+    def test_last_modified(self, mock_wsq):
+        mock_wsq.return_value.filter.return_value.order_by.return_value \
+            .only.return_value = [
+                {'last_modified': '2018-07-02T21:08:46.428Z'}]
+        response = self.client.head(self.members_url)
+        # has last modified header
+        assert response['Last-Modified']
+
 
 class TestMemberDetailView(TestCase):
     fixtures = ['sample_people.json']
@@ -1038,6 +1047,19 @@ class TestMemberDetailView(TestCase):
         # check nationalities
         self.assertContains(response, 'France')
         # NOTE currently not including/checking profession
+
+    @patch('mep.common.views.SolrQuerySet')
+    def test_last_modified(self, mock_wsq):
+        mock_wsq.return_value.filter.return_value.order_by.return_value \
+            .only.return_value = [
+                {'last_modified': '2018-07-02T21:08:46.428Z'}]
+        gay = Person.objects.get(name='Francisque Gay', slug='gay')
+        url = reverse('people:member-detail', kwargs={'slug': gay.slug})
+        response = self.client.head(url)
+        # has last modified header
+        assert response['Last-Modified']
+        mock_wsq.return_value.filter.assert_called_with(item_type='person',
+                                                        slug_s=gay.slug)
 
     def test_member_map(self):
         gay = Person.objects.get(name='Francisque Gay', slug='gay')
