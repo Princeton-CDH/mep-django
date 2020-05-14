@@ -43,6 +43,7 @@
             flex: auto;
             display: block;
             position: relative;
+            margin-bottom: 1rem;
 
             &::before {
                 content: " ";
@@ -51,7 +52,7 @@
                 /* swap height and width since it will be rotated */
                 height: 1rem;
                 width: 2rem;
-                top: 50%;
+                top: calc(50% - 1rem);
                 background-image: url('/static/img/icons/blackChevron_down.svg');
                 background-repeat: no-repeat;
                 background-size: contain;
