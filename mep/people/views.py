@@ -23,16 +23,16 @@ from mep.accounts.templatetags.account_tags import as_ranges
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, LoginRequiredOr404Mixin,
-                              RdfViewMixin)
+                              LabeledPagesMixin, SolrLastModifiedMixin,
+                              LoginRequiredOr404Mixin, RdfViewMixin)
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-class MembersList(LabeledPagesMixin, ListView, FormMixin,
-                  AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
+class MembersList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
+                  FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     page_title = "Members"
@@ -43,6 +43,7 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin,
     paginate_by = 100
     context_object_name = 'members'
     rdf_type = SCHEMA_ORG.SearchResultsPage
+    solr_lastmodified_filters = {'item_type': 'person'}
 
     form_class = MemberSearchForm
     # cached form instance for current request
@@ -261,7 +262,16 @@ class MemberPastSlugMixin:
             raise
 
 
-class MemberDetail(MemberPastSlugMixin, DetailView, RdfViewMixin):
+class MemberLastModifiedListMixin(SolrLastModifiedMixin):
+    '''last modified mixin with common logic for all single-member views'''
+
+    def get_solr_lastmodified_filters(self):
+        # NOTE: slug_s because not using aliased queryset
+        return {'item_type': 'person', 'slug_s': self.kwargs['slug']}
+
+
+class MemberDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,
+                   DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -386,7 +396,8 @@ class MemberDetail(MemberPastSlugMixin, DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
+class MembershipActivities(MemberPastSlugMixin, MemberLastModifiedListMixin,
+                           ListView, RdfViewMixin):
     '''Display a list of membership activities (subscriptions, renewals,
     and reimbursements) for an individual member.'''
     model = Event
@@ -429,7 +440,8 @@ class MembershipActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
         ]
 
 
-class BorrowingActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
+class BorrowingActivities(MemberPastSlugMixin, MemberLastModifiedListMixin,
+                          ListView, RdfViewMixin):
     '''Display a list of book-related activities (borrows, purchases, gifts)
     for an individual member.'''
     model = Event
@@ -472,7 +484,8 @@ class BorrowingActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
         ]
 
 
-class MemberCardList(MemberPastSlugMixin, ListView, RdfViewMixin):
+class MemberCardList(MemberPastSlugMixin, MemberLastModifiedListMixin,
+                     ListView, RdfViewMixin):
     '''Card thumbnails for lending card associated with a single library
     member.'''
     model = Canvas
@@ -519,7 +532,8 @@ class MemberCardList(MemberPastSlugMixin, ListView, RdfViewMixin):
         return context
 
 
-class MemberCardDetail(MemberPastSlugMixin, DetailView, RdfViewMixin):
+class MemberCardDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,
+                       DetailView, RdfViewMixin):
     '''Card image viewer for image of a single lending card page
     associated with a single library member.'''
     model = Canvas

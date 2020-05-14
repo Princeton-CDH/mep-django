@@ -12,13 +12,12 @@ from mep.books.models import Work
 from mep.books.queryset import WorkSolrQuerySet
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, LoginRequiredOr404Mixin,
-                              RdfViewMixin)
+from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
+    LabeledPagesMixin, RdfViewMixin, SolrLastModifiedMixin
 from mep.footnotes.models import Footnote
 
 
-class WorkList(LabeledPagesMixin, ListView,
+class WorkList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
                FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library items.'''
     model = Work
@@ -30,6 +29,7 @@ class WorkList(LabeledPagesMixin, ListView,
     paginate_by = 100
     context_object_name = 'works'
     rdf_type = SCHEMA_ORG.SearchResultPage
+    solr_lastmodified_filters = {'item_type': 'work'}
 
     form_class = WorkSearchForm
     _form = None
@@ -203,7 +203,15 @@ class WorkList(LabeledPagesMixin, ListView,
         ]
 
 
-class WorkDetail(DetailView, RdfViewMixin):
+class WorkLastModifiedListMixin(SolrLastModifiedMixin):
+    '''last modified mixin with common logic for all work detail views'''
+
+    def get_solr_lastmodified_filters(self):
+        # NOTE: slug_s because not using aliased queryset
+        return {'item_type': 'work', 'slug_s': self.kwargs['slug']}
+
+
+class WorkDetail(WorkLastModifiedListMixin, DetailView, RdfViewMixin):
     '''Detail page for a single library book.'''
     model = Work
     template_name = 'books/work_detail.html'
@@ -240,7 +248,7 @@ class WorkDetail(DetailView, RdfViewMixin):
         return context
 
 
-class WorkCirculation(ListView, RdfViewMixin):
+class WorkCirculation(WorkLastModifiedListMixin, ListView, RdfViewMixin):
     '''Display a list of circulation events (borrows, purchases) for an
     individual work.'''
     model = Event
@@ -278,7 +286,7 @@ class WorkCirculation(ListView, RdfViewMixin):
         ]
 
 
-class WorkCardList(ListView, RdfViewMixin):
+class WorkCardList(WorkLastModifiedListMixin, ListView, RdfViewMixin):
     '''Card thumbnails for lending card associated with a single library
     member.'''
     model = Footnote
