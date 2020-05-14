@@ -13,7 +13,9 @@ django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader
-parasolr>=0.5.1
+#parasolr>=0.5.1
+# new version for default in schema fields; expect 0.6
+git+https://github.com/Princeton-CDH/parasolr@develop#egg=parasolr
 django-widget-tweaks
 pymarc
 progressbar2

@@ -3,10 +3,20 @@
 Deploy and Upgrade notes
 ========================
 
+1.0
+---
+
+XML sitemaps require update to Solr schema to track last modification
+time of indexed items. Update the schema and reindex everything.
+
+  python manage.py solr_schema
+  python manage.py index -c all -i none
+  python manage.py index
+
 0.29
 ----
 
-Updates to the book search & browse require a Solr configuration b
+Updates to the book search & browse require a Solr configuration
 update and work reindex. Copy all files under `solr_conf/conf/` to your
 configured Solr configset and restart Solr to ensure the managed schema is
 loaded. Then update the schema, clear works from the index, and reindex::
