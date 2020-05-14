@@ -284,6 +284,7 @@ class PersonAdmin(admin.ModelAdmin):
         return urls + super(PersonAdmin, self).get_urls()
 
     def past_slugs_list(self, instance=None):
+        '''list of previous slugs for this person, for read-only display'''
         if instance:
             return ', '.join([p.slug for p in instance.past_slugs.all()])
     past_slugs_list.short_description = "Past slugs"

@@ -207,6 +207,7 @@ class WorkLastModifiedListMixin(SolrLastModifiedMixin):
     '''last modified mixin with common logic for all work detail views'''
 
     def get_solr_lastmodified_filters(self):
+        '''filter solr query by item type and slug'''
         # NOTE: slug_s because not using aliased queryset
         return {'item_type': 'work', 'slug_s': self.kwargs['slug']}
 
