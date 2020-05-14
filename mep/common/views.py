@@ -237,13 +237,3 @@ class SolrLastModifiedMixin(View):
 
         return get_conditional_response(request, last_modified=last_modified,
                                         response=response)
-
-
-class LastModifiedListMixin(SolrLastModifiedMixin):
-    """Variant of :class:`LastModifiedMixin` for use on a list view"""
-
-    def last_modified(self):
-        # for list object displayable; assumes django queryset
-        queryset = self.get_queryset()
-        if queryset.exists():
-            return queryset.order_by('updated').first().updated
