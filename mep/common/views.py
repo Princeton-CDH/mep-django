@@ -1,6 +1,9 @@
+import calendar
+from datetime import datetime
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
-from django.utils.cache import patch_vary_headers
+from django.utils.cache import get_conditional_response, patch_vary_headers
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
 import rdflib
 
@@ -185,3 +188,44 @@ class FacetJSONMixin(TemplateResponseMixin, VaryOnHeadersMixin):
         '''Construct a JsonResponse based on the already-populated queryset
         data for the view.'''
         return JsonResponse(self.object_list.get_facets())
+
+
+# last modified view mixins copied from ppa (originally from winthrop)
+
+
+class LastModifiedMixin(View):
+    """View mixin to add last modified headers"""
+
+    def last_modified(self):
+        # for single-object displayable
+        return self.get_object().updated
+
+    def dispatch(self, request, *args, **kwargs):
+        # NOTE: this doesn't actually skip view processing,
+        # but without it we could return a not modified for a non-200 response
+        response = super(LastModifiedMixin, self) \
+            .dispatch(request, *args, **kwargs)
+
+        last_modified = self.last_modified()
+        if last_modified:
+            # remove microseconds so that comparison will pass,
+            # since microseconds are not included in the last-modified header
+            last_modified = self.last_modified().replace(microsecond=0)
+            response['Last-Modified'] = last_modified \
+                .strftime('%a, %d %b %Y %H:%M:%S GMT')
+            # convert the same way django does so that they will
+            # compare correctly
+            last_modified = calendar.timegm(last_modified.utctimetuple())
+
+        return get_conditional_response(request, last_modified=last_modified,
+                                        response=response)
+
+
+class LastModifiedListMixin(LastModifiedMixin):
+    """Variant of :class:`LastModifiedMixin` for use on a list view"""
+
+    def last_modified(self):
+        # for list object displayable; assumes django queryset
+        queryset = self.get_queryset()
+        if queryset.exists():
+            return queryset.order_by('updated').first().updated
