@@ -10,7 +10,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db.models import Model
-from django.http import Http404, HttpRequest, JsonResponse
+from django.http import Http404, HttpRequest, JsonResponse, QueryDict
 from django.template.loader import get_template
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
@@ -25,10 +25,11 @@ from mep.common.forms import (CheckboxFieldset, FacetChoiceField, FacetForm,
                               RangeField, RangeWidget)
 from mep.common.management.export import BaseExport, StreamArray
 from mep.common.models import AliasIntegerField, DateRange, Named, Notable
-from mep.common.templatetags.mep_tags import (dict_item, domain, iiif_image,
-                                              partialdate)
+from mep.common.templatetags import mep_tags
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.validators import verify_latlon
+from mep.people.forms import MemberSearchForm
+from mep.people.models import Person
 
 
 class TestNamed(TestCase):
@@ -354,87 +355,177 @@ class TestLabeledPagesMixin(TestCase):
         assert response['X-Page-Labels'] == '1 - 5|6 - 10'
 
 
-class TestTemplateTags(TestCase):
+# tests for template tags
 
-    def test_dict_item(self):
-        # no error on not found
-        assert dict_item({}, 'foo') is None
-        # string key
-        assert dict_item({'foo': 'bar'}, 'foo') == 'bar'
-        # integer key
-        assert dict_item({13: 'lucky'}, 13) == 'lucky'
-        # integer value
-        assert dict_item({13: 7}, 13) == 7
 
-    def test_domain(self):
-        # works correctly on URLs that have both a domain and //
-        assert domain('https://docs.python.org/3/library/') == 'python'
-        assert domain('//www.cwi.nl:80/%7Eguido/Python.html') == 'cwi'
-        # returns None on local URLs or those missing //
-        assert domain('www.cwi.nl/%7Eguido/Python.html') is None
-        assert domain('help/Python.html') is None
-        # returns None on garbage
-        assert domain('oops') is None
-        assert domain(2) is None
-        assert domain(None) is None
+def test_dict_item():
+    # no error on not found
+    assert mep_tags.dict_item({}, 'foo') is None
+    # string key
+    assert mep_tags.dict_item({'foo': 'bar'}, 'foo') == 'bar'
+    # integer key
+    assert mep_tags.dict_item({13: 'lucky'}, 13) == 'lucky'
+    # integer value
+    assert mep_tags.dict_item({13: 7}, 13) == 7
 
-    def test_iiif_image(self):
-        myimg = IIIFImageClient('http://image.server/path/', 'myimgid')
-        # check expected behavior
-        assert str(iiif_image(myimg, 'size:width=250')) == \
-            str(myimg.size(width=250))
-        assert str(iiif_image(myimg, 'size:width=250,height=300')) == \
-            str(myimg.size(width=250, height=300))
-        assert str(iiif_image(myimg, 'format:png')) == str(myimg.format('png'))
 
-        # check that errors don't raise exceptions
-        assert iiif_image(myimg, 'bogus') == ''
-        assert iiif_image(myimg, 'size:bogus') == ''
-        assert iiif_image(myimg, 'size:bogus=1') == ''
+def test_domain():
+    # works correctly on URLs that have both a domain and //
+    assert mep_tags.domain('https://docs.python.org/3/library/') == 'python'
+    assert mep_tags.domain('//www.cwi.nl:80/%7Eguido/Python.html') == 'cwi'
+    # returns None on local URLs or those missing //
+    assert mep_tags.domain('www.cwi.nl/%7Eguido/Python.html') is None
+    assert mep_tags.domain('help/Python.html') is None
+    # returns None on garbage
+    assert mep_tags.domain('oops') is None
+    assert mep_tags.domain(2) is None
+    assert mep_tags.domain(None) is None
 
-    def test_partialdate_filter(self):
-        # None should return None
-        assert partialdate(None, 'c') is None
-        # unset date should return None
-        acct = Account.objects.create()
-        evt = Event.objects.create(account=acct)
-        assert partialdate(evt.partial_start_date, 'c') is None
 
-        # test with ap date format as default
-        with override_settings(DATE_FORMAT='N j, Y'):
-            # year only
-            evt.partial_start_date = '1934'
-            assert partialdate(evt.partial_start_date) == '1934'
-            # year and month
-            evt.partial_start_date = '1934-02'
-            assert partialdate(evt.partial_start_date) == 'Feb. 1934'
-            # month and day
-            evt.partial_start_date = '--03-06'
-            assert partialdate(evt.partial_start_date) == 'March 6'
-            # full precision
-            evt.partial_start_date = '1934-11-06'
-            assert partialdate(evt.partial_start_date) == 'Nov. 6, 1934'
+def test_iiif_image():
+    myimg = IIIFImageClient('http://image.server/path/', 'myimgid')
+    # check expected behavior
+    assert str(mep_tags.iiif_image(myimg, 'size:width=250')) == \
+        str(myimg.size(width=250))
+    assert str(mep_tags.iiif_image(myimg, 'size:width=250,height=300')) == \
+        str(myimg.size(width=250, height=300))
+    assert str(mep_tags.iiif_image(myimg, 'format:png')) == \
+        str(myimg.format('png'))
 
-        # partial precision with trailing punctuation in the date
-        evt.partial_start_date = '--11-26'
-        assert partialdate(evt.partial_start_date, 'j N') == '26 Nov.'
+    # check that errors don't raise exceptions
+    assert mep_tags.iiif_image(myimg, 'bogus') == ''
+    assert mep_tags.iiif_image(myimg, 'size:bogus') == ''
+    assert mep_tags.iiif_image(myimg, 'size:bogus=1') == ''
 
-        # check a different format
-        evt.partial_start_date = '--11-26'
-        assert partialdate(evt.partial_start_date, 'Ymd') == '1126'
-        evt.partial_start_date = '1932-11'
-        assert partialdate(evt.partial_start_date, 'Ymd') == '193211'
-        evt.partial_start_date = '1932'
-        assert partialdate(evt.partial_start_date, 'Ymd') == '1932'
 
-        # check week format
-        evt.partial_start_date = '1922-01-06'
-        assert partialdate(evt.partial_start_date, 'W y') == '1 22'
-        evt.partial_start_date = '--01-06'
-        assert partialdate(evt.partial_start_date, 'W y') is None
+@pytest.mark.django_db
+def test_partialdate_filter():
+    # None should return None
+    assert mep_tags.partialdate(None, 'c') is None
+    # unset date should return None
+    acct = Account.objects.create()
+    evt = Event.objects.create(account=acct)
+    assert mep_tags.partialdate(evt.partial_start_date, 'c') is None
 
-        # handle error in parsing date
-        assert partialdate('foobar', 'Y-m-d') is None
+    # test with ap date format as default
+    with override_settings(DATE_FORMAT='N j, Y'):
+        # year only
+        evt.partial_start_date = '1934'
+        assert mep_tags.partialdate(evt.partial_start_date) == '1934'
+        # year and month
+        evt.partial_start_date = '1934-02'
+        assert mep_tags.partialdate(evt.partial_start_date) == 'Feb. 1934'
+        # month and day
+        evt.partial_start_date = '--03-06'
+        assert mep_tags.partialdate(evt.partial_start_date) == 'March 6'
+        # full precision
+        evt.partial_start_date = '1934-11-06'
+        assert mep_tags.partialdate(evt.partial_start_date) == 'Nov. 6, 1934'
+
+    # partial precision with trailing punctuation in the date
+    evt.partial_start_date = '--11-26'
+    assert mep_tags.partialdate(evt.partial_start_date, 'j N') == '26 Nov.'
+
+    # check a different format
+    evt.partial_start_date = '--11-26'
+    assert mep_tags.partialdate(evt.partial_start_date, 'Ymd') == '1126'
+    evt.partial_start_date = '1932-11'
+    assert mep_tags.partialdate(evt.partial_start_date, 'Ymd') == '193211'
+    evt.partial_start_date = '1932'
+    assert mep_tags.partialdate(evt.partial_start_date, 'Ymd') == '1932'
+
+    # check week format
+    evt.partial_start_date = '1922-01-06'
+    assert mep_tags.partialdate(evt.partial_start_date, 'W y') == '1 22'
+    evt.partial_start_date = '--01-06'
+    assert mep_tags.partialdate(evt.partial_start_date, 'W y') is None
+
+    # handle error in parsing date
+    assert mep_tags.partialdate('foobar', 'Y-m-d') is None
+
+
+def test_querystring_remove():
+    # single value by key
+    qs = mep_tags.querystring_remove(QueryDict('a=1&b=2'), 'a')
+    assert 'a' not in qs
+    assert qs['b'] == '2'
+    # multiple values by key
+    qs = mep_tags.querystring_remove(QueryDict('a=1&b=2'), 'a', 'b')
+    assert not qs   # empty string
+    # one of a multivalue
+    qs = mep_tags.querystring_remove(QueryDict('a=1&a=2&a=3'), a='2')
+    assert qs.urlencode() == 'a=1&a=3'
+
+
+def test_querystring_minus():
+    querystring = QueryDict('a=1&b=2&c=3')
+    context = {'request': Mock(GET=querystring)}
+    qs = mep_tags.querystring_minus(context, 'a', 'c')
+    assert qs == QueryDict('b=2')
+    qs = mep_tags.querystring_minus(context, 'a', 'b', 'c')
+    assert qs == QueryDict()
+
+
+def test_formfield_selected_filter():
+    form = MemberSearchForm(data={
+        'has_card': 1,
+        'membership_dates_0': 1920,
+        'birth_year_1': 1950,
+        'gender': ['Female', 'Male']
+    })
+    form.set_choices_from_facets(
+        {'gender': OrderedDict([('Female', 0), ('Male', 0)])})
+
+    querystring = QueryDict('has_card=1&page=2&sort=relevance&query=stein')
+    context = {'request': Mock(GET=querystring)}
+    # boolean field
+    link = mep_tags.formfield_selected_filter(context, form['has_card'])
+    # still on python 3.5, can't assume order doesn't change
+    # assert link == '<a href="?sort=relevance&query=stein">Card</a>'
+    assert link.startswith('<a data-input="id_has_card" href="?')
+    assert link.endswith('">Card</a>')
+    for query_param in ['sort=relevance', 'query=stein']:
+        assert query_param in link
+    assert 'has_card=1' not in link
+
+    # range field - first date only
+    querystring = QueryDict('has_card=1&page=2&sort=relevance&query=stein' +
+                            '&membership_dates_0=1920&membership_dates_1=test')
+    context = {'request': Mock(GET=querystring)}
+    link = mep_tags.formfield_selected_filter(context,
+                                              form['membership_dates'])
+    assert "Membership Years 1920 – &nbsp;" in link
+    for query_param in ['sort=relevance', 'query=stein', 'has_card=1']:
+        assert query_param in link
+    for membership_param in ['membership_dates_0', 'membership_dates_1']:
+        assert membership_param not in link
+    # assert 'href="?has_card=1&sort=relevance&query=stein"' in link
+
+    # range field - second date only
+    querystring = QueryDict('query=stein&birth_year_0=&birth_year_1=1950')
+    context = {'request': Mock(GET=querystring)}
+
+    link = mep_tags.formfield_selected_filter(context,
+                                              form['birth_year'])
+    assert "Birth Year &nbsp; – 1950" in link
+    assert 'href="?query=stein"' in link
+    for birth_param in ['birth_year_0', 'birth_year_1']:
+        assert birth_param not in link
+
+    # facet choice field with multiple values
+    querystring = QueryDict('query=stein&gender=Female&gender=Male')
+    context = {'request': Mock(GET=querystring)}
+    link = mep_tags.formfield_selected_filter(context,
+                                              form['gender'])
+    # generates two links; each preserves the *other* filter
+    # NOTE: [^>]* pattern is to ignore data-input attribute
+    assert re.search(r'<a[^>]*href="\?[^"]*gender=Male[^"]*">Female</a>', link)
+    assert re.search(r'<a[^>]*href="\?[^"]*gender=Female[^"]*">Male</a>', link)
+    assert not re.search(r'<a[^>]*href="\?[^"]*gender=Female[^"]*">Female</a>',
+                         link)
+    assert not re.search(r'<a[^>]*href="\?[^"]*gender=Male[^"]*">Male</a>',
+                         link)
+    # assert '<a href="?query=stein&gender=Female">Male</a>' in link
 
 
 class TestCheckboxFieldset(TestCase):
@@ -726,10 +817,14 @@ class TestRdfViewMixin(TestCase):
                                  object=rdflib.Literal('/my-page'),
                                  any=False)
         # crumbs should have the correct name and position values
-        assert graph.value(home_crumb, SCHEMA_ORG.name) == rdflib.Literal('Home')
-        assert graph.value(page_crumb, SCHEMA_ORG.name) == rdflib.Literal('My Page')
-        assert graph.value(home_crumb, SCHEMA_ORG.position) == rdflib.Literal(1)
-        assert graph.value(page_crumb, SCHEMA_ORG.position) == rdflib.Literal(2)
+        assert graph.value(home_crumb, SCHEMA_ORG.name) == \
+            rdflib.Literal('Home')
+        assert graph.value(page_crumb, SCHEMA_ORG.name) == \
+            rdflib.Literal('My Page')
+        assert graph.value(home_crumb, SCHEMA_ORG.position) == \
+            rdflib.Literal(1)
+        assert graph.value(page_crumb, SCHEMA_ORG.position) == \
+            rdflib.Literal(2)
         # page should have breadcrumb list
         crumb_list = graph.value(page_node, SCHEMA_ORG.breadcrumb, any=False)
         # crumbs should belong to the list as itemListElements
@@ -748,7 +843,7 @@ class TestBreadcrumbsTemplate(TestCase):
         response = self.template.render(context={
             'breadcrumbs': [('My Page', '/my-page')]
         })
-        assert not '<li class="home">' in response
+        assert '<li class="home">' not in response
         # with a 'home' crumb
         response = self.template.render(context={
             'breadcrumbs': [('Home', '/')]
@@ -788,10 +883,10 @@ class TestBaseExport(TestCase):
             }
         }
         flat_nested = BaseExport.flatten_dict(nested)
-        assert 'page id' in flat_nested
-        assert 'page label' in flat_nested
-        assert flat_nested['page id'] == nested['page']['id']
-        assert flat_nested['page label'] == nested['page']['label']
+        assert 'page_id' in flat_nested
+        assert 'page_label' in flat_nested
+        assert flat_nested['page_id'] == nested['page']['id']
+        assert flat_nested['page_label'] == nested['page']['label']
 
         # nested with list
         nested_list = {
@@ -801,7 +896,12 @@ class TestBaseExport(TestCase):
             }
         }
         flat_nested = BaseExport.flatten_dict(nested_list)
-        assert flat_nested['page label'] == 'one;two'
+        assert flat_nested['page_label'] == 'one;two'
+
+        # handle list of integer
+        nested_list['page']['label'] = [1, 2, 3]
+        flat_nested = BaseExport.flatten_dict(nested_list)
+        assert flat_nested['page_label'] == '1;2;3'
 
 
 @patch('mep.common.management.export.progressbar')
@@ -840,3 +940,33 @@ class TestStreamArray(TestCase):
         assert streamer.progbar.update.call_count == total
         # progress bar finish should be called once when iteration completes
         assert streamer.progbar.finish.call_count == 1
+
+
+class TestTrackChangesModel(TestCase):
+    # track changes functions tested via Person subclass
+
+    def setUp(self):
+        self.instance = Person.objects.create(slug='old')
+
+    def test_has_changed(self):
+        person = Person.objects.get(pk=self.instance.pk)
+        # no modifications
+        assert not person.has_changed('slug')
+        # changed
+        person.slug = 'new'
+        assert person.has_changed('slug')
+
+    def test_initial_value(self):
+        person = Person.objects.get(pk=self.instance.pk)
+        assert person.initial_value('slug') == 'old'
+        # set a new valuef
+        person.slug = 'new'
+        # should still return the same initial value
+        assert person.initial_value('slug') == 'old'
+
+    def test_save(self):
+        person = Person.objects.get(pk=self.instance.pk)
+        person.slug = 'new'
+        person.save()
+        # should not detect as changed after save
+        assert not person.has_changed('slug')

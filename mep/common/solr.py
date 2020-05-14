@@ -13,6 +13,9 @@ class SolrSchema(schema.SolrSchema):
     nationality = schema.SolrStringField(multivalued=True)
     edition_titles = SolrTextField(multivalued=True)
 
+    # have solr automatically track last index time
+    last_modified = schema.SolrField('date', default='NOW')
+
     # relying on dynamic fields for everything else; see index_data
     # methods and solr queryset aliases for specifics
 

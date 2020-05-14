@@ -1,7 +1,9 @@
+import datetime
 from io import StringIO
 
 from django.test import TestCase
 
+from mep.accounts.models import Event
 from mep.people.management.commands import export_members
 from mep.people.models import Person
 
@@ -31,19 +33,21 @@ class TestExportMembers(TestCase):
         # check some basic data
         assert gay_data['name'] == 'Francisque Gay'
         assert gay_data['gender'] == 'Male'
-        assert gay_data['birth year'] == 1885
-        assert hemingway_data['sort name'] == 'Hemingway, Ernest'
-        assert hemingway_data['death year'] == 1961
+        assert gay_data['birth_year'] == 1885
+        assert hemingway_data['sort_name'] == 'Hemingway, Ernest'
+        assert hemingway_data['death_year'] == 1961
         assert 'title' not in hemingway_data   # empty fields not present
+        # fixture has no events, so no years are set
+        assert hemingway_data['membership_years'] == []
 
         # check nationalities
         assert 'France' in gay_data['nationalities']
         assert 'United States' in hemingway_data['nationalities']
 
         # check viaf & wikipedia urls
-        assert hemingway_data['wikipedia url'] == \
+        assert hemingway_data['wikipedia_url'] == \
             'https://en.wikipedia.org/wiki/Ernest_Hemingway'
-        assert gay_data['viaf url'] == 'http://viaf.org/viaf/9857613'
+        assert gay_data['viaf_url'] == 'http://viaf.org/viaf/9857613'
 
         # check addresses & coordinates
         assert '3 Rue Garancière, Paris' in gay_data['addresses']
@@ -51,3 +55,13 @@ class TestExportMembers(TestCase):
 
         assert gay_data['updated'] == gay.updated_at.isoformat()
         assert hemingway_data['updated'] == hemingway.updated_at.isoformat()
+
+        # add events to check membership years
+        account = gay.account_set.first()
+        Event.objects.create(
+            account=account, start_date=datetime.date(1920, 5, 1),
+            end_date=datetime.date(1921, 2, 1))
+        Event.objects.create(
+            account=account, start_date=datetime.date(1935, 5, 1))
+        gay_data = self.cmd.get_object_data(gay)
+        assert gay_data['membership_years'] == [1920, 1921, 1935]

@@ -23,12 +23,12 @@ class WorkSearchForm(RangeForm, FacetForm):
     query = forms.CharField(
         label='Keyword or Phrase', required=False,
         widget=forms.TextInput(attrs={
-            'placeholder': 'Search book',
+            'placeholder': 'Search by title, author, or keyword',
             'aria-label': 'Keyword or Phrase'
         }))
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False,
                              widget=SelectWithDisabled)
-    circulation_dates = RangeField(label='Circulation Dates', required=False,
+    circulation_dates = RangeField(label='Circulation Years', required=False,
                                    widget=RangeWidget(attrs={'size': 4}))
 
     def __init__(self, data=None, *args, **kwargs):

@@ -1,0 +1,16 @@
+{% querystring_minus "query" "sort" "page"  as filter_qs %}
+<div class="active-filters {% if not filter_qs.values|join:'' %}hidden{% endif %}">
+    {% spaceless %}
+    <div class="inner">
+        <span class="legend">Selected Filters</span>
+        <span class="sr-only">Select to clear active filter.</span>
+        {% for field in form %}
+            {% if field.name == 'query' or field.name == 'sort' %} {# ignore #}
+            {% else %}
+            {% formfield_selected_filter field %}
+            {% endif %}
+        {% endfor %}
+        <a href="" class="clear-all">Clear All</a>
+    </div>
+    {% endspaceless %}
+</div>

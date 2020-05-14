@@ -1,13 +1,14 @@
 import { merge } from 'rxjs'
 import { map, filter, mapTo, startWith, distinctUntilChanged, withLatestFrom, debounceTime, skip } from 'rxjs/operators'
 
-import PageControls from './components/PageControls'
 import { RxSelect } from './lib/select'
 import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
 import { RxTextInput } from './lib/input'
 import { arraysAreEqual } from './lib/common'
 import { RxRangeFilter, rangesAreEqual } from './lib/filter'
+import ActiveFilters from "./components/ActiveFilters"
+import PageControls from './components/PageControls'
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $totalResultsOutput = document.querySelector('output.total-results') as HTMLOutputElement
     const $errors = document.querySelector('div[role=alert].errors')
     const $circDateFacet = document.querySelector('#id_circulation_dates') as HTMLFieldSetElement
+    const $activeFilters = document.querySelector('.active-filters') as HTMLDivElement
     const bottomOfForm = $booksSearchForm.getBoundingClientRect().bottom
 
     /* COMPONENTS */
@@ -33,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsOutput = new RxOutput($resultsOutput)
     const totalResultsOutput = new RxOutput($totalResultsOutput)
     const circDateFacet = new RxRangeFilter($circDateFacet)
+    const activeFilters = new ActiveFilters($activeFilters)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(

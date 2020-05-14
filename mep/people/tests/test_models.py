@@ -14,8 +14,8 @@ from mep.accounts.models import Account, Address, Borrow, Reimbursement, \
     Subscription
 from mep.books.models import Creator, CreatorType, Work
 from mep.footnotes.models import Bibliography, Footnote, SourceType
-from mep.people.models import (Country, InfoURL, Location, Person, Profession,
-                               Relationship, RelationshipType)
+from mep.people.models import Country, InfoURL, Location, Person, \
+    PastPersonSlug, Profession, Relationship, RelationshipType
 
 
 class TestLocation(TestCase):
@@ -154,6 +154,24 @@ class TestPerson(TestCase):
             pers.death_year = None
             pers.save()
             mock_setbirthdeath.assert_called_with()
+
+    def test_save_old_slug(self):
+        pers = Person.objects.create(name='Humperdinck', slug='hp')
+        pers.slug = 'hum'
+        pers.save()
+        assert pers.past_slugs.first().slug == 'hp'
+
+    def test_validate_unique(self):
+        # create a person
+        pers = Person.objects.create(name='Humperdinck', slug='hum')
+        # with a past slug
+        PastPersonSlug.objects.create(person=pers, slug='hp')
+        # no errors
+        pers.validate_unique()
+        # attempt to re-use past slug
+        hp = Person(name='Harry Potter', slug='hp')
+        with pytest.raises(ValidationError):
+            hp.validate_unique()
 
     def test_address_count(self):
         # create a person
@@ -447,6 +465,10 @@ class TestPersonQuerySet(TestCase):
         jones_str = 'Merged Jones on %s' % iso_date
         # Jones will appear twice from being merged into Jonas
         assert main_person.notes.count(jones_str) == 2
+        # merged slugs saved as past slugs
+        past_slugs = (p.slug for p in main_person.past_slugs.all())
+        assert 'jones' in past_slugs
+        assert 'jones-2' in past_slugs
 
         # error on attempt to merge to person with multiple accounts
         second_acct = Account.objects.create()

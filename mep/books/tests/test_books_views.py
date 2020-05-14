@@ -3,13 +3,16 @@ from unittest.mock import Mock, patch
 
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
+from django.http import Http404
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from parasolr.query.queryset import EmptySolrQuerySet
+import pytest
 
-from mep.books.models import Work, Edition
-from mep.books.views import WorkList, WorkCirculation
-from mep.common.utils import login_temporarily_required
+from mep.books.models import Edition, Work
+from mep.books.views import WorkCirculation, WorkCardList, WorkList
+from mep.common.utils import absolutize_url, login_temporarily_required
+from mep.footnotes.models import Footnote
 
 
 class BooksViews(TestCase):
@@ -73,11 +76,6 @@ class TestWorkListView(TestCase):
         self.factory = RequestFactory()
         self.url = reverse('books:books-list')
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
-        assert self.client.get(self.url).status_code == 404
-
-    @login_temporarily_required
     def test_list(self):
         response = self.client.get(self.url)
 
@@ -97,23 +95,38 @@ class TestWorkListView(TestCase):
 
         # NOTE publishers display is designed but data not yet available
 
+    @patch('mep.common.views.SolrQuerySet')
+    def test_last_modified(self, mock_wsq):
+        mock_wsq.return_value.filter.return_value.order_by.return_value \
+            .only.return_value = [
+                {'last_modified': '2018-07-02T21:08:46.428Z'}]
+        response = self.client.head(self.url)
+        # has last modified header
+        assert response['Last-Modified']
+
+    def test_no_relevance_anonymous(self):
+        response = self.client.get(self.url, {'query': 'eliza'})
+        # relevance score should not be shown to anynmous user
+        self.assertNotContains(
+            response, '<dt class="relevance">Relevance</dt>',
+            msg_prefix='relevance score not displayed for anonymous users')
+
     @login_temporarily_required
-    def test_relevance(self):
+    def test_relevance_logged_in(self):
         response = self.client.get(self.url, {'query': 'eliza'})
         # relevance score should be shown to logged-in users
         self.assertContains(
             response, '<dt class="relevance">Relevance</dt>',
             msg_prefix='relevance score displayed for logged in users')
 
-    @login_temporarily_required
     def test_form(self):
         response = self.client.get(self.url)
         # filter form should be displayed with filled-in query field one time
-        self.assertContains(response, 'Search book', count=1)
+        self.assertContains(response, 'Search by title, author, or keyword',
+                            count=1)
         # should show total result count
         self.assertContains(response, '%d total results' % Work.objects.count())
 
-    @login_temporarily_required
     def test_form_no_result(self):
         # no results - display error text & image
         response = self.client.get(self.url, {'query': 'foobar'})
@@ -121,7 +134,6 @@ class TestWorkListView(TestCase):
         # empty search - no image
         self.assertNotContains(response, 'img/no-results-error-1x.png')
 
-    @login_temporarily_required
     @patch.dict(WorkList.solr_sort, {'title': 'undefined'})
     def test_form_errors(self):
         # force solr error by sending garbage sort value
@@ -130,7 +142,6 @@ class TestWorkListView(TestCase):
         # error - show image
         self.assertContains(response, 'img/no-results-error-1x.png')
 
-    @login_temporarily_required
     def test_many_authors(self):
         response = self.client.get(self.url)
 
@@ -221,7 +232,6 @@ class TestWorkListView(TestCase):
         view.queryset.only.return_value.get_results \
             .assert_called_with(rows=100000)
 
-    @login_temporarily_required
     def test_pagination(self):
         response = self.client.get(self.url)
         # pagination options set in context
@@ -273,13 +283,23 @@ class TestWorkListView(TestCase):
 class TestWorkDetailView(TestCase):
     fixtures = ['sample_works', 'multi_creator_work']
 
-    def test_login_required_or_404(self):
-        # 404 if not logged in; TEMPORARY
+    @patch('mep.common.views.SolrQuerySet')
+    def test_last_modified(self, mock_wsq):
+        mock_wsq.return_value.filter.return_value.order_by.return_value \
+            .only.return_value = [
+                {'last_modified': '2018-07-02T21:08:46.428Z'}]
         work = Work.objects.first()
         url = reverse('books:book-detail', kwargs={'slug': work.slug})
-        assert self.client.get(url).status_code == 404
+        response = self.client.head(url)
+        # has last modified header
+        assert response['Last-Modified']
+        mock_wsq.return_value.filter.assert_called_with(item_type='work',
+                                                        slug_s=work.slug)
+        mock_wsq.return_value.filter.return_value \
+            .order_by.assert_called_with('-last_modified')
+        mock_wsq.return_value.filter.return_value.order_by.return_value \
+            .only.assert_called_with('last_modified')
 
-    @login_temporarily_required
     def test_get_breadcrumbs(self):
         # fetch any work and check breadcrumbs
         work = Work.objects.first()
@@ -291,7 +311,6 @@ class TestWorkDetailView(TestCase):
         # second to last crumb should be the work list
         self.assertEqual(breadcrumbs[-2][0], WorkList.page_title)
 
-    @login_temporarily_required
     def test_creators_display(self):
         # fetch a multi-creator work
         work = Work.objects.get(pk=4126)
@@ -306,7 +325,6 @@ class TestWorkDetailView(TestCase):
         for editor in work.editors:
             self.assertContains(response, '<dd class="creator">%s</dd>' % editor.name)
 
-    @login_temporarily_required
     def test_pubdate_display(self):
         # fetch a work with a publication date
         work = Work.objects.get(pk=1)
@@ -316,7 +334,6 @@ class TestWorkDetailView(TestCase):
         self.assertContains(response, '<dt class="pubdate">Publication Date</dt>')
         self.assertContains(response, '<dd class="pubdate">%s</dd>' % work.year)
 
-    @login_temporarily_required
     def test_format_display(self):
         # fetch some works with different formats
         book = Work.objects.get(title='Murder on the Blue Train')
@@ -329,17 +346,16 @@ class TestWorkDetailView(TestCase):
         response = self.client.get(url)
         self.assertContains(response, '<dd class="format">Periodical</dd>')
 
-    @login_temporarily_required
     def test_read_link_display(self):
         # fetch a work with an ebook url
         work = Work.objects.get(title='The Dial')
         url = reverse('books:book-detail', kwargs={'slug': work.slug})
         response = self.client.get(url)
         # check that a link was rendered
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<a href="%s">Read online</a>' % work.ebook_url)
 
-    @login_temporarily_required
     def test_notes_display(self):
         # fetch a work with public notes
         work = Work.objects.get(title='Chronicle of my Life')
@@ -350,7 +366,6 @@ class TestWorkDetailView(TestCase):
         self.assertContains(response, '<dd>%s</dd>' % work.public_notes)
         # NOTE check that uncertainty icon is rendered when implemented
 
-    @login_temporarily_required
     def test_edition_volume_display(self):
         # fetch a periodical with issue information
         work = Work.objects.get(title='The Dial')
@@ -369,7 +384,7 @@ class TestWorkCirculation(TestCase):
     def setUp(self):
         self.work = Work.objects.get(title="The Dial")
         self.view = WorkCirculation()
-        self.view.kwargs = { 'slug': self.work.slug }
+        self.view.kwargs = {'slug': self.work.slug}
 
     def test_get_queryset(self):
         # make sure that works only get events associated with them
@@ -407,8 +422,8 @@ class TestWorkCirculation(TestCase):
         self.assertContains(response, "L. Michaelides")
         self.assertContains(response, "/members/michaelides-l")
         # start/end date of borrow
-        self.assertContains(response, "Oct. 21, 1920")
-        self.assertContains(response, "Oct. 25, 1920")
+        self.assertContains(response, "Oct 21, 1920")
+        self.assertContains(response, "Oct 25, 1920")
         # status
         self.assertContains(response, "Borrow")
         # issue info
@@ -421,3 +436,96 @@ class TestWorkCirculation(TestCase):
                                    kwargs={"slug": work.slug}))
         self.assertNotContains(response, '<table')
         self.assertContains(response, 'No documented circulation activity')
+
+
+class TestWorkCardList(TestCase):
+    fixtures = ['test_events.json']
+
+    def setUp(self):
+        self.work = Work.objects.get(slug='lonigan-young-manhood')
+        self.view = WorkCardList()
+        self.view.kwargs = {'slug': self.work.slug}
+
+    def test_get_queryset(self):
+        queryset = self.view.get_queryset()
+        # retrieves and stores work
+        assert self.view.work == self.work
+        work_borrow = self.work.event_set.first().borrow
+        work_footnotes = work_borrow.footnotes.all()
+
+        # finds footnotes for this work with images and de-dupes based on image
+        assert list(queryset) == list(work_footnotes)
+
+        # ignores footnote with no image
+        fn1 = work_footnotes.first()
+        # Create footnote on the same event object but with no image
+        fn_noimage = Footnote.objects.create(
+            bibliography=fn1.bibliography, content_type=fn1.content_type,
+            object_id=fn1.object_id)
+        # create second footnote on the same image
+        fn2 = Footnote.objects.create(
+            bibliography=fn1.bibliography, content_type=fn1.content_type,
+            object_id=fn1.object_id, image=fn1.image)
+
+        card_footnotes = list(self.view.get_queryset())
+        assert fn_noimage not in card_footnotes
+        assert fn2 in card_footnotes
+        assert fn1 in card_footnotes
+
+    def test_get_queryset_notfound(self):
+        view = WorkCardList()
+        view.kwargs = {'slug': 'bogus'}
+        with pytest.raises(Http404):
+            view.get_queryset()
+
+    def test_get_absolute_url(self):
+        '''Full URI for work card list page.'''
+        assert self.view.get_absolute_url() == \
+            absolutize_url(reverse('books:book-card-list',
+                                   args=[self.work.slug]))
+
+    def test_get_breadcrumbs(self):
+        self.view.work = self.work  # normally set by get_queryset
+        crumbs = self.view.get_breadcrumbs()
+        assert crumbs[-1][0] == 'Cards'
+        assert crumbs[-1][1] == self.view.get_absolute_url()
+        assert crumbs[2][0] == self.work.title
+        assert crumbs[2][1] == absolutize_url(self.work.get_absolute_url())
+
+    def test_get_breadcrumbs_display(self):
+        # confirm that breadcrumbs are rendered by the template
+        url = reverse('books:book-card-list', kwargs={'slug': self.work.slug})
+        response = self.client.get(url)
+        self.assertContains(response, '<nav class="breadcrumbs">')
+        self.assertContains(response, self.view.get_absolute_url())
+        self.assertContains(response, self.work.title)
+
+    def test_get_context_data(self):
+        self.view.object_list = self.view.get_queryset()
+        context = self.view.get_context_data()
+        assert context['work'] == self.work
+        assert context['footnotes'] == self.view.object_list
+
+    def test_template(self):
+        url = reverse('books:book-card-list', kwargs={'slug': self.work.slug})
+        response = self.client.get(url)
+
+        work_borrow = self.work.event_set.first().borrow
+        work_footnote = work_borrow.footnotes.first()
+        # image included in two sizes
+        self.assertContains(
+            response, work_footnote.image.image.size(width=225))
+        self.assertContains(
+            response, work_footnote.image.image.size(width=450))
+        # member name
+        member = work_borrow.account.persons.first()
+        self.assertContains(response, member.sort_name)
+        # event date
+        self.assertContains(
+            response, work_borrow.start_date.strftime('%b %d, %Y'))
+        # link to card detail view with event id
+        self.assertContains(
+            response, '%s#e%d' %
+            (reverse('people:member-card-detail',
+                     args=[member.slug, work_footnote.image.short_id]),
+             work_borrow.pk))

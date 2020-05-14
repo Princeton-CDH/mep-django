@@ -193,9 +193,9 @@ class PersonAdmin(admin.ModelAdmin):
         'viaf_id',
         ('birth_year', 'death_year'),
         'gender', 'profession', 'nationalities', 'is_organization', 'verified',
-        'notes', 'public_notes')
+        'notes', 'public_notes', 'past_slugs_list')
     readonly_fields = ('mep_id', 'in_logbooks', 'has_account', 'has_card',
-                       'is_creator')
+                       'is_creator', 'past_slugs_list')
     search_fields = ('mep_id', 'name', 'sort_name', 'notes', 'public_notes',
                      'viaf_id', 'slug')
     list_filter = (PersonTypeListFilter, 'gender', 'profession', 'nationalities',
@@ -282,6 +282,13 @@ class PersonAdmin(admin.ModelAdmin):
                 name='people_person_csv')
         ]
         return urls + super(PersonAdmin, self).get_urls()
+
+    def past_slugs_list(self, instance=None):
+        '''list of previous slugs for this person, for read-only display'''
+        if instance:
+            return ', '.join([p.slug for p in instance.past_slugs.all()])
+    past_slugs_list.short_description = "Past slugs"
+    past_slugs_list.long_description = 'Alternate slugs from edits or merges'
 
 
 class LocationAdminForm(forms.ModelForm):

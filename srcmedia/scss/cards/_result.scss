@@ -68,22 +68,39 @@ $card-width: 11.25rem;
         border: 0;
     }
 
+    picture {
+        display: block;
+        height: 15.75rem;
+    }
+
     img, source {
-        max-height: 315px;
+        max-height: 15.75rem;
         overflow: hidden;
     }
 
-    // hide the account dates and card holder label
-    .card-dates dt, .name dt {
+    img {
+        /* sized for fallback image display */
+        min-height: 13.25rem;
+        min-width: 11rem;
+        width: 11rem;
+        @include missing-card-image;
+    }
+
+    dl {
+        display: block;  /* override flex */
+    }
+
+    // hide account dates and card holder labels
+    dt {
         @include sr-only;
     }
 
-    .name dd {
+    dd.name {
         font-family: $serif;
         font-size: 1.2rem;
     }
 
-    .card-dates dd {
+    dd.card-dates {
         font-family: $sans;
         font-size: 0.82rem;
     }

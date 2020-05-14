@@ -35,8 +35,8 @@
                     <span id="{{ form.has_card.field.widget.attrs|dict_item:'aria-describedby' }}" role="tooltip" class="question"
                         aria-label="{{ form.has_card.help_text }}" tabindex=0 onclick="event.preventDefault()"/>
                 </label>
-                <div class="demographics tab" role="tab" aria-setsize="2" aria-posinset="1" aria-selected="false" aria-controls="demographics-panel" tabindex="0">Demographics</div>
-                <div class="books tab" role="tab" aria-setsize="2" aria-posinset="2" aria-selected="false" aria-controls="books-panel" aria-disabled>Books*</div>
+                <div class="demographics tab" role="tab" aria-setsize="1" aria-posinset="1" aria-selected="false" aria-controls="demographics-panel" tabindex="0">Demographics</div>
+                {# <div class="books tab" role="tab" aria-setsize="2" aria-posinset="2" aria-selected="false" aria-controls="books-panel" aria-disabled>Books*</div> #}
                 <div class="tabpanel" id="demographics-panel" role="tabpanel">
                     <label>Demographics</label>
                     <div class="inner">
@@ -63,10 +63,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="tabpanel" id="books-panel" role="tabpanel"></div>
+                {# <div class="tabpanel" id="books-panel" role="tabpanel"></div> #}
             </div>
             <input type="submit" value="submit"/>
         </fieldset>
+        {% include 'common/active_filters.html' %}
         <output class="total-results" id="total">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
     </form>
 </div>
