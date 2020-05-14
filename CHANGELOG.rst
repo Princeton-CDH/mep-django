@@ -3,6 +3,29 @@
 CHANGELOG
 =========
 
+1.0
+---
+
+This release makes the Books section available.
+
+* As a user, when I'm viewing a single book I want an easy way to find all card images associated with that item so I can see where it's referenced in the archival materials.
+* As a user, I want to see and toggle my active search filters so that I can see how they affect my search.
+* As a user, when I'm browsing members I want to see membership years that show gaps in activity so that I'm not misled by what appears to be a longer continuous membership.
+* As a user viewing a member biography page, I want to see membership dates that represent actual activity so that I'm not misled by what appears to be a longer continuous membership.
+* As a user viewing borrowing activities for a single library member, I want to see issue number and date or volume number when known so I have better information about the item.
+* As a user, I'd like to see an error indicator when a card image doesn't load so I can see that something is missing.
+* As an admin, when I merge people I want unique identifiers stored and used for redirects on public views so that links for merged people continue to resolve.
+* As a content editor, I want to edit the homepage tagline so that I can update it when necessary.
+* re-enable books links in menus and remove login restrictions
+* bugfix: result counters on search pages reset after page
+
+Various small improvements
+* Better preview titles and descriptions in page metadata
+* convert data export field names to use underscores instead of spaces
+* Include membership years in member export and circulation years in book export
+* Replace the breadcrumb home with the shakespeare icon on the third and fourth level pages
+* Fix horizontal centering for breadcrumb text
+
 0.29
 ----
 
