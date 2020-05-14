@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.common.models &#8212; mep-django 0.27.0 documentation</title>
+    <title>mep.common.models &#8212; mep-django 1.0.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -171,6 +171,37 @@
         <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> BCE&#39;</span> <span class="o">%</span> <span class="nb">abs</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">year</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TrackChangesModel"><a class="viewcode-back" href="../../../codedocs.html#mep.common.models.TrackChangesModel">[docs]</a><span class="k">class</span> <span class="nc">TrackChangesModel</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;:class:`~django.models.Model` mixin that keeps a copy of initial</span>
+<span class="sd">    data in order to check if fields have been changed. Change detection</span>
+<span class="sd">    only works on the current instance of an object.&#39;&#39;&#39;</span>
+
+    <span class="c1"># NOTE: copied from ppa-django codebase</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># store a copy of model data to allow for checking if</span>
+        <span class="c1"># it has changed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__initial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TrackChangesModel.save"><a class="viewcode-back" href="../../../codedocs.html#mep.common.models.TrackChangesModel.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Saves data and reset copy of initial data.&#39;&#39;&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># update copy of initial data to reflect saved state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__initial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TrackChangesModel.has_changed"><a class="viewcode-back" href="../../../codedocs.html#mep.common.models.TrackChangesModel.has_changed">[docs]</a>    <span class="k">def</span> <span class="nf">has_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;check if a field has been changed&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__initial</span><span class="p">[</span><span class="n">field</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TrackChangesModel.initial_value"><a class="viewcode-back" href="../../../codedocs.html#mep.common.models.TrackChangesModel.initial_value">[docs]</a>    <span class="k">def</span> <span class="nf">initial_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;return the initial value for a field&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__initial</span><span class="p">[</span><span class="n">field</span><span class="p">]</span></div></div>
 </pre></div>
 
           </div>
@@ -254,7 +285,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

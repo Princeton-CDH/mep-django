@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.footnotes.models &#8212; mep-django 0.27.0 documentation</title>
+    <title>mep.footnotes.models &#8212; mep-django 1.0.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -50,17 +50,17 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="BibliographySignalHandlers"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers">[docs]</a><span class="k">class</span> <span class="nc">BibliographySignalHandlers</span><span class="p">:</span>
+<div class="viewcode-block" id="BibliographySignalHandlers"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers">[docs]</a><span class="k">class</span> <span class="nc">BibliographySignalHandlers</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;Signal handlers for indexing :class:`Bibliography` records when</span>
 <span class="sd">    related records are saved or deleted.&#39;&#39;&#39;</span>
 
-<div class="viewcode-block" id="BibliographySignalHandlers.debug_log"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers.debug_log">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BibliographySignalHandlers.debug_log"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers.debug_log">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_log</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;save&#39;</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;shared debug logging for card signal save handlers&#39;&#39;&#39;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">, reindexing </span><span class="si">%d</span><span class="s1"> related card</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
                      <span class="n">mode</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;s&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BibliographySignalHandlers.person_save"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers.person_save">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BibliographySignalHandlers.person_save"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers.person_save">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">person_save</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;when a person is saved, reindex bibliography card records</span>
 <span class="sd">        associated through an account&#39;&#39;&#39;</span>
@@ -73,7 +73,7 @@
             <span class="n">BibliographySignalHandlers</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="s1">&#39;person&#39;</span><span class="p">,</span> <span class="n">cards</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BibliographySignalHandlers.person_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers.person_delete">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BibliographySignalHandlers.person_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers.person_delete">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">person_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;when a person is deleted, reindex any bibliography card</span>
 <span class="sd">        records associated through an account&#39;&#39;&#39;</span>
@@ -90,7 +90,7 @@
                                                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span>
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BibliographySignalHandlers.account_save"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers.account_save">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BibliographySignalHandlers.account_save"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers.account_save">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">account_save</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;when an account is saved, reindex any associated library</span>
 <span class="sd">        lending card.&#39;&#39;&#39;</span>
@@ -103,7 +103,7 @@
             <span class="n">BibliographySignalHandlers</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="s1">&#39;account&#39;</span><span class="p">,</span> <span class="n">cards</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BibliographySignalHandlers.account_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers.account_delete">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BibliographySignalHandlers.account_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers.account_delete">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">account_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;when an account is deleted, reindex any associated library</span>
 <span class="sd">        lending card&#39;&#39;&#39;</span>
@@ -120,7 +120,7 @@
                                                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span>
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BibliographySignalHandlers.manifest_save"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers.manifest_save">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BibliographySignalHandlers.manifest_save"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers.manifest_save">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">manifest_save</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;when a manifest is saved, reindex associated library</span>
 <span class="sd">        lending card&#39;&#39;&#39;</span>
@@ -133,7 +133,7 @@
             <span class="n">BibliographySignalHandlers</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="s1">&#39;manifest&#39;</span><span class="p">,</span> <span class="n">cards</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BibliographySignalHandlers.manifest_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers.manifest_delete">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BibliographySignalHandlers.manifest_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers.manifest_delete">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">manifest_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;when a manifest is deleted, reindex associated library</span>
 <span class="sd">        lending card&#39;&#39;&#39;</span>
@@ -148,7 +148,7 @@
                                                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span>
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BibliographySignalHandlers.canvas_save"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers.canvas_save">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BibliographySignalHandlers.canvas_save"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers.canvas_save">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">canvas_save</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;when a canvas is saved, reindex library lending card</span>
 <span class="sd">        associated via manifest&#39;&#39;&#39;</span>
@@ -162,7 +162,7 @@
             <span class="n">BibliographySignalHandlers</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="s1">&#39;canvas&#39;</span><span class="p">,</span> <span class="n">cards</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BibliographySignalHandlers.canvas_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers.canvas_delete">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BibliographySignalHandlers.canvas_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers.canvas_delete">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">canvas_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;when a canvas is deleted, reindex library lending card</span>
 <span class="sd">        associated via manifest&#39;&#39;&#39;</span>
@@ -172,7 +172,7 @@
                                                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span>
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BibliographySignalHandlers.event_save"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers.event_save">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BibliographySignalHandlers.event_save"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers.event_save">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">event_save</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;when an event is saved, reindex library lending card</span>
 <span class="sd">        associated via account&#39;&#39;&#39;</span>
@@ -186,7 +186,7 @@
             <span class="n">BibliographySignalHandlers</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="n">cards</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BibliographySignalHandlers.event_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.BibliographySignalHandlers.event_delete">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BibliographySignalHandlers.event_delete"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.BibliographySignalHandlers.event_delete">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">event_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;when an event is deleted, reindex library lending card</span>
 <span class="sd">        associated via account&#39;&#39;&#39;</span>
@@ -197,16 +197,16 @@
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="SourceType"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.SourceType">[docs]</a><span class="k">class</span> <span class="nc">SourceType</span><span class="p">(</span><span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">):</span>
+<div class="viewcode-block" id="SourceType"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.SourceType">[docs]</a><span class="k">class</span> <span class="nc">SourceType</span><span class="p">(</span><span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Type of source document.&#39;&#39;&#39;</span>
 
-<div class="viewcode-block" id="SourceType.item_count"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.SourceType.item_count">[docs]</a>    <span class="k">def</span> <span class="nf">item_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SourceType.item_count"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.SourceType.item_count">[docs]</a>    <span class="k">def</span> <span class="nf">item_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;number of associated bibliographic items&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bibliography_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></div>
     <span class="n">item_count</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;# items&#39;</span></div>
 
 
-<div class="viewcode-block" id="Bibliography"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Bibliography">[docs]</a><span class="k">class</span> <span class="nc">Bibliography</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">ModelIndexable</span><span class="p">):</span>
+<div class="viewcode-block" id="Bibliography"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.Bibliography">[docs]</a><span class="k">class</span> <span class="nc">Bibliography</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">ModelIndexable</span><span class="p">):</span>
     <span class="c1"># Note: citation might be better singular</span>
     <span class="n">bibliographic_note</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Full bibliographic citation&#39;</span><span class="p">)</span>
@@ -225,12 +225,12 @@
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bibliographic_note</span>
 
-<div class="viewcode-block" id="Bibliography.footnote_count"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Bibliography.footnote_count">[docs]</a>    <span class="k">def</span> <span class="nf">footnote_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Bibliography.footnote_count"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.Bibliography.footnote_count">[docs]</a>    <span class="k">def</span> <span class="nf">footnote_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;number of footnotes this item is referenced in&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">footnote_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></div>
     <span class="n">footnote_count</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;# footnotes&#39;</span>
 
-<div class="viewcode-block" id="Bibliography.index_item_type"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Bibliography.index_item_type">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Bibliography.index_item_type"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.Bibliography.index_item_type">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">index_item_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Label for this kind of indexable item.&quot;&quot;&quot;</span>
         <span class="c1"># override default behavior (using model verbose name)</span>
@@ -238,7 +238,7 @@
         <span class="c1"># all bibliography records</span>
         <span class="k">return</span> <span class="s1">&#39;card&#39;</span></div>
 
-<div class="viewcode-block" id="Bibliography.items_to_index"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Bibliography.items_to_index">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Bibliography.items_to_index"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.Bibliography.items_to_index">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">items_to_index</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Custom logic for finding items for bulk indexing; only include</span>
 <span class="sd">        records associated with an account and with a IIIF manifest.&#39;&#39;&#39;</span>
@@ -288,7 +288,7 @@
         <span class="p">}</span>
     <span class="p">}</span>
 
-<div class="viewcode-block" id="Bibliography.index_data"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Bibliography.index_data">[docs]</a>    <span class="k">def</span> <span class="nf">index_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Bibliography.index_data"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.Bibliography.index_data">[docs]</a>    <span class="k">def</span> <span class="nf">index_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;data for indexing in Solr&#39;&#39;&#39;</span>
         <span class="n">index_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">index_data</span><span class="p">()</span>
         <span class="c1"># only library lending cards are indexed; if bibliography</span>
@@ -331,44 +331,44 @@
         <span class="k">return</span> <span class="n">index_data</span></div></div>
 
 
-<div class="viewcode-block" id="FootnoteQuerySet"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.FootnoteQuerySet">[docs]</a><span class="k">class</span> <span class="nc">FootnoteQuerySet</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">QuerySet</span><span class="p">):</span>
+<div class="viewcode-block" id="FootnoteQuerySet"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.FootnoteQuerySet">[docs]</a><span class="k">class</span> <span class="nc">FootnoteQuerySet</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">QuerySet</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Custom :class:`models.QuerySet` for :class:`Footnote`&#39;&#39;&#39;</span>
 
-<div class="viewcode-block" id="FootnoteQuerySet.events"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.FootnoteQuerySet.events">[docs]</a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FootnoteQuerySet.on_events"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.FootnoteQuerySet.on_events">[docs]</a>    <span class="k">def</span> <span class="nf">on_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Filter to footnotes that are associated with events&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">content_type__app_label</span><span class="o">=</span><span class="s1">&#39;accounts&#39;</span><span class="p">,</span>
+            <span class="n">content_type__model__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;borrow&#39;</span><span class="p">,</span> <span class="s1">&#39;purchase&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FootnoteQuerySet.events"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.FootnoteQuerySet.events">[docs]</a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Return an Events queryset of any events (including borrows and</span>
 <span class="sd">        purchases) associated with the current footnote queryset.&#39;&#39;&#39;</span>
 
         <span class="c1"># use get model to avoid circular import</span>
         <span class="n">Event</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;accounts&#39;</span><span class="p">,</span> <span class="s1">&#39;Event&#39;</span><span class="p">)</span>
-        <span class="c1"># get a list of the event content types we care about</span>
-        <span class="n">event_content_types</span> <span class="o">=</span> <span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-            <span class="n">app_label</span><span class="o">=</span><span class="s1">&#39;accounts&#39;</span><span class="p">,</span>
-            <span class="n">model__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;borrow&#39;</span><span class="p">,</span> <span class="s1">&#39;purchase&#39;</span><span class="p">])</span>
-        <span class="c1"># lookup dict: content type pk and model name</span>
-        <span class="n">ctype_lookup</span> <span class="o">=</span> <span class="p">{</span><span class="n">ctype</span><span class="o">.</span><span class="n">pk</span><span class="p">:</span> <span class="n">ctype</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">ctype</span> <span class="ow">in</span> <span class="n">event_content_types</span><span class="p">}</span>
 
         <span class="c1"># get event ids and content types from the current footnote queryset</span>
-        <span class="n">event_refs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">content_type__in</span><span class="o">=</span><span class="n">event_content_types</span><span class="p">)</span> \
-                         <span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;object_id&#39;</span><span class="p">,</span> <span class="s1">&#39;content_type&#39;</span><span class="p">)</span>
+        <span class="n">event_refs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_events</span><span class="p">()</span> \
+                         <span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;object_id&#39;</span><span class="p">,</span> <span class="s1">&#39;content_type__model&#39;</span><span class="p">)</span>
         <span class="c1"># group event ids by content type</span>
         <span class="n">event_ids_by_type</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">event_refs</span><span class="p">:</span>
-            <span class="n">event_ids_by_type</span><span class="p">[</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;content_type&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;object_id&#39;</span><span class="p">])</span>
+            <span class="n">event_ids_by_type</span><span class="p">[</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;content_type__model&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;object_id&#39;</span><span class="p">])</span>
         <span class="c1"># construct an OR filter query for each content type and list of ids</span>
         <span class="c1"># - look for nothing OR for events and event subtypes by id</span>
         <span class="n">filter_q</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">pk__in</span><span class="o">=</span><span class="p">[])</span>
         <span class="k">for</span> <span class="n">ctype</span><span class="p">,</span> <span class="n">pk_list</span> <span class="ow">in</span> <span class="n">event_ids_by_type</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">ctype_lookup</span><span class="p">[</span><span class="n">ctype</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;borrow&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s1">&#39;borrow&#39;</span><span class="p">:</span>
                 <span class="n">filter_q</span> <span class="o">|=</span> <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">borrow__pk__in</span><span class="o">=</span><span class="n">pk_list</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">ctype_lookup</span><span class="p">[</span><span class="n">ctype</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;purchase&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s1">&#39;purchase&#39;</span><span class="p">:</span>
                 <span class="n">filter_q</span> <span class="o">|=</span> <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">purchase__pk__in</span><span class="o">=</span><span class="n">pk_list</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">ctype_lookup</span><span class="p">[</span><span class="n">ctype</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;event&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s1">&#39;event&#39;</span><span class="p">:</span>
                 <span class="n">filter_q</span> <span class="o">|=</span> <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">pk__in</span><span class="o">=</span><span class="n">pk_list</span><span class="p">)</span>
 
         <span class="c1"># find and return corresponding events</span>
         <span class="k">return</span> <span class="n">Event</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">filter_q</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FootnoteQuerySet.event_date_range"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.FootnoteQuerySet.event_date_range">[docs]</a>    <span class="k">def</span> <span class="nf">event_date_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FootnoteQuerySet.event_date_range"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.FootnoteQuerySet.event_date_range">[docs]</a>    <span class="k">def</span> <span class="nf">event_date_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Find earliest and latest dates for any events associated</span>
 <span class="sd">        with footnotes in this queryset. Returns a tuple of earliest</span>
 <span class="sd">        and latest dates, or None if no dates are found.&#39;&#39;&#39;</span>
@@ -387,7 +387,7 @@
             <span class="k">return</span> <span class="n">date_values</span><span class="p">[</span><span class="s1">&#39;first&#39;</span><span class="p">],</span> <span class="n">date_values</span><span class="p">[</span><span class="s1">&#39;last&#39;</span><span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="Footnote"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Footnote">[docs]</a><span class="k">class</span> <span class="nc">Footnote</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
+<div class="viewcode-block" id="Footnote"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.Footnote">[docs]</a><span class="k">class</span> <span class="nc">Footnote</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Footnote that can be associated with any other model via</span>
 <span class="sd">    generic relationship.  Used to provide supporting documentation</span>
 <span class="sd">    for or against information in the system.</span>
@@ -440,7 +440,7 @@
     <span class="c1">#</span>
     <span class="c1"># footnotes = GenericRelation(Footnote)</span>
 
-<div class="viewcode-block" id="Footnote.image_thumbnail"><a class="viewcode-back" href="../../../codedocs.html#mep.footnotes.models.Footnote.image_thumbnail">[docs]</a>    <span class="k">def</span> <span class="nf">image_thumbnail</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Footnote.image_thumbnail"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.Footnote.image_thumbnail">[docs]</a>    <span class="k">def</span> <span class="nf">image_thumbnail</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Use admin thumbnail from image if available, but wrap</span>
 <span class="sd">        in a link using rendering url from manifest when present&#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">:</span>
@@ -535,7 +535,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.books.models &#8212; mep-django 0.27.0 documentation</title>
+    <title>mep.books.models &#8212; mep-django 1.0.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -41,8 +41,10 @@
 <span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">format_html</span><span class="p">,</span> <span class="n">strip_tags</span>
 <span class="kn">from</span> <span class="nn">parasolr.django.indexing</span> <span class="k">import</span> <span class="n">ModelIndexable</span>
 
+<span class="kn">from</span> <span class="nn">mep.accounts.event_set</span> <span class="k">import</span> <span class="n">EventSetMixin</span>
 <span class="kn">from</span> <span class="nn">mep.accounts.partial_date</span> <span class="k">import</span> <span class="p">(</span><span class="n">DatePrecisionField</span><span class="p">,</span> <span class="n">PartialDate</span><span class="p">,</span>
                                        <span class="n">PartialDateMixin</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mep.books.utils</span> <span class="k">import</span> <span class="n">nonstop_words</span><span class="p">,</span> <span class="n">work_slug</span><span class="p">,</span> <span class="n">generate_sort_title</span>
 <span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
 <span class="kn">from</span> <span class="nn">mep.common.validators</span> <span class="k">import</span> <span class="n">verify_latlon</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Person</span>
@@ -252,9 +254,24 @@
             <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">works</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Work"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work">[docs]</a><span class="k">class</span> <span class="nc">Work</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">ModelIndexable</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkQuerySet"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkQuerySet">[docs]</a><span class="k">class</span> <span class="nc">WorkQuerySet</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">QuerySet</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Custom :class:`models.QuerySet` for :class:`Work`&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="WorkQuerySet.count_events"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.WorkQuerySet.count_events">[docs]</a>    <span class="k">def</span> <span class="nf">count_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Annotate the queryset with counts for events, borrows,</span>
+<span class="sd">        and purchases.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="n">distinct</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                             <span class="n">models</span><span class="o">.</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;event__borrow&#39;</span><span class="p">,</span> <span class="n">distinct</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                             <span class="n">models</span><span class="o">.</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;event__purchase&#39;</span><span class="p">,</span> <span class="n">distinct</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="Work"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work">[docs]</a><span class="k">class</span> <span class="nc">Work</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">ModelIndexable</span><span class="p">,</span> <span class="n">EventSetMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Work record for an item that circulated in the library or was</span>
 <span class="sd">    other referenced in library activities.&#39;&#39;&#39;</span>
+
+    <span class="c1">#: Message that will be read to users of assistive technology in place of</span>
+    <span class="c1">#: the uncertainty icon.</span>
+    <span class="n">UNCERTAINTY_MESSAGE</span> <span class="o">=</span> <span class="s2">&quot;Work data is uncertain or incomplete.&quot;</span>
 
     <span class="c1">#: mep id from stub records imported from xml</span>
     <span class="n">mep_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
@@ -266,6 +283,9 @@
     <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Title of the work in English&#39;</span><span class="p">)</span>
+    <span class="n">sort_title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Sort title autogenerated from title on record save.&#39;</span><span class="p">)</span>
     <span class="n">year</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;Date of Publication&#39;</span><span class="p">)</span>
     <span class="n">uri</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;Work URI&#39;</span><span class="p">,</span>
@@ -296,11 +316,31 @@
     <span class="n">public_notes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Notes for display on the public website&#39;</span><span class="p">)</span>
 
+    <span class="c1">#: slug for use in urls</span>
+    <span class="n">slug</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SlugField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Short, durable, unique identifier for use in URLs. &#39;</span> <span class="o">+</span>
+        <span class="s1">&#39;Save and continue editing to have a new slug autogenerated.&#39;</span> <span class="o">+</span>
+        <span class="s1">&#39;Editing will change the public, citable URL for books.&#39;</span><span class="p">)</span>
+    <span class="c1"># NOTE: null=true required to avoid validation error</span>
+    <span class="c1"># when submitting admin edit form with no slug</span>
+
+    <span class="c1"># override default manager with customized version</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">WorkQuerySet</span><span class="o">.</span><span class="n">as_manager</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sort_title&#39;</span><span class="p">]</span>
+
 <div class="viewcode-block" id="Work.save"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># override save to ensure mep ID is None rather than empty string</span>
         <span class="c1"># if not set</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mep_id</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mep_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># if slug is empty generate</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">slug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_slug</span><span class="p">()</span>
+        <span class="c1"># recalculate sort title in case title has changed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sort_title</span> <span class="o">=</span> <span class="n">generate_sort_title</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -320,6 +360,18 @@
         <span class="sd">&#39;&#39;&#39;return work creators of a single type, e.g. author&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">creator</span><span class="o">.</span><span class="n">person</span> <span class="k">for</span> <span class="n">creator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">creator</span><span class="o">.</span><span class="n">creator_type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">creator_type</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Work.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return the public url to view book&#39;s detail page&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;books:book-detail&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">slug</span><span class="p">])</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_uncertain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns True if the Work&#39;s notes indicate that it should show an</span>
+<span class="sd">        uncertainty icon via the UNCERTAINTYICON tag.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s2">&quot;UNCERTAINTYICON&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">creator_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -414,23 +466,42 @@
         <span class="p">}</span>
     <span class="p">}</span>
 
+<div class="viewcode-block" id="Work.items_to_index"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work.items_to_index">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">items_to_index</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Modify the queryset used for indexing in bulk; prefetch</span>
+<span class="sd">        creators, annotate event counts.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;creator_set&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count_events</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="Work.index_data"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work.index_data">[docs]</a>    <span class="k">def</span> <span class="nf">index_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;data for indexing in Solr&#39;&#39;&#39;</span>
-
         <span class="n">index_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">index_data</span><span class="p">()</span>
 
         <span class="n">index_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;pk_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
             <span class="s1">&#39;title_t&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
-            <span class="s1">&#39;sort_title_isort&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="c1"># use title directly for sorting for now</span>
-            <span class="s1">&#39;pk_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span> <span class="c1"># NOTE include pk for now for item detail url</span>
+            <span class="s1">&#39;sort_title_isort&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_title</span><span class="p">,</span>
+            <span class="s1">&#39;slug_s&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">slug</span><span class="p">,</span>
             <span class="s1">&#39;authors_t&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s1">&#39;sort_authors_t&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s1">&#39;sort_authors_isort&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_author_list</span><span class="p">,</span>
             <span class="s1">&#39;creators_t&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">creator_names</span><span class="p">,</span>
             <span class="s1">&#39;pub_date_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
             <span class="s1">&#39;format_s_lower&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(),</span>
-            <span class="s1">&#39;notes_txt_en&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">public_notes</span>
+            <span class="s1">&#39;notes_txt_en&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">public_notes</span><span class="p">,</span>
+            <span class="s1">&#39;is_uncertain_b&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_uncertain</span><span class="p">,</span>
+            <span class="s1">&#39;event_count_i&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_count</span><span class="p">,</span>
+            <span class="s1">&#39;admin_notes_txt_en&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">,</span>
+            <span class="s1">&#39;edition_titles&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">ed</span><span class="o">.</span><span class="n">title</span> <span class="k">for</span> <span class="n">ed</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edition_set</span><span class="o">.</span><span class="n">all</span><span class="p">()],</span>
         <span class="p">})</span>
+
+        <span class="n">earliest_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">earliest_date</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">earliest_date</span><span class="p">:</span>
+            <span class="c1"># NOTE: doesn&#39;t matter if partial, will still sort as expected</span>
+            <span class="n">index_data</span><span class="p">[</span><span class="s1">&#39;first_event_date_i&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">earliest_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="c1"># if there is at least one date, also include circulation years</span>
+            <span class="n">index_data</span><span class="p">[</span><span class="s1">&#39;event_years_is&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">year</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span>
+                                                    <span class="bp">self</span><span class="o">.</span><span class="n">event_dates</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">index_data</span></div>
 
@@ -488,7 +559,38 @@
                 <span class="k">if</span> <span class="n">subject</span><span class="p">:</span>
                     <span class="n">subjects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
             <span class="c1"># set subjects on this item (replacing any previously set)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">subjects</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">subjects</span><span class="p">)</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">subjects</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">subjects</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Work.generate_slug"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Work.generate_slug">[docs]</a>    <span class="k">def</span> <span class="nf">generate_slug</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Generate a slug for this work based on author and title</span>
+<span class="sd">        and ensure it is unique.&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slug</span> <span class="o">=</span> <span class="n">work_slug</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># check for duplicates</span>
+        <span class="n">dupe_slugs</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">slug__startswith</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">slug</span><span class="p">)</span> \
+                         <span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> \
+                         <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;slug&#39;</span><span class="p">)</span> \
+                         <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;slug&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dupe_slugs</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">slug</span> <span class="ow">in</span> <span class="n">dupe_slugs</span><span class="p">:</span>
+            <span class="n">nonstop_title_words</span> <span class="o">=</span> <span class="n">nonstop_words</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+            <span class="c1"># if title has more than three words, use the 4th for uniqueness</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nonstop_title_words</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">slug</span> <span class="o">=</span> <span class="n">work_slug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_words</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+                <span class="c1"># if 4-word title slug is still not unique, try 5</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">slug</span> <span class="ow">in</span> <span class="n">dupe_slugs</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">nonstop_title_words</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">slug</span> <span class="o">=</span> <span class="n">work_slug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_words</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+            <span class="c1"># if still not unique, add a number</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">slug</span> <span class="ow">in</span> <span class="n">dupe_slugs</span><span class="p">:</span>
+                <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">slug</span>
+                <span class="c1"># get all the endings attached to this slug (i.e. unclear-##)</span>
+                <span class="n">suffixes</span> <span class="o">=</span> <span class="p">[</span><span class="n">slug</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span> <span class="k">for</span> <span class="n">slug</span> <span class="ow">in</span> <span class="n">dupe_slugs</span>
+                            <span class="k">if</span> <span class="n">slug</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)]</span>
+                <span class="c1"># get the largest numeric suffix</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">suffixes</span> <span class="k">if</span> <span class="n">num</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">()]</span>
+                <span class="n">slug_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="mi">1</span>
+                <span class="c1"># use the next number for the current slug</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">slug</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slug</span><span class="p">,</span> <span class="n">slug_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Edition"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Edition">[docs]</a><span class="k">class</span> <span class="nc">Edition</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
@@ -576,13 +678,25 @@
 
 <div class="viewcode-block" id="CreatorType"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.CreatorType">[docs]</a><span class="k">class</span> <span class="nc">CreatorType</span><span class="p">(</span><span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Type of creator role a person can have in relation to a work;</span>
-<span class="sd">    author, editor, translator, etc.&#39;&#39;&#39;</span></div>
+<span class="sd">    author, editor, translator, etc.&#39;&#39;&#39;</span>
+
+    <span class="n">order</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;order in which creator types will be listed&#39;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Creator"><a class="viewcode-back" href="../../../codedocs.html#mep.books.models.Creator">[docs]</a><span class="k">class</span> <span class="nc">Creator</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
     <span class="n">creator_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">CreatorType</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">work</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Order for multiple creators of the same type (optional)&#39;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">ordering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;creator_type__order&#39;</span><span class="p">,</span> <span class="s1">&#39;order&#39;</span><span class="p">,</span> <span class="s1">&#39;person__sort_name&#39;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">person</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">creator_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="p">)</span></div>
@@ -681,7 +795,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

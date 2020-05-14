@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.people.forms &#8212; mep-django 0.27.0 documentation</title>
+    <title>mep.people.forms &#8212; mep-django 1.0.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,8 +34,8 @@
 <span></span><span class="kn">from</span> <span class="nn">django</span> <span class="k">import</span> <span class="n">forms</span>
 <span class="kn">from</span> <span class="nn">django.template.loader</span> <span class="k">import</span> <span class="n">get_template</span>
 
-<span class="kn">from</span> <span class="nn">mep.common.forms</span> <span class="k">import</span> <span class="p">(</span><span class="n">CheckboxFieldset</span><span class="p">,</span> <span class="n">FacetChoiceField</span><span class="p">,</span> <span class="n">FacetForm</span><span class="p">,</span>
-                              <span class="n">RangeField</span><span class="p">,</span> <span class="n">RangeWidget</span><span class="p">,</span> <span class="n">SelectWithDisabled</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mep.common.forms</span> <span class="k">import</span> <span class="n">CheckboxFieldset</span><span class="p">,</span> <span class="n">FacetChoiceField</span><span class="p">,</span> <span class="n">FacetForm</span><span class="p">,</span> \
+    <span class="n">RangeField</span><span class="p">,</span> <span class="n">RangeForm</span><span class="p">,</span> <span class="n">RangeWidget</span><span class="p">,</span> <span class="n">SelectWithDisabled</span>
 <span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Person</span>
 
 
@@ -66,7 +66,7 @@
             <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="n">person_ids</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MemberSearchForm"><a class="viewcode-back" href="../../../codedocs.html#mep.people.forms.MemberSearchForm">[docs]</a><span class="k">class</span> <span class="nc">MemberSearchForm</span><span class="p">(</span><span class="n">FacetForm</span><span class="p">):</span>
+<div class="viewcode-block" id="MemberSearchForm"><a class="viewcode-back" href="../../../codedocs.html#mep.people.forms.MemberSearchForm">[docs]</a><span class="k">class</span> <span class="nc">MemberSearchForm</span><span class="p">(</span><span class="n">RangeForm</span><span class="p">,</span> <span class="n">FacetForm</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Member search form&#39;&#39;&#39;</span>
 
     <span class="n">SORT_CHOICES</span> <span class="o">=</span> <span class="p">[</span>
@@ -100,7 +100,7 @@
             <span class="s1">&#39;aria-describedby&#39;</span><span class="p">:</span> <span class="s1">&#39;gender_tip&#39;</span>
         <span class="p">}),</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Click to learn more about gender representation in the Project.&#39;</span><span class="p">)</span>
-    <span class="n">membership_dates</span> <span class="o">=</span> <span class="n">RangeField</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Membership Dates&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">membership_dates</span> <span class="o">=</span> <span class="n">RangeField</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Membership Years&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                   <span class="n">widget</span><span class="o">=</span><span class="n">RangeWidget</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}))</span>
     <span class="n">birth_year</span> <span class="o">=</span> <span class="n">RangeField</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Birth Year&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                             <span class="n">widget</span><span class="o">=</span><span class="n">RangeWidget</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}))</span>
@@ -116,32 +116,11 @@
         <span class="n">widget</span><span class="o">=</span><span class="n">CheckboxFieldset</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;text facet&#39;</span><span class="p">})</span>
     <span class="p">)</span>
 
-<div class="viewcode-block" id="MemberSearchForm.set_range_minmax"><a class="viewcode-back" href="../../../codedocs.html#mep.people.forms.MemberSearchForm.set_range_minmax">[docs]</a>    <span class="k">def</span> <span class="nf">set_range_minmax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">range_minmax</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Set the min, max, and placeholder values for all</span>
-<span class="sd">        :class:`~mep.common.forms.RangeField` instances.</span>
-
-<span class="sd">        :param range_minmax: a dictionary with form fields as key names and</span>
-<span class="sd">            tuples of min and max integers as values.</span>
-<span class="sd">        :type range_minmax: dict</span>
-
-<span class="sd">        :rtype: None</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">min_max</span> <span class="ow">in</span> <span class="n">range_minmax</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">set_min_max</span><span class="p">(</span><span class="n">min_max</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">min_max</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Override to set choices dynamically and configure min-max range values</span>
-<span class="sd">        based on form kwargs.</span>
+<span class="sd">        Override to set choices dynamically based on form kwargs.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># pop range_minmax out of kwargs to avoid clashing</span>
-        <span class="c1"># with django args</span>
-        <span class="n">range_minmax</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;range_minmax&#39;</span><span class="p">,</span> <span class="p">{})</span>
-
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-        <span class="c1"># call function to set min_max and placeholders</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_range_minmax</span><span class="p">(</span><span class="n">range_minmax</span><span class="p">)</span>
 
         <span class="c1"># if a keyword search term is present, only relevance sort is allowed</span>
         <span class="k">if</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
@@ -238,7 +217,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

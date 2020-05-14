@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.accounts.models &#8212; mep-django 0.27.0 documentation</title>
+    <title>mep.accounts.models &#8212; mep-django 1.0.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -32,27 +32,25 @@
             
   <h1>Source code for mep.accounts.models</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
-
 <span class="kn">from</span> <span class="nn">cached_property</span> <span class="k">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span> <span class="nn">dateutil.relativedelta</span> <span class="k">import</span> <span class="n">relativedelta</span>
 <span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericRelation</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ObjectDoesNotExist</span>
 <span class="kn">from</span> <span class="nn">django.core.validators</span> <span class="k">import</span> <span class="n">ValidationError</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
-<span class="kn">from</span> <span class="nn">django.db.models.functions</span> <span class="k">import</span> <span class="n">Coalesce</span>
 <span class="kn">from</span> <span class="nn">django.template.defaultfilters</span> <span class="k">import</span> <span class="n">pluralize</span>
+<span class="kn">from</span> <span class="nn">djiffy.models</span> <span class="k">import</span> <span class="n">Canvas</span>
 
-<span class="kn">from</span> <span class="nn">mep.accounts.partial_date</span> <span class="k">import</span> <span class="n">PartialDateMixin</span><span class="p">,</span> <span class="n">DatePrecision</span><span class="p">,</span>\
-    <span class="n">DatePrecisionField</span>
-<span class="kn">from</span> <span class="nn">mep.books.models</span> <span class="k">import</span> <span class="n">Work</span><span class="p">,</span> <span class="n">Edition</span>
+<span class="kn">from</span> <span class="nn">mep.accounts.event_set</span> <span class="k">import</span> <span class="n">EventSetMixin</span>
+<span class="kn">from</span> <span class="nn">mep.accounts.partial_date</span> <span class="k">import</span> <span class="n">DatePrecisionField</span><span class="p">,</span> <span class="n">PartialDate</span><span class="p">,</span> \
+    <span class="n">PartialDateMixin</span>
+<span class="kn">from</span> <span class="nn">mep.books.models</span> <span class="k">import</span> <span class="n">Edition</span><span class="p">,</span> <span class="n">Work</span>
 <span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
-<span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Person</span><span class="p">,</span> <span class="n">Location</span>
 <span class="kn">from</span> <span class="nn">mep.footnotes.models</span> <span class="k">import</span> <span class="n">Bibliography</span><span class="p">,</span> <span class="n">Footnote</span>
+<span class="kn">from</span> <span class="nn">mep.people.models</span> <span class="k">import</span> <span class="n">Location</span><span class="p">,</span> <span class="n">Person</span>
 
 
-<div class="viewcode-block" id="Account"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account">[docs]</a><span class="k">class</span> <span class="nc">Account</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="Account"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account">[docs]</a><span class="k">class</span> <span class="nc">Account</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">,</span> <span class="n">EventSetMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Central model for all account and related information, M2M explicity to</span>
 <span class="sd">    :class:`people.Person`&#39;&#39;&#39;</span>
 
@@ -103,138 +101,6 @@
         <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span>
                          <span class="n">person</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">))</span></div>
     <span class="n">list_persons</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;Account holder(s)&#39;</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">event_dates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;sorted list of all unique event dates associated with this account;</span>
-<span class="sd">        ignores borrow and purchase dates with unknown year&#39;&#39;&#39;</span>
-        <span class="c1"># get value list of all start and end dates</span>
-        <span class="n">date_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">known_years</span><span class="p">()</span> \
-            <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;end_date&#39;</span><span class="p">)</span>
-        <span class="c1"># flatten list of tuples into a list, filter out None, and make unique</span>
-        <span class="n">uniq_dates</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">date_values</span><span class="p">)))</span>
-        <span class="c1"># return as a sorted list</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">uniq_dates</span><span class="p">))</span>
-
-<div class="viewcode-block" id="Account.event_date_ranges"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account.event_date_ranges">[docs]</a>    <span class="k">def</span> <span class="nf">event_date_ranges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Generate and return a list of date ranges this account</span>
-<span class="sd">        was active, based on associated events. Optionally filter</span>
-<span class="sd">        to a specific kind of event activity (currently only</span>
-<span class="sd">        supports membership).</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">ranges</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">current_range</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="n">events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">known_years</span><span class="p">()</span> \
-                               <span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
-            <span class="n">first_date</span><span class="o">=</span><span class="n">Coalesce</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;end_date&#39;</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;first_date&#39;</span><span class="p">)</span>
-
-        <span class="c1"># if event type was specified, filter as requested</span>
-        <span class="k">if</span> <span class="n">event_type</span> <span class="o">==</span> <span class="s1">&#39;membership&#39;</span><span class="p">:</span>
-            <span class="n">events</span> <span class="o">=</span> <span class="n">events</span><span class="o">.</span><span class="n">membership_activities</span><span class="p">()</span>
-
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-            <span class="c1"># if no date is set, ignore</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span><span class="p">:</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># if either date is partial with month unknown, skip</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date_precision</span> <span class="ow">and</span>
-               <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date_precision</span><span class="o">.</span><span class="n">month</span><span class="p">)</span> <span class="ow">or</span> \
-               <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">end_date</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date_precision</span> <span class="ow">and</span>
-               <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date_precision</span><span class="o">.</span><span class="n">month</span><span class="p">):</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># if only one date is known, use for start/end of</span>
-            <span class="c1"># range (i.e., borrow event with no end date)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span><span class="p">:</span>
-                <span class="n">date</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span>
-                <span class="n">start_date</span> <span class="o">=</span> <span class="n">end_date</span> <span class="o">=</span> <span class="n">date</span>
-
-            <span class="c1"># otherwise, use start and end dates for range</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">start_date</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span>
-                <span class="n">end_date</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span>
-
-            <span class="c1"># if no current range is set, create one from current event</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">current_range</span><span class="p">:</span>
-                <span class="n">current_range</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">]</span>
-            <span class="c1"># if this event starts within the current range, include it</span>
-            <span class="c1"># NOTE: includes the following day; if this event is the</span>
-            <span class="c1"># next day after the current range, extend the same range</span>
-            <span class="k">elif</span> <span class="n">current_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">start_date</span> <span class="o">&lt;=</span> \
-                    <span class="p">(</span><span class="n">current_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)):</span>
-                <span class="n">current_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">end_date</span><span class="p">,</span> <span class="n">current_range</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="c1"># otherwise, close out the current range and start a new one</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ranges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_range</span><span class="p">)</span>
-                <span class="n">current_range</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">]</span>
-
-        <span class="c1"># store the last range after the loop ends</span>
-        <span class="k">if</span> <span class="n">current_range</span><span class="p">:</span>
-            <span class="n">ranges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_range</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ranges</span></div>
-
-<div class="viewcode-block" id="Account.active_months"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account.active_months">[docs]</a>    <span class="k">def</span> <span class="nf">active_months</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Generate and return a list of year/month dates this account</span>
-<span class="sd">        was active, based on associated events. Optionally filter</span>
-<span class="sd">        to a specific kind of event activity (currently supports</span>
-<span class="sd">        &quot;membership&quot; or &quot;books&quot;).</span>
-<span class="sd">        Months are returned as a set in YYYYMM format.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">months</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-
-        <span class="c1"># Book activities are handled differently, since they do not</span>
-        <span class="c1"># span multiple months; no need to convert to date ranges</span>
-        <span class="k">if</span> <span class="n">event_type</span> <span class="o">==</span> <span class="s1">&#39;books&#39;</span><span class="p">:</span>
-            <span class="n">book_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">known_years</span><span class="p">()</span><span class="o">.</span><span class="n">book_activities</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">book_events</span><span class="p">:</span>
-                <span class="c1"># skip unset dates and unknown months (precision unset</span>
-                <span class="c1"># or month flag present); add all other</span>
-                <span class="c1"># to the set of years &amp; months in YYYYMM format</span>
-                <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">and</span> \
-                   <span class="p">(</span><span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">start_date_precision</span> <span class="ow">or</span>
-                        <span class="n">event</span><span class="o">.</span><span class="n">start_date_precision</span><span class="o">.</span><span class="n">month</span><span class="p">):</span>
-                    <span class="n">months</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m&#39;</span><span class="p">))</span>
-                <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date</span> <span class="ow">and</span> \
-                   <span class="p">(</span><span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">end_date_precision</span> <span class="ow">or</span>
-                        <span class="n">event</span><span class="o">.</span><span class="n">end_date_precision</span><span class="o">.</span><span class="n">month</span><span class="p">):</span>
-                    <span class="n">months</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m&#39;</span><span class="p">))</span>
-
-            <span class="k">return</span> <span class="n">months</span>
-
-        <span class="c1"># For general events or membership activity,</span>
-        <span class="c1"># calculate months based on date ranges to track months</span>
-        <span class="c1"># when a subscription was active</span>
-        <span class="n">date_ranges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_date_ranges</span><span class="p">(</span><span class="n">event_type</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span> <span class="ow">in</span> <span class="n">date_ranges</span><span class="p">:</span>
-            <span class="n">current_date</span> <span class="o">=</span> <span class="n">start_date</span>
-            <span class="k">while</span> <span class="n">current_date</span> <span class="o">&lt;=</span> <span class="n">end_date</span><span class="p">:</span>
-                <span class="c1"># if date is within range,</span>
-                <span class="c1"># add to set of months in YYYYMM format</span>
-                <span class="n">months</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">current_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m&#39;</span><span class="p">))</span>
-                <span class="c1"># get the date for the first of the next month</span>
-                <span class="n">next_month</span> <span class="o">=</span> <span class="n">current_date</span><span class="o">.</span><span class="n">month</span> <span class="o">+</span> <span class="mi">1</span>
-                <span class="n">year</span> <span class="o">=</span> <span class="n">current_date</span><span class="o">.</span><span class="n">year</span>
-                <span class="c1"># handle december to january</span>
-                <span class="k">if</span> <span class="n">next_month</span> <span class="o">==</span> <span class="mi">13</span><span class="p">:</span>
-                    <span class="n">year</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="n">next_month</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="n">current_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">next_month</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">months</span></div>
-
-<div class="viewcode-block" id="Account.earliest_date"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account.earliest_date">[docs]</a>    <span class="k">def</span> <span class="nf">earliest_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Earliest known date from all events associated with this account&#39;&#39;&#39;</span>
-        <span class="n">dates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_dates</span>
-        <span class="k">if</span> <span class="n">dates</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">dates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="Account.last_date"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account.last_date">[docs]</a>    <span class="k">def</span> <span class="nf">last_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Last known date from all events associated with this account&#39;&#39;&#39;</span>
-        <span class="n">dates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_dates</span>
-        <span class="k">if</span> <span class="n">dates</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">dates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">subscription_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -315,7 +181,32 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="c1"># Catch an invalid class of event or subevent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">validate_etype</span><span class="p">(</span><span class="n">etype</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">str_to_model</span><span class="p">(</span><span class="n">etype</span><span class="p">)</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">str_to_model</span><span class="p">(</span><span class="n">etype</span><span class="p">)</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Account.member_card_images"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Account.member_card_images">[docs]</a>    <span class="k">def</span> <span class="nf">member_card_images</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return a queryset for card images that are part of this account&#39;s</span>
+<span class="sd">        associated card manifest OR that have events for this account.</span>
+<span class="sd">        Note that this returns a union queryset, which puts some retrictions</span>
+<span class="sd">        on supported operations.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">manifest</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Canvas</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">none</span><span class="p">()</span>
+
+        <span class="c1"># get all canvases that belong to the manifest assigned as the</span>
+        <span class="c1"># card for this account (including blanks)</span>
+        <span class="n">manifest_cards</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">canvases</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">)</span>
+
+        <span class="c1"># find all canvas associated with events for this account via footnote</span>
+        <span class="n">event_cards</span> <span class="o">=</span> <span class="n">Canvas</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__events__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__borrows__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__purchases__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">))</span> \
+            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+
+        <span class="c1"># combine the two sets; removes duplicates by default, and will</span>
+        <span class="c1"># list manifest cards first</span>
+        <span class="k">return</span> <span class="n">manifest_cards</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">event_cards</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="Address"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Address">[docs]</a><span class="k">class</span> <span class="nc">Address</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">PartialDateMixin</span><span class="p">):</span>
@@ -516,8 +407,16 @@
         <span class="n">SubscriptionType</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Code to indicate the kind of subscription&#39;</span><span class="p">)</span>
 
+    <span class="c1">#: date the purchase was bought; not necessarily the day it started!</span>
+    <span class="n">purchase_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Date the subscription was purchased.&#39;</span><span class="p">)</span>
+    <span class="n">purchase_date_precision</span> <span class="o">=</span> <span class="n">DatePrecisionField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">partial_purchase_date</span> <span class="o">=</span> <span class="n">PartialDate</span><span class="p">(</span>
+        <span class="s1">&#39;purchase_date&#39;</span><span class="p">,</span> <span class="s1">&#39;purchase_date_precision&#39;</span><span class="p">,</span>
+        <span class="n">PartialDateMixin</span><span class="o">.</span><span class="n">UNKNOWN_YEAR</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;purchase date&#39;</span><span class="p">)</span>
+
     <span class="c1"># NOTE: Using decimal field to take advantage of Python&#39;s decimal handling</span>
-    <span class="c1"># Can store up to 99999999.99 -- which is *probably* safe.</span>
     <span class="n">price_paid</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                                      <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">deposit</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
@@ -665,32 +564,7 @@
         <span class="c1"># admin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_date_precision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date_precision</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Purchase.validate_unique"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Purchase.validate_unique">[docs]</a>    <span class="k">def</span> <span class="nf">validate_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Validation check to prevent duplicate purchase events from happening.</span>
-<span class="sd">        Differs from</span>
-<span class="sd">        :class:`~mep.accounts.models.Reimbursement.validate_unique` by also</span>
-<span class="sd">        allowing for multiple purchases of different items per day. Used</span>
-<span class="sd">        instead of `unique_together` because of multi-table inheritance.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate_unique</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="c1"># check to prevent duplicate event (date + account + item)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">qs</span> <span class="o">=</span> <span class="n">Purchase</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span>
-                <span class="n">account</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="n">work</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
-            <span class="c1"># bail out without making any further assertions because</span>
-            <span class="c1"># we&#39;ve had a missing required related field and other checks</span>
-            <span class="c1"># will catch it</span>
-            <span class="k">return</span>
-
-        <span class="c1"># if current work is already saved, exclude it from the queryset</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">adding</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">qs</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;Purchase event is not unique&#39;</span><span class="p">)</span></div></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Reimbursement"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Reimbursement">[docs]</a><span class="k">class</span> <span class="nc">Reimbursement</span><span class="p">(</span><span class="n">Event</span><span class="p">,</span> <span class="n">CurrencyMixin</span><span class="p">):</span>
@@ -819,7 +693,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

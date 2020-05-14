@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>mep.books.utils &#8212; mep-django 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for mep.books.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Utility methods for generating slugs for works. Used in Work</span>
+<span class="sd">model save method and model migration.</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="k">import</span> <span class="n">punctuation</span>
+
+<span class="kn">from</span> <span class="nn">django.utils.text</span> <span class="k">import</span> <span class="n">slugify</span>
+<span class="kn">import</span> <span class="nn">stop_words</span>
+<span class="kn">from</span> <span class="nn">unidecode</span> <span class="k">import</span> <span class="n">unidecode</span>
+
+
+<span class="n">STOP_WORDS</span> <span class="o">=</span> <span class="n">stop_words</span><span class="o">.</span><span class="n">get_stop_words</span><span class="p">(</span><span class="s1">&#39;en&#39;</span><span class="p">)</span> <span class="o">+</span> \
+    <span class="n">stop_words</span><span class="o">.</span><span class="n">get_stop_words</span><span class="p">(</span><span class="s1">&#39;fr&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="nonstop_words"><a class="viewcode-back" href="../../../codedocs.html#mep.books.utils.nonstop_words">[docs]</a><span class="k">def</span> <span class="nf">nonstop_words</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;split text into words, remove stopwords, and return a list of all</span>
+<span class="sd">    non-stopwords. Removes punctuation, including apostrophes within words.&#39;&#39;&#39;</span>
+    <span class="c1"># remove French L&#39; at beginning of words; remove all other apostrophes</span>
+    <span class="c1"># to avoid splitting words with contractions or possives</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\bL</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="c1"># split on whitespace and punctuation, remove empty strings</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\s\W]+&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span> <span class="k">if</span> <span class="n">word</span><span class="p">]</span>
+    <span class="n">title_words</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span> <span class="k">if</span> <span class="n">slugify</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">STOP_WORDS</span><span class="p">]</span>
+    <span class="c1"># return filtered list if not empty; otherwise use unfiltered words</span>
+    <span class="c1"># (i.e., title &quot;Car&quot; which is a French stopword)</span>
+    <span class="k">return</span> <span class="n">title_words</span> <span class="ow">or</span> <span class="n">words</span></div>
+
+
+<span class="k">def</span> <span class="nf">creator_lastname</span><span class="p">(</span><span class="n">work</span><span class="p">):</span>
+    <span class="n">creators</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">lastname</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">creators</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">creator</span> <span class="o">=</span> <span class="n">creators</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">creator_type__name</span><span class="o">=</span><span class="s1">&#39;Author&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="c1"># if no author, use first editor</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">creator</span><span class="p">:</span>
+            <span class="n">creator</span> <span class="o">=</span> <span class="n">creators</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">creator_type__name</span><span class="o">=</span><span class="s1">&#39;Editor&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">creator</span><span class="p">:</span>
+            <span class="c1"># based on logic from person short name property</span>
+            <span class="n">lastname</span> <span class="o">=</span> <span class="n">creator</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">sort_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> \
+                                               <span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">lastname</span>
+
+
+<div class="viewcode-block" id="work_slug"><a class="viewcode-back" href="../../../codedocs.html#mep.books.utils.work_slug">[docs]</a><span class="k">def</span> <span class="nf">work_slug</span><span class="p">(</span><span class="n">work</span><span class="p">,</span> <span class="n">max_words</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Generate a slug for a work. Uses last name of first author (or</span>
+<span class="sd">    first editor if no author), and first few non-stopwords in the title.&#39;&#39;&#39;</span>
+    <span class="n">lastname</span> <span class="o">=</span> <span class="n">creator_lastname</span><span class="p">(</span><span class="n">work</span><span class="p">)</span>
+    <span class="c1"># title with stop words removed</span>
+    <span class="n">nonstop_title_words</span> <span class="o">=</span> <span class="n">nonstop_words</span><span class="p">(</span><span class="n">work</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+    <span class="c1"># by default, use at most first three words in the title</span>
+    <span class="n">slug_text</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lastname</span><span class="p">,</span> <span class="n">nonstop_title_words</span><span class="p">[:</span><span class="n">max_words</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">slugify</span><span class="p">(</span><span class="n">unidecode</span><span class="p">(</span><span class="n">slug_text</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="generate_sort_title"><a class="viewcode-back" href="../../../codedocs.html#mep.books.utils.generate_sort_title">[docs]</a><span class="k">def</span> <span class="nf">generate_sort_title</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Generate sort title based on title. Removes leading punctuation and</span>
+<span class="sd">    stop word.&#39;&#39;&#39;</span>
+
+    <span class="c1"># english &amp; french definite/indefinite articles</span>
+    <span class="n">non_sort</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;the&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;an&#39;</span><span class="p">,</span> <span class="s1">&#39;la&#39;</span><span class="p">,</span> <span class="s1">&#39;le&#39;</span><span class="p">,</span> <span class="s1">&#39;les&#39;</span><span class="p">,</span> <span class="s1">&#39;l&#39;</span><span class="p">)</span>
+
+    <span class="c1"># remove leading punctuation (quotes, brackets, etc)</span>
+    <span class="n">sort_title</span> <span class="o">=</span> <span class="n">title</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="n">punctuation</span><span class="p">)</span>
+    <span class="c1"># split on punctuation or whitespace to get the first word</span>
+    <span class="n">title_parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">w</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\s\W]+&#39;</span><span class="p">,</span> <span class="n">sort_title</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                   <span class="k">if</span> <span class="n">w</span><span class="p">]</span>   <span class="c1"># skip blank string</span>
+    <span class="c1"># if more than one word and first word is an article, skip it</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">title_parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">title_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">non_sort</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">title_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">sort_title</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">mep-django</a></h1>
+
+
+
+<p class="blurb">Django web application for Shakespeare & Company Project (Formerly Mapping Expatriate Paris)</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

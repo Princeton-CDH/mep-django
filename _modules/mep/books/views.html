@@ -1,0 +1,499 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>mep.books.views &#8212; mep-django 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for mep.books.views</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dal</span> <span class="k">import</span> <span class="n">autocomplete</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">F</span><span class="p">,</span> <span class="n">Q</span>
+<span class="kn">from</span> <span class="nn">django.db.models.functions</span> <span class="k">import</span> <span class="n">Coalesce</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">ListView</span>
+<span class="kn">from</span> <span class="nn">django.views.generic.edit</span> <span class="k">import</span> <span class="n">FormMixin</span>
+
+<span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">mep.books.forms</span> <span class="k">import</span> <span class="n">WorkSearchForm</span>
+<span class="kn">from</span> <span class="nn">mep.books.models</span> <span class="k">import</span> <span class="n">Work</span>
+<span class="kn">from</span> <span class="nn">mep.books.queryset</span> <span class="k">import</span> <span class="n">WorkSolrQuerySet</span>
+<span class="kn">from</span> <span class="nn">mep.common</span> <span class="k">import</span> <span class="n">SCHEMA_ORG</span>
+<span class="kn">from</span> <span class="nn">mep.common.utils</span> <span class="k">import</span> <span class="n">absolutize_url</span><span class="p">,</span> <span class="n">alpha_pagelabels</span>
+<span class="kn">from</span> <span class="nn">mep.common.views</span> <span class="k">import</span> <span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span> \
+    <span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">,</span> <span class="n">SolrLastModifiedMixin</span>
+<span class="kn">from</span> <span class="nn">mep.footnotes.models</span> <span class="k">import</span> <span class="n">Footnote</span>
+
+
+<div class="viewcode-block" id="WorkList"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkList">[docs]</a><span class="k">class</span> <span class="nc">WorkList</span><span class="p">(</span><span class="n">LabeledPagesMixin</span><span class="p">,</span> <span class="n">SolrLastModifiedMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span>
+               <span class="n">FormMixin</span><span class="p">,</span> <span class="n">AjaxTemplateMixin</span><span class="p">,</span> <span class="n">FacetJSONMixin</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;List page for searching and browsing library items.&#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Work</span>
+    <span class="n">page_title</span> <span class="o">=</span> <span class="s2">&quot;Books&quot;</span>
+    <span class="n">page_description</span> <span class="o">=</span> <span class="s2">&quot;Search and lending library books by title, author,&quot;</span> <span class="o">+</span> \
+        <span class="s2">&quot;or keyword and filter by circulation date.&quot;</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;books/work_list.html&#39;</span>
+    <span class="n">ajax_template_name</span> <span class="o">=</span> <span class="s1">&#39;books/snippets/work_results.html&#39;</span>
+    <span class="n">paginate_by</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">context_object_name</span> <span class="o">=</span> <span class="s1">&#39;works&#39;</span>
+    <span class="n">rdf_type</span> <span class="o">=</span> <span class="n">SCHEMA_ORG</span><span class="o">.</span><span class="n">SearchResultPage</span>
+    <span class="n">solr_lastmodified_filters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;item_type&#39;</span><span class="p">:</span> <span class="s1">&#39;work&#39;</span><span class="p">}</span>
+
+    <span class="n">form_class</span> <span class="o">=</span> <span class="n">WorkSearchForm</span>
+    <span class="n">_form</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">initial</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sort&#39;</span><span class="p">:</span> <span class="s1">&#39;title&#39;</span><span class="p">}</span>
+
+    <span class="c1">#: mappings for Solr field names to form aliases</span>
+    <span class="n">range_field_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;event_years&#39;</span><span class="p">:</span> <span class="s1">&#39;circulation_dates&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1">#: fields to generate stats on in self.get_ranges</span>
+    <span class="n">stats_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;event_years&#39;</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="WorkList.get_form_kwargs"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkList.get_form_kwargs">[docs]</a>    <span class="k">def</span> <span class="nf">get_form_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_form_kwargs</span><span class="p">()</span>
+        <span class="n">form_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># set defaults</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">form_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+        <span class="c1"># set relevance sort as default when there is a search term</span>
+        <span class="k">if</span> <span class="n">form_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">form_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span> <span class="s1">&#39;relevance&#39;</span><span class="p">)</span>
+
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">form_data</span>
+        <span class="c1"># get min/max configuration for range fields</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;range_minmax&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range_stats</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">kwargs</span></div>
+
+    <span class="c1"># adapted from member list view</span>
+<div class="viewcode-block" id="WorkList.get_range_stats"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkList.get_range_stats">[docs]</a>    <span class="k">def</span> <span class="nf">get_range_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the min and max for fields specified in</span>
+<span class="sd">        :class:`WorkList`&#39;s stats_fields</span>
+
+<span class="sd">        :returns: Dictionary keyed on form field name with a tuple of</span>
+<span class="sd">            (min, max) as integers. If stats are not returned from the field,</span>
+<span class="sd">            the key is not added to a dictionary.</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">WorkSolrQuerySet</span><span class="p">()</span><span class="o">.</span><span class="n">stats</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">stats_fields</span><span class="p">)</span><span class="o">.</span><span class="n">get_stats</span><span class="p">()</span>
+        <span class="n">min_max_ranges</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stats</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">min_max_ranges</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats_fields</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">min_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;stats_fields&#39;</span><span class="p">][</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;min&#39;</span><span class="p">])</span>
+                <span class="n">max_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;stats_fields&#39;</span><span class="p">][</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;max&#39;</span><span class="p">])</span>
+                <span class="c1"># map to form field name if an alias is provided</span>
+                <span class="n">min_max_ranges</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">range_field_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)]</span> \
+                    <span class="o">=</span> <span class="p">(</span><span class="n">min_year</span><span class="p">,</span> <span class="n">max_year</span><span class="p">)</span>
+            <span class="c1"># If the field stats are missing, min and max will be NULL,</span>
+            <span class="c1"># rendered as None.</span>
+            <span class="c1"># The TypeError will catch and pass returning an empty entry</span>
+            <span class="c1"># for that field but allowing others to be passed on.</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">min_max_ranges</span></div>
+
+<div class="viewcode-block" id="WorkList.get_form"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkList.get_form">[docs]</a>    <span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_form</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_form</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_form</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_form</span></div>
+
+    <span class="c1"># map form sort to solr sort</span>
+    <span class="n">solr_sort</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;relevance&#39;</span><span class="p">:</span> <span class="s1">&#39;-score&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;sort_title_isort&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="s1">&#39;sort_authors_isort&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;pubdate&#39;</span><span class="p">:</span> <span class="s1">&#39;-pub_date_i&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;circulation&#39;</span><span class="p">:</span> <span class="s1">&#39;-event_count_i&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;circulation_date&#39;</span><span class="p">:</span> <span class="s1">&#39;first_event_date_i&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="c1"># NOTE: might be able to infer reverse sort from _desc/_za</span>
+    <span class="c1"># instead of hard-coding here</span>
+
+    <span class="c1">#: bib data query alias field syntax (configured defaults is edismax)</span>
+    <span class="n">search_bib_query</span> <span class="o">=</span> <span class="s1">&#39;{!qf=$bib_qf pf=$bib_pf v=$bib_query}&#39;</span>
+
+<div class="viewcode-block" id="WorkList.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkList.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># NOTE faceting so that response doesn&#39;t register as an error;</span>
+        <span class="c1"># data is currently unused</span>
+        <span class="n">sqs</span> <span class="o">=</span> <span class="n">WorkSolrQuerySet</span><span class="p">()</span><span class="o">.</span><span class="n">facet_field</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="s1">&#39;format&#39;</span><span class="p">)</span>
+
+        <span class="n">form</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">()</span>
+
+        <span class="c1"># empty qs if not valid</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">none</span><span class="p">()</span>
+
+        <span class="c1"># otherwise apply filters, query, sort, etc.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">search_opts</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span>
+
+            <span class="k">if</span> <span class="n">search_opts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search_bib_query</span><span class="p">)</span> \
+                         <span class="o">.</span><span class="n">raw_query_parameters</span><span class="p">(</span><span class="n">bib_query</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">])</span> \
+                         <span class="o">.</span><span class="n">also</span><span class="p">(</span><span class="s1">&#39;score&#39;</span><span class="p">)</span>  <span class="c1"># include relevance score in results</span>
+
+            <span class="n">sort_opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solr_sort</span><span class="p">[</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]]</span>
+            <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">sort_opt</span><span class="p">)</span>
+            <span class="c1"># when not sorting by title, use title as secondary sort</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solr_sort</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sort_opt</span><span class="p">:</span>
+                <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solr_sort</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">])</span>
+
+            <span class="c1"># range filter by circulation dates, if set</span>
+            <span class="k">if</span> <span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;circulation_dates&#39;</span><span class="p">]:</span>
+                <span class="n">sqs</span> <span class="o">=</span> <span class="n">sqs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">event_years__range</span><span class="o">=</span><span class="n">search_opts</span><span class="p">[</span><span class="s1">&#39;circulation_dates&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">queryset</span> <span class="o">=</span> <span class="n">sqs</span>
+        <span class="k">return</span> <span class="n">sqs</span></div>
+
+<div class="viewcode-block" id="WorkList.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkList.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">facets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="o">.</span><span class="n">get_facets</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;facet_fields&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">error_message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># facets are not set if there is an error on the query</span>
+        <span class="k">if</span> <span class="n">facets</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_form</span><span class="o">.</span><span class="n">set_choices_from_facets</span><span class="p">(</span><span class="n">facets</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if facets are not set, the query errored</span>
+            <span class="n">error_message</span> <span class="o">=</span> <span class="s1">&#39;Something went wrong.&#39;</span>
+
+        <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;page_title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span>
+            <span class="s1">&#39;page_description&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">page_description</span><span class="p">,</span>
+            <span class="s1">&#39;error_message&#39;</span><span class="p">:</span> <span class="n">error_message</span><span class="p">,</span>
+            <span class="s1">&#39;uncertainty_message&#39;</span><span class="p">:</span> <span class="n">Work</span><span class="o">.</span><span class="n">UNCERTAINTY_MESSAGE</span>
+        <span class="p">})</span>
+        <span class="k">return</span> <span class="n">context</span></div>
+
+<div class="viewcode-block" id="WorkList.get_page_labels"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkList.get_page_labels">[docs]</a>    <span class="k">def</span> <span class="nf">get_page_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paginator</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;generate labels for pagination&#39;&#39;&#39;</span>
+
+        <span class="c1"># if form is invalid, page labels should show &#39;N/A&#39;</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">)]</span>
+        <span class="n">sort</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">sort</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="s1">&#39;pubdate&#39;</span><span class="p">,</span> <span class="s1">&#39;circulation_date&#39;</span><span class="p">]:</span>
+            <span class="n">sort_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solr_sort</span><span class="p">[</span><span class="n">sort</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+            <span class="c1"># otherwise, when sorting by alpha, generate alpha page labels</span>
+            <span class="c1"># Only return sort name; get everything at once to avoid</span>
+            <span class="c1"># hitting Solr for each page / item.</span>
+            <span class="n">pagination_qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queryset</span><span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="n">sort_field</span><span class="p">)</span> \
+                                         <span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
+            <span class="c1"># cast to string so integers (year) can be treated the same</span>
+            <span class="n">alpha_labels</span> <span class="o">=</span> <span class="n">alpha_pagelabels</span><span class="p">(</span>
+                <span class="n">paginator</span><span class="p">,</span> <span class="n">pagination_qs</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sort_field</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)),</span>
+                <span class="n">max_chars</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+            <span class="c1"># alpha labels is a dict; use items to return list of tuples</span>
+            <span class="k">return</span> <span class="n">alpha_labels</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+
+        <span class="c1"># otherwise use default page label logic</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_page_labels</span><span class="p">(</span><span class="n">paginator</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WorkList.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkList.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the full URI of this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;books:books-list&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="WorkList.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkList.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
+        <span class="c1"># NOTE we can&#39;t set this as an attribute on the view because it calls</span>
+        <span class="c1"># reverse() via get_absolute_url(), which needs the urlconf to be loaded</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+        <span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="WorkLastModifiedListMixin"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkLastModifiedListMixin">[docs]</a><span class="k">class</span> <span class="nc">WorkLastModifiedListMixin</span><span class="p">(</span><span class="n">SolrLastModifiedMixin</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;last modified mixin with common logic for all work detail views&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="WorkLastModifiedListMixin.get_solr_lastmodified_filters"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkLastModifiedListMixin.get_solr_lastmodified_filters">[docs]</a>    <span class="k">def</span> <span class="nf">get_solr_lastmodified_filters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;filter solr query by item type and slug&#39;&#39;&#39;</span>
+        <span class="c1"># NOTE: slug_s because not using aliased queryset</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;item_type&#39;</span><span class="p">:</span> <span class="s1">&#39;work&#39;</span><span class="p">,</span> <span class="s1">&#39;slug_s&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">]}</span></div></div>
+
+
+<div class="viewcode-block" id="WorkDetail"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkDetail">[docs]</a><span class="k">class</span> <span class="nc">WorkDetail</span><span class="p">(</span><span class="n">WorkLastModifiedListMixin</span><span class="p">,</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Detail page for a single library book.&#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Work</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;books/work_detail.html&#39;</span>
+    <span class="n">context_object_name</span> <span class="o">=</span> <span class="s1">&#39;work&#39;</span>
+    <span class="n">rdf_type</span> <span class="o">=</span> <span class="n">SCHEMA_ORG</span><span class="o">.</span><span class="n">ItemPage</span>
+
+<div class="viewcode-block" id="WorkDetail.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkDetail.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the full URI of this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="WorkDetail.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkDetail.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="n">WorkList</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span> <span class="n">WorkList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="WorkDetail.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkDetail.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">authors</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;By </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">authors</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39;, </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">year</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">public_notes</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">public_notes</span>
+
+        <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;page_title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="s1">&#39;page_description&#39;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+        <span class="p">})</span>
+        <span class="k">return</span> <span class="n">context</span></div></div>
+
+
+<div class="viewcode-block" id="WorkCirculation"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCirculation">[docs]</a><span class="k">class</span> <span class="nc">WorkCirculation</span><span class="p">(</span><span class="n">WorkLastModifiedListMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Display a list of circulation events (borrows, purchases) for an</span>
+<span class="sd">    individual work.&#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Event</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;books/circulation.html&#39;</span>
+
+<div class="viewcode-block" id="WorkCirculation.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCirculation.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Fetch all events associated with this work.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span> \
+                      <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">work__slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span> \
+                      <span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s1">&#39;borrow&#39;</span><span class="p">,</span> <span class="s1">&#39;purchase&#39;</span><span class="p">,</span> <span class="s1">&#39;account&#39;</span><span class="p">,</span> <span class="s1">&#39;edition&#39;</span><span class="p">)</span> \
+                      <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;account__persons&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WorkCirculation.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCirculation.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># should 404 if invalid work slug</span>
+        <span class="c1"># store work before calling super() so available for breadcrumbs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;work&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="p">,</span>
+            <span class="s1">&#39;page_title&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> Circulation Activity&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">title</span>
+        <span class="p">})</span>
+        <span class="k">return</span> <span class="n">context</span></div>
+
+<div class="viewcode-block" id="WorkCirculation.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCirculation.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the full URI of this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;books:book-circ&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="WorkCirculation.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCirculation.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="n">WorkList</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span> <span class="n">WorkList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())),</span>
+            <span class="p">(</span><span class="s1">&#39;Circulation&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+        <span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="WorkCardList"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCardList">[docs]</a><span class="k">class</span> <span class="nc">WorkCardList</span><span class="p">(</span><span class="n">WorkLastModifiedListMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Card thumbnails for lending card associated with a single library</span>
+<span class="sd">    member.&#39;&#39;&#39;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Footnote</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;books/work_cardlist.html&#39;</span>
+    <span class="n">context_object_name</span> <span class="o">=</span> <span class="s1">&#39;footnotes&#39;</span>
+
+<div class="viewcode-block" id="WorkCardList.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCardList.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># find the associated book; 404 if not found</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span>
+
+        <span class="c1"># find footnotes for events associated with this work</span>
+        <span class="c1"># that have images</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span> \
+                      <span class="o">.</span><span class="n">on_events</span><span class="p">()</span> \
+                      <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">borrows__work__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
+                              <span class="n">Q</span><span class="p">(</span><span class="n">events__work__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
+                              <span class="n">Q</span><span class="p">(</span><span class="n">purchases__work__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">pk</span><span class="p">))</span> \
+                      <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">image__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
+                      <span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">Coalesce</span><span class="p">(</span><span class="s1">&#39;borrows__start_date&#39;</span><span class="p">,</span>
+                                              <span class="s1">&#39;events__start_date&#39;</span><span class="p">,</span>
+                                              <span class="s1">&#39;purchases__start_date&#39;</span><span class="p">),</span>
+                                <span class="n">start_date_precision</span><span class="o">=</span><span class="n">Coalesce</span><span class="p">(</span>
+                                    <span class="s1">&#39;borrows__start_date_precision&#39;</span><span class="p">,</span>
+                                    <span class="s1">&#39;events__start_date_precision&#39;</span><span class="p">,</span>
+                                    <span class="s1">&#39;purchases__start_date_precision&#39;</span><span class="p">))</span> \
+                      <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;content_object&#39;</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">)</span> \
+                      <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="s1">&#39;start_date_precision&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">desc</span><span class="p">(),</span>
+                                <span class="n">F</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">asc</span><span class="p">(</span><span class="n">nulls_last</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+
+        <span class="c1"># NOTE: sorting by date precision decending (with default nulls first)</span>
+        <span class="c1"># so that full precision dates (null or 7) come before partiald ates</span>
+
+<div class="viewcode-block" id="WorkCardList.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCardList.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Full URI for work card list page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;books:book-card-list&#39;</span><span class="p">,</span>
+                                      <span class="n">kwargs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="WorkCardList.get_breadcrumbs"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCardList.get_breadcrumbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_breadcrumbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the list of breadcrumbs and links to display for this page.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;Home&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="n">WorkList</span><span class="o">.</span><span class="n">page_title</span><span class="p">,</span> <span class="n">WorkList</span><span class="p">()</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+             <span class="n">absolutize_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())),</span>
+            <span class="p">(</span><span class="s1">&#39;Cards&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="WorkCardList.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCardList.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">page_title</span> <span class="o">=</span> <span class="s1">&#39;Lending library cards that reference </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">title</span>
+        <span class="c1"># there should always be at least one card, but handle in</span>
+        <span class="c1"># case of data errors</span>
+        <span class="n">page_image</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
+            <span class="n">page_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">image</span>
+        <span class="n">card_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="n">page_description</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> card</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="n">card_count</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span> <span class="k">if</span> <span class="n">card_count</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;work&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="p">,</span>
+            <span class="s1">&#39;page_title&#39;</span><span class="p">:</span> <span class="n">page_title</span><span class="p">,</span>
+            <span class="s1">&#39;page_description&#39;</span><span class="p">:</span> <span class="n">page_description</span><span class="p">,</span>
+            <span class="s1">&#39;page_iiif_image&#39;</span><span class="p">:</span> <span class="n">page_image</span>
+        <span class="p">})</span>
+        <span class="k">return</span> <span class="n">context</span></div></div>
+
+
+<div class="viewcode-block" id="WorkAutocomplete"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkAutocomplete">[docs]</a><span class="k">class</span> <span class="nc">WorkAutocomplete</span><span class="p">(</span><span class="n">autocomplete</span><span class="o">.</span><span class="n">Select2QuerySetView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Basic autocomplete lookup, for use with django-autocomplete-light and</span>
+<span class="sd">    :class:`mep.books.models.Work` for borrowing and purchasing events&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="WorkAutocomplete.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkAutocomplete.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get a queryset filtered by query string. Only</span>
+<span class="sd">        searches on title, mep id and notes for now, since that is all</span>
+<span class="sd">        our stub records include.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">title__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">mep_id__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">notes__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">)</span>    <span class="c1"># meaningful default sort?</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">mep-django</a></h1>
+
+
+
+<p class="blurb">Django web application for Shakespeare & Company Project (Formerly Mapping Expatriate Paris)</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

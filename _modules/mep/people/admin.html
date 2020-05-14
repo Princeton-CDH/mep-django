@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.people.admin &#8212; mep-django 0.27.0 documentation</title>
+    <title>mep.people.admin &#8212; mep-django 1.0.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -226,9 +226,9 @@
         <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span>
         <span class="p">(</span><span class="s1">&#39;birth_year&#39;</span><span class="p">,</span> <span class="s1">&#39;death_year&#39;</span><span class="p">),</span>
         <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;nationalities&#39;</span><span class="p">,</span> <span class="s1">&#39;is_organization&#39;</span><span class="p">,</span> <span class="s1">&#39;verified&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;notes&#39;</span><span class="p">,</span> <span class="s1">&#39;public_notes&#39;</span><span class="p">)</span>
+        <span class="s1">&#39;notes&#39;</span><span class="p">,</span> <span class="s1">&#39;public_notes&#39;</span><span class="p">,</span> <span class="s1">&#39;past_slugs_list&#39;</span><span class="p">)</span>
     <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;in_logbooks&#39;</span><span class="p">,</span> <span class="s1">&#39;has_account&#39;</span><span class="p">,</span> <span class="s1">&#39;has_card&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;is_creator&#39;</span><span class="p">)</span>
+                       <span class="s1">&#39;is_creator&#39;</span><span class="p">,</span> <span class="s1">&#39;past_slugs_list&#39;</span><span class="p">)</span>
     <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mep_id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sort_name&#39;</span><span class="p">,</span> <span class="s1">&#39;notes&#39;</span><span class="p">,</span> <span class="s1">&#39;public_notes&#39;</span><span class="p">,</span>
                      <span class="s1">&#39;viaf_id&#39;</span><span class="p">,</span> <span class="s1">&#39;slug&#39;</span><span class="p">)</span>
     <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span><span class="n">PersonTypeListFilter</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">,</span> <span class="s1">&#39;nationalities&#39;</span><span class="p">,</span>
@@ -314,7 +314,14 @@
             <span class="n">url</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^csv/$&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">admin_site</span><span class="o">.</span><span class="n">admin_view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">export_to_csv</span><span class="p">),</span>
                 <span class="n">name</span><span class="o">=</span><span class="s1">&#39;people_person_csv&#39;</span><span class="p">)</span>
         <span class="p">]</span>
-        <span class="k">return</span> <span class="n">urls</span> <span class="o">+</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonAdmin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_urls</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="n">urls</span> <span class="o">+</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonAdmin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_urls</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PersonAdmin.past_slugs_list"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.PersonAdmin.past_slugs_list">[docs]</a>    <span class="k">def</span> <span class="nf">past_slugs_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;list of previous slugs for this person, for read-only display&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">instance</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">slug</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">instance</span><span class="o">.</span><span class="n">past_slugs</span><span class="o">.</span><span class="n">all</span><span class="p">()])</span></div>
+    <span class="n">past_slugs_list</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s2">&quot;Past slugs&quot;</span>
+    <span class="n">past_slugs_list</span><span class="o">.</span><span class="n">long_description</span> <span class="o">=</span> <span class="s1">&#39;Alternate slugs from edits or merges&#39;</span></div>
 
 
 <div class="viewcode-block" id="LocationAdminForm"><a class="viewcode-back" href="../../../codedocs.html#mep.people.admin.LocationAdminForm">[docs]</a><span class="k">class</span> <span class="nc">LocationAdminForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
@@ -454,7 +461,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

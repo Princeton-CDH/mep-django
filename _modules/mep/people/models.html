@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.people.models &#8212; mep-django 0.27.0 documentation</title>
+    <title>mep.people.models &#8212; mep-django 1.0.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,15 +38,16 @@
 <span class="kn">from</span> <span class="nn">django.contrib.humanize.templatetags.humanize</span> <span class="k">import</span> <span class="n">ordinal</span>
 <span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericRelation</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ValidationError</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">transaction</span>
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">timezone</span>
 <span class="kn">from</span> <span class="nn">parasolr.django.indexing</span> <span class="k">import</span> <span class="n">ModelIndexable</span>
 <span class="kn">from</span> <span class="nn">viapy.api</span> <span class="k">import</span> <span class="n">ViafEntity</span>
 
-<span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">AliasIntegerField</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">,</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span>
+<span class="kn">from</span> <span class="nn">mep.common.models</span> <span class="k">import</span> <span class="n">AliasIntegerField</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">,</span> <span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">,</span> \
+    <span class="n">TrackChangesModel</span>
 <span class="kn">from</span> <span class="nn">mep.common.validators</span> <span class="k">import</span> <span class="n">verify_latlon</span>
-<span class="kn">from</span> <span class="nn">mep.accounts.partial_date</span> <span class="k">import</span> <span class="n">DatePrecision</span>
 <span class="kn">from</span> <span class="nn">mep.footnotes.models</span> <span class="k">import</span> <span class="n">Footnote</span>
 
 
@@ -190,7 +191,7 @@
         <span class="n">Creator</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;books&#39;</span><span class="p">,</span> <span class="s1">&#39;Creator&#39;</span><span class="p">)</span>  <span class="c1"># prevents circular import issue</span>
 
         <span class="k">for</span> <span class="n">merge_person</span> <span class="ow">in</span> <span class="n">merge_people</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span> <span class="c1"># if the merged person had an account</span>
+            <span class="k">if</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span>  <span class="c1"># if the merged person had an account</span>
 
                 <span class="c1"># store primary account card reference if there is one</span>
                 <span class="n">account_card</span> <span class="o">=</span> <span class="n">primary_account</span><span class="o">.</span><span class="n">card</span> <span class="k">if</span> <span class="n">primary_account</span> <span class="k">else</span> <span class="kc">None</span>
@@ -207,19 +208,21 @@
                             <span class="c1"># unlikely, but if we&#39;re merging two accounts with cards</span>
                             <span class="c1"># log a warning so we can track it down later if necessary</span>
                             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Account </span><span class="si">%s</span><span class="s1"> card </span><span class="si">%s</span><span class="s1"> association will be lost in merge&#39;</span><span class="p">,</span>
-                                            <span class="n">account</span><span class="p">,</span> <span class="n">account</span><span class="o">.</span><span class="n">card</span><span class="p">)</span>
+                                           <span class="n">account</span><span class="p">,</span> <span class="n">account</span><span class="o">.</span><span class="n">card</span><span class="p">)</span>
 
                     <span class="c1"># if a merge person has an account, but the main person doesn&#39;t,</span>
                     <span class="c1"># swap the account&#39;s owner to the main person</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">person</span><span class="o">.</span><span class="n">has_account</span><span class="p">():</span>
                         <span class="n">account</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
                         <span class="n">account</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">merge_person</span><span class="p">)</span>
-                         <span class="c1"># define the new primary account</span>
+                        <span class="c1"># define the new primary account</span>
                         <span class="n">primary_account</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">account_set</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="n">primary_account</span><span class="p">)</span> <span class="c1"># reassociate all events with the main account</span>
-                        <span class="n">account</span><span class="o">.</span><span class="n">address_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="n">primary_account</span><span class="p">)</span> <span class="c1"># reassociate any addresses with the main account</span>
-                        <span class="n">account</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span> <span class="c1"># delete the empty account</span>
+                        <span class="c1"># reassociate all events with the main account</span>
+                        <span class="c1"># reassociate any addresses with the main account</span>
+                        <span class="n">account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="n">primary_account</span><span class="p">)</span>
+                        <span class="n">account</span><span class="o">.</span><span class="n">address_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">account</span><span class="o">=</span><span class="n">primary_account</span><span class="p">)</span>
+                        <span class="n">account</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>  <span class="c1"># delete the empty account</span>
 
                 <span class="c1"># if a card was present on the account to be merged and *not*</span>
                 <span class="c1"># on the primary account, copy it</span>
@@ -227,9 +230,9 @@
                     <span class="n">primary_account</span><span class="o">.</span><span class="n">card</span> <span class="o">=</span> <span class="n">account_card</span>
                     <span class="n">primary_account</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">is_creator</span><span class="p">():</span> <span class="c1"># if the merged person was a creator</span>
+            <span class="k">if</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">is_creator</span><span class="p">():</span>  <span class="c1"># if the merged person was a creator</span>
                 <span class="k">for</span> <span class="n">creator</span> <span class="ow">in</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-                    <span class="n">creator</span><span class="o">.</span><span class="n">person</span> <span class="o">=</span> <span class="n">person</span> <span class="c1"># reassociate the creator relationship to the primary person</span>
+                    <span class="n">creator</span><span class="o">.</span><span class="n">person</span> <span class="o">=</span> <span class="n">person</span>  <span class="c1"># reassociate the creator relationship to the primary person</span>
                     <span class="n">creator</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
             <span class="c1"># update main person record with optional properties set on</span>
@@ -251,6 +254,10 @@
             <span class="n">merge_person</span><span class="o">.</span><span class="n">urls</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">person</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
             <span class="c1"># - footnotes</span>
             <span class="n">merge_person</span><span class="o">.</span><span class="n">footnotes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">object_id</span><span class="o">=</span><span class="n">person</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="c1"># - store merged slugs as past slugs</span>
+            <span class="k">if</span> <span class="n">merge_person</span><span class="o">.</span><span class="n">slug</span><span class="p">:</span>
+                <span class="n">PastPersonSlug</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">slug</span><span class="o">=</span><span class="n">merge_person</span><span class="o">.</span><span class="n">slug</span><span class="p">,</span>
+                                              <span class="n">person</span><span class="o">=</span><span class="n">person</span><span class="p">)</span>
 
         <span class="c1"># consolidate notes and preserve any merged MEP ids</span>
         <span class="c1"># in case we need to find a record based on a deleted MEP id</span>
@@ -389,7 +396,7 @@
                 <span class="n">ModelIndexable</span><span class="o">.</span><span class="n">index_items</span><span class="p">(</span><span class="n">members</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Person"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person">[docs]</a><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">,</span> <span class="n">ModelIndexable</span><span class="p">):</span>
+<div class="viewcode-block" id="Person"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person">[docs]</a><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">TrackChangesModel</span><span class="p">,</span> <span class="n">Notable</span><span class="p">,</span> <span class="n">DateRange</span><span class="p">,</span> <span class="n">ModelIndexable</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Model for people in the MEP dataset&#39;&#39;&#39;</span>
 
     <span class="c1">#: MEP xml id</span>
@@ -493,7 +500,21 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">viaf_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">birth_year</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">death_year</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_birth_death_years</span><span class="p">()</span>
 
+        <span class="c1"># if slug has changed, save the old one as a past slug</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_changed</span><span class="p">(</span><span class="s1">&#39;slug&#39;</span><span class="p">):</span>
+            <span class="n">PastPersonSlug</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">(</span><span class="s1">&#39;slug&#39;</span><span class="p">),</span>
+                                                 <span class="n">person</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
         <span class="nb">super</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Person.validate_unique"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.validate_unique">[docs]</a>    <span class="k">def</span> <span class="nf">validate_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># customize uniqueness validation to ensure new slugs don&#39;t</span>
+        <span class="c1"># conflict with past slugs</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate_unique</span><span class="p">(</span><span class="n">exclude</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">PastPersonSlug</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">slug</span><span class="p">)</span> \
+                         <span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">person</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;Slug is not unique &#39;</span> <span class="o">+</span>
+                                  <span class="s1">&#39;(conflicts with previously used slugs)&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Person.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Person.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
@@ -725,6 +746,20 @@
         <span class="k">return</span> <span class="n">index_data</span></div></div>
 
 
+<div class="viewcode-block" id="PastPersonSlug"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.PastPersonSlug">[docs]</a><span class="k">class</span> <span class="nc">PastPersonSlug</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;A slug that was previously associated with a person; preserved</span>
+<span class="sd">    so that former slugs will resolve to the correct person.&#39;&#39;&#39;</span>
+
+    <span class="c1">#: person record this slug belonged to</span>
+    <span class="n">person</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;past_slugs&#39;</span><span class="p">,</span>
+                               <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="c1">#: slug</span>
+    <span class="n">slug</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SlugField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Short, durable, unique identifier for use in URLs. &#39;</span> <span class="o">+</span>
+        <span class="s1">&#39;Editing will change the public, citable URL for library members.&#39;</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="InfoURL"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.InfoURL">[docs]</a><span class="k">class</span> <span class="nc">InfoURL</span><span class="p">(</span><span class="n">Notable</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Informational urls (other than VIAF) associated with a :class:`Person`,</span>
 <span class="sd">    e.g. Wikipedia page.&#39;&#39;&#39;</span>
@@ -856,7 +891,7 @@
       &copy;2017, Trustees of Princeton University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
