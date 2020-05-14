@@ -210,7 +210,6 @@ class SolrLastModifiedMixin(View):
             .order_by('-last_modified').only('last_modified')
         try:
             # Solr stores date in isoformat; convert to datetime
-            print(sqs[0])
             return solr_timestamp_to_datetime(sqs[0]['last_modified'])
             # skip extra call to Solr to check count and just grab the first
             # item if it exists
