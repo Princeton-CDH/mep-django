@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
+from parasolr.utils import solr_timestamp_to_datetime
 
 from mep.accounts.models import Event
 from mep.books.forms import WorkSearchForm
@@ -13,12 +14,13 @@ from mep.books.queryset import WorkSolrQuerySet
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, LoginRequiredOr404Mixin,
+                              LabeledPagesMixin, LastModifiedMixin,
+                              LastModifiedListMixin, LoginRequiredOr404Mixin,
                               RdfViewMixin)
 from mep.footnotes.models import Footnote
 
 
-class WorkList(LabeledPagesMixin, ListView,
+class WorkList(LabeledPagesMixin, LastModifiedListMixin, ListView,
                FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library items.'''
     model = Work
@@ -202,8 +204,38 @@ class WorkList(LabeledPagesMixin, ListView,
             (self.page_title, self.get_absolute_url())
         ]
 
+    def last_modified(self):
+        '''customize last modified logic to use Solr'''
+        # use most recent book modification time in the solr index
+        try:
+            psq = WorkSolrQuerySet().order_by('-last_modified') \
+                .only('last_modified')
+            # Solr stores date in isoformat; convert to datetime
+            return solr_timestamp_to_datetime(psq[0]['last_modified'])
+            # skip extra call to Solr to check count and just grab the first
+            # item if it exists
+        except (IndexError, KeyError):
+            # if a syntax or other solr error happens, no date to return
+            pass
 
-class WorkDetail(DetailView, RdfViewMixin):
+
+class WorkLastModifiedListMixin(LastModifiedMixin):
+    '''last modified mixin with common logic for all work detail views'''
+
+    def last_modified(self):
+        """get last index modification from Solr, since it will be more
+        current and exhaustive than object last modified, since the index
+        is updated when related models change."""
+
+        try:
+            psq = WorkSolrQuerySet().filter(slug=self.kwargs['slug']) \
+                .order_by('-last_modified').only('last_modified')
+            return solr_timestamp_to_datetime(psq[0]['last_modified'])
+        except (IndexError, KeyError):
+            pass
+
+
+class WorkDetail(WorkLastModifiedListMixin, DetailView, RdfViewMixin):
     '''Detail page for a single library book.'''
     model = Work
     template_name = 'books/work_detail.html'
@@ -240,7 +272,7 @@ class WorkDetail(DetailView, RdfViewMixin):
         return context
 
 
-class WorkCirculation(ListView, RdfViewMixin):
+class WorkCirculation(WorkLastModifiedListMixin, ListView, RdfViewMixin):
     '''Display a list of circulation events (borrows, purchases) for an
     individual work.'''
     model = Event
@@ -278,7 +310,7 @@ class WorkCirculation(ListView, RdfViewMixin):
         ]
 
 
-class WorkCardList(ListView, RdfViewMixin):
+class WorkCardList(WorkLastModifiedListMixin, ListView, RdfViewMixin):
     '''Card thumbnails for lending card associated with a single library
     member.'''
     model = Footnote

@@ -17,13 +17,15 @@ from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormMixin, FormView
 from djiffy.models import Canvas
+from parasolr.utils import solr_timestamp_to_datetime
 
 from mep.accounts.models import Address, Event
 from mep.accounts.templatetags.account_tags import as_ranges
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, LoginRequiredOr404Mixin,
+                              LabeledPagesMixin, LastModifiedMixin,
+                              LastModifiedListMixin, LoginRequiredOr404Mixin,
                               RdfViewMixin)
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
@@ -31,8 +33,8 @@ from mep.people.models import Country, Location, Person
 from mep.people.queryset import PersonSolrQuerySet
 
 
-class MembersList(LabeledPagesMixin, ListView, FormMixin,
-                  AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
+class MembersList(LabeledPagesMixin, LastModifiedListMixin, ListView,
+                  FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     page_title = "Members"
@@ -235,6 +237,20 @@ class MembersList(LabeledPagesMixin, ListView, FormMixin,
             (self.page_title, self.get_absolute_url()),
         ]
 
+    def last_modified(self):
+        '''customize last modified logic to use Solr'''
+        # use most recent member modification time in the solr index
+        try:
+            psq = PersonSolrQuerySet().order_by('-last_modified') \
+                .only('last_modified')
+            # Solr stores date in isoformat; convert to datetime
+            return solr_timestamp_to_datetime(psq[0]['last_modified'])
+            # skip extra call to Solr to check count and just grab the first
+            # item if it exists
+        except (IndexError, KeyError):
+            # if a syntax or other solr error happens, no date to return
+            pass
+
 
 class MemberPastSlugMixin:
     '''View mixin to handle redirects for previously used slugs.
@@ -261,7 +277,24 @@ class MemberPastSlugMixin:
             raise
 
 
-class MemberDetail(MemberPastSlugMixin, DetailView, RdfViewMixin):
+class MemberLastModifiedListMixin(LastModifiedMixin):
+    '''last modified mixin with common logic for all single-member views'''
+
+    def last_modified(self):
+        """get last index modification from Solr, since it will be more
+        current and exhaustive than object last modified, since the index
+        is updated when related models change."""
+
+        try:
+            psq = PersonSolrQuerySet().filter(slug=self.kwargs['slug']) \
+                .order_by('-last_modified').only('last_modified')
+            return solr_timestamp_to_datetime(psq[0]['last_modified'])
+        except (IndexError, KeyError):
+            pass
+
+
+class MemberDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,
+                   DetailView, RdfViewMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -386,7 +419,8 @@ class MemberDetail(MemberPastSlugMixin, DetailView, RdfViewMixin):
         ]
 
 
-class MembershipActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
+class MembershipActivities(MemberPastSlugMixin, MemberLastModifiedListMixin,
+                           ListView, RdfViewMixin):
     '''Display a list of membership activities (subscriptions, renewals,
     and reimbursements) for an individual member.'''
     model = Event
@@ -429,7 +463,8 @@ class MembershipActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
         ]
 
 
-class BorrowingActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
+class BorrowingActivities(MemberPastSlugMixin, MemberLastModifiedListMixin,
+                          ListView, RdfViewMixin):
     '''Display a list of book-related activities (borrows, purchases, gifts)
     for an individual member.'''
     model = Event
@@ -472,7 +507,8 @@ class BorrowingActivities(MemberPastSlugMixin, ListView, RdfViewMixin):
         ]
 
 
-class MemberCardList(MemberPastSlugMixin, ListView, RdfViewMixin):
+class MemberCardList(MemberPastSlugMixin, MemberLastModifiedListMixin,
+                     ListView, RdfViewMixin):
     '''Card thumbnails for lending card associated with a single library
     member.'''
     model = Canvas
@@ -519,7 +555,8 @@ class MemberCardList(MemberPastSlugMixin, ListView, RdfViewMixin):
         return context
 
 
-class MemberCardDetail(MemberPastSlugMixin, DetailView, RdfViewMixin):
+class MemberCardDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,
+                       DetailView, RdfViewMixin):
     '''Card image viewer for image of a single lending card page
     associated with a single library member.'''
     model = Canvas
