@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
-from parasolr.utils import solr_timestamp_to_datetime
 
 from mep.accounts.models import Event
 from mep.books.forms import WorkSearchForm
@@ -13,9 +12,8 @@ from mep.books.models import Work
 from mep.books.queryset import WorkSolrQuerySet
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, SolrLastModifiedMixin,
-                              LoginRequiredOr404Mixin, RdfViewMixin)
+from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
+    LabeledPagesMixin, RdfViewMixin, SolrLastModifiedMixin
 from mep.footnotes.models import Footnote
 
 
