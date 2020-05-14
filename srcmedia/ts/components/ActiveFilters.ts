@@ -21,21 +21,21 @@ export default class ActiveFilters extends Component {
 
         // find the containing form and store
         const form = this.element.closest('form')
-        if (!form) console.error(`No containing form found for ${element}`)
+        if (!form) console.error('No containing form found')
         else this.$form = form
 
         // find the 'clear all' button and store
         const clearAll = this.element.querySelector('.clear-all')
-        if (!clearAll) console.error(`No .clear-all element found in ${element}`)
+        if (!clearAll) console.error('No .clear-all element found')
         else this.$clearAll = (clearAll as HTMLAnchorElement)
 
         // find the inner area where buttons are listed
         const inner = this.element.querySelector('.inner')
-        if (!inner) console.error(`No .inner element found in ${element}`)
+        if (!inner) console.error('No .inner element found')
         else this.$inner = (inner as HTMLElement)
 
         // turn all links currently inside the element into buttons w/ handlers
-        const $anchors = this.element.querySelectorAll('a')
+        const $anchors = this.$inner.querySelectorAll('a')
         $anchors.forEach(($anchor: HTMLAnchorElement) => {
             $anchor.removeAttribute('href')
             $anchor.setAttribute('role', 'button')
@@ -69,7 +69,7 @@ export default class ActiveFilters extends Component {
 
         // if it's not the clear-all button, it should have an assoc. input or fieldset
         if (!inputId && !fieldsetId) {
-            console.error('No associated input for filter button', $button)
+            console.error('No associated input for filter button', $button.outerHTML)
             return
         }
 

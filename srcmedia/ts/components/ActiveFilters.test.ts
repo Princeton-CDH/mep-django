@@ -22,15 +22,25 @@ describe('ActiveFilters component', () => {
     })
 
     it('converts all links into buttons on initialization', () => {
-        // set up the DOM with some active filters
+        // set up the DOM with active filters and some test inputs
         document.body.innerHTML = `
-        <form id="test-form"><div class="active-filters"><div class="inner">
+        <form id="test-form">
+        <input id="sprinkles" type="checkbox" name="add_sprinkles" checked="">
+        <label for="flavors_0">Chocolate</label>
+        <input id="flavors_0" type="checkbox" name="flavors" value="chocolate" checked="">
+        <label for="flavors_1">Vanilla</label>
+        <input id="flavors_1" type="checkbox" name="flavors" value="vanilla" checked="">
+        <fieldset id="scoops">
+            <legend>Scoops</legend>
+            <input id="scoops_0" type="number" name="scoops_0" value="1">
+            <input id="scoops_1" type="number" name="scoops_1" value="3">
+        </fieldset>
+        <div class="active-filters"><div class="inner">
             <span class="legend">Selected Filters</span>
-            <a href="http://example.com/">United States</a>
-            <a href="http://example.com/">France</a>
-            <a href="http://example.com/">Female</a>
-            <a href="http://example.com/">Has Card</a>
-            <a href="http://example.com/">Member 1920 – 1940</a>
+            <a href="http://example.com/" data-input="sprinkles">Add Sprinkles</a>
+            <a href="http://example.com/" data-input="flavors_0">Chocolate</a>
+            <a href="http://example.com/" data-input="flavors_1">Vanilla</a>
+            <a href="http://example.com/" data-fieldset="scoops">Scoops: 1 – 3</a>
             <a href="http://example.com/" class="clear-all">Clear All</a>
         </div></div></form>`
         const $target = document.querySelector('.active-filters') as HTMLDivElement
@@ -123,7 +133,7 @@ describe('ActiveFilters component', () => {
             <a role="button" data-input="sprinkles">Add Sprinkles</a>
             <a role="button" data-input="flavors_0">Chocolate</a>
             <a role="button" data-input="flavors_1">Vanilla</a>
-            <a role="button" ata-fieldset="scoops">Scoops: 1 – 3</a>
+            <a role="button" data-fieldset="scoops">Scoops: 1 – 3</a>
             <a href="http://example.com/" class="clear-all">Clear All</a>
         </div></div></form>`
         const $target = document.querySelector('.active-filters') as HTMLDivElement
