@@ -19,7 +19,9 @@ This release makes the Books section available.
 * re-enable books links in menus and remove login restrictions
 * bugfix: result counters on search pages reset after page
 
-Various small improvements
+Various improvements
+* XML sitemaps for member and book pages
+* Last modified headers and conditional processing for member and book pages
 * Better preview titles and descriptions in page metadata
 * convert data export field names to use underscores instead of spaces
 * Include membership years in member export and circulation years in book export
