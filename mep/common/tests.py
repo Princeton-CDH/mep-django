@@ -494,7 +494,7 @@ def test_formfield_selected_filter():
     context = {'request': Mock(GET=querystring)}
     link = mep_tags.formfield_selected_filter(context,
                                               form['membership_dates'])
-    assert "Membership Dates 1920 – &nbsp;" in link
+    assert "Membership Years 1920 – &nbsp;" in link
     for query_param in ['sort=relevance', 'query=stein', 'has_card=1']:
         assert query_param in link
     for membership_param in ['membership_dates_0', 'membership_dates_1']:

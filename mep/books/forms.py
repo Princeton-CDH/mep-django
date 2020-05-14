@@ -28,7 +28,7 @@ class WorkSearchForm(RangeForm, FacetForm):
         }))
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False,
                              widget=SelectWithDisabled)
-    circulation_dates = RangeField(label='Circulation Dates', required=False,
+    circulation_dates = RangeField(label='Circulation Years', required=False,
                                    widget=RangeWidget(attrs={'size': 4}))
 
     def __init__(self, data=None, *args, **kwargs):
