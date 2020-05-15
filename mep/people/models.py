@@ -468,7 +468,8 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
             self.set_birth_death_years()
 
         # if slug has changed, save the old one as a past slug
-        if self.has_changed('slug'):
+        # (skip if record is not yet saved)
+        if self.pk and self.has_changed('slug'):
             PastPersonSlug.objects.get_or_create(slug=self.initial_value('slug'),
                                                  person=self)
 
