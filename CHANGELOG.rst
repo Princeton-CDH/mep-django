@@ -7,7 +7,11 @@ CHANGELOG
 -----
 
 * bugfix: correct the order for lending library cards
+* bugfix: 500 error creating new person records
 * bugfix: adjust admin person edit form and slug help text
+* bugfix: wagtail paragraph block is missing custom feature list (blockquotes,
+  superscript, etc)
+
 
 1.0
 ---
