@@ -23,7 +23,7 @@ class WorkList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
     model = Work
     page_title = "Books"
     page_description = "Search and lending library books by title, author," + \
-        "or keyword and filter by circulation date."
+        " or keyword and filter by circulation date."
     template_name = 'books/work_list.html'
     ajax_template_name = 'books/snippets/work_results.html'
     paginate_by = 100
