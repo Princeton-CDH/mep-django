@@ -99,7 +99,7 @@ class BodyContentBlock(blocks.StreamBlock):
     '''Common set of content blocks for content/analysis pages.'''
     # allow H2 in regular paragraphs; insert before h3 for logical display
     paragraph = blocks.RichTextBlock(
-        features=bodytext_features.insert(bodytext_features.index('h3'), 'h2'))
+        features=['h2'] + bodytext_features)
     image = CaptionedImageBlock()
     svg_image = SVGImageBlock()
     document = DocumentChooserBlock()
