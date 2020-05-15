@@ -3,6 +3,12 @@
 CHANGELOG
 =========
 
+1.0.1
+-----
+
+* bugfix: correct the order for lending library cards
+* bugfix: adjust admin person edit form and slug help text
+
 1.0
 ---
 
