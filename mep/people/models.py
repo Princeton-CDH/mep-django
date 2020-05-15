@@ -397,8 +397,8 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
     #: slug for use in urls
     slug = models.SlugField(
         max_length=100, unique=True,
-        help_text='Short, durable, unique identifier for use in URLs. ' +
-        'Editing will change the public, citable URL for library members.')
+        help_text='Short, unique identifier for public URL. ' +
+        'Recommended format: lastname-firstname (lastname only if unique)')
 
     #: update timestamp
     updated_at = models.DateTimeField(auto_now=True, null=True)
@@ -468,7 +468,8 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
             self.set_birth_death_years()
 
         # if slug has changed, save the old one as a past slug
-        if self.has_changed('slug'):
+        # (skip if record is not yet saved)
+        if self.pk and self.has_changed('slug'):
             PastPersonSlug.objects.get_or_create(slug=self.initial_value('slug'),
                                                  person=self)
 

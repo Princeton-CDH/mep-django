@@ -161,6 +161,12 @@ class TestPerson(TestCase):
         pers.save()
         assert pers.past_slugs.first().slug == 'hp'
 
+        # unsaved with slug — should not error or create past slug
+        pers = Person(name='Foo')
+        pers.slug = 'new'
+        pers.save()
+        assert not pers.past_slugs.count()
+
     def test_validate_unique(self):
         # create a person
         pers = Person.objects.create(name='Humperdinck', slug='hum')

@@ -162,18 +162,23 @@ class Account(models.Model, EventSetMixin):
 
         # get all canvases that belong to the manifest assigned as the
         # card for this account (including blanks)
-        manifest_cards = self.card.manifest.canvases.all().order_by('order')
+        # mark as priority 1 to allow sorting
+        manifest_cards = self.card.manifest.canvases.all() \
+            .annotate(priority=models.Value('1', output_field=models.IntegerField()))
 
         # find all canvas associated with events for this account via footnote
-        event_cards = Canvas.objects.filter(
-            models.Q(footnote__events__account__pk=self.pk) |
-            models.Q(footnote__borrows__account__pk=self.pk) |
-            models.Q(footnote__purchases__account__pk=self.pk)) \
+        # (excluding those already in the manifest)
+        event_cards = Canvas.objects.exclude(manifest=self.card.manifest) \
+            .filter(
+                models.Q(footnote__events__account__pk=self.pk) |
+                models.Q(footnote__borrows__account__pk=self.pk) |
+                models.Q(footnote__purchases__account__pk=self.pk)) \
+            .annotate(priority=models.Value('2', output_field=models.IntegerField())) \
             .distinct()
 
-        # combine the two sets; removes duplicates by default, and will
-        # list manifest cards first
-        return manifest_cards.union(event_cards).distinct()
+        # combine the two sets; removes duplicates by default
+        # Sort primary manifests cards first, then sort by order
+        return manifest_cards.union(event_cards).order_by('priority', 'order')
 
 
 class Address(Notable, PartialDateMixin):

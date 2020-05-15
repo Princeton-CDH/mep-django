@@ -186,10 +186,10 @@ class PersonAdmin(admin.ModelAdmin):
         'mep_id', 'account_id', 'address_count', 'in_logbooks', 'has_card',
         'verified', 'updated_at', 'note_snippet')
     fields = (
-        ('slug', 'mep_id'),
-        ('has_account', 'in_logbooks', 'has_card', 'is_creator'),
         'title',
         ('name', 'sort_name'),
+        ('slug', 'mep_id'),
+        ('has_account', 'in_logbooks', 'has_card', 'is_creator'),
         'viaf_id',
         ('birth_year', 'death_year'),
         'gender', 'profession', 'nationalities', 'is_organization', 'verified',
