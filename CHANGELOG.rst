@@ -30,6 +30,7 @@ This release makes the Books section available.
 * bugfix: result counters on search pages reset after page
 
 Various improvements
+~~~~~~~~~~~~~~~~~~~~
 * XML sitemaps for member and book pages
 * Last modified headers and conditional processing for member and book pages
 * Better preview titles and descriptions in page metadata
