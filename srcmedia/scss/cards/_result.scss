@@ -139,15 +139,17 @@ $card-width: 11.25rem;
 
     a {
         margin-left: 0.75rem;
-        border-color: $transparent-pale-teal;
         display: inline-block;  /* required to center PUL logo */
-        font-size: 0;    /* avoid extra vertical space */
+        font-size: 0;           /* avoid extra vertical space */
+        border-bottom: 2px solid $green;
 
         @media (max-width: $breakpoint-s) {
             margin-left: 0.5rem;
         }
 
         &:hover, &:focus  {
+            border-bottom-color: $dark-green;
+            
             img {
                 opacity: 1;
             }
@@ -159,7 +161,7 @@ $card-width: 11.25rem;
     img {
         height: 1rem;
         opacity: 0.5;
-        margin-bottom: 5px;
+        padding-bottom: 5px;
 
         /* slightly smaller on card image viewer */
         @media (max-width: $breakpoint-s) {
