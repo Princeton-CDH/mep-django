@@ -281,7 +281,8 @@ class Work(Notable, ModelIndexable, EventSetMixin):
     subjects = models.ManyToManyField(Subject, blank=True)
     #: a field for notes publicly displayed on the website
     public_notes = models.TextField(
-        blank=True, help_text='Notes for display on the public website')
+        blank=True, help_text='Notes for display on the public website. ' +
+        ' Use markdown for formatting.')
 
     #: slug for use in urls
     slug = models.SlugField(

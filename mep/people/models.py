@@ -429,8 +429,9 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
     #: footnotes (:class:`~mep.footnotes.models.Footnote`)
     footnotes = GenericRelation(Footnote)
     #: a field for notes publicly displayed on the website
-    public_notes = models.TextField(blank=True,
-        help_text='Notes for display on the public site')
+    public_notes = models.TextField(
+        blank=True, help_text='Notes for display on the public site. ' +
+        'Use markdown for formatting.')
 
     # convenience access to associated locations, although
     # we will probably use Address for most things

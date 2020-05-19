@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'wagtail.contrib.redirects',
     'taggit',
     'widget_tweaks',
+    'markdownify',
     # local apps
     'mep.common',
     'mep.people',
