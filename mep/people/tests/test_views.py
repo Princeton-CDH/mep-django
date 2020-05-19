@@ -1083,7 +1083,8 @@ class TestMemberDetailView(TestCase):
         response = self.client.get(url)
         assert response.status_code == 200
         # library address is rendered as "null"
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<script id="library-address" type="application/json">null</script>')
 
     def test_get_non_member(self):
@@ -1092,6 +1093,15 @@ class TestMemberDetailView(TestCase):
         response = self.client.get(url)
         assert response.status_code == 404, \
             'non-members should not have a detail page'
+
+    def test_markdown_notes(self):
+        gay = Person.objects.get(name='Francisque Gay', slug='gay')
+        gay.public_notes = 'some *formatted* content'
+        gay.save()
+        url = reverse('people:member-detail', kwargs={'slug': gay.slug})
+        response = self.client.get(url)
+        # check that markdown is rendered
+        self.assertContains(response, '<em>formatted</em>')
 
 
 class TestPastSlugRedirects(TestCase):
