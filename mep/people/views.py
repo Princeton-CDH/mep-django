@@ -131,7 +131,8 @@ class MembersList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
         sqs = PersonSolrQuerySet() \
             .facet_field('has_card') \
             .facet_field('gender', missing=True, exclude='gender') \
-            .facet_field('nationality', exclude='nationality', sort='value') \
+            .facet_field('nationality', exclude='nationality', sort='value',
+                         missing=True) \
             .facet_field('arrondissement', exclude='arrondissement',
                          sort='value')
 
@@ -155,9 +156,11 @@ class MembersList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
             if search_opts['gender']:
                 sqs = sqs.filter(gender__in=search_opts['gender'], tag='gender')
             if search_opts['nationality']:
-                sqs = sqs.filter(nationality__in=[
-                    '"%s"' % val for val in search_opts['nationality']
-                ], tag='nationality')
+                # wrap filter value in quotes if there are spaces
+                nationality_list = ['"%s"' % val if ' ' in val else val
+                                    for val in search_opts['nationality']]
+                sqs = sqs.filter(nationality__in=nationality_list,
+                                 tag='nationality')
             if search_opts['arrondissement']:
                 # strip off ordinal letters and filter on numeric arrondissement
                 sqs = sqs.filter(arrondissement__in=[
