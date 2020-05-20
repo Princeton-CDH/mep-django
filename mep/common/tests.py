@@ -471,7 +471,7 @@ def test_formfield_selected_filter():
         'has_card': 1,
         'membership_dates_0': 1920,
         'birth_year_1': 1950,
-        'gender': ['Female', 'Male']
+        'gender': ['Female', 'Male'],
     })
     form.set_choices_from_facets(
         {'gender': OrderedDict([('Female', 0), ('Male', 0)])})
@@ -526,6 +526,21 @@ def test_formfield_selected_filter():
     assert not re.search(r'<a[^>]*href="\?[^"]*gender=Male[^"]*">Male</a>',
                          link)
     # assert '<a href="?query=stein&gender=Female">Male</a>' in link
+
+    # don't blow up on invalid facet
+    form = MemberSearchForm(data={
+        'nationality': 'foobar'
+    })
+    querystring = QueryDict('query=stein&nationality=foobar')
+    context = {'request': Mock(GET=querystring)}
+    # no facets set on the form - should be an empty link
+    assert not mep_tags.formfield_selected_filter(context,
+                                                  form['nationality'])
+    form.set_choices_from_facets(
+        {'nationality': OrderedDict([('Argentina', 0), ('Chile', 0)])})
+    # form has an invalid link - should be an empty link
+    assert not mep_tags.formfield_selected_filter(context,
+                                                  form['nationality'])
 
 
 class TestCheckboxFieldset(TestCase):
