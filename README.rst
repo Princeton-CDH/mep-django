@@ -6,7 +6,7 @@ mep-django
 
 
 Python/Django web application for the `Shakespeare and Company Project
-<https://cdh.princeton.edu/projects/shakespeare-and-company-project/>`_,
+<https://shakespeareandco.princeton.edu/>`_,
 a digital humanities project based on the archives of Sylvia Beach's
 bookstore and lending library in Paris.
 
