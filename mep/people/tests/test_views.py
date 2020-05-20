@@ -873,7 +873,7 @@ class TestMembersListView(TestCase):
         mock_qs.facet_field.assert_any_call(
             'gender', missing=True, exclude='gender')
         mock_qs.facet_field.assert_any_call(
-            'nationality', exclude='nationality', sort='value')
+            'nationality', exclude='nationality', sort='value', missing=True)
         mock_qs.facet_field.assert_any_call(
             'arrondissement', exclude='arrondissement', sort='value')
         # search and raw query not called without keyword search term
@@ -938,7 +938,7 @@ class TestMembersListView(TestCase):
         })
         del view._form
         sqs = view.get_queryset()
-        mock_qs.filter.assert_any_call(nationality__in=['"France"'],
+        mock_qs.filter.assert_any_call(nationality__in=['France'],
                                        tag='nationality')
 
         # filter on arrondissement
