@@ -429,7 +429,10 @@ class TestAccount(TestCase):
 class TestAddress(TestCase):
 
     def setUp(self):
-        self.location = Location.objects.create(name='Hotel de la Rue')
+        self.location = Location.objects.create(
+            name='Hôtel de Fleurus', street_address='3 rue de Fleurus',
+            city='Paris', postal_code='75006', latitude=48.84688,
+            longitude=2.33198)
         self.account = Account.objects.create()
 
         self.address = Address.objects.create(
@@ -469,20 +472,21 @@ class TestAddress(TestCase):
         self.address.care_of_person = Person.objects.create(
             name='Jones', slug='jones')
         assert str(self.address) == \
-            '%s — %s ( – %d) c/o %s' % (self.location, self.account, end_year,
-                                    self.address.care_of_person)
+            '%s — %s ( – %d) c/o %s' % \
+            (self.location, self.account, end_year,
+             self.address.care_of_person)
         # care of, no dates
         self.address.end_date = None
         assert str(self.address) == \
-            '%s — %s c/o %s' % (self.location, self.account,
-                                self.address.care_of_person)
+            '%s — %s c/o %s' % \
+            (self.location, self.account, self.address.care_of_person)
 
         # person, no account
         self.address.account = None
         self.address.person = Person.objects.create(name='Smith', slug='sm')
         assert str(self.address) == \
-            '%s — %s c/o %s' % (self.location, self.address.person,
-                                self.address.care_of_person)
+            '%s — %s c/o %s' % \
+            (self.location, self.address.person, self.address.care_of_person)
 
     def test_clean(self):
         addr = Address(location=self.location)
@@ -504,6 +508,44 @@ class TestAddress(TestCase):
         addr.person = None
         addr.account = self.account
         addr.clean()
+
+    def test_index_data(self):
+        data = self.address.index_data()
+        assert data['item_type'] == 'address'
+        assert data['name_s'] == self.address.location.name
+        assert data['city_s'] == self.address.location.city
+        assert data['postal_code_s'] == self.address.location.postal_code
+        assert data['arrondissement_i'] == \
+            self.address.location.arrondissement()
+        assert data['latitude_f'] == str(self.address.location.latitude)
+        assert data['longitude_f'] == str(self.address.location.longitude)
+        assert data['member_slug_ss'] == []
+
+        # no lat/long - should not return index data
+        # assert 'item_type' not in data
+        # set lat/long, add person, add details
+        # self.address.location.latitude = 48.8497
+        # self.address.location.longitude = 8.8497
+        # self.address.location
+
+        # add people to account and check that both slugs are included
+        pers1 = Person.objects.create(name='Foobar', slug='foo')
+        pers2 = Person.objects.create(name='Bazbar', slug='bazbar')
+        self.address.account.persons.add(pers1, pers2)
+        data = self.address.index_data()
+        assert pers1.slug in data['member_slug_ss']
+        assert pers2.slug in data['member_slug_ss']
+
+        # location with no lat/long
+        location = Location.objects.create(name='Hôtel de la rue')
+        self.address.location = location
+        # should not be indexed (empty data)
+        assert 'item_type' not in self.address.index_data()
+
+        # valid location but no account — should not be indexed
+        self.address.location = self.location
+        self.address.account = None
+        assert 'item_type' not in self.address.index_data()
 
 
 class TestEvent(TestCase):

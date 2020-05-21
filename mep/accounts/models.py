@@ -7,6 +7,7 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
 from djiffy.models import Canvas
+from parasolr.django.indexing import ModelIndexable
 
 from mep.accounts.event_set import EventSetMixin
 from mep.accounts.partial_date import DatePrecisionField, PartialDate, \
@@ -181,7 +182,7 @@ class Account(models.Model, EventSetMixin):
         return manifest_cards.union(event_cards).order_by('priority', 'order')
 
 
-class Address(Notable, PartialDateMixin):
+class Address(Notable, PartialDateMixin, ModelIndexable):
     '''Address associated with an :class:`Account` or
     a :class:`~mep.people.models.Person`.  Used to associate locations with
     people and accounts, with optional start and end dates and
@@ -229,6 +230,44 @@ class Address(Notable, PartialDateMixin):
             raise ValidationError('Address must be associated with an account or person')
         if self.account and self.person:
             raise ValidationError('Address must only be associated with one of account or person')
+
+    @classmethod
+    def items_to_index(cls):
+        '''Custom logic for finding items to be indexed when indexing in
+        bulk; only include addresses associated with accounts that
+        have documented latitude and longitude.'''
+        return cls.objects.filter(account__isnull=False,
+                                  location__longitude__isnull=False,
+                                  location__latitude__isnull=False)
+
+    def index_data(self):
+        '''data for indexing in Solr'''
+        index_data = super().index_data()
+        # only addresses associated with accounts and
+        # latitude/longitude should be indexed
+        if not all([self.account, self.location.latitude,
+                    self.location.longitude]):
+            del index_data['item_type']
+            return index_data
+
+        index_data.update({
+            'name_s': self.location.name,
+            'street_address_s': self.location.street_address,
+            'city_s': self.location.city,
+            'postal_code_s': self.location.postal_code,
+            'arrondissement_i': self.location.arrondissement(),
+            'latitude_f': str(self.location.latitude),
+            'longitude_f': str(self.location.longitude),
+            'member_slug_ss': [person.slug for person in
+                               self.account.persons.all()],
+
+            # TODO: still needs:
+            # - care of name, if any
+            # - arrondissement number
+            # - associated dates if known
+            # - location id for grouping?
+        })
+        return index_data
 
 
 class EventQuerySet(models.QuerySet):
