@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load mep_100years_tags }
+
+{% block page-subtitle %}100 Years Ago Review · {% endblock %}
+
+{% block main-style %}white{% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title="100 years ago review" %}
+{% endblock %}
+
+
+{% block content %}
+<article class="main">
+{% for event in object_list %}
+    {% ifchanged %}<h2>{{ event.start_date }}</h2>{% endifchanged %}
+
+    <p class="notes">{{ event|tweet_text|urlize }}</p>
+
+{% endfor %}
+
+</article>
+{% endblock %}

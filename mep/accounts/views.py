@@ -1,6 +1,12 @@
+import datetime
+
 from dal import autocomplete
+from dateutil.relativedelta import relativedelta
 from django.db.models import Q
-from .models import Account
+from django.views.generic import ListView
+
+from mep.accounts.models import Account, Event
+from mep.common.views import LoginRequiredOr404Mixin
 
 
 class AccountAutocomplete(autocomplete.Select2QuerySetView):
@@ -20,3 +26,21 @@ class AccountAutocomplete(autocomplete.Select2QuerySetView):
             Q(locations__street_address__icontains=self.q) |
             Q(locations__city__icontains=self.q)
         ).distinct().order_by('id')
+
+
+class Twitter100yearsReview(LoginRequiredOr404Mixin, ListView):
+    model = Event
+    template_name = 'accounts/100years_twitter_review.html'
+
+    def get_queryset(self):
+        date = datetime.date.today()
+        # determine date 100 years earlier
+        date = date - relativedelta(years=100)
+        two_weeks_ahead = date + relativedelta(weeks=2)
+        return super().get_queryset() \
+                      .filter(start_date__gte=date,
+                              start_date__lte=two_weeks_ahead) \
+                      .order_by('start_date', 'account')
+                      # FIXME: why does this break the query?
+                      # , start_date_precision__knownyear=True)
+
