@@ -33,6 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const $nationalityExpander = document.querySelector('.expander[aria-controls="id_nationality"]') as HTMLDivElement
     const $arrondissementExpander = document.querySelector('.expander[aria-controls="id_arrondissement"]') as HTMLDivElement
     const $activeFilters = document.querySelector('.active-filters') as HTMLDivElement
+    const $listViewTab = document.getElementById('list-view-tab') as HTMLButtonElement
+    const $mapViewTab = document.getElementById('map-view-tab') as HTMLButtonElement
+    const $listView = document.getElementById('list-view') as HTMLDivElement
+    const $mapView = document.getElementById('map-view') as HTMLDivElement
     const bottomOfForm = $membersSearchForm.getBoundingClientRect().bottom
 
     /* COMPONENTS */
@@ -299,6 +303,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else {
             $arrondissementExpander.setAttribute('aria-expanded', 'false')
+        }
+    })
+
+    // Make clicking or pressing space/enter on the map view/list view tabs
+    // hide/show their tabpanels & manage aria-selected state
+    merge(
+        fromEvent($listViewTab, 'click'),
+        fromEvent($listViewTab, 'keydown').pipe(
+            map(e => (e as KeyboardEvent).code),
+            filter(code => code == 'Space' || code == 'Enter')
+        )
+    ).subscribe((e) => {
+        if ($listViewTab.getAttribute('aria-selected') != 'true') {
+            toggleTab($listViewTab, [$mapViewTab])
+            $mapView.classList.add('hidden')
+            $listView.classList.remove('hidden')
+        }
+    })
+
+    merge(
+        fromEvent($mapViewTab, 'click'),
+        fromEvent($mapViewTab, 'keydown').pipe(
+            map(e => (e as KeyboardEvent).code),
+            filter(code => code == 'Space' || code == 'Enter')
+        )
+    ).subscribe(() => {
+        if ($mapViewTab.getAttribute('aria-selected') != 'true') {
+            toggleTab($mapViewTab, [$listViewTab])
+            $listView.classList.add('hidden')
+            $mapView.classList.remove('hidden')
         }
     })
 

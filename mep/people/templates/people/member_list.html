@@ -71,25 +71,46 @@
         <output class="total-results" id="total">{{ members.count|intcomma }} total result{{ members.count|pluralize }}</output>
     </form>
 </div>
-<div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
-    <label>SORTED BY</label>
-    <label>DISPLAYING</label>
+<div class="tabs">
+    <div role="tablist" aria-label="views">
+        <button type="button" role="tab" class="tab" aria-selected="true"
+            aria-controls="list-view" id="list-view-tab">
+            List View
+        </button>
+        <button type="button" role="tab" class="tab" tabindex="-1"
+            aria-controls="map-view" id="map-view-tab">
+            Map View
+        </button>
+    </div>
+    {# list result view #}
+    <div tabindex="0" role="tabpanel" id="list-view"
+        aria-labelledby="list-view-tab">
+        <div class="upper-labels"> {# only shown on mobile & tablet before the user scrolls down #}
+            <label>SORTED BY</label>
+            <label>DISPLAYING</label>
+        </div>
+        <section class="members sort-pages">
+            <div class="inner">
+                <label class="sort">
+                    <span>SORTED BY</span>
+                    {% render_field form.sort form="members-form" %}
+                    {# no dropdown icon; this sort isn't user-controllable #}
+                </label>
+                <button type="submit" form="members-form">Go</button>
+                {% include 'snippets/pagination.html' with form_id="members-form" %}
+            </div>
+            <div class="outer">
+                {% include 'snippets/page-controls.html' %}
+            </div>
+        </section>
+        <output form="members-form" class="results" aria-live="polite" aria-labelledby="total">
+            {% include 'people/snippets/member_results.html' %}
+        </output>
+    </div>
+    {# map result view #}
+    <div tabindex="0" role="tabpanel" id="map-view"
+        aria-labelledby="map-view-tab" class="hidden">
+        <div id="address-map"></div>
+    </div>
 </div>
-<section class="members sort-pages">
-    <div class="inner">
-        <label class="sort">
-            <span>SORTED BY</span>
-            {% render_field form.sort form="members-form" %}
-            {# no dropdown icon; this sort isn't user-controllable #}
-        </label>
-        <button type="submit" form="members-form">Go</button>
-        {% include 'snippets/pagination.html' with form_id="members-form" %}
-    </div>
-    <div class="outer">
-        {% include 'snippets/page-controls.html' %}
-    </div>
-</section>
-<output form="members-form" class="results" aria-live="polite" aria-labelledby="total">
-    {% include 'people/snippets/member_results.html' %}
-</output>
 {% endblock %}
