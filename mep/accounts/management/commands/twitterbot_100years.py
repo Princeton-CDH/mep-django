@@ -109,8 +109,8 @@ def work_label(work):
     else:
         parts.append('“%s”' % work.title)
 
-    # include work if known (TODO: and not pre-modern?)
-    if work.year:
+    # include work year if known not before 1500
+    if work.year and work.year > 1500:
         parts.append('(%s)' % work.year)
 
     return ' '.join(parts)
@@ -122,10 +122,12 @@ def card_url(member, ev):
     if ev.event_footnotes.exists():
         footnote = ev.event_footnotes.first()
 
-    if not footnote and ev.event_type == 'Borrow' and ev.borrow.footnotes.exists():
+    if not footnote and ev.event_type == 'Borrow' and \
+       ev.borrow.footnotes.exists():
         footnote = ev.borrow.footnotes.first()
 
-    if not footnote and ev.event_type == 'Purchase' and ev.purchase.footnotes.exists():
+    if not footnote and ev.event_type == 'Purchase' and \
+       ev.purchase.footnotes.exists():
         footnote = ev.purchase.footnotes.first()
 
     if footnote and footnote.image:
