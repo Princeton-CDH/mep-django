@@ -1,8 +1,14 @@
-from django.test import TestCase
+import json
+from unittest.mock import MagicMock, Mock, patch
+
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 from mep.accounts.models import Account, Address
+from mep.accounts.queryset import AddressSolrQuerySet
+from mep.accounts.views import AddressList
 from mep.people.models import Location, Person
+from mep.people.queryset import PersonSolrQuerySet
 
 
 class TestAccountsViews(TestCase):
@@ -67,3 +73,72 @@ class TestAccountsViews(TestCase):
         assert 'results' in data
         assert len(data['results']) == 1
         assert data['results'][0]['text'] == 'Account #%s: %s' % (acc3.pk, hemier)
+
+
+class TestAddressListView(TestCase):
+    fixtures = ['sample_people']
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.view_url = reverse('accounts:members-addresses')
+
+    @patch('mep.accounts.views.AddressSolrQuerySet', spec=AddressSolrQuerySet)
+    def test_get_queryset(self, mock_solrqueryset):
+        mock_qs = mock_solrqueryset.return_value
+        # simulate fluent interface
+        for meth in ['facet_field', 'filter', 'only', 'search', 'also',
+                     'raw_query_parameters', 'order_by', 'all']:
+            getattr(mock_qs, meth).return_value = mock_qs
+        mock_qs.filter_qs = []
+
+        view = AddressList()
+        view.request = self.factory.get(self.view_url)
+
+        # returns solr queryset for members
+        members = view.get_queryset()
+        assert isinstance(members, PersonSolrQuerySet)
+        assert isinstance(view.addresses, AddressSolrQuerySet)
+
+        # no filters/search terms
+        assert not mock_qs.search.call_count
+        assert not mock_qs.raw_query_parameters.call_count
+        assert not mock_qs.filter_qs
+
+        # member filter refined
+        assert not members.facet_field_list  # no facets
+        assert members.search_qs[0].startswith('{!join')
+        assert len(members.field_list) == 4    # limited return field list
+
+        # with filter & search term
+        view = AddressList()
+        view.request = self.factory.get(
+            self.view_url, {'has_card': 'on', 'query': 'hemi'})
+        members = view.get_queryset()
+        mock_qs.search.assert_called_with(
+            '{!join from=slug_s to=member_slug_ss v=$name_q}')
+        mock_qs.raw_query_parameters.assert_called_with(
+            name_q='name_t:(hemi) OR sort_name_t:(hemi) OR name_ngram:(hemi)')
+        assert mock_qs.filter_qs[0].startswith(
+            '{!join from=slug_s to=member_slug_ss}')
+
+    def test_render_to_response(self):
+        view = AddressList()
+        view.request = self.factory.get(self.view_url)
+        view.object_list = Mock()
+        view.object_list.count.return_value = 2
+        mock_member_results = [
+            {'slug': 'ann', 'name': 'Ann'},
+            {'slug': 'jon', 'name': 'Jon'},
+        ]
+        view.object_list.get_results.return_value = mock_member_results
+        view.addresses = MagicMock()
+        view.addresses.count.return_value = 3
+        response = view.render_to_response(view.request)
+        # decode from binary to string then read as json
+        data = json.loads(response.content.decode())
+        assert data['numFound']['addresses'] == 3
+        assert data['numFound']['members'] == 2
+        assert 'addresses' in data
+        # member data as dict keyed on slug
+        assert data['members']['ann'] == mock_member_results[0]
+        assert data['members']['jon'] == mock_member_results[1]

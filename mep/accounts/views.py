@@ -69,7 +69,7 @@ class AddressList(MembersList):
                 'addresses': self.addresses.count(),
                 'members': self.object_list.count()
             },
-            'addresses': list(self.addresses.get_results(rows=10000)),
+            'addresses': list(self.addresses),
             'members': members
         })
 
