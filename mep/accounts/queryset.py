@@ -17,5 +17,5 @@ class AddressSolrQuerySet(AliasedSolrQuerySet):
         'latitude': 'latitude_f',
         'longitude': 'longitude_f',
         'member_slugs': 'member_slug_ss',
-        'arrondissement_i': 'arrondissement'
+        'arrondissement': 'arrondissement_i'
     }
