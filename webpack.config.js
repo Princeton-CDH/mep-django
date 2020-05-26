@@ -15,7 +15,10 @@ module.exports = env => ({
             './ts/main.ts', // main site script
             './scss/main.scss' // site styles
         ],
-        memberSearch: './ts/members-search.ts',
+        memberSearch: [
+            path.resolve(__dirname, 'node_modules/leaflet/dist/leaflet.css'),
+            './ts/members-search.ts',
+        ],
         memberMap: [
             path.resolve(__dirname, 'node_modules/leaflet/dist/leaflet.css'),
             './ts/members-map.ts',

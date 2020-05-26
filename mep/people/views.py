@@ -20,11 +20,12 @@ from djiffy.models import Canvas
 
 from mep.accounts.models import Address, Event
 from mep.accounts.templatetags.account_tags import as_ranges
+from mep.accounts.views import AddressMapMixin
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
 from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, SolrLastModifiedMixin,
-                              LoginRequiredOr404Mixin, RdfViewMixin)
+                              LabeledPagesMixin, LoginRequiredOr404Mixin,
+                              RdfViewMixin, SolrLastModifiedMixin)
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
@@ -32,7 +33,8 @@ from mep.people.queryset import PersonSolrQuerySet
 
 
 class MembersList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
-                  FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin):
+                  FormMixin, AjaxTemplateMixin, FacetJSONMixin, RdfViewMixin,
+                  AddressMapMixin):
     '''List page for searching and browsing library members.'''
     model = Person
     page_title = "Members"
@@ -274,7 +276,7 @@ class MemberLastModifiedListMixin(SolrLastModifiedMixin):
 
 
 class MemberDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,
-                   DetailView, RdfViewMixin):
+                   DetailView, RdfViewMixin, AddressMapMixin):
     '''Detail page for a single library member.'''
     model = Person
     template_name = 'people/member_detail.html'
@@ -358,30 +360,12 @@ class MemberDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,
             }
             for address in addresses]
 
-        # address of the lending library itself; automatically available from
-        # migration mep/people/migrations/0014_library_location.py
-        try:
-            library = Location.objects.get(name='Shakespeare and Company')
-            context['library_address'] = {
-                'name': library.name,
-                'street_address': library.street_address,
-                'city': library.city,
-                'latitude': str(library.latitude),
-                'longitude': str(library.longitude),
-            }
-        except Location.DoesNotExist:
-            # if we can't find library's address send 'null' & don't render it
-            context['library_address'] = None
-
         # text-only readable version of membership years for meta description
         membership_years = strip_tags(as_ranges(account_years)
                                       .replace('</span>', ',')).rstrip(',')
 
         # config settings used to render the map; set in local_settings.py
         context.update({
-            'mapbox_token': getattr(settings, 'MAPBOX_ACCESS_TOKEN', ''),
-            'mapbox_basemap': getattr(settings, 'MAPBOX_BASEMAP', ''),
-            'paris_overlay': getattr(settings, 'PARIS_OVERLAY', ''),
             'account_years': account_years,
             # metadata for social preview
             'page_title': self.object.firstname_last,

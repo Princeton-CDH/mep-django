@@ -1,5 +1,20 @@
-/* member address map */
+/* member address maps */
 
+// common map styles
+#address-map {
+    width: 100%;
+    height: 20.75rem;
+
+    @media (min-width: $breakpoint-s) {
+        height: 25.75rem;
+    }
+
+    @media (min-width: $breakpoint-m) {
+        height: 34.35rem;
+    }
+}
+
+// detail page map
 section[aria-label=map]  {
     margin-bottom: 2rem;
     z-index: 0; // strange bug...map will be on top of main menu when it's open unless this is set
@@ -13,19 +28,6 @@ section[aria-label=map]  {
     @media (max-width: calc(#{$breakpoint-s} - 1px)) {
         .header {
             @include container;
-        }
-    }
-
-    #address-map {
-        width: 100%;
-        height: 20.75rem;
-
-        @media (min-width: $breakpoint-s) {
-            height: 25.75rem;
-        }
-
-        @media (min-width: $breakpoint-m) {
-            height: 34.35rem;
         }
     }
 }

@@ -8,6 +8,11 @@
 
 {% block page-subtitle %}Library Members · {% endblock %}
 
+{# render leaflet css for map #}
+{% block vendorcss %}
+{% render_bundle 'memberSearch' 'css' %}
+{% endblock %}
+
 {% block header %}
 {% include 'snippets/header.html' with title="members" style="search" %}
 {% endblock %}
@@ -110,7 +115,16 @@
     {# map result view #}
     <div tabindex="0" role="tabpanel" id="map-view"
         aria-labelledby="map-view-tab" class="hidden">
-        <div id="address-map"></div>
+        <div id="address-map">
+            {# these will be accessible in the global scope via `declare` in .ts files #}
+            <script nonce="{{ request.csp_nonce }}">
+                var mapboxToken = "{{ mapbox_token }}";
+                var mapboxBasemap = "{{ mapbox_basemap }}";
+                var parisOverlay = "{{ paris_overlay }}";
+            </script>
+            {# this is scraped by the map initialization code #}
+            {{ library_address|json_script:"library-address"}}
+        </div>
     </div>
 </div>
 {% endblock %}

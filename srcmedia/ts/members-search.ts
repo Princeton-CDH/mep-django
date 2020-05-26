@@ -10,6 +10,7 @@ import { RxChoiceFacet, RxBooleanFacet, RxTextFacet } from './lib/facet'
 import { RxRangeFilter, rangesAreEqual } from './lib/filter'
 import ActiveFilters from "./components/ActiveFilters"
 import PageControls from './components/PageControls'
+import MemberSearchMap from "./components/MemberSearchMap"
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -37,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const $mapViewTab = document.getElementById('map-view-tab') as HTMLButtonElement
     const $listView = document.getElementById('list-view') as HTMLDivElement
     const $mapView = document.getElementById('map-view') as HTMLDivElement
+    const $map = document.getElementById('address-map') as HTMLDivElement
     const bottomOfForm = $membersSearchForm.getBoundingClientRect().bottom
 
     /* COMPONENTS */
@@ -54,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nationalityFacet = new RxTextFacet($nationalityFacet)
     const arrondissementFacet = new RxTextFacet($arrondissementFacet)
     const activeFilters = new ActiveFilters($activeFilters)
+    const memberMap = new MemberSearchMap($map)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(

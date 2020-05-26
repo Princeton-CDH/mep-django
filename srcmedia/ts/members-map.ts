@@ -1,17 +1,6 @@
-import { map, icon, marker, tileLayer, control, featureGroup, PopupEvent } from 'leaflet'
-import { TiledMapLayer } from 'esri-leaflet'
+import { map, marker, control, featureGroup, PopupEvent } from 'leaflet'
 
-// map data - defined in the global scope outside this module, in the template
-type Address = {
-    name?: string,
-    street_address: string,
-    city: string,
-    postal_code?: number,
-    latitude: number,
-    longitude: number,
-    start_date?: string,
-    end_date?: string,
-}
+import { Address, getMapboxBasemap, getParisTileLayer, bookstoreIcon, addressIconActive, addressIconInactive, popupText } from './lib/map'
 
 const addressDataElement = document.getElementById('address-data') as HTMLElement
 const addressData = JSON.parse(addressDataElement.textContent || '') as Array<Address>
@@ -24,48 +13,22 @@ declare const mapboxToken: string
 declare const mapboxBasemap: string
 declare const parisOverlay: string
 
-/*
- * map object with custom zoom control in bottom right
- */
+// map object with custom zoom control in bottom right
 const target = document.getElementById('address-map') as HTMLDivElement
 const addressMap = map(target, { zoomControl: false })
 const zoomControl = control.zoom({ position: 'bottomright' })
-
 zoomControl.addTo(addressMap)
 
-/*
-* basic tiled basemap from mapbox
-*/
-const basemap = tileLayer(`https://api.mapbox.com/styles/v1/mapbox/${mapboxBasemap}/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`, {
-    attribution: 'Tiles <a href="https://apps.mapbox.com/feedback/">Mapbox</a>, <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-})
+// simple global basemap from mapbox
+getMapboxBasemap(mapboxBasemap, mapboxToken).addTo(addressMap)
 
-basemap.addTo(addressMap)
+// historic map of paris overlay
+getParisTileLayer(parisOverlay).addTo(addressMap)
 
-/*
- * historic map of paris overlay
- */
-const parisTiles = new TiledMapLayer({
-    url: parisOverlay,
-    attribution: '<a href="https://maps.princeton.edu/catalog/princeton-2r36tz994">Princeton University Library</a>',
-})
-
-parisTiles.addTo(addressMap)
-
-/*
- * bookstore icon + marker on map
- */
-
+// bookstore icon + marker on map
 let bookstoreMarker
 
 if (libraryAddress) { // only add if data is available
-
-    const bookstoreIcon = icon({
-        iconUrl: '/static/img/icons/bookstore-pin.svg',
-        iconSize: [46, 62],
-        iconAnchor: [23, 62],
-        popupAnchor: [0, -60]
-    })
 
     bookstoreMarker = marker([libraryAddress.latitude, libraryAddress.longitude], {
         icon: bookstoreIcon,
@@ -73,33 +36,7 @@ if (libraryAddress) { // only add if data is available
     })
 
     bookstoreMarker.bindPopup(popupText(libraryAddress))
-
     bookstoreMarker.addTo(addressMap)
-}
-
-/*
- * address icons + markers on map
- */
-const addressIconInactive = icon({
-    iconUrl: '/static/img/icons/inactive-pin.svg',
-    iconSize: [46, 70],
-    iconAnchor: [23, 70],
-    popupAnchor: [0, -70]
-})
-
-const addressIconActive = icon({
-    iconUrl: '/static/img/icons/selected-pin.svg',
-    iconSize: [46, 70],
-    iconAnchor: [23, 70],
-    popupAnchor: [0, -70]
-})
-
-// generate a paragraph of text from the parts of the address to go in popup
-// NOTE not using date information currently, but it should be rendered as:
-// <span class="dates">1921-1941</span><p>...</p>
-function popupText ({ name, street_address, city, postal_code }: Address): string {
-    const parts = [name, street_address, postal_code, city].filter(p => !!p)
-    return `<p>${parts.join('<br/>')}</p>`
 }
 
 // handlers that switch the icon when popup is active
@@ -126,6 +63,7 @@ addressMarkers
 /*
  * set up initial zoom/view
  */
+
 // zoom to fit all markers
 const allMarkers = featureGroup([...addressMarkers])
 if (bookstoreMarker) allMarkers.addLayer(bookstoreMarker)
