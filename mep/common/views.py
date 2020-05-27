@@ -1,15 +1,48 @@
 import calendar
 
+import rdflib
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from django.utils.cache import get_conditional_response, patch_vary_headers
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
 from parasolr.django.queryset import SolrQuerySet
 from parasolr.utils import solr_timestamp_to_datetime
-import rdflib
 
+from mep.accounts.models import Location
 from mep.common import SCHEMA_ORG
 
+
+class AddressMapMixin(ContextMixin):
+    '''Adds values from local settings used to render leaflet address maps to
+    the view, along with the address info for the library itself.'''
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # add local settings values for basemaps & mapbox access token
+        context.update({
+            'mapbox_token': getattr(settings, 'MAPBOX_ACCESS_TOKEN', ''),
+            'mapbox_basemap': getattr(settings, 'MAPBOX_BASEMAP', ''),
+            'paris_overlay': getattr(settings, 'PARIS_OVERLAY', ''),
+        })
+
+        # address of the lending library itself; automatically available from
+        # migration mep/people/migrations/0014_library_location.py
+        try:
+            library = Location.objects.get(name='Shakespeare and Company')
+            context['library_address'] = {
+                'name': library.name,
+                'street_address': library.street_address,
+                'city': library.city,
+                'latitude': str(library.latitude),
+                'longitude': str(library.longitude),
+            }
+        except Location.DoesNotExist:
+            # if we can't find library's address send 'null' & don't render it
+            context['library_address'] = None
+
+        return context
 
 class LoginRequiredOr404Mixin(LoginRequiredMixin):
     '''Extend :class:`~django.contrib.auth.mixins.LoginRequiredMixin`

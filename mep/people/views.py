@@ -20,12 +20,12 @@ from djiffy.models import Canvas
 
 from mep.accounts.models import Address, Event
 from mep.accounts.templatetags.account_tags import as_ranges
-from mep.accounts.views import AddressMapMixin
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, LoginRequiredOr404Mixin,
-                              RdfViewMixin, SolrLastModifiedMixin)
+from mep.common.views import (AddressMapMixin, AjaxTemplateMixin,
+                              FacetJSONMixin, LabeledPagesMixin,
+                              LoginRequiredOr404Mixin, RdfViewMixin,
+                              SolrLastModifiedMixin)
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person

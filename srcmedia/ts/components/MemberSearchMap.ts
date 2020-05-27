@@ -1,22 +1,39 @@
-import { map, Map, control, marker, Marker, featureGroup, PopupEvent, markerClusterGroup } from 'leaflet'
+import { map, Map, control, marker, Marker, featureGroup, PopupEvent, markerClusterGroup, MarkerClusterGroup } from 'leaflet'
 import 'leaflet.markercluster'
 
 import { Address, getMapboxBasemap, getParisTileLayer, bookstoreIcon, addressIconActive, addressIconInactive, popupText } from '../lib/map'
-import addressData from '../lib/map-data'
+import { ajax } from '../lib/common'
 
 declare const mapboxToken: string
 declare const mapboxBasemap: string
 declare const parisOverlay: string
 
+type Member = {
+    slug: string,
+    has_card: boolean,
+    sort_name: string[],
+    account_years: string
+}
+
+type AddressSolrResults = {
+    numFound: {
+        addresses: number,
+        members: number,
+    },
+    addresses: Address[],
+    members: {
+        [slug: string]: Member
+    }
+}
+
 export default class MemberSearchMap {
 
-    private readonly ADDRESS_DATA_URL: '/foo'
+    private readonly ENDPOINT = '/accounts/addresses/'
 
     private map: Map
     private library: Address
     private libraryMarker: Marker
-    private addresses: Address[]
-    private addressMarkers: Marker[]
+    private addressMarkers: MarkerClusterGroup
 
     // TODO
     /*
@@ -39,9 +56,16 @@ export default class MemberSearchMap {
                 getParisTileLayer(parisOverlay)
             ]
         })
+
         control.zoom({ position: 'bottomright' }).addTo(this.map)
+        this.map.scrollWheelZoom.disable()
 
         // add all active address markers
+        this.addressMarkers = markerClusterGroup({
+            showCoverageOnHover: false,
+            maxClusterRadius: 40,
+        })
+        this.map.addLayer(this.addressMarkers)
         this.update()
 
         // add library marker on top of address markers
@@ -53,43 +77,23 @@ export default class MemberSearchMap {
         .addTo(this.map)
     }
 
-    update() {
-        // TODO hit the URL for data
-        const { addresses, members } = addressData
+    async update() {
+        return fetch(location.origin + this.ENDPOINT, ajax)
+            .then(response => response.json())
+            .then((data: AddressSolrResults) => {
+                const addressMarkers = data.addresses.map(address => {
+                    const addressMarker = marker(
+                        [address.latitude, address.longitude],
+                        { icon: addressIconInactive } 
+                    )
+                    return addressMarker.bindPopup(popupText(address))
+                })
 
-        this.addressMarkers = addresses.map((address: Address) => {
-
-            const addrMarker: Marker = marker(
-                [address.latitude, address.longitude],
-                { icon: addressIconInactive }
-            )
-            
-            addrMarker.bindPopup(popupText(address))
-            /*
-            if (address.member_slugs) {
-                //@ts-ignore
-                let member = members[address.member_slugs[0]]
-                if (member && member.sort_name) {
-                    addrMarker.bindTooltip(member.sort_name, { permanent: true })
-                    addrMarker.openTooltip()
-                }
-            }
-            */
-
-            return addrMarker
-        })
-
-        const group = markerClusterGroup({
-            showCoverageOnHover: false,
-            maxClusterRadius: 40,
-        })
-
-        this.addressMarkers
-            .map(m => m.on('popupopen', this.onPopupOpen))
-            .map(m => m.on('popupclose', this.onPopupClose))
-            .map(m => group.addLayer(m))
-
-        this.map.addLayer(group)
+                addressMarkers
+                    .map(m => m.on('popupopen', this.onPopupOpen))
+                    .map(m => m.on('popupclose', this.onPopupClose))
+                    .map(m => this.addressMarkers.addLayer(m))
+            })
     }
 
     private onPopupOpen(event: PopupEvent) {
