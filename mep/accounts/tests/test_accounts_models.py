@@ -594,6 +594,10 @@ class TestEvent(TestCase):
         # other event types should still come through
         subs = Subscription.objects.create(account=self.account)
         assert subs.event_ptr.event_label == 'Subscription'
+        # but notation takes precedence over type
+        borrow = Borrow.objects.create(account=self.account)
+        borrow.notes = 'NOTATION: SOLDFOR'
+        assert borrow.event_label == 'Purchase'
 
 
 class TestEventQuerySet(TestCase):

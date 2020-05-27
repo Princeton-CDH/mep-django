@@ -345,7 +345,8 @@ class Event(Notable, PartialDateMixin):
     def event_label(self):
         '''Event type label that includes nonstandard events indicated
         by notation in private notes as well as all the standard types.'''
-        if self.event_type == 'Generic':
+        # NOTE: takes precedence over generic type if it occurs
+        if self.notes:
             match = re.search(self.re_nonstandard_notation, self.notes)
             if match:
                 return self.nonstandard_notation[match.group(0)]
