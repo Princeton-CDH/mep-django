@@ -53,13 +53,13 @@ class AddressList(MembersList):
         # - only return fields needed for member tile display
         members = members.facet() \
             .search('{!join to=slug_s from=member_slug_ss}*:*') \
-            .only('sort_name', 'account_years', 'has_card', 'slug')
+            .only('sort_name', 'account_years', 'has_card', 'slug', 'care_of')
 
         self.addresses = addresses
         return members
 
     def render_to_response(self, request, *args, **kwargs):
-        # convert member results from Slor into a dictionary keyed on slug
+        # convert member results from Solr into a dictionary keyed on slug
         members = dict((m['slug'], m) for m in
                        self.object_list.get_results(rows=10000))
         # TODO:

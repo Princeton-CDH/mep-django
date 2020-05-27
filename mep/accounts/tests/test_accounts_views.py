@@ -107,7 +107,7 @@ class TestAddressListView(TestCase):
         # member filter refined
         assert not members.facet_field_list  # no facets
         assert members.search_qs[0].startswith('{!join')
-        assert len(members.field_list) == 4    # limited return field list
+        assert len(members.field_list) == 5    # limited return field list
 
         # with filter & search term
         view = AddressList()

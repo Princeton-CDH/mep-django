@@ -520,6 +520,7 @@ class TestAddress(TestCase):
         assert data['latitude_f'] == str(self.address.location.latitude)
         assert data['longitude_f'] == str(self.address.location.longitude)
         assert data['member_slug_ss'] == []
+        assert data['care_of_s'] == ''
 
         # no lat/long - should not return index data
         # assert 'item_type' not in data
@@ -531,10 +532,13 @@ class TestAddress(TestCase):
         # add people to account and check that both slugs are included
         pers1 = Person.objects.create(name='Foobar', slug='foo')
         pers2 = Person.objects.create(name='Bazbar', slug='bazbar')
+        co_pers = Person.objects.create(name='Richard Cox', slug='cox')
         self.address.account.persons.add(pers1, pers2)
+        self.address.care_of_person = co_pers
         data = self.address.index_data()
         assert pers1.slug in data['member_slug_ss']
         assert pers2.slug in data['member_slug_ss']
+        assert data['care_of_s'] == co_pers.name
 
         # location with no lat/long
         location = Location.objects.create(name='Hôtel de la rue')

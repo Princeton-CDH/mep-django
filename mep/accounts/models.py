@@ -260,12 +260,8 @@ class Address(Notable, PartialDateMixin, ModelIndexable):
             'longitude_f': str(self.location.longitude),
             'member_slug_ss': [person.slug for person in
                                self.account.persons.all()],
-
-            # TODO: still needs:
-            # - care of name, if any
-            # - arrondissement number
-            # - associated dates if known
-            # - location id for grouping?
+            'care_of_s': self.care_of_person.name
+                          if self.care_of_person else '',
         })
         return index_data
 
