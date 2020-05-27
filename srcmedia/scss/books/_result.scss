@@ -22,6 +22,31 @@
     }
     dd.pubdate { margin-top: .5rem; }
 
+
+    @media (min-width: $breakpoint-s) {
+        .secondary {
+            /* constrain width for event dates */
+            max-width: 45%;
+        }
+    }
+
+    .circ {
+        text-align: right;
+
+
+    }
+
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+        .primary {
+            position: relative;
+        }
+        /* display *below* primary div on mobile to align with circulation */
+        .format {
+            position: absolute;
+            bottom: -1.9rem;
+        }
+    }
+
     // show the uncertainty icon if present
     &.uncertain {
 
