@@ -5,6 +5,8 @@
     // italicize titles in edition info
     .edition em { font-style: italic; }
 
+    .member a { display: block; }
+
     // mobile styles
     @media (max-width: calc(#{$breakpoint-s} - 1px)) {
 

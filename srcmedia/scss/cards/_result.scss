@@ -98,11 +98,13 @@ $card-width: 11.25rem;
     dd.name {
         font-family: $serif;
         font-size: 1.2rem;
+        padding-bottom: 0.1rem;
     }
 
     dd.card-dates {
         font-family: $sans;
         font-size: 0.82rem;
+        margin-top: 0.15rem;
     }
     .card-dates.unknown  {
         color: $mid-grey;
@@ -149,7 +151,7 @@ $card-width: 11.25rem;
 
         &:hover, &:focus  {
             border-bottom-color: $dark-green;
-            
+
             img {
                 opacity: 1;
             }
