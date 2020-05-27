@@ -128,7 +128,8 @@ class TestAddressListView(TestCase):
         view.object_list.count.return_value = 2
         mock_member_results = [
             {'slug': 'ann', 'name': 'Ann'},
-            {'slug': 'jon', 'name': 'Jon'},
+            {'slug': 'jon', 'name': 'Jon',
+             'account_years': [1919, 1920, 1930]},
         ]
         view.object_list.get_results.return_value = mock_member_results
         view.addresses = MagicMock()
@@ -142,3 +143,5 @@ class TestAddressListView(TestCase):
         # member data as dict keyed on slug
         assert data['members']['ann'] == mock_member_results[0]
         assert data['members']['jon'] == mock_member_results[1]
+        assert 'account_years' not in data['members']['ann']
+        assert data['members']['jon']['account_years'] == '1919 – 1920, 1930'

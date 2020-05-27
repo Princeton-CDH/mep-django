@@ -1,9 +1,11 @@
 from dal import autocomplete
 from django.db.models import Q
 from django.http import JsonResponse
+from django.utils.html import strip_tags
 
 from mep.accounts.models import Account
 from mep.accounts.queryset import AddressSolrQuerySet
+from mep.accounts.templatetags.account_tags import as_ranges
 from mep.people.views import MembersList
 
 
@@ -59,11 +61,16 @@ class AddressList(MembersList):
         return members
 
     def render_to_response(self, request, *args, **kwargs):
+        members = self.object_list.get_results(rows=10000)
+        # convert membership years into consolidated ranges for display
+        for m in members:
+            if 'account_years' in m:
+                m['account_years'] = strip_tags(
+                    as_ranges(m['account_years']).replace('</span>', ',')) \
+                    .rstrip(',')
+
         # convert member results from Solr into a dictionary keyed on slug
-        members = dict((m['slug'], m) for m in
-                       self.object_list.get_results(rows=10000))
-        # TODO:
-        # - if displaying consolidated membership years, convert here
+        members = dict((m['slug'], m) for m in members)
         return JsonResponse({
             'numFound': {
                 'addresses': self.addresses.count(),
