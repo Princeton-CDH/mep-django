@@ -17,6 +17,10 @@ module.exports = env => ({
         ],
         memberSearch: [
             path.resolve(__dirname, 'node_modules/leaflet/dist/leaflet.css'),
+            path.resolve(__dirname,
+                'node_modules/leaflet.markercluster/dist/MarkerCluster.css'),
+            path.resolve(__dirname,
+                    'node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css'),
             './ts/members-search.ts',
         ],
         memberMap: [

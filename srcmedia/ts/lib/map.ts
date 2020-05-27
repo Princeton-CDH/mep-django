@@ -38,16 +38,16 @@ export const bookstoreIcon = icon({
 
 export const addressIconInactive = icon({
     iconUrl: '/static/img/icons/inactive-pin.svg',
-    iconSize: [46, 70],
-    iconAnchor: [23, 70],
-    popupAnchor: [0, -70]
+    iconSize: [23, 35],
+    iconAnchor: [11.5, 35],
+    popupAnchor: [0, -35]
 })
 
 export const addressIconActive = icon({
     iconUrl: '/static/img/icons/selected-pin.svg',
-    iconSize: [46, 70],
-    iconAnchor: [23, 70],
-    popupAnchor: [0, -70]
+    iconSize: [23, 35],
+    iconAnchor: [11.5, 35],
+    popupAnchor: [0, -35]
 })
 
 // generate a paragraph of text from the parts of the address to go in popup
