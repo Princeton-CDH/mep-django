@@ -308,11 +308,7 @@ class MemberDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,
                 month_counts[event.end_date.strftime('%Y-%m-01')] += 1
 
         account_date_ranges = account.event_date_ranges()
-        account_years = set()   # initialize as empty set in case no dates
-        for start, end in account.event_date_ranges():
-            account_years = set(start.year for start, end
-                                in account_date_ranges) | \
-                set(end.year for start, end in account_date_ranges)
+        account_years = account.event_years
 
         # data for member timeline visualization
         context['timeline'] = {

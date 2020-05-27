@@ -38,6 +38,11 @@
             <dt class="pubdate">Publication Date</dt>
             <dd class="pubdate">{{ work.year }}</dd>
             {% endif %}
+            {# format #}
+            {% if work.work_format %}
+            <dt class="format">Format</dt>
+            <dd class="format">{{ work.work_format }}</dd>
+            {% endif %}
             {% if work.public_notes %}
             <div class="notes{% if work.is_uncertain %} uncertain{% endif %}">
                 <dt>Notes</dt>
@@ -46,11 +51,6 @@
             {% endif %}
         </div>
         <div class="secondary">
-        {# format #}
-        {% if work.work_format %}
-        <dt class="format">Format</dt>
-        <dd class="format">{{ work.work_format }}</dd>
-        {% endif %}
         {# link to read online #}
         {% if work.ebook_url %}
         <dt class="read-link">Link</dt>
@@ -58,6 +58,9 @@
             <a href="{{ work.ebook_url }}" target="_blank">Read online</a>
         </dd>
         {% endif %}
+        <dt class="circ">Circulation</dt>
+        <dd class="circ">{{ work.event_count }} event{{ work.event_count|pluralize }}</dd>
+        <dd class="circ">{{ work.event_years|as_ranges|default:'-' }}</dd>
         </div>
     </dl>
     {# volume/issue info #}
