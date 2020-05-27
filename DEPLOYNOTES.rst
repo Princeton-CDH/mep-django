@@ -6,8 +6,9 @@ Deploy and Upgrade notes
 1.1
 ---
 
-* Includes updates to Solr managed schema. Copy all files under `solr_conf/conf/`
-  to the configured Solr configset and restart Solr to ensure the managed schema is
+* Includes updates to Solr managed schema, and member addresses are now
+  indexed. Copy all files under `solr_conf/conf/` to the configured Solr
+  configset and restart Solr to ensure the managed schema is
   loaded. Then update the schema and reindex::
 
     python manage.py solr_schema
