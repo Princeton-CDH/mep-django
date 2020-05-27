@@ -1,25 +1,27 @@
 /* book detail list (<dl>) styles */
 
-dl.book {
-    // format heading is only shown to SRs
-    dt.format { @include sr-only; }
+section[aria-label='bibliography'] {
 
-    // small format "button" display
-    dd.format {
-        display: inline-block;
-        text-align: center;
-        vertical-align: middle;
-        font-size: 0.8rem;
-        padding: .4rem .5rem .25rem;
-        border: 1px solid $light-grey;
-        line-height: .75rem;
-        margin-top: 1.25rem;
-    }
+    dl.book {
+        // format heading is only shown to SRs
+        dt.format { @include sr-only; }
 
+        // small format "button" display
+        dd.format {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 0.8rem;
+            padding: .4rem .5rem .25rem;
+            border: 1px solid $light-grey;
+            line-height: .75rem;
+            margin-top: 1.25rem;
+        }
 
-    .circ {
-        .date-range {
-            display: block;
+        .circ {
+            .date-range {
+                display: block;
+            }
         }
     }
 }

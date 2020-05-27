@@ -33,6 +33,14 @@
     .circ {
         text-align: right;
 
+        .date-range {
+            white-space: nowrap;
+
+            /* separate date ranges with commas */
+            &:not(:last-child):after {
+              content: ", ";
+            }
+        }
 
     }
 
@@ -40,7 +48,8 @@
         .primary {
             position: relative;
         }
-        /* display *below* primary div on mobile to align with circulation */
+
+        /* display below the primary div on mobile to align with circulation */
         .format {
             position: absolute;
             bottom: -1.9rem;
