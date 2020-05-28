@@ -4,6 +4,8 @@ import { map, filter, distinctUntilChanged, withLatestFrom, skip } from 'rxjs/op
 import { RxCheckboxInput, RxNumberInput } from './input'
 import { Rx, animateElementContent, arraysAreEqual } from './common'
 
+export type Choice = [string, number]
+
 /**
  * A boolean (checkbox) facet that can update the count in its <label>.
  *

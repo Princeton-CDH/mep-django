@@ -163,6 +163,19 @@ function pluralize (n: number|string|Array<any>) {
 }
 
 /**
+ * Adds a suffix to a number to convert it to ordinal form (1st, 3rd, etc.)
+ * 
+ * @param n number to be converted
+ */
+function ordinalize (n: number) {
+    const j = n % 10, k = n % 100
+    if (j == 1 && k != 11) return n + "st"
+    if (j == 2 && k != 12) return n + "nd"
+    if (j == 3 && k != 13) return n + "rd"
+    return n + "th"
+}
+
+/**
  * Set the height of a set of sibling elements by traversing sibling pointers
  * recursively until all siblings have been reached.
  *
@@ -201,6 +214,7 @@ export {
     fakeToggle,
     toggleTab,
     pluralize,
+    ordinalize,
     setAllHeights,
     unslugify
 }
