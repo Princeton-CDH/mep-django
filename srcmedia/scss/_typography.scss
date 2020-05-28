@@ -135,15 +135,16 @@ h2.tagline {
     }
 }
 
+sup, sub {
+    font-size: small;
+    line-height: 0;
+}
 
 sup {
     vertical-align: super;
-    font-size: small;
 }
-
 sub {
     vertical-align: sub;
-    font-size: small;
 }
 
 code {
