@@ -164,7 +164,7 @@ function pluralize (n: number|string|Array<any>) {
 
 /**
  * Adds a suffix to a number to convert it to ordinal form (1st, 3rd, etc.)
- * 
+ *
  * @param n number to be converted
  */
 function ordinalize (n: number) {
