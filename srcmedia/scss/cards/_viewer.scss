@@ -61,8 +61,12 @@
             font-size: .75rem;
             color: $brownish-grey;
             position: absolute;
-            bottom: -1rem;
+            bottom: -0.35rem;
             right: 0;
+
+            @media (min-width: $breakpoint-s) {
+                bottom: -0.5rem;
+            }
         }
 
         .next,
