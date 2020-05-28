@@ -58,7 +58,8 @@ class Command(BaseExport):
          :class:`~mep.accounts.models.Event`'''
         event_type = obj.event_type
         data = OrderedDict([
-            ('event_type', event_type),
+            # use event label instead of type for more detail on some generics
+            ('event_type', obj.event_label),
             ('start_date', obj.partial_start_date or ''),
             ('end_date', obj.partial_end_date or ''),
             ('member', OrderedDict()),

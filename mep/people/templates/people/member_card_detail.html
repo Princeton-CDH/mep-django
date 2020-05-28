@@ -89,10 +89,10 @@
                 {{ event.work.title|default:'-' }}
                 </a>
             </td>
-            {% with event.event_type as event_type %}
-            <td class="activity{% if event_type == 'Generic' %} empty{% endif %}">
-                {% if event_type == 'Generic' %} -
-                {% else %}{{ event_type }}{% endif %}
+            {% with event.event_label as event_label %}
+            <td class="activity{% if event_label == 'Generic' %} empty{% endif %}">
+                {% if event_label == 'Generic' %} -
+                {% else %}{{ event_label }}{% endif %}
             </td>
             {% endwith %}
             <td class="end{% if not event.partial_end_date %} empty{% endif %}">
