@@ -26,15 +26,10 @@
         <span class="prev"></span>
         {% endif %}
         <a href="#zoom" aria-label="view larger image">
-        <picture>
+        <picture data-counter="{{ card_page.number }} / {{ card_page.paginator.num_pages }}">
         {% with card.image|iiif_image:"size:width=430" as 1xthumbnail %}
             <source srcset="{{ 1xthumbnail }}, {{ card.image|iiif_image:"size:width=860" }} 2x">
             <img src="{{ 1xthumbnail }}" alt="{{ member.firstname_last }} {{ label }} card" aria-describedby="card-counter">
-            <span id="card-counter" aria-hidden="true">
-                {{ card_page.number }}
-                <span aria-label="of">/</span>
-                {{ card_page.paginator.num_pages }}
-            </span>
         {% endwith %}
         </picture>
         </a>

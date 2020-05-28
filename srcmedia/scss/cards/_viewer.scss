@@ -12,7 +12,8 @@
 
         picture {
             position: relative;
-            padding-bottom: 1rem;
+            width: 100%;
+            height: 100%;
 
             @media (min-width: $breakpoint-s) {
                 width: 21.5rem;
@@ -20,19 +21,26 @@
                 min-height: 21.15rem;
             }
 
-            &::before {
-                /* provide a zoom hint for mobile/tablet */
-                content: "Tap image to zoom in/out";
+            &::before,
+            &::after {
                 display: block;
                 text-align: right;
                 font-size: 0.7rem;
+            }
+
+            /* provide a zoom hint for mobile/tablet */
+            &::before {
+                content: "Tap image to zoom in/out";
 
                 @media (min-width: $breakpoint-m) {
                     display: none;
                 }
             }
 
-
+            /* "1 of 2" counter text */
+            &::after {
+                content: attr(data-counter);
+            }
         }
 
         picture img {
@@ -61,11 +69,11 @@
             font-size: .75rem;
             color: $brownish-grey;
             position: absolute;
-            bottom: -0.35rem;
+            // bottom: -0.35rem;
             right: 0;
 
             @media (min-width: $breakpoint-s) {
-                bottom: -0.5rem;
+                // bottom: -0.5rem;
             }
         }
 
