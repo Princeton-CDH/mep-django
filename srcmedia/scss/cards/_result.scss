@@ -157,7 +157,11 @@ $card-width: 11.25rem;
             }
         }
 
-
+        .logo {
+            &:hover, a:focus & {
+                filter: grayscale(100%) brightness(60%);
+            }
+        }
     }
 
     img {
@@ -174,14 +178,9 @@ $card-width: 11.25rem;
             height: 1.25rem;
             filter: grayscale(100%) brightness(30%);
 
-            &:hover, a:focus & {
-                filter: grayscale(100%) brightness(60%);
-            }
-
             @media (max-width: $breakpoint-s) {
                 height: 1rem;
             }
-
         }
     }
 }
