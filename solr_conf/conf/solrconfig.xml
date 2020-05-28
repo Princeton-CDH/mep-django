@@ -767,9 +767,11 @@
 
       <!-- bib metadata search pseudo field for books -->
       <str name="bib_qf">
-        authors_t^200
-        title_t^60
+        authors_txt_en_nostem^200
+        title_txt_en_nostem^60
         title_txt_en^40
+        authors_t
+        title_t
         creators_t^20
         format_s_lower^10
         notes_txt_en
