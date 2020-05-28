@@ -1,12 +1,12 @@
 import { merge, fromEvent } from 'rxjs'
 import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, flatMap, skip, tap } from 'rxjs/operators'
 
-import { arraysAreEqual, toggleTab, pluralize } from './lib/common'
+import { arraysAreEqual, toggleTab, pluralize, ordinalize } from './lib/common'
 import { RxTextInput } from './lib/input'
 import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
 import { RxSelect } from './lib/select'
-import { RxChoiceFacet, RxBooleanFacet, RxTextFacet } from './lib/facet'
+import { RxChoiceFacet, RxBooleanFacet, RxTextFacet, Choice } from './lib/facet'
 import { RxRangeFilter, rangesAreEqual } from './lib/filter'
 import ActiveFilters from "./components/ActiveFilters"
 import PageControls from './components/PageControls'
@@ -163,8 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
     )
     const arrondissementChoices = membersSearchForm.facets.pipe(
         pluck('facet_fields'),
-        pluck('arrondissements'),
+        pluck('arrondissement'),
         flatMap(Object.entries),
+        // make sure arr. names are ordinalized, e.g. "1st"
+        map((c: Choice) => {
+            c[0] = ordinalize(parseInt(c[0], 10))
+            return c
+        })
     )
 
     /* SUBSCRIPTIONS */
