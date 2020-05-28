@@ -28,7 +28,10 @@ declare const parisOverlay: string
  * map object with custom zoom control in bottom right
  */
 const target = document.getElementById('address-map') as HTMLDivElement
-const addressMap = map(target, { zoomControl: false })
+const addressMap = map(target, {
+    zoomControl: false,
+    scrollWheelZoom: false
+})
 const zoomControl = control.zoom({ position: 'bottomright' })
 
 zoomControl.addTo(addressMap)
