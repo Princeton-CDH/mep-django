@@ -22,7 +22,7 @@
 
             &::before {
                 /* provide a zoom hint for mobile/tablet */
-                content: "Tap on image to zoom in/out";
+                content: "Tap image to zoom in/out";
                 display: block;
                 text-align: right;
                 font-size: 0.7rem;
@@ -118,7 +118,9 @@
 
         a {
             text-decoration: none;
-            cursor: zoom-in;
+            &[href='#zoom'] {
+                cursor: zoom-in;
+            }
         }
     }
 
@@ -329,7 +331,6 @@
     text-align: center;
     vertical-align: middle;
     background: $white;
-    // background: $white-two;
     z-index: -1;
     overflow: hidden;
     display: flex;
