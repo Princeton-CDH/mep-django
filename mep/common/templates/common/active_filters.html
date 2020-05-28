@@ -10,7 +10,7 @@
             {% formfield_selected_filter field %}
             {% endif %}
         {% endfor %}
-        {% querystring_minus "membership_dates_0" "membership_dates_1" "has_card" "birth_year_0" "birth_year_1" as clear_qs %}
+        {% querystring_only "query" "sort" as clear_qs %}
         <a href="?{{ clear_qs.urlencode }}" class="clear-all">Clear All</a>
     </div>
     {% endspaceless %}
