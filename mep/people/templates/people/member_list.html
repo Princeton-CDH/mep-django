@@ -92,4 +92,18 @@
 <output form="members-form" class="results" aria-live="polite" aria-labelledby="total">
     {% include 'people/snippets/member_results.html' %}
 </output>
+
+<noscript>
+    {# demographics tab doesn't work without javascript; always show if disabled #}
+    <style type="text/css">
+    #demographics-panel {
+        display: block;
+        max-height: 13.5rem;
+        border-color: #07ae79;
+    }
+    .tab::after {  {# suppress toggle arrow #}
+        display: none;
+    }
+    </style>
+</noscript>
 {% endblock %}

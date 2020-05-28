@@ -466,6 +466,15 @@ def test_querystring_minus():
     assert qs == QueryDict()
 
 
+def test_querystring_only():
+    querystring = QueryDict('a=1&b=2&c=3')
+    context = {'request': Mock(GET=querystring)}
+    qs = mep_tags.querystring_only(context, 'a', 'c')
+    assert qs == QueryDict('a=1&c=3')
+    qs = mep_tags.querystring_only(context, 'b')
+    assert qs == QueryDict('b=2')
+
+
 def test_formfield_selected_filter():
     form = MemberSearchForm(data={
         'has_card': 1,

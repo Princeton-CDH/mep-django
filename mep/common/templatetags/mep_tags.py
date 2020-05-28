@@ -69,12 +69,27 @@ def querystring_remove(querystring, *keys, **kwargs):
 
 @register.simple_tag(takes_context=True)
 def querystring_minus(context, *keys):
-    '''Return the current request querystring with the specifield keys
+    '''Return the current request querystring with the specified keys
     removed. Example usage::
 
         {% querystring_minus "query" "sort" "page" %}
     '''
     return querystring_remove(context['request'].GET.copy(), *keys)
+
+
+@register.simple_tag(takes_context=True)
+def querystring_only(context, *keys):
+    '''Return the current request querystring with only the specified keys
+    retained. Example usage::
+
+        {% querystring_keep "query" "sort" "page" %}
+    '''
+    qs = context['request'].GET.copy()
+    # if not in the list to be preserved, remove it
+    for key in qs.dict().keys():
+        if key not in keys:
+            del qs[key]
+    return qs
 
 
 @register.simple_tag(takes_context=True)
