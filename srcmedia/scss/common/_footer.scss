@@ -156,22 +156,11 @@
             }
         }
 
-        #a11y {
-            padding-bottom: .5rem;
-
-            @media(min-width: $breakpoint-s) {
-                padding-bottom: 0;
-                flex: none;
-            }
-        }
-
         #a11y-assist {
-            text-align: right;
+            text-align: left;
 
             @media (min-width: $breakpoint-s) {
-                text-align: left;
                 flex: none;
-                margin-left: 2rem;
             }
         }
 
