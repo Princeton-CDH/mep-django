@@ -1693,9 +1693,6 @@ class TestMemberCardDetail(TestCase):
         self.assertContains(response, '<li class="card active">')
         # descriptive alt for current card
         self.assertContains(response, 'alt="Gertrude Stein 1921 card"')
-        # current card/total counter is rendered
-        self.assertContains(response, '2<span aria-label="of">/</span>4',
-                            html=True)
 
         # cards nav
         for i, card in enumerate(context['cards'].all()):
