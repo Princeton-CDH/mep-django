@@ -441,7 +441,7 @@
     </fieldType>
 
     <!-- A text field with defaults appropriate for English but no stemming. -->
-    <dynamicField name="*_txt_en_nostem" type="text_en_nostem" indexed="true"  stored="false"/>
+    <dynamicField name="*_txt_en_nostem" type="text_en_nostem" indexed="true"  stored="false" multiValued="true"/>
     <fieldType name="text_en_nostem" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
         <tokenizer class="solr.StandardTokenizerFactory"/>
