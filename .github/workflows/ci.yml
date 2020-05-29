@@ -1,0 +1,51 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+
+    py-unit:
+        name: Python unit tests
+        runs-on: ubuntu-latest
+        steps:
+
+        - name: Checkout repository
+          uses: actions/checkout@v2
+
+        - name: Setup Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.5
+
+        - name: Install dependencies
+          run: |
+            pip install -r requirements.txt`
+            pip install -r dev-requirements.txt
+
+        - name: Setup local_settings.py
+          run: |
+            cp ci/testsettings.py mep/local_settings.py
+            python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
+
+        - name: Run pytest
+          run: py.test --cov=mep
+
+        - name: Upload test coverage to Codecov
+          uses: codecov/codecov-action@v1
+
+    ts-unit:
+        name: TypeScript unit tests
+        runs-on: ubuntu-latest
+        steps:
+
+        - name: Checkout repository
+          uses: actions/checkout@v2
+
+        - name: Install dependencies
+          run: npm ci
+
+        - name: Run Jest
+          run: npx jest --collectCoverage
+
+        - name: Upload test coverage to Codecov
+          uses: codecov/codecov-action@v1
