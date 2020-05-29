@@ -13,7 +13,7 @@ DATABASES = {
         # Django needs to make databases in the test mysql server
         'NAME': 'travismep',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'root',
         'HOST': '127.0.0.1',
         'OPTIONS': {
             # In each case, we want strict mode on to catch truncation issues
