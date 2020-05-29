@@ -49,6 +49,7 @@
 
             .start:not(.empty) + .end:not(.empty)::before {
                 content: '';
+                display: none;
             }
         }
     }
