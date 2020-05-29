@@ -3,6 +3,34 @@
 CHANGELOG
 =========
 
+1.1
+---
+
+* As a user, I want to see larger size card images so that I can look at cards in more detail and decipher difficult handwriting.
+* As a user, I want to see circulation information on book search and detail pages so I understand how much and when a book circulated.
+* As a user, I want to see event labels for non-standard book events in the borrowing activity table and event data download so I know what the data represents.
+* As a content editor, I want to add basic formatting to public notes so that I can differentiate titles from authors and dates.
+* As a user I want to see addresses on member maps with arrondissements instead of postal codes, so that I see them in an historically accurate format.
+* As a user, I want to filter on members with "Unidentified" nationality so I can see how many members do not have nationality documented and can find them.
+* Match searches for author and member initials with and without spaces
+
+other improvements
+~~~~~~~~~~~~~~~~~~
+* bugfix: arrondissement facet counts on member page never change
+* bugfix: atypical card images are displayed incorrectly
+* bugfix: display both names for joint accuonts on book circulation lists
+* bugfix: member data export does not include postal code / arrondissement
+* bugfix: member search results have blank aria-label
+* bugfix: empty facets result in a 500 error on member search page
+* accessibility: leaflet maps are scroll traps
+* accessibiity: missing heading for home page
+* design fix: correct placement for nationality link icon
+* design fix: link styles for icons on the card gallery and card image viewer pages
+* design fix: correct pacing for public notes on book pages
+* design fix: make all the link styles 2px wide
+* design fix: Breadcrumbs should show current page unless 4th level deep
+
+
 1.0.1
 -----
 
