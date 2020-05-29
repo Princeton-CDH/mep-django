@@ -7,10 +7,13 @@ jobs:
   build-static:
     name: Build static files
     runs-on: ubuntu-latest
-    container: node:10
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+    - name: Setup node
+      uses: actions/setup-node@v2-beta
+      with:
+        node-version: 10
     - name: Cache node modules
       uses: actions/cache@v2
       with:
@@ -37,10 +40,13 @@ jobs:
   ts-unit:
     name: TypeScript unit tests
     runs-on: ubuntu-latest
-    container: node:10
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+    - name: Setup node
+      uses: actions/setup-node@v2-beta
+      with:
+        node-version: 10
     - name: Cache node modules
       uses: actions/cache@v2
       with:
@@ -104,6 +110,7 @@ jobs:
     - name: Create solr core
       run: |
         docker cp ./solr_conf ${{ job.services.index.id }}:/opt/solr/server/solr/configsets/sandco
+        docker exec ${{ job.services.index.id }} chown -R solr:solr /opt/solr/server/solr/configsets/sandco
         python manage.py solr_schema --noinput
     - name: Run pytest
       run: py.test --cov=./ --cov-report=xml
@@ -116,6 +123,18 @@ jobs:
     name: Accessibility tests
     needs: build-static
     runs-on: ubuntu-latest
+    services:
+      db:
+        image: mariadb
+        env:
+          MYSQL_DATABASE: sandco
+          MYSQL_ROOT_PASSWORD: sandco
+        ports:
+        - 3306:3306
+      index:
+        image: solr:6
+        ports:
+        - 8983:8983
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -123,10 +142,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.5
-    - name: Setup Java
-      uses: actions/setup-java@v1
-      with:
-        java-version: 8
     - name: Cache pip
       uses: actions/cache@v2
       with:
@@ -144,18 +159,14 @@ jobs:
       run: |
         cp ci/testsettings.py mep/local_settings.py
         python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
-    - name: Create test database
-      run: |
-        sudo service mysql start
-        mysql -u root -proot -e "create database travismep";
-        mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -proot mysql
     - name: Download webpack bundle
       uses: actions/download-artifact@v2
       with:
         name: webpack-bundle
-    - name: Install and configure Solr
+    - name: Create solr core
       run: |
-        bash ci/config_solr.sh
+        docker cp ./solr_conf ${{ job.services.index.id }}:/opt/solr/server/solr/configsets/sandco
+        docker exec ${{ job.services.index.id }} chown -R solr:solr /opt/solr/server/solr/configsets/sandco
         python manage.py solr_schema --noinput
     - name: Migrate database
       run: python manage.py migrate
