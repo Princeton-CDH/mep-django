@@ -172,6 +172,7 @@ jobs:
       run: |
         pip install -r requirements.txt
         pip install -r dev-requirements.txt
+        npm install pa11y-ci
 
     - name: Setup local_settings.py
       run: |
