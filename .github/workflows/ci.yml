@@ -100,7 +100,7 @@ jobs:
             name: webpack-bundle
 
         - name: Run pytest
-          run: py.test --cov=mep
+          run: py.test --cov=./ --cov-report=xml
 
         - name: Upload test coverage to Codecov
           uses: codecov/codecov-action@v1
