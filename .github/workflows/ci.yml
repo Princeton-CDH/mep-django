@@ -104,6 +104,8 @@ jobs:
 
         - name: Upload test coverage to Codecov
           uses: codecov/codecov-action@v1
+          with:
+            flags: python
 
     ts-unit:
         name: TypeScript unit tests
@@ -135,3 +137,5 @@ jobs:
 
         - name: Upload test coverage to Codecov
           uses: codecov/codecov-action@v1
+          with:
+            flags: typescript
