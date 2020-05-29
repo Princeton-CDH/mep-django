@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.people.models &#8212; mep-django 1.0.0 documentation</title>
+    <title>mep.people.models &#8212; mep-django 1.1.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -35,13 +35,13 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">django.apps</span> <span class="k">import</span> <span class="n">apps</span>
-<span class="kn">from</span> <span class="nn">django.contrib.humanize.templatetags.humanize</span> <span class="k">import</span> <span class="n">ordinal</span>
 <span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericRelation</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ValidationError</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">transaction</span>
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">timezone</span>
+<span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="k">import</span> <span class="n">mark_safe</span>
 <span class="kn">from</span> <span class="nn">parasolr.django.indexing</span> <span class="k">import</span> <span class="n">ModelIndexable</span>
 <span class="kn">from</span> <span class="nn">viapy.api</span> <span class="k">import</span> <span class="n">ViafEntity</span>
 
@@ -134,7 +134,15 @@
             <span class="k">if</span> <span class="n">prefix</span> <span class="o">==</span> <span class="s1">&#39;750&#39;</span> <span class="ow">or</span> <span class="n">prefix</span> <span class="o">==</span> <span class="s1">&#39;751&#39;</span><span class="p">:</span>  <span class="c1"># postcode n paris proper</span>
                 <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postal_code</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>  <span class="c1"># use last two digits</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">None</span></div></div>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Location.arrondissement_ordinal"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Location.arrondissement_ordinal">[docs]</a>    <span class="k">def</span> <span class="nf">arrondissement_ordinal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Arrondissement in Frech ordinal notation, with superscript.&#39;&#39;&#39;</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrondissement</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;er&#39;</span> <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;e&#39;</span>
+            <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">&lt;sup&gt;</span><span class="si">%s</span><span class="s1">&lt;/sup&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">suffix</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span></div></div>
 
 
 <div class="viewcode-block" id="Profession"><a class="viewcode-back" href="../../../codedocs.html#mep.people.models.Profession">[docs]</a><span class="k">class</span> <span class="nc">Profession</span><span class="p">(</span><span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">):</span>
@@ -430,8 +438,8 @@
     <span class="c1">#: slug for use in urls</span>
     <span class="n">slug</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SlugField</span><span class="p">(</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Short, durable, unique identifier for use in URLs. &#39;</span> <span class="o">+</span>
-        <span class="s1">&#39;Editing will change the public, citable URL for library members.&#39;</span><span class="p">)</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Short, unique identifier for public URL. &#39;</span> <span class="o">+</span>
+        <span class="s1">&#39;Recommended format: lastname-firstname (lastname only if unique)&#39;</span><span class="p">)</span>
 
     <span class="c1">#: update timestamp</span>
     <span class="n">updated_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -462,8 +470,9 @@
     <span class="c1">#: footnotes (:class:`~mep.footnotes.models.Footnote`)</span>
     <span class="n">footnotes</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="n">Footnote</span><span class="p">)</span>
     <span class="c1">#: a field for notes publicly displayed on the website</span>
-    <span class="n">public_notes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Notes for display on the public site&#39;</span><span class="p">)</span>
+    <span class="n">public_notes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Notes for display on the public site. &#39;</span> <span class="o">+</span>
+        <span class="s1">&#39;Use markdown for formatting.&#39;</span><span class="p">)</span>
 
     <span class="c1"># convenience access to associated locations, although</span>
     <span class="c1"># we will probably use Address for most things</span>
@@ -501,7 +510,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_birth_death_years</span><span class="p">()</span>
 
         <span class="c1"># if slug has changed, save the old one as a past slug</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_changed</span><span class="p">(</span><span class="s1">&#39;slug&#39;</span><span class="p">):</span>
+        <span class="c1"># (skip if record is not yet saved)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_changed</span><span class="p">(</span><span class="s1">&#39;slug&#39;</span><span class="p">):</span>
             <span class="n">PastPersonSlug</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">(</span><span class="s1">&#39;slug&#39;</span><span class="p">),</span>
                                                  <span class="n">person</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 

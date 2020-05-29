@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.accounts.models &#8212; mep-django 1.0.0 documentation</title>
+    <title>mep.accounts.models &#8212; mep-django 1.1.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -32,6 +32,8 @@
             
   <h1>Source code for mep.accounts.models</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
 <span class="kn">from</span> <span class="nn">cached_property</span> <span class="k">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span> <span class="nn">dateutil.relativedelta</span> <span class="k">import</span> <span class="n">relativedelta</span>
 <span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericRelation</span>
@@ -195,18 +197,23 @@
 
         <span class="c1"># get all canvases that belong to the manifest assigned as the</span>
         <span class="c1"># card for this account (including blanks)</span>
-        <span class="n">manifest_cards</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">canvases</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">)</span>
+        <span class="c1"># mark as priority 1 to allow sorting</span>
+        <span class="n">manifest_cards</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">canvases</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> \
+            <span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">priority</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="n">output_field</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()))</span>
 
         <span class="c1"># find all canvas associated with events for this account via footnote</span>
-        <span class="n">event_cards</span> <span class="o">=</span> <span class="n">Canvas</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__events__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
-            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__borrows__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
-            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__purchases__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">))</span> \
+        <span class="c1"># (excluding those already in the manifest)</span>
+        <span class="n">event_cards</span> <span class="o">=</span> <span class="n">Canvas</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">manifest</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">manifest</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__events__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__borrows__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__purchases__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">))</span> \
+            <span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">priority</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="n">output_field</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()))</span> \
             <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
 
-        <span class="c1"># combine the two sets; removes duplicates by default, and will</span>
-        <span class="c1"># list manifest cards first</span>
-        <span class="k">return</span> <span class="n">manifest_cards</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">event_cards</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span></div></div>
+        <span class="c1"># combine the two sets; removes duplicates by default</span>
+        <span class="c1"># Sort primary manifests cards first, then sort by order</span>
+        <span class="k">return</span> <span class="n">manifest_cards</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">event_cards</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;priority&#39;</span><span class="p">,</span> <span class="s1">&#39;order&#39;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Address"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Address">[docs]</a><span class="k">class</span> <span class="nc">Address</span><span class="p">(</span><span class="n">Notable</span><span class="p">,</span> <span class="n">PartialDateMixin</span><span class="p">):</span>
@@ -353,7 +360,30 @@
             <span class="k">return</span> <span class="s1">&#39;Borrow&#39;</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;purchase&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">return</span> <span class="s1">&#39;Purchase&#39;</span>
-        <span class="k">return</span> <span class="s1">&#39;Generic&#39;</span></div>
+        <span class="k">return</span> <span class="s1">&#39;Generic&#39;</span>
+
+    <span class="c1">#: notation in private notes indicating kind of nonstandard events</span>
+    <span class="n">nonstandard_notation</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;NOTATION: LOAN&#39;</span><span class="p">:</span> <span class="s1">&#39;Loan&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;NOTATION: SBGIFT&#39;</span><span class="p">:</span> <span class="s1">&#39;Gift&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;NOTATION: BOUGHTFOR&#39;</span><span class="p">:</span> <span class="s1">&#39;Purchase&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;NOTATION: SOLDFOR&#39;</span><span class="p">:</span> <span class="s1">&#39;Purchase&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;NOTATION: REQUEST&#39;</span><span class="p">:</span> <span class="s1">&#39;Request&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;STRIKETHRU&#39;</span><span class="p">:</span> <span class="s1">&#39;Crossed out&#39;</span>
+    <span class="p">}</span>
+    <span class="n">re_nonstandard_notation</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="s1">&#39;(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nonstandard_notation</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">event_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Event type label that includes nonstandard events indicated</span>
+<span class="sd">        by notation in private notes as well as all the standard types.&#39;&#39;&#39;</span>
+        <span class="c1"># NOTE: takes precedence over generic type if it occurs</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">re_nonstandard_notation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nonstandard_notation</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_type</span></div>
 
 
 <div class="viewcode-block" id="SubscriptionType"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.SubscriptionType">[docs]</a><span class="k">class</span> <span class="nc">SubscriptionType</span><span class="p">(</span><span class="n">Named</span><span class="p">,</span> <span class="n">Notable</span><span class="p">):</span>

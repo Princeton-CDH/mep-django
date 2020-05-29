@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Code Documentation &#8212; mep-django 1.0.0 documentation</title>
+    <title>Code Documentation &#8212; mep-django 1.1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -621,6 +621,19 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 <dt id="mep.accounts.models.Event.MultipleObjectsReturned">
 <em class="property">exception </em><code class="sig-name descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.accounts.models.Event.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="mep.accounts.models.Event.event_label">
+<code class="sig-name descname">event_label</code><a class="headerlink" href="#mep.accounts.models.Event.event_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event type label that includes nonstandard events indicated
+by notation in private notes as well as all the standard types.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="mep.accounts.models.Event.nonstandard_notation">
+<code class="sig-name descname">nonstandard_notation</code><em class="property"> = {'NOTATION: BOUGHTFOR': 'Purchase', 'NOTATION: LOAN': 'Loan', 'NOTATION: REQUEST': 'Request', 'NOTATION: SBGIFT': 'Gift', 'NOTATION: SOLDFOR': 'Purchase', 'STRIKETHRU': 'Crossed out'}</em><a class="headerlink" href="#mep.accounts.models.Event.nonstandard_notation" title="Permalink to this definition">¶</a></dt>
+<dd><p>notation in private notes indicating kind of nonstandard events</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1757,6 +1770,12 @@ e.g. Wikipedia page.</p>
 <dd><p>Get the arrondissement corresponding to a particular postal code in
 Paris. If the <cite>Location</cite> is not in Paris or doesn’t have a postal code,
 return None.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.people.models.Location.arrondissement_ordinal">
+<code class="sig-name descname">arrondissement_ordinal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Location.arrondissement_ordinal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Location.arrondissement_ordinal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arrondissement in Frech ordinal notation, with superscript.</p>
 </dd></dl>
 
 <dl class="py attribute">

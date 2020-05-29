@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.books.views &#8212; mep-django 1.0.0 documentation</title>
+    <title>mep.books.views &#8212; mep-django 1.1.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -36,10 +36,12 @@
 <span class="kn">from</span> <span class="nn">django.db.models.functions</span> <span class="k">import</span> <span class="n">Coalesce</span>
 <span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">get_object_or_404</span>
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">strip_tags</span>
 <span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">ListView</span>
 <span class="kn">from</span> <span class="nn">django.views.generic.edit</span> <span class="k">import</span> <span class="n">FormMixin</span>
 
 <span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">mep.accounts.templatetags.account_tags</span> <span class="k">import</span> <span class="n">as_ranges</span>
 <span class="kn">from</span> <span class="nn">mep.books.forms</span> <span class="k">import</span> <span class="n">WorkSearchForm</span>
 <span class="kn">from</span> <span class="nn">mep.books.models</span> <span class="k">import</span> <span class="n">Work</span>
 <span class="kn">from</span> <span class="nn">mep.books.queryset</span> <span class="k">import</span> <span class="n">WorkSolrQuerySet</span>
@@ -56,7 +58,7 @@
     <span class="n">model</span> <span class="o">=</span> <span class="n">Work</span>
     <span class="n">page_title</span> <span class="o">=</span> <span class="s2">&quot;Books&quot;</span>
     <span class="n">page_description</span> <span class="o">=</span> <span class="s2">&quot;Search and lending library books by title, author,&quot;</span> <span class="o">+</span> \
-        <span class="s2">&quot;or keyword and filter by circulation date.&quot;</span>
+        <span class="s2">&quot; or keyword and filter by circulation date.&quot;</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;books/work_list.html&#39;</span>
     <span class="n">ajax_template_name</span> <span class="o">=</span> <span class="s1">&#39;books/snippets/work_results.html&#39;</span>
     <span class="n">paginate_by</span> <span class="o">=</span> <span class="mi">100</span>
@@ -271,9 +273,17 @@
             <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;By </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">authors</span><span class="p">])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
-            <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39;, </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">year</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39;, </span><span class="si">%s</span><span class="s1">.</span><span class="se">\n</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">year</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">public_notes</span><span class="p">:</span>
             <span class="n">description</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">public_notes</span>
+
+        <span class="c1"># text-only readable version of membership years for meta description</span>
+        <span class="n">circ_years</span> <span class="o">=</span> <span class="n">strip_tags</span><span class="p">(</span><span class="n">as_ranges</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">event_years</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;/span&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+        <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> event</span><span class="si">%s</span><span class="s1"> in </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">event_count</span><span class="p">,</span>
+             <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">event_count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">circ_years</span><span class="p">)</span>
 
         <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
             <span class="s1">&#39;page_title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>

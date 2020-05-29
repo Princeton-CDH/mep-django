@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>CHANGELOG &#8212; mep-django 1.0.0 documentation</title>
+    <title>CHANGELOG &#8212; mep-django 1.1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,47 @@
   <div class="section" id="changelog">
 <span id="id1"></span><h1>CHANGELOG<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id2">
-<h2>1.0<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<h2>1.1<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>As a user, I want to see larger size card images so that I can look at cards in more detail and decipher difficult handwriting.</p></li>
+<li><p>As a user, I want to see circulation information on book search and detail pages so I understand how much and when a book circulated.</p></li>
+<li><p>As a user, I want to see event labels for non-standard book events in the borrowing activity table and event data download so I know what the data represents.</p></li>
+<li><p>As a content editor, I want to add basic formatting to public notes so that I can differentiate titles from authors and dates.</p></li>
+<li><p>As a user I want to see addresses on member maps with arrondissements instead of postal codes, so that I see them in an historically accurate format.</p></li>
+<li><p>As a user, I want to filter on members with “Unidentified” nationality so I can see how many members do not have nationality documented and can find them.</p></li>
+<li><p>Match searches for author and member initials with and without spaces</p></li>
+</ul>
+<div class="section" id="other-improvements">
+<h3>other improvements<a class="headerlink" href="#other-improvements" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>bugfix: arrondissement facet counts on member page never change</p></li>
+<li><p>bugfix: atypical card images are displayed incorrectly</p></li>
+<li><p>bugfix: display both names for joint accuonts on book circulation lists</p></li>
+<li><p>bugfix: member data export does not include postal code / arrondissement</p></li>
+<li><p>bugfix: member search results have blank aria-label</p></li>
+<li><p>bugfix: empty facets result in a 500 error on member search page</p></li>
+<li><p>accessibility: leaflet maps are scroll traps</p></li>
+<li><p>accessibiity: missing heading for home page</p></li>
+<li><p>design fix: correct placement for nationality link icon</p></li>
+<li><p>design fix: link styles for icons on the card gallery and card image viewer pages</p></li>
+<li><p>design fix: correct pacing for public notes on book pages</p></li>
+<li><p>design fix: make all the link styles 2px wide</p></li>
+<li><p>design fix: Breadcrumbs should show current page unless 4th level deep</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>1.0.1<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>bugfix: correct the order for lending library cards</p></li>
+<li><p>bugfix: 500 error creating new person records</p></li>
+<li><p>bugfix: adjust admin person edit form and slug help text</p></li>
+<li><p>bugfix: wagtail paragraph block is missing custom feature list (blockquotes,
+superscript, etc)</p></li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h2>1.0<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <p>This release makes the Books section available.</p>
 <ul class="simple">
 <li><p>As a user, when I’m viewing a single book I want an easy way to find all card images associated with that item so I can see where it’s referenced in the archival materials.</p></li>
@@ -48,15 +88,21 @@
 <li><p>re-enable books links in menus and remove login restrictions</p></li>
 <li><p>bugfix: result counters on search pages reset after page</p></li>
 </ul>
-<p>Various small improvements
-* Better preview titles and descriptions in page metadata
-* convert data export field names to use underscores instead of spaces
-* Include membership years in member export and circulation years in book export
-* Replace the breadcrumb home with the shakespeare icon on the third and fourth level pages
-* Fix horizontal centering for breadcrumb text</p>
+<div class="section" id="various-improvements">
+<h3>Various improvements<a class="headerlink" href="#various-improvements" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>XML sitemaps for member and book pages</p></li>
+<li><p>Last modified headers and conditional processing for member and book pages</p></li>
+<li><p>Better preview titles and descriptions in page metadata</p></li>
+<li><p>convert data export field names to use underscores instead of spaces</p></li>
+<li><p>Include membership years in member export and circulation years in book export</p></li>
+<li><p>Replace the breadcrumb home with the shakespeare icon on the third and fourth level pages</p></li>
+<li><p>Fix horizontal centering for breadcrumb text</p></li>
+</ul>
 </div>
-<div class="section" id="id3">
-<h2>0.29<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="id5">
+<h2>0.29<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want to sort works by title, author, publication date, or borrow count so that I can view and investigate by author, chronologically, or by popularity.</p></li>
 <li><p>As a user, I want to be able to search by titles of individual volumes of a multivolume book so that I can find the book by its parts.</p></li>
@@ -71,22 +117,22 @@
 <li><p>bugfix: django admin queries causing site timeout/unavailability</p></li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>0.28.2<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>0.28.2<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>bugfix: use Solr for django admin search for works, to avoid django admin
 database queries causing timeouts that bring down the site</p></li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>0.28.1<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h2>0.28.1<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Disable book links in member borrowing activity until book pages are public</p></li>
 <li><p>Allow editors to use the same tags in linkable sections as paragraphs</p></li>
 </ul>
 </div>
-<div class="section" id="id6">
-<h2>0.28<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h2>0.28<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As an admin, I want to generate a data download for books so that I can deposit and version the data for others to use.</p></li>
 <li><p>As an admin, I want library items to have unique identifiers that can be included for use in URLs in the public site.</p></li>
@@ -99,8 +145,8 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>Bugfix: As an admin, I want to be able to enter duplicate events in the case where multiple purchases were made at the same time without title information.</p></li>
 </ul>
 </div>
-<div class="section" id="id7">
-<h2>0.27<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id9">
+<h2>0.27<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want to search for library items by bibliographic metadata so that I can find specific items I’m interested in.</p></li>
 <li><p>As a user, I want the items list page updated as soon as I change search terms, filters, or results page so that I can refine my search without losing my place in the form and have results load more quickly.</p></li>
@@ -111,15 +157,15 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>Updated to Django 2.2.10 and wagtail 2.8</p></li>
 </ul>
 </div>
-<div class="section" id="id8">
-<h2>0.26<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id10">
+<h2>0.26<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As an admin, I want to generate a data download for events so that I can deposit and version the data for others to use.</p></li>
 <li><p>As a user, when I’m viewing a single card image I want to navigate to any card images associated with the same member so that I can see all of their borrowing activity in context.</p></li>
 </ul>
 </div>
-<div class="section" id="id9">
-<h2>0.25<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id11">
+<h2>0.25<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a data editor, I need to enter partially known dates for membership events so I can document memberships from sources where the exact date is not known.</p></li>
 <li><p>As a non-sighted user, I want to hear a description of visualizations embedded in essay content so that I can access these insights.</p></li>
@@ -130,8 +176,8 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>restores blank card images in card image gallery and detail views</p></li>
 </ul>
 </div>
-<div class="section" id="id10">
-<h2>0.24<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id12">
+<h2>0.24<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want to see a chronological list of book-related activities for a single library member so that I can see the complete history of book interactions for that person.</p></li>
 <li><p>As a user, I want to browse all card images with known events associated with a single member so that I can get an overview of their card activity.</p></li>
@@ -147,14 +193,14 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>Numerous design and consistency improvements</p></li>
 </ul>
 </div>
-<div class="section" id="id11">
-<h2>0.23.1<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id13">
+<h2>0.23.1<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>bugfix: event signal handler causing an error on admin edits</p></li>
 </ul>
 </div>
-<div class="section" id="id12">
-<h2>0.23<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id14">
+<h2>0.23<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want to see a map of all of a member’s known addresses so I can see where in Paris members lived.</p></li>
 <li><p>As a user, I want to browse a list of published editorial content so that I can see what analytical and scholarly content is available to read.</p></li>
@@ -171,8 +217,8 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>Update About and Sources landing pages so that tiles do not display any text description</p></li>
 </ul>
 </div>
-<div class="section" id="id13">
-<h2>0.22<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id15">
+<h2>0.22<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want to browse a list of card images so that I can see digitized lending cards belonging to library members.</p></li>
 <li><p>As a user, I want the card image list paginated so that I don’t have to browse through all the cards at once.</p></li>
@@ -182,8 +228,8 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>As a user, I want to see a visualization of a person’s library membership timeline so that I can get an overview of when and how they interacted with the library.</p></li>
 </ul>
 </div>
-<div class="section" id="id14">
-<h2>0.21<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id16">
+<h2>0.21<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want to see an error page when the content I’m looking for isn’t found so that I can choose a different path.</p></li>
 <li><p>As a user, I want to see an error page when the site is malfunctioning so that I can report the issue.</p></li>
@@ -197,14 +243,14 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>Set up Content Security Policy</p></li>
 </ul>
 </div>
-<div class="section" id="id15">
-<h2>0.20<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id17">
+<h2>0.20<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want to see a chronological list of membership activities for a single library member so that I can see the complete subscription activity for that person.</p></li>
 </ul>
 </div>
-<div class="section" id="id16">
-<h2>0.19<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id18">
+<h2>0.19<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a data editor, I want to view and edit library items as works and associated editions so that I can have events related to the same item grouped but still document known editions.</p></li>
 <li><p>As an admin, I want to see how many times an item was purchased or associated with any event so that I can investigate unborrowed books more easily.</p></li>
@@ -213,8 +259,8 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>Removed XML import code (no longer needed, not maintaining)</p></li>
 </ul>
 </div>
-<div class="section" id="id17">
-<h2>0.18<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id19">
+<h2>0.18<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a content editor I want to enter public notes for items and people so I can document details to be shown on the public site</p></li>
 <li><p>As a content editor, I want a URL field on library items so I can add a link to a full-text version.</p></li>
@@ -223,8 +269,8 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>Initial reactive Books search</p></li>
 </ul>
 </div>
-<div class="section" id="id18">
-<h2>0.17<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id20">
+<h2>0.17<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want to filter library members by membership dates so that I can see who was active in the library in a particular time period.</p></li>
 <li><p>As a user, if I load the members search page with invalid input I want to see the error so I know what’s wrong and can tell when I’ve fixed the problem.</p></li>
@@ -233,8 +279,8 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>adds a stub book detail page</p></li>
 </ul>
 </div>
-<div class="section" id="id19">
-<h2>0.16<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id21">
+<h2>0.16<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want to view and navigate by breadcrumbs so I know where I am in the site hierarchy and can navigate to pages above the one I’m on.</p></li>
 <li><p>As a content editor, I want to view and edit item format so I can designate item type.</p></li>
@@ -245,8 +291,8 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>bugfix: tooltip is triggered by hovering space where it would appear</p></li>
 </ul>
 </div>
-<div class="section" id="id20">
-<h2>0.15<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id22">
+<h2>0.15<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want the members list page updated as soon as I change search terms, filters, or results page so that I can refine my search without losing my place in the form and have results load more quickly.</p></li>
 <li><p>As a user, I want the count of members with cards to update as soon as I change search terms or filters so that I can see an accurate number for my current search.</p></li>
@@ -255,8 +301,8 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>bugfix: don’t defer loading of &lt;script&gt;s to avoid flash of unstyled content</p></li>
 </ul>
 </div>
-<div class="section" id="id21">
-<h2>0.14<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id23">
+<h2>0.14<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user I want members automatically sorted by relevance if I have a keyword search term active and otherwise by member name, so that I see best matches first for keyword searches.</p></li>
 <li><p>As a user, I want to filter library members to those with a lending card available on the site so that I can focus on members with cards and borrowing activity.</p></li>
@@ -266,15 +312,15 @@ database queries causing timeouts that bring down the site</p></li>
 <li><p>bugfix: members keyword search sort most relevant items first instead of last</p></li>
 </ul>
 </div>
-<div class="section" id="id22">
-<h2>0.13<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id24">
+<h2>0.13<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want to search for library members by name or partial name so that I can find specific people I’m interested in.</p></li>
 <li><p>Updated results template &amp; styles for book browse page</p></li>
 </ul>
 </div>
-<div class="section" id="id23">
-<h2>0.12<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id25">
+<h2>0.12<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>As a user, I want the library member list paginated so that I don’t have to browse through all the names at once.</p></li>
 <li><p>As a user, I want to browse a list of books so that I can see all the books known to have circulated through the library.</p></li>
@@ -376,8 +422,8 @@ migration.</p>
 <li><p>Removes now obsolete <cite>import_logbooks</cite> manage command.</p></li>
 </ul>
 </div>
-<div class="section" id="id24">
-<h2>0.3.1<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id26">
+<h2>0.3.1<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Remove unneeded database backup from Ansible deploy.</p></li>
 </ul>
@@ -513,28 +559,36 @@ managing data about people associated with Sylvia Beach’s lending library.</p>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">CHANGELOG</a><ul>
-<li><a class="reference internal" href="#id2">1.0</a></li>
-<li><a class="reference internal" href="#id3">0.29</a></li>
-<li><a class="reference internal" href="#id4">0.28.2</a></li>
-<li><a class="reference internal" href="#id5">0.28.1</a></li>
-<li><a class="reference internal" href="#id6">0.28</a></li>
-<li><a class="reference internal" href="#id7">0.27</a></li>
-<li><a class="reference internal" href="#id8">0.26</a></li>
-<li><a class="reference internal" href="#id9">0.25</a></li>
-<li><a class="reference internal" href="#id10">0.24</a></li>
-<li><a class="reference internal" href="#id11">0.23.1</a></li>
-<li><a class="reference internal" href="#id12">0.23</a></li>
-<li><a class="reference internal" href="#id13">0.22</a></li>
-<li><a class="reference internal" href="#id14">0.21</a></li>
-<li><a class="reference internal" href="#id15">0.20</a></li>
-<li><a class="reference internal" href="#id16">0.19</a></li>
-<li><a class="reference internal" href="#id17">0.18</a></li>
-<li><a class="reference internal" href="#id18">0.17</a></li>
-<li><a class="reference internal" href="#id19">0.16</a></li>
-<li><a class="reference internal" href="#id20">0.15</a></li>
-<li><a class="reference internal" href="#id21">0.14</a></li>
-<li><a class="reference internal" href="#id22">0.13</a></li>
-<li><a class="reference internal" href="#id23">0.12</a></li>
+<li><a class="reference internal" href="#id2">1.1</a><ul>
+<li><a class="reference internal" href="#other-improvements">other improvements</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">1.0.1</a></li>
+<li><a class="reference internal" href="#id4">1.0</a><ul>
+<li><a class="reference internal" href="#various-improvements">Various improvements</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">0.29</a></li>
+<li><a class="reference internal" href="#id6">0.28.2</a></li>
+<li><a class="reference internal" href="#id7">0.28.1</a></li>
+<li><a class="reference internal" href="#id8">0.28</a></li>
+<li><a class="reference internal" href="#id9">0.27</a></li>
+<li><a class="reference internal" href="#id10">0.26</a></li>
+<li><a class="reference internal" href="#id11">0.25</a></li>
+<li><a class="reference internal" href="#id12">0.24</a></li>
+<li><a class="reference internal" href="#id13">0.23.1</a></li>
+<li><a class="reference internal" href="#id14">0.23</a></li>
+<li><a class="reference internal" href="#id15">0.22</a></li>
+<li><a class="reference internal" href="#id16">0.21</a></li>
+<li><a class="reference internal" href="#id17">0.20</a></li>
+<li><a class="reference internal" href="#id18">0.19</a></li>
+<li><a class="reference internal" href="#id19">0.18</a></li>
+<li><a class="reference internal" href="#id20">0.17</a></li>
+<li><a class="reference internal" href="#id21">0.16</a></li>
+<li><a class="reference internal" href="#id22">0.15</a></li>
+<li><a class="reference internal" href="#id23">0.14</a></li>
+<li><a class="reference internal" href="#id24">0.13</a></li>
+<li><a class="reference internal" href="#id25">0.12</a></li>
 <li><a class="reference internal" href="#admin-enhancements-and-initial-solr-functionality">0.11 Admin enhancements and initial Solr functionality</a></li>
 <li><a class="reference internal" href="#initial-member-list-and-wagtail-cms-functionality">0.10 Initial member list and Wagtail CMS functionality</a></li>
 <li><a class="reference internal" href="#add-purchase-events-to-admin">0.9 Add Purchase events to admin</a></li>
@@ -543,7 +597,7 @@ managing data about people associated with Sylvia Beach’s lending library.</p>
 <li><a class="reference internal" href="#card-import-and-basic-item-admin">0.6 Card import and basic item admin</a></li>
 <li><a class="reference internal" href="#data-entry-improvements-ii">0.5 Data Entry Improvements II</a></li>
 <li><a class="reference internal" href="#personography-merge">0.4 Personography Merge</a></li>
-<li><a class="reference internal" href="#id24">0.3.1</a></li>
+<li><a class="reference internal" href="#id26">0.3.1</a></li>
 <li><a class="reference internal" href="#data-entry-improvements">0.3 Data Entry Improvements</a><ul>
 <li><a class="reference internal" href="#known-issues">Known issues</a></li>
 </ul>
