@@ -2,6 +2,9 @@ name: ci
 
 on: [push, pull_request]
 
+env:
+    SOLR_VERSION: 6.6.5
+
 jobs:
 
     py-unit:
@@ -17,10 +20,18 @@ jobs:
           with:
             python-version: 3.5
 
+        - name: Setup Java
+          uses: actions/setup-java@v1
+          with:
+            java-version: 8
+
         - name: Install dependencies
           run: |
             pip install -r requirements.txt
             pip install -r dev-requirements.txt
+
+        - name: Install and configure Solr
+          run: bash ci/config_solr.sh
 
         - name: Setup local_settings.py
           run: |
