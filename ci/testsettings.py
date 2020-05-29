@@ -13,7 +13,7 @@ DATABASES = {
         'NAME': 'sandco',
         'USER': 'root',
         'PASSWORD': 'sandco',
-        'HOST': 'db',
+        'HOST': 'localhost',
         'OPTIONS': {
             # In each case, we want strict mode on to catch truncation issues
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -32,7 +32,7 @@ DATABASES = {
 
 SOLR_CONNECTIONS = {
     'default': {
-        'URL': 'http://index:8983/solr/',
+        'URL': 'http://localhost:8983/solr/',
         'COLLECTION': 'sandco',
         'CONFIGSET': 'sandco',
         'TEST': {
