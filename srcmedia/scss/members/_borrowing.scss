@@ -19,18 +19,22 @@
         .end { order: 4; }
 
         .pubdate {
-            margin-top: 0.75rem;
+            margin-top: 1.5rem;
             position: relative;
             order: 5; // always goes last
 
             &::before {
-                content: 'Pub. Date';
+                content: 'Publication Date';
                 position: absolute;
-                bottom: 0.75rem;
+                bottom: 1rem;
                 font-size: 0.6rem;
                 font-weight: bold;
             }
         }
+
+        .edition { margin-top: .5rem; }
+
+        .activity { margin-top: .25rem; }
 
         td:not(.author) {
             padding-right: 50%;
@@ -58,6 +62,7 @@
 
             .start:not(.empty) + .end:not(.empty)::before {
                 content: '';
+                display: none;
             }
         }
 
