@@ -16,9 +16,9 @@ materials in the GitHub repository `mapping-expatriate-paris <https://github.com
 
 Python 3.5 / Django 1.11 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info
 
-.. image:: https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=master
-    :target: https://travis-ci.org/Princeton-CDH/mep-django
-    :alt: Build status
+.. image:: https://github.com/Princeton-CDH/mep-django/workflows/ci/badge.svg
+    :target: https://github.com/Princeton-CDH/mep-django/actions?query=workflow%3Aci
+    :alt: CI status
 
 .. image:: https://codecov.io/gh/Princeton-CDH/mep-django/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/master
