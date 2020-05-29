@@ -29,7 +29,7 @@ other improvements
 * design fix: correct pacing for public notes on book pages
 * design fix: make all the link styles 2px wide
 * design fix: Breadcrumbs should show current page unless 4th level deep
-
+* design fix: improve mobile display for borrowing and circulation activity pages
 
 1.0.1
 -----
