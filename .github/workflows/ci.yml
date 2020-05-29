@@ -207,4 +207,15 @@ jobs:
       run: python manage.py runserver --insecure &
 
     - name: Run pa11y
-      run: npm run test:a11y
+      run: |
+        npx pa11y-ci \
+        --sitemap http://localhost:8000/sitemap.xml \
+        --sitemap http://localhost:8000/sitemap-pages.xml \
+        --sitemap http://localhost:8000/sitemap-members.xml \
+        --sitemap http://localhost:8000/sitemap-member-activities.xml \
+        --sitemap http://localhost:8000/sitemap-member-borrowing.xml \
+        --sitemap http://localhost:8000/sitemap-member-card-list.xml \
+        --sitemap http://localhost:8000/sitemap-member-card-detail.xml \
+        --sitemap http://localhost:8000/sitemap-books.xml \
+        --sitemap http://localhost:8000/sitemap-book-circulation.xml \
+        --sitemap http://localhost:8000/sitemap-book-card-list.xml
