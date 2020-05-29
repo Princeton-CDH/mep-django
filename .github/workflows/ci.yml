@@ -26,17 +26,26 @@ jobs:
             java-version: 8
 
         - name: Cache pip
-            uses: actions/cache@v2
-            with:
+          uses: actions/cache@v2
+          with:
               path: ~/.cache/pip
               key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt') }}
               restore-keys: |
-                  ${{ runner.os }}-pip-
+                ${{ runner.os }}-pip-
+
+        - name: Cache node modules
+          uses: actions/cache@v2
+          with:
+            path: ~/.npm
+            key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+            restore-keys: |
+              ${{ runner.os }}-npm-
 
         - name: Install dependencies
           run: |
             pip install -r requirements.txt
             pip install -r dev-requirements.txt
+            npm ci
 
         - name: Install and configure Solr
           run: bash ci/config_solr.sh
@@ -51,6 +60,9 @@ jobs:
             sudo service mysql start
             mysql -u root -proot -e "create database travismep";
             mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -proot mysql
+
+        - name: Run webpack
+          run: npm run build:prod
 
         - name: Run pytest
           run: py.test --cov=mep
