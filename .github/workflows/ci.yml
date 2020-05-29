@@ -75,7 +75,8 @@ jobs:
           MYSQL_ROOT_PASSWORD: sandco
       index:
         image: solr:6
-        volumes: ./solr_conf:/opt/solr/server/solr/configsets/sandco
+        volumes:
+        - ./solr_conf:/opt/solr/server/solr/configsets/sandco
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
