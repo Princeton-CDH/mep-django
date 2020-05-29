@@ -325,7 +325,7 @@ class Person(models.Model):
     first_name = models.CharField(
         max_length=255,
         help_text='First or given name and all non-family or middle names, e.g.'
-                   '"Henry Wadsworth", as it would appear in a citation.'
+                  '"Henry Wadsworth", as it would appear in a citation.'
     )
     #: last or family name of an individual
     last_name = models.CharField(

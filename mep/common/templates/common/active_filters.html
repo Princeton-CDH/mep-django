@@ -10,7 +10,8 @@
             {% formfield_selected_filter field %}
             {% endif %}
         {% endfor %}
-        <a href="" class="clear-all">Clear All</a>
+        {% querystring_only "query" "sort" as clear_qs %}
+        <a href="?{{ clear_qs.urlencode }}" class="clear-all">Clear All</a>
     </div>
     {% endspaceless %}
 </div>

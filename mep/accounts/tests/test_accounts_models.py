@@ -555,7 +555,7 @@ class TestEvent(TestCase):
             volumes=2,
             price_paid=3.20
         )
-        # subscriptio, not otherwise specified
+        # subscription, not otherwise specified
         assert subscription.event_ptr.event_type == 'Subscription'
         # subscription labeled as a supplement
         subscription.subtype = Subscription.SUPPLEMENT
@@ -582,6 +582,22 @@ class TestEvent(TestCase):
         purchase = Purchase.objects.create(
             account=self.account, work=self.work, price=5)
         assert purchase.event_ptr.event_type == 'Purchase'
+
+    def test_event_label(self):
+        ev = Event(account=self.account)
+        assert ev.event_label == 'Generic'
+        ev = Event(account=self.account, notes='NOTATION: STRIKETHRU')
+        assert ev.event_label == 'Crossed out'
+        ev = Event(account=self.account,
+                   notes='other info NOTATION: SBGIFT; more details')
+        assert ev.event_label == 'Gift'
+        # other event types should still come through
+        subs = Subscription.objects.create(account=self.account)
+        assert subs.event_ptr.event_label == 'Subscription'
+        # but notation takes precedence over type
+        borrow = Borrow.objects.create(account=self.account)
+        borrow.notes = 'NOTATION: SOLDFOR'
+        assert borrow.event_label == 'Purchase'
 
 
 class TestEventQuerySet(TestCase):

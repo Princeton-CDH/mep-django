@@ -47,7 +47,9 @@
 
                 <dl>
                     <dt class="name">Card Holder</dt>
-                    <dd class="name">{{ member.sort_name }}</dd>
+                    {% for cardholder in footnote.content_object.account.persons.all %}
+                    <dd class="name">{{ cardholder.sort_name }}</dd>
+                    {% endfor %}
 
                     <dt class="card-dates">Event Date</dt>
                     <dd class="card-dates">{{ footnote.content_object.partial_start_date|partialdate|default:'-' }}</dd>

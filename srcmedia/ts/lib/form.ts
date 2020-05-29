@@ -148,12 +148,16 @@ class RxSearchForm extends RxForm {
     }
 }
 
-interface SolrFacets {
-    facet_fields: object,
-    facet_heatmaps: object,
-    facet_intervals: object,
-    facet_queries: object,
-    facet_ranges: object
+type SolrFacets = {
+    facet_fields: {
+        [facet:string]: {
+            [choice:string]: number
+        }
+    },
+    facet_heatmaps: any,
+    facet_intervals: any,
+    facet_queries: any,
+    facet_ranges: any
 }
 
 /**
@@ -170,34 +174,37 @@ class RxFacetedSearchForm extends RxSearchForm {
         super(element)
         this.facets = new Subject()
     }
+
     /**
      * Make an ajax request for facet data and use it to update the facets
      * observable.
      *
-     * @memberof RxSearchForm
+     * @memberof RxFacetedSearchForm
      */
     getFacets = async (): Promise<Response> => {
         return this.fetchFacets(this.serialize()).then(this.updateFacets)
     }
+
     /**
      * Make an ajax request for facet data.
      *
      * @protected
-     * @memberof RxSearchForm
+     * @memberof RxFacetedSearchForm
      */
     protected fetchFacets = async (formData: string): Promise<Response> => {
         return fetch(`${this.target}?${formData}`, acceptJson)
     }
+
     /**
      * If the response contained valid non-empty facet data as JSON,
      * add it as the next value in the facet observable stream.
      *
      * @protected
-     * @memberof RxSearchForm
+     * @memberof RxFacetedSearchForm
      */
     protected updateFacets = async (res: Response): Promise<Response> => {
-        const facets: SolrFacets = await res.json()
-        if (facets) this.facets.next(facets)
+        const facets: SolrFacets = await res.json().catch(console.error)
+        if (!!facets) this.facets.next(facets)
         return res
     }
 }

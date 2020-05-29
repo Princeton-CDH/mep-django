@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import re
+
 from cached_property import cached_property
 from dateutil.relativedelta import relativedelta
 from django.contrib.contenttypes.fields import GenericRelation
@@ -326,6 +328,29 @@ class Event(Notable, PartialDateMixin):
         if getattr(self, 'purchase', None):
             return 'Purchase'
         return 'Generic'
+
+    #: notation in private notes indicating kind of nonstandard events
+    nonstandard_notation = {
+        'NOTATION: LOAN': 'Loan',
+        'NOTATION: SBGIFT': 'Gift',
+        'NOTATION: BOUGHTFOR': 'Purchase',
+        'NOTATION: SOLDFOR': 'Purchase',
+        'NOTATION: REQUEST': 'Request',
+        'STRIKETHRU': 'Crossed out'
+    }
+    re_nonstandard_notation = re.compile(
+        '(%s)' % '|'.join(nonstandard_notation.keys()))
+
+    @cached_property
+    def event_label(self):
+        '''Event type label that includes nonstandard events indicated
+        by notation in private notes as well as all the standard types.'''
+        # NOTE: takes precedence over generic type if it occurs
+        if self.notes:
+            match = re.search(self.re_nonstandard_notation, self.notes)
+            if match:
+                return self.nonstandard_notation[match.group(0)]
+        return self.event_type
 
 
 class SubscriptionType(Named, Notable):

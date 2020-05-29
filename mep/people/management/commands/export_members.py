@@ -33,7 +33,7 @@ class Command(BaseExport):
         # related country
         'nationalities',
         # related location
-        'addresses', 'coordinates',
+        'addresses', 'postal_codes', 'arrondissements', 'coordinates',
         # generic
         'notes',
         'updated'
@@ -98,11 +98,15 @@ class Command(BaseExport):
         if locations.exists():
             data['addresses'] = []
             data['coordinates'] = []
+            data['postal_codes'] = []
+            data['arrondissements'] = []
             for location in locations.all():
                 data['addresses'].append(str(location))
                 data['coordinates'].append(
                     '%s, %s' % (location.latitude, location.longitude)
                 )
+                data['postal_codes'].append(location.postal_code)
+                data['arrondissements'].append(location.arrondissement() or '')
 
         # add public notes
         if obj.public_notes:

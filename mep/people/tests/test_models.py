@@ -34,6 +34,35 @@ class TestLocation(TestCase):
         paris_hotel = Location.objects.create(name='L\'Hotel', city='Paris')
         assert str(paris_hotel) == '%s, %s' % (paris_hotel.name, paris_hotel.city)
 
+    def test_arrondissement(self):
+        hotel = Location(name='L\'Hotel')
+        # no postal code, no arrondissement
+        assert hotel.arrondissement() is None
+        # paris prefix, use last two digits
+        hotel.postal_code = '75008'
+        assert hotel.arrondissement() == 8
+        hotel.postal_code = '75101'
+        assert hotel.arrondissement() == 1
+        # other postal code
+        hotel.postal_code = '08544'
+        assert hotel.arrondissement() is None
+        # short postal code — no error
+        hotel.postal_code = 'a'
+        assert hotel.arrondissement() is None
+
+    def test_arrondissement_ordinal(self):
+        hotel = Location(name='L\'Hotel')
+        # no postal code, no arrondissement
+        assert hotel.arrondissement_ordinal() == ''
+        # paris prefix, use last two digits
+        hotel.postal_code = '75008'
+        assert hotel.arrondissement_ordinal() == '8<sup>e</sup>'
+        hotel.postal_code = '75101'
+        assert hotel.arrondissement_ordinal() == '1<sup>er</sup>'
+        # other postal code
+        hotel.postal_code = '08544'
+        assert hotel.arrondissement_ordinal() == ''
+
 
 class TestPerson(TestCase):
 

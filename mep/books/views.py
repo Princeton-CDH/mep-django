@@ -3,10 +3,12 @@ from django.db.models import F, Q
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.html import strip_tags
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
 
 from mep.accounts.models import Event
+from mep.accounts.templatetags.account_tags import as_ranges
 from mep.books.forms import WorkSearchForm
 from mep.books.models import Work
 from mep.books.queryset import WorkSolrQuerySet
@@ -238,9 +240,17 @@ class WorkDetail(WorkLastModifiedListMixin, DetailView, RdfViewMixin):
             description = 'By %s' % ','.join(
                 [a.name for a in self.object.authors])
         if self.object.year:
-            description += ', %s' % self.object.year
+            description += ', %s.\n ' % self.object.year
         if self.object.public_notes:
             description += self.object.public_notes
+
+        # text-only readable version of membership years for meta description
+        circ_years = strip_tags(as_ranges(self.object.event_years)
+                                .replace('</span>', ',')).rstrip(',')
+
+        description += '%d event%s in %s.' % \
+            (self.object.event_count,
+             '' if self.object.event_count == 1 else 's', circ_years)
 
         context.update({
             'page_title': self.object.title,

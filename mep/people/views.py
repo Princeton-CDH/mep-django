@@ -131,7 +131,8 @@ class MembersList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
         sqs = PersonSolrQuerySet() \
             .facet_field('has_card') \
             .facet_field('gender', missing=True, exclude='gender') \
-            .facet_field('nationality', exclude='nationality', sort='value') \
+            .facet_field('nationality', exclude='nationality', sort='value',
+                         missing=True) \
             .facet_field('arrondissement', exclude='arrondissement',
                          sort='value')
 
@@ -155,9 +156,11 @@ class MembersList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
             if search_opts['gender']:
                 sqs = sqs.filter(gender__in=search_opts['gender'], tag='gender')
             if search_opts['nationality']:
-                sqs = sqs.filter(nationality__in=[
-                    '"%s"' % val for val in search_opts['nationality']
-                ], tag='nationality')
+                # wrap filter value in quotes if there are spaces
+                nationality_list = ['"%s"' % val if ' ' in val else val
+                                    for val in search_opts['nationality']]
+                sqs = sqs.filter(nationality__in=nationality_list,
+                                 tag='nationality')
             if search_opts['arrondissement']:
                 # strip off ordinal letters and filter on numeric arrondissement
                 sqs = sqs.filter(arrondissement__in=[
@@ -305,11 +308,7 @@ class MemberDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,
                 month_counts[event.end_date.strftime('%Y-%m-01')] += 1
 
         account_date_ranges = account.event_date_ranges()
-        account_years = set()   # initialize as empty set in case no dates
-        for start, end in account.event_date_ranges():
-            account_years = set(start.year for start, end
-                                in account_date_ranges) | \
-                set(end.year for start, end in account_date_ranges)
+        account_years = account.event_years
 
         # data for member timeline visualization
         context['timeline'] = {
@@ -347,7 +346,7 @@ class MemberDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,
                 'name': address.location.name,
                 'street_address': address.location.street_address,
                 'city': address.location.city,
-                'postal_code': address.location.postal_code,
+                'arrondissement': address.location.arrondissement_ordinal(),
                 # lat/long aren't JSON serializable so we need to do this
                 'latitude': str(address.location.latitude),
                 'longitude': str(address.location.longitude),
@@ -363,6 +362,7 @@ class MemberDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,
                 'name': library.name,
                 'street_address': library.street_address,
                 'city': library.city,
+                'arrondissement': library.arrondissement_ordinal(),
                 'latitude': str(library.latitude),
                 'longitude': str(library.longitude),
             }

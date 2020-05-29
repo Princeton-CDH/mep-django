@@ -7,7 +7,7 @@
 <ol class="member-results" start="{{ page_obj.start_index|add:'-1' }}">
     {% for member in members %}
     <li class="members result{% if member.has_card %} has-card{% endif %}">
-        <a href="{% url 'people:member-detail' slug=member.slug %}" aria-label="{{ person.sort_name.0 }}">
+        <a href="{% url 'people:member-detail' slug=member.slug %}" aria-label="{{ member.sort_name.0 }}">
             <div class="container">
                 {# counter for search results #}
                 <span class="counter"></span>

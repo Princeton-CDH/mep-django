@@ -72,8 +72,8 @@
             </tr>
         </thead>
         {% for event in event_list %}
-        {% with event.event_type as event_type %}
-        <tr class="{{ event_type|lower }}{% if event.work.is_uncertain %} uncertain{% endif %}">
+        {% with event.event_label as event_label %}
+        <tr class="{{ event_label|lower }}{% if event.work.is_uncertain %} uncertain{% endif %}">
             <td class="title{% if not event.work.title %} empty{% endif %}">
                 <a href="{{ event.work.get_absolute_url }}">
                     {{ event.work.title|default:'-' }}
@@ -96,9 +96,9 @@
             <td class="pubdate{% if not event.work.year %} empty{% endif %}">
                 {{ event.work.year|default:'-' }}
             </td>
-            <td class="activity{% if event_type == 'Generic' %} empty{% endif %}">
-                {% if event_type == 'Generic' %} -
-                {% else %}{{ event_type }}{% endif %}
+            <td class="activity{% if event_label == 'Generic' %} empty{% endif %}">
+                {% if event_label == 'Generic' %} -
+                {% else %}{{ event_label }}{% endif %}
             </td>
             <td class="start{% if not event.partial_start_date %} empty{% endif %}"
                 data-sort="{{ event.partial_start_date|default:'' }}">

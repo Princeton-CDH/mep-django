@@ -239,7 +239,7 @@ class TestSubscriptionPurchaseDateAdjustments(TestMigrations):
 
         # renewal with preceding subscription but no end date
         account3 = Account.objects.create()
-        self.sub = Subscription.objects.create(
+        self.account3_sub = Subscription.objects.create(
             account=account3,
             start_date=datetime.date(1920, 4, 30),
         )
@@ -248,6 +248,25 @@ class TestSubscriptionPurchaseDateAdjustments(TestMigrations):
             start_date=datetime.date(1920, 7, 27),
             end_date=datetime.date(1920, 10, 27),
             subtype='ren'
+        )
+
+        # increment by months and not days
+        account4 = Account.objects.create()
+        self.account4_sub = Subscription.objects.create(
+            account=account4,
+            start_date=datetime.date(1920, 5, 1),
+            end_date=datetime.date(1920, 6, 1),
+        )
+        self.account4_renew = Subscription.objects.create(
+            account=account4,
+            start_date=datetime.date(1920, 5, 25),
+            end_date=datetime.date(1920, 6, 25),
+            # not explicitly a renewal
+        )
+        self.account4_renew2 = Subscription.objects.create(
+            account=account4,
+            start_date=datetime.date(1920, 6, 22),
+            end_date=datetime.date(1920, 7, 22),
         )
 
     def test_adjust_subscriptions(self):
@@ -261,19 +280,19 @@ class TestSubscriptionPurchaseDateAdjustments(TestMigrations):
         renew1 = Subscription.objects.get(pk=self.renew1.pk)
         # purchase date set from old start date
         assert renew1.purchase_date == self.renew1.start_date
-        # renewal starts day after subscription end date
-        assert renew1.start_date == datetime.date(1920, 7, 31)
+        # renewal starts same day subscription ends
+        assert renew1.start_date == datetime.date(1920, 7, 30)
         # renewal has same duration, end date adjusted
-        assert renew1.end_date == datetime.date(1920, 10, 31)
+        assert renew1.end_date == datetime.date(1920, 10, 30)
 
         # second renewal should start after *adjusted* first renewal
         renew2 = Subscription.objects.get(pk=self.renew2.pk)
         # purchase date set from original start date
         assert renew2.purchase_date == self.renew2.start_date
-        # renewal starts day after adusted renewal end date
-        assert renew2.start_date == datetime.date(1920, 11, 1)
+        # renewal starts same day as adusted renewal end date
+        assert renew2.start_date == datetime.date(1920, 10, 30)
         # same duration, end date adjusted
-        assert renew2.end_date == datetime.date(1921, 5, 2)
+        assert renew2.end_date == datetime.date(1921, 4, 30)
 
         # third renewal should not be adjusted
         renew3 = Subscription.objects.get(pk=self.renew3.pk)
@@ -294,3 +313,13 @@ class TestSubscriptionPurchaseDateAdjustments(TestMigrations):
         assert account3_renew.purchase_date == self.account3_renew.start_date
         assert account3_renew.start_date == self.account3_renew.start_date
         assert account3_renew.end_date == self.account3_renew.end_date
+
+        # renewal with preceding subscription with noend date should not change
+        account4_renew = Subscription.objects.get(pk=self.account4_renew.pk)
+        assert account4_renew.purchase_date == self.account4_renew.start_date
+        assert account4_renew.start_date == self.account4_sub.end_date
+        assert account4_renew.end_date == datetime.date(1920, 7, 1)
+        account4_renew2 = Subscription.objects.get(pk=self.account4_renew2.pk)
+        assert account4_renew2.purchase_date == self.account4_renew2.start_date
+        assert account4_renew2.start_date == account4_renew.end_date
+        assert account4_renew2.end_date == datetime.date(1920, 8, 1)

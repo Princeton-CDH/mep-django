@@ -23,6 +23,11 @@ class EventSetMixin:
         # return as a sorted list
         return sorted(list(uniq_dates))
 
+    @property
+    def event_years(self):
+        '''list of unique years, based on :attr:`event_dates`'''
+        return list(set(d.year for d in self.event_dates))
+
     def event_date_ranges(self, event_type=None):
         '''Generate and return a list of date ranges this account/book
         was active, based on associated events. Optionally filter

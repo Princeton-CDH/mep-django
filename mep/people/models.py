@@ -2,13 +2,13 @@ import datetime
 import logging
 
 from django.apps import apps
-from django.contrib.humanize.templatetags.humanize import ordinal
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from parasolr.django.indexing import ModelIndexable
 from viapy.api import ViafEntity
 
@@ -102,6 +102,14 @@ class Location(Notable):
                 return int(self.postal_code[-2:])  # use last two digits
         except (ValueError, IndexError, AttributeError):
             return None
+
+    def arrondissement_ordinal(self):
+        '''Arrondissement in Frech ordinal notation, with superscript.'''
+        val = self.arrondissement()
+        if val:
+            suffix = 'er' if val == 1 else 'e'
+            return mark_safe('%d<sup>%s</sup>' % (val, suffix))
+        return ''
 
 
 class Profession(Named, Notable):
@@ -429,8 +437,9 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
     #: footnotes (:class:`~mep.footnotes.models.Footnote`)
     footnotes = GenericRelation(Footnote)
     #: a field for notes publicly displayed on the website
-    public_notes = models.TextField(blank=True,
-        help_text='Notes for display on the public site')
+    public_notes = models.TextField(
+        blank=True, help_text='Notes for display on the public site. ' +
+        'Use markdown for formatting.')
 
     # convenience access to associated locations, although
     # we will probably use Address for most things

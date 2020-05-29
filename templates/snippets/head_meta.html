@@ -23,8 +23,8 @@ page_description, and page_meta_image if set in context.
 <meta name="citation_date" content="2019"/>
 {% elif page.contentpage or page.essaypage %} {# content/essay page citation details #}
 <meta name="citation_title" content="{{ page.title|escape }}"/>
-{% for author in page.authors %}
-<meta name="citation_author" content="{{ author.lastname_first }}">
+{% for author_block in page.authors %}
+<meta name="citation_author" content="{{ author_block.value.lastname_first }}">
 {% endfor %}
 <meta name="citation_date" content="{{ page.first_published_at|date:"Y/m/d" }}"/>
 {% endif %}
@@ -75,4 +75,9 @@ page_description, and page_meta_image if set in context.
 <meta property="og:url" content="{{ request.build_absolute_uri }}" />
 <meta name="twitter:url" content="{{ request.build_absolute_uri }}" />
 <meta name="twitter:domain" content="{{ request.get_host }}" />
+<meta name="twitter:site" content="@ShakesCoProject" />
+{% for author_block in page.authors %}{% if author_block.value.twitter_id %}
+<meta name="twitter:creator" content="{{ author_block.value.twitter_id }}" />
+{% endif %}{% endfor %}
+
 {% endif %}

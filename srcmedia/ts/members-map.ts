@@ -6,7 +6,7 @@ type Address = {
     name?: string,
     street_address: string,
     city: string,
-    postal_code?: number,
+    arrondissement?: string,
     latitude: number,
     longitude: number,
     start_date?: string,
@@ -28,7 +28,10 @@ declare const parisOverlay: string
  * map object with custom zoom control in bottom right
  */
 const target = document.getElementById('address-map') as HTMLDivElement
-const addressMap = map(target, { zoomControl: false })
+const addressMap = map(target, {
+    zoomControl: false,
+    scrollWheelZoom: false
+})
 const zoomControl = control.zoom({ position: 'bottomright' })
 
 zoomControl.addTo(addressMap)
@@ -97,8 +100,8 @@ const addressIconActive = icon({
 // generate a paragraph of text from the parts of the address to go in popup
 // NOTE not using date information currently, but it should be rendered as:
 // <span class="dates">1921-1941</span><p>...</p>
-function popupText ({ name, street_address, city, postal_code }: Address): string {
-    const parts = [name, street_address, postal_code, city].filter(p => !!p)
+function popupText ({ name, street_address, city, arrondissement }: Address): string {
+    const parts = [name, street_address, city + ' ' + arrondissement].filter(p => !!p)
     return `<p>${parts.join('<br/>')}</p>`
 }
 

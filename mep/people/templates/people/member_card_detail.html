@@ -25,23 +25,32 @@
         {% else %}
         <span class="prev"></span>
         {% endif %}
-        <picture>
+        <a href="#zoom" aria-label="view larger image">
+        <picture data-counter="{{ card_page.number }} / {{ card_page.paginator.num_pages }}">
         {% with card.image|iiif_image:"size:width=430" as 1xthumbnail %}
             <source srcset="{{ 1xthumbnail }}, {{ card.image|iiif_image:"size:width=860" }} 2x">
             <img src="{{ 1xthumbnail }}" alt="{{ member.firstname_last }} {{ label }} card" aria-describedby="card-counter">
-            <span id="card-counter" aria-hidden="true">
-                {{ card_page.number }}
-                <span aria-label="of">/</span>
-                {{ card_page.paginator.num_pages }}
-            </span>
         {% endwith %}
         </picture>
+        </a>
         {% if card_page.has_next %}
         <a class="next" rel="next" aria-label="next card"
            href="{% url 'people:member-card-detail' member.slug next_card_id %}"></a>
         {% else %}
         <span class="next"></span>
         {% endif %}
+    </div>
+
+    <div id="zoom">
+        <a href="#">
+            <picture>
+            {% with card.image|iiif_image:"size:width=!1024,height=1024" as 1xzoom %}
+                <source srcset="{{ card.image|iiif_image:"size:width=!568,height=568" }}, {{ card.image|iiif_image:"size:width=!1136,height=1136" }} 2x">
+                <sourcesrcset="{{ 1xzoom }}, {{ card.image|iiif_image:"size:width=!2048,height=2048" }} 2x"  media="(min-width: 768px)">
+                <img src="{{ 1xzoom}}" alt="{{ member.firstname_last }} {{ label }} card (large view)" aria-describedby="card-counter" loading="lazy">
+            {% endwith %}
+            </picture>
+        </a>
     </div>
 
     <div class="card nav container">
@@ -54,7 +63,7 @@
                     <picture>
                     {% with canvas.image|iiif_image:"size:width=105" as 1xthumbnail %}
                         <source srcset="{{ 1xthumbnail }}, {{ canvas.image|iiif_image:"size:width=215" }} 2x">
-                        <img src="{{ 1xthumbnail }}" alt="{{ member.firstname_last }} card {{ forloop.counter }}">
+                        <img src="{{ 1xthumbnail }}" alt="{{ member.firstname_last }} card {{ forloop.counter }}" loading="lazy">
                     {% endwith %}
                     </picture>
                     </a>
@@ -89,10 +98,10 @@
                 {{ event.work.title|default:'-' }}
                 </a>
             </td>
-            {% with event.event_type as event_type %}
-            <td class="activity{% if event_type == 'Generic' %} empty{% endif %}">
-                {% if event_type == 'Generic' %} -
-                {% else %}{{ event_type }}{% endif %}
+            {% with event.event_label as event_label %}
+            <td class="activity{% if event_label == 'Generic' %} empty{% endif %}">
+                {% if event_label == 'Generic' %} -
+                {% else %}{{ event_label }}{% endif %}
             </td>
             {% endwith %}
             <td class="end{% if not event.partial_end_date %} empty{% endif %}">

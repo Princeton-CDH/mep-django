@@ -52,6 +52,8 @@ class TestExportMembers(TestCase):
         # check addresses & coordinates
         assert '3 Rue Garancière, Paris' in gay_data['addresses']
         assert '48.85101, 2.33590' in gay_data['coordinates']
+        assert '75006' in gay_data['postal_codes']
+        assert 6 in gay_data['arrondissements']
 
         assert gay_data['updated'] == gay.updated_at.isoformat()
         assert hemingway_data['updated'] == hemingway.updated_at.isoformat()

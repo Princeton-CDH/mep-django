@@ -24,6 +24,8 @@ section[aria-label=bibliography] {
     /* uncertainty icon is displayed above the notes on mobile; to the left on
     all other screens */
     .notes {
+        margin: 2rem 0;
+        
         dd { white-space: pre-line; }
 
         &.uncertain {

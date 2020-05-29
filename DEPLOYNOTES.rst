@@ -3,6 +3,22 @@
 Deploy and Upgrade notes
 ========================
 
+1.1
+---
+
+* Includes updates to Solr managed schema. Copy all files under `solr_conf/conf/`
+  to the configured Solr configset and restart Solr to ensure the managed schema is
+  loaded. Then update the schema and reindex::
+
+    python manage.py solr_schema
+    python manage.py index
+
+* The migration to calculate purchase dates and adjust start dates for
+  subscription renewals has been revised and should be re-run::
+
+    python manage.py migrate accounts 0032
+    python manage.py migrate accounts
+
 1.0
 ---
 
