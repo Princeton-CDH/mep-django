@@ -33,7 +33,7 @@ DATABASES = {
 SOLR_CONNECTIONS = {
     'default': {
         'URL': 'http://index:8983/solr/',
-        'COLLECTION': 's-and-co',
+        'COLLECTION': 'sandco',
         'CONFIGSET': 'sandco',
         'TEST': {
             # aggressive commitWithin for test only
