@@ -76,7 +76,7 @@ jobs:
       index:
         image: solr:6
         volumes:
-        - ./solr_conf:/opt/solr/server/solr/configsets/sandco
+        - ${{ github.workspace }}/solr_conf:/opt/solr/server/solr/configsets/sandco
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
