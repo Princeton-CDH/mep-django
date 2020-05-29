@@ -41,6 +41,12 @@ jobs:
             name: webpack-bundle
             path: bundles/
 
+        - name: Upload stats file
+          uses: actions/upload-artifact@v2
+          with:
+            name: webpack-bundle
+            path: webpack-stats.json
+
     py-unit:
         name: Python unit tests
         needs: build-static
