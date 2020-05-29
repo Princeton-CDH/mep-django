@@ -40,6 +40,7 @@ jobs:
 
         - name: Create test database
           run: |
+            sudo service mysql start
             mysql -u root -e "create database travismep";
             mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
 
