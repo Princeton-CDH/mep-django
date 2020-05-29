@@ -3,23 +3,18 @@ name: ci
 on: [push, pull_request]
 
 env:
-  SOLR_VERSION: 6.6.5
+  MYSQL_ROOT_PASSWORD: sandco
+  MYSQL_DATABASE: sandco
 
 jobs:
 
   build-static:
     name: Build static files
     runs-on: ubuntu-latest
+    container: node:10
     steps:
-
     - name: Checkout repository
       uses: actions/checkout@v2
-
-    - name: Setup node
-      uses: actions/setup-node@v2-beta
-      with:
-        node-version: 10
-
     - name: Cache node modules
       uses: actions/cache@v2
       with:
@@ -28,19 +23,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           ${{ runner.os }}-npm-
-
     - name: Install dependencies
       run: npm ci
-
     - name: Run webpack build
       run: npm run build:prod
-
     - name: Upload built files
       uses: actions/upload-artifact@v2
       with:
         name: webpack-bundle
         path: bundles/
-
     - name: Upload stats file
       uses: actions/upload-artifact@v2
       with:
@@ -50,16 +41,10 @@ jobs:
   ts-unit:
     name: TypeScript unit tests
     runs-on: ubuntu-latest
+    container: node:10
     steps:
-
     - name: Checkout repository
       uses: actions/checkout@v2
-
-    - name: Setup node
-      uses: actions/setup-node@v2-beta
-      with:
-        node-version: 10
-
     - name: Cache node modules
       uses: actions/cache@v2
       with:
@@ -68,13 +53,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           ${{ runner.os }}-npm-
-
     - name: Install dependencies
       run: npm ci
-
     - name: Run Jest
       run: npx jest --collectCoverage
-
     - name: Upload test coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
@@ -84,21 +66,19 @@ jobs:
     name: Python unit tests
     needs: build-static
     runs-on: ubuntu-latest
+    container: python:3.5
+    services:
+      db:
+        image: mariadb
+        env:
+          MYSQL_DATABASE: sandco
+          MYSQL_ROOT_PASSWORD: sandco
+      index:
+        image: solr:6
+        volumes: ./solr_conf:/opt/solr/server/solr/configsets/sandco
     steps:
-
     - name: Checkout repository
       uses: actions/checkout@v2
-
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.5
-
-    - name: Setup Java
-      uses: actions/setup-java@v1
-      with:
-        java-version: 8
-
     - name: Cache pip
       uses: actions/cache@v2
       with:
@@ -107,34 +87,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt') }}
             ${{ runner.os }}-pip-
-
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
         pip install -r dev-requirements.txt
-
-    - name: Install and configure Solr
-      run: bash ci/config_solr.sh
-
-    - name: Setup local_settings.py
-      run: |
-        cp ci/testsettings.py mep/local_settings.py
-        python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
-
-    - name: Create test database
-      run: |
-        sudo service mysql start
-        mysql -u root -proot -e "create database travismep";
-        mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -proot mysql
-
     - name: Download webpack bundle
       uses: actions/download-artifact@v2
       with:
         name: webpack-bundle
-
+    - name: Setup local_settings.py
+      run: |
+        cp ci/testsettings.py mep/local_settings.py
+        python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
+    - name: Create solr core
+      run: python manage.py solr_schema --noinput
     - name: Run pytest
       run: py.test --cov=./ --cov-report=xml
-
     - name: Upload test coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
@@ -145,20 +113,16 @@ jobs:
     needs: build-static
     runs-on: ubuntu-latest
     steps:
-
     - name: Checkout repository
       uses: actions/checkout@v2
-
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
         python-version: 3.5
-
     - name: Setup Java
       uses: actions/setup-java@v1
       with:
         java-version: 8
-
     - name: Cache pip
       uses: actions/cache@v2
       with:
@@ -167,45 +131,36 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt') }}
             ${{ runner.os }}-pip-
-
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
         pip install -r dev-requirements.txt
         npm install pa11y-ci
-
     - name: Setup local_settings.py
       run: |
         cp ci/testsettings.py mep/local_settings.py
         python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
-
     - name: Create test database
       run: |
         sudo service mysql start
         mysql -u root -proot -e "create database travismep";
         mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -proot mysql
-
     - name: Download webpack bundle
       uses: actions/download-artifact@v2
       with:
         name: webpack-bundle
-
     - name: Install and configure Solr
       run: |
         bash ci/config_solr.sh
         python manage.py solr_schema --noinput
-        
     - name: Migrate database
       run: python manage.py migrate
-
     - name: Load and index sample data
       run: |
         python manage.py loaddata sample_people sample_works wagtail_pages
         python manage.py index
-
     - name: Run test server
       run: python manage.py runserver --insecure &
-
     - name: Run pa11y
       run: |
         npx pa11y-ci \
@@ -218,4 +173,5 @@ jobs:
         --sitemap http://localhost:8000/sitemap-member-card-detail.xml \
         --sitemap http://localhost:8000/sitemap-books.xml \
         --sitemap http://localhost:8000/sitemap-book-circulation.xml \
-        --sitemap http://localhost:8000/sitemap-book-card-list.xml
+        --sitemap http://localhost:8000/sitemap-book-card-list.xml \
+        --sitemap-find example.com --sitemap-replace localhost:8000
