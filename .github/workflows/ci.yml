@@ -110,7 +110,7 @@ jobs:
     - name: Create solr core
       run: |
         docker cp ./solr_conf ${{ job.services.index.id }}:/opt/solr/server/solr/configsets/sandco
-        docker exec ${{ job.services.index.id }} sudo chown -R solr:solr /opt/solr/server/solr/configsets/sandco
+        docker exec --privileged ${{ job.services.index.id }} chown -R solr:solr /opt/solr/server/solr/configsets/sandco
         python manage.py solr_schema --noinput
     - name: Run pytest
       run: py.test --cov=./ --cov-report=xml
@@ -166,7 +166,7 @@ jobs:
     - name: Create solr core
       run: |
         docker cp ./solr_conf ${{ job.services.index.id }}:/opt/solr/server/solr/configsets/sandco
-        docker exec ${{ job.services.index.id }} sudo chown -R solr:solr /opt/solr/server/solr/configsets/sandco
+        docker exec --privileged ${{ job.services.index.id }} chown -R solr:solr /opt/solr/server/solr/configsets/sandco
         python manage.py solr_schema --noinput
     - name: Migrate database
       run: python manage.py migrate
