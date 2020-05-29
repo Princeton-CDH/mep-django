@@ -2,10 +2,6 @@ name: ci
 
 on: [push, pull_request]
 
-env:
-  MYSQL_ROOT_PASSWORD: sandco
-  MYSQL_DATABASE: sandco
-
 jobs:
 
   build-static:
@@ -76,7 +72,7 @@ jobs:
       index:
         image: solr:6
         volumes:
-        - ${{ github.workspace }}/solr_conf:/opt/solr/server/solr/configsets/sandco
+        - ${{ github.workspace }}/solr_conf/conf/:/opt/solr/server/solr/configsets/sandco/conf/
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
