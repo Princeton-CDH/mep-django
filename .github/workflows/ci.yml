@@ -72,7 +72,7 @@ jobs:
       index:
         image: solr:6
         volumes:
-        - ${{ github.workspace }}/solr_conf/conf/:/opt/solr/server/solr/configsets/sandco/conf/
+        - ${{ github.workspace }}/solr_conf:/opt/solr/server/solr/configsets/sandco
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -97,7 +97,9 @@ jobs:
         cp ci/testsettings.py mep/local_settings.py
         python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
     - name: Create solr core
-      run: python manage.py solr_schema --noinput
+      run: |
+        docker exec index "solr-precreate sandco /opt/solr/server/solr/configsets/sandco"
+        python manage.py solr_schema --noinput
     - name: Run pytest
       run: py.test --cov=./ --cov-report=xml
     - name: Upload test coverage to Codecov
