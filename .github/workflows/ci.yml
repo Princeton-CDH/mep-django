@@ -111,7 +111,7 @@ jobs:
         python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
     - name: Create solr core
       run: |
-        docker exec ${{ job.services.index.id }} solr-precreate sandco /opt/solr/server/solr/configsets/sandco
+        docker exec ${{ job.services.index.id }} precreate-core sandco /opt/solr/server/solr/configsets/sandco
         python manage.py solr_schema --noinput
     - name: Run pytest
       run: py.test --cov=./ --cov-report=xml
