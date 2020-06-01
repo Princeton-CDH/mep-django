@@ -2,6 +2,9 @@ name: ci
 
 on: [push, pull_request]
 
+env:
+  SOLR_VERSION: 6.6.5
+
 jobs:
 
   build-static:
