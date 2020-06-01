@@ -80,6 +80,8 @@ jobs:
         image: solr:6
         ports:
         - 8983:8983
+        volumes:
+        - ${{ github.workspace }}/solr_conf:/opt/solr/server/solr/configsets/sandco
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -109,8 +111,7 @@ jobs:
         python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
     - name: Create solr core
       run: |
-        docker cp ./solr_conf ${{ job.services.index.id }}:/opt/solr/server/solr/configsets/sandco
-        docker exec --privileged ${{ job.services.index.id }} bash -c "su root && chown -R solr:solr /opt/solr/server/solr/configsets/sandco"
+        docker exec ${{ job.services.index.id }} solr-precreate sandco /opt/solr/server/solr/configsets/sandco
         python manage.py solr_schema --noinput
     - name: Run pytest
       run: py.test --cov=./ --cov-report=xml
@@ -135,6 +136,8 @@ jobs:
         image: solr:6
         ports:
         - 8983:8983
+        volumes:
+        - ${{ github.workspace }}/solr_conf:/opt/solr/server/solr/configsets/sandco
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -165,8 +168,7 @@ jobs:
         name: webpack-bundle
     - name: Create solr core
       run: |
-        docker cp ./solr_conf ${{ job.services.index.id }}:/opt/solr/server/solr/configsets/sandco
-        docker exec --privileged ${{ job.services.index.id }} bash -c "su root && chown -R solr:solr /opt/solr/server/solr/configsets/sandco"
+        docker exec ${{ job.services.index.id }} solr-precreate sandco /opt/solr/server/solr/configsets/sandco
         python manage.py solr_schema --noinput
     - name: Migrate database
       run: python manage.py migrate
