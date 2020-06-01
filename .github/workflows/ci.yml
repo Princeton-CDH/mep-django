@@ -68,20 +68,6 @@ jobs:
     name: Python unit tests
     needs: build-static
     runs-on: ubuntu-latest
-    services:
-      db:
-        image: mariadb
-        env:
-          MYSQL_DATABASE: sandco
-          MYSQL_ROOT_PASSWORD: sandco
-        ports:
-        - 3306:3306
-      index:
-        image: solr:6
-        ports:
-        - 8983:8983
-        volumes:
-        - ${{ github.workspace }}/solr_conf:/opt/solr/server/solr/configsets/sandco
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -109,10 +95,9 @@ jobs:
       run: |
         cp ci/testsettings.py mep/local_settings.py
         python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
-    - name: Create solr core
+    - name: Setup solr & database
       run: |
-        docker restart ${{ job.services.index.id }}
-        docker exec ${{ job.services.index.id }} precreate-core sandco /opt/solr/server/solr/configsets/sandco
+        docker-compose up -d && sleep 5
         python manage.py solr_schema --noinput
     - name: Run pytest
       run: py.test --cov=./ --cov-report=xml
@@ -125,20 +110,6 @@ jobs:
     name: Accessibility tests
     needs: build-static
     runs-on: ubuntu-latest
-    services:
-      db:
-        image: mariadb
-        env:
-          MYSQL_DATABASE: sandco
-          MYSQL_ROOT_PASSWORD: sandco
-        ports:
-        - 3306:3306
-      index:
-        image: solr:6
-        ports:
-        - 8983:8983
-        volumes:
-        - ${{ github.workspace }}/solr_conf:/opt/solr/server/solr/configsets/sandco
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -167,10 +138,9 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: webpack-bundle
-    - name: Create solr core
+    - name: Setup solr & database
       run: |
-        docker restart ${{ job.services.index.id }}
-        docker exec ${{ job.services.index.id }} solr-precreate sandco /opt/solr/server/solr/configsets/sandco
+        docker-compose up -d && sleep 5
         python manage.py solr_schema --noinput
     - name: Migrate database
       run: python manage.py migrate

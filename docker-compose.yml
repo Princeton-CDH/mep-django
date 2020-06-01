@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb
+    ports:
+      - 3306:3306
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=sandco
+      - MYSQL_DATABASE=sandco
+  index:
+    image: solr:6
+    ports:
+      - 8983:8983
+    volumes:
+      - ./solr_conf:/opt/solr/server/solr/configsets/sandco:ro
+      - index:/var/solr
+    command:
+      - solr-precreate
+      - sandco
+      - /opt/solr/server/solr/configsets/sandco
+
+volumes:
+  db:
+  index:
+    
