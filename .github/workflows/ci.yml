@@ -111,6 +111,7 @@ jobs:
         python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
     - name: Create solr core
       run: |
+        docker restart ${{ job.services.index.id }}
         docker exec ${{ job.services.index.id }} precreate-core sandco /opt/solr/server/solr/configsets/sandco
         python manage.py solr_schema --noinput
     - name: Run pytest
@@ -168,6 +169,7 @@ jobs:
         name: webpack-bundle
     - name: Create solr core
       run: |
+        docker restart ${{ job.services.index.id }}
         docker exec ${{ job.services.index.id }} solr-precreate sandco /opt/solr/server/solr/configsets/sandco
         python manage.py solr_schema --noinput
     - name: Migrate database
