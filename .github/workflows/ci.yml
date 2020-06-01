@@ -68,6 +68,14 @@ jobs:
     name: Python unit tests
     needs: build-static
     runs-on: ubuntu-latest
+    services:
+      db:
+        image: mariadb
+        env:
+          MYSQL_DATABASE: sandco
+          MYSQL_ROOT_PASSWORD: sandco
+        ports:
+        - 3306:3306
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -85,8 +93,11 @@ jobs:
             ${{ runner.os }}-pip-
     - name: Install dependencies
       run: |
+        pip install wheel
         pip install -r requirements.txt
         pip install -r dev-requirements.txt
+    - name: Install and configure Solr
+      run: bash ci/config_solr.sh
     - name: Download webpack bundle
       uses: actions/download-artifact@v2
       with:
@@ -95,10 +106,6 @@ jobs:
       run: |
         cp ci/testsettings.py mep/local_settings.py
         python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
-    - name: Setup solr & database
-      run: |
-        docker-compose up -d && sleep 5
-        python manage.py solr_schema --noinput
     - name: Run pytest
       run: py.test --cov=./ --cov-report=xml
     - name: Upload test coverage to Codecov
@@ -110,6 +117,14 @@ jobs:
     name: Accessibility tests
     needs: build-static
     runs-on: ubuntu-latest
+    services:
+      db:
+        image: mariadb
+        env:
+          MYSQL_DATABASE: sandco
+          MYSQL_ROOT_PASSWORD: sandco
+        ports:
+        - 3306:3306
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -127,9 +142,12 @@ jobs:
             ${{ runner.os }}-pip-
     - name: Install dependencies
       run: |
+        pip install wheel
         pip install -r requirements.txt
         pip install -r dev-requirements.txt
         npm install pa11y-ci
+    - name: Install and configure Solr
+      run: bash ci/config_solr.sh
     - name: Setup local_settings.py
       run: |
         cp ci/testsettings.py mep/local_settings.py
@@ -138,10 +156,6 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: webpack-bundle
-    - name: Setup solr & database
-      run: |
-        docker-compose up -d && sleep 5
-        python manage.py solr_schema --noinput
     - name: Migrate database
       run: python manage.py migrate
     - name: Load and index sample data
