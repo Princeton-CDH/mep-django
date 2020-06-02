@@ -121,7 +121,7 @@ jobs:
         flags: python
 
   a11y:
-    name: Accessibility tests
+    name: Lighthouse
     needs: build-static
     runs-on: ubuntu-latest
     services:
@@ -139,6 +139,10 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.5
+    - name: Setup node
+      uses: actions/setup-node@v2-beta
+      with:
+        node-version: 10
     - name: Cache pip
       uses: actions/cache@v2
       with:
@@ -153,7 +157,7 @@ jobs:
         pip install wheel
         pip install -r requirements.txt
         pip install -r dev-requirements.txt
-        npm install pa11y-ci
+        npm install -g @lhci/cli
     - name: Install and configure Solr
       run: bash ci/config_solr.sh
     - name: Setup local_settings.py
@@ -170,16 +174,5 @@ jobs:
       run: |
         python manage.py loaddata sample_people sample_works wagtail_pages
         python manage.py index
-    - name: Run test server
-      run: python manage.py runserver --insecure &
-    - name: Run pa11y
-      run: |
-        npx pa11y-ci --sitemap http://localhost:8000/sitemap.xml --sitemap-find example.com --sitemap-replace localhost:8000
-        npx pa11y-ci --sitemap http://localhost:8000/sitemap-members.xml --sitemap-find example.com --sitemap-replace localhost:8000
-        npx pa11y-ci --sitemap http://localhost:8000/sitemap-member-activities.xml --sitemap-find example.com --sitemap-replace localhost:8000
-        npx pa11y-ci --sitemap http://localhost:8000/sitemap-member-borrowing.xml --sitemap-find example.com --sitemap-replace localhost:8000
-        npx pa11y-ci --sitemap http://localhost:8000/sitemap-member-card-list.xml --sitemap-find example.com --sitemap-replace localhost:8000
-        npx pa11y-ci --sitemap http://localhost:8000/sitemap-member-card-detail.xml --sitemap-find example.com --sitemap-replace localhost:8000
-        npx pa11y-ci --sitemap http://localhost:8000/sitemap-books.xml --sitemap-find example.com --sitemap-replace localhost:8000
-        npx pa11y-ci --sitemap http://localhost:8000/sitemap-book-circulation.xml --sitemap-find example.com --sitemap-replace localhost:8000
-        npx pa11y-ci --sitemap http://localhost:8000/sitemap-book-card-list.xml --sitemap-find example.com --sitemap-replace localhost:8000
+    - name: Run Lighthouse
+      run: lhci autorun
