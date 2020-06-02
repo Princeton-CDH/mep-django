@@ -95,6 +95,15 @@ class TestWorkListView(TestCase):
 
         # NOTE publishers display is designed but data not yet available
 
+    @patch('mep.common.views.SolrQuerySet')
+    def test_last_modified(self, mock_wsq):
+        mock_wsq.return_value.filter.return_value.order_by.return_value \
+            .only.return_value = [
+                {'last_modified': '2018-07-02T21:08:46.428Z'}]
+        response = self.client.head(self.url)
+        # has last modified header
+        assert response['Last-Modified']
+
     def test_no_relevance_anonymous(self):
         response = self.client.get(self.url, {'query': 'eliza'})
         # relevance score should not be shown to anynmous user
@@ -274,6 +283,23 @@ class TestWorkListView(TestCase):
 class TestWorkDetailView(TestCase):
     fixtures = ['sample_works', 'multi_creator_work']
 
+    @patch('mep.common.views.SolrQuerySet')
+    def test_last_modified(self, mock_wsq):
+        mock_wsq.return_value.filter.return_value.order_by.return_value \
+            .only.return_value = [
+                {'last_modified': '2018-07-02T21:08:46.428Z'}]
+        work = Work.objects.first()
+        url = reverse('books:book-detail', kwargs={'slug': work.slug})
+        response = self.client.head(url)
+        # has last modified header
+        assert response['Last-Modified']
+        mock_wsq.return_value.filter.assert_called_with(item_type='work',
+                                                        slug_s=work.slug)
+        mock_wsq.return_value.filter.return_value \
+            .order_by.assert_called_with('-last_modified')
+        mock_wsq.return_value.filter.return_value.order_by.return_value \
+            .only.assert_called_with('last_modified')
+
     def test_get_breadcrumbs(self):
         # fetch any work and check breadcrumbs
         work = Work.objects.first()
@@ -326,8 +352,10 @@ class TestWorkDetailView(TestCase):
         url = reverse('books:book-detail', kwargs={'slug': work.slug})
         response = self.client.get(url)
         # check that a link was rendered
-        self.assertContains(response,
-            '<a href="%s">Read online</a>' % work.ebook_url)
+        self.assertContains(
+            response,
+            '<a href="%s" target="_blank">Read online</a>' % work.ebook_url,
+            html=True)
 
     def test_notes_display(self):
         # fetch a work with public notes
@@ -338,6 +366,15 @@ class TestWorkDetailView(TestCase):
         self.assertContains(response, '<dt>Notes</dt>')
         self.assertContains(response, '<dd>%s</dd>' % work.public_notes)
         # NOTE check that uncertainty icon is rendered when implemented
+
+    def test_markdown_notes(self):
+        work = Work.objects.get(title='Chronicle of my Life')
+        work.public_notes = 'some *formatted* content'
+        work.save()
+        url = reverse('books:book-detail', kwargs={'slug': work.slug})
+        response = self.client.get(url)
+        # check that markdown is rendered
+        self.assertContains(response, '<em>formatted</em>')
 
     def test_edition_volume_display(self):
         # fetch a periodical with issue information

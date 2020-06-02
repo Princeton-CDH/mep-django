@@ -34,11 +34,11 @@ p {
     margin-bottom: 1rem;
 }
 
-i {
+i, em {
     font-style: italic;
 }
 
-b {
+b, strong {
     font-weight: bold;
 }
 
@@ -135,15 +135,16 @@ h2.tagline {
     }
 }
 
+sup, sub {
+    font-size: small;
+    line-height: 0;
+}
 
 sup {
     vertical-align: super;
-    font-size: smaller;
 }
-
 sub {
     vertical-align: sub;
-    font-size: smaller;
 }
 
 code {

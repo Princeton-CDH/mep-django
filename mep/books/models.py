@@ -281,7 +281,8 @@ class Work(Notable, ModelIndexable, EventSetMixin):
     subjects = models.ManyToManyField(Subject, blank=True)
     #: a field for notes publicly displayed on the website
     public_notes = models.TextField(
-        blank=True, help_text='Notes for display on the public website')
+        blank=True, help_text='Notes for display on the public website. ' +
+        ' Use markdown for formatting.')
 
     #: slug for use in urls
     slug = models.SlugField(
@@ -465,10 +466,8 @@ class Work(Notable, ModelIndexable, EventSetMixin):
         if earliest_date:
             # NOTE: doesn't matter if partial, will still sort as expected
             index_data['first_event_date_i'] = earliest_date.strftime('%Y%m%d')
-
             # if there is at least one date, also include circulation years
-            index_data['event_years_is'] = list(set(d.year for d in
-                                                    self.event_dates))
+            index_data['event_years_is'] = self.event_years
 
         return index_data
 
@@ -596,7 +595,7 @@ class Edition(Notable):
     # language model foreign key may be added in future
 
     class Meta:
-        ordering = ['date']
+        ordering = ['date', 'volume']
 
     def __repr__(self):
         # provide pk for easy lookup and string for recognition

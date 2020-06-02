@@ -1,14 +1,15 @@
 import { merge, fromEvent } from 'rxjs'
 import { pluck, map, withLatestFrom, startWith, distinctUntilChanged, mapTo, filter, debounceTime, flatMap, skip, tap } from 'rxjs/operators'
 
-import { arraysAreEqual, toggleTab, pluralize } from './lib/common'
+import { arraysAreEqual, toggleTab, pluralize, ordinalize } from './lib/common'
 import { RxTextInput } from './lib/input'
 import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
 import { RxSelect } from './lib/select'
-import PageControls from './components/PageControls'
-import { RxChoiceFacet, RxBooleanFacet, RxTextFacet } from './lib/facet'
+import { RxChoiceFacet, RxBooleanFacet, RxTextFacet, Choice } from './lib/facet'
 import { RxRangeFilter, rangesAreEqual } from './lib/filter'
+import ActiveFilters from "./components/ActiveFilters"
+import PageControls from './components/PageControls'
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -28,9 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const $arrondissementFacet = document.querySelector('#id_arrondissement') as HTMLFieldSetElement
     const $errors = document.querySelector('div[role=alert].errors')
     const $demographicsTab = document.querySelector('.demographics.tab') as HTMLDivElement
-    const $booksTab = document.querySelector('.books.tab') as HTMLDivElement
+    // const $booksTab = document.querySelector('.books.tab') as HTMLDivElement
     const $nationalityExpander = document.querySelector('.expander[aria-controls="id_nationality"]') as HTMLDivElement
     const $arrondissementExpander = document.querySelector('.expander[aria-controls="id_arrondissement"]') as HTMLDivElement
+    const $activeFilters = document.querySelector('.active-filters') as HTMLDivElement
     const bottomOfForm = $membersSearchForm.getBoundingClientRect().bottom
 
     /* COMPONENTS */
@@ -47,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const birthDateFacet = new RxRangeFilter($birthDateFacet)
     const nationalityFacet = new RxTextFacet($nationalityFacet)
     const arrondissementFacet = new RxTextFacet($arrondissementFacet)
+    const activeFilters = new ActiveFilters($activeFilters)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
@@ -160,8 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
     )
     const arrondissementChoices = membersSearchForm.facets.pipe(
         pluck('facet_fields'),
-        pluck('arrondissements'),
+        pluck('arrondissement'),
         flatMap(Object.entries),
+        // make sure arr. names are ordinalized, e.g. "1st"
+        map((c: Choice) => {
+            c[0] = ordinalize(parseInt(c[0], 10))
+            return c
+        })
     )
 
     /* SUBSCRIPTIONS */
@@ -253,16 +261,17 @@ document.addEventListener('DOMContentLoaded', () => {
             filter(code => code == 'Space' || code == 'Enter')
         )
     )
-    .subscribe(() => toggleTab($demographicsTab, [$booksTab]))
+    .subscribe(() => toggleTab($demographicsTab, []))
+    // .subscribe(() => toggleTab($demographicsTab, [$booksTab]))
 
-    merge(
-        fromEvent($booksTab, 'click'),
-        fromEvent($booksTab, 'keydown').pipe(
-            map(e => (e as KeyboardEvent).code),
-            filter(code => code == 'Space' || code == 'Enter')
-        )
-    )
-    .subscribe(() => toggleTab($booksTab, [$demographicsTab]))
+    // merge(
+    //     fromEvent($booksTab, 'click'),
+    //     fromEvent($booksTab, 'keydown').pipe(
+    //         map(e => (e as KeyboardEvent).code),
+    //         filter(code => code == 'Space' || code == 'Enter')
+    //     )
+    // )
+    // .subscribe(() => toggleTab($booksTab, [$demographicsTab]))
 
     // Make clicking or pressing space/enter on the expanders for facets on
     // mobile toggle their aria-expanded attribute

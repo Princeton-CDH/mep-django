@@ -67,12 +67,13 @@ class MemberSearchForm(RangeForm, FacetForm):
             'aria-describedby': 'gender_tip'
         }),
         help_text='Click to learn more about gender representation in the Project.')
-    membership_dates = RangeField(label='Membership Dates', required=False,
+    membership_dates = RangeField(label='Membership Years', required=False,
                                   widget=RangeWidget(attrs={'size': 4}))
     birth_year = RangeField(label='Birth Year', required=False,
                             widget=RangeWidget(attrs={'size': 4}))
     nationality = FacetChoiceField(
         label='Nationality', hide_threshold=0,
+        none_val='Unidentified',
         widget=CheckboxFieldset(attrs={
             'class': 'text facet',
             'aria-describedby': 'nationality-info'

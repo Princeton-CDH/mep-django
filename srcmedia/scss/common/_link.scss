@@ -1,15 +1,7 @@
 // normal links with green underline
 main a {
+    @include green-link;
     color: $black;
-    text-decoration: underline;
-    text-decoration-color: $green;
-    text-decoration-thickness: .1rem;
-    text-underline-offset: .2rem;
-    transition: all 0.2s;
-
-    &:hover, &:focus {
-        text-decoration-color: $dark-green;
-    }
 }
 
 // '¶' links to linkable sections in body text

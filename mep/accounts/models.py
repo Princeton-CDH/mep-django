@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import re
+
 from cached_property import cached_property
 from dateutil.relativedelta import relativedelta
 from django.contrib.contenttypes.fields import GenericRelation
@@ -6,14 +8,15 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
 from django.db import models
 from django.template.defaultfilters import pluralize
+from djiffy.models import Canvas
 
 from mep.accounts.event_set import EventSetMixin
 from mep.accounts.partial_date import DatePrecisionField, PartialDate, \
     PartialDateMixin
 from mep.books.models import Edition, Work
 from mep.common.models import Named, Notable
-from mep.people.models import Person, Location
 from mep.footnotes.models import Bibliography, Footnote
+from mep.people.models import Location, Person
 
 
 class Account(models.Model, EventSetMixin):
@@ -67,8 +70,6 @@ class Account(models.Model, EventSetMixin):
         return ', '.join(person.name for
                          person in self.persons.all().order_by('name'))
     list_persons.short_description = 'Account holder(s)'
-
-
 
     @property
     def subscription_set(self):
@@ -150,6 +151,36 @@ class Account(models.Model, EventSetMixin):
         # Catch an invalid class of event or subevent
         self.validate_etype(etype)
         return self.str_to_model(etype).objects.filter(account=self, **kwargs)
+
+    def member_card_images(self):
+        '''Return a queryset for card images that are part of this account's
+        associated card manifest OR that have events for this account.
+        Note that this returns a union queryset, which puts some retrictions
+        on supported operations.
+        '''
+
+        if not self.card or not self.card.manifest:
+            return Canvas.objects.none()
+
+        # get all canvases that belong to the manifest assigned as the
+        # card for this account (including blanks)
+        # mark as priority 1 to allow sorting
+        manifest_cards = self.card.manifest.canvases.all() \
+            .annotate(priority=models.Value('1', output_field=models.IntegerField()))
+
+        # find all canvas associated with events for this account via footnote
+        # (excluding those already in the manifest)
+        event_cards = Canvas.objects.exclude(manifest=self.card.manifest) \
+            .filter(
+                models.Q(footnote__events__account__pk=self.pk) |
+                models.Q(footnote__borrows__account__pk=self.pk) |
+                models.Q(footnote__purchases__account__pk=self.pk)) \
+            .annotate(priority=models.Value('2', output_field=models.IntegerField())) \
+            .distinct()
+
+        # combine the two sets; removes duplicates by default
+        # Sort primary manifests cards first, then sort by order
+        return manifest_cards.union(event_cards).order_by('priority', 'order')
 
 
 class Address(Notable, PartialDateMixin):
@@ -297,6 +328,29 @@ class Event(Notable, PartialDateMixin):
         if getattr(self, 'purchase', None):
             return 'Purchase'
         return 'Generic'
+
+    #: notation in private notes indicating kind of nonstandard events
+    nonstandard_notation = {
+        'NOTATION: LOAN': 'Loan',
+        'NOTATION: SBGIFT': 'Gift',
+        'NOTATION: BOUGHTFOR': 'Purchase',
+        'NOTATION: SOLDFOR': 'Purchase',
+        'NOTATION: REQUEST': 'Request',
+        'STRIKETHRU': 'Crossed out'
+    }
+    re_nonstandard_notation = re.compile(
+        '(%s)' % '|'.join(nonstandard_notation.keys()))
+
+    @cached_property
+    def event_label(self):
+        '''Event type label that includes nonstandard events indicated
+        by notation in private notes as well as all the standard types.'''
+        # NOTE: takes precedence over generic type if it occurs
+        if self.notes:
+            match = re.search(self.re_nonstandard_notation, self.notes)
+            if match:
+                return self.nonstandard_notation[match.group(0)]
+        return self.event_type
 
 
 class SubscriptionType(Named, Notable):

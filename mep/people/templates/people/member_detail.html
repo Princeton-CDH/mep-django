@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static mep_tags %}
+{% load static mep_tags markdownify %}
 {% load render_bundle from webpack_loader %}
 
 {% block page-subtitle %}{{ member.firstname_last }} · Library Members · {% endblock %}
@@ -53,7 +53,7 @@
             {# public notes #}
             {% if member.public_notes %}
             <dt class="notes">Notes</dt>
-            <dd class="notes">{{ member.public_notes }}</dd>
+            <dd class="notes">{{ member.public_notes|markdownify }}</dd>
             {% endif %}
         </div>
         <div class="secondary">

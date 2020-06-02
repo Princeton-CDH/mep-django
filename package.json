@@ -26,6 +26,7 @@
         "@babel/core": "^7.2.2",
         "@babel/preset-env": "^7.3.1",
         "@types/d3": "^5.7.2",
+        "@types/dom-inputevent": "^1.0.5",
         "@types/esri-leaflet": "^2.1.5",
         "@types/jest": "^24.0.11",
         "@types/leaflet": "^1.5.5",
@@ -42,7 +43,7 @@
         "jest-environment-jsdom-fourteen": "^0.1.0",
         "jest-marbles": "^2.3.1",
         "mini-css-extract-plugin": "^0.5.0",
-        "node-sass": "^4.13.1",
+        "node-sass": "^4.14.1",
         "node-sass-glob-importer": "^5.3.0",
         "optimize-css-assets-webpack-plugin": "^5.0.1",
         "pa11y-ci": "^2.1.1",
@@ -55,8 +56,8 @@
         "typescript": "^3.4.1",
         "webpack": "^4.29.0",
         "webpack-bundle-tracker": "^0.4.2-beta",
-        "webpack-cli": "^3.2.1",
-        "webpack-dev-server": "^3.1.14",
+        "webpack-cli": "^3.3.11",
+        "webpack-dev-server": "^3.11.0",
         "whatwg-fetch": "^3.0.0"
     },
     "dependencies": {

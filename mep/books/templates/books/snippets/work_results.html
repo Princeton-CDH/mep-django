@@ -1,9 +1,10 @@
-<style nonce="{{ request.csp_nonce }}">
+{% load account_tags %}
+<style>
     .work-results {
         counter-reset: results {{ page_obj.start_index|add:'-1' }};
     }
 </style>
-<ol class="work-results">
+<ol class="work-results" start="{{ page_obj.start_index|add:'-1' }}">
     {% for work in works %}
     <li class="books result{% if work.is_uncertain %} uncertain{% endif %}">
         <a href="{% url 'books:book-detail' slug=work.slug %}" aria-label="{{ work.title.0 }}">
@@ -39,13 +40,17 @@
                         <dt class="pubdate">Publication Date</dt>
                         <dd class="pubdate">{{ work.pub_date }}</dd>
                         {% endif %}
-                    </div>
-                    <div class="secondary">
                         {# format #}
                         {% if work.format %}
                         <dt class="format">Format</dt>
                         <dd class="format">{{ work.format }}</dd>
                         {% endif %}
+                    </div>
+                    <div class="secondary">
+                        <dt class="circ">Circulation</dt>
+                        <dd class="circ">{{ work.event_count }} event{{ work.event_count|pluralize }}</dd>
+                        <dd class="circ">{{ work.event_years|as_ranges|default:'-' }}</dd>
+
                         {# search result relevance (if user is logged in) #}
                         {% if user.is_authenticated and work.score %}
                         <dt class="relevance">Relevance</dt>

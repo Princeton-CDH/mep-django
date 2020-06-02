@@ -1,5 +1,7 @@
 /* book detail list (<dl>) styles */
 
+
+
 dl.book {
     // format heading is only shown to SRs
     dt.format { @include sr-only; }
@@ -13,5 +15,16 @@ dl.book {
         padding: .4rem .5rem .25rem;
         border: 1px solid $light-grey;
         line-height: .75rem;
+        margin-top: 1.25rem;
     }
 }
+
+section[aria-label='bibliography'] {
+    /* only use block date display on detail page */
+    .circ {
+        .date-range {
+            display: block;
+        }
+    }
+}
+

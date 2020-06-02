@@ -26,8 +26,8 @@ from mep.footnotes.models import Bibliography, Footnote, SourceType
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
-from mep.people.models import (Country, Location, Person, Relationship,
-                               RelationshipType)
+from mep.people.models import (Country, Location, Person, PastPersonSlug,
+                               Relationship, RelationshipType)
 from mep.people.views import (BorrowingActivities, GeoNamesLookup,
                               MemberCardDetail, MemberCardList,
                               MembershipActivities, MembershipGraphs,
@@ -873,7 +873,7 @@ class TestMembersListView(TestCase):
         mock_qs.facet_field.assert_any_call(
             'gender', missing=True, exclude='gender')
         mock_qs.facet_field.assert_any_call(
-            'nationality', exclude='nationality', sort='value')
+            'nationality', exclude='nationality', sort='value', missing=True)
         mock_qs.facet_field.assert_any_call(
             'arrondissement', exclude='arrondissement', sort='value')
         # search and raw query not called without keyword search term
@@ -938,7 +938,7 @@ class TestMembersListView(TestCase):
         })
         del view._form
         sqs = view.get_queryset()
-        mock_qs.filter.assert_any_call(nationality__in=['"France"'],
+        mock_qs.filter.assert_any_call(nationality__in=['France'],
                                        tag='nationality')
 
         # filter on arrondissement
@@ -1006,6 +1006,15 @@ class TestMembersListView(TestCase):
         mock_stats['stats_fields']['account_years']['min'] = None
         assert MembersList().get_range_stats() == {'birth_year': (1910, 1932)}
 
+    @patch('mep.common.views.SolrQuerySet')
+    def test_last_modified(self, mock_wsq):
+        mock_wsq.return_value.filter.return_value.order_by.return_value \
+            .only.return_value = [
+                {'last_modified': '2018-07-02T21:08:46.428Z'}]
+        response = self.client.head(self.members_url)
+        # has last modified header
+        assert response['Last-Modified']
+
 
 class TestMemberDetailView(TestCase):
     fixtures = ['sample_people.json']
@@ -1039,6 +1048,19 @@ class TestMemberDetailView(TestCase):
         self.assertContains(response, 'France')
         # NOTE currently not including/checking profession
 
+    @patch('mep.common.views.SolrQuerySet')
+    def test_last_modified(self, mock_wsq):
+        mock_wsq.return_value.filter.return_value.order_by.return_value \
+            .only.return_value = [
+                {'last_modified': '2018-07-02T21:08:46.428Z'}]
+        gay = Person.objects.get(name='Francisque Gay', slug='gay')
+        url = reverse('people:member-detail', kwargs={'slug': gay.slug})
+        response = self.client.head(url)
+        # has last modified header
+        assert response['Last-Modified']
+        mock_wsq.return_value.filter.assert_called_with(item_type='person',
+                                                        slug_s=gay.slug)
+
     def test_member_map(self):
         gay = Person.objects.get(name='Francisque Gay', slug='gay')
         url = reverse('people:member-detail', kwargs={'slug': gay.slug})
@@ -1061,7 +1083,8 @@ class TestMemberDetailView(TestCase):
         response = self.client.get(url)
         assert response.status_code == 200
         # library address is rendered as "null"
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<script id="library-address" type="application/json">null</script>')
 
     def test_get_non_member(self):
@@ -1070,6 +1093,73 @@ class TestMemberDetailView(TestCase):
         response = self.client.get(url)
         assert response.status_code == 404, \
             'non-members should not have a detail page'
+
+    def test_markdown_notes(self):
+        gay = Person.objects.get(name='Francisque Gay', slug='gay')
+        gay.public_notes = 'some *formatted* content'
+        gay.save()
+        url = reverse('people:member-detail', kwargs={'slug': gay.slug})
+        response = self.client.get(url)
+        # check that markdown is rendered
+        self.assertContains(response, '<em>formatted</em>')
+
+
+class TestPastSlugRedirects(TestCase):
+    fixtures = ['footnotes_gstein', 'sample_people']
+
+    # short id for first canvas in manifest for stein's card
+    canvas_id = '68fd36f1-a463-441e-9f13-dfc4a6cd4114'
+    kwargs = {'slug': 'stein-gertrude', 'short_id': canvas_id}
+
+    def setUp(self):
+        self.member = Person.objects.get(slug="stein-gertrude")
+        self.slug = self.member.slug
+        self.old_slug = 'old_slug'
+        PastPersonSlug.objects.create(person=self.member,
+                                      slug=self.old_slug)
+        aeschylus = Person.objects.get(name='Aeschylus', slug='aeschylus')
+        self.nonmember_slug = 'aeschy'
+        PastPersonSlug.objects.create(person=aeschylus,
+                                      slug=self.nonmember_slug)
+
+    def test_member_detail_pages(self):
+        # single member detail pages that don't require extra args
+        for named_url in ['member-detail', 'membership-activities',
+                          'borrowing-activities', 'member-card-list']:
+
+            # old slug should return permanent redirect to equivalent new
+            route = 'people:%s' % named_url
+            response = self.client.get(reverse(route,
+                                       kwargs={'slug': self.old_slug}))
+
+            assert response.status_code == 301  # permanent redirect
+            # redirect to same view with the *correct* slug
+            assert response['location'].endswith(
+                reverse(route, kwargs={'slug': self.slug}))
+
+            # non-member old slug should still 404
+            response = self.client.get(
+                reverse(route, kwargs={'slug': self.nonmember_slug}))
+            assert response.status_code == 404
+
+    def test_member_card_detail_page(self):
+            # old slug should return permanent redirect to equivalent new
+            route = 'people:member-card-detail'
+            response = self.client.get(reverse(route,
+                                       kwargs={'slug': self.old_slug,
+                                               'short_id': self.canvas_id}))
+
+            assert response.status_code == 301  # permanent redirect
+            # redirect to same view with the *correct* slug
+            assert response['location'].endswith(
+                reverse(route, kwargs={'slug': self.slug,
+                                       'short_id': self.canvas_id}))
+
+            # non-member old slug should still 404
+            response = self.client.get(
+                reverse(route, kwargs={'slug': self.nonmember_slug,
+                                       'short_id': self.canvas_id}))
+            assert response.status_code == 404
 
 
 class TestMembershipActivities(TestCase):
@@ -1377,7 +1467,7 @@ class TestMemberCardList(TestCase):
             self.view.get_queryset()
 
         self.view.kwargs = {'slug': 'stein-gertrude'}
-        canvas_ids = list(self.view.get_queryset().values_list('pk', flat=True))
+        canvas_ids = list(c.pk for c in self.view.get_queryset())
         # member should be stored on the view
         assert self.view.member == Person.objects.get(slug='stein-gertrude')
         # queryset should be canvas ids for footnotes associated with Stein
@@ -1553,7 +1643,8 @@ class TestMemberCardDetail(TestCase):
         # should have a page object & paginator stored in context
         assert isinstance(context['card_page'].paginator, Paginator)
         # list of other cards (canvases) stored in context
-        assert context['cards'] == self.view.get_object().manifest.canvases
+        assert list(context['cards']) == \
+            list(self.view.member.account_set.first().member_card_images())
 
     def test_view_template(self):
         member = Person.objects.get(slug='stein-gertrude')
@@ -1602,9 +1693,6 @@ class TestMemberCardDetail(TestCase):
         self.assertContains(response, '<li class="card active">')
         # descriptive alt for current card
         self.assertContains(response, 'alt="Gertrude Stein 1921 card"')
-        # current card/total counter is rendered
-        self.assertContains(response, '2<span aria-label="of">/</span>4',
-                            html=True)
 
         # cards nav
         for i, card in enumerate(context['cards'].all()):

@@ -5,21 +5,10 @@
     // italicize titles in edition info
     .edition em { font-style: italic; }
 
+    .member a { display: block; }
+
     // mobile styles
     @media (max-width: calc(#{$breakpoint-s} - 1px)) {
-
-        td {
-            padding-right: calc(40% + 1rem);
-            display: inline-block;
-        }
-
-        // combine dates into one line with dash separator
-        .start,
-        .end {
-            flex: none;
-            padding: 0;
-            width: auto;
-        }
 
         .member {
             order: 1;
@@ -33,28 +22,34 @@
         .end {
             order: 4;
         }
-        .edition {
+
+        td:not(.edition) {
+            padding-right: 50%;
+        }
+
+        .edition { // removed from flow; always at right of card
             position: absolute;
-            right: 0;
-            top: 0;
-            width: 25%;
+            right: 1rem;
+            top: 1rem;
+            width: 50%;
             text-align: right;
-            padding: 1rem;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-height: 2.25rem;
-            overflow: hidden;
         }
 
         .empty, .purchase .end {
             display: none;
         }
 
-        .start:not(.empty) + .end {
-            padding-left: 3px;
-
-            &::before {
+        .borrow {
+            .start::after,
+            .end::before {
                 content: ' — ';
+            }
+
+            .start:not(.empty) + .end:not(.empty)::before {
+                content: '';
+                display: none;
             }
         }
     }
