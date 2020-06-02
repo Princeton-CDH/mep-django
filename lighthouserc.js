@@ -9,8 +9,7 @@ module.exports = {
                 'http://localhost:8000/sources/',
                 'http://localhost:8000/about/',
             ],
-            startServerCommand: 'python manage.py runserver',
-            staticDistDir: 'static/',
+            startServerCommand: 'python manage.py runserver --insecure',
             startServerReadyPattern: 'quit'
         },
         upload: {
