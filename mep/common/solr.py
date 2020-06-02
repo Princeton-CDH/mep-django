@@ -25,7 +25,7 @@ class SolrSchema(schema.SolrSchema):
         'name_t': 'name_ngram',
         'sort_name_t': 'name_ngram',
         # stemmed version of titles for searching
-        'title_t': ['title_txt_en', 'title_txt_en_nostem'],
+        'title_t': ['title_txt_ens', 'title_txt_en_nostem'],
         # author names without stop words
         'authors_t': 'authors_txt_en_nostem'
     }
