@@ -70,7 +70,6 @@ jobs:
 
   py-unit:
     name: Python unit tests
-    needs: build-static
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -106,10 +105,6 @@ jobs:
         pip install -r dev-requirements.txt
     - name: Install and configure Solr
       run: bash ci/config_solr.sh
-    - name: Download webpack bundle
-      uses: actions/download-artifact@v2
-      with:
-        name: webpack-bundle
     - name: Setup local_settings.py
       run: |
         cp ci/testsettings.py mep/local_settings.py
@@ -169,6 +164,8 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: webpack-bundle
+    - name: Copy webpack stats file
+      run: mv bundles/webpack-stats.json .
     - name: Migrate database
       run: python manage.py migrate
     - name: Load and index sample data
