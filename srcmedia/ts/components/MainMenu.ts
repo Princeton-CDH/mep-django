@@ -23,6 +23,7 @@ export default class MainMenu {
         event.preventDefault()
         this.element.style.zIndex = '100'
         this.element.style.opacity = '1'
+        this.element.style.display = 'block'
         this.element.style.pointerEvents = 'all'
         this.element.removeAttribute('aria-hidden')
         document.body.style.overflowY = 'hidden'
@@ -39,6 +40,7 @@ export default class MainMenu {
         event.preventDefault()
         this.element.style.zIndex = '-100'
         this.element.style.opacity = '0'
+        this.element.style.display = 'none'
         this.element.style.pointerEvents = 'none'
         this.element.setAttribute('aria-hidden', 'true')
         document.body.style.overflowY = ''
