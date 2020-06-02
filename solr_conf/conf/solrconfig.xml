@@ -769,7 +769,7 @@
       <str name="bib_qf">
         authors_txt_en_nostem^200
         title_txt_en_nostem^100
-        title_txt_en^80
+        title_txt_ens^80
         authors_t^60
         title_t^40
         creators_t^20
