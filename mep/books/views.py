@@ -240,17 +240,18 @@ class WorkDetail(WorkLastModifiedListMixin, DetailView, RdfViewMixin):
             description = 'By %s' % ','.join(
                 [a.name for a in self.object.authors])
         if self.object.year:
-            description += ', %s.\n ' % self.object.year
-        if self.object.public_notes:
-            description += self.object.public_notes
+            description += ', %s' % self.object.year
+        description += '. '
 
         # text-only readable version of membership years for meta description
         circ_years = strip_tags(as_ranges(self.object.event_years)
                                 .replace('</span>', ',')).rstrip(',')
 
-        description += '%d event%s in %s.' % \
+        description += '%d event%s in %s. ' % \
             (self.object.event_count,
              '' if self.object.event_count == 1 else 's', circ_years)
+        if self.object.public_notes:
+            description += self.object.public_notes
 
         context.update({
             'page_title': self.object.title,
