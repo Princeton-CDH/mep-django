@@ -3,6 +3,17 @@
 Deploy and Upgrade notes
 ========================
 
+1.1.1
+-----
+
+* Includes Solr configuration changes to address a stopword search problem
+  on the book search. Copy all files under `solr_conf/conf/`
+  to the configured Solr configset and restart Solr to ensure the managed schema is
+  loaded. Then update the schema and reindex::
+
+    python manage.py solr_schema
+    python manage.py index
+
 1.1
 ---
 
