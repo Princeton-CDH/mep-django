@@ -4,6 +4,7 @@ from dal import autocomplete
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib import admin
+from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
 from django.core.validators import RegexValidator
 
 from mep.accounts.partial_date import PartialDateFormMixin
@@ -61,6 +62,24 @@ class OpenFootnoteInline(FootnoteInline):
     '''Customize footnote inline for borrowing and purchase events.'''
     classes = ('grp-collapse', )  # grapelli collapsible, but not closed
     extra = 1
+
+
+class SubEventFootnoteFormset(BaseGenericInlineFormSet):
+    ''''Custom inline formset for footnotes on non-geheric event classes.
+    Find footnotes relative to the generic event instead of the subtable.
+    '''
+
+    def __init__(self, instance=None, *args, **kwargs):
+        if instance and hasattr(instance, 'event_ptr'):
+            # use base event object as model instance for retrieving footnotes
+            instance = instance.event_ptr
+
+        return super().__init__(instance=instance, *args, **kwargs)
+
+
+class SubEventFootnoteInline(OpenFootnoteInline):
+    '''footnote line variant for subclasses of Events'''
+    formset = SubEventFootnoteFormset
 
 
 class EventEditionFormMixin:
@@ -241,7 +260,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
               'deposit', 'price_paid',
               'currency', 'notes')
     readonly_fields = ('duration',)
-
+    inlines = (SubEventFootnoteInline, )
 
 class SubscriptionInline(CollapsibleTabularInline):
     model = Subscription
@@ -281,13 +300,15 @@ class ReimbursementAdmin(admin.ModelAdmin):
     list_filter = ('currency',)
     search_fields = ('account__persons__name', 'account__persons__mep_id',
                      'notes')
+    inlines = (SubEventFootnoteInline, )
 
 
 class PurchaseAdminForm(PartialDateFormMixin):
 
     class Meta:
         model = Purchase
-        fields = ('account', 'work', 'partial_start_date', 'price', 'currency', 'notes')
+        fields = ('account', 'work', 'partial_start_date', 'price', 'currency',
+                  'notes')
         help_texts = {
             'account': ('Searches and displays on system assigned '
                         'account id, as well as associated person and '
@@ -318,7 +339,7 @@ class PurchaseAdmin(admin.ModelAdmin):
     list_filter = ('currency',)
     search_fields = ('account__persons__name', 'account__persons__mep_id',
                      'notes')
-    inlines = [OpenFootnoteInline]
+    inlines = (SubEventFootnoteInline, )
 
 
 class PurchaseInline(CollapsibleTabularInline):
@@ -405,7 +426,7 @@ class BorrowAdminForm(PartialDateFormMixin):
     class Meta:
         model = Borrow
         fields = ('account', 'work', 'item_status', 'partial_start_date',
-            'partial_end_date', 'notes')
+                  'partial_end_date', 'notes')
         widgets = {
             'account': AUTOCOMPLETE['account'],
             'work': AUTOCOMPLETE['work'],
@@ -439,7 +460,7 @@ class BorrowAdmin(admin.ModelAdmin):
         ('partial_start_date', 'partial_end_date'),
         ('notes')
     )
-    inlines = (OpenFootnoteInline, )
+    inlines = (SubEventFootnoteInline, )
 
     class Media:
         js = ['admin/borrow-admin-list.js']

@@ -171,10 +171,7 @@ class Account(models.Model, EventSetMixin):
         # find all canvas associated with events for this account via footnote
         # (excluding those already in the manifest)
         event_cards = Canvas.objects.exclude(manifest=self.card.manifest) \
-            .filter(
-                models.Q(footnote__events__account__pk=self.pk) |
-                models.Q(footnote__borrows__account__pk=self.pk) |
-                models.Q(footnote__purchases__account__pk=self.pk)) \
+            .filter(footnote__events__account__pk=self.pk) \
             .annotate(priority=models.Value('2', output_field=models.IntegerField())) \
             .distinct()
 
@@ -294,7 +291,7 @@ class Event(Notable, PartialDateMixin):
         help_text='Edition of the work, if known.',
         on_delete=models.deletion.SET_NULL)
 
-    event_footnotes = GenericRelation(Footnote, related_query_name='events')
+    footnotes = GenericRelation(Footnote, related_query_name='events')
 
     objects = EventQuerySet.as_manager()
 
@@ -534,7 +531,6 @@ class Borrow(Event):
         max_length=2, blank=True,
         help_text='Status of borrowed item (bought, missing, returned)',
         choices=STATUS_CHOICES)
-    footnotes = GenericRelation(Footnote, related_query_name='borrows')
 
     def save(self, *args, **kwargs):
         # if end date is set and item status is not, automatically set
@@ -548,7 +544,6 @@ class Purchase(CurrencyMixin, Event):
     '''Inherited table indicating purchase events; extends :class:`Event`'''
     price = models.DecimalField(max_digits=8, decimal_places=2,
                                 blank=True, null=True)
-    footnotes = GenericRelation(Footnote, related_query_name='purchases')
 
     def date(self):
         '''alias of :attr:`date_range` for display; since reimbersument
