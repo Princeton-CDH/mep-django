@@ -171,10 +171,7 @@ class Account(models.Model, EventSetMixin):
         # find all canvas associated with events for this account via footnote
         # (excluding those already in the manifest)
         event_cards = Canvas.objects.exclude(manifest=self.card.manifest) \
-            .filter(
-                models.Q(footnote__events__account__pk=self.pk) |
-                models.Q(footnote__borrows__account__pk=self.pk) |
-                models.Q(footnote__purchases__account__pk=self.pk)) \
+            .filter(footnote__events__account__pk=self.pk) \
             .annotate(priority=models.Value('2', output_field=models.IntegerField())) \
             .distinct()
 
