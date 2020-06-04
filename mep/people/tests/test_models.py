@@ -14,8 +14,8 @@ from mep.accounts.models import Account, Address, Borrow, Reimbursement, \
     Subscription
 from mep.books.models import Creator, CreatorType, Work
 from mep.footnotes.models import Bibliography, Footnote, SourceType
-from mep.people.models import (Country, InfoURL, Location, Person, Profession,
-                               Relationship, RelationshipType)
+from mep.people.models import Country, InfoURL, Location, Person, \
+    PastPersonSlug, Profession, Relationship, RelationshipType
 
 
 class TestLocation(TestCase):
@@ -33,6 +33,35 @@ class TestLocation(TestCase):
         assert str(hotel) == hotel.name
         paris_hotel = Location.objects.create(name='L\'Hotel', city='Paris')
         assert str(paris_hotel) == '%s, %s' % (paris_hotel.name, paris_hotel.city)
+
+    def test_arrondissement(self):
+        hotel = Location(name='L\'Hotel')
+        # no postal code, no arrondissement
+        assert hotel.arrondissement() is None
+        # paris prefix, use last two digits
+        hotel.postal_code = '75008'
+        assert hotel.arrondissement() == 8
+        hotel.postal_code = '75101'
+        assert hotel.arrondissement() == 1
+        # other postal code
+        hotel.postal_code = '08544'
+        assert hotel.arrondissement() is None
+        # short postal code — no error
+        hotel.postal_code = 'a'
+        assert hotel.arrondissement() is None
+
+    def test_arrondissement_ordinal(self):
+        hotel = Location(name='L\'Hotel')
+        # no postal code, no arrondissement
+        assert hotel.arrondissement_ordinal() == ''
+        # paris prefix, use last two digits
+        hotel.postal_code = '75008'
+        assert hotel.arrondissement_ordinal() == '8<sup>e</sup>'
+        hotel.postal_code = '75101'
+        assert hotel.arrondissement_ordinal() == '1<sup>er</sup>'
+        # other postal code
+        hotel.postal_code = '08544'
+        assert hotel.arrondissement_ordinal() == ''
 
 
 class TestPerson(TestCase):
@@ -154,6 +183,30 @@ class TestPerson(TestCase):
             pers.death_year = None
             pers.save()
             mock_setbirthdeath.assert_called_with()
+
+    def test_save_old_slug(self):
+        pers = Person.objects.create(name='Humperdinck', slug='hp')
+        pers.slug = 'hum'
+        pers.save()
+        assert pers.past_slugs.first().slug == 'hp'
+
+        # unsaved with slug — should not error or create past slug
+        pers = Person(name='Foo')
+        pers.slug = 'new'
+        pers.save()
+        assert not pers.past_slugs.count()
+
+    def test_validate_unique(self):
+        # create a person
+        pers = Person.objects.create(name='Humperdinck', slug='hum')
+        # with a past slug
+        PastPersonSlug.objects.create(person=pers, slug='hp')
+        # no errors
+        pers.validate_unique()
+        # attempt to re-use past slug
+        hp = Person(name='Harry Potter', slug='hp')
+        with pytest.raises(ValidationError):
+            hp.validate_unique()
 
     def test_address_count(self):
         # create a person
@@ -447,6 +500,10 @@ class TestPersonQuerySet(TestCase):
         jones_str = 'Merged Jones on %s' % iso_date
         # Jones will appear twice from being merged into Jonas
         assert main_person.notes.count(jones_str) == 2
+        # merged slugs saved as past slugs
+        past_slugs = (p.slug for p in main_person.past_slugs.all())
+        assert 'jones' in past_slugs
+        assert 'jones-2' in past_slugs
 
         # error on attempt to merge to person with multiple accounts
         second_acct = Account.objects.create()

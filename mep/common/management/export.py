@@ -142,10 +142,11 @@ class BaseExport(BaseCommand):
             if isinstance(val, dict):
                 # recurse to handle lists in nested dicts
                 for subkey, subval in BaseExport.flatten_dict(val).items():
-                    flat_data[' '.join([key, subkey])] = subval
+                    flat_data['_'.join([key, subkey])] = subval
             # convert list to a delimited string
             elif isinstance(val, list):
-                flat_data[key] = ';'.join(val)
+                # convert to string before joining (e.g. for list of integer)
+                flat_data[key] = ';'.join([str(v) for v in val])
             else:
                 flat_data[key] = val
 

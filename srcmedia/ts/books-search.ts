@@ -1,13 +1,14 @@
 import { merge } from 'rxjs'
 import { map, filter, mapTo, startWith, distinctUntilChanged, withLatestFrom, debounceTime, skip } from 'rxjs/operators'
 
-import PageControls from './components/PageControls'
 import { RxSelect } from './lib/select'
 import { RxOutput } from './lib/output'
 import { RxFacetedSearchForm } from './lib/form'
 import { RxTextInput } from './lib/input'
 import { arraysAreEqual } from './lib/common'
 import { RxRangeFilter, rangesAreEqual } from './lib/filter'
+import ActiveFilters from "./components/ActiveFilters"
+import PageControls from './components/PageControls'
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -17,10 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const $pageControls = document.getElementsByClassName('sort-pages')[0] as HTMLElement
     const $pageSelect = document.querySelector('select[name=page]') as HTMLSelectElement
     const $sortSelect = document.querySelector('select[name=sort]') as HTMLSelectElement
+    const $relevanceSortOption = document.querySelector('select[name=sort] option[value="relevance"]') as HTMLElement
     const $resultsOutput = document.querySelector('output.results') as HTMLOutputElement
     const $totalResultsOutput = document.querySelector('output.total-results') as HTMLOutputElement
     const $errors = document.querySelector('div[role=alert].errors')
     const $circDateFacet = document.querySelector('#id_circulation_dates') as HTMLFieldSetElement
+    const $activeFilters = document.querySelector('.active-filters') as HTMLDivElement
+    const bottomOfForm = $booksSearchForm.getBoundingClientRect().bottom
 
     /* COMPONENTS */
     const booksSearchForm = new RxFacetedSearchForm($booksSearchForm)
@@ -31,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsOutput = new RxOutput($resultsOutput)
     const totalResultsOutput = new RxOutput($totalResultsOutput)
     const circDateFacet = new RxRangeFilter($circDateFacet)
+    const activeFilters = new ActiveFilters($activeFilters)
 
     /* OBSERVABLES */
     const currentPage$ = pageSelect.value.pipe(
@@ -127,6 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
         booksSearchForm.getResults()
         pageControls.element.setAttribute('aria-busy', '') // empty string used for boolean attributes
         resultsOutput.element.setAttribute('aria-busy', '')
+
+        // scroll up to put top in view, if needed
+        const barHeight = $pageControls.getBoundingClientRect().height
+        const listOffset = ($resultsOutput.getBoundingClientRect() as DOMRect).y
+        if ((listOffset - barHeight) < 0) {
+            window.scroll({ top: bottomOfForm, behavior: 'smooth' })
+        }
     })
 
     // When next/previous page links are clicked, go to the next page
@@ -144,6 +156,25 @@ document.addEventListener('DOMContentLoaded', () => {
             $circDateFacet.classList.remove('error')
         })
     }
+
+    noKeyword$.subscribe((noKeyword) => {
+        // disable relevance sort option if there is no keyword search
+        const sortOptionsArray = Array.from($sortSelect.options)
+        const sortSelectRelevanceIndex = sortOptionsArray.findIndex(opt => opt.value == 'relevance')
+        const sortSelectTitleIndex = sortOptionsArray.findIndex(opt => opt.value == 'title')
+        if (noKeyword) {
+            // disable relevance sort option
+            $relevanceSortOption.setAttribute('disabled', 'true')
+            // if current sort is relevance, switch to title
+            if ($sortSelect.selectedIndex == sortSelectRelevanceIndex) {
+                $sortSelect.selectedIndex = sortSelectTitleIndex
+            }
+        } else {
+            // un-disable relevance sort option and select it
+            $relevanceSortOption.removeAttribute('disabled')
+            $sortSelect.selectedIndex = sortSelectRelevanceIndex
+        }
+    })
 
 
     // When results are loaded, remove loading styles and display the results

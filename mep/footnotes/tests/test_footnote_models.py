@@ -156,6 +156,19 @@ class TestFootnoteQuerySet(TestCase):
         unnoted_event = Event.objects.create(account=acct)
         assert unnoted_event not in Footnote.objects.all().events()
 
+    def test_on_events(self):
+        # all footnotes in the fixture are on events
+        assert set(Footnote.objects.on_events()) == \
+            set(Footnote.objects.all())
+
+        # create non-event footnote
+        stein = Person.objects.get(slug='stein-gertrude')
+        person_ctype = ContentType.objects.get_for_model(Person)
+        bib = Footnote.objects.first().bibliography
+        person_note = Footnote.objects.create(
+            object_id=stein.pk, content_type=person_ctype, bibliography=bib)
+        assert person_note not in list(Footnote.objects.on_events())
+
     def test_event_date_range(self):
         # other than stein fixture, should be no event dates - return nothing
         gstein_filter = {

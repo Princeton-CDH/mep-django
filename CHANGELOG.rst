@@ -3,12 +3,90 @@
 CHANGELOG
 =========
 
+1.1
+---
+
+* As a user, I want to see larger size card images so that I can look at cards in more detail and decipher difficult handwriting.
+* As a user, I want to see circulation information on book search and detail pages so I understand how much and when a book circulated.
+* As a user, I want to see event labels for non-standard book events in the borrowing activity table and event data download so I know what the data represents.
+* As a content editor, I want to add basic formatting to public notes so that I can differentiate titles from authors and dates.
+* As a user I want to see addresses on member maps with arrondissements instead of postal codes, so that I see them in an historically accurate format.
+* As a user, I want to filter on members with "Unidentified" nationality so I can see how many members do not have nationality documented and can find them.
+* Match searches for author and member initials with and without spaces
+
+other improvements
+~~~~~~~~~~~~~~~~~~
+* bugfix: arrondissement facet counts on member page never change
+* bugfix: atypical card images are displayed incorrectly
+* bugfix: display both names for joint accuonts on book circulation lists
+* bugfix: member data export does not include postal code / arrondissement
+* bugfix: member search results have blank aria-label
+* bugfix: empty facets result in a 500 error on member search page
+* accessibility: leaflet maps are scroll traps
+* accessibiity: missing heading for home page
+* design fix: correct placement for nationality link icon
+* design fix: link styles for icons on the card gallery and card image viewer pages
+* design fix: correct pacing for public notes on book pages
+* design fix: make all the link styles 2px wide
+* design fix: Breadcrumbs should show current page unless 4th level deep
+* design fix: improve mobile display for borrowing and circulation activity pages
+
+1.0.1
+-----
+
+* bugfix: correct the order for lending library cards
+* bugfix: 500 error creating new person records
+* bugfix: adjust admin person edit form and slug help text
+* bugfix: wagtail paragraph block is missing custom feature list (blockquotes,
+  superscript, etc)
+
+
+1.0
+---
+
+This release makes the Books section available.
+
+* As a user, when I'm viewing a single book I want an easy way to find all card images associated with that item so I can see where it's referenced in the archival materials.
+* As a user, I want to see and toggle my active search filters so that I can see how they affect my search.
+* As a user, when I'm browsing members I want to see membership years that show gaps in activity so that I'm not misled by what appears to be a longer continuous membership.
+* As a user viewing a member biography page, I want to see membership dates that represent actual activity so that I'm not misled by what appears to be a longer continuous membership.
+* As a user viewing borrowing activities for a single library member, I want to see issue number and date or volume number when known so I have better information about the item.
+* As a user, I'd like to see an error indicator when a card image doesn't load so I can see that something is missing.
+* As an admin, when I merge people I want unique identifiers stored and used for redirects on public views so that links for merged people continue to resolve.
+* As a content editor, I want to edit the homepage tagline so that I can update it when necessary.
+* re-enable books links in menus and remove login restrictions
+* bugfix: result counters on search pages reset after page
+
+Various improvements
+~~~~~~~~~~~~~~~~~~~~
+* XML sitemaps for member and book pages
+* Last modified headers and conditional processing for member and book pages
+* Better preview titles and descriptions in page metadata
+* convert data export field names to use underscores instead of spaces
+* Include membership years in member export and circulation years in book export
+* Replace the breadcrumb home with the shakespeare icon on the third and fourth level pages
+* Fix horizontal centering for breadcrumb text
+
+0.29
+----
+
+* As a user, I want to sort works by title, author, publication date, or borrow count so that I can view and investigate by author, chronologically, or by popularity.
+* As a user, I want to be able to search by titles of individual volumes of a multivolume book so that I can find the book by its parts.
+* As a user, I want items automatically sorted by relevance if I have a keyword search term active and otherwise by title (by default), so that I see best matches first for keyword searches.
+* As a user, I want to filter library items by circulation dates so that I can see items that circulated in the library in a particular time period.
+* As a user, I want to see a chronological list of circulation activity for a single library item so that I can see which library members interacted with it.
+* bugfix: search page dropdown shows incorrect page of results
+* bugfix: single-day events on activity pages display as ranges on mobile display
+* bugfix: mobile display of membership activity broken when dates are missing
+* bugfix: navigating from detail pages back to search should return to the correct page of results
+* bugfix: changing pages should scroll back to the top of search pages
+* bugfix: django admin queries causing site timeout/unavailability
+
 0.28.2
 ------
 
 * bugfix: use Solr for django admin search for works, to avoid django admin
   database queries causing timeouts that bring down the site
-
 
 0.28.1
 ------

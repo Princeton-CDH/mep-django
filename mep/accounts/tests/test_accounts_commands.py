@@ -415,7 +415,7 @@ class TestExportEvents(TestCase):
             .first()
         person = event.account.persons.first()
         member_info = self.cmd.member_info(event)
-        assert member_info['sort names'][0] == person.sort_name
+        assert member_info['sort_names'][0] == person.sort_name
         assert member_info['names'][0] == person.name
         assert member_info['URIs'][0] == \
             absolutize_url(person.get_absolute_url())
@@ -426,7 +426,7 @@ class TestExportEvents(TestCase):
 
         member_info = self.cmd.member_info(event)
         # each field should have two values
-        for field in ('sort names', 'names', 'URIs'):
+        for field in ('sort_names', 'names', 'URIs'):
             assert len(member_info[field]) == 2
 
         # test event with account but no person
@@ -442,21 +442,21 @@ class TestExportEvents(TestCase):
             .first()
         subs = event.subscription
         info = self.cmd.subscription_info(event)
-        assert info['price paid'] == '%s%.2f' % (subs.currency_symbol(),
+        assert info['price_paid'] == '%s%.2f' % (subs.currency_symbol(),
                                                  subs.price_paid)
         # test event has no deposit amount
         assert info['deposit'] == '%s0.00' % subs.currency_symbol()
         assert info['duration'] == subs.readable_duration()
-        assert info['duration days'] == subs.duration
+        assert info['duration_days'] == subs.duration
         assert info['volumes'] == subs.volumes
         assert 'category' not in info
         # fixture has no purchase date
-        assert 'purchase date' not in info
+        assert 'purchase_date' not in info
 
         # add partial purchase date to test
         event.subscription.partial_purchase_date = '1920-05'
         info = self.cmd.subscription_info(event)
-        assert info['purchase date'] == '1920-05'
+        assert info['purchase_date'] == '1920-05'
 
         # category subtype
         event = Event.objects.filter(
@@ -469,8 +469,7 @@ class TestExportEvents(TestCase):
             subscription__isnull=False, end_date__isnull=True).first()
         info = self.cmd.subscription_info(event)
         assert 'duration' not in info
-        assert 'duration days' not in info
-
+        assert 'duration_days' not in info
 
         # non-subscription
         event = Event.objects.filter(subscription__isnull=True).first()
@@ -483,7 +482,7 @@ class TestExportEvents(TestCase):
         info = self.cmd.item_info(event)
         assert info['title'] == event.work.title
         assert info['uri'] == absolutize_url(event.work.get_absolute_url())
-        assert info['work uri'] == event.work.uri
+        assert info['work_uri'] == event.work.uri
         assert info['notes'] == event.work.public_notes
         assert 'volume' not in info
 
@@ -492,7 +491,7 @@ class TestExportEvents(TestCase):
             work__isnull=False, work__uri='',
             work__public_notes='').first()
         info = self.cmd.item_info(event)
-        assert 'work uri' not in info
+        assert 'work_uri' not in info
         assert 'notes' not in info
 
         # event with known edition
@@ -526,7 +525,7 @@ class TestExportEvents(TestCase):
 
         with patch('mep.accounts.management.commands.export_events' +
                    '.Command.get_object_data') as mock_get_obj_data:
-            mock_get_obj_data.return_value = {'event type': 'test'}
+            mock_get_obj_data.return_value = {'event_type': 'test'}
             call_command('export_events', '-d', tempdir.name, '-m', 2,
                          stdout=stdout)
             # 2 objects * 2 (once each for CSV, JSON)

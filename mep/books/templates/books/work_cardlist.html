@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+{% load static mep_tags %}
+
+{% block page-subtitle %}{{ work.title }} Cards · Library Holdings · {% endblock %}
+
+{% block js %}
+{% render_bundle 'activities' 'js' %}
+{% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title=work.title style="detail" %}
+{% endblock %}
+
+{% block main-style %}tabbed white{% endblock %}
+
+{% block content %}
+{# breadcrumbs & tabs #}
+{% include 'snippets/breadcrumbs.html' %}
+<nav class="tabs" aria-label="tabs">
+    <li class="tab">
+        <a href="{% url 'books:book-detail' slug=work.slug %}">bibliography</a>
+    </li>
+    <li class="tab">
+        <a href="{% url 'books:book-circ' slug=work.slug %}">circulation</a>
+    </li>
+    <li class="tab" aria-selected="true">
+        <a href="{% url 'books:book-card-list' slug=work.slug %}">cards</a>
+    </li>
+</nav>
+
+<section class="book-cards">
+    {% if footnotes %}
+    <ol class="card-results">
+    {% for footnote in footnotes %}
+    <li class="card result">
+        {% with card=footnote.image member=footnote.content_object.account.persons.first start_date=footnote.content_object.partial_start_date %}
+        <a href="{% url 'people:member-card-detail' member.slug card.short_id %}#e{{ footnote.content_object.pk }}"
+            aria-label="{{ start_date|partialdate:"Y"|default:'' }} lending card for {{ member.sort_name }}">
+                {# card thumbnails with member name and event year #}
+                <picture>
+                  {% with card.image|iiif_image:"size:width=225" as 1xthumbnail %}
+                    <source srcset="{{ 1xthumbnail }}, {{ card.image|iiif_image:"size:width=450" }} 2x">
+                    <img src="{{ 1xthumbnail }}" alt="" loading="lazy">
+                  {% endwith %}
+                </picture>
+
+                <dl>
+                    <dt class="name">Card Holder</dt>
+                    {% for cardholder in footnote.content_object.account.persons.all %}
+                    <dd class="name">{{ cardholder.sort_name }}</dd>
+                    {% endfor %}
+
+                    <dt class="card-dates">Event Date</dt>
+                    <dd class="card-dates">{{ footnote.content_object.partial_start_date|partialdate|default:'-' }}</dd>
+                </dl>
+        </a>
+        {% endwith %}
+    </li>
+    {% endfor %}
+    </ol>
+    {% elif member.card %}
+    {# show bibliographic citation if a member has a card but no images are available #}
+    <div class="citation"><p>{{ member.card.bibliographic_note|urlize }}</p></div>
+    {% else %}
+    <div>No lending library cards available.</div>
+    {% endif %}
+
+    {% if member.card.notes %}
+    <div class="notes">{{ member.card.notes|urlize }}</div>
+    {% endif %}
+
+    {% if cards.0.manifest %}
+    {% include 'people/snippets/manifest_license.html' with manifest=cards.0.manifest %}
+    {% endif %}
+
+</section>
+{% endblock %}

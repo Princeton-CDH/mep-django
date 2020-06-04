@@ -7,6 +7,10 @@
   {% endif %}
   {% if person.gender %}{{ person.display_gender_label }}{% endif %}
   {% if person.mep_id %}<p>MEP id {{ person.mep_id }}</p>{% endif %}
+  {# link to public member page; display local url with slug #}
+  {% with member_url=person.get_absolute_url %}
+  {% if member_url %}<p><a href="{{ member_url }}" target="_blank">{{ member_url }}</a></p>{% endif %}
+  {% endwith %}
   {% if person.viaf %}<p>{{ person.viaf_id|urlize }}</p>{% endif %}
   {% if person.notes %}<p class="notes">{{ person.notes }}</p>{% endif %}
 

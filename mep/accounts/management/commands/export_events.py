@@ -24,25 +24,25 @@ class Command(BaseExport):
     model = Event
 
     csv_fields = [
-        'event type',
-        'start date', 'end date',
-        'member sort names', 'member names', 'member URIs',
+        'event_type',
+        'start_date', 'end_date',
+        'member_sort_names', 'member_names', 'member_URIs',
         # subscription specific
-        'subscription price paid', 'subscription deposit',
-        'subscription duration', 'subscription duration days',
-        'subscription volumes', 'subscription category',
-        'subscription purchase date',
+        'subscription_price_paid', 'subscription_deposit',
+        'subscription_duration', 'subscription_duration_days',
+        'subscription_volumes', 'subscription_category',
+        'subscription_purchase_date',
         # reimbursement specific
-        'reimbursement refund',
+        'reimbursement_refund',
         # borrow specific
-        'borrow status',
+        'borrow_status',
         # purchase specific
-        'purchase price',
+        'purchase_price',
         # related book/item
-        'item uri', 'item title', 'item work uri', 'item volume',
-        'item notes',
+        'item_uri', 'item_title', 'item_work_uri', 'item_volume',
+        'item_notes',
         # footnote/citation
-        'source citation', 'source manifest', 'source image'
+        'source_citation', 'source_manifest', 'source_image'
     ]
 
     def get_queryset(self):
@@ -58,9 +58,10 @@ class Command(BaseExport):
          :class:`~mep.accounts.models.Event`'''
         event_type = obj.event_type
         data = OrderedDict([
-            ('event type', event_type),
-            ('start date', obj.partial_start_date or ''),
-            ('end date', obj.partial_end_date or ''),
+            # use event label instead of type for more detail on some generics
+            ('event_type', obj.event_label),
+            ('start_date', obj.partial_start_date or ''),
+            ('end_date', obj.partial_end_date or ''),
             ('member', OrderedDict()),
         ])
         member_info = self.member_info(obj)
@@ -113,7 +114,7 @@ class Command(BaseExport):
             return
 
         return OrderedDict([
-            ('sort names', [m.sort_name for m in members]),
+            ('sort_names', [m.sort_name for m in members]),
             ('names', [m.name for m in members]),
             ('URIs', [absolutize_url(m.get_absolute_url()) for m in members])
         ])
@@ -127,20 +128,20 @@ class Command(BaseExport):
             return
 
         info = OrderedDict([
-            ('price paid', '%s%.2f' % (subs.currency_symbol(),
+            ('price_paid', '%s%.2f' % (subs.currency_symbol(),
                                        subs.price_paid or 0)),
             ('deposit', '%s%.2f' % (subs.currency_symbol(),
                                     subs.deposit or 0))
         ])
         if subs.duration:
             info['duration'] = subs.readable_duration()
-            info['duration days'] = subs.duration
+            info['duration_days'] = subs.duration
         if subs.volumes:
             info['volumes'] = int(subs.volumes)
         if subs.category:
             info['category'] = subs.category.name
         if subs.purchase_date:
-            info['purchase date'] = subs.partial_purchase_date
+            info['purchase_date'] = subs.partial_purchase_date
         return info
 
     def item_info(self, event):
@@ -153,7 +154,7 @@ class Command(BaseExport):
             if event.edition:
                 item_info['volume'] = event.edition.display_text()
             if event.work.uri:
-                item_info['work uri'] = event.work.uri
+                item_info['work_uri'] = event.work.uri
             if event.work.public_notes:
                 item_info['notes'] = event.work.public_notes
 

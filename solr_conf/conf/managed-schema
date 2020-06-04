@@ -375,6 +375,9 @@
 	  -->
     <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100" multiValued="true">
       <analyzer type="index">
+        <!-- split apart initials without space, e.g. T.S. or D.H. -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory"
+             pattern="\b([A-Za-z]\.)([A-Za-z]\.)\B" replacement="$1 $2"/>
         <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
         <!-- in this example, we will only use synonyms at query time
@@ -384,6 +387,8 @@
          <filter class="solr.ICUFoldingFilterFactory"/>
       </analyzer>
       <analyzer type="query">
+        <charFilter class="solr.PatternReplaceCharFilterFactory"
+             pattern="\b([A-Za-z]\.)([A-Za-z]\.)\B" replacement="$1 $2"/>
         <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
         <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>

@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'wagtail.contrib.redirects',
     'taggit',
     'widget_tweaks',
+    'markdownify',
     # local apps
     'mep.common',
     'mep.people',
@@ -155,6 +156,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Use three-letter month names everywhere (instead of default AP style)
+DATE_FORMAT = 'M j, Y'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
@@ -232,13 +235,13 @@ CSP_CONNECT_SRC = ("'self'", '*.google-analytics.com', '*.arcgis.com')
 # whitelisted image sources - analytics (tracking pixel?), IIIF, maps, etc.
 CSP_IMG_SRC = ("'self'", 'www.googletagmanager.com', '*.google-analytics.com',
                'iiif.princeton.edu', 'figgy.princeton.edu', '*.arcgis.com',
-               'api.mapbox.com', 'data:')
+               'iiif-cloud.princeton.edu', 'api.mapbox.com', 'data:')
 
 # exclude admin and cms urls from csp directives since they're authenticated
 CSP_EXCLUDE_URL_PREFIXES = ('/admin', '/cms')
 
 # allow usage of nonce for inline js (for analytics)
-CSP_INCLUDE_NONCE_IN = ('script-src', 'style-src')
+CSP_INCLUDE_NONCE_IN = ('script-src', )
 
 
 ##################

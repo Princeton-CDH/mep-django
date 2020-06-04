@@ -392,25 +392,28 @@ class TestExportBooks(TestCase):
         assert data['year'] == exit_e.year
         assert data['format'] == exit_e.work_format.name
         assert data['identified']  # not marked uncertain
-        assert data['work uri'] == exit_e.uri
+        assert data['work_uri'] == exit_e.uri
         assert 'author' in data
         # missing data should not be in the dict
         for field in ['edition uri', 'ebook url', 'volumes/issues']:
             assert field not in data
-        assert data['event count'] == exit_e.event__count
-        assert data['borrow count'] == exit_e.event__borrow__count
-        assert data['purchase count'] == exit_e.event__purchase__count
+        assert data['event_count'] == exit_e.event__count
+        assert data['borrow_count'] == exit_e.event__borrow__count
+        assert data['purchase_count'] == exit_e.event__purchase__count
         assert data['updated'] == exit_e.updated_at.isoformat()
+        # fixture has no events for exit eliza, so no years are set
+        assert data['circulation_years'] == []
 
         # record with different data
         dial = Work.objects.count_events().get(slug='dial')
         data = self.cmd.get_object_data(dial)
         assert 'year' not in data
-        assert data['edition uri'] == dial.edition_uri
-        assert data['ebook url'] == dial.ebook_url
-        assert 'volumes/issues' in data
+        assert data['edition_uri'] == dial.edition_uri
+        assert data['ebook_url'] == dial.ebook_url
+        assert 'volumes_issues' in data
         for vol in dial.edition_set.all():
-            assert vol.display_text() in data['volumes/issues']
+            assert vol.display_text() in data['volumes_issues']
+        assert data['circulation_years'] == [1936]
 
     def test_creator_info(self):
         exit_e = Work.objects.count_events().get(slug='exit-eliza')

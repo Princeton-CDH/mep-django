@@ -1,52 +1,69 @@
 /* members borrowing activity table */
 .borrowing {
 
-    .title {
-        font-style: italic;
+    // italicize titles and edition info
+    .title a, .edition em { font-style: italic; }
+
+    .edition {
+        color: $brownish-grey;
+        font-size: 0.7rem;
+        line-height: 0.9rem;
     }
 
     // mobile styles
     @media (max-width: calc(#{$breakpoint-s} - 1px)) {
 
-        .start, // combined into one line by changing width values
-        .end {
-            flex: none;
-            width: auto;
-        }
-
-        .start:not(.empty) + .end {
-            padding-left: 3px;
-
-            &::before {
-                content: ' — ';
-            }
-        }
-
-        .title {
-            padding-right: 35%;
-            margin-bottom: .2rem;
-        }
+        .title { order: 1; }
+        .activity { order: 2; }
+        .start { order: 3; }
+        .end { order: 4; }
 
         .pubdate {
-            margin-top: 0.75rem;
+            margin-top: 1.5rem;
             position: relative;
             order: 5; // always goes last
 
             &::before {
-                content: 'Pub. Date';
+                content: 'Publication Date';
                 position: absolute;
-                bottom: 0.75rem;
+                bottom: 1rem;
                 font-size: 0.6rem;
                 font-weight: bold;
             }
         }
 
+        .edition { margin-top: .5rem; }
+
+        .activity { margin-top: .25rem; }
+
+        td:not(.author) {
+            padding-right: 50%;
+        }
+
         .author { // removed from flow; always at right of card
             position: absolute;
-            right: 0.75rem;
-            width: 25%;
-            height: 100%;
+            right: 1rem;
+            top: 1rem;
+            width: 50%;
             text-align: right;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .empty, .purchase .end {
+            display: none;
+        }
+
+        .borrow {
+            .start::after,
+            .end::before {
+                content: ' — ';
+            }
+
+            .start:not(.empty) + .end:not(.empty)::before {
+                content: '';
+                display: none;
+            }
         }
 
         // uncertainty icon displayed at bottom of card

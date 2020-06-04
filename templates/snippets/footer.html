@@ -5,7 +5,7 @@
             <ul class="primary" aria-label="primary navigation">
                 <li><a href="{% slugurl 'home' %}">Home</a><li>
                 <li><a href="{% url 'people:members-list' %}">Members</a><li>
-                <li><span class="pending">Books</span><li>
+                <li><a href="{% url 'books:books-list' %}">Books</a><li>
                 <li><a href="{% slugurl 'analysis' %}">Analysis</a><li>
                 <li><a href="{% slugurl 'sources' %}">Sources</a><li>
                 <li><a href="{% slugurl 'about' %}">About</a><li>
@@ -32,21 +32,16 @@
                 </a>
             </div>
             <div class="social">
-                <a id="facebook" href="https://www.princeton.edu/">
-                    <img src="{% static 'img/icons/facebook.svg' %}" alt="Facebook">
-                </a>
-                <a id="twitter" href="https://www.princeton.edu/">
+                <a id="twitter" href="https://twitter.com/ShakesCoProject">
                     <img src="{% static 'img/icons/twitter.svg' %}" alt="Twitter">
                 </a>
-                <a id="instagram" href="https://www.princeton.edu/">
+                <a id="instagram" href="https://www.instagram.com/shakespeareandcoproject/">
                     <img src="{% static 'img/icons/instagram.svg' %}" alt="Instagram">
                 </a>
             </div>
         </div>
     </div>
     <div class="links">
-        <span class="note">Coming soon.</span>
-        <a href="https://accessibility.princeton.edu/" id="a11y">Accessibility</a>
         <a href="https://accessibility.princeton.edu/accessibility-assistance" id="a11y-assist">Accessibility Assistance</a>
         <span id="copyright">&copy;{% now 'Y' %} Trustees of Princeton University</span>
         <a href="https://github.com/Princeton-CDH/mep-django" id="sw-version">{{ SW_VERSION }}</a>

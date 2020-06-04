@@ -804,6 +804,24 @@
         edition_titles
       </str>
 
+      <!-- admin search field for Work model (no boosting because no relevance sort) -->
+      <str name="admin_work_qf">
+        title_t
+        notes_txt_en
+        admin_notes_txt_en
+        creators_t
+        title_txt_en
+        pk_i
+      </str>
+      <str name="admin_work_pf">
+        title_t
+        notes_txt_en
+        admin_notes_txt_en
+        creators_t
+        title_txt_en
+        pk_i
+      </str>
+
     </lst>
     <!-- In addition to defaults, "appends" params can be specified
          to identify values which should be appended to the list of

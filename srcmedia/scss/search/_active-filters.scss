@@ -1,0 +1,60 @@
+// active filters display
+.active-filters {
+    margin-top: 1rem;
+    font-size: .8rem;
+    width: 100%;
+    @media (min-width: $breakpoint-s) { margin-top: 3rem; }
+
+    &.hidden {
+       display: none;
+    }
+
+    > .inner {
+        @include flex-gap(.3rem);
+        display: flex;
+        flex-flow: row wrap;
+        width: 100%;
+        align-items: center;
+        @media (min-width: $breakpoint-s) { justify-content: center; }
+    }
+
+    .legend, a {
+        flex: none;
+    }
+
+    .legend {
+        width: 100%;
+        text-align: left;
+        // margin: 0 0 .5rem 0;
+
+        @media (min-width: $breakpoint-s) {
+            width: initial;
+            padding-right: .6rem;
+            // margin: 0;
+        }
+    }
+
+    a:not(.clear-all) {
+        padding: .2rem .4rem;
+        background: white;
+        text-decoration: none;
+        box-sizing: border-box;
+        &::after { content: ' ×'; }
+        &:focus {
+            border: .1rem solid $green;
+        }
+    }
+
+    .clear-all {
+        width: 100%;
+        text-align: right;
+        // margin-top: .5rem;
+        color: $dark-green;
+
+        @media (min-width: $breakpoint-s) {
+            width: initial;
+            padding-left: .6rem;
+            // margin-top: 0;
+        }
+    }
+}

@@ -301,6 +301,12 @@ class Bibliography(Notable, ModelIndexable):
 class FootnoteQuerySet(models.QuerySet):
     '''Custom :class:`models.QuerySet` for :class:`Footnote`'''
 
+    def on_events(self):
+        '''Filter to footnotes that are associated with events'''
+        return self.filter(
+            content_type__app_label='accounts',
+            content_type__model__in=['event', 'borrow', 'purchase'])
+
     def events(self):
         '''Return an Events queryset for all events
         associated with the current footnote queryset.'''

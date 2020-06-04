@@ -1,6 +1,17 @@
 /* member timeline graphs */
 section[aria-label=timeline] {
-    @include container;
+
+    // on mobile, the graph only should full-width.
+    // on all other screens, the entire content of the section has margins.
+    @media (min-width: $breakpoint-s) {
+        @include container;
+    }
+
+    @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+        .header {
+            @include container;
+        }
+    }
 
     .timeline .description {
         @include sr-only;

@@ -1,4 +1,4 @@
-{% load fullurl wagtailimages_tags %}
+{% load fullurl wagtailimages_tags mep_tags %}
 {% comment %}
 Add HTML metadata tags for unfurling, twitter preview, etc.
 Uses wagtail page fields if available; uses meta_page_title,
@@ -23,8 +23,8 @@ page_description, and page_meta_image if set in context.
 <meta name="citation_date" content="2019"/>
 {% elif page.contentpage or page.essaypage %} {# content/essay page citation details #}
 <meta name="citation_title" content="{{ page.title|escape }}"/>
-{% for author in page.authors %}
-<meta name="citation_author" content="{{ author.lastname_first }}">
+{% for author_block in page.authors %}
+<meta name="citation_author" content="{{ author_block.value.lastname_first }}">
 {% endfor %}
 <meta name="citation_date" content="{{ page.first_published_at|date:"Y/m/d" }}"/>
 {% endif %}
@@ -40,7 +40,7 @@ page_description, and page_meta_image if set in context.
 <meta property="og:site_name" content="Shakespeare and Company Project"/>
 {# twitter card #}
 
-<meta name="twitter:card" content="summary{% if page.contentpage.featured_image %}_large_image{% endif %}" />
+<meta name="twitter:card" content="summary{% if page.contentpage.featured_image or page_iiif_image %}_large_image{% endif %}" />
 {% if meta_page_title %}
 <meta name="twitter:title" content="{{ meta_page_title }}"/>
 {% endif %}
@@ -50,7 +50,7 @@ page_description, and page_meta_image if set in context.
 {# <meta name="twitter:site" content="" /> add if/when S&co project has a twitter account#}
 
 {% if request %} {# full urls required for image, dependent on request in context #}
-{% with default_image="img/social-launching-2020.png" %}
+{% with default_image="img/social.png" %}
 {% if page.contentpage.featured_image %}
     {% image page.contentpage.featured_image max-1080x1080 as featured_image %}
 {% elif page.essaypage.featured_image %}
@@ -62,6 +62,11 @@ page_description, and page_meta_image if set in context.
     {# using fullurl twice because it doesn't support capturing result #}
     <meta property="og:image" content="{% buildfullurl featured_image.url %}" />
     <meta name="twitter:image" content="{% buildfullurl featured_image.url %}" />
+{% elif page_iiif_image %}  {# IIIF image for preview #}
+    {% with page_iiif_image|iiif_image:"size:width=1080" as image %}
+    <meta property="og:image" content="{{ image }}" />
+    <meta name="twitter:image" content="{{ image }}" />
+    {% endwith %}
 {% else %}
     <meta property="og:image" content="{% fullstatic default_image %}" />
     <meta property="twitter:image" content="{% fullstatic default_image %}" />
@@ -70,4 +75,9 @@ page_description, and page_meta_image if set in context.
 <meta property="og:url" content="{{ request.build_absolute_uri }}" />
 <meta name="twitter:url" content="{{ request.build_absolute_uri }}" />
 <meta name="twitter:domain" content="{{ request.get_host }}" />
+<meta name="twitter:site" content="@ShakesCoProject" />
+{% for author_block in page.authors %}{% if author_block.value.twitter_id %}
+<meta name="twitter:creator" content="{{ author_block.value.twitter_id }}" />
+{% endif %}{% endfor %}
+
 {% endif %}

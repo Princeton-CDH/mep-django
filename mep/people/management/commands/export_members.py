@@ -22,15 +22,18 @@ class Command(BaseExport):
 
     csv_fields = [
         'uri',
-        'name', 'sort name',
-        'gender', 'title',
-        'birth year', 'death year',
-        'is organization', 'has card',
-        'viaf url', 'wikipedia url',
+        'name',
+        'sort_name',
+        'title',
+        'gender',
+        'is_organization', 'has_card',
+        'birth_year', 'death_year',
+        'membership_years',
+        'viaf_url', 'wikipedia_url',
         # related country
         'nationalities',
         # related location
-        'addresses', 'coordinates',
+        'addresses', 'postal_codes', 'arrondissements', 'coordinates',
         # generic
         'notes',
         'updated'
@@ -53,31 +56,35 @@ class Command(BaseExport):
         data = OrderedDict([
             ('uri', absolutize_url(obj.get_absolute_url())),
             ('name', obj.name),
-            ('sort name', obj.sort_name),
-            ('is organization', obj.is_organization),
-            ('has card', obj.has_card()),
+            ('sort_name', obj.sort_name),
+            ('is_organization', obj.is_organization),
+            ('has_card', obj.has_card()),
         ])
-
-        # add gender
+        # add title if set
+        if obj.title:
+            data['title'] = obj.title
+        # add gender if set
         if obj.gender:
             data['gender'] = obj.get_gender_display()
 
-        # add title
-        if obj.title:
-            data['title'] = obj.title
+        data['is_organization'] = obj.is_organization
+        data['has_card'] = obj.has_card()
 
-        # add birth/death dates
+        # add birth/death dates if known
         if obj.birth_year:
-            data['birth year'] = obj.birth_year
+            data['birth_year'] = obj.birth_year
         if obj.death_year:
-            data['death year'] = obj.death_year
+            data['death_year'] = obj.death_year
+        # set for unique, list for json serialization
+        data['membership_years'] = list(
+            set(d.year for d in obj.account_set.first().event_dates))
 
         # viaf & wikipedia URLs
         if obj.viaf_id:
-            data['viaf url'] = obj.viaf_id
+            data['viaf_url'] = obj.viaf_id
         for info_url in obj.urls.all():
             if domain(info_url.url) == 'wikipedia':
-                data['wikipedia url'] = info_url.url
+                data['wikipedia_url'] = info_url.url
                 break
 
         # add all nationalities
@@ -91,11 +98,15 @@ class Command(BaseExport):
         if locations.exists():
             data['addresses'] = []
             data['coordinates'] = []
+            data['postal_codes'] = []
+            data['arrondissements'] = []
             for location in locations.all():
                 data['addresses'].append(str(location))
                 data['coordinates'].append(
                     '%s, %s' % (location.latitude, location.longitude)
                 )
+                data['postal_codes'].append(location.postal_code)
+                data['arrondissements'].append(location.arrondissement() or '')
 
         # add public notes
         if obj.public_notes:

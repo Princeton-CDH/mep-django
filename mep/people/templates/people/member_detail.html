@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static mep_tags %}
+{% load static mep_tags markdownify %}
 {% load render_bundle from webpack_loader %}
 
 {% block page-subtitle %}{{ member.firstname_last }} · Library Members · {% endblock %}
@@ -46,18 +46,14 @@
             <dt class="name">Name</dt>
             <dd class="name">{{ member.name }}</dd>
             {# membership dates #}
-            {% if account_start or account_end %}
-            <dt class="member-dates">Membership Dates</dt>
+            <dt class="member-dates">Membership Years</dt>
             <dd class="member-dates">
-            {% if account_start %}
-            {{ account_start }}{% endif %}{% if account_end and account_start != account_end %} – <span class="sr-only">to</span>{{ account_end }}
-            {% endif %}
+                {{ account_years|as_ranges|default:'-' }}
             </dd>
-            {% endif %}
             {# public notes #}
             {% if member.public_notes %}
             <dt class="notes">Notes</dt>
-            <dd class="notes">{{ member.public_notes }}</dd>
+            <dd class="notes">{{ member.public_notes|markdownify }}</dd>
             {% endif %}
         </div>
         <div class="secondary">

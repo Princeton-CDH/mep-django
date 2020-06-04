@@ -24,11 +24,25 @@
                 pointer-events: none;
             }
 
+            &:nth-last-child(4), &:nth-last-child(5) {
+                a {
+                    width: 1px;
+                    color: white;
+                }
+            }
+
+
             a {
                 border-left-width: 2px;
                 // don't show 'Home' text unless on larger screens
                 width: 1px;
                 color: white;
+
+                // don't show 'Home' whene there are 4 breadcrumbs
+                li:nth-last-child(4) & {
+                    width: 1px;
+                    color: white;
+                }
 
                 @media (min-width: $breakpoint-s) {
                     width: auto;
@@ -36,17 +50,29 @@
                 }
             }
         }
+
+        // hide crumbs beyond level 4
+        &:nth-child(n + 5) {
+            a, span {
+                display: none;
+            }
+        }
+        &:nth-last-child(2) a::before {
+            border-left-color: $green;
+        }
+        &:nth-child(4) a::before {
+            border-left-color: $white-two;
+        }
     }
 
     a,
     span {
         height: 1.5rem;
         line-height: 1.5rem;
-        padding-top: 1px;
         position: relative;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: baseline;
         background: white;
         font-size: 0.7rem;
         padding-left: 1rem;
@@ -85,12 +111,6 @@
         }
     }
 
-    // penultimate item (before active one) needs to make its right-side border green
-    // but don't do this on mobile since the active item isn't shown
-    li:nth-last-of-type(2) a::before {
-        @media (min-width: $breakpoint-s) { border-left-color: $green; }
-    }
-
     // remove default hover styles for links
     a:hover,
     a:focus {
@@ -103,15 +123,10 @@
     }
 
     // last item is the active one, green border
-    // on mobile it isn't shown to conserve space
     span {
         border-color: $green;
         font-weight: bold;
-        display: none;
-
-        @media (min-width: $breakpoint-s) {
             display: flex;
-        }
 
         &::before {
             border-left-color: $green;
