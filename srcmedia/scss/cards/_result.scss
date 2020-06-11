@@ -70,7 +70,9 @@ $card-width: 11.25rem;
 
     picture {
         display: block;
-        height: 15.75rem;
+        @media (min-width: $breakpoint-s) {
+            height: 15.75rem;
+        }
     }
 
     img, source {
@@ -80,10 +82,14 @@ $card-width: 11.25rem;
 
     img {
         /* sized for fallback image display */
-        min-height: 13.25rem;
-        min-width: 11rem;
         width: 11rem;
+        height: auto;
         @include missing-card-image;
+
+        &::before {
+            min-height: 13.25rem;
+            min-width: 11rem;
+        }
     }
 
     dl {
