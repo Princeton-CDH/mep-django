@@ -333,7 +333,8 @@ class Event(Notable, PartialDateMixin):
         'NOTATION: BOUGHTFOR': 'Purchase',
         'NOTATION: SOLDFOR': 'Purchase',
         'NOTATION: REQUEST': 'Request',
-        'STRIKETHRU': 'Crossed out'
+        'STRIKETHRU': 'Crossed out',
+        'NOTATION: PERIODICALSUBSCRIPTION': 'Periodical Subscription'
     }
     re_nonstandard_notation = re.compile(
         '(%s)' % '|'.join(nonstandard_notation.keys()))
