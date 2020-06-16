@@ -595,7 +595,7 @@ class Edition(Notable):
     # language model foreign key may be added in future
 
     class Meta:
-        ordering = ['date']
+        ordering = ['date', 'volume']
 
     def __repr__(self):
         # provide pk for easy lookup and string for recognition

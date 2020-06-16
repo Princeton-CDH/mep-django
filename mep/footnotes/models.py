@@ -308,32 +308,19 @@ class FootnoteQuerySet(models.QuerySet):
             content_type__model__in=['event', 'borrow', 'purchase'])
 
     def events(self):
-        '''Return an Events queryset of any events (including borrows and
-        purchases) associated with the current footnote queryset.'''
+        '''Return an Events queryset for all events
+        associated with the current footnote queryset.'''
 
         # use get model to avoid circular import
         Event = apps.get_model('accounts', 'Event')
-
-        # get event ids and content types from the current footnote queryset
-        event_refs = self.on_events() \
-                         .values('object_id', 'content_type__model')
-        # group event ids by content type
-        event_ids_by_type = defaultdict(list)
-        for ref in event_refs:
-            event_ids_by_type[ref['content_type__model']].append(ref['object_id'])
-        # construct an OR filter query for each content type and list of ids
-        # - look for nothing OR for events and event subtypes by id
-        filter_q = models.Q(pk__in=[])
-        for ctype, pk_list in event_ids_by_type.items():
-            if ctype == 'borrow':
-                filter_q |= models.Q(borrow__pk__in=pk_list)
-            elif ctype == 'purchase':
-                filter_q |= models.Q(purchase__pk__in=pk_list)
-            elif ctype == 'event':
-                filter_q |= models.Q(pk__in=pk_list)
+        # get Event content type
+        event_content_type = ContentType.objects.get_for_model(Event)
+        # get a list of event ids from the current footnote queryset
+        event_ids = self.filter(content_type=event_content_type) \
+                        .values_list('object_id', flat=True)
 
         # find and return corresponding events
-        return Event.objects.filter(filter_q)
+        return Event.objects.filter(pk__in=event_ids)
 
     def event_date_range(self):
         '''Find earliest and latest dates for any events associated
@@ -371,13 +358,13 @@ class Footnote(Notable):
         # and models that are available in django admin
         # (otherwise, lookup is not possible)
         # TODO: add items here as the application expands
-        limit_choices_to=models.Q(app_label='people',
-            model__in=['country', 'person', 'address', 'profession']) |
+        limit_choices_to=models.Q(
+                app_label='people',
+                model__in=['country', 'person', 'address', 'profession']) |
             models.Q(
                 app_label='accounts',
-                model__in=['account', 'event', 'subscription', 'borrow',
-                           'reimbursement', 'purchase']) |
-            models.Q(app_label='books', model__in=['item'])
+                model__in=['account', 'event']) |
+            models.Q(app_label='books', model__in=['work'])
     )
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')

@@ -31,9 +31,10 @@
             /* provide a zoom hint for mobile/tablet */
             &::before {
                 content: "Tap image to zoom in/out";
+                display: none;
 
-                @media (min-width: $breakpoint-m) {
-                    display: none;
+                @media (hover: none) {
+                    display: block;
                 }
             }
 

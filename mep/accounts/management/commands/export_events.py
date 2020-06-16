@@ -88,8 +88,6 @@ class Command(BaseExport):
             data['borrow'] = {
                 'status': obj.borrow.get_item_status_display()
             }
-            # capture a footnote if there is one
-            footnote = obj.borrow.footnotes.first()
 
         # purchase data
         elif event_type == 'Purchase' and obj.purchase.price:
@@ -97,10 +95,9 @@ class Command(BaseExport):
                 'price': '%s%.2f' %
                          (obj.purchase.currency_symbol(), obj.purchase.price)
             }
-            footnote = obj.purchase.footnotes.first()
 
-        # check for footnote on the generic event if one was not already found
-        footnote = footnote or obj.event_footnotes.first()
+        # footnote should always be attached to the base event
+        footnote = obj.footnotes.first()
 
         item_info = self.item_info(obj)
         if item_info:
