@@ -12,11 +12,16 @@
 
 {% block content %}
 <article class="main">
-{% for event in object_list %}
-    {% ifchanged %}<h2>{{ event.start_date }}</h2>{% endifchanged %}
 
-    <p class="notes">{{ event|tweet_text|urlize }}</p>
+{% for event_date, events in events_by_date.items %}
+    <h2>{{ event_date }}</h2>
 
+    {% for event in events %}
+        {% tweet_text event event_date as tweet_content %}
+        {% if tweet_content %}
+            <p class="notes">{{ tweet_content|urlize }}</p>
+        {% endif %}
+    {% endfor %}
 {% endfor %}
 
 </article>
