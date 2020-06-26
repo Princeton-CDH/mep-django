@@ -3,12 +3,12 @@ from collections import defaultdict
 
 from dal import autocomplete
 from dateutil.relativedelta import relativedelta
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.views.generic import ListView
 
 from mep.accounts.models import Account, Event
 from mep.accounts.partial_date import DatePrecision
-from mep.common.views import LoginRequiredOr404Mixin
 
 
 class AccountAutocomplete(autocomplete.Select2QuerySetView):
@@ -30,7 +30,7 @@ class AccountAutocomplete(autocomplete.Select2QuerySetView):
         ).distinct().order_by('id')
 
 
-class Twitter100yearsReview(LoginRequiredOr404Mixin, ListView):
+class Twitter100yearsReview(LoginRequiredMixin, ListView):
     model = Event
     template_name = 'accounts/100years_twitter_review.html'
 
