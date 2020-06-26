@@ -80,6 +80,7 @@ class Command(BaseCommand):
         return events
 
     def report(self, date):
+        # TODO: clearn up output
         # needs two modes:
         # - schedule
         # - tweet (takes event id)
@@ -200,7 +201,7 @@ def tweet_content(ev, event_date):
                  '' if ev.subscription.volumes == 1 else 's')
 
     elif event_label == 'Reimbursement':
-        # renewed for 2 months at 1 volume per month
+        # received a reimbursement for $##
         content = '%s received a reimbursement for %s%s from the Shakespeare and Company lending library' % \
             (member_name, ev.reimbursement.refund,
              ev.reimbursement.currency_symbol())
@@ -208,33 +209,59 @@ def tweet_content(ev, event_date):
     # any other kind of event: no tweet
 
     if content:
-        # change: use card detail url if possible
+        # use card detail url if possible
         url = card_url(member, ev) or member.get_absolute_url()
         return '%s %s\n%s' % (prolog, content, absolutize_url(url))
 
 
 def work_label(work):
-    # convert work to twitter display format:
-    # - standard: author\'s "title" (year)
-    # - periodical: an issue of "title"
+    '''Convert a :class:`~mep.accounts.models.Work` for display
+    in tweet content. Standard formats:
+        - author’s “title” (year)
+        - periodical: an issue of “title”
+
+    Handles multiple authors (and for two, et al. for more), includes
+    editors if there are no authors. Only include years after 1500.
+    '''
     parts = []
     # indicate issue of periodical based on format
     if work.format() == 'Periodical':
-        # TODO: include actual issue if known?
+        # not including issue details even if known;
+        # too much variability in format
         parts.append('an issue of')
 
-    if work.authors:
-        # TODO: handle multiple authors
-        # two: Francis Beaumont and John Fletcher's "Plays."
-        # more than (3?): Francis Beaument et al.'s "title"'
-        parts.append('%s’s' % work.authors[0].name)
+    include_editors = False
 
-    # TODO: include editor if there are no authors, e.g.
-    # "Book of Gardening," edited by John Smith (DATE)
+    # include author if known
+    if work.authors:
+        # handle multiple authors
+        if len(work.authors) <= 2:
+            # one or two: join by and
+            author = ' and '.join([a.name for a in work.authors])
+        else:
+            # more than two: first name et al
+            author = '%s et al.' % work.authors[0].name
+        parts.append('%s’s' % author)
+
+    # if no author but editors, we will include editor
+    elif work.editors:
+        include_editors = True
 
     # should always have title; use quotes since we can't italicize
     # strip quotes if already present (uncertain title)
-    parts.append('“%s”' % work.title.strip('"“”'))
+    # add comma if we will add an editor
+    parts.append('“%s%s”' % (work.title.strip('"“”'),
+                 ',' if include_editors else ''))
+
+    # add editors after title
+    if include_editors:
+        if len(work.editors) <= 2:
+            # one or two: join by and
+            editor = ' and '.join([ed.name for ed in work.editors])
+        else:
+            # more than two: first name et al
+            editor = '%s et al.' % work.editors[0].name
+        parts.append('edited by %s' % editor)
 
     # include work year if known not before 1500
     if work.year and work.year > 1500:
