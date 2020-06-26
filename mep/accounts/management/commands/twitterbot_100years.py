@@ -80,16 +80,10 @@ class Command(BaseCommand):
         return events
 
     def report(self, date):
-        # TODO: clearn up output
-        # needs two modes:
-        # - schedule
-        # - tweet (takes event id)
+        # print out the tweets for the specified day
         for ev in self.find_events(date):
-            print('event type %s' % ev.event_type)
-            print('account %s' % ev.account)
-            print(ev)
-            content = tweet_content(ev, date)
-            print(content)
+            self.stdout.write(tweet_content(ev, date))
+            self.stdout.write('\n')
 
     # times:  9 AM, 12 PM, 1:30 PM, 3 PM, 4:30 PM, 6 PM, 8 PM
     tweet_times = ['9:00', '12:00', '13:30', '15:00', '16:30', '18:00',
@@ -157,6 +151,15 @@ def can_tweet(ev, day):
         ev.partial_start_date == day])
 
 
+tweet_format = {
+    'subscription': '%(member)s joined %(library)s.',
+    'verbed': '%(member)s %(verb)s %(work)s.',
+    'renewal': '%(member)s renewed for %(duration)s%(volumes)s.',
+    'reimbursement': '%(member)s received a reimbursement for ' +
+                     '%(amount)s%(currency)s from %(library)s.',
+}
+
+
 def tweet_content(ev, day):
     # handle multiple members, but use first member for url
     member = ev.account.persons.first()
@@ -168,49 +171,56 @@ def tweet_content(ev, day):
             # given a partial date
             return
 
+    # all tweets start the same way
+    prolog = '#100YearsAgoToday on %s: ' % day.strftime(Command.date_format)
+    # handle shared accountsr
     member_name = ' and '.join(m.name for m in ev.account.persons.all())
-    prolog = '#100YearsAgoToday on %s:' % \
-        day.strftime(Command.date_format)
-    content = None
-
+    tweet_info = {
+        'library': 'the Shakespeare and Company lending library',
+        'member': member_name
+    }
     event_label = ev.event_label
+    tweet_pattern = None
 
-    if event_label == 'Subscription' and \
-       ev.subscription.purchase_date == day:
-        content = '%s joined the Shakespeare and Company lending library.' % \
-            member_name
+    if event_label in ['Subscription', 'Renewal'] \
+       and ev.subscription.purchase_date == day:
+        tweet_pattern = event_label.lower()
+        # renewals include duration
+        tweet_info.update({
+            'duration': ev.subscription.readable_duration(),
+            'volumes': ''
+        })
+        # include volume count if known
+        if ev.subscription.volumes:
+            tweet_info['volumes'] = ' at %d volume%s per month' % \
+                (ev.subscription.volumes,
+                 '' if ev.subscription.volumes == 1 else 's')
 
     elif event_label in ['Borrow', 'Purchase', 'Request']:
-        work = work_label(ev.work)
+        tweet_pattern = 'verbed'
         # convert event type into verb for the sentence
         verb = '%sed' % ev.event_type.lower().rstrip('e')
         if event_label == 'Borrow' and ev.end_date == day:
             verb = 'returned'
-        content = '%s %s %s.' % (member_name, verb, work)
-
-    # renewal
-    elif event_label == 'Renewal' and ev.subscription.purchase_date == day:
-        # renewed for 2 months at 1 volume per month
-        content = '%s renewed for %s' % \
-            (member_name, ev.subscription.readable_duration())
-        # include volume count if known
-        if ev.subscription.volumes:
-            content = '%s at %d volume%s per month.' % \
-                (content, ev.subscription.volumes,
-                 '' if ev.subscription.volumes == 1 else 's')
+        tweet_info.update({
+            'verb': verb,
+            'work': work_label(ev.work)
+        })
 
     elif event_label == 'Reimbursement':
         # received a reimbursement for $##
-        content = '%s received a reimbursement for %s%s from the Shakespeare and Company lending library' % \
-            (member_name, ev.reimbursement.refund,
-             ev.reimbursement.currency_symbol())
+        tweet_pattern = 'reimbursement'
+        tweet_info.update({
+            'amount': ev.reimbursement.refund,
+            'currency': ev.reimbursement.currency_symbol()
+        })
 
-    # any other kind of event: no tweet
-
-    if content:
-        # use card detail url if possible
+    # if tweet format is set, generate tweet content
+    if tweet_pattern:
+        content = tweet_format[tweet_pattern] % tweet_info
+        # use card detail url when available
         url = card_url(member, ev) or member.get_absolute_url()
-        return '%s %s\n%s' % (prolog, content, absolutize_url(url))
+        return '%s%s\n%s' % (prolog, content, absolutize_url(url))
 
 
 def work_label(work):

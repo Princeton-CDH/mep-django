@@ -3,6 +3,7 @@ from io import StringIO
 
 from django.core.management import call_command
 from django.test import TestCase
+from django.urls import reverse
 
 from mep.accounts.models import Event
 from mep.accounts.management.commands import twitterbot_100years
@@ -140,4 +141,70 @@ class TestCanTweet(TestCase):
         assert not twitterbot_100years.can_tweet(subs, subs.start_date)
 
 
+class TestCardUrl(TestCase):
+    fixtures = ['test_events']
 
+    def test_card_url(self):
+        ev = Event.objects.filter(footnotes__isnull=False).first()
+        member = ev.account.persons.first()
+        assert twitterbot_100years.card_url(member, ev) == \
+            '%s#e%d' % (
+                reverse('people:member-card-detail', kwargs={
+                        'slug': member.slug,
+                        'short_id': ev.footnotes.first().image.short_id}),
+                ev.id)
+
+        ev = Event.objects.filter(footnotes__isnull=True).first()
+        assert not twitterbot_100years.card_url(member, ev)
+
+
+tweet_content = twitterbot_100years.tweet_content
+
+
+class TestTweetContent(TestCase):
+    fixtures = ['test_events']
+
+    def test_reimbursement(self):
+        reimb = Event.objects.filter(reimbursement__isnull=False,
+                                     start_date__isnull=False).first()
+        tweet = tweet_content(reimb, reimb.partial_start_date)
+        assert reimb.start_date \
+            .strftime(twitterbot_100years.Command.date_format) in tweet
+        assert reimb.account.persons.first().name in tweet
+        refund = 'received a reimbursement for %s%s' % \
+            (reimb.reimbursement.refund,
+             reimb.reimbursement.currency_symbol())
+        assert refund in tweet
+        assert reimb.account.persons.first().get_absolute_url() in tweet
+
+        # partial date = no tweet content
+        assert not tweet_content(reimb, reimb.start_date.strftime('%Y'))
+        assert not tweet_content(reimb, reimb.start_date.strftime('%Y-%m'))
+
+    def test_borrow(self):
+        # borrow with fully known start and end date
+        borrow = Event.objects.filter(
+            borrow__isnull=False, start_date__isnull=False,
+            end_date__isnull=False, start_date_precision=7).first()
+        # borrow
+        tweet = tweet_content(borrow, borrow.partial_start_date)
+        borrowed = '%s borrowed %s' % \
+            (borrow.account.persons.first().name,
+             twitterbot_100years.work_label(borrow.work))
+        assert borrowed in tweet
+
+        # return
+        tweet = tweet_content(borrow, borrow.partial_end_date)
+        returned = '%s returned %s' % \
+            (borrow.account.persons.first().name,
+             twitterbot_100years.work_label(borrow.work))
+        assert returned in tweet
+
+    def test_subscription(self):
+        # regular subscription with precisely known dates
+        subs = Event.objects.get(pk=8810)
+        # purchase date same as start date
+        subs.subscription.purchase_date = subs.start_date
+        tweet = tweet_content(subs, subs.partial_start_date)
+        assert 'joined the Shakespeare and Company lending library'  \
+            in tweet
