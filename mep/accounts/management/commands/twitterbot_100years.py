@@ -135,49 +135,48 @@ tweetable_event_types = ['Subscription', 'Renewal', 'Reimbursement',
                          'Borrow', 'Purchase', 'Request']
 
 
-def can_tweet(ev, date):
+def can_tweet(ev, day):
     '''check if the event can be tweeted on the specified day'''
 
     # convert to string and compare against partial dates
     # to ensure we don't tweet an event with an unknown date
-    date = date.isoformat()
-
+    day = day.isoformat()
     # disallows subscription on start date != purchase
-    if ev.event_label == 'Subscription' and \
-       ev.subscription.partial_purchase_date != date:
+    if ev.event_label in ['Subscription', 'Renewal'] and \
+       ev.subscription.partial_purchase_date != day:
         return False
 
     return any([
         # subscription event and date matches purchase
         (ev.event_label == 'Subscription' and
-         ev.subscription.partial_purchase_date == date),
+         ev.subscription.partial_purchase_date == day),
         # borrow event and date matches end date
-        (ev.event_label == 'Borrow' and ev.partial_end_date == date),
+        (ev.event_label == 'Borrow' and ev.partial_end_date == day),
         # any other tweetable event and date matches start
         ev.event_label in tweetable_event_types and
-        ev.partial_start_date == date])
+        ev.partial_start_date == day])
 
 
-def tweet_content(ev, event_date):
+def tweet_content(ev, day):
     # handle multiple members, but use first member for url
     member = ev.account.persons.first()
 
-    if isinstance(event_date, str):
+    if isinstance(day, str):
         try:
-            event_date = datetime.date(*[int(n) for n in event_date.split('-')])
+            day = datetime.date(*[int(n) for n in day.split('-')])
         except TypeError:
             # given a partial date
             return
 
     member_name = ' and '.join(m.name for m in ev.account.persons.all())
     prolog = '#100YearsAgoToday on %s:' % \
-        event_date.strftime(Command.date_format)
+        day.strftime(Command.date_format)
     content = None
 
     event_label = ev.event_label
 
     if event_label == 'Subscription' and \
-       ev.subscription.purchase_date == event_date:
+       ev.subscription.purchase_date == day:
         content = '%s joined the Shakespeare and Company lending library.' % \
             member_name
 
@@ -185,12 +184,12 @@ def tweet_content(ev, event_date):
         work = work_label(ev.work)
         # convert event type into verb for the sentence
         verb = '%sed' % ev.event_type.lower().rstrip('e')
-        if event_label == 'Borrow' and ev.end_date == event_date:
+        if event_label == 'Borrow' and ev.end_date == day:
             verb = 'returned'
         content = '%s %s %s.' % (member_name, verb, work)
 
     # renewal
-    elif event_label == 'Renewal' and ev.subscription.purchase_date == event_date:
+    elif event_label == 'Renewal' and ev.subscription.purchase_date == day:
         # renewed for 2 months at 1 volume per month
         content = '%s renewed for %s' % \
             (member_name, ev.subscription.readable_duration())
@@ -271,19 +270,9 @@ def work_label(work):
 
 
 def card_url(member, ev):
-    footnote = None
-
-    if ev.event_footnotes.exists():
-        footnote = ev.event_footnotes.first()
-
-    if not footnote and ev.event_type == 'Borrow' and \
-       ev.borrow.footnotes.exists():
-        footnote = ev.borrow.footnotes.first()
-
-    if not footnote and ev.event_type == 'Purchase' and \
-       ev.purchase.footnotes.exists():
-        footnote = ev.purchase.footnotes.first()
-
+    '''Return the member card detail url for the event based on footnote
+    image, if present.'''
+    footnote = ev.footnotes.first()
     if footnote and footnote.image:
         url = reverse('people:member-card-detail', kwargs={
                       'slug': member.slug,
