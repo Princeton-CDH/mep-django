@@ -4,7 +4,7 @@ import sys
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 from django.urls import reverse
 import tweepy
@@ -41,17 +41,16 @@ class Command(BaseCommand):
         elif kwargs['mode'] == 'schedule':
             self.schedule(date)
         elif kwargs['mode'] == 'tweet':
-            # todo tweet single event
+            # find the event and tweet it, if possible & appropriate
             try:
                 ev = Event.objects.get(pk=kwargs['event'])
                 self.tweet(ev, date)
             except Event.DoesNotExist:
-                self.stderr.write('Error: event %s not found' % kwargs['event'])
+                self.stderr.write('Error: event %(event)s not found' % kwargs)
 
     def get_date(self, **kwargs):
         # find events relative to the specified day if set
         date = kwargs.get('date', None)
-        # TODO: determine if server time is UTC or local
 
         # only allow overriding date for report
         if date and kwargs['mode'] == 'report':
@@ -82,6 +81,7 @@ class Command(BaseCommand):
     def report(self, date):
         # print out the tweets for the specified day
         for ev in self.find_events(date):
+            self.stdout.write('Event id: %s' % ev.id)
             self.stdout.write(tweet_content(ev, date))
             self.stdout.write('\n')
 
@@ -101,29 +101,34 @@ class Command(BaseCommand):
 
     def tweet_at(self, event, time):
         '''schedule a tweet for later today'''
+        # use current python executable (within virtualenv)
         cmd = '%s %s/manage.py twitterbot_100years tweet --event %s' % \
             (sys.executable, settings.PROJECT_ROOT, event.id)
-        print('scheduling %s at %s' % (event, time))
-        print(cmd)
-        result = subprocess.run(['/usr/bin/at', time], input=cmd.encode(),
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print(result.stderr.decode())
+        # could add debug logging here if there are problems
+        subprocess.run(['/usr/bin/at', time], input=cmd.encode(),
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def tweet(self, event, date):
         # make sure the event is tweetable
         if not can_tweet(event, date):
             return
-
         content = tweet_content(event, date)
         if not content:
             return
-        print(content)
-        # TODO: set credentials in local settings
-        # auth = tweepy.OAuthHandler('', '')
-        # auth.set_access_token('', '')
-        # api = tweepy.API(auth)
-        # api.update_status(content)
+        api = self.get_tweepy()
+        api.update_status(content)
 
+    def get_tweepy(self):
+        '''Initialize tweepy API client based on django settings.'''
+        if not hasattr(settings, 'TWITTER_100YEARS'):
+            raise CommandError('Configuration for twitter access not found')
+
+        auth = tweepy.OAuthHandler(
+            settings.TWITTER_100YEARS['API']['key'],
+            settings.TWITTER_100YEARS['API']['secret_key'])
+        auth.set_access_token(settings.TWITTER_100YEARS['ACCESS']['token'],
+                              settings.TWITTER_100YEARS['ACCESS']['secret'])
+        return tweepy.API(auth)
 
 tweetable_event_types = ['Subscription', 'Renewal', 'Reimbursement',
                          'Borrow', 'Purchase', 'Request']
