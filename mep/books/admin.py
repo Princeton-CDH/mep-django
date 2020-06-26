@@ -118,7 +118,7 @@ class WorkAdmin(admin.ModelAdmin):
         '''Annotate the queryset with the number of events, borrows,
         and purchases for sorting and display.'''
         return super(WorkAdmin, self) \
-            .get_queryset(request).count_events()
+            .get_queryset(request).count_events().order_by('sort_title')
 
     def get_search_results(self, request, queryset, search_term):
         '''Override admin search to use Solr.'''

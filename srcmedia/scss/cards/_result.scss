@@ -70,7 +70,9 @@ $card-width: 11.25rem;
 
     picture {
         display: block;
-        height: 15.75rem;
+        @media (min-width: $breakpoint-s) {
+            height: 15.75rem;
+        }
     }
 
     img, source {
@@ -80,10 +82,14 @@ $card-width: 11.25rem;
 
     img {
         /* sized for fallback image display */
-        min-height: 13.25rem;
-        min-width: 11rem;
         width: 11rem;
+        height: auto;
         @include missing-card-image;
+
+        &::before {
+            min-height: 13.25rem;
+            min-width: 11rem;
+        }
     }
 
     dl {
@@ -99,6 +105,7 @@ $card-width: 11.25rem;
         font-family: $serif;
         font-size: 1.2rem;
         padding-bottom: 0.1rem;
+        line-height: 1.17;
     }
 
     dd.card-dates {

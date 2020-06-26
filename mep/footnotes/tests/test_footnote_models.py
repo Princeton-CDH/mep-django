@@ -142,9 +142,9 @@ class TestFootnoteQuerySet(TestCase):
         assert not Footnote.objects.exclude(**gstein_filter).events().exists()
 
         # get a known date from the fixture
-        evt = Borrow.objects.get(pk=26344)
+        evt = Event.objects.get(pk=26344)
         assert evt.footnotes.all().events().count() == 1
-        assert evt.footnotes.all().events().first() == evt.event_ptr
+        assert evt.footnotes.all().events().first() == evt
 
         # all events from one account
         acct = Account.objects.first()  # currently only g. stein in fixture
@@ -178,7 +178,7 @@ class TestFootnoteQuerySet(TestCase):
             .event_date_range()
 
         # get a known date from the fixture with start and end date fully known
-        evt = Borrow.objects.get(pk=26344)
+        evt = Event.objects.get(pk=26344)
         footnote_dates = evt.footnotes.all().event_date_range()
 
         # should not be null
@@ -194,25 +194,16 @@ class TestFootnoteQuerySet(TestCase):
         assert footnote_dates[0] == event_dates[0]
         assert footnote_dates[1] == event_dates[-1]
 
-        # add new purchase and generic events with footnotes
-        generic_event = Event.objects.create(
+        # add new event with footnotes
+        event = Event.objects.create(
             account=evt.account, start_date=date(1919, 11, 17))
         evt_ctype = ContentType.objects.get_for_model(Event)
         bib = evt.footnotes.first().bibliography
-        Footnote.objects.create(object_id=generic_event.pk,
+        Footnote.objects.create(object_id=event.pk,
                                 content_type=evt_ctype, bibliography=bib)
         footnote_dates = Footnote.objects.filter(**gstein_filter) \
             .event_date_range()
-        assert footnote_dates[0] == generic_event.start_date
-
-        purchase_evt = Purchase.objects.create(
-            account=evt.account, start_date=date(1962, 3, 5))
-        evt_ctype = ContentType.objects.get_for_model(Purchase)
-        Footnote.objects.create(object_id=purchase_evt.pk,
-                                content_type=evt_ctype, bibliography=bib)
-        footnote_dates = Footnote.objects.filter(**gstein_filter) \
-            .event_date_range()
-        assert footnote_dates[1] == purchase_evt.start_date
+        assert footnote_dates[0] == event.start_date
 
 
 class TestBibliographyAdmin:

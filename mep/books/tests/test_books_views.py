@@ -461,7 +461,7 @@ class TestWorkCardList(TestCase):
         # retrieves and stores work
         assert self.view.work == self.work
         work_borrow = self.work.event_set.first().borrow
-        work_footnotes = work_borrow.footnotes.all()
+        work_footnotes = work_borrow.event_ptr.footnotes.all()
 
         # finds footnotes for this work with images and de-dupes based on image
         assert list(queryset) == list(work_footnotes)
@@ -521,7 +521,7 @@ class TestWorkCardList(TestCase):
         response = self.client.get(url)
 
         work_borrow = self.work.event_set.first().borrow
-        work_footnote = work_borrow.footnotes.first()
+        work_footnote = work_borrow.event_ptr.footnotes.first()
         # image included in two sizes
         self.assertContains(
             response, work_footnote.image.image.size(width=225))

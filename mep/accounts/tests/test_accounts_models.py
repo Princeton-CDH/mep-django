@@ -417,7 +417,7 @@ class TestAccount(TestCase):
             content_object=event,
             # object_id=event, content_type=event_ctype,
             image=other_img, bibliography=card)
-        event.event_footnotes.add(fn)
+        event.footnotes.add(fn)
         card_images = account.member_card_images()
         assert other_img in card_images
         # should come after main card images

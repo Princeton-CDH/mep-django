@@ -505,8 +505,8 @@ class TestExportEvents(TestCase):
 
     def test_source_info(self):
         # footnote
-        event = Event.objects.filter(event_footnotes__isnull=False).first()
-        footnote = event.event_footnotes.first()
+        event = Event.objects.filter(footnotes__isnull=False).first()
+        footnote = event.footnotes.first()
         info = self.cmd.source_info(footnote)
         assert info['citation'] == footnote.bibliography.bibliographic_note
         assert info['manifest'] == footnote.bibliography.manifest.uri

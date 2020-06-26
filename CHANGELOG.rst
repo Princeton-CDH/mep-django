@@ -3,6 +3,18 @@
 CHANGELOG
 =========
 
+1.1.1
+-----
+
+* bugfix: event footnotes can be edited in different places in django admin, which makes it easy to end up with duplicate footnotes
+* bugfix: book search is over-emphasizing stopwords, especially in author names
+* bugfix: Editions now sort on volume in numerical order after date
+* design fix: line height for names on card gallery view
+* design fix: correctly display irregular size images in card gallery view
+* Added variant event type for periodical subscriptions
+
+
+
 1.1
 ---
 

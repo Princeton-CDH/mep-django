@@ -261,8 +261,8 @@ class WorkDetail(WorkLastModifiedListMixin, DetailView, RdfViewMixin):
 
 
 class WorkCirculation(WorkLastModifiedListMixin, ListView, RdfViewMixin):
-    '''Display a list of circulation events (borrows, purchases) for an
-    individual work.'''
+    '''Display a list of circulation events (borrows, purchases, etc)
+    for an individual work.'''
     model = Event
     template_name = 'books/circulation.html'
 
@@ -313,23 +313,14 @@ class WorkCardList(WorkLastModifiedListMixin, ListView, RdfViewMixin):
         # that have images
         return super().get_queryset() \
                       .on_events() \
-                      .filter(Q(borrows__work__pk=self.work.pk) |
-                              Q(events__work__pk=self.work.pk) |
-                              Q(purchases__work__pk=self.work.pk)) \
+                      .filter(events__work__pk=self.work.pk) \
                       .filter(image__isnull=False) \
-                      .annotate(date=Coalesce('borrows__start_date',
-                                              'events__start_date',
-                                              'purchases__start_date'),
-                                start_date_precision=Coalesce(
-                                    'borrows__start_date_precision',
-                                    'events__start_date_precision',
-                                    'purchases__start_date_precision')) \
                       .prefetch_related('content_object', 'image') \
-                      .order_by(F('start_date_precision').desc(),
-                                F('date').asc(nulls_last=True))
+                      .order_by(F('events__start_date_precision').desc(),
+                                F('events__start_date').asc(nulls_last=True))
 
         # NOTE: sorting by date precision decending (with default nulls first)
-        # so that full precision dates (null or 7) come before partiald ates
+        # so that full precision dates (null or 7) come before partial dates
 
     def get_absolute_url(self):
         '''Full URI for work card list page.'''
