@@ -257,10 +257,10 @@ def work_label(work):
         # handle multiple authors
         if len(work.authors) <= 2:
             # one or two: join by and
-            author = ' and '.join([a.firstname_last for a in work.authors])
+            author = ' and '.join([a.name for a in work.authors])
         else:
             # more than two: first name et al
-            author = '%s et al.' % work.authors[0].firstname_last
+            author = '%s et al.' % work.authors[0].name
         parts.append('%s’s' % author)
 
     # if no author but editors, we will include editor
@@ -283,10 +283,10 @@ def work_label(work):
     if include_editors:
         if len(work.editors) <= 2:
             # one or two: join by and
-            editor = ' and '.join([ed.firstname_last for ed in work.editors])
+            editor = ' and '.join([ed.name for ed in work.editors])
         else:
             # more than two: first name et al
-            editor = '%s et al.' % work.editors[0].firstname_last
+            editor = '%s et al.' % work.editors[0].name
         parts.append('edited by %s' % editor)
 
     # include work year if known not before 1500
