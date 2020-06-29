@@ -53,7 +53,8 @@ class Twitter100yearsReview(LoginRequiredMixin, ListView):
                     Q(borrow__isnull=False, end_date__gte=date_start,
                       end_date__lte=date_end)) \
             .filter(Q(start_date_precision__isnull=True) |
-                    Q(start_date_precision=int(self.full_precision)))
+                    Q(start_date_precision=int(self.full_precision))) \
+            .exclude(work__notes__contains="UNCERTAINTYICON")
 
         return events
 

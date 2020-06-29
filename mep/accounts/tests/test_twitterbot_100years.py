@@ -32,7 +32,7 @@ class TestWorkLabel(TestCase):
         # no author, no year
         blue_train = Work.objects.get(pk=5)
         assert twitterbot_100years.work_label(blue_train) == \
-            '“Murder on the Blue Train”'
+            '“Murder on the Blue Train.”'
 
         # single author with years
         exit_eliza = Work.objects.get(pk=1)
@@ -87,15 +87,16 @@ class TestWorkLabel(TestCase):
 
     def test_year(self):
         # set pre-modern publication date  — should not be included
+        # - should include period inside quotes
         exit_eliza = Work.objects.get(pk=1)
         exit_eliza.year = 1350
         assert twitterbot_100years.work_label(exit_eliza) == \
-            "Barry Pain’s “Exit Eliza”"
+            "Barry Pain’s “Exit Eliza.”"
 
     def test_periodical(self):
         the_dial = Work.objects.get(pk=4598)
         assert twitterbot_100years.work_label(the_dial) == \
-            "an issue of “The Dial”"
+            "an issue of “The Dial.”"
 
 
 class TestCanTweet(TestCase):
@@ -206,5 +207,5 @@ class TestTweetContent(TestCase):
         # purchase date same as start date
         subs.subscription.purchase_date = subs.start_date
         tweet = tweet_content(subs, subs.partial_start_date)
-        assert 'joined the Shakespeare and Company lending library'  \
+        assert 'subscribed for 1 month at 2 volumes per month'  \
             in tweet

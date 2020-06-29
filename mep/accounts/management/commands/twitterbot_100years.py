@@ -75,7 +75,8 @@ class Command(BaseCommand):
                     Q(subscription__purchase_date=date) |
                     Q(borrow__isnull=False, end_date=date)) \
             .filter(Q(start_date_precision__isnull=True) |
-                    Q(start_date_precision=int(self.full_precision)))
+                    Q(start_date_precision=int(self.full_precision))) \
+            .exclude(work__notes__contains="UNCERTAINTYICON")
         return events
 
     def report(self, date):
@@ -157,11 +158,10 @@ def can_tweet(ev, day):
 
 
 tweet_format = {
-    'subscription': '%(member)s joined %(library)s.',
-    'verbed': '%(member)s %(verb)s %(work)s.',
-    'renewal': '%(member)s renewed for %(duration)s%(volumes)s.',
+    'verbed': '%(member)s %(verb)s %(work)s%(period)s',
+    'subscription': '%(member)s %(verb)s for %(duration)s%(volumes)s.',
     'reimbursement': '%(member)s received a reimbursement for ' +
-                     '%(amount)s%(currency)s from %(library)s.',
+                     '%(amount)s%(currency)s.',
 }
 
 
@@ -177,11 +177,12 @@ def tweet_content(ev, day):
             return
 
     # all tweets start the same way
-    prolog = '#100YearsAgoToday on %s: ' % day.strftime(Command.date_format)
+    prolog = '#100YearsAgoToday on %s at Shakespeare and Company, ' % \
+        day.strftime(Command.date_format)
     # handle shared accountsr
-    member_name = ' and '.join(m.name for m in ev.account.persons.all())
+    member_name = ' and '.join(m.firstname_last
+                               for m in ev.account.persons.all())
     tweet_info = {
-        'library': 'the Shakespeare and Company lending library',
         'member': member_name
     }
     event_label = ev.event_label
@@ -189,9 +190,11 @@ def tweet_content(ev, day):
 
     if event_label in ['Subscription', 'Renewal'] \
        and ev.subscription.purchase_date == day:
-        tweet_pattern = event_label.lower()
+        tweet_pattern = 'subscription'
+        verb = 'subscribed' if event_label == 'Subscription' else 'renewed'
         # renewals include duration
         tweet_info.update({
+            'verb': verb,
             'duration': ev.subscription.readable_duration(),
             'volumes': ''
         })
@@ -207,9 +210,12 @@ def tweet_content(ev, day):
         verb = '%sed' % ev.event_type.lower().rstrip('e')
         if event_label == 'Borrow' and ev.end_date == day:
             verb = 'returned'
+        work_text = work_label(ev.work)
         tweet_info.update({
             'verb': verb,
-            'work': work_label(ev.work)
+            'work': work_text,
+            # don't duplicate period inside quotes when no year
+            'period': '' if work_text[-1] == '.' else '.'
         })
 
     elif event_label == 'Reimbursement':
@@ -251,10 +257,10 @@ def work_label(work):
         # handle multiple authors
         if len(work.authors) <= 2:
             # one or two: join by and
-            author = ' and '.join([a.name for a in work.authors])
+            author = ' and '.join([a.firstname_last for a in work.authors])
         else:
             # more than two: first name et al
-            author = '%s et al.' % work.authors[0].name
+            author = '%s et al.' % work.authors[0].firstname_last
         parts.append('%s’s' % author)
 
     # if no author but editors, we will include editor
@@ -263,18 +269,24 @@ def work_label(work):
 
     # should always have title; use quotes since we can't italicize
     # strip quotes if already present (uncertain title)
-    # add comma if we will add an editor
+    # add comma if we will add an editor; add period if no date
+    title_punctuation = ''
+    if include_editors:
+        title_punctuation = ','
+    elif not work.year or work.year < 1500:
+        title_punctuation = '.'
+
     parts.append('“%s%s”' % (work.title.strip('"“”'),
-                 ',' if include_editors else ''))
+                 title_punctuation))
 
     # add editors after title
     if include_editors:
         if len(work.editors) <= 2:
             # one or two: join by and
-            editor = ' and '.join([ed.name for ed in work.editors])
+            editor = ' and '.join([ed.firstname_last for ed in work.editors])
         else:
             # more than two: first name et al
-            editor = '%s et al.' % work.editors[0].name
+            editor = '%s et al.' % work.editors[0].firstname_last
         parts.append('edited by %s' % editor)
 
     # include work year if known not before 1500
