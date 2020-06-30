@@ -1250,7 +1250,8 @@ class TestMembershipActivities(TestCase):
             response, 'data-sort="%s"' % subs.partial_start_date)
         self.assertContains(
             response, 'data-sort="%s"' % subs.partial_end_date)
-        self.assertContains(response, subs.price_paid)
+        self.assertContains(response, subs.price_paid + (subs.deposit or 0))
+        # print(response.content)
         self.assertContains(response, subs.currency_symbol())
         self.assertContains(response, 'Reimbursement')
         reimburse = self.events['reimbursement']

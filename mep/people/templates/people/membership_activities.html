@@ -102,13 +102,13 @@
                 {% if event.reimbursement %} - {% else %}
                 {{ event.partial_end_date|partialdate|default:'-' }}{% endif %}
             </td>
-            {# amount is either subscription price or refund amount; refund is negative #}
-            {% with subscription_price=event.subscription.price_paid refund=event.reimbursement.refund %}
-            <td class="amount" data-sort="{% if refund %}-{% endif %}{% firstof subscription_price refund 0 %}">
+            {# amount is either subscription price + deposit or refund amount; refund is negative #}
+            {% with subscription_amount=event.subscription.deposit|default:0|add:event.subscription.price_paid refund=event.reimbursement.refund %}
+            <td class="amount" data-sort="{% if refund %}-{% endif %}{% firstof subscription_amount refund 0 %}">
                 {# only display currency if there is a value #}
                 {% if refund %}-{% endif %}
-                {% firstof subscription_price|floatformat refund|floatformat '-' %}
-                {% if subscription_price or refund %}
+                {% firstof subscription_amount|floatformat refund|floatformat '-' %}
+                {% if subscription_amount or refund %}
                     {% firstof event.subscription.currency_symbol event.reimbursement.currency_symbol '' %}
                 {% endif %}
             {% endwith %}
