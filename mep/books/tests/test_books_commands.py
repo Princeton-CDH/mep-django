@@ -392,7 +392,7 @@ class TestExportBooks(TestCase):
         assert data['year'] == exit_e.year
         assert data['format'] == exit_e.work_format.name
         assert data['identified']  # not marked uncertain
-        assert data['work_uri'] == exit_e.uri
+        assert 'work_uri' not in data
         assert 'author' in data
         # missing data should not be in the dict
         for field in ['edition uri', 'ebook url', 'volumes/issues']:
@@ -404,13 +404,20 @@ class TestExportBooks(TestCase):
         # fixture has no events for exit eliza, so no years are set
         assert data['circulation_years'] == []
 
+        # infer format = book if format is unset and item not uncertain
+        exit_e.work_format = None
+        assert self.cmd.get_object_data(exit_e)['format'] == 'Book'
+        exit_e.notes = 'UNCERTAINTYICON'
+        assert 'format' not in self.cmd.get_object_data(exit_e)
+
         # record with different data
         dial = Work.objects.count_events().get(slug='dial')
         data = self.cmd.get_object_data(dial)
         assert 'year' not in data
-        assert data['edition_uri'] == dial.edition_uri
+        assert 'edition_uri' not in data
         assert data['ebook_url'] == dial.ebook_url
         assert 'volumes_issues' in data
+        assert data['format'] == dial.work_format.name
         for vol in dial.edition_set.all():
             assert vol.display_text() in data['volumes_issues']
         assert data['circulation_years'] == [1936]

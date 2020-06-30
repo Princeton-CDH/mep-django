@@ -35,8 +35,6 @@ class Command(BaseExport):
         "year",
         "format",
         "identified",
-        "work_uri",
-        "edition_uri",
         "ebook_url",
         "volumes_issues",
         "notes",
@@ -75,14 +73,13 @@ class Command(BaseExport):
         # format is not currently set for all items
         if work.work_format:
             data['format'] = work.work_format.name
+        elif 'UNCERTAINTYICON' not in work.notes:
+            # if format is blank and item is NOT unidentified, default to Book
+            data['format'] = 'Book'
 
         # identified: true unless work is marked as uncertain
         data['identified'] = not work.is_uncertain
 
-        if work.uri:
-            data['work_uri'] = work.uri
-        if work.edition_uri:
-            data['edition_uri'] = work.edition_uri
         if work.ebook_url:
             data['ebook_url'] = work.ebook_url
         # text listing of volumes/issues
