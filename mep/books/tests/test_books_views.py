@@ -376,17 +376,6 @@ class TestWorkDetailView(TestCase):
         # check that markdown is rendered
         self.assertContains(response, '<em>formatted</em>')
 
-    def test_edition_volume_display(self):
-        # fetch a periodical with issue information
-        work = Work.objects.get(title='The Dial')
-        issues = Edition.objects.filter(work=work)
-        url = reverse('books:book-detail', kwargs={'slug': work.slug})
-        response = self.client.get(url)
-        # check that all issues are rendered in a list format
-        self.assertContains(response, '<h2>Volume/Issue</h2>')
-        for issue in issues:
-            self.assertContains(response, issue.display_html())
-
 
 class TestWorkCirculation(TestCase):
     fixtures = ['test_events.json']
