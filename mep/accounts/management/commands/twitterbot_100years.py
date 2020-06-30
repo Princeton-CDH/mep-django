@@ -103,7 +103,7 @@ class Command(BaseCommand):
     def tweet_at(self, event, time):
         '''schedule a tweet for later today'''
         # use current python executable (within virtualenv)
-        cmd = '%s %s/manage.py twitterbot_100years tweet --event %s' % \
+        cmd = 'bin/cron-wrapper %s %s/manage.py twitterbot_100years tweet --event %s' % \
             (sys.executable, settings.PROJECT_ROOT, event.id)
         # could add debug logging here if there are problems
         subprocess.run(['/usr/bin/at', time], input=cmd.encode(),
