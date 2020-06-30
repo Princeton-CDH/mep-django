@@ -18,12 +18,14 @@ from django.test import TestCase
 
 from djiffy.models import Canvas, Manifest
 
-from mep.accounts.management.commands import import_figgy_cards, \
-    report_timegaps, export_events
+from mep.accounts.management.commands import export_events, \
+    import_figgy_cards, report_timegaps
 from mep.accounts.models import Account, Borrow, Event
+from mep.books.models import Creator, CreatorType
 from mep.common.management.export import StreamArray
 from mep.common.utils import absolutize_url
 from mep.footnotes.models import Bibliography, Footnote
+from mep.people.models import Person
 
 
 class TestReportTimegaps(TestCase):
@@ -482,7 +484,9 @@ class TestExportEvents(TestCase):
         info = self.cmd.item_info(event)
         assert info['title'] == event.work.title
         assert info['uri'] == absolutize_url(event.work.get_absolute_url())
-        assert info['work_uri'] == event.work.uri
+        assert 'work_uri' not in info  # no longer included
+        assert 'authors' not in info   # not on this record
+        assert info['year'] == event.work.year
         assert info['notes'] == event.work.public_notes
         assert 'volume' not in info
 
@@ -502,6 +506,19 @@ class TestExportEvents(TestCase):
         # no work, no item data
         event = Event.objects.filter(work__isnull=True).first()
         assert not self.cmd.item_info(event)
+
+        # work with author
+        event = Event.objects.filter(work__isnull=False).first()
+        author1 = Person.objects.create(name='Smith', slug='s')
+        author2 = Person.objects.create(name='Jones', slug='j')
+        author_type = CreatorType.objects.get(name='Author')
+        Creator.objects.create(
+            creator_type=author_type, person=author1, work=event.work)
+        Creator.objects.create(
+            creator_type=author_type, person=author2, work=event.work)
+
+        info = self.cmd.item_info(event)
+        assert info['authors'] == [a.sort_name for a in event.work.authors]
 
     def test_source_info(self):
         # footnote
