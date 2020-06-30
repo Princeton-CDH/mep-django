@@ -1,5 +1,5 @@
 import datetime
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from dal import autocomplete
 from dateutil.relativedelta import relativedelta
@@ -79,7 +79,8 @@ class Twitter100yearsReview(LoginRequiredMixin, ListView):
         del events_by_date[None]
 
         # convert to a standard dict to avoid problems with django templates;
-        # sort by date so review will be sequential
-        events_by_date = {k: events_by_date[k] for k in sorted(events_by_date)}
+        # sort by date & converted to ordered dict so review will be sequential
+        events_by_date = OrderedDict([(k, events_by_date[k])
+                                      for k in sorted(events_by_date)])
         context['events_by_date'] = events_by_date
         return context
