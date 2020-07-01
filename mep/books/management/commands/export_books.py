@@ -34,7 +34,7 @@ class Command(BaseExport):
         [creator.lower() for creator in creator_types] + [
         "year",
         "format",
-        "identified",
+        "uncertain",
         "ebook_url",
         "volumes_issues",
         "notes",
@@ -77,8 +77,7 @@ class Command(BaseExport):
             # if format is blank and item is NOT unidentified, default to Book
             data['format'] = 'Book'
 
-        # identified: true unless work is marked as uncertain
-        data['identified'] = not work.is_uncertain
+        data['uncertain'] = work.is_uncertain
 
         if work.ebook_url:
             data['ebook_url'] = work.ebook_url

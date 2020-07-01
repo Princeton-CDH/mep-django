@@ -391,7 +391,7 @@ class TestExportBooks(TestCase):
         assert data['title'] == exit_e.title
         assert data['year'] == exit_e.year
         assert data['format'] == exit_e.work_format.name
-        assert data['identified']  # not marked uncertain
+        assert not data['uncertain']  # not marked uncertain
         assert 'work_uri' not in data
         assert 'author' in data
         # missing data should not be in the dict
