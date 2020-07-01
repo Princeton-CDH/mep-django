@@ -1,17 +1,22 @@
 from datetime import date
 from io import StringIO
 
+from dateutil.relativedelta import relativedelta
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
+import pytest
 
 from mep.accounts.models import Event
 from mep.accounts.management.commands import twitterbot_100years
+from mep.accounts.templatetags import mep_100years_tags
 from mep.books.models import Creator, CreatorType, Work
 from mep.people.models import Person
 
 
 class TestTwitterBot100years(TestCase):
+    fixtures = ['test_events']
 
     def setUp(self):
         self.cmd = twitterbot_100years.Command()
@@ -21,6 +26,54 @@ class TestTwitterBot100years(TestCase):
     #     # test calling via command line with args
     #     stdout = StringIO()
     #     call_command('report_timegaps', csvtempfile.name, stdout=stdout)
+
+    def test_get_date(self):
+        # by default, date is relative to today
+        reldate = date.today() - relativedelta(years=100)
+        assert self.cmd.get_date() == reldate
+        # date ignored if mode is not report
+        assert self.cmd.get_date(date='1920-05-03') == reldate
+        # use date specified
+        assert self.cmd.get_date(date='1920-05-03', mode='report') \
+            == date(1920, 5, 3)
+        with pytest.raises(CommandError):
+            self.cmd.get_date(date='1920-05', mode='report')
+
+    def test_find_events(self):
+        borrow = Event.objects.filter(borrow__isnull=False).first()
+        # borrow — both start date and end date
+        assert borrow in self.cmd.find_events(borrow.start_date)
+        print('borrow end date %s' % borrow.end_date)
+        # FIXME: ???
+        assert borrow in self.cmd.find_events(borrow.end_date)
+        # borrows of uncertain items excluded
+        borrow2 = Event.objects.filter(borrow__isnull=False).last()
+        work = borrow2.work
+        work.notes = 'UNCERTAINTYICON'
+        work.save()
+        assert borrow2 not in self.cmd.find_events(borrow2.start_date)
+
+        subs = Event.objects.filter(subscription__isnull=False,
+                                    start_date__isnull=False).first()
+        subs.subscription.partial_purchase_date = subs.partial_start_date
+        subs.save()
+        # start/purchase date
+        assert subs in self.cmd.find_events(subs.subscription.purchase_date)
+        # not included based on end date
+        assert subs not in self.cmd.find_events(subs.end_date)
+        # different purchase date
+        subs_sub = subs.subscription
+        subs_sub.partial_purchase_date = '1936-11-15'
+        subs_sub.save()
+        assert subs in self.cmd.find_events(subs_sub.purchase_date)
+
+    def test_report(self):
+        reimb = Event.objects.filter(reimbursement__isnull=False,
+                                     start_date__isnull=False).first()
+        self.cmd.report(date=reimb.start_date)
+        output = self.cmd.stdout.getvalue()
+        assert 'Event id: %s' % reimb.pk in output
+        assert tweet_content(reimb, reimb.start_date) in output
 
 
 class TestWorkLabel(TestCase):
@@ -209,3 +262,9 @@ class TestTweetContent(TestCase):
         tweet = tweet_content(subs, subs.partial_start_date)
         assert 'subscribed for 1 month at 2 volumes per month'  \
             in tweet
+
+    def test_tweet_text_tag(self):
+        subs = Event.objects.get(pk=8810)
+        subs.subscription.purchase_date = subs.start_date
+        assert mep_100years_tags.tweet_text(subs, subs.partial_start_date) == \
+            tweet_content(subs, subs.partial_start_date)

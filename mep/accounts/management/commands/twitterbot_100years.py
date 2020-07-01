@@ -48,13 +48,16 @@ class Command(BaseCommand):
             except Event.DoesNotExist:
                 self.stderr.write('Error: event %(event)s not found' % kwargs)
 
-    def get_date(self, **kwargs):
+    def get_date(self, date=None, mode=None, **kwargs):
         # find events relative to the specified day if set
-        date = kwargs.get('date', None)
 
         # only allow overriding date for report
-        if date and kwargs['mode'] == 'report':
-            relative_date = datetime.date(*[int(n) for n in date.split('-')])
+        if date and mode == 'report':
+            try:
+                relative_date = datetime.date(*[int(n)
+                                                for n in date.split('-')])
+            except TypeError:
+                raise CommandError('Invalid date %s' % date)
         else:
             # by default, report relative to today
             # determine date 100 years earlier
@@ -82,9 +85,11 @@ class Command(BaseCommand):
     def report(self, date):
         # print out the tweets for the specified day
         for ev in self.find_events(date):
-            self.stdout.write('Event id: %s' % ev.id)
-            self.stdout.write(tweet_content(ev, date))
-            self.stdout.write('\n')
+            tweet_text = tweet_content(ev, date)
+            if tweet_text:
+                self.stdout.write('Event id: %s' % ev.id)
+                self.stdout.write(tweet_text)
+                self.stdout.write('\n')
 
     # times:  9 AM, 12 PM, 1:30 PM, 3 PM, 4:30 PM, 6 PM, 8 PM
     tweet_times = ['9:00', '12:00', '13:30', '15:00', '16:30', '18:00',
