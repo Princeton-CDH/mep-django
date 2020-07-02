@@ -37,13 +37,18 @@ class Twitter100yearsReview(LoginRequiredMixin, ListView):
     full_precision = DatePrecision.year | DatePrecision.month | \
         DatePrecision.day
 
-    def get_queryset(self):
-        date = datetime.date.today()
-
-        # determine date 100 years earlier
-        date_start = date - relativedelta(years=100)
+    def get_date_range(self):
+        '''Determine start and end date for events to review. Start
+        100 years before today, end 4 weeks after that.'''
+        # determine date exactly 100 years earlier
+        self.date_start = datetime.date.today() - relativedelta(years=100)
         # determine end date for tweets to review
-        date_end = date_start + relativedelta(weeks=4)
+        self.date_end = self.date_start + relativedelta(weeks=4)
+
+        return self.date_start, self.date_end
+
+    def get_queryset(self):
+        date_start, date_end = self.get_date_range()
 
         events = Event.objects \
             .filter(Q(start_date__gte=date_start,
@@ -67,20 +72,23 @@ class Twitter100yearsReview(LoginRequiredMixin, ListView):
 
         for ev in self.object_list:
             if ev.event_label in ['Subscription', 'Renewal']:
-                events_by_date[ev.subscription.partial_purchase_date].append(ev)
+                events_by_date[
+                    ev.subscription.partial_purchase_date].append(ev)
             elif ev.event_label == 'Borrow':
                 events_by_date[ev.partial_start_date].append(ev)
                 events_by_date[ev.partial_end_date].append(ev)
             else:
                 events_by_date[ev.partial_start_date].append(ev)
 
-        # could include unset dates; remove them
-        # NOTE: could include dates out of the current range; do we care?
-        del events_by_date[None]
+        # could include None for unset dates; remove without error
+        events_by_date.pop(None, None)
 
         # convert to a standard dict to avoid problems with django templates;
         # sort by date & converted to ordered dict so review will be sequential
-        events_by_date = OrderedDict([(k, events_by_date[k])
-                                      for k in sorted(events_by_date)])
+        # filter out any dates before the current range
+        events_by_date = OrderedDict([
+            (k, events_by_date[k])
+            for k in sorted(events_by_date)
+            if k and k > self.date_start.isoformat()])
         context['events_by_date'] = events_by_date
         return context

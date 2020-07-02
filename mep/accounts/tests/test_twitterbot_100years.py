@@ -1,7 +1,8 @@
+from collections import OrderedDict
 from datetime import date
 from io import StringIO
-from unittest.mock import patch
 import sys
+from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
 from django.core.management import call_command
@@ -13,6 +14,7 @@ import pytest
 from mep.accounts.models import Event
 from mep.accounts.management.commands import twitterbot_100years
 from mep.accounts.templatetags import mep_100years_tags
+from mep.accounts.views import Twitter100yearsReview
 from mep.books.models import Creator, CreatorType, Work
 from mep.people.models import Person
 
@@ -365,3 +367,87 @@ class TestTweetContent(TestCase):
         subs.subscription.purchase_date = subs.start_date
         assert mep_100years_tags.tweet_text(subs, subs.partial_start_date) == \
             tweet_content(subs, subs.partial_start_date)
+
+
+class TestTwitter100yearsReview(TestCase):
+    fixtures = ['test_events']
+
+    def setUp(self):
+        self.view = Twitter100yearsReview()
+
+    def test_get_date_range(self):
+        start, end = self.view.get_date_range()
+        assert start == date.today() - relativedelta(years=100)
+        assert end == start + relativedelta(weeks=4)
+        assert self.view.date_start == start
+        assert self.view.date_end == end
+
+    def test_get_queryset(self):
+        with patch.object(self.view, 'get_date_range') as mock_get_date_range:
+            # borrowed on 11/19, returned 11/20
+            borrow = Event.objects.get(end_date='1936-11-25')
+            mock_get_date_range.return_value = \
+                (date(1936, 11, 20), date(1936, 12, 20))
+            events = self.view.get_queryset()
+            assert len(events) == 1
+            # borrow should be included based on end date
+            assert borrow in events
+
+            # after/between fixture dates — no events
+            mock_get_date_range.return_value = \
+                (date(1936, 12, 1), date(1936, 12, 30))
+            assert not self.view.get_queryset().exists()
+
+            # uncertain works excluded
+            work = borrow.work
+            work.notes = 'UNCERTAINTYICON'
+            work.save()
+            mock_get_date_range.return_value = \
+                (date(1936, 11, 20), date(1936, 12, 20))
+            assert not self.view.get_queryset().exists()
+
+            # ignore partially known dates
+            mock_get_date_range.return_value = \
+                (date(1900, 1, 1), date(1900, 2, 1))
+            assert not self.view.get_queryset().exists()
+
+    def test_get_context_data(self):
+        # borrowed on 11/19, returned 11/20
+        borrow = Event.objects.get(end_date='1936-11-25')
+        reimb = Event.objects.filter(reimbursement__isnull=False,
+                                     start_date__isnull=False).first()
+        # fixture includes a borrow with unknown start but known end
+        no_start = Event.objects.filter(start_date__isnull=True,
+                                        end_date__isnull=False).first()
+
+        # wide date range for the reimbursement
+        self.view.date_start = date(1936, 11, 20)
+        self.view.date_end = date(1941, 12, 6)
+        self.view.object_list = [borrow, reimb, no_start]
+
+        context = self.view.get_context_data()
+        events = context['events_by_date']
+        assert isinstance(events, OrderedDict)
+        # inspect the dictionary of dates and events
+        assert borrow.partial_end_date in events
+        assert reimb.partial_start_date in events
+        assert borrow in events[borrow.partial_end_date]
+        assert reimb in events[reimb.partial_start_date]
+        # borrow start before the range should not be present
+        assert borrow.partial_start_date not in events
+        # end date on no start is out of range
+        assert no_start.partial_end_date not in events
+        # no unset keys from unknown dates
+        assert None not in events
+
+        # widen the range
+        self.view.date_start = date(1936, 1, 1)
+        context = self.view.get_context_data()
+        events = context['events_by_date']
+        # now includes borrow start and no-start borrow end
+        assert borrow.partial_start_date in events
+        assert no_start.partial_end_date in events
+        # still includes others
+        assert reimb.partial_start_date in events
+
+    # not currently testing review template
