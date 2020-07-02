@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load mep_100years_tags }
+
+{% block page-subtitle %}100 Years Ago Review · {% endblock %}
+
+{% block main-style %}white{% endblock %}
+
+{% block header %}
+{% include 'snippets/header.html' with title="100 years ago review" %}
+{% endblock %}
+
+
+{% block content %}
+<article class="main">
+
+{% for event_date, events in events_by_date.items %}
+    <h2>{{ event_date }}</h2>
+
+    {% for event in events %}
+        {% tweet_text event event_date as tweet_content %}
+        {% if tweet_content %}
+            <p class="notes">{{ tweet_content|urlize }}</p>
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+</article>
+{% endblock %}
