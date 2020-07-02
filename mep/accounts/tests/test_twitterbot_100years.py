@@ -38,6 +38,28 @@ class TestTwitterBot100years(TestCase):
         assert 'Event id: %s' % reimb.pk in output
         assert tweet_content(reimb, reimb.start_date) in output
 
+        # get the date 100 years ago
+        day = self.cmd.get_date()
+
+        # call schedule
+        with patch.object(twitterbot_100years.Command,
+                          'schedule') as mock_schedule:
+            call_command('twitterbot_100years', 'schedule')
+            assert mock_schedule.call_count == 1
+            mock_schedule.assert_called_with(day)
+
+        # call tweet
+        with patch.object(twitterbot_100years.Command,
+                          'tweet') as mock_tweet:
+            # call with valid id
+            call_command('twitterbot_100years', 'tweet', '-e', reimb.pk)
+            assert mock_tweet.call_count == 1
+            mock_tweet.assert_called_with(reimb, day)
+
+            # call with invalid id
+            with pytest.raises(CommandError):
+                call_command('twitterbot_100years', 'tweet', '-e', 'foo')
+
     def test_get_date(self):
         # by default, date is relative to today
         reldate = date.today() - relativedelta(years=100)
@@ -412,6 +434,8 @@ class TestTwitter100yearsReview(TestCase):
         borrow = Event.objects.get(end_date='1936-11-25')
         reimb = Event.objects.filter(reimbursement__isnull=False,
                                      start_date__isnull=False).first()
+        subs = Event.objects.filter(subscription__isnull=False,
+                                    start_date__isnull=False).first()
         # fixture includes a borrow with unknown start but known end
         no_start = Event.objects.filter(start_date__isnull=True,
                                         end_date__isnull=False).first()
@@ -419,7 +443,7 @@ class TestTwitter100yearsReview(TestCase):
         # wide date range for the reimbursement
         self.view.date_start = date(1936, 11, 20)
         self.view.date_end = date(1941, 12, 6)
-        self.view.object_list = [borrow, reimb, no_start]
+        self.view.object_list = [borrow, reimb, no_start, subs]
 
         context = self.view.get_context_data()
         events = context['events_by_date']
