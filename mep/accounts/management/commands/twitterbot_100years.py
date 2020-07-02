@@ -126,7 +126,7 @@ class Command(BaseCommand):
 
     def get_tweepy(self):
         '''Initialize tweepy API client based on django settings.'''
-        if not hasattr(settings, 'TWITTER_100YEARS'):
+        if not getattr(settings, 'TWITTER_100YEARS', None):
             raise CommandError('Configuration for twitter access not found')
 
         auth = tweepy.OAuthHandler(

@@ -1,10 +1,12 @@
 from datetime import date
 from io import StringIO
+from unittest.mock import patch
+import sys
 
 from dateutil.relativedelta import relativedelta
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 import pytest
 
@@ -22,10 +24,16 @@ class TestTwitterBot100years(TestCase):
         self.cmd = twitterbot_100years.Command()
         self.cmd.stdout = StringIO()
 
-    # def test_command_line(self):
-    #     # test calling via command line with args
-    #     stdout = StringIO()
-    #     call_command('report_timegaps', csvtempfile.name, stdout=stdout)
+    def test_command_line(self):
+        # test calling via command line with args
+        stdout = StringIO()
+        reimb = Event.objects.filter(reimbursement__isnull=False,
+                                     start_date__isnull=False).first()
+        call_command('twitterbot_100years', 'report', '-d',
+                     reimb.partial_start_date, stdout=stdout)
+        output = stdout.getvalue()
+        assert 'Event id: %s' % reimb.pk in output
+        assert tweet_content(reimb, reimb.start_date) in output
 
     def test_get_date(self):
         # by default, date is relative to today
@@ -43,8 +51,6 @@ class TestTwitterBot100years(TestCase):
         borrow = Event.objects.filter(borrow__isnull=False).first()
         # borrow — both start date and end date
         assert borrow in self.cmd.find_events(borrow.start_date)
-        print('borrow end date %s' % borrow.end_date)
-        # FIXME: ???
         assert borrow in self.cmd.find_events(borrow.end_date)
         # borrows of uncertain items excluded
         borrow2 = Event.objects.filter(borrow__isnull=False).last()
@@ -74,6 +80,97 @@ class TestTwitterBot100years(TestCase):
         output = self.cmd.stdout.getvalue()
         assert 'Event id: %s' % reimb.pk in output
         assert tweet_content(reimb, reimb.start_date) in output
+
+    @patch.object(twitterbot_100years.Command, 'tweet_at')
+    @patch.object(twitterbot_100years.Command, 'find_events')
+    @patch('mep.accounts.management.commands.twitterbot_100years.can_tweet')
+    def test_schedule(self, mock_can_tweet, mock_find_events, mock_tweet_at):
+        borrow = Event.objects.filter(borrow__isnull=False).first()
+        borrow2 = Event.objects.filter(borrow__isnull=False).last()
+        subs = Event.objects.filter(subscription__isnull=False,
+                                    start_date__isnull=False).first()
+        # mock to return multiple to test filtering & scheduling
+        mock_find_events.return_value = [borrow, borrow2, subs]
+        # can tweet first and last but not second
+        mock_can_tweet.side_effect = (True, False, True)
+        self.cmd.schedule(borrow.start_date)
+        assert mock_tweet_at.call_count == 2
+        mock_tweet_at.assert_any_call(borrow, self.cmd.tweet_times[0])
+        mock_tweet_at.assert_any_call(subs, self.cmd.tweet_times[1])
+
+    @patch('mep.accounts.management.commands.twitterbot_100years.subprocess')
+    def test_tweet_at(self, mock_subprocess):
+        event = Event.objects.filter(start_date__isnull=False).first()
+        self.cmd.tweet_at(event, '9:00')
+        assert mock_subprocess.run.call_count == 1
+        args, kwargs = mock_subprocess.run.call_args
+        # sanity check subprocess call
+        assert args[0][0] == '/usr/bin/at'
+        assert args[0][1] == '9:00'
+        command = kwargs['input'].decode()
+        assert command.startswith('bin/cron-wrapper')
+        assert sys.executable in command
+        assert command.endswith(
+            'manage.py twitterbot_100years tweet --event %d' % event.pk)
+
+    @patch.object(twitterbot_100years.Command, 'get_tweepy')
+    @patch('mep.accounts.management.commands.twitterbot_100years.tweet_content')
+    def test_tweet(self, mock_tweet_content, mock_get_tweepy):
+        reimb = Event.objects.filter(reimbursement__isnull=False,
+                                     start_date__isnull=False).first()
+        mock_tweet_content.return_value = 'something'
+        self.cmd.tweet(reimb, date.today())
+        # can tweet is false, not tweeted
+        assert mock_get_tweepy.call_count == 0
+
+        # can tweet but no tweet content
+        mock_tweet_content.return_value = None
+        self.cmd.tweet(reimb, reimb.start_date)
+        assert mock_get_tweepy.call_count == 0
+
+        # simulate successful tweet
+        mock_tweet_content.return_value = 'something'
+        self.cmd.tweet(reimb, reimb.start_date)
+        assert mock_get_tweepy.call_count == 1
+        mock_api = mock_get_tweepy.return_value
+        mock_api.update_status.assert_called_with('something')
+
+    @patch('mep.accounts.management.commands.twitterbot_100years.tweepy')
+    def test_get_tweepy(self, mock_tweepy):
+        # error if not configured
+        with override_settings(TWITTER_100YEARS=None):
+            with pytest.raises(CommandError):
+                self.cmd.get_tweepy()
+
+            assert mock_tweepy.OAuthHandler.call_count == 0
+
+        #     settings.TWITTER_100YEARS['API']['key'],
+        #     settings.TWITTER_100YEARS['API']['secret_key'])
+        # auth.set_access_token(settings.TWITTER_100YEARS['ACCESS']['token'],
+        #                       settings.TWITTER_100YEARS['ACCESS']['secret'])
+
+        api_key = 'one'
+        api_secret = 'aleph'
+        access_token = 'two'
+        access_secret = 'omicron'
+        mock_config = {
+            'API': {
+                'key': api_key,
+                'secret_key': api_secret
+            },
+            'ACCESS': {
+                'token': access_token,
+                'secret': access_secret
+            }
+        }
+
+        with override_settings(TWITTER_100YEARS=mock_config):
+            self.cmd.get_tweepy()
+            mock_tweepy.OAuthHandler.assert_called_with(api_key, api_secret)
+            auth = mock_tweepy.OAuthHandler.return_value
+            auth.set_access_token.assert_called_with(access_token,
+                                                     access_secret)
+            mock_tweepy.API.assert_called_with(auth)
 
 
 class TestWorkLabel(TestCase):
