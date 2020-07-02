@@ -1,7 +1,8 @@
+import sys
+import uuid
 from collections import OrderedDict
 from datetime import date
 from io import StringIO
-import sys
 from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
@@ -146,15 +147,10 @@ class TestTwitterBot100years(TestCase):
 
             assert mock_tweepy.OAuthHandler.call_count == 0
 
-        #     settings.TWITTER_100YEARS['API']['key'],
-        #     settings.TWITTER_100YEARS['API']['secret_key'])
-        # auth.set_access_token(settings.TWITTER_100YEARS['ACCESS']['token'],
-        #                       settings.TWITTER_100YEARS['ACCESS']['secret'])
-
-        api_key = 'one'
-        api_secret = 'aleph'
-        access_token = 'two'
-        access_secret = 'omicron'
+        api_key = uuid.uuid4()
+        api_secret = uuid.uuid4()
+        access_token = uuid.uuid4()
+        access_secret = uuid.uuid4()
         mock_config = {
             'API': {
                 'key': api_key,
