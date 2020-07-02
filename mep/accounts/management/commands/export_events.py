@@ -26,7 +26,7 @@ class Command(BaseExport):
     csv_fields = [
         'event_type',
         'start_date', 'end_date',
-        'member_sort_names', 'member_names', 'member_URIs',
+        'member_URIs', 'member_names', 'member_sort_names',
         # subscription specific
         'subscription_price_paid', 'subscription_deposit',
         'subscription_duration', 'subscription_duration_days',
@@ -39,8 +39,8 @@ class Command(BaseExport):
         # purchase specific
         'purchase_price',
         # related book/item
-        'item_uri', 'item_title', 'item_work_uri', 'item_volume',
-        'item_notes',
+        'item_uri', 'item_title', 'item_volume', 'item_authors',
+        'item_year', 'item_notes',
         # footnote/citation
         'source_citation', 'source_manifest', 'source_image'
     ]
@@ -114,9 +114,9 @@ class Command(BaseExport):
             return
 
         return OrderedDict([
-            ('sort_names', [m.sort_name for m in members]),
+            ('URIs', [absolutize_url(m.get_absolute_url()) for m in members]),
             ('names', [m.name for m in members]),
-            ('URIs', [absolutize_url(m.get_absolute_url()) for m in members])
+            ('sort_names', [m.sort_name for m in members])
         ])
 
     def subscription_info(self, event):
@@ -153,8 +153,11 @@ class Command(BaseExport):
             ])
             if event.edition:
                 item_info['volume'] = event.edition.display_text()
-            if event.work.uri:
-                item_info['work_uri'] = event.work.uri
+            if event.work.authors:
+                item_info['authors'] = [a.sort_name
+                                        for a in event.work.authors]
+            if event.work.year:
+                item_info['year'] = event.work.year
             if event.work.public_notes:
                 item_info['notes'] = event.work.public_notes
 
