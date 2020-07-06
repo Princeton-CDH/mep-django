@@ -220,6 +220,24 @@ class WorkSignalHandlers:
             works = Work.objects.filter(id__in=list(work_ids))
             ModelIndexable.index_items(works)
 
+    @staticmethod
+    def event_save(sender=None, instance=None, raw=False, **kwargs):
+        '''when an event is saved, reindex associated work if there is one'''
+        # raw = saved as presented; don't query the database
+        if raw or not instance.pk:
+            return
+        # if any books are associated
+        if instance.work:
+            ModelIndexable.index_items([instance.work])
+
+    @staticmethod
+    def event_delete(sender, instance, **kwargs):
+        '''when an event is delete, reindex people associated
+        with the corresponding account.'''
+        # get a list of ids for deleted event
+        if instance.work:
+            ModelIndexable.index_items([instance.work])
+
 
 class WorkQuerySet(models.QuerySet):
     '''Custom :class:`models.QuerySet` for :class:`Work`'''
@@ -431,6 +449,10 @@ class Work(Notable, ModelIndexable, EventSetMixin):
         'books.Format': {
             'post_save': WorkSignalHandlers.format_save,
             'pre_delete': WorkSignalHandlers.format_delete,
+        },
+        'accounts.Event': {
+            'post_save': WorkSignalHandlers.event_save,
+            'pre_delete': WorkSignalHandlers.event_delete,
         }
     }
 
