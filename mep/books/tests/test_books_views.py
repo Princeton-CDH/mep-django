@@ -558,6 +558,5 @@ class TestPastSlugRedirects(TestCase):
                 reverse(route, kwargs={'slug': self.slug}))
 
             # check that it still 404s correctly
-            response = self.client.get(reverse(route, kwargs={'slug': 'foobar'}))
+            response = self.client.get(reverse(route, kwargs={'slug': 'foo'}))
             assert response.status_code == 404
-
