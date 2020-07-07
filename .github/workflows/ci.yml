@@ -3,6 +3,7 @@ name: ci
 on: [push, pull_request]
 
 env:
+  NODE_VERSION: 10
   SOLR_VERSION: 6.6.5
   LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
@@ -17,7 +18,7 @@ jobs:
     - name: Setup node
       uses: actions/setup-node@v2-beta
       with:
-        node-version: 10
+        node-version: ${{ env.NODE_VERSION }}
     - name: Cache node modules
       uses: actions/cache@v2
       with:
@@ -50,7 +51,7 @@ jobs:
     - name: Setup node
       uses: actions/setup-node@v2-beta
       with:
-        node-version: 10
+        node-version: ${{ env.NODE_VERSION }}
     - name: Cache node modules
       uses: actions/cache@v2
       with:
@@ -118,7 +119,7 @@ jobs:
 
   a11y:
     name: Lighthouse
-    needs: build-static
+    needs: [build-static, ts-unit, py-unit]
     runs-on: ubuntu-latest
     services:
       db:
@@ -138,7 +139,7 @@ jobs:
     - name: Setup node
       uses: actions/setup-node@v2-beta
       with:
-        node-version: 10
+        node-version: ${{ env.NODE_VERSION }}
     - name: Cache pip
       uses: actions/cache@v2
       with:
