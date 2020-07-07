@@ -1,11 +1,12 @@
 from dal import autocomplete
 from django.db.models import F, Q
-from django.db.models.functions import Coalesce
+from django.http import Http404, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import strip_tags
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
+
 
 from mep.accounts.models import Event
 from mep.accounts.templatetags.account_tags import as_ranges
@@ -214,7 +215,33 @@ class WorkLastModifiedListMixin(SolrLastModifiedMixin):
         return {'item_type': 'work', 'slug_s': self.kwargs['slug']}
 
 
-class WorkDetail(WorkLastModifiedListMixin, DetailView, RdfViewMixin):
+class WorkPastSlugMixin:
+    '''View mixin to handle redirects for previously used slugs.
+    If the main view logic raises a 404, looks for a work
+    by past slug; if one is found, redirects to the corresponding
+    work detail page with the new slug.
+    '''
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            # if not found, check for a match on a past slug
+            work = Work.objects.filter(past_slugs__slug=self.kwargs['slug']) \
+                .first()
+            # if found, redirect to the correct url for this view
+            if work:
+                # patch in the correct slug for use with get absolute url
+                self.kwargs['slug'] = work.slug
+                self.object = work   # used by member detail absolute url
+                return HttpResponsePermanentRedirect(self.get_absolute_url())
+
+            # otherwise, raise the 404
+            raise
+
+
+class WorkDetail(WorkPastSlugMixin, WorkLastModifiedListMixin,
+                 DetailView, RdfViewMixin):
     '''Detail page for a single library book.'''
     model = Work
     template_name = 'books/work_detail.html'
@@ -260,7 +287,8 @@ class WorkDetail(WorkLastModifiedListMixin, DetailView, RdfViewMixin):
         return context
 
 
-class WorkCirculation(WorkLastModifiedListMixin, ListView, RdfViewMixin):
+class WorkCirculation(WorkPastSlugMixin, WorkLastModifiedListMixin,
+                      ListView, RdfViewMixin):
     '''Display a list of circulation events (borrows, purchases, etc)
     for an individual work.'''
     model = Event
@@ -298,7 +326,8 @@ class WorkCirculation(WorkLastModifiedListMixin, ListView, RdfViewMixin):
         ]
 
 
-class WorkCardList(WorkLastModifiedListMixin, ListView, RdfViewMixin):
+class WorkCardList(WorkPastSlugMixin, WorkLastModifiedListMixin,
+                   ListView, RdfViewMixin):
     '''Card thumbnails for lending card associated with a single library
     member.'''
     model = Footnote
