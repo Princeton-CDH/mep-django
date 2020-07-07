@@ -2,12 +2,14 @@ import datetime
 import os
 from unittest.mock import Mock, patch
 
+from django.core.exceptions import ValidationError
 from django.test import TestCase
+import pytest
 import requests
 
 from mep.accounts.models import Account, Borrow, Event, Purchase
 from mep.books.models import Creator, CreatorType, Edition, EditionCreator, \
-    Format, Genre, Subject, Work
+    Format, Genre, Subject, Work, PastWorkSlug
 from mep.books.tests.test_oclc import FIXTURE_DIR
 from mep.books.utils import work_slug
 from mep.people.models import Person
@@ -335,6 +337,30 @@ class TestWork(TestCase):
         unclear3 = Work(title='unclear')
         unclear3.generate_slug()
         assert unclear3.slug == 'unclear-3'
+
+    def test_save_old_slug(self):
+        work = Work.objects.create(title='unclear', slug='unclear-1')
+        work.slug = 'unclear'
+        work.save()
+        assert work.past_slugs.first().slug == 'unclear-1'
+
+        # unsaved with slug — should not error or create past slug
+        work = Work(title='Foo')
+        work.slug = 'new'
+        work.save()
+        assert not work.past_slugs.count()
+
+    def test_validate_unique(self):
+        # create a work
+        work = Work.objects.create(title='unclear', slug='unclear')
+        # with a past slug
+        PastWorkSlug.objects.create(work=work, slug='uncle')
+        # no errors
+        work.validate_unique()
+        # attempt to re-use past slug
+        work2 = Work(title='Uncle Tom', slug='uncle')
+        with pytest.raises(ValidationError):
+            work2.validate_unique()
 
     def test_is_uncertain(self):
         # work without notes should not show icon
