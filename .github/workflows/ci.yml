@@ -183,7 +183,7 @@ jobs:
       run: python manage.py migrate
     - name: Load and index sample data
       run: |
-        python manage.py loaddata sample_people sample_works wagtail_pages
+        python manage.py loaddata sample_people sample_works sample_cards wagtail_pages
         python manage.py index
     - name: Run Lighthouse
       run: lhci autorun
