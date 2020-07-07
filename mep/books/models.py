@@ -2,7 +2,7 @@ import logging
 
 import rdflib
 import requests
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html, strip_tags
@@ -11,8 +11,8 @@ from parasolr.django.indexing import ModelIndexable
 from mep.accounts.event_set import EventSetMixin
 from mep.accounts.partial_date import (DatePrecisionField, PartialDate,
                                        PartialDateMixin)
-from mep.books.utils import nonstop_words, work_slug, generate_sort_title
-from mep.common.models import Named, Notable
+from mep.books.utils import generate_sort_title, nonstop_words, work_slug
+from mep.common.models import Named, Notable, TrackChangesModel
 from mep.common.validators import verify_latlon
 from mep.people.models import Person
 
@@ -250,7 +250,7 @@ class WorkQuerySet(models.QuerySet):
                              models.Count('event__purchase', distinct=True))
 
 
-class Work(Notable, ModelIndexable, EventSetMixin):
+class Work(TrackChangesModel, Notable, ModelIndexable, EventSetMixin):
     '''Work record for an item that circulated in the library or was
     other referenced in library activities.'''
 
@@ -327,7 +327,23 @@ class Work(Notable, ModelIndexable, EventSetMixin):
             self.generate_slug()
         # recalculate sort title in case title has changed
         self.sort_title = generate_sort_title(self.title)
+
+        # if slug has changed, save the old one as a past slug
+        # (skip if record is not yet saved)
+        if self.pk and self.has_changed('slug'):
+            PastWorkSlug.objects.get_or_create(slug=self.initial_value('slug'),
+                                               work=self)
+
         super(Work, self).save(*args, **kwargs)
+
+    def validate_unique(self, exclude=None):
+        # customize uniqueness validation to ensure new slugs don't
+        # conflict with past slugs
+        super().validate_unique(exclude)
+        if PastWorkSlug.objects.filter(slug=self.slug) \
+                               .exclude(work=self).count():
+            raise ValidationError('Slug is not unique ' +
+                                  '(conflicts with previously used slugs)')
 
     def __repr__(self):
         # provide pk for easy lookup and string for recognition
@@ -579,6 +595,20 @@ class Work(Notable, ModelIndexable, EventSetMixin):
                 slug_count = max(values) if values else 1
                 # use the next number for the current slug
                 self.slug = '%s-%s' % (self.slug, slug_count + 1)
+
+
+class PastWorkSlug(models.Model):
+    '''A slug that was previously associated with a :class:`Work`;
+    preserved so that former slugs will resolve to the correct work.'''
+
+    #: work record this slug belonged to
+    work = models.ForeignKey(Work, related_name='past_slugs',
+                             on_delete=models.CASCADE)
+    #: slug
+    slug = models.SlugField(
+        max_length=100, unique=True,
+        help_text='Short, durable, unique identifier for use in URLs. ' +
+        'Editing will change the public, citable URL for library books.')
 
 
 class Edition(Notable):
