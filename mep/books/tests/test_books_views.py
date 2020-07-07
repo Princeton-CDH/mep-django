@@ -556,3 +556,8 @@ class TestPastSlugRedirects(TestCase):
             # redirect to same view with the *correct* slug
             assert response['location'].endswith(
                 reverse(route, kwargs={'slug': self.slug}))
+
+            # check that it still 404s correctly
+            response = self.client.get(reverse(route, kwargs={'slug': 'foobar'}))
+            assert response.status_code == 404
+
