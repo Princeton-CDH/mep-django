@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 from parasolr.django.indexing import ModelIndexable
 
+from mep.accounts.models import Account, Event
 from mep.books.models import (Creator, CreatorType, Format, Work,
                               WorkSignalHandlers)
 from mep.people.models import Person
@@ -149,3 +150,35 @@ def test_format_delete(mock_indexitems):
     WorkSignalHandlers.format_delete(Format, zine)
     assert mock_indexitems.call_count == 1
     assert poems in mock_indexitems.call_args[0][0]
+
+
+@pytest.mark.django_db
+@patch.object(ModelIndexable, 'index_items')
+def test_event_save(mock_indexitems):
+    # not associated with work; ignore
+    acct = Account.objects.create()
+    ev = Event.objects.create(account=acct)
+    WorkSignalHandlers.event_save(Event, ev)
+    mock_indexitems.assert_not_called()
+
+    # associate with work; should be called
+    poems = Work.objects.create(title='Poems', year=1916)
+    ev.work = poems
+    WorkSignalHandlers.event_save(Event, ev)
+    assert mock_indexitems.call_count == 1
+    assert poems in mock_indexitems.call_args[0][0]
+
+
+@pytest.mark.django_db
+@patch.object(ModelIndexable, 'index_items')
+def test_event_delete(mock_indexitems):
+    # not associated with work; ignore
+    acct = Account.objects.create()
+    ev = Event.objects.create(account=acct)
+    WorkSignalHandlers.event_delete(Event, ev)
+    mock_indexitems.assert_not_called()
+
+    # associate with work; should be called
+    poems = Work.objects.create(title='Poems', year=1916)
+    ev.work = poems
+    WorkSignalHandlers.event_delete(Event, ev)
