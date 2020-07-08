@@ -1,0 +1,172 @@
+{
+  "profile": "tabular-data-package",
+  "title": "Shakespeare and Company Project: Lending Library Events",
+  "homepage": "https://shakespeareandco.princeton.edu/about/data/",
+  "version": "1.0.0",
+  "image": "https://shakespeareandco.princeton.edu/static/img/social.png",
+  "licenses": [{
+    "name": "CC-BY-4.0",
+    "path": "https://creativecommons.org/licenses/by/4.0/",
+    "title": "Creative Commons Attribution 4.0"
+  }],
+  "resources": [
+    {
+      "path": "events.csv",
+      "profile": "tabular-data-resource",
+      "name": "events",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8-sig",
+      "schema": {
+        "fields": [
+          {
+            "name": "event_type",
+            "type": "string",
+            "format": "default",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "start_date",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/Date",
+            "constraints": {
+              "pattern": "(\\d{4}|-)?(?:-([01]\\d))?(?:-([0-3]\\d))?"
+            }
+          },
+          {
+            "name": "end_date",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/Date",
+            "constraints": {
+              "pattern": "(\\d{4}|-)?(?:-([01]\\d))?(?:-([0-3]\\d))?"
+            }
+          },
+          {
+            "name": "member_URIs",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "member_names",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "member_sort_names",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "subscription_price_paid",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "subscription_deposit",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "subscription_duration",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "subscription_duration_days",
+            "type": "integer",
+            "format": "default"
+          },
+          {
+            "name": "subscription_volumes",
+            "type": "integer",
+            "format": "default"
+          },
+          {
+            "name": "subscription_category",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "subscription_purchase_date",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/Date",
+            "constraints": {
+              "pattern": "(\\d{4}|-)?(?:-([01]\\d))?(?:-([0-3]\\d))?"
+            }
+          },
+          {
+            "name": "reimbursement_refund",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "borrow_status",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "purchase_price",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_uri",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_title",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_volume",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_authors",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_year",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_notes",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "source_citation",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "source_manifest",
+            "type": "string",
+            "format": "uri"
+          },
+          {
+            "name": "source_image",
+            "type": "string",
+            "format": "uri"
+          }
+        ],
+        "missingValues": [
+          ""
+        ]
+      }
+    }
+  ]
+}

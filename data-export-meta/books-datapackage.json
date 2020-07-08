@@ -1,0 +1,154 @@
+{
+  "profile": "tabular-data-package",
+  "title": "Shakespeare and Company Project: Lending Library Books",
+  "homepage": "https://shakespeareandco.princeton.edu/about/data/",
+  "version": "1.0.0",
+  "image": "https://shakespeareandco.princeton.edu/static/img/social.png",
+  "licenses": [{
+    "name": "CC-BY-4.0",
+    "path": "https://creativecommons.org/licenses/by/4.0/",
+    "title": "Creative Commons Attribution 4.0"
+  }],
+  "resources": [
+    {
+      "path": "books.csv",
+      "profile": "tabular-data-resource",
+      "name": "books",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8-sig",
+      "schema": {
+        "fields": [
+          {
+            "name": "uri",
+            "type": "string",
+            "format": "uri",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "format": "default",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "author",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "editor",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "contributor",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "translator",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "illustrator",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "introduction",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "preface",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "photographer",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "year",
+            "type": "year",
+            "format": "default"
+          },
+          {
+            "name": "format",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "uncertain",
+            "type": "boolean",
+            "format": "default"
+          },
+          {
+            "name": "ebook_url",
+            "type": "string",
+            "format": "uri"
+          },
+          {
+            "name": "volumes_issues",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "notes",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "event_count",
+            "type": "integer",
+            "format": "default"
+          },
+          {
+            "name": "borrow_count",
+            "type": "integer",
+            "format": "default"
+          },
+          {
+            "name": "purchase_count",
+            "type": "integer",
+            "format": "default"
+          },
+          {
+            "name": "circulation_years",
+            "type": "string",
+            "rdfType": "https://schema.org/ItemList",
+            "format": "default",
+            "constraints": {
+              "pattern": "(\\d{4})?(;\\d{4})*"
+            }
+          },
+          {
+            "name": "updated",
+            "type": "datetime",
+            "format": "%Y-%m-%dT%H:%M:%S+00:00"
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "uri"
+      }
+    }
+  ]
+}
