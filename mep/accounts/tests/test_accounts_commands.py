@@ -419,7 +419,7 @@ class TestExportEvents(TestCase):
         member_info = self.cmd.member_info(event)
         assert member_info['sort_names'][0] == person.sort_name
         assert member_info['names'][0] == person.name
-        assert member_info['URIs'][0] == \
+        assert member_info['uris'][0] == \
             absolutize_url(person.get_absolute_url())
 
         # event with two members; fixture includes Edel joint account

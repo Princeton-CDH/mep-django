@@ -46,7 +46,7 @@
             }
           },
           {
-            "name": "member_URIs",
+            "name": "member_uris",
             "type": "string",
             "format": "default",
             "rdfType": "https://schema.org/ItemList"

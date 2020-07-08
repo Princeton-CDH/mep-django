@@ -26,7 +26,7 @@ class Command(BaseExport):
     csv_fields = [
         'event_type',
         'start_date', 'end_date',
-        'member_URIs', 'member_names', 'member_sort_names',
+        'member_uris', 'member_names', 'member_sort_names',
         # subscription specific
         'subscription_price_paid', 'subscription_deposit',
         'subscription_duration', 'subscription_duration_days',
@@ -114,7 +114,7 @@ class Command(BaseExport):
             return
 
         return OrderedDict([
-            ('URIs', [absolutize_url(m.get_absolute_url()) for m in members]),
+            ('uris', [absolutize_url(m.get_absolute_url()) for m in members]),
             ('names', [m.name for m in members]),
             ('sort_names', [m.sort_name for m in members])
         ])
