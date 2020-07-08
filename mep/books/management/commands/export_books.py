@@ -73,9 +73,6 @@ class Command(BaseExport):
         # format is not currently set for all items
         if work.work_format:
             data['format'] = work.work_format.name
-        elif 'UNCERTAINTYICON' not in work.notes:
-            # if format is blank and item is NOT unidentified, default to Book
-            data['format'] = 'Book'
 
         data['uncertain'] = work.is_uncertain
 

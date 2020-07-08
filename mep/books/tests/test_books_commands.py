@@ -404,12 +404,6 @@ class TestExportBooks(TestCase):
         # fixture has no events for exit eliza, so no years are set
         assert data['circulation_years'] == []
 
-        # infer format = book if format is unset and item not uncertain
-        exit_e.work_format = None
-        assert self.cmd.get_object_data(exit_e)['format'] == 'Book'
-        exit_e.notes = 'UNCERTAINTYICON'
-        assert 'format' not in self.cmd.get_object_data(exit_e)
-
         # record with different data
         dial = Work.objects.count_events().get(slug='dial')
         data = self.cmd.get_object_data(dial)
