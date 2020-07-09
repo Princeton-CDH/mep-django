@@ -428,7 +428,7 @@ class TestExportEvents(TestCase):
 
         member_info = self.cmd.member_info(event)
         # each field should have two values
-        for field in ('sort_names', 'names', 'URIs'):
+        for field in ('sort_names', 'names', 'uris'):
             assert len(member_info[field]) == 2
 
         # test event with account but no person
@@ -444,10 +444,9 @@ class TestExportEvents(TestCase):
             .first()
         subs = event.subscription
         info = self.cmd.subscription_info(event)
-        assert info['price_paid'] == '%s%.2f' % (subs.currency_symbol(),
-                                                 subs.price_paid)
+        assert info['price_paid'] == '%.2f' % subs.price_paid
         # test event has no deposit amount
-        assert info['deposit'] == '%s0.00' % subs.currency_symbol()
+        assert 'deposit' not in info
         assert info['duration'] == subs.readable_duration()
         assert info['duration_days'] == subs.duration
         assert info['volumes'] == subs.volumes
@@ -528,6 +527,19 @@ class TestExportEvents(TestCase):
         assert info['citation'] == footnote.bibliography.bibliographic_note
         assert info['manifest'] == footnote.bibliography.manifest.uri
         assert info['image'] == str(footnote.image.image)
+
+    def test_get_object_data(self):
+        # get a subscription with no subcategory and both dates
+        event = Event.objects.filter(
+            subscription__isnull=False,
+            start_date__isnull=False, end_date__isnull=False,
+            subscription__category__isnull=True) \
+            .first()
+        data = self.cmd.get_object_data(event)
+        assert data['event_type'] == event.event_label
+        assert data['currency'] == 'French Franc'
+        assert 'member' in data
+        assert 'subscription in data'
 
     def test_command_line(self):
         # test calling via command line with args
