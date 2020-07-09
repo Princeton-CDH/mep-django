@@ -537,7 +537,7 @@ class TestExportEvents(TestCase):
             .first()
         data = self.cmd.get_object_data(event)
         assert data['event_type'] == event.event_label
-        assert data['currency'] == 'French Franc'
+        assert data['currency'] == 'FRF'
         assert 'member' in data
         assert 'subscription in data'
 

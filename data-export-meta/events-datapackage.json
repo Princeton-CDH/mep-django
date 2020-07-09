@@ -65,13 +65,15 @@
           },
           {
             "name": "subscription_price_paid",
-            "type": "string",
-            "format": "default"
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount"
           },
           {
             "name": "subscription_deposit",
-            "type": "string",
-            "format": "default"
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount"
           },
           {
             "name": "subscription_duration",
@@ -104,8 +106,9 @@
           },
           {
             "name": "reimbursement_refund",
-            "type": "string",
-            "format": "default"
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount"
           },
           {
             "name": "borrow_status",
@@ -114,6 +117,12 @@
           },
           {
             "name": "purchase_price",
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount"
+          },
+          {
+            "name": "currency",
             "type": "string",
             "format": "default"
           },

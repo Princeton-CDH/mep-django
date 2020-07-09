@@ -77,14 +77,14 @@ class Command(BaseExport):
         # subscription-specific data
         if event_type in ['Subscription', 'Supplement', 'Renewal']:
             data['subscription'] = self.subscription_info(obj)
-            currency = obj.subscription.get_currency_display()
+            currency = obj.subscription.currency
 
         # reimbursement data
         elif event_type in 'Reimbursement' and obj.reimbursement.refund:
             data['reimbursement'] = {
                 'refund': '%.2f' % obj.reimbursement.refund
             }
-            currency = obj.reimbursement.get_currency_display()
+            currency = obj.reimbursement.currency
 
         # borrow data
         elif event_type == 'Borrow':
@@ -97,7 +97,7 @@ class Command(BaseExport):
             data['purchase'] = {
                 'price': '%.2f' % obj.purchase.price
             }
-            currency = obj.purchase.get_currency_display()
+            currency = obj.purchase.currency
 
         if currency:
             data['currency'] = currency
