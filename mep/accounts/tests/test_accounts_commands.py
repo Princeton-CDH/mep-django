@@ -539,7 +539,7 @@ class TestExportEvents(TestCase):
         assert data['event_type'] == event.event_label
         assert data['currency'] == 'FRF'
         assert 'member' in data
-        assert 'subscription in data'
+        assert 'subscription' in data
 
     def test_command_line(self):
         # test calling via command line with args
