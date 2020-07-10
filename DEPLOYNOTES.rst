@@ -6,11 +6,20 @@ Deploy and Upgrade notes
 1.2
 ---
 
-Revised data exports should be generated::
+* Revised data exports should be generated::
 
   python manage.py export_members
   python manage.py export_events
   python manage.py export_books
+
+* To use the new 100 years twitterbot code, you must configure
+  **TWITTER_100YEARS** in ``localsettings.py`` with Twitter API and
+  access credentials for the account where tweets should be posted, and
+  run the `twitterbot_100years` manage command in `schedule` mode
+  as a daily cron job every morning before 9am::
+
+    python twitterbot_100years schedule
+
 
 1.1.1
 -----
