@@ -223,6 +223,9 @@ class WorkPastSlugMixin:
     '''
 
     def get(self, request, *args, **kwargs):
+        '''Handle a 404 on the default GET logic — if the slug matches
+        a past slug, redirect to the equivalent url for that work; otherwise
+        raise the 404.'''
         try:
             return super().get(request, *args, **kwargs)
         except Http404:

@@ -49,7 +49,9 @@ class Command(BaseCommand):
                 self.stderr.write('Error: event %(event)s not found' % kwargs)
 
     def get_date(self, date=None, mode=None, **kwargs):
-        # find events relative to the specified day if set
+        '''Find events relative to the specified day, if set,
+        or the date 100 years ago. Overriding the date is only allowed
+        in **report** mode.'''
 
         # only allow overriding date for report
         if date and mode == 'report':
@@ -83,7 +85,7 @@ class Command(BaseCommand):
         return events
 
     def report(self, date):
-        # print out the tweets for the specified day
+        '''Print out the content that would be tweeted on the specified day'''
         for ev in self.find_events(date):
             tweet_text = tweet_content(ev, date)
             if tweet_text:
@@ -93,9 +95,10 @@ class Command(BaseCommand):
 
     # times:  9 AM, 12 PM, 1:30 PM, 3 PM, 4:30 PM, 6 PM, 8 PM
     tweet_times = ['9:00', '12:00', '13:30', '15:00', '16:30', '18:00',
-                   '20:00']
+                   '20:00', '10:15', '11:30', '19:00']
 
     def schedule(self, date):
+        '''Schedule all tweetable events for the specified date.'''
         # find all events for today
         self.find_events(date)
         # filter out any that can't be tweeted
@@ -115,6 +118,7 @@ class Command(BaseCommand):
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def tweet(self, event, date):
+        '''Tweet the content for the event on the specified date.'''
         # make sure the event is tweetable
         if not can_tweet(event, date):
             return
@@ -141,7 +145,7 @@ tweetable_event_types = ['Subscription', 'Renewal', 'Reimbursement',
 
 
 def can_tweet(ev, day):
-    '''check if the event can be tweeted on the specified day'''
+    '''Check if the event can be tweeted on the specified day'''
 
     # convert to string and compare against partial dates
     # to ensure we don't tweet an event with an unknown date
@@ -171,6 +175,9 @@ tweet_format = {
 
 
 def tweet_content(ev, day):
+    '''Generate tweet content for the specified event on the specified
+    day.'''
+
     # handle multiple members, but use first member for url
     member = ev.account.persons.first()
 
@@ -242,8 +249,8 @@ def tweet_content(ev, day):
 def work_label(work):
     '''Convert a :class:`~mep.accounts.models.Work` for display
     in tweet content. Standard formats:
-        - author’s “title” (year)
-        - periodical: an issue of “title”
+    - author’s “title” (year)
+    - periodical: an issue of “title”
 
     Handles multiple authors (and for two, et al. for more), includes
     editors if there are no authors. Only include years after 1500.

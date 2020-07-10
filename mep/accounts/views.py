@@ -31,6 +31,12 @@ class AccountAutocomplete(autocomplete.Select2QuerySetView):
 
 
 class Twitter100yearsReview(LoginRequiredMixin, ListView):
+    '''Admin view to review upcoming 100 years tweets before they
+    are posted on twitter. Finds and displays tweets for events
+    in the next three months, using the same logic for generating
+    tweet content that the twitter bot manage command uses.
+    '''
+
     model = Event
     template_name = 'accounts/100years_twitter_review.html'
 
