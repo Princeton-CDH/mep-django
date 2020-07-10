@@ -65,6 +65,11 @@ export events
 
 .. automodule:: mep.accounts.management.commands.export_events
 
+twitterbot 100years
+~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: mep.accounts.management.commands.twitterbot_100years
+
 
 Books
 -----
