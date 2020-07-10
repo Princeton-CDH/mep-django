@@ -396,7 +396,7 @@ class TestTwitter100yearsReview(TestCase):
     def test_get_date_range(self):
         start, end = self.view.get_date_range()
         assert start == date.today() - relativedelta(years=100)
-        assert end == start + relativedelta(weeks=4)
+        assert end == start + relativedelta(months=3)
         assert self.view.date_start == start
         assert self.view.date_end == end
 
@@ -450,6 +450,7 @@ class TestTwitter100yearsReview(TestCase):
         assert isinstance(events, OrderedDict)
         # inspect the dictionary of dates and events
         assert borrow.partial_end_date in events
+        print('partial start %s' % reimb.partial_start_date)
         assert reimb.partial_start_date in events
         assert borrow in events[borrow.partial_end_date]
         assert reimb in events[reimb.partial_start_date]

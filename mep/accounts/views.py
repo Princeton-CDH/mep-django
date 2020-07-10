@@ -43,7 +43,7 @@ class Twitter100yearsReview(LoginRequiredMixin, ListView):
         # determine date exactly 100 years earlier
         self.date_start = datetime.date.today() - relativedelta(years=100)
         # determine end date for tweets to review
-        self.date_end = self.date_start + relativedelta(weeks=4)
+        self.date_end = self.date_start + relativedelta(months=3)
 
         return self.date_start, self.date_end
 
@@ -86,9 +86,11 @@ class Twitter100yearsReview(LoginRequiredMixin, ListView):
         # convert to a standard dict to avoid problems with django templates;
         # sort by date & converted to ordered dict so review will be sequential
         # filter out any dates before the current range
+        date_start_iso = self.date_start.isoformat()
+        date_end_iso = self.date_end.isoformat()
         events_by_date = OrderedDict([
             (k, events_by_date[k])
             for k in sorted(events_by_date)
-            if k and k > self.date_start.isoformat()])
+            if k and date_start_iso <= k <= date_end_iso])
         context['events_by_date'] = events_by_date
         return context
