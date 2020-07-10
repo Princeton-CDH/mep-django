@@ -26,7 +26,7 @@ class Command(BaseExport):
     csv_fields = [
         'event_type',
         'start_date', 'end_date',
-        'member_URIs', 'member_names', 'member_sort_names',
+        'member_uris', 'member_names', 'member_sort_names',
         # subscription specific
         'subscription_price_paid', 'subscription_deposit',
         'subscription_duration', 'subscription_duration_days',
@@ -38,6 +38,8 @@ class Command(BaseExport):
         'borrow_status',
         # purchase specific
         'purchase_price',
+        # currency applies to purchase, borrow, and subscription
+        'currency',
         # related book/item
         'item_uri', 'item_title', 'item_volume', 'item_authors',
         'item_year', 'item_notes',
@@ -70,18 +72,19 @@ class Command(BaseExport):
 
         # variable to store footnote reference, if any
         footnote = None
+        currency = None
 
         # subscription-specific data
         if event_type in ['Subscription', 'Supplement', 'Renewal']:
             data['subscription'] = self.subscription_info(obj)
+            currency = obj.subscription.currency
 
         # reimbursement data
         elif event_type in 'Reimbursement' and obj.reimbursement.refund:
             data['reimbursement'] = {
-                'refund': '%s%.2f' %
-                          (obj.reimbursement.currency_symbol(),
-                           obj.reimbursement.refund)
+                'refund': '%.2f' % obj.reimbursement.refund
             }
+            currency = obj.reimbursement.currency
 
         # borrow data
         elif event_type == 'Borrow':
@@ -92,9 +95,12 @@ class Command(BaseExport):
         # purchase data
         elif event_type == 'Purchase' and obj.purchase.price:
             data['purchase'] = {
-                'price': '%s%.2f' %
-                         (obj.purchase.currency_symbol(), obj.purchase.price)
+                'price': '%.2f' % obj.purchase.price
             }
+            currency = obj.purchase.currency
+
+        if currency:
+            data['currency'] = currency
 
         # footnote should always be attached to the base event
         footnote = obj.footnotes.first()
@@ -114,7 +120,7 @@ class Command(BaseExport):
             return
 
         return OrderedDict([
-            ('URIs', [absolutize_url(m.get_absolute_url()) for m in members]),
+            ('uris', [absolutize_url(m.get_absolute_url()) for m in members]),
             ('names', [m.name for m in members]),
             ('sort_names', [m.sort_name for m in members])
         ])
@@ -127,12 +133,12 @@ class Command(BaseExport):
         except ObjectDoesNotExist:
             return
 
-        info = OrderedDict([
-            ('price_paid', '%s%.2f' % (subs.currency_symbol(),
-                                       subs.price_paid or 0)),
-            ('deposit', '%s%.2f' % (subs.currency_symbol(),
-                                    subs.deposit or 0))
-        ])
+        info = OrderedDict()
+        if subs.price_paid:
+            info['price_paid'] = '%.2f' % subs.price_paid
+        if subs.deposit:
+            info['deposit'] = '%.2f' % subs.deposit
+
         if subs.duration:
             info['duration'] = subs.readable_duration()
             info['duration_days'] = subs.duration
