@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Code Documentation &#8212; mep-django 1.1.0 documentation</title>
+    <title>Code Documentation &#8212; mep-django 1.2.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -631,7 +631,7 @@ by notation in private notes as well as all the standard types.</p>
 
 <dl class="py attribute">
 <dt id="mep.accounts.models.Event.nonstandard_notation">
-<code class="sig-name descname">nonstandard_notation</code><em class="property"> = {'NOTATION: BOUGHTFOR': 'Purchase', 'NOTATION: LOAN': 'Loan', 'NOTATION: REQUEST': 'Request', 'NOTATION: SBGIFT': 'Gift', 'NOTATION: SOLDFOR': 'Purchase', 'STRIKETHRU': 'Crossed out'}</em><a class="headerlink" href="#mep.accounts.models.Event.nonstandard_notation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">nonstandard_notation</code><em class="property"> = {'NOTATION: BOUGHTFOR': 'Purchase', 'NOTATION: LOAN': 'Loan', 'NOTATION: PERIODICALSUBSCRIPTION': 'Periodical Subscription', 'NOTATION: REQUEST': 'Request', 'NOTATION: SBGIFT': 'Gift', 'NOTATION: SOLDFOR': 'Purchase', 'STRIKETHRU': 'Crossed out'}</em><a class="headerlink" href="#mep.accounts.models.Event.nonstandard_notation" title="Permalink to this definition">¶</a></dt>
 <dd><p>notation in private notes indicating kind of nonstandard events</p>
 </dd></dl>
 
@@ -810,6 +810,12 @@ control the saving process.</p>
 <p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
 that the “save” must be an SQL insert or update (or equivalent for
 non-SQL backends), respectively. Normally, they should not be set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.models.Subscription.total_amount">
+<code class="sig-name descname">total_amount</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/models.html#Subscription.total_amount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.models.Subscription.total_amount" title="Permalink to this definition">¶</a></dt>
+<dd><p>total amount paid (price paid + deposit if any)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1098,6 +1104,35 @@ for inclusion on a webpage.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt id="mep.books.models.PastWorkSlug">
+<em class="property">class </em><code class="sig-prename descclassname">mep.books.models.</code><code class="sig-name descname">PastWorkSlug</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#PastWorkSlug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.PastWorkSlug" title="Permalink to this definition">¶</a></dt>
+<dd><p>A slug that was previously associated with a <a class="reference internal" href="#mep.books.models.Work" title="mep.books.models.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a>;
+preserved so that former slugs will resolve to the correct work.</p>
+<dl class="py exception">
+<dt id="mep.books.models.PastWorkSlug.DoesNotExist">
+<em class="property">exception </em><code class="sig-name descname">DoesNotExist</code><a class="headerlink" href="#mep.books.models.PastWorkSlug.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="mep.books.models.PastWorkSlug.MultipleObjectsReturned">
+<em class="property">exception </em><code class="sig-name descname">MultipleObjectsReturned</code><a class="headerlink" href="#mep.books.models.PastWorkSlug.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="mep.books.models.PastWorkSlug.slug">
+<code class="sig-name descname">slug</code><a class="headerlink" href="#mep.books.models.PastWorkSlug.slug" title="Permalink to this definition">¶</a></dt>
+<dd><p>slug</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="mep.books.models.PastWorkSlug.work">
+<code class="sig-name descname">work</code><a class="headerlink" href="#mep.books.models.PastWorkSlug.work" title="Permalink to this definition">¶</a></dt>
+<dd><p>work record this slug belonged to</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt id="mep.books.models.Publisher">
 <em class="property">class </em><code class="sig-prename descclassname">mep.books.models.</code><code class="sig-name descname">Publisher</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Publisher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Publisher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Model for publishers</p>
@@ -1332,11 +1367,7 @@ based on a WorldCat record.</p>
 <dl class="py method">
 <dt id="mep.books.models.Work.save">
 <code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Work.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Work.save" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save the current instance. Override this in a subclass if you want to
-control the saving process.</p>
-<p>The ‘force_insert’ and ‘force_update’ parameters can be used to insist
-that the “save” must be an SQL insert or update (or equivalent for
-non-SQL backends), respectively. Normally, they should not be set.</p>
+<dd><p>Saves data and reset copy of initial data.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1375,6 +1406,13 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 <dd><p>update timestamp</p>
 </dd></dl>
 
+<dl class="py method">
+<dt id="mep.books.models.Work.validate_unique">
+<code class="sig-name descname">validate_unique</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exclude</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Work.validate_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Work.validate_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check unique constraints on the model and raise ValidationError if any
+failed.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1411,6 +1449,19 @@ related records are saved or deleted.</p>
 <dt id="mep.books.models.WorkSignalHandlers.creatortype_save">
 <em class="property">static </em><code class="sig-name descname">creatortype_save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span></em>, <em class="sig-param"><span class="n">instance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">raw</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.creatortype_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.creatortype_save" title="Permalink to this definition">¶</a></dt>
 <dd><p>reindex all associated works when a creator type is changed</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.books.models.WorkSignalHandlers.event_delete">
+<em class="property">static </em><code class="sig-name descname">event_delete</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span></em>, <em class="sig-param"><span class="n">instance</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.event_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.event_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an event is delete, reindex people associated
+with the corresponding account.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.books.models.WorkSignalHandlers.event_save">
+<em class="property">static </em><code class="sig-name descname">event_save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sender</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">instance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">raw</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#WorkSignalHandlers.event_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.WorkSignalHandlers.event_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>when an event is saved, reindex associated work if there is one</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1499,8 +1550,8 @@ member.</p>
 <dl class="py class">
 <dt id="mep.books.views.WorkCirculation">
 <em class="property">class </em><code class="sig-prename descclassname">mep.books.views.</code><code class="sig-name descname">WorkCirculation</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/views.html#WorkCirculation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.views.WorkCirculation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display a list of circulation events (borrows, purchases) for an
-individual work.</p>
+<dd><p>Display a list of circulation events (borrows, purchases, etc)
+for an individual work.</p>
 <dl class="py method">
 <dt id="mep.books.views.WorkCirculation.get_absolute_url">
 <code class="sig-name descname">get_absolute_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/views.html#WorkCirculation.get_absolute_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.views.WorkCirculation.get_absolute_url" title="Permalink to this definition">¶</a></dt>
@@ -1670,6 +1721,15 @@ the key is not added to a dictionary.</p>
 <dd><p>fields to generate stats on in self.get_ranges</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt id="mep.books.views.WorkPastSlugMixin">
+<em class="property">class </em><code class="sig-prename descclassname">mep.books.views.</code><code class="sig-name descname">WorkPastSlugMixin</code><a class="reference internal" href="_modules/mep/books/views.html#WorkPastSlugMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.views.WorkPastSlugMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>View mixin to handle redirects for previously used slugs.
+If the main view logic raises a 404, looks for a work
+by past slug; if one is found, redirects to the corresponding
+work detail page with the new slug.</p>
 </dd></dl>
 
 </div>
@@ -3156,8 +3216,8 @@ and latest dates, or None if no dates are found.</p>
 <dl class="py method">
 <dt id="mep.footnotes.models.FootnoteQuerySet.events">
 <code class="sig-name descname">events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#FootnoteQuerySet.events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.FootnoteQuerySet.events" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an Events queryset of any events (including borrows and
-purchases) associated with the current footnote queryset.</p>
+<dd><p>Return an Events queryset for all events
+associated with the current footnote queryset.</p>
 </dd></dl>
 
 <dl class="py method">

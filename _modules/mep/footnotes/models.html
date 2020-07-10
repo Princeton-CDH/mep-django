@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.footnotes.models &#8212; mep-django 1.1.0 documentation</title>
+    <title>mep.footnotes.models &#8212; mep-django 1.2.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -341,32 +341,19 @@
             <span class="n">content_type__model__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;borrow&#39;</span><span class="p">,</span> <span class="s1">&#39;purchase&#39;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="FootnoteQuerySet.events"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.FootnoteQuerySet.events">[docs]</a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Return an Events queryset of any events (including borrows and</span>
-<span class="sd">        purchases) associated with the current footnote queryset.&#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39;Return an Events queryset for all events</span>
+<span class="sd">        associated with the current footnote queryset.&#39;&#39;&#39;</span>
 
         <span class="c1"># use get model to avoid circular import</span>
         <span class="n">Event</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;accounts&#39;</span><span class="p">,</span> <span class="s1">&#39;Event&#39;</span><span class="p">)</span>
-
-        <span class="c1"># get event ids and content types from the current footnote queryset</span>
-        <span class="n">event_refs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_events</span><span class="p">()</span> \
-                         <span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;object_id&#39;</span><span class="p">,</span> <span class="s1">&#39;content_type__model&#39;</span><span class="p">)</span>
-        <span class="c1"># group event ids by content type</span>
-        <span class="n">event_ids_by_type</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">event_refs</span><span class="p">:</span>
-            <span class="n">event_ids_by_type</span><span class="p">[</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;content_type__model&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s1">&#39;object_id&#39;</span><span class="p">])</span>
-        <span class="c1"># construct an OR filter query for each content type and list of ids</span>
-        <span class="c1"># - look for nothing OR for events and event subtypes by id</span>
-        <span class="n">filter_q</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">pk__in</span><span class="o">=</span><span class="p">[])</span>
-        <span class="k">for</span> <span class="n">ctype</span><span class="p">,</span> <span class="n">pk_list</span> <span class="ow">in</span> <span class="n">event_ids_by_type</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s1">&#39;borrow&#39;</span><span class="p">:</span>
-                <span class="n">filter_q</span> <span class="o">|=</span> <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">borrow__pk__in</span><span class="o">=</span><span class="n">pk_list</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s1">&#39;purchase&#39;</span><span class="p">:</span>
-                <span class="n">filter_q</span> <span class="o">|=</span> <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">purchase__pk__in</span><span class="o">=</span><span class="n">pk_list</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s1">&#39;event&#39;</span><span class="p">:</span>
-                <span class="n">filter_q</span> <span class="o">|=</span> <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">pk__in</span><span class="o">=</span><span class="n">pk_list</span><span class="p">)</span>
+        <span class="c1"># get Event content type</span>
+        <span class="n">event_content_type</span> <span class="o">=</span> <span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Event</span><span class="p">)</span>
+        <span class="c1"># get a list of event ids from the current footnote queryset</span>
+        <span class="n">event_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">content_type</span><span class="o">=</span><span class="n">event_content_type</span><span class="p">)</span> \
+                        <span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;object_id&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># find and return corresponding events</span>
-        <span class="k">return</span> <span class="n">Event</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">filter_q</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Event</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk__in</span><span class="o">=</span><span class="n">event_ids</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FootnoteQuerySet.event_date_range"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.FootnoteQuerySet.event_date_range">[docs]</a>    <span class="k">def</span> <span class="nf">event_date_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Find earliest and latest dates for any events associated</span>
@@ -404,13 +391,13 @@
         <span class="c1"># and models that are available in django admin</span>
         <span class="c1"># (otherwise, lookup is not possible)</span>
         <span class="c1"># TODO: add items here as the application expands</span>
-        <span class="n">limit_choices_to</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">app_label</span><span class="o">=</span><span class="s1">&#39;people&#39;</span><span class="p">,</span>
-            <span class="n">model__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;country&#39;</span><span class="p">,</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span> <span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">])</span> <span class="o">|</span>
+        <span class="n">limit_choices_to</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span>
+                <span class="n">app_label</span><span class="o">=</span><span class="s1">&#39;people&#39;</span><span class="p">,</span>
+                <span class="n">model__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;country&#39;</span><span class="p">,</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span> <span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;profession&#39;</span><span class="p">])</span> <span class="o">|</span>
             <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span>
                 <span class="n">app_label</span><span class="o">=</span><span class="s1">&#39;accounts&#39;</span><span class="p">,</span>
-                <span class="n">model__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;account&#39;</span><span class="p">,</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;subscription&#39;</span><span class="p">,</span> <span class="s1">&#39;borrow&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;reimbursement&#39;</span><span class="p">,</span> <span class="s1">&#39;purchase&#39;</span><span class="p">])</span> <span class="o">|</span>
-            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">app_label</span><span class="o">=</span><span class="s1">&#39;books&#39;</span><span class="p">,</span> <span class="n">model__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;item&#39;</span><span class="p">])</span>
+                <span class="n">model__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;account&#39;</span><span class="p">,</span> <span class="s1">&#39;event&#39;</span><span class="p">])</span> <span class="o">|</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">app_label</span><span class="o">=</span><span class="s1">&#39;books&#39;</span><span class="p">,</span> <span class="n">model__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;work&#39;</span><span class="p">])</span>
     <span class="p">)</span>
     <span class="n">object_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">()</span>
     <span class="n">content_object</span> <span class="o">=</span> <span class="n">GenericForeignKey</span><span class="p">(</span><span class="s1">&#39;content_type&#39;</span><span class="p">,</span> <span class="s1">&#39;object_id&#39;</span><span class="p">)</span>

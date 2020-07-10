@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.books.views &#8212; mep-django 1.1.0 documentation</title>
+    <title>mep.books.views &#8212; mep-django 1.2.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -33,12 +33,13 @@
   <h1>Source code for mep.books.views</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">dal</span> <span class="k">import</span> <span class="n">autocomplete</span>
 <span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">F</span><span class="p">,</span> <span class="n">Q</span>
-<span class="kn">from</span> <span class="nn">django.db.models.functions</span> <span class="k">import</span> <span class="n">Coalesce</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">Http404</span><span class="p">,</span> <span class="n">HttpResponsePermanentRedirect</span>
 <span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">get_object_or_404</span>
 <span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="k">import</span> <span class="n">strip_tags</span>
 <span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">ListView</span>
 <span class="kn">from</span> <span class="nn">django.views.generic.edit</span> <span class="k">import</span> <span class="n">FormMixin</span>
+
 
 <span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Event</span>
 <span class="kn">from</span> <span class="nn">mep.accounts.templatetags.account_tags</span> <span class="k">import</span> <span class="n">as_ranges</span>
@@ -247,7 +248,33 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;item_type&#39;</span><span class="p">:</span> <span class="s1">&#39;work&#39;</span><span class="p">,</span> <span class="s1">&#39;slug_s&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">]}</span></div></div>
 
 
-<div class="viewcode-block" id="WorkDetail"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkDetail">[docs]</a><span class="k">class</span> <span class="nc">WorkDetail</span><span class="p">(</span><span class="n">WorkLastModifiedListMixin</span><span class="p">,</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkPastSlugMixin"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkPastSlugMixin">[docs]</a><span class="k">class</span> <span class="nc">WorkPastSlugMixin</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;View mixin to handle redirects for previously used slugs.</span>
+<span class="sd">    If the main view logic raises a 404, looks for a work</span>
+<span class="sd">    by past slug; if one is found, redirects to the corresponding</span>
+<span class="sd">    work detail page with the new slug.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">Http404</span><span class="p">:</span>
+            <span class="c1"># if not found, check for a match on a past slug</span>
+            <span class="n">work</span> <span class="o">=</span> <span class="n">Work</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">past_slugs__slug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">])</span> \
+                <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="c1"># if found, redirect to the correct url for this view</span>
+            <span class="k">if</span> <span class="n">work</span><span class="p">:</span>
+                <span class="c1"># patch in the correct slug for use with get absolute url</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">slug</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">object</span> <span class="o">=</span> <span class="n">work</span>   <span class="c1"># used by member detail absolute url</span>
+                <span class="k">return</span> <span class="n">HttpResponsePermanentRedirect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span>
+
+            <span class="c1"># otherwise, raise the 404</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="WorkDetail"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkDetail">[docs]</a><span class="k">class</span> <span class="nc">WorkDetail</span><span class="p">(</span><span class="n">WorkPastSlugMixin</span><span class="p">,</span> <span class="n">WorkLastModifiedListMixin</span><span class="p">,</span>
+                 <span class="n">DetailView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Detail page for a single library book.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Work</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;books/work_detail.html&#39;</span>
@@ -273,17 +300,18 @@
             <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;By </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">authors</span><span class="p">])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
-            <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39;, </span><span class="si">%s</span><span class="s1">.</span><span class="se">\n</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">year</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">public_notes</span><span class="p">:</span>
-            <span class="n">description</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">public_notes</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39;, </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">year</span>
+        <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39;. &#39;</span>
 
         <span class="c1"># text-only readable version of membership years for meta description</span>
         <span class="n">circ_years</span> <span class="o">=</span> <span class="n">strip_tags</span><span class="p">(</span><span class="n">as_ranges</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">event_years</span><span class="p">)</span>
                                 <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;/span&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
 
-        <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> event</span><span class="si">%s</span><span class="s1"> in </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> \
+        <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> event</span><span class="si">%s</span><span class="s1"> in </span><span class="si">%s</span><span class="s1">. &#39;</span> <span class="o">%</span> \
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">event_count</span><span class="p">,</span>
              <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">event_count</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">circ_years</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">public_notes</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">public_notes</span>
 
         <span class="n">context</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
             <span class="s1">&#39;page_title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
@@ -292,9 +320,10 @@
         <span class="k">return</span> <span class="n">context</span></div></div>
 
 
-<div class="viewcode-block" id="WorkCirculation"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCirculation">[docs]</a><span class="k">class</span> <span class="nc">WorkCirculation</span><span class="p">(</span><span class="n">WorkLastModifiedListMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Display a list of circulation events (borrows, purchases) for an</span>
-<span class="sd">    individual work.&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="WorkCirculation"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCirculation">[docs]</a><span class="k">class</span> <span class="nc">WorkCirculation</span><span class="p">(</span><span class="n">WorkPastSlugMixin</span><span class="p">,</span> <span class="n">WorkLastModifiedListMixin</span><span class="p">,</span>
+                      <span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Display a list of circulation events (borrows, purchases, etc)</span>
+<span class="sd">    for an individual work.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Event</span>
     <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;books/circulation.html&#39;</span>
 
@@ -330,7 +359,8 @@
         <span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="WorkCardList"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCardList">[docs]</a><span class="k">class</span> <span class="nc">WorkCardList</span><span class="p">(</span><span class="n">WorkLastModifiedListMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkCardList"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCardList">[docs]</a><span class="k">class</span> <span class="nc">WorkCardList</span><span class="p">(</span><span class="n">WorkPastSlugMixin</span><span class="p">,</span> <span class="n">WorkLastModifiedListMixin</span><span class="p">,</span>
+                   <span class="n">ListView</span><span class="p">,</span> <span class="n">RdfViewMixin</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Card thumbnails for lending card associated with a single library</span>
 <span class="sd">    member.&#39;&#39;&#39;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Footnote</span>
@@ -345,23 +375,14 @@
         <span class="c1"># that have images</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span> \
                       <span class="o">.</span><span class="n">on_events</span><span class="p">()</span> \
-                      <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">borrows__work__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
-                              <span class="n">Q</span><span class="p">(</span><span class="n">events__work__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
-                              <span class="n">Q</span><span class="p">(</span><span class="n">purchases__work__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">pk</span><span class="p">))</span> \
+                      <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">events__work__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> \
                       <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">image__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> \
-                      <span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">Coalesce</span><span class="p">(</span><span class="s1">&#39;borrows__start_date&#39;</span><span class="p">,</span>
-                                              <span class="s1">&#39;events__start_date&#39;</span><span class="p">,</span>
-                                              <span class="s1">&#39;purchases__start_date&#39;</span><span class="p">),</span>
-                                <span class="n">start_date_precision</span><span class="o">=</span><span class="n">Coalesce</span><span class="p">(</span>
-                                    <span class="s1">&#39;borrows__start_date_precision&#39;</span><span class="p">,</span>
-                                    <span class="s1">&#39;events__start_date_precision&#39;</span><span class="p">,</span>
-                                    <span class="s1">&#39;purchases__start_date_precision&#39;</span><span class="p">))</span> \
                       <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;content_object&#39;</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">)</span> \
-                      <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="s1">&#39;start_date_precision&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">desc</span><span class="p">(),</span>
-                                <span class="n">F</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">asc</span><span class="p">(</span><span class="n">nulls_last</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+                      <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="s1">&#39;events__start_date_precision&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">desc</span><span class="p">(),</span>
+                                <span class="n">F</span><span class="p">(</span><span class="s1">&#39;events__start_date&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">asc</span><span class="p">(</span><span class="n">nulls_last</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
 
         <span class="c1"># NOTE: sorting by date precision decending (with default nulls first)</span>
-        <span class="c1"># so that full precision dates (null or 7) come before partiald ates</span>
+        <span class="c1"># so that full precision dates (null or 7) come before partial dates</span>
 
 <div class="viewcode-block" id="WorkCardList.get_absolute_url"><a class="viewcode-back" href="../../../codedocs.html#mep.books.views.WorkCardList.get_absolute_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Full URI for work card list page.&#39;&#39;&#39;</span>

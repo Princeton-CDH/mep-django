@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>mep.accounts.models &#8212; mep-django 1.1.0 documentation</title>
+    <title>mep.accounts.models &#8212; mep-django 1.2.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -204,10 +204,7 @@
         <span class="c1"># find all canvas associated with events for this account via footnote</span>
         <span class="c1"># (excluding those already in the manifest)</span>
         <span class="n">event_cards</span> <span class="o">=</span> <span class="n">Canvas</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">manifest</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">manifest</span><span class="p">)</span> \
-            <span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__events__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
-                <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__borrows__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="o">|</span>
-                <span class="n">models</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="n">footnote__purchases__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">))</span> \
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">footnote__events__account__pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> \
             <span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">priority</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="n">output_field</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()))</span> \
             <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
 
@@ -327,7 +324,7 @@
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Edition of the work, if known.&#39;</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">deletion</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">)</span>
 
-    <span class="n">event_footnotes</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="n">Footnote</span><span class="p">,</span> <span class="n">related_query_name</span><span class="o">=</span><span class="s1">&#39;events&#39;</span><span class="p">)</span>
+    <span class="n">footnotes</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="n">Footnote</span><span class="p">,</span> <span class="n">related_query_name</span><span class="o">=</span><span class="s1">&#39;events&#39;</span><span class="p">)</span>
 
     <span class="n">objects</span> <span class="o">=</span> <span class="n">EventQuerySet</span><span class="o">.</span><span class="n">as_manager</span><span class="p">()</span>
 
@@ -369,7 +366,8 @@
         <span class="s1">&#39;NOTATION: BOUGHTFOR&#39;</span><span class="p">:</span> <span class="s1">&#39;Purchase&#39;</span><span class="p">,</span>
         <span class="s1">&#39;NOTATION: SOLDFOR&#39;</span><span class="p">:</span> <span class="s1">&#39;Purchase&#39;</span><span class="p">,</span>
         <span class="s1">&#39;NOTATION: REQUEST&#39;</span><span class="p">:</span> <span class="s1">&#39;Request&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;STRIKETHRU&#39;</span><span class="p">:</span> <span class="s1">&#39;Crossed out&#39;</span>
+        <span class="s1">&#39;STRIKETHRU&#39;</span><span class="p">:</span> <span class="s1">&#39;Crossed out&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;NOTATION: PERIODICALSUBSCRIPTION&#39;</span><span class="p">:</span> <span class="s1">&#39;Periodical Subscription&#39;</span>
     <span class="p">}</span>
     <span class="n">re_nonstandard_notation</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
         <span class="s1">&#39;(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nonstandard_notation</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
@@ -547,7 +545,12 @@
         <span class="c1"># otherwise, combine months &amp; days</span>
         <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
     <span class="n">readable_duration</span><span class="o">.</span><span class="n">short_description</span> <span class="o">=</span> <span class="s1">&#39;Duration&#39;</span>
-    <span class="n">readable_duration</span><span class="o">.</span><span class="n">admin_order_field</span> <span class="o">=</span> <span class="s1">&#39;duration&#39;</span></div>
+    <span class="n">readable_duration</span><span class="o">.</span><span class="n">admin_order_field</span> <span class="o">=</span> <span class="s1">&#39;duration&#39;</span>
+
+<div class="viewcode-block" id="Subscription.total_amount"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Subscription.total_amount">[docs]</a>    <span class="k">def</span> <span class="nf">total_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;total amount paid (price paid + deposit if any)&#39;&#39;&#39;</span>
+        <span class="c1"># NOTE: using sum to simplify decimal/float issues for zeroes</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">price_paid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deposit</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">])</span></div></div>
 
 
 <div class="viewcode-block" id="Borrow"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Borrow">[docs]</a><span class="k">class</span> <span class="nc">Borrow</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
@@ -567,7 +570,6 @@
         <span class="n">max_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Status of borrowed item (bought, missing, returned)&#39;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">STATUS_CHOICES</span><span class="p">)</span>
-    <span class="n">footnotes</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="n">Footnote</span><span class="p">,</span> <span class="n">related_query_name</span><span class="o">=</span><span class="s1">&#39;borrows&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Borrow.save"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Borrow.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># if end date is set and item status is not, automatically set</span>
@@ -581,7 +583,6 @@
     <span class="sd">&#39;&#39;&#39;Inherited table indicating purchase events; extends :class:`Event`&#39;&#39;&#39;</span>
     <span class="n">price</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                                 <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">footnotes</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="n">Footnote</span><span class="p">,</span> <span class="n">related_query_name</span><span class="o">=</span><span class="s1">&#39;purchases&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Purchase.date"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.models.Purchase.date">[docs]</a>    <span class="k">def</span> <span class="nf">date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;alias of :attr:`date_range` for display; since reimbersument</span>

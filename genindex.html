@@ -5,7 +5,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Index &#8212; mep-django 1.1.0 documentation</title>
+    <title>Index &#8212; mep-django 1.2.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -324,23 +324,27 @@
 </li>
       <li><a href="codedocs.html#mep.accounts.models.Event.MultipleObjectsReturned">Event.MultipleObjectsReturned</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="codedocs.html#mep.books.models.Work.event_count">event_count() (mep.books.models.Work property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="codedocs.html#mep.footnotes.models.FootnoteQuerySet.event_date_range">event_date_range() (mep.footnotes.models.FootnoteQuerySet method)</a>
 </li>
-      <li><a href="codedocs.html#mep.footnotes.models.BibliographySignalHandlers.event_delete">event_delete() (mep.footnotes.models.BibliographySignalHandlers static method)</a>
+      <li><a href="codedocs.html#mep.books.models.WorkSignalHandlers.event_delete">event_delete() (mep.books.models.WorkSignalHandlers static method)</a>
 
       <ul>
+        <li><a href="codedocs.html#mep.footnotes.models.BibliographySignalHandlers.event_delete">(mep.footnotes.models.BibliographySignalHandlers static method)</a>
+</li>
         <li><a href="codedocs.html#mep.people.models.PersonSignalHandlers.event_delete">(mep.people.models.PersonSignalHandlers static method)</a>
 </li>
       </ul></li>
       <li><a href="codedocs.html#mep.accounts.models.Event.event_label">event_label (mep.accounts.models.Event attribute)</a>
 </li>
-      <li><a href="codedocs.html#mep.footnotes.models.BibliographySignalHandlers.event_save">event_save() (mep.footnotes.models.BibliographySignalHandlers static method)</a>
+      <li><a href="codedocs.html#mep.books.models.WorkSignalHandlers.event_save">event_save() (mep.books.models.WorkSignalHandlers static method)</a>
 
       <ul>
+        <li><a href="codedocs.html#mep.footnotes.models.BibliographySignalHandlers.event_save">(mep.footnotes.models.BibliographySignalHandlers static method)</a>
+</li>
         <li><a href="codedocs.html#mep.people.models.PersonSignalHandlers.event_save">(mep.people.models.PersonSignalHandlers static method)</a>
 </li>
       </ul></li>
@@ -1107,6 +1111,12 @@
 </li>
       <li><a href="codedocs.html#mep.people.models.PastPersonSlug.MultipleObjectsReturned">PastPersonSlug.MultipleObjectsReturned</a>
 </li>
+      <li><a href="codedocs.html#mep.books.models.PastWorkSlug">PastWorkSlug (class in mep.books.models)</a>
+</li>
+      <li><a href="codedocs.html#mep.books.models.PastWorkSlug.DoesNotExist">PastWorkSlug.DoesNotExist</a>
+</li>
+      <li><a href="codedocs.html#mep.books.models.PastWorkSlug.MultipleObjectsReturned">PastWorkSlug.MultipleObjectsReturned</a>
+</li>
       <li><a href="codedocs.html#mep.people.models.Person">Person (class in mep.people.models)</a>
 </li>
       <li><a href="codedocs.html#mep.people.models.PastPersonSlug.person">person (mep.people.models.PastPersonSlug attribute)</a>
@@ -1137,10 +1147,10 @@
 </li>
       <li><a href="codedocs.html#mep.people.forms.PersonChoiceField">PersonChoiceField (class in mep.people.forms)</a>
 </li>
-      <li><a href="codedocs.html#mep.people.views.PersonMerge">PersonMerge (class in mep.people.views)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="codedocs.html#mep.people.views.PersonMerge">PersonMerge (class in mep.people.views)</a>
+</li>
       <li><a href="codedocs.html#mep.people.forms.PersonMergeForm">PersonMergeForm (class in mep.people.forms)</a>
 </li>
       <li><a href="codedocs.html#mep.people.models.PersonQuerySet">PersonQuerySet (class in mep.people.models)</a>
@@ -1291,9 +1301,11 @@
 </li>
       <li><a href="codedocs.html#mep.people.models.Person.short_name">short_name() (mep.people.models.Person property)</a>
 </li>
-      <li><a href="codedocs.html#mep.books.models.Work.slug">slug (mep.books.models.Work attribute)</a>
+      <li><a href="codedocs.html#mep.books.models.PastWorkSlug.slug">slug (mep.books.models.PastWorkSlug attribute)</a>
 
       <ul>
+        <li><a href="codedocs.html#mep.books.models.Work.slug">(mep.books.models.Work attribute)</a>
+</li>
         <li><a href="codedocs.html#mep.people.models.PastPersonSlug.slug">(mep.people.models.PastPersonSlug attribute)</a>
 </li>
         <li><a href="codedocs.html#mep.people.models.Person.slug">(mep.people.models.Person attribute)</a>
@@ -1307,10 +1319,10 @@
 </li>
       <li><a href="codedocs.html#mep.people.models.Person.sort_name">sort_name (mep.people.models.Person attribute)</a>
 </li>
-      <li><a href="codedocs.html#mep.footnotes.models.SourceType">SourceType (class in mep.footnotes.models)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="codedocs.html#mep.footnotes.models.SourceType">SourceType (class in mep.footnotes.models)</a>
+</li>
       <li><a href="codedocs.html#mep.footnotes.models.SourceType.DoesNotExist">SourceType.DoesNotExist</a>
 </li>
       <li><a href="codedocs.html#mep.footnotes.models.SourceType.MultipleObjectsReturned">SourceType.MultipleObjectsReturned</a>
@@ -1363,9 +1375,11 @@
 </li>
       <li><a href="codedocs.html#mep.people.models.Person.title">title (mep.people.models.Person attribute)</a>
 </li>
+      <li><a href="codedocs.html#mep.accounts.partial_date.DatePrecisionField.to_python">to_python() (mep.accounts.partial_date.DatePrecisionField method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="codedocs.html#mep.accounts.partial_date.DatePrecisionField.to_python">to_python() (mep.accounts.partial_date.DatePrecisionField method)</a>
+      <li><a href="codedocs.html#mep.accounts.models.Subscription.total_amount">total_amount() (mep.accounts.models.Subscription method)</a>
 </li>
       <li><a href="codedocs.html#mep.common.models.TrackChangesModel">TrackChangesModel (class in mep.common.models)</a>
 </li>
@@ -1408,6 +1422,8 @@
       <ul>
         <li><a href="codedocs.html#mep.accounts.models.Subscription.validate_unique">(mep.accounts.models.Subscription method)</a>
 </li>
+        <li><a href="codedocs.html#mep.books.models.Work.validate_unique">(mep.books.models.Work method)</a>
+</li>
         <li><a href="codedocs.html#mep.people.models.Person.validate_unique">(mep.people.models.Person method)</a>
 </li>
       </ul></li>
@@ -1439,6 +1455,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="codedocs.html#mep.books.models.Work">Work (class in mep.books.models)</a>
 </li>
+      <li><a href="codedocs.html#mep.books.models.PastWorkSlug.work">work (mep.books.models.PastWorkSlug attribute)</a>
+</li>
       <li><a href="codedocs.html#mep.books.models.Work.DoesNotExist">Work.DoesNotExist</a>
 </li>
       <li><a href="codedocs.html#mep.books.models.Work.MultipleObjectsReturned">Work.MultipleObjectsReturned</a>
@@ -1458,6 +1476,8 @@
       <li><a href="codedocs.html#mep.books.views.WorkLastModifiedListMixin">WorkLastModifiedListMixin (class in mep.books.views)</a>
 </li>
       <li><a href="codedocs.html#mep.books.views.WorkList">WorkList (class in mep.books.views)</a>
+</li>
+      <li><a href="codedocs.html#mep.books.views.WorkPastSlugMixin">WorkPastSlugMixin (class in mep.books.views)</a>
 </li>
       <li><a href="codedocs.html#mep.books.models.WorkQuerySet">WorkQuerySet (class in mep.books.models)</a>
 </li>
