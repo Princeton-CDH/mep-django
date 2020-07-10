@@ -33,7 +33,7 @@ Python 3.5 / Django 1.11 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info
      :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=master
      :alt: Requirements Status
 
-`Current release documentation <https://princeton-cdh.github.io/mep-django/>`_.
+For specifics on the architecture and code, read `current release documentation <https://princeton-cdh.github.io/mep-django/>`_.
 
 Development instructions
 ------------------------
