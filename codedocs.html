@@ -1019,6 +1019,76 @@ will be skipped.</p>
 <span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">report_timegaps</span> <span class="o">-</span><span class="n">g</span> <span class="mi">12</span> <span class="n">months</span> <span class="o">--</span><span class="n">borrows</span> <span class="o">-</span><span class="n">o</span> <span class="mi">12</span><span class="n">month</span><span class="o">-</span><span class="n">gaps</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">borrows</span><span class="o">.</span><span class="n">csv</span>
 </pre></div>
 </div>
+<dl class="py class">
+<dt id="mep.accounts.management.commands.report_timegaps.Command">
+<em class="property">class </em><code class="sig-prename descclassname">mep.accounts.management.commands.report_timegaps.</code><code class="sig-name descname">Command</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stdout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stderr</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">no_color</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">force_color</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/report_timegaps.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.report_timegaps.Command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look for accounts with large time gaps between events to identify
+possible candidates for demerge</p>
+<dl class="py method">
+<dt id="mep.accounts.management.commands.report_timegaps.Command.add_arguments">
+<code class="sig-name descname">add_arguments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parser</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/report_timegaps.html#Command.add_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.report_timegaps.Command.add_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Entry point for subclassed commands to add custom arguments.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="mep.accounts.management.commands.report_timegaps.Command.csv_header">
+<code class="sig-name descname">csv_header</code><em class="property"> = ['Admin URL(s)', 'Account', 'Account Date Range', '# Gaps', 'Longest Gap in days', 'Details']</em><a class="headerlink" href="#mep.accounts.management.commands.report_timegaps.Command.csv_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>columns for CSV output</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.report_timegaps.Command.find_gaps">
+<code class="sig-name descname">find_gaps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">account</span></em>, <em class="sig-param"><span class="n">gapsize</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/report_timegaps.html#Command.find_gaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.report_timegaps.Command.find_gaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identify and return gaps between account events that are larger than the
+specified gap size. Returns a list of tuples of start and event dates
+for any gaps found.  Currently ignores borrow events with partially known
+dates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>account</strong> – <a class="reference internal" href="#mep.accounts.models.Account" title="mep.accounts.models.Account"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.accounts.models.Account</span></code></a></p></li>
+<li><p><strong>gapsize</strong> – <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.timedelta</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.report_timegaps.Command.format_relativedelta">
+<code class="sig-name descname">format_relativedelta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rel_delta</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/report_timegaps.html#Command.format_relativedelta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.report_timegaps.Command.format_relativedelta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a human-readable display for a relativedelta in years,
+months, and days</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.report_timegaps.Command.handle">
+<code class="sig-name descname">handle</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/report_timegaps.html#Command.handle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.report_timegaps.Command.handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="mep.accounts.management.commands.report_timegaps.Command.include_borrows">
+<code class="sig-name descname">include_borrows</code><em class="property"> = False</em><a class="headerlink" href="#mep.accounts.management.commands.report_timegaps.Command.include_borrows" title="Permalink to this definition">¶</a></dt>
+<dd><p>include borrowing events when checking for gaps between events?</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.report_timegaps.Command.report_gap_details">
+<code class="sig-name descname">report_gap_details</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gaps</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/report_timegaps.html#Command.report_gap_details"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.report_timegaps.Command.report_gap_details" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of gaps as generated by <a class="reference internal" href="#mep.accounts.management.commands.report_timegaps.Command.find_gaps" title="mep.accounts.management.commands.report_timegaps.Command.find_gaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_gaps()</span></code></a>,
+return the maximum gap size in days and a message reporting
+the specifics of the event types and dates with gaps.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="mep.accounts.management.commands.report_timegaps.Command.v_normal">
+<code class="sig-name descname">v_normal</code><em class="property"> = 1</em><a class="headerlink" href="#mep.accounts.management.commands.report_timegaps.Command.v_normal" title="Permalink to this definition">¶</a></dt>
+<dd><p>default verbosity</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-mep.accounts.management.commands.export_events">
 <span id="export-events"></span><h4>export events<a class="headerlink" href="#module-mep.accounts.management.commands.export_events" title="Permalink to this headline">¶</a></h4>
@@ -1026,9 +1096,130 @@ will be skipped.</p>
 <p>Generates a CSV and JSON file including details on every event in the
 database with summary details and URIs for associated library member(s)
 and book (for events linked to books).</p>
+<dl class="py class">
+<dt id="mep.accounts.management.commands.export_events.Command">
+<em class="property">class </em><code class="sig-prename descclassname">mep.accounts.management.commands.export_events.</code><code class="sig-name descname">Command</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stdout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stderr</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">no_color</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">force_color</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/export_events.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.export_events.Command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export event data.</p>
+<dl class="py method">
+<dt id="mep.accounts.management.commands.export_events.Command.get_object_data">
+<code class="sig-name descname">get_object_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/export_events.html#Command.get_object_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.export_events.Command.get_object_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a dictionary of data to export for a single
+<a class="reference internal" href="#mep.accounts.models.Event" title="mep.accounts.models.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.export_events.Command.get_queryset">
+<code class="sig-name descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/export_events.html#Command.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.export_events.Command.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>get event objects to be exported</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.export_events.Command.item_info">
+<code class="sig-name descname">item_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/export_events.html#Command.item_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.export_events.Command.item_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>associated work details for an event</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.export_events.Command.member_info">
+<code class="sig-name descname">member_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/export_events.html#Command.member_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.export_events.Command.member_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event about member(s) for the account associated with an event.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="mep.accounts.management.commands.export_events.Command.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#mep.accounts.management.commands.export_events.Command.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.accounts.models.Event" title="mep.accounts.models.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.accounts.models.Event</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.export_events.Command.source_info">
+<code class="sig-name descname">source_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">footnote</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/export_events.html#Command.source_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.export_events.Command.source_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>source details from a footnote</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.export_events.Command.subscription_info">
+<code class="sig-name descname">subscription_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/export_events.html#Command.subscription_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.export_events.Command.subscription_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>subscription details for an event</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-mep.accounts.management.commands.twitterbot_100years">
 <span id="twitterbot-100years"></span><h4>twitterbot 100years<a class="headerlink" href="#module-mep.accounts.management.commands.twitterbot_100years" title="Permalink to this headline">¶</a></h4>
+<dl class="py class">
+<dt id="mep.accounts.management.commands.twitterbot_100years.Command">
+<em class="property">class </em><code class="sig-prename descclassname">mep.accounts.management.commands.twitterbot_100years.</code><code class="sig-name descname">Command</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stdout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stderr</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">no_color</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">force_color</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="mep.accounts.management.commands.twitterbot_100years.Command.add_arguments">
+<code class="sig-name descname">add_arguments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parser</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command.add_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command.add_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Entry point for subclassed commands to add custom arguments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.twitterbot_100years.Command.find_events">
+<code class="sig-name descname">find_events</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">date</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command.find_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command.find_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find events 100 years before the current day or
+a specified day in YYYY-MM-DD format.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.twitterbot_100years.Command.get_tweepy">
+<code class="sig-name descname">get_tweepy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command.get_tweepy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command.get_tweepy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize tweepy API client based on django settings.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.twitterbot_100years.Command.handle">
+<code class="sig-name descname">handle</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command.handle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command.handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>The actual logic of the command. Subclasses must implement
+this method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.twitterbot_100years.Command.tweet_at">
+<code class="sig-name descname">tweet_at</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="n">time</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command.tweet_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command.tweet_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>schedule a tweet for later today</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="mep.accounts.management.commands.twitterbot_100years.can_tweet">
+<code class="sig-prename descclassname">mep.accounts.management.commands.twitterbot_100years.</code><code class="sig-name descname">can_tweet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ev</span></em>, <em class="sig-param"><span class="n">day</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#can_tweet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.can_tweet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the event can be tweeted on the specified day</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="mep.accounts.management.commands.twitterbot_100years.card_url">
+<code class="sig-prename descclassname">mep.accounts.management.commands.twitterbot_100years.</code><code class="sig-name descname">card_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">member</span></em>, <em class="sig-param"><span class="n">ev</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#card_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.card_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the member card detail url for the event based on footnote
+image, if present.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="mep.accounts.management.commands.twitterbot_100years.tweet_content">
+<code class="sig-prename descclassname">mep.accounts.management.commands.twitterbot_100years.</code><code class="sig-name descname">tweet_content</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ev</span></em>, <em class="sig-param"><span class="n">day</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#tweet_content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.tweet_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate tweet content for the specified event on the specified
+day.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="mep.accounts.management.commands.twitterbot_100years.work_label">
+<code class="sig-prename descclassname">mep.accounts.management.commands.twitterbot_100years.</code><code class="sig-name descname">work_label</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">work</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#work_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.work_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a <code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code> for display
+in tweet content. Standard formats:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>author’s “title” (year)</p></li>
+<li><p>periodical: an issue of “title”</p></li>
+</ul>
+</div></blockquote>
+<p>Handles multiple authors (and for two, et al. for more), includes
+editors if there are no authors. Only include years after 1500.</p>
+</dd></dl>
+
 </div>
 </div>
 </div>

@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>mep.accounts.management.commands.report_timegaps &#8212; mep-django 1.2.0 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for mep.accounts.management.commands.report_timegaps</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Manage command to identify and report on large gaps in time between</span>
+<span class="sd">events in a single library account, to identify possible candidates for</span>
+<span class="sd">demerging.  Options allow specifying the minimum gap to look for in months</span>
+<span class="sd">(default is 6 months) and a required filename to use for CSV output.</span>
+<span class="sd">By default, borrowing events are not included.  If specified, borrowing</span>
+<span class="sd">events will be included but borrow events with partially know dates</span>
+<span class="sd">will be skipped.</span>
+
+<span class="sd">Example usage::</span>
+
+<span class="sd">    python manage.py report_timegaps -o 6month-gaps.csv</span>
+<span class="sd">    python manage.py report_timegaps -g 12 months -o 12month-gaps.csv</span>
+<span class="sd">    python manage.py report_timegaps -g 12 months --borrows -o 12month-gaps-with-borrows.csv</span>
+
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">timedelta</span>
+
+<span class="kn">from</span> <span class="nn">dateutil.relativedelta</span> <span class="k">import</span> <span class="n">relativedelta</span>
+<span class="kn">from</span> <span class="nn">django.core.management.base</span> <span class="k">import</span> <span class="n">BaseCommand</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Count</span>
+
+<span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Account</span>
+<span class="kn">from</span> <span class="nn">mep.common.utils</span> <span class="k">import</span> <span class="n">absolutize_url</span>
+
+
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.report_timegaps.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">BaseCommand</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Look for accounts with large time gaps between events to identify</span>
+<span class="sd">    possible candidates for demerge&#39;&#39;&#39;</span>
+    <span class="n">help</span> <span class="o">=</span> <span class="vm">__doc__</span>
+
+    <span class="c1">#: default verbosity</span>
+    <span class="n">v_normal</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">verbosity</span> <span class="o">=</span> <span class="n">v_normal</span>
+    <span class="c1">#: columns for CSV output</span>
+    <span class="n">csv_header</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Admin URL(s)&#39;</span><span class="p">,</span> <span class="s1">&#39;Account&#39;</span><span class="p">,</span> <span class="s1">&#39;Account Date Range&#39;</span><span class="p">,</span> <span class="s1">&#39;# Gaps&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;Longest Gap in days&#39;</span><span class="p">,</span> <span class="s1">&#39;Details&#39;</span><span class="p">]</span>
+
+    <span class="c1">#: include borrowing events when checking for gaps between events?</span>
+    <span class="n">include_borrows</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Command.add_arguments"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.report_timegaps.Command.add_arguments">[docs]</a>    <span class="k">def</span> <span class="nf">add_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s1">&#39;-g&#39;</span><span class="p">,</span> <span class="s1">&#39;--gap&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Minimum time gap in months. Default: </span><span class="si">%(default)d</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="s1">&#39;--borrows&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">include_borrows</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Include borrowing events when looking for gaps (excluded by default).&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s1">&#39;filename&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Filename to use for generated CSV report.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Command.format_relativedelta"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.report_timegaps.Command.format_relativedelta">[docs]</a>    <span class="k">def</span> <span class="nf">format_relativedelta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel_delta</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Generate a human-readable display for a relativedelta in years,</span>
+<span class="sd">        months, and days&#39;&#39;&#39;</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;years&#39;</span><span class="p">,</span> <span class="s1">&#39;months&#39;</span><span class="p">,</span> <span class="s1">&#39;days&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rel_delta</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rel_delta</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+                <span class="c1"># use attribute name for label, and strip off s if singular</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">attr</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">)</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">label</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Command.handle"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.report_timegaps.Command.handle">[docs]</a>    <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;verbosity&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_borrows</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;borrows&#39;</span><span class="p">]</span>
+
+        <span class="c1"># find accounts with at least two events; order by id for now to avoid</span>
+        <span class="c1"># issues with ordering on person sort name</span>
+        <span class="n">accounts</span> <span class="o">=</span> <span class="n">Account</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">num_events</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;event&#39;</span><span class="p">))</span>\
+                                  <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">num_events__gt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Examining </span><span class="si">{}</span><span class="s1"> accounts with at least two events&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">accounts</span><span class="o">.</span><span class="n">count</span><span class="p">()))</span>
+
+        <span class="c1"># generate a timedelta for comparison based on the configured</span>
+        <span class="c1"># gap size to look for; assume 1 month = 30 days</span>
+        <span class="n">gap</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="o">*</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;gap&#39;</span><span class="p">])</span>
+
+        <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">],</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="c1"># write utf-8 byte order mark at the beginning of the file</span>
+            <span class="n">csvfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">codecs</span><span class="o">.</span><span class="n">BOM_UTF8</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+
+            <span class="c1"># initialize csv writer and write header row</span>
+            <span class="n">csvwriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+            <span class="n">csvwriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">csv_header</span><span class="p">)</span>
+
+            <span class="c1"># loop through all accounts to find and report on time gaps</span>
+            <span class="k">for</span> <span class="n">acct</span> <span class="ow">in</span> <span class="n">accounts</span><span class="p">:</span>
+                <span class="c1"># print summary info: account and full date range</span>
+                <span class="n">date_range</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">acct</span><span class="o">.</span><span class="n">earliest_date</span><span class="p">(),</span> <span class="n">acct</span><span class="o">.</span><span class="n">last_date</span><span class="p">())</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_normal</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">acct</span><span class="p">,</span> <span class="n">date_range</span><span class="p">))</span>
+
+                <span class="c1"># get a list of gaps (if any) for the current account</span>
+                <span class="n">gaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_gaps</span><span class="p">(</span><span class="n">acct</span><span class="p">,</span> <span class="n">gap</span><span class="p">)</span>
+
+                <span class="c1"># if any gaps were found, include the account in the report</span>
+                <span class="k">if</span> <span class="n">gaps</span><span class="p">:</span>
+                    <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="n">max_gap</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_gap_details</span><span class="p">(</span><span class="n">gaps</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_normal</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+                    <span class="c1"># output account and date gap information to CSV report</span>
+                    <span class="n">admin_links</span> <span class="o">=</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">absolutize_url</span><span class="p">(</span><span class="n">pers</span><span class="o">.</span><span class="n">admin_url</span><span class="p">())</span>
+                                            <span class="k">for</span> <span class="n">pers</span> <span class="ow">in</span> <span class="n">acct</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">all</span><span class="p">()])</span>
+                    <span class="n">csvwriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="n">admin_links</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">acct</span><span class="p">),</span> <span class="n">date_range</span><span class="p">,</span>
+                                        <span class="nb">len</span><span class="p">(</span><span class="n">gaps</span><span class="p">),</span> <span class="n">max_gap</span><span class="p">,</span> <span class="n">message</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Found </span><span class="si">{}</span><span class="s1"> accounts with gaps larger than </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">total</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_relativedelta</span><span class="p">(</span><span class="n">relativedelta</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;gap&#39;</span><span class="p">]))))</span></div>
+
+<div class="viewcode-block" id="Command.find_gaps"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.report_timegaps.Command.find_gaps">[docs]</a>    <span class="k">def</span> <span class="nf">find_gaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">gapsize</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify and return gaps between account events that are larger than the</span>
+<span class="sd">        specified gap size. Returns a list of tuples of start and event dates</span>
+<span class="sd">        for any gaps found.  Currently ignores borrow events with partially known</span>
+<span class="sd">        dates.</span>
+
+<span class="sd">        :param account: :class:`mep.accounts.models.Account`</span>
+<span class="sd">        :param gapsize: :class:`datetime.timedelta`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">gaps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># set previous date and event to none for the first loop</span>
+        <span class="n">prev_date</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">prev_event</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">evt</span> <span class="ow">in</span> <span class="n">account</span><span class="o">.</span><span class="n">event_set</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="c1"># skip borrow events with partially known dates</span>
+            <span class="k">if</span> <span class="n">evt</span><span class="o">.</span><span class="n">event_type</span> <span class="o">==</span> <span class="s1">&#39;Borrow&#39;</span><span class="p">:</span>
+
+                <span class="c1"># if include borrows not requested, skip</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_borrows</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># if dates are set and are only partially known, skip</span>
+                <span class="c1"># NOTE: might merit a method on the class to check if dates</span>
+                <span class="c1"># are partially/fully known</span>
+                <span class="k">if</span> <span class="n">evt</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">and</span> \
+                  <span class="n">evt</span><span class="o">.</span><span class="n">borrow</span><span class="o">.</span><span class="n">partial_start_date</span> <span class="o">!=</span> <span class="n">evt</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> \
+                  <span class="ow">or</span> <span class="n">evt</span><span class="o">.</span><span class="n">end_date</span> <span class="ow">and</span> \
+                  <span class="n">evt</span><span class="o">.</span><span class="n">borrow</span><span class="o">.</span><span class="n">partial_end_date</span> <span class="o">!=</span> <span class="n">evt</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">():</span>
+
+                    <span class="c1"># report the skipped event in verbose mode</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_normal</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Skipping borrow event with partial dates </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">evt</span><span class="p">))</span>
+
+                    <span class="k">continue</span>
+
+            <span class="c1"># if previous date is set, compare it with current event start</span>
+            <span class="k">if</span> <span class="n">prev_date</span><span class="p">:</span>
+
+                <span class="c1"># some borrow events in the database are currently</span>
+                <span class="c1"># reporting no start date but an end date; use end date</span>
+                <span class="c1"># if start date is not set</span>
+                <span class="c1"># (and some borrows have no dates at all)</span>
+                <span class="n">compare_date</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">or</span> <span class="n">evt</span><span class="o">.</span><span class="n">end_date</span>
+
+                <span class="c1"># if current event is after the last one, then check gap</span>
+                <span class="c1"># (i.e. ignore borrowing events during a subscription)</span>
+                <span class="k">if</span> <span class="n">compare_date</span> <span class="ow">and</span> <span class="n">compare_date</span> <span class="o">&gt;</span> <span class="n">prev_date</span><span class="p">:</span>
+                    <span class="c1"># generate timedelta for current event and the last one</span>
+                    <span class="n">delta</span> <span class="o">=</span> <span class="n">compare_date</span> <span class="o">-</span> <span class="n">prev_date</span>
+                    <span class="c1"># if the delta is larger than our threshold, store the gap</span>
+                    <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;=</span> <span class="n">gapsize</span><span class="p">:</span>
+                        <span class="c1"># store the two events so a relativedelta can</span>
+                        <span class="c1"># be calculated and event types can be displayed</span>
+                        <span class="n">gaps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">prev_event</span><span class="p">,</span> <span class="n">evt</span><span class="p">))</span>
+
+            <span class="c1"># store current event as previous event and previous date;</span>
+            <span class="c1"># use end date if set, start date if not</span>
+            <span class="n">prev_date</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">end_date</span> <span class="ow">or</span> <span class="n">evt</span><span class="o">.</span><span class="n">start_date</span>
+            <span class="n">prev_event</span> <span class="o">=</span> <span class="n">evt</span>
+
+        <span class="k">return</span> <span class="n">gaps</span></div>
+
+<div class="viewcode-block" id="Command.report_gap_details"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.report_timegaps.Command.report_gap_details">[docs]</a>    <span class="k">def</span> <span class="nf">report_gap_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gaps</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Given a list of gaps as generated by :meth:`find_gaps`,</span>
+<span class="sd">        return the maximum gap size in days and a message reporting</span>
+<span class="sd">        the specifics of the event types and dates with gaps.&#39;&#39;&#39;</span>
+        <span class="n">details</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">max_gap</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">event1</span><span class="p">,</span> <span class="n">event2</span> <span class="ow">in</span> <span class="n">gaps</span><span class="p">:</span>
+            <span class="c1"># ideally, the gap should be calculated from the end of</span>
+            <span class="c1"># the first event to the start of the next.</span>
+            <span class="c1"># Use whichever date is present for each event.</span>
+            <span class="c1"># - first event end if possible; fall back to start</span>
+            <span class="n">gap_start</span> <span class="o">=</span> <span class="n">event1</span><span class="o">.</span><span class="n">end_date</span> <span class="ow">or</span> <span class="n">event1</span><span class="o">.</span><span class="n">start_date</span>
+            <span class="c1"># - second event stat if possible; fall back to end</span>
+            <span class="n">gap_end</span> <span class="o">=</span> <span class="n">event2</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">or</span> <span class="n">event2</span><span class="o">.</span><span class="n">end_date</span>
+            <span class="n">rel_delta</span> <span class="o">=</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">gap_end</span><span class="p">,</span> <span class="n">gap_start</span><span class="p">)</span>
+            <span class="c1"># event2.start_date or event2.end_date,</span>
+                                      <span class="c1"># event1.end_date or event1.start_date)</span>
+            <span class="c1"># timedelt = event2.start_date - (event1.start_date or event1.end_date)</span>
+            <span class="n">timedelt</span> <span class="o">=</span> <span class="n">gap_end</span> <span class="o">-</span> <span class="n">gap_start</span>
+            <span class="n">max_gap</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_gap</span><span class="p">,</span> <span class="n">timedelt</span><span class="o">.</span><span class="n">days</span><span class="p">)</span>
+            <span class="n">details</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> between </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> and </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">format_relativedelta</span><span class="p">(</span><span class="n">rel_delta</span><span class="p">),</span> <span class="n">event1</span><span class="o">.</span><span class="n">date_range</span><span class="p">,</span>
+                <span class="n">event1</span><span class="o">.</span><span class="n">event_type</span><span class="p">,</span> <span class="n">event2</span><span class="o">.</span><span class="n">date_range</span><span class="p">,</span> <span class="n">event2</span><span class="o">.</span><span class="n">event_type</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">max_gap</span><span class="p">,</span> <span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">details</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">mep-django</a></h1>
+
+
+
+<p class="blurb">Django web application for Shakespeare & Company Project (Formerly Mapping Expatriate Paris)</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../changelog.html">Change Log</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

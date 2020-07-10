@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>mep.accounts.management.commands.export_events &#8212; mep-django 1.2.0 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for mep.accounts.management.commands.export_events</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Manage command to export event data for use by others.</span>
+
+<span class="sd">Generates a CSV and JSON file including details on every event in the</span>
+<span class="sd">database with summary details and URIs for associated library member(s)</span>
+<span class="sd">and book (for events linked to books).</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ObjectDoesNotExist</span>
+<span class="kn">from</span> <span class="nn">django.db.models.functions</span> <span class="k">import</span> <span class="n">Coalesce</span>
+
+<span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">mep.common.management.export</span> <span class="k">import</span> <span class="n">BaseExport</span>
+<span class="kn">from</span> <span class="nn">mep.common.utils</span> <span class="k">import</span> <span class="n">absolutize_url</span>
+
+
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.export_events.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">BaseExport</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Export event data.&#39;&#39;&#39;</span>
+    <span class="n">help</span> <span class="o">=</span> <span class="vm">__doc__</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Event</span>
+
+    <span class="n">csv_fields</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;event_type&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;end_date&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;member_URIs&#39;</span><span class="p">,</span> <span class="s1">&#39;member_names&#39;</span><span class="p">,</span> <span class="s1">&#39;member_sort_names&#39;</span><span class="p">,</span>
+        <span class="c1"># subscription specific</span>
+        <span class="s1">&#39;subscription_price_paid&#39;</span><span class="p">,</span> <span class="s1">&#39;subscription_deposit&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;subscription_duration&#39;</span><span class="p">,</span> <span class="s1">&#39;subscription_duration_days&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;subscription_volumes&#39;</span><span class="p">,</span> <span class="s1">&#39;subscription_category&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;subscription_purchase_date&#39;</span><span class="p">,</span>
+        <span class="c1"># reimbursement specific</span>
+        <span class="s1">&#39;reimbursement_refund&#39;</span><span class="p">,</span>
+        <span class="c1"># borrow specific</span>
+        <span class="s1">&#39;borrow_status&#39;</span><span class="p">,</span>
+        <span class="c1"># purchase specific</span>
+        <span class="s1">&#39;purchase_price&#39;</span><span class="p">,</span>
+        <span class="c1"># related book/item</span>
+        <span class="s1">&#39;item_uri&#39;</span><span class="p">,</span> <span class="s1">&#39;item_title&#39;</span><span class="p">,</span> <span class="s1">&#39;item_volume&#39;</span><span class="p">,</span> <span class="s1">&#39;item_authors&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;item_year&#39;</span><span class="p">,</span> <span class="s1">&#39;item_notes&#39;</span><span class="p">,</span>
+        <span class="c1"># footnote/citation</span>
+        <span class="s1">&#39;source_citation&#39;</span><span class="p">,</span> <span class="s1">&#39;source_manifest&#39;</span><span class="p">,</span> <span class="s1">&#39;source_image&#39;</span>
+    <span class="p">]</span>
+
+<div class="viewcode-block" id="Command.get_queryset"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.export_events.Command.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;get event objects to be exported&#39;&#39;&#39;</span>
+        <span class="c1"># Order events by date. Order on precision first so unknown dates</span>
+        <span class="c1"># will be last, then sort by first known date of start/end.</span>
+        <span class="k">return</span> <span class="n">Event</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> \
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">Coalesce</span><span class="p">(</span><span class="s1">&#39;start_date_precision&#39;</span><span class="p">,</span> <span class="s1">&#39;end_date_precision&#39;</span><span class="p">),</span>
+                      <span class="n">Coalesce</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;end_date&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">asc</span><span class="p">(</span><span class="n">nulls_last</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Command.get_object_data"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.export_events.Command.get_object_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_object_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Generate a dictionary of data to export for a single</span>
+<span class="sd">         :class:`~mep.accounts.models.Event`&#39;&#39;&#39;</span>
+        <span class="n">event_type</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">event_type</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+            <span class="c1"># use event label instead of type for more detail on some generics</span>
+            <span class="p">(</span><span class="s1">&#39;event_type&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">event_label</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">partial_start_date</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;end_date&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">partial_end_date</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;member&#39;</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">()),</span>
+        <span class="p">])</span>
+        <span class="n">member_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">member_info</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">member_info</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;member&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">member_info</span>
+
+        <span class="c1"># variable to store footnote reference, if any</span>
+        <span class="n">footnote</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># subscription-specific data</span>
+        <span class="k">if</span> <span class="n">event_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Subscription&#39;</span><span class="p">,</span> <span class="s1">&#39;Supplement&#39;</span><span class="p">,</span> <span class="s1">&#39;Renewal&#39;</span><span class="p">]:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;subscription&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subscription_info</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="c1"># reimbursement data</span>
+        <span class="k">elif</span> <span class="n">event_type</span> <span class="ow">in</span> <span class="s1">&#39;Reimbursement&#39;</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">reimbursement</span><span class="o">.</span><span class="n">refund</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;reimbursement&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;refund&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%s%.2f</span><span class="s1">&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">reimbursement</span><span class="o">.</span><span class="n">currency_symbol</span><span class="p">(),</span>
+                           <span class="n">obj</span><span class="o">.</span><span class="n">reimbursement</span><span class="o">.</span><span class="n">refund</span><span class="p">)</span>
+            <span class="p">}</span>
+
+        <span class="c1"># borrow data</span>
+        <span class="k">elif</span> <span class="n">event_type</span> <span class="o">==</span> <span class="s1">&#39;Borrow&#39;</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;borrow&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">obj</span><span class="o">.</span><span class="n">borrow</span><span class="o">.</span><span class="n">get_item_status_display</span><span class="p">()</span>
+            <span class="p">}</span>
+
+        <span class="c1"># purchase data</span>
+        <span class="k">elif</span> <span class="n">event_type</span> <span class="o">==</span> <span class="s1">&#39;Purchase&#39;</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">purchase</span><span class="o">.</span><span class="n">price</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;purchase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;price&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%s%.2f</span><span class="s1">&#39;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">purchase</span><span class="o">.</span><span class="n">currency_symbol</span><span class="p">(),</span> <span class="n">obj</span><span class="o">.</span><span class="n">purchase</span><span class="o">.</span><span class="n">price</span><span class="p">)</span>
+            <span class="p">}</span>
+
+        <span class="c1"># footnote should always be attached to the base event</span>
+        <span class="n">footnote</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">footnotes</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+        <span class="n">item_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_info</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">item_info</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;item&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">item_info</span>
+        <span class="k">if</span> <span class="n">footnote</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;source&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_info</span><span class="p">(</span><span class="n">footnote</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="Command.member_info"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.export_events.Command.member_info">[docs]</a>    <span class="k">def</span> <span class="nf">member_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Event about member(s) for the account associated with an event.&#39;&#39;&#39;</span>
+        <span class="n">members</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="c1"># return if no member attached</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">members</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">([</span>
+            <span class="p">(</span><span class="s1">&#39;URIs&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">absolutize_url</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">members</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s1">&#39;names&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">members</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s1">&#39;sort_names&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">sort_name</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">members</span><span class="p">])</span>
+        <span class="p">])</span></div>
+
+<div class="viewcode-block" id="Command.subscription_info"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.export_events.Command.subscription_info">[docs]</a>    <span class="k">def</span> <span class="nf">subscription_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;subscription details for an event&#39;&#39;&#39;</span>
+        <span class="c1"># bail out if this event is not a subscription</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">subs</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">subscription</span>
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">info</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+            <span class="p">(</span><span class="s1">&#39;price_paid&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">subs</span><span class="o">.</span><span class="n">currency_symbol</span><span class="p">(),</span>
+                                       <span class="n">subs</span><span class="o">.</span><span class="n">price_paid</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;deposit&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">subs</span><span class="o">.</span><span class="n">currency_symbol</span><span class="p">(),</span>
+                                    <span class="n">subs</span><span class="o">.</span><span class="n">deposit</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="p">])</span>
+        <span class="k">if</span> <span class="n">subs</span><span class="o">.</span><span class="n">duration</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subs</span><span class="o">.</span><span class="n">readable_duration</span><span class="p">()</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;duration_days&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subs</span><span class="o">.</span><span class="n">duration</span>
+        <span class="k">if</span> <span class="n">subs</span><span class="o">.</span><span class="n">volumes</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;volumes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">subs</span><span class="o">.</span><span class="n">volumes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">subs</span><span class="o">.</span><span class="n">category</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subs</span><span class="o">.</span><span class="n">category</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">subs</span><span class="o">.</span><span class="n">purchase_date</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;purchase_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subs</span><span class="o">.</span><span class="n">partial_purchase_date</span>
+        <span class="k">return</span> <span class="n">info</span></div>
+
+<div class="viewcode-block" id="Command.item_info"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.export_events.Command.item_info">[docs]</a>    <span class="k">def</span> <span class="nf">item_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;associated work details for an event&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">work</span><span class="p">:</span>
+            <span class="n">item_info</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+                <span class="p">(</span><span class="s1">&#39;uri&#39;</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">())),</span>
+                <span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">title</span><span class="p">),</span>
+            <span class="p">])</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">edition</span><span class="p">:</span>
+                <span class="n">item_info</span><span class="p">[</span><span class="s1">&#39;volume&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">edition</span><span class="o">.</span><span class="n">display_text</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">authors</span><span class="p">:</span>
+                <span class="n">item_info</span><span class="p">[</span><span class="s1">&#39;authors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">sort_name</span>
+                                        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">authors</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
+                <span class="n">item_info</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">year</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">public_notes</span><span class="p">:</span>
+                <span class="n">item_info</span><span class="p">[</span><span class="s1">&#39;notes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">public_notes</span>
+
+            <span class="k">return</span> <span class="n">item_info</span></div>
+
+<div class="viewcode-block" id="Command.source_info"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.export_events.Command.source_info">[docs]</a>    <span class="k">def</span> <span class="nf">source_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">footnote</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;source details from a footnote&#39;&#39;&#39;</span>
+        <span class="n">source_info</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+            <span class="p">(</span><span class="s1">&#39;citation&#39;</span><span class="p">,</span> <span class="n">footnote</span><span class="o">.</span><span class="n">bibliography</span><span class="o">.</span><span class="n">bibliographic_note</span><span class="p">)</span>
+        <span class="p">])</span>
+        <span class="k">if</span> <span class="n">footnote</span><span class="o">.</span><span class="n">bibliography</span><span class="o">.</span><span class="n">manifest</span><span class="p">:</span>
+            <span class="n">source_info</span><span class="p">[</span><span class="s1">&#39;manifest&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">footnote</span><span class="o">.</span><span class="n">bibliography</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">uri</span>
+            <span class="k">if</span> <span class="n">footnote</span><span class="o">.</span><span class="n">image</span><span class="p">:</span>
+                <span class="c1"># default iiif image</span>
+                <span class="n">source_info</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">footnote</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">source_info</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">mep-django</a></h1>
+
+
+
+<p class="blurb">Django web application for Shakespeare & Company Project (Formerly Mapping Expatriate Paris)</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../changelog.html">Change Log</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

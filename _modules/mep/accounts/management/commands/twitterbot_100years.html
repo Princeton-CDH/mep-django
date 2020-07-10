@@ -1,0 +1,441 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>mep.accounts.management.commands.twitterbot_100years &#8212; mep-django 1.2.0 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for mep.accounts.management.commands.twitterbot_100years</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">dateutil.relativedelta</span> <span class="k">import</span> <span class="n">relativedelta</span>
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.core.management.base</span> <span class="k">import</span> <span class="n">BaseCommand</span><span class="p">,</span> <span class="n">CommandError</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Q</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+<span class="kn">import</span> <span class="nn">tweepy</span>
+
+<span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">mep.accounts.partial_date</span> <span class="k">import</span> <span class="n">DatePrecision</span>
+<span class="kn">from</span> <span class="nn">mep.common.utils</span> <span class="k">import</span> <span class="n">absolutize_url</span>
+
+
+<div class="viewcode-block" id="Command"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command">[docs]</a><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">BaseCommand</span><span class="p">):</span>
+
+    <span class="c1"># date format:  Saturday, May 8, 1920</span>
+    <span class="n">date_format</span> <span class="o">=</span> <span class="s1">&#39;%A, %B </span><span class="si">%-d</span><span class="s1">, %Y&#39;</span>
+
+    <span class="n">full_precision</span> <span class="o">=</span> <span class="n">DatePrecision</span><span class="o">.</span><span class="n">year</span> <span class="o">|</span> <span class="n">DatePrecision</span><span class="o">.</span><span class="n">month</span> <span class="o">|</span> \
+        <span class="n">DatePrecision</span><span class="o">.</span><span class="n">day</span>
+
+<div class="viewcode-block" id="Command.add_arguments"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.add_arguments">[docs]</a>    <span class="k">def</span> <span class="nf">add_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;report&#39;</span><span class="p">,</span> <span class="s1">&#39;schedule&#39;</span><span class="p">,</span> <span class="s1">&#39;tweet&#39;</span><span class="p">])</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--date&#39;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Specify an alternate date in YYYY-MM-DD format. &#39;</span> <span class="o">+</span>
+                 <span class="s1">&#39;(default is today)&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s1">&#39;-e&#39;</span><span class="p">,</span> <span class="s1">&#39;--event&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Database id for the event to be tweeted. &#39;</span> <span class="o">+</span>
+                 <span class="s1">&#39;(Required for tweet mode)&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Command.handle"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.handle">[docs]</a>    <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;report&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;schedule&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;tweet&#39;</span><span class="p">:</span>
+            <span class="c1"># find the event and tweet it, if possible &amp; appropriate</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ev</span> <span class="o">=</span> <span class="n">Event</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tweet</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">Event</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Error: event </span><span class="si">%(event)s</span><span class="s1"> not found&#39;</span> <span class="o">%</span> <span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">get_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># find events relative to the specified day if set</span>
+
+        <span class="c1"># only allow overriding date for report</span>
+        <span class="k">if</span> <span class="n">date</span> <span class="ow">and</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;report&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">relative_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                                                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">date</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)])</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span><span class="s1">&#39;Invalid date </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">date</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># by default, report relative to today</span>
+            <span class="c1"># determine date 100 years earlier</span>
+            <span class="n">relative_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="o">-</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">relative_date</span>
+
+<div class="viewcode-block" id="Command.find_events"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.find_events">[docs]</a>    <span class="k">def</span> <span class="nf">find_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Find events 100 years before the current day or</span>
+<span class="sd">        a specified day in YYYY-MM-DD format.&#39;&#39;&#39;</span>
+
+        <span class="c1"># find all events for this date</span>
+        <span class="c1"># exclude partially known dates</span>
+        <span class="c1"># - purchase date precision == start date precision</span>
+        <span class="c1"># (borrow end *could* have different precision than start date)</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">Event</span><span class="o">.</span><span class="n">objects</span> \
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span> <span class="o">|</span>
+                    <span class="n">Q</span><span class="p">(</span><span class="n">subscription__purchase_date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span> <span class="o">|</span>
+                    <span class="n">Q</span><span class="p">(</span><span class="n">borrow__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="n">date</span><span class="p">))</span> \
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">start_date_precision__isnull</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">|</span>
+                    <span class="n">Q</span><span class="p">(</span><span class="n">start_date_precision</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_precision</span><span class="p">)))</span> \
+            <span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">work__notes__contains</span><span class="o">=</span><span class="s2">&quot;UNCERTAINTYICON&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">events</span></div>
+
+    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="c1"># print out the tweets for the specified day</span>
+        <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_events</span><span class="p">(</span><span class="n">date</span><span class="p">):</span>
+            <span class="n">tweet_text</span> <span class="o">=</span> <span class="n">tweet_content</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tweet_text</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Event id: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ev</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tweet_text</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># times:  9 AM, 12 PM, 1:30 PM, 3 PM, 4:30 PM, 6 PM, 8 PM</span>
+    <span class="n">tweet_times</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;9:00&#39;</span><span class="p">,</span> <span class="s1">&#39;12:00&#39;</span><span class="p">,</span> <span class="s1">&#39;13:30&#39;</span><span class="p">,</span> <span class="s1">&#39;15:00&#39;</span><span class="p">,</span> <span class="s1">&#39;16:30&#39;</span><span class="p">,</span> <span class="s1">&#39;18:00&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;20:00&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="c1"># find all events for today</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_events</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+        <span class="c1"># filter out any that can&#39;t be tweeted</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">ev</span> <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_events</span><span class="p">(</span><span class="n">date</span><span class="p">)</span> <span class="k">if</span> <span class="n">can_tweet</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">date</span><span class="p">)]</span>
+
+        <span class="c1"># schedule the ones that can be tweeted</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ev</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">events</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tweet_at</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tweet_times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Command.tweet_at"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.tweet_at">[docs]</a>    <span class="k">def</span> <span class="nf">tweet_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;schedule a tweet for later today&#39;&#39;&#39;</span>
+        <span class="c1"># use current python executable (within virtualenv)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;bin/cron-wrapper </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">/manage.py twitterbot_100years tweet --event </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">PROJECT_ROOT</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="c1"># could add debug logging here if there are problems</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s1">&#39;/usr/bin/at&#39;</span><span class="p">,</span> <span class="n">time</span><span class="p">],</span> <span class="nb">input</span><span class="o">=</span><span class="n">cmd</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+                       <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">tweet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="c1"># make sure the event is tweetable</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">can_tweet</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">tweet_content</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">content</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tweepy</span><span class="p">()</span>
+        <span class="n">api</span><span class="o">.</span><span class="n">update_status</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Command.get_tweepy"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.get_tweepy">[docs]</a>    <span class="k">def</span> <span class="nf">get_tweepy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Initialize tweepy API client based on django settings.&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s1">&#39;TWITTER_100YEARS&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">CommandError</span><span class="p">(</span><span class="s1">&#39;Configuration for twitter access not found&#39;</span><span class="p">)</span>
+
+        <span class="n">auth</span> <span class="o">=</span> <span class="n">tweepy</span><span class="o">.</span><span class="n">OAuthHandler</span><span class="p">(</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">TWITTER_100YEARS</span><span class="p">[</span><span class="s1">&#39;API&#39;</span><span class="p">][</span><span class="s1">&#39;key&#39;</span><span class="p">],</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">TWITTER_100YEARS</span><span class="p">[</span><span class="s1">&#39;API&#39;</span><span class="p">][</span><span class="s1">&#39;secret_key&#39;</span><span class="p">])</span>
+        <span class="n">auth</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">TWITTER_100YEARS</span><span class="p">[</span><span class="s1">&#39;ACCESS&#39;</span><span class="p">][</span><span class="s1">&#39;token&#39;</span><span class="p">],</span>
+                              <span class="n">settings</span><span class="o">.</span><span class="n">TWITTER_100YEARS</span><span class="p">[</span><span class="s1">&#39;ACCESS&#39;</span><span class="p">][</span><span class="s1">&#39;secret&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">tweepy</span><span class="o">.</span><span class="n">API</span><span class="p">(</span><span class="n">auth</span><span class="p">)</span></div></div>
+
+<span class="n">tweetable_event_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Subscription&#39;</span><span class="p">,</span> <span class="s1">&#39;Renewal&#39;</span><span class="p">,</span> <span class="s1">&#39;Reimbursement&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;Borrow&#39;</span><span class="p">,</span> <span class="s1">&#39;Purchase&#39;</span><span class="p">,</span> <span class="s1">&#39;Request&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="can_tweet"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.can_tweet">[docs]</a><span class="k">def</span> <span class="nf">can_tweet</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">day</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Check if the event can be tweeted on the specified day&#39;&#39;&#39;</span>
+
+    <span class="c1"># convert to string and compare against partial dates</span>
+    <span class="c1"># to ensure we don&#39;t tweet an event with an unknown date</span>
+    <span class="n">day</span> <span class="o">=</span> <span class="n">day</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="c1"># disallows subscription on start date != purchase</span>
+    <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">event_label</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Subscription&#39;</span><span class="p">,</span> <span class="s1">&#39;Renewal&#39;</span><span class="p">]</span> <span class="ow">and</span> \
+       <span class="n">ev</span><span class="o">.</span><span class="n">subscription</span><span class="o">.</span><span class="n">partial_purchase_date</span> <span class="o">!=</span> <span class="n">day</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="nb">any</span><span class="p">([</span>
+        <span class="c1"># subscription event and date matches purchase</span>
+        <span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">event_label</span> <span class="o">==</span> <span class="s1">&#39;Subscription&#39;</span> <span class="ow">and</span>
+         <span class="n">ev</span><span class="o">.</span><span class="n">subscription</span><span class="o">.</span><span class="n">partial_purchase_date</span> <span class="o">==</span> <span class="n">day</span><span class="p">),</span>
+        <span class="c1"># borrow event and date matches end date</span>
+        <span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">event_label</span> <span class="o">==</span> <span class="s1">&#39;Borrow&#39;</span> <span class="ow">and</span> <span class="n">ev</span><span class="o">.</span><span class="n">partial_end_date</span> <span class="o">==</span> <span class="n">day</span><span class="p">),</span>
+        <span class="c1"># any other tweetable event and date matches start</span>
+        <span class="n">ev</span><span class="o">.</span><span class="n">event_label</span> <span class="ow">in</span> <span class="n">tweetable_event_types</span> <span class="ow">and</span>
+        <span class="n">ev</span><span class="o">.</span><span class="n">partial_start_date</span> <span class="o">==</span> <span class="n">day</span><span class="p">])</span></div>
+
+
+<span class="n">tweet_format</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;verbed&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%(member)s</span><span class="s1"> </span><span class="si">%(verb)s</span><span class="s1"> </span><span class="si">%(work)s%(period)s</span><span class="s1">&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;subscription&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%(member)s</span><span class="s1"> </span><span class="si">%(verb)s</span><span class="s1"> for </span><span class="si">%(duration)s%(volumes)s</span><span class="s1">.&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;reimbursement&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%(member)s</span><span class="s1"> received a reimbursement for &#39;</span> <span class="o">+</span>
+                     <span class="s1">&#39;</span><span class="si">%(amount)s%(currency)s</span><span class="s1">.&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="tweet_content"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.tweet_content">[docs]</a><span class="k">def</span> <span class="nf">tweet_content</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">day</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Generate tweet content for the specified event on the specified</span>
+<span class="sd">    day.&#39;&#39;&#39;</span>
+
+    <span class="c1"># handle multiple members, but use first member for url</span>
+    <span class="n">member</span> <span class="o">=</span> <span class="n">ev</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">day</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">day</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)])</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="c1"># given a partial date</span>
+            <span class="k">return</span>
+
+    <span class="c1"># all tweets start the same way</span>
+    <span class="n">prolog</span> <span class="o">=</span> <span class="s1">&#39;#100YearsAgoToday on </span><span class="si">%s</span><span class="s1"> at Shakespeare and Company, &#39;</span> <span class="o">%</span> \
+        <span class="n">day</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">Command</span><span class="o">.</span><span class="n">date_format</span><span class="p">)</span>
+    <span class="c1"># handle shared accountsr</span>
+    <span class="n">member_name</span> <span class="o">=</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">firstname_last</span>
+                               <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ev</span><span class="o">.</span><span class="n">account</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+    <span class="n">tweet_info</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;member&#39;</span><span class="p">:</span> <span class="n">member_name</span>
+    <span class="p">}</span>
+    <span class="n">event_label</span> <span class="o">=</span> <span class="n">ev</span><span class="o">.</span><span class="n">event_label</span>
+    <span class="n">tweet_pattern</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">event_label</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Subscription&#39;</span><span class="p">,</span> <span class="s1">&#39;Renewal&#39;</span><span class="p">]</span> \
+       <span class="ow">and</span> <span class="n">ev</span><span class="o">.</span><span class="n">subscription</span><span class="o">.</span><span class="n">purchase_date</span> <span class="o">==</span> <span class="n">day</span><span class="p">:</span>
+        <span class="n">tweet_pattern</span> <span class="o">=</span> <span class="s1">&#39;subscription&#39;</span>
+        <span class="n">verb</span> <span class="o">=</span> <span class="s1">&#39;subscribed&#39;</span> <span class="k">if</span> <span class="n">event_label</span> <span class="o">==</span> <span class="s1">&#39;Subscription&#39;</span> <span class="k">else</span> <span class="s1">&#39;renewed&#39;</span>
+        <span class="c1"># renewals include duration</span>
+        <span class="n">tweet_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;verb&#39;</span><span class="p">:</span> <span class="n">verb</span><span class="p">,</span>
+            <span class="s1">&#39;duration&#39;</span><span class="p">:</span> <span class="n">ev</span><span class="o">.</span><span class="n">subscription</span><span class="o">.</span><span class="n">readable_duration</span><span class="p">(),</span>
+            <span class="s1">&#39;volumes&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+        <span class="p">})</span>
+        <span class="c1"># include volume count if known</span>
+        <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">subscription</span><span class="o">.</span><span class="n">volumes</span><span class="p">:</span>
+            <span class="n">tweet_info</span><span class="p">[</span><span class="s1">&#39;volumes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; at </span><span class="si">%d</span><span class="s1"> volume</span><span class="si">%s</span><span class="s1"> per month&#39;</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">subscription</span><span class="o">.</span><span class="n">volumes</span><span class="p">,</span>
+                 <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">subscription</span><span class="o">.</span><span class="n">volumes</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;s&#39;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">event_label</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Borrow&#39;</span><span class="p">,</span> <span class="s1">&#39;Purchase&#39;</span><span class="p">,</span> <span class="s1">&#39;Request&#39;</span><span class="p">]:</span>
+        <span class="n">tweet_pattern</span> <span class="o">=</span> <span class="s1">&#39;verbed&#39;</span>
+        <span class="c1"># convert event type into verb for the sentence</span>
+        <span class="n">verb</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">ed&#39;</span> <span class="o">%</span> <span class="n">ev</span><span class="o">.</span><span class="n">event_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;e&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">event_label</span> <span class="o">==</span> <span class="s1">&#39;Borrow&#39;</span> <span class="ow">and</span> <span class="n">ev</span><span class="o">.</span><span class="n">end_date</span> <span class="o">==</span> <span class="n">day</span><span class="p">:</span>
+            <span class="n">verb</span> <span class="o">=</span> <span class="s1">&#39;returned&#39;</span>
+        <span class="n">work_text</span> <span class="o">=</span> <span class="n">work_label</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">work</span><span class="p">)</span>
+        <span class="n">tweet_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;verb&#39;</span><span class="p">:</span> <span class="n">verb</span><span class="p">,</span>
+            <span class="s1">&#39;work&#39;</span><span class="p">:</span> <span class="n">work_text</span><span class="p">,</span>
+            <span class="c1"># don&#39;t duplicate period inside quotes when no year</span>
+            <span class="s1">&#39;period&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">work_text</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;.&#39;</span> <span class="k">else</span> <span class="s1">&#39;.&#39;</span>
+        <span class="p">})</span>
+
+    <span class="k">elif</span> <span class="n">event_label</span> <span class="o">==</span> <span class="s1">&#39;Reimbursement&#39;</span><span class="p">:</span>
+        <span class="c1"># received a reimbursement for $##</span>
+        <span class="n">tweet_pattern</span> <span class="o">=</span> <span class="s1">&#39;reimbursement&#39;</span>
+        <span class="n">tweet_info</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="n">ev</span><span class="o">.</span><span class="n">reimbursement</span><span class="o">.</span><span class="n">refund</span><span class="p">,</span>
+            <span class="s1">&#39;currency&#39;</span><span class="p">:</span> <span class="n">ev</span><span class="o">.</span><span class="n">reimbursement</span><span class="o">.</span><span class="n">currency_symbol</span><span class="p">()</span>
+        <span class="p">})</span>
+
+    <span class="c1"># if tweet format is set, generate tweet content</span>
+    <span class="k">if</span> <span class="n">tweet_pattern</span><span class="p">:</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">tweet_format</span><span class="p">[</span><span class="n">tweet_pattern</span><span class="p">]</span> <span class="o">%</span> <span class="n">tweet_info</span>
+        <span class="c1"># use card detail url when available</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">card_url</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">ev</span><span class="p">)</span> <span class="ow">or</span> <span class="n">member</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prolog</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">absolutize_url</span><span class="p">(</span><span class="n">url</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="work_label"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.work_label">[docs]</a><span class="k">def</span> <span class="nf">work_label</span><span class="p">(</span><span class="n">work</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Convert a :class:`~mep.accounts.models.Work` for display</span>
+<span class="sd">    in tweet content. Standard formats:</span>
+<span class="sd">        - author’s “title” (year)</span>
+<span class="sd">        - periodical: an issue of “title”</span>
+
+<span class="sd">    Handles multiple authors (and for two, et al. for more), includes</span>
+<span class="sd">    editors if there are no authors. Only include years after 1500.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># indicate issue of periodical based on format</span>
+    <span class="k">if</span> <span class="n">work</span><span class="o">.</span><span class="n">format</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Periodical&#39;</span><span class="p">:</span>
+        <span class="c1"># not including issue details even if known;</span>
+        <span class="c1"># too much variability in format</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;an issue of&#39;</span><span class="p">)</span>
+
+    <span class="n">include_editors</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># include author if known</span>
+    <span class="k">if</span> <span class="n">work</span><span class="o">.</span><span class="n">authors</span><span class="p">:</span>
+        <span class="c1"># handle multiple authors</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">work</span><span class="o">.</span><span class="n">authors</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># one or two: join by and</span>
+            <span class="n">author</span> <span class="o">=</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">work</span><span class="o">.</span><span class="n">authors</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># more than two: first name et al</span>
+            <span class="n">author</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> et al.&#39;</span> <span class="o">%</span> <span class="n">work</span><span class="o">.</span><span class="n">authors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">’s&#39;</span> <span class="o">%</span> <span class="n">author</span><span class="p">)</span>
+
+    <span class="c1"># if no author but editors, we will include editor</span>
+    <span class="k">elif</span> <span class="n">work</span><span class="o">.</span><span class="n">editors</span><span class="p">:</span>
+        <span class="n">include_editors</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># should always have title; use quotes since we can&#39;t italicize</span>
+    <span class="c1"># strip quotes if already present (uncertain title)</span>
+    <span class="c1"># add comma if we will add an editor; add period if no date</span>
+    <span class="n">title_punctuation</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">include_editors</span><span class="p">:</span>
+        <span class="n">title_punctuation</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">work</span><span class="o">.</span><span class="n">year</span> <span class="ow">or</span> <span class="n">work</span><span class="o">.</span><span class="n">year</span> <span class="o">&lt;</span> <span class="mi">1500</span><span class="p">:</span>
+        <span class="n">title_punctuation</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
+
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;“</span><span class="si">%s%s</span><span class="s1">”&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">work</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;“”&#39;</span><span class="p">),</span>
+                 <span class="n">title_punctuation</span><span class="p">))</span>
+
+    <span class="c1"># add editors after title</span>
+    <span class="k">if</span> <span class="n">include_editors</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">work</span><span class="o">.</span><span class="n">editors</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># one or two: join by and</span>
+            <span class="n">editor</span> <span class="o">=</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">ed</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">ed</span> <span class="ow">in</span> <span class="n">work</span><span class="o">.</span><span class="n">editors</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># more than two: first name et al</span>
+            <span class="n">editor</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> et al.&#39;</span> <span class="o">%</span> <span class="n">work</span><span class="o">.</span><span class="n">editors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;edited by </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">editor</span><span class="p">)</span>
+
+    <span class="c1"># include work year if known not before 1500</span>
+    <span class="k">if</span> <span class="n">work</span><span class="o">.</span><span class="n">year</span> <span class="ow">and</span> <span class="n">work</span><span class="o">.</span><span class="n">year</span> <span class="o">&gt;</span> <span class="mi">1500</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">work</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="card_url"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.card_url">[docs]</a><span class="k">def</span> <span class="nf">card_url</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">ev</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Return the member card detail url for the event based on footnote</span>
+<span class="sd">    image, if present.&#39;&#39;&#39;</span>
+    <span class="n">footnote</span> <span class="o">=</span> <span class="n">ev</span><span class="o">.</span><span class="n">footnotes</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">footnote</span> <span class="ow">and</span> <span class="n">footnote</span><span class="o">.</span><span class="n">image</span><span class="p">:</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;people:member-card-detail&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
+                      <span class="s1">&#39;slug&#39;</span><span class="p">:</span> <span class="n">member</span><span class="o">.</span><span class="n">slug</span><span class="p">,</span>
+                      <span class="s1">&#39;short_id&#39;</span><span class="p">:</span> <span class="n">footnote</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">short_id</span><span class="p">})</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">#e</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">ev</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">mep-django</a></h1>
+
+
+
+<p class="blurb">Django web application for Shakespeare & Company Project (Formerly Mapping Expatriate Paris)</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../changelog.html">Change Log</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
