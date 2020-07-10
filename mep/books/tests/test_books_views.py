@@ -9,7 +9,7 @@ from django.urls import reverse
 from parasolr.query.queryset import EmptySolrQuerySet
 import pytest
 
-from mep.books.models import Edition, Work
+from mep.books.models import PastWorkSlug, Work
 from mep.books.views import WorkCirculation, WorkCardList, WorkList
 from mep.common.utils import absolutize_url, login_temporarily_required
 from mep.footnotes.models import Footnote
@@ -376,20 +376,9 @@ class TestWorkDetailView(TestCase):
         # check that markdown is rendered
         self.assertContains(response, '<em>formatted</em>')
 
-    def test_edition_volume_display(self):
-        # fetch a periodical with issue information
-        work = Work.objects.get(title='The Dial')
-        issues = Edition.objects.filter(work=work)
-        url = reverse('books:book-detail', kwargs={'slug': work.slug})
-        response = self.client.get(url)
-        # check that all issues are rendered in a list format
-        self.assertContains(response, '<h2>Volume/Issue</h2>')
-        for issue in issues:
-            self.assertContains(response, issue.display_html())
-
 
 class TestWorkCirculation(TestCase):
-    fixtures = ['test_events.json']
+    fixtures = ['test_events']
 
     def setUp(self):
         self.work = Work.objects.get(title="The Dial")
@@ -449,7 +438,7 @@ class TestWorkCirculation(TestCase):
 
 
 class TestWorkCardList(TestCase):
-    fixtures = ['test_events.json']
+    fixtures = ['test_events']
 
     def setUp(self):
         self.work = Work.objects.get(slug='lonigan-young-manhood')
@@ -539,3 +528,35 @@ class TestWorkCardList(TestCase):
             (reverse('people:member-card-detail',
                      args=[member.slug, work_footnote.image.short_id]),
              work_borrow.pk))
+
+
+class TestPastSlugRedirects(TestCase):
+    fixtures = ['sample_works']
+
+    # short id for first canvas in manifest for stein's card
+    canvas_id = '68fd36f1-a463-441e-9f13-dfc4a6cd4114'
+    kwargs = {'slug': 'stein-gertrude', 'short_id': canvas_id}
+
+    def setUp(self):
+        self.work = Work.objects.get(slug="dial")
+        self.slug = self.work.slug
+        self.old_slug = 'old_slug'
+        PastWorkSlug.objects.create(work=self.work,
+                                    slug=self.old_slug)
+
+    def test_work_detail_pages(self):
+        # single member detail pages that don't require extra args
+        for named_url in ['book-detail', 'book-circ', 'book-card-list']:
+            # old slug should return permanent redirect to equivalent new
+            route = 'books:%s' % named_url
+            response = self.client.get(reverse(route,
+                                       kwargs={'slug': self.old_slug}))
+
+            assert response.status_code == 301  # permanent redirect
+            # redirect to same view with the *correct* slug
+            assert response['location'].endswith(
+                reverse(route, kwargs={'slug': self.slug}))
+
+            # check that it still 404s correctly
+            response = self.client.get(reverse(route, kwargs={'slug': 'foo'}))
+            assert response.status_code == 404

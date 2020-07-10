@@ -867,6 +867,18 @@ class TestSubscription(TestCase):
         assert dur == expect, \
             "Month of February should display as '%s', got '%s'" % (expect, dur)
 
+    def test_total_amount(self):
+        # price paid, no deposit
+        assert self.subscription.total_amount() == 3.20
+
+        # add a deposit amount
+        self.subscription.deposit = 5.70
+        assert self.subscription.total_amount() == 8.90
+
+        # remove price
+        self.subscription.price_paid = None
+        assert self.subscription.total_amount() == 5.70
+
 
 class TestPurchase(TestCase):
 

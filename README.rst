@@ -10,8 +10,6 @@ Python/Django web application for the `Shakespeare and Company Project
 a digital humanities project based on the archives of Sylvia Beach's
 bookstore and lending library in Paris.
 
-For an earlier version of project data, see XML transcriptions of the archival
-materials in the GitHub repository `mapping-expatriate-paris <https://github.com/Princeton-CDH/mapping-expatriate-paris>`_.
 (This project was previously called "Mapping Expatriate Paris" or MEP).
 
 Python 3.5 / Django 1.11 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info
@@ -35,7 +33,7 @@ Python 3.5 / Django 1.11 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info
      :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=master
      :alt: Requirements Status
 
-`Current release documentation <https://princeton-cdh.github.io/mep-django/>`_.
+For specifics on the architecture and code, read `current release documentation <https://princeton-cdh.github.io/mep-django/>`_.
 
 Development instructions
 ------------------------

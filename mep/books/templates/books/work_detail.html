@@ -63,16 +63,5 @@
         <dd class="circ">{{ work.event_years|as_ranges|default:'-' }}</dd>
         </div>
     </dl>
-    {# volume/issue info #}
-    {% if work.edition_set.exists %}
-    <div class="volumes-issues">
-        <h2>Volume/Issue</h2>
-        <ul>
-        {% for edition in work.edition_set.all %}
-        <li>{{ edition.display_html }}</li>
-        {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
 </section>
 {% endblock %}

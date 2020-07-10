@@ -514,6 +514,11 @@ class Subscription(Event, CurrencyMixin):
     readable_duration.short_description = 'Duration'
     readable_duration.admin_order_field = 'duration'
 
+    def total_amount(self):
+        '''total amount paid (price paid + deposit if any)'''
+        # NOTE: using sum to simplify decimal/float issues for zeroes
+        return sum([x for x in (self.price_paid, self.deposit) if x])
+
 
 class Borrow(Event):
     '''Inherited table indicating borrow events'''

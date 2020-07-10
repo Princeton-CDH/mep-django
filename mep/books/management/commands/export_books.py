@@ -34,9 +34,7 @@ class Command(BaseExport):
         [creator.lower() for creator in creator_types] + [
         "year",
         "format",
-        "identified",
-        "work_uri",
-        "edition_uri",
+        "uncertain",
         "ebook_url",
         "volumes_issues",
         "notes",
@@ -76,13 +74,8 @@ class Command(BaseExport):
         if work.work_format:
             data['format'] = work.work_format.name
 
-        # identified: true unless work is marked as uncertain
-        data['identified'] = not work.is_uncertain
+        data['uncertain'] = work.is_uncertain
 
-        if work.uri:
-            data['work_uri'] = work.uri
-        if work.edition_uri:
-            data['edition_uri'] = work.edition_uri
         if work.ebook_url:
             data['ebook_url'] = work.ebook_url
         # text listing of volumes/issues
