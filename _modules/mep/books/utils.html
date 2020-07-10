@@ -63,7 +63,9 @@
     <span class="k">return</span> <span class="n">title_words</span> <span class="ow">or</span> <span class="n">words</span></div>
 
 
-<span class="k">def</span> <span class="nf">creator_lastname</span><span class="p">(</span><span class="n">work</span><span class="p">):</span>
+<div class="viewcode-block" id="creator_lastname"><a class="viewcode-back" href="../../../codedocs.html#mep.books.utils.creator_lastname">[docs]</a><span class="k">def</span> <span class="nf">creator_lastname</span><span class="p">(</span><span class="n">work</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get the lastname of the first creator (first author or first</span>
+<span class="sd">    editor if no authors) on this work.&#39;&#39;&#39;</span>
     <span class="n">creators</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">creator_set</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="n">lastname</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">if</span> <span class="n">creators</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
@@ -77,7 +79,7 @@
             <span class="n">lastname</span> <span class="o">=</span> <span class="n">creator</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">sort_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> \
                                                <span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
-    <span class="k">return</span> <span class="n">lastname</span>
+    <span class="k">return</span> <span class="n">lastname</span></div>
 
 
 <div class="viewcode-block" id="work_slug"><a class="viewcode-back" href="../../../codedocs.html#mep.books.utils.work_slug">[docs]</a><span class="k">def</span> <span class="nf">work_slug</span><span class="p">(</span><span class="n">work</span><span class="p">,</span> <span class="n">max_words</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>

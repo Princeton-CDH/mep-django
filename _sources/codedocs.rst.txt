@@ -46,6 +46,11 @@ Partial Dates
 .. automodule:: mep.accounts.partial_date
     :members:
 
+views
+^^^^^^
+.. automodule:: mep.accounts.views
+    :members:
+
 
 Manage Commands
 ^^^^^^^^^^^^^^^

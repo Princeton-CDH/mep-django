@@ -949,6 +949,59 @@ and returns in format start/end.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="id2">
+<h3>views<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-mep.accounts.views"></span><dl class="py class">
+<dt id="mep.accounts.views.AccountAutocomplete">
+<em class="property">class </em><code class="sig-prename descclassname">mep.accounts.views.</code><code class="sig-name descname">AccountAutocomplete</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/views.html#AccountAutocomplete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.views.AccountAutocomplete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic autocomplete lookup, for use with django-autocomplete-light and
+<a class="reference internal" href="#mep.accounts.models.Account" title="mep.accounts.models.Account"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.accounts.models.Account</span></code></a> in address many-to-many</p>
+<dl class="py method">
+<dt id="mep.accounts.views.AccountAutocomplete.get_queryset">
+<code class="sig-name descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/views.html#AccountAutocomplete.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.views.AccountAutocomplete.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a queryset filtered by query string. Searches on account id,
+people associated with account, and addresses associated with account</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="mep.accounts.views.Twitter100yearsReview">
+<em class="property">class </em><code class="sig-prename descclassname">mep.accounts.views.</code><code class="sig-name descname">Twitter100yearsReview</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/views.html#Twitter100yearsReview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.views.Twitter100yearsReview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Admin view to review upcoming 100 years tweets before they
+are posted on twitter. Finds and displays tweets for events
+in the next three months, using the same logic for generating
+tweet content that the twitter bot manage command uses.</p>
+<dl class="py method">
+<dt id="mep.accounts.views.Twitter100yearsReview.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/views.html#Twitter100yearsReview.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.views.Twitter100yearsReview.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the context for this view.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.views.Twitter100yearsReview.get_date_range">
+<code class="sig-name descname">get_date_range</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/views.html#Twitter100yearsReview.get_date_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.views.Twitter100yearsReview.get_date_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine start and end date for events to review. Start
+100 years before today, end 4 weeks after that.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.views.Twitter100yearsReview.get_queryset">
+<code class="sig-name descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/views.html#Twitter100yearsReview.get_queryset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.views.Twitter100yearsReview.get_queryset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of items for this view.</p>
+<p>The return value must be an iterable and may be an instance of
+<cite>QuerySet</cite> in which case <cite>QuerySet</cite> specific behavior will be enabled.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="mep.accounts.views.Twitter100yearsReview.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#mep.accounts.views.Twitter100yearsReview.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#mep.accounts.models.Event" title="mep.accounts.models.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">mep.accounts.models.Event</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="manage-commands">
 <h3>Manage Commands<a class="headerlink" href="#manage-commands" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="module-mep.accounts.management.commands.report_timegaps">
@@ -980,8 +1033,8 @@ and book (for events linked to books).</p>
 <span id="books"></span><h2>Books<a class="headerlink" href="#module-mep.books" title="Permalink to this headline">¶</a></h2>
 <p>Django app to manage information about titles associated with
 the Sylvia Beach lending library.</p>
-<div class="section" id="id2">
-<h3>Models<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>Models<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <span class="target" id="module-mep.books.models"></span><dl class="py class">
 <dt id="mep.books.models.Creator">
 <em class="property">class </em><code class="sig-prename descclassname">mep.books.models.</code><code class="sig-name descname">Creator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">notes</span></em>, <em class="sig-param"><span class="n">creator_type</span></em>, <em class="sig-param"><span class="n">person</span></em>, <em class="sig-param"><span class="n">work</span></em>, <em class="sig-param"><span class="n">order</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/models.html#Creator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.models.Creator" title="Permalink to this definition">¶</a></dt>
@@ -1491,8 +1544,8 @@ with the corresponding account.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="id3">
-<h3>Views<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>Views<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <span class="target" id="module-mep.books.views"></span><dl class="py class">
 <dt id="mep.books.views.WorkAutocomplete">
 <em class="property">class </em><code class="sig-prename descclassname">mep.books.views.</code><code class="sig-name descname">WorkAutocomplete</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/views.html#WorkAutocomplete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.views.WorkAutocomplete" title="Permalink to this definition">¶</a></dt>
@@ -1730,13 +1783,28 @@ the key is not added to a dictionary.</p>
 If the main view logic raises a 404, looks for a work
 by past slug; if one is found, redirects to the corresponding
 work detail page with the new slug.</p>
+<dl class="py method">
+<dt id="mep.books.views.WorkPastSlugMixin.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/views.html#WorkPastSlugMixin.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.views.WorkPastSlugMixin.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle a 404 on the default GET logic — if the slug matches
+a past slug, redirect to the equivalent url for that work; otherwise
+raise the 404.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
-<div class="section" id="id4">
-<h3>Utils<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3>Utils<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <span class="target" id="module-mep.books.utils"></span><p>Utility methods for generating slugs for works. Used in Work
 model save method and model migration.</p>
+<dl class="py function">
+<dt id="mep.books.utils.creator_lastname">
+<code class="sig-prename descclassname">mep.books.utils.</code><code class="sig-name descname">creator_lastname</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">work</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/utils.html#creator_lastname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.utils.creator_lastname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the lastname of the first creator (first author or first
+editor if no authors) on this work.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt id="mep.books.utils.generate_sort_title">
 <code class="sig-prename descclassname">mep.books.utils.</code><code class="sig-name descname">generate_sort_title</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/books/utils.html#generate_sort_title"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.books.utils.generate_sort_title" title="Permalink to this definition">¶</a></dt>
@@ -1759,8 +1827,8 @@ first editor if no author), and first few non-stopwords in the title.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="id5">
-<h3>Manage Commands<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id6">
+<h3>Manage Commands<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="module-mep.books.management.commands.export_books">
 <span id="export-books"></span><h4>export books<a class="headerlink" href="#module-mep.books.management.commands.export_books" title="Permalink to this headline">¶</a></h4>
 <p>Manage command to export book data for use by others.</p>
@@ -1774,8 +1842,8 @@ and purchases.</p>
 <span id="people"></span><h2>People<a class="headerlink" href="#module-mep.people" title="Permalink to this headline">¶</a></h2>
 <p>Django app to manage information about people associated with
 the Sylvia Beach lending library.</p>
-<div class="section" id="id6">
-<h3>Models<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h3>Models<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <span class="target" id="module-mep.people.models"></span><dl class="py class">
 <dt id="mep.people.models.Country">
 <em class="property">class </em><code class="sig-prename descclassname">mep.people.models.</code><code class="sig-name descname">Country</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/models.html#Country"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.models.Country" title="Permalink to this definition">¶</a></dt>
@@ -2338,8 +2406,8 @@ customize the display of the choices.</p>
 <dd></dd></dl>
 
 </div>
-<div class="section" id="id7">
-<h3>Views<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id8">
+<h3>Views<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <span class="target" id="module-mep.people.views"></span><dl class="py class">
 <dt id="mep.people.views.BorrowingActivities">
 <em class="property">class </em><code class="sig-prename descclassname">mep.people.views.</code><code class="sig-name descname">BorrowingActivities</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/people/views.html#BorrowingActivities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.people.views.BorrowingActivities" title="Permalink to this definition">¶</a></dt>
@@ -3031,8 +3099,8 @@ for place lookup.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="id8">
-<h3>Manage Commands<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id9">
+<h3>Manage Commands<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="module-mep.people.management.commands.export_members">
 <span id="export-members"></span><h4>export members<a class="headerlink" href="#module-mep.people.management.commands.export_members" title="Permalink to this headline">¶</a></h4>
 <p>Manage command to export member data for use by others.</p>
@@ -3045,8 +3113,8 @@ database, with summary details and coordinates for associated addresses.</p>
 <span id="footnotes"></span><h2>Footnotes<a class="headerlink" href="#module-mep.footnotes" title="Permalink to this headline">¶</a></h2>
 <p>Django app for footnotes that can be associated with other content
 anywhere in the project.</p>
-<div class="section" id="id9">
-<h3>Models<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id10">
+<h3>Models<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
 <span class="target" id="module-mep.footnotes.models"></span><dl class="py class">
 <dt id="mep.footnotes.models.Bibliography">
 <em class="property">class </em><code class="sig-prename descclassname">mep.footnotes.models.</code><code class="sig-name descname">Bibliography</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">notes</span></em>, <em class="sig-param"><span class="n">bibliographic_note</span></em>, <em class="sig-param"><span class="n">source_type</span></em>, <em class="sig-param"><span class="n">manifest</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/footnotes/models.html#Bibliography"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.footnotes.models.Bibliography" title="Permalink to this definition">¶</a></dt>
@@ -3325,6 +3393,7 @@ associated with the current footnote queryset.</p>
 <li><a class="reference internal" href="#module-mep.accounts">Accounts</a><ul>
 <li><a class="reference internal" href="#id1">Models</a></li>
 <li><a class="reference internal" href="#module-mep.accounts.partial_date">Partial Dates</a></li>
+<li><a class="reference internal" href="#id2">views</a></li>
 <li><a class="reference internal" href="#manage-commands">Manage Commands</a><ul>
 <li><a class="reference internal" href="#module-mep.accounts.management.commands.report_timegaps">report timegaps</a></li>
 <li><a class="reference internal" href="#module-mep.accounts.management.commands.export_events">export events</a></li>
@@ -3333,29 +3402,29 @@ associated with the current footnote queryset.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-mep.books">Books</a><ul>
-<li><a class="reference internal" href="#id2">Models</a></li>
-<li><a class="reference internal" href="#id3">Views</a></li>
-<li><a class="reference internal" href="#id4">Utils</a></li>
-<li><a class="reference internal" href="#id5">Manage Commands</a><ul>
+<li><a class="reference internal" href="#id3">Models</a></li>
+<li><a class="reference internal" href="#id4">Views</a></li>
+<li><a class="reference internal" href="#id5">Utils</a></li>
+<li><a class="reference internal" href="#id6">Manage Commands</a><ul>
 <li><a class="reference internal" href="#module-mep.books.management.commands.export_books">export books</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-mep.people">People</a><ul>
-<li><a class="reference internal" href="#id6">Models</a></li>
+<li><a class="reference internal" href="#id7">Models</a></li>
 <li><a class="reference internal" href="#module-mep.people.forms">Forms</a></li>
-<li><a class="reference internal" href="#id7">Views</a></li>
+<li><a class="reference internal" href="#id8">Views</a></li>
 <li><a class="reference internal" href="#module-mep.people.geonames">GeoNames</a></li>
 <li><a class="reference internal" href="#module-mep.people.admin">Admin</a></li>
-<li><a class="reference internal" href="#id8">Manage Commands</a><ul>
+<li><a class="reference internal" href="#id9">Manage Commands</a><ul>
 <li><a class="reference internal" href="#module-mep.people.management.commands.export_members">export members</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-mep.footnotes">Footnotes</a><ul>
-<li><a class="reference internal" href="#id9">Models</a></li>
+<li><a class="reference internal" href="#id10">Models</a></li>
 </ul>
 </li>
 </ul>

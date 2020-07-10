@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>mep.accounts.views &#8212; mep-django 1.2.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for mep.accounts.views</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">OrderedDict</span>
+
+<span class="kn">from</span> <span class="nn">dal</span> <span class="k">import</span> <span class="n">autocomplete</span>
+<span class="kn">from</span> <span class="nn">dateutil.relativedelta</span> <span class="k">import</span> <span class="n">relativedelta</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.mixins</span> <span class="k">import</span> <span class="n">LoginRequiredMixin</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="k">import</span> <span class="n">Q</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">ListView</span>
+
+<span class="kn">from</span> <span class="nn">mep.accounts.models</span> <span class="k">import</span> <span class="n">Account</span><span class="p">,</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">mep.accounts.partial_date</span> <span class="k">import</span> <span class="n">DatePrecision</span>
+
+
+<div class="viewcode-block" id="AccountAutocomplete"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.views.AccountAutocomplete">[docs]</a><span class="k">class</span> <span class="nc">AccountAutocomplete</span><span class="p">(</span><span class="n">autocomplete</span><span class="o">.</span><span class="n">Select2QuerySetView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Basic autocomplete lookup, for use with django-autocomplete-light and</span>
+<span class="sd">    :class:`mep.accounts.models.Account` in address many-to-many&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="AccountAutocomplete.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.views.AccountAutocomplete.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get a queryset filtered by query string. Searches on account id,</span>
+<span class="sd">        people associated with account, and addresses associated with account</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="n">Account</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">id__contains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">persons__name__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">persons__mep_id__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">locations__name__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">locations__street_address__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">locations__city__icontains</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Twitter100yearsReview"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.views.Twitter100yearsReview">[docs]</a><span class="k">class</span> <span class="nc">Twitter100yearsReview</span><span class="p">(</span><span class="n">LoginRequiredMixin</span><span class="p">,</span> <span class="n">ListView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Admin view to review upcoming 100 years tweets before they</span>
+<span class="sd">    are posted on twitter. Finds and displays tweets for events</span>
+<span class="sd">    in the next three months, using the same logic for generating</span>
+<span class="sd">    tweet content that the twitter bot manage command uses.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Event</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;accounts/100years_twitter_review.html&#39;</span>
+
+    <span class="n">full_precision</span> <span class="o">=</span> <span class="n">DatePrecision</span><span class="o">.</span><span class="n">year</span> <span class="o">|</span> <span class="n">DatePrecision</span><span class="o">.</span><span class="n">month</span> <span class="o">|</span> \
+        <span class="n">DatePrecision</span><span class="o">.</span><span class="n">day</span>
+
+<div class="viewcode-block" id="Twitter100yearsReview.get_date_range"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.views.Twitter100yearsReview.get_date_range">[docs]</a>    <span class="k">def</span> <span class="nf">get_date_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Determine start and end date for events to review. Start</span>
+<span class="sd">        100 years before today, end 4 weeks after that.&#39;&#39;&#39;</span>
+        <span class="c1"># determine date exactly 100 years earlier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">date_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="o">-</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="c1"># determine end date for tweets to review</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">date_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_start</span> <span class="o">+</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_end</span></div>
+
+<div class="viewcode-block" id="Twitter100yearsReview.get_queryset"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.views.Twitter100yearsReview.get_queryset">[docs]</a>    <span class="k">def</span> <span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">date_start</span><span class="p">,</span> <span class="n">date_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_date_range</span><span class="p">()</span>
+
+        <span class="n">events</span> <span class="o">=</span> <span class="n">Event</span><span class="o">.</span><span class="n">objects</span> \
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">start_date__gte</span><span class="o">=</span><span class="n">date_start</span><span class="p">,</span>
+                      <span class="n">start_date__lte</span><span class="o">=</span><span class="n">date_end</span><span class="p">)</span> <span class="o">|</span>
+                    <span class="n">Q</span><span class="p">(</span><span class="n">subscription__purchase_date__gte</span><span class="o">=</span><span class="n">date_start</span><span class="p">,</span>
+                      <span class="n">subscription__purchase_date__lte</span><span class="o">=</span><span class="n">date_end</span><span class="p">)</span> <span class="o">|</span>
+                    <span class="n">Q</span><span class="p">(</span><span class="n">borrow__isnull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">end_date__gte</span><span class="o">=</span><span class="n">date_start</span><span class="p">,</span>
+                      <span class="n">end_date__lte</span><span class="o">=</span><span class="n">date_end</span><span class="p">))</span> \
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">start_date_precision__isnull</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">|</span>
+                    <span class="n">Q</span><span class="p">(</span><span class="n">start_date_precision</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_precision</span><span class="p">)))</span> \
+            <span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">work__notes__contains</span><span class="o">=</span><span class="s2">&quot;UNCERTAINTYICON&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">events</span></div>
+
+<div class="viewcode-block" id="Twitter100yearsReview.get_context_data"><a class="viewcode-back" href="../../../codedocs.html#mep.accounts.views.Twitter100yearsReview.get_context_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_context_data</span><span class="p">()</span>
+
+        <span class="c1"># construct a dictionary of dates with a list of events,</span>
+        <span class="c1"># to make it easy to display all tweets in order</span>
+        <span class="n">events_by_date</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">event_label</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Subscription&#39;</span><span class="p">,</span> <span class="s1">&#39;Renewal&#39;</span><span class="p">]:</span>
+                <span class="n">events_by_date</span><span class="p">[</span>
+                    <span class="n">ev</span><span class="o">.</span><span class="n">subscription</span><span class="o">.</span><span class="n">partial_purchase_date</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ev</span><span class="o">.</span><span class="n">event_label</span> <span class="o">==</span> <span class="s1">&#39;Borrow&#39;</span><span class="p">:</span>
+                <span class="n">events_by_date</span><span class="p">[</span><span class="n">ev</span><span class="o">.</span><span class="n">partial_start_date</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
+                <span class="n">events_by_date</span><span class="p">[</span><span class="n">ev</span><span class="o">.</span><span class="n">partial_end_date</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">events_by_date</span><span class="p">[</span><span class="n">ev</span><span class="o">.</span><span class="n">partial_start_date</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
+
+        <span class="c1"># could include None for unset dates; remove without error</span>
+        <span class="n">events_by_date</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># convert to a standard dict to avoid problems with django templates;</span>
+        <span class="c1"># sort by date &amp; converted to ordered dict so review will be sequential</span>
+        <span class="c1"># filter out any dates before the current range</span>
+        <span class="n">date_start_iso</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_start</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">date_end_iso</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_end</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">events_by_date</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+            <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">events_by_date</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">events_by_date</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">and</span> <span class="n">date_start_iso</span> <span class="o">&lt;=</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="n">date_end_iso</span><span class="p">])</span>
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;events_by_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">events_by_date</span>
+        <span class="k">return</span> <span class="n">context</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">mep-django</a></h1>
+
+
+
+<p class="blurb">Django web application for Shakespeare & Company Project (Formerly Mapping Expatriate Paris)</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=Princeton-CDH&repo=mep-django&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/Princeton-CDH/mep-django">
+    <img
+        alt="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+        src="https://secure.travis-ci.org/Princeton-CDH/mep-django.svg?branch=master"
+    />
+</a>
+</p>
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://codecov.io/github/Princeton-CDH/mep-django">
+    <img
+    alt="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    src="https://codecov.io/github/Princeton-CDH/mep-django/coverage.svg?branch=master"
+    />
+</a>
+</p>
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedocs.html">Code Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Change Log</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script><div class="powered_by">
+<p>Powered by:</p>
+<a href="http://cdh.princeton.edu/">
+<img src="https://cdh.princeton.edu/static/img/CDH_logo.svg"
+    alt="Center for Digital Humanities @ Princeton" />
+</a>
+</div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Trustees of Princeton University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
