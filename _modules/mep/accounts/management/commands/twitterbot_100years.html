@@ -81,8 +81,10 @@
             <span class="k">except</span> <span class="n">Event</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Error: event </span><span class="si">%(event)s</span><span class="s1"> not found&#39;</span> <span class="o">%</span> <span class="n">kwargs</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">get_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="c1"># find events relative to the specified day if set</span>
+<div class="viewcode-block" id="Command.get_date"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.get_date">[docs]</a>    <span class="k">def</span> <span class="nf">get_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Find events relative to the specified day, if set,</span>
+<span class="sd">        or the date 100 years ago. Overriding the date is only allowed</span>
+<span class="sd">        in **report** mode.&#39;&#39;&#39;</span>
 
         <span class="c1"># only allow overriding date for report</span>
         <span class="k">if</span> <span class="n">date</span> <span class="ow">and</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;report&#39;</span><span class="p">:</span>
@@ -96,7 +98,7 @@
             <span class="c1"># determine date 100 years earlier</span>
             <span class="n">relative_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="o">-</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">relative_date</span>
+        <span class="k">return</span> <span class="n">relative_date</span></div>
 
 <div class="viewcode-block" id="Command.find_events"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.find_events">[docs]</a>    <span class="k">def</span> <span class="nf">find_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Find events 100 years before the current day or</span>
@@ -115,20 +117,21 @@
             <span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">work__notes__contains</span><span class="o">=</span><span class="s2">&quot;UNCERTAINTYICON&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">events</span></div>
 
-    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
-        <span class="c1"># print out the tweets for the specified day</span>
+<div class="viewcode-block" id="Command.report"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Print out the content that would be tweeted on the specified day&#39;&#39;&#39;</span>
         <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_events</span><span class="p">(</span><span class="n">date</span><span class="p">):</span>
             <span class="n">tweet_text</span> <span class="o">=</span> <span class="n">tweet_content</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">tweet_text</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Event id: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ev</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tweet_text</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
     <span class="c1"># times:  9 AM, 12 PM, 1:30 PM, 3 PM, 4:30 PM, 6 PM, 8 PM</span>
     <span class="n">tweet_times</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;9:00&#39;</span><span class="p">,</span> <span class="s1">&#39;12:00&#39;</span><span class="p">,</span> <span class="s1">&#39;13:30&#39;</span><span class="p">,</span> <span class="s1">&#39;15:00&#39;</span><span class="p">,</span> <span class="s1">&#39;16:30&#39;</span><span class="p">,</span> <span class="s1">&#39;18:00&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;20:00&#39;</span><span class="p">]</span>
+                   <span class="s1">&#39;20:00&#39;</span><span class="p">,</span> <span class="s1">&#39;10:15&#39;</span><span class="p">,</span> <span class="s1">&#39;11:30&#39;</span><span class="p">,</span> <span class="s1">&#39;19:00&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+<div class="viewcode-block" id="Command.schedule"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.schedule">[docs]</a>    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Schedule all tweetable events for the specified date.&#39;&#39;&#39;</span>
         <span class="c1"># find all events for today</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">find_events</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
         <span class="c1"># filter out any that can&#39;t be tweeted</span>
@@ -136,7 +139,7 @@
 
         <span class="c1"># schedule the ones that can be tweeted</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ev</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">events</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tweet_at</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tweet_times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tweet_at</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tweet_times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="Command.tweet_at"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.tweet_at">[docs]</a>    <span class="k">def</span> <span class="nf">tweet_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;schedule a tweet for later today&#39;&#39;&#39;</span>
@@ -147,7 +150,8 @@
         <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s1">&#39;/usr/bin/at&#39;</span><span class="p">,</span> <span class="n">time</span><span class="p">],</span> <span class="nb">input</span><span class="o">=</span><span class="n">cmd</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
                        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">tweet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+<div class="viewcode-block" id="Command.tweet"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.tweet">[docs]</a>    <span class="k">def</span> <span class="nf">tweet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Tweet the content for the event on the specified date.&#39;&#39;&#39;</span>
         <span class="c1"># make sure the event is tweetable</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">can_tweet</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
             <span class="k">return</span>
@@ -155,7 +159,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">content</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tweepy</span><span class="p">()</span>
-        <span class="n">api</span><span class="o">.</span><span class="n">update_status</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">api</span><span class="o">.</span><span class="n">update_status</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Command.get_tweepy"><a class="viewcode-back" href="../../../../../codedocs.html#mep.accounts.management.commands.twitterbot_100years.Command.get_tweepy">[docs]</a>    <span class="k">def</span> <span class="nf">get_tweepy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Initialize tweepy API client based on django settings.&#39;&#39;&#39;</span>

@@ -1165,6 +1165,14 @@ a specified day in YYYY-MM-DD format.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="mep.accounts.management.commands.twitterbot_100years.Command.get_date">
+<code class="sig-name descname">get_date</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">date</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command.get_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command.get_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find events relative to the specified day, if set,
+or the date 100 years ago. Overriding the date is only allowed
+in <strong>report</strong> mode.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="mep.accounts.management.commands.twitterbot_100years.Command.get_tweepy">
 <code class="sig-name descname">get_tweepy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command.get_tweepy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command.get_tweepy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize tweepy API client based on django settings.</p>
@@ -1175,6 +1183,24 @@ a specified day in YYYY-MM-DD format.</p>
 <code class="sig-name descname">handle</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command.handle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command.handle" title="Permalink to this definition">¶</a></dt>
 <dd><p>The actual logic of the command. Subclasses must implement
 this method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.twitterbot_100years.Command.report">
+<code class="sig-name descname">report</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">date</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command.report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print out the content that would be tweeted on the specified day</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.twitterbot_100years.Command.schedule">
+<code class="sig-name descname">schedule</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">date</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command.schedule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command.schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Schedule all tweetable events for the specified date.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="mep.accounts.management.commands.twitterbot_100years.Command.tweet">
+<code class="sig-name descname">tweet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="n">date</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mep/accounts/management/commands/twitterbot_100years.html#Command.tweet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mep.accounts.management.commands.twitterbot_100years.Command.tweet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tweet the content for the event on the specified date.</p>
 </dd></dl>
 
 <dl class="py method">
