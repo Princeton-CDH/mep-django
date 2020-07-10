@@ -3,6 +3,15 @@
 Deploy and Upgrade notes
 ========================
 
+1.2
+---
+
+Revised data exports should be generated::
+
+  python manage.py export_members
+  python manage.py export_events
+  python manage.py export_books
+
 1.1.1
 -----
 
