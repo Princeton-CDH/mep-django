@@ -3,6 +3,15 @@
 CHANGELOG
 =========
 
+1.2
+---
+
+* As an admin, when I change work slugs I want past slugs stored and used for redirects on public views so that links for edited works continue to resolve.
+* New manage command to manage and post #100YearsAgoToday tweets, including an admin review page to check tweets before they are posted
+* Revise data export logic in preparation for data publication
+* Remove volume/issue list on individual book bibliography page
+* bugfix: subscription amount on membership activities list only includes price paid, not deposit
+
 1.1.1
 -----
 
@@ -12,7 +21,6 @@ CHANGELOG
 * design fix: line height for names on card gallery view
 * design fix: correctly display irregular size images in card gallery view
 * Added variant event type for periodical subscriptions
-
 
 
 1.1
