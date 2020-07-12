@@ -157,7 +157,7 @@ def can_tweet(ev, day):
 
     return any([
         # subscription event and date matches purchase
-        (ev.event_label == 'Subscription' and
+        (ev.event_label in ['Subscription', 'Renewal'] and
          ev.subscription.partial_purchase_date == day),
         # borrow event and date matches end date
         (ev.event_label == 'Borrow' and ev.partial_end_date == day),
