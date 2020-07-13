@@ -210,8 +210,8 @@ class TestWorkLabel(TestCase):
             "Barry Pain’s “Exit Eliza” (1912)"
 
         # add second author
-        auth2 = Person.objects.create(name='Lara Cain', sort_name='Cain, Lara',
-                                      slug='cain')
+        auth2 = Person.objects.create(name='Ms. Lara Cain',
+                                      sort_name='Cain, Lara', slug='cain')
         author = CreatorType.objects.get(name='Author')
         Creator.objects.create(person=auth2, work=exit_eliza,
                                creator_type=author, order=2)
@@ -233,8 +233,8 @@ class TestWorkLabel(TestCase):
         blue_train = Work.objects.get(pk=5)
 
         # add editor
-        ed1 = Person.objects.create(name='Lara Cain', sort_name='Cain, Lara',
-                                    slug='cain')
+        ed1 = Person.objects.create(name='Ms. Lara Cain',
+                                    sort_name='Cain, Lara', slug='cain')
         editor = CreatorType.objects.get(name='Editor')
         Creator.objects.create(person=ed1, work=blue_train,
                                creator_type=editor, order=1)

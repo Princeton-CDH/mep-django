@@ -191,7 +191,7 @@ def tweet_content(ev, day):
     # all tweets start the same way
     prolog = '#100YearsAgoToday on %s at Shakespeare and Company, ' % \
         day.strftime(Command.date_format)
-    # handle shared accountsr
+    # handle shared accounts
     member_name = ' and '.join(m.firstname_last
                                for m in ev.account.persons.all())
     tweet_info = {
@@ -269,10 +269,10 @@ def work_label(work):
         # handle multiple authors
         if len(work.authors) <= 2:
             # one or two: join by and
-            author = ' and '.join([a.name for a in work.authors])
+            author = ' and '.join([a.firstname_last for a in work.authors])
         else:
             # more than two: first name et al
-            author = '%s et al.' % work.authors[0].name
+            author = '%s et al.' % work.authors[0].firstname_last
         parts.append('%s’s' % author)
 
     # if no author but editors, we will include editor
@@ -295,10 +295,10 @@ def work_label(work):
     if include_editors:
         if len(work.editors) <= 2:
             # one or two: join by and
-            editor = ' and '.join([ed.name for ed in work.editors])
+            editor = ' and '.join([ed.firstname_last for ed in work.editors])
         else:
             # more than two: first name et al
-            editor = '%s et al.' % work.editors[0].name
+            editor = '%s et al.' % work.editors[0].firstname_last
         parts.append('edited by %s' % editor)
 
     # include work year if known not before 1500
