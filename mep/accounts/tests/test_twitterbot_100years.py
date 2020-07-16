@@ -377,7 +377,7 @@ class TestTweetContent(TestCase):
         # purchase date same as start date
         subs.subscription.purchase_date = subs.start_date
         tweet = tweet_content(subs, subs.partial_start_date)
-        assert 'subscribed for 1 month at 2 volumes per month'  \
+        assert 'subscribed for 1 month, 2 volumes at a time'  \
             in tweet
 
     def test_tweet_text_tag(self):

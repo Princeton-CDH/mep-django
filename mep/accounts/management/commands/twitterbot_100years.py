@@ -212,7 +212,7 @@ def tweet_content(ev, day):
         })
         # include volume count if known
         if ev.subscription.volumes:
-            tweet_info['volumes'] = ' at %d volume%s per month' % \
+            tweet_info['volumes'] = ', %d volume%s at a time' % \
                 (ev.subscription.volumes,
                  '' if ev.subscription.volumes == 1 else 's')
 
