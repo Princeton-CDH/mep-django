@@ -3,6 +3,12 @@
 CHANGELOG
 =========
 
+1.2.1
+-----
+
+* Minor adjustments to 100 years tweet format
+* design fix: set citation block to scroll horizontally on overflow (keep long urls from breaking mobile display)
+
 1.2
 ---
 
