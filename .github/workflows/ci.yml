@@ -71,6 +71,7 @@ jobs:
   py-unit:
     name: Python unit tests
     runs-on: ubuntu-latest
+    needs: build-static
     strategy:
       matrix:
         python: [3.5, 3.6, 3.7]
