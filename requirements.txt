@@ -25,3 +25,5 @@ bleach
 django-fullurl
 unidecode
 stop_words
+django-markdownify
+tweepy

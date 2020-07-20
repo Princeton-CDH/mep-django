@@ -31,6 +31,8 @@ def nonstop_words(text):
 
 
 def creator_lastname(work):
+    '''Get the lastname of the first creator (first author or first
+    editor if no authors) on this work.'''
     creators = work.creator_set.all()
     lastname = ''
     if creators.exists():

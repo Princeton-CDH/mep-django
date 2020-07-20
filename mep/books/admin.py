@@ -97,7 +97,8 @@ class WorkAdmin(admin.ModelAdmin):
         }),
         ('Additional metadata', {
             'fields': (
-                'notes', 'public_notes', 'ebook_url', 'mep_id'
+                'notes', 'public_notes', 'ebook_url', 'mep_id',
+                'past_slugs_list'
             )
         }),
         ('OCLC metadata', {
@@ -109,7 +110,7 @@ class WorkAdmin(admin.ModelAdmin):
         })
     )
     readonly_fields = ('mep_id', 'events', 'borrows', 'purchases',
-                       'sort_title')
+                       'sort_title', 'past_slugs_list')
     filter_horizontal = ('genres', 'subjects')
 
     actions = ['export_to_csv']
@@ -118,7 +119,7 @@ class WorkAdmin(admin.ModelAdmin):
         '''Annotate the queryset with the number of events, borrows,
         and purchases for sorting and display.'''
         return super(WorkAdmin, self) \
-            .get_queryset(request).count_events()
+            .get_queryset(request).count_events().order_by('sort_title')
 
     def get_search_results(self, request, queryset, search_term):
         '''Override admin search to use Solr.'''
@@ -244,6 +245,13 @@ class WorkAdmin(admin.ModelAdmin):
                 name='books_work_csv')
         ]
         return urls + super(WorkAdmin, self).get_urls()
+
+    def past_slugs_list(self, instance=None):
+        '''list of previous slugs for this work, for read-only display'''
+        if instance:
+            return ', '.join([p.slug for p in instance.past_slugs.all()])
+    past_slugs_list.short_description = "Past slugs"
+    past_slugs_list.long_description = 'Alternate slugs from edits'
 
 
 class CreatorTypeAdmin(admin.ModelAdmin):

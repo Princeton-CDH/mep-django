@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import re
+
 from cached_property import cached_property
 from dateutil.relativedelta import relativedelta
 from django.contrib.contenttypes.fields import GenericRelation
@@ -169,10 +171,7 @@ class Account(models.Model, EventSetMixin):
         # find all canvas associated with events for this account via footnote
         # (excluding those already in the manifest)
         event_cards = Canvas.objects.exclude(manifest=self.card.manifest) \
-            .filter(
-                models.Q(footnote__events__account__pk=self.pk) |
-                models.Q(footnote__borrows__account__pk=self.pk) |
-                models.Q(footnote__purchases__account__pk=self.pk)) \
+            .filter(footnote__events__account__pk=self.pk) \
             .annotate(priority=models.Value('2', output_field=models.IntegerField())) \
             .distinct()
 
@@ -292,7 +291,7 @@ class Event(Notable, PartialDateMixin):
         help_text='Edition of the work, if known.',
         on_delete=models.deletion.SET_NULL)
 
-    event_footnotes = GenericRelation(Footnote, related_query_name='events')
+    footnotes = GenericRelation(Footnote, related_query_name='events')
 
     objects = EventQuerySet.as_manager()
 
@@ -326,6 +325,30 @@ class Event(Notable, PartialDateMixin):
         if getattr(self, 'purchase', None):
             return 'Purchase'
         return 'Generic'
+
+    #: notation in private notes indicating kind of nonstandard events
+    nonstandard_notation = {
+        'NOTATION: LOAN': 'Loan',
+        'NOTATION: SBGIFT': 'Gift',
+        'NOTATION: BOUGHTFOR': 'Purchase',
+        'NOTATION: SOLDFOR': 'Purchase',
+        'NOTATION: REQUEST': 'Request',
+        'STRIKETHRU': 'Crossed out',
+        'NOTATION: PERIODICALSUBSCRIPTION': 'Periodical Subscription'
+    }
+    re_nonstandard_notation = re.compile(
+        '(%s)' % '|'.join(nonstandard_notation.keys()))
+
+    @cached_property
+    def event_label(self):
+        '''Event type label that includes nonstandard events indicated
+        by notation in private notes as well as all the standard types.'''
+        # NOTE: takes precedence over generic type if it occurs
+        if self.notes:
+            match = re.search(self.re_nonstandard_notation, self.notes)
+            if match:
+                return self.nonstandard_notation[match.group(0)]
+        return self.event_type
 
 
 class SubscriptionType(Named, Notable):
@@ -491,6 +514,11 @@ class Subscription(Event, CurrencyMixin):
     readable_duration.short_description = 'Duration'
     readable_duration.admin_order_field = 'duration'
 
+    def total_amount(self):
+        '''total amount paid (price paid + deposit if any)'''
+        # NOTE: using sum to simplify decimal/float issues for zeroes
+        return sum([x for x in (self.price_paid, self.deposit) if x])
+
 
 class Borrow(Event):
     '''Inherited table indicating borrow events'''
@@ -509,7 +537,6 @@ class Borrow(Event):
         max_length=2, blank=True,
         help_text='Status of borrowed item (bought, missing, returned)',
         choices=STATUS_CHOICES)
-    footnotes = GenericRelation(Footnote, related_query_name='borrows')
 
     def save(self, *args, **kwargs):
         # if end date is set and item status is not, automatically set
@@ -523,7 +550,6 @@ class Purchase(CurrencyMixin, Event):
     '''Inherited table indicating purchase events; extends :class:`Event`'''
     price = models.DecimalField(max_digits=8, decimal_places=2,
                                 blank=True, null=True)
-    footnotes = GenericRelation(Footnote, related_query_name='purchases')
 
     def date(self):
         '''alias of :attr:`date_range` for display; since reimbersument

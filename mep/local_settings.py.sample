@@ -132,3 +132,15 @@ LOGGING = {
 # use 'test' or 'qa' for QA and 'prod' or 'production' for production
 # https://support.google.com/analytics/answer/2709828
 # GTAGS_ANALYTICS_ENV = ''
+
+# secret settings for twitter api access 100 years twitter account
+TWITTER_100YEARS = {
+    'API': {
+        'key': '',
+        'secret_key': ''
+    },
+    'ACCESS': {
+        'token': '',
+        'secret': '',
+    }
+}

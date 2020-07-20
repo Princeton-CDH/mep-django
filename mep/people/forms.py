@@ -73,6 +73,7 @@ class MemberSearchForm(RangeForm, FacetForm):
                             widget=RangeWidget(attrs={'size': 4}))
     nationality = FacetChoiceField(
         label='Nationality', hide_threshold=0,
+        none_val='Unidentified',
         widget=CheckboxFieldset(attrs={
             'class': 'text facet',
             'aria-describedby': 'nationality-info'

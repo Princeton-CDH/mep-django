@@ -104,13 +104,14 @@
         }
     }
 
+    // nationality facet info link
     #nationality-info {
-        z-index: 1;
         position: absolute;
         left: 4.75rem;
         top: 0;
 
         @media (min-width: $breakpoint-s) {
+            z-index: 1;
             top: -0.5rem;
         }
 

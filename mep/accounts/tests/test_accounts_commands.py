@@ -18,12 +18,14 @@ from django.test import TestCase
 
 from djiffy.models import Canvas, Manifest
 
-from mep.accounts.management.commands import import_figgy_cards, \
-    report_timegaps, export_events
+from mep.accounts.management.commands import export_events, \
+    import_figgy_cards, report_timegaps
 from mep.accounts.models import Account, Borrow, Event
+from mep.books.models import Creator, CreatorType
 from mep.common.management.export import StreamArray
 from mep.common.utils import absolutize_url
 from mep.footnotes.models import Bibliography, Footnote
+from mep.people.models import Person
 
 
 class TestReportTimegaps(TestCase):
@@ -417,7 +419,7 @@ class TestExportEvents(TestCase):
         member_info = self.cmd.member_info(event)
         assert member_info['sort_names'][0] == person.sort_name
         assert member_info['names'][0] == person.name
-        assert member_info['URIs'][0] == \
+        assert member_info['uris'][0] == \
             absolutize_url(person.get_absolute_url())
 
         # event with two members; fixture includes Edel joint account
@@ -426,7 +428,7 @@ class TestExportEvents(TestCase):
 
         member_info = self.cmd.member_info(event)
         # each field should have two values
-        for field in ('sort_names', 'names', 'URIs'):
+        for field in ('sort_names', 'names', 'uris'):
             assert len(member_info[field]) == 2
 
         # test event with account but no person
@@ -442,10 +444,9 @@ class TestExportEvents(TestCase):
             .first()
         subs = event.subscription
         info = self.cmd.subscription_info(event)
-        assert info['price_paid'] == '%s%.2f' % (subs.currency_symbol(),
-                                                 subs.price_paid)
+        assert info['price_paid'] == '%.2f' % subs.price_paid
         # test event has no deposit amount
-        assert info['deposit'] == '%s0.00' % subs.currency_symbol()
+        assert 'deposit' not in info
         assert info['duration'] == subs.readable_duration()
         assert info['duration_days'] == subs.duration
         assert info['volumes'] == subs.volumes
@@ -482,7 +483,9 @@ class TestExportEvents(TestCase):
         info = self.cmd.item_info(event)
         assert info['title'] == event.work.title
         assert info['uri'] == absolutize_url(event.work.get_absolute_url())
-        assert info['work_uri'] == event.work.uri
+        assert 'work_uri' not in info  # no longer included
+        assert 'authors' not in info   # not on this record
+        assert info['year'] == event.work.year
         assert info['notes'] == event.work.public_notes
         assert 'volume' not in info
 
@@ -503,14 +506,40 @@ class TestExportEvents(TestCase):
         event = Event.objects.filter(work__isnull=True).first()
         assert not self.cmd.item_info(event)
 
+        # work with author
+        event = Event.objects.filter(work__isnull=False).first()
+        author1 = Person.objects.create(name='Smith', slug='s')
+        author2 = Person.objects.create(name='Jones', slug='j')
+        author_type = CreatorType.objects.get(name='Author')
+        Creator.objects.create(
+            creator_type=author_type, person=author1, work=event.work)
+        Creator.objects.create(
+            creator_type=author_type, person=author2, work=event.work)
+
+        info = self.cmd.item_info(event)
+        assert info['authors'] == [a.sort_name for a in event.work.authors]
+
     def test_source_info(self):
         # footnote
-        event = Event.objects.filter(event_footnotes__isnull=False).first()
-        footnote = event.event_footnotes.first()
+        event = Event.objects.filter(footnotes__isnull=False).first()
+        footnote = event.footnotes.first()
         info = self.cmd.source_info(footnote)
         assert info['citation'] == footnote.bibliography.bibliographic_note
         assert info['manifest'] == footnote.bibliography.manifest.uri
         assert info['image'] == str(footnote.image.image)
+
+    def test_get_object_data(self):
+        # get a subscription with no subcategory and both dates
+        event = Event.objects.filter(
+            subscription__isnull=False,
+            start_date__isnull=False, end_date__isnull=False,
+            subscription__category__isnull=True) \
+            .first()
+        data = self.cmd.get_object_data(event)
+        assert data['event_type'] == event.event_label
+        assert data['currency'] == 'FRF'
+        assert 'member' in data
+        assert 'subscription' in data
 
     def test_command_line(self):
         # test calling via command line with args

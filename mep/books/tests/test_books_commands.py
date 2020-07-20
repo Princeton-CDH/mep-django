@@ -391,8 +391,8 @@ class TestExportBooks(TestCase):
         assert data['title'] == exit_e.title
         assert data['year'] == exit_e.year
         assert data['format'] == exit_e.work_format.name
-        assert data['identified']  # not marked uncertain
-        assert data['work_uri'] == exit_e.uri
+        assert not data['uncertain']  # not marked uncertain
+        assert 'work_uri' not in data
         assert 'author' in data
         # missing data should not be in the dict
         for field in ['edition uri', 'ebook url', 'volumes/issues']:
@@ -408,9 +408,10 @@ class TestExportBooks(TestCase):
         dial = Work.objects.count_events().get(slug='dial')
         data = self.cmd.get_object_data(dial)
         assert 'year' not in data
-        assert data['edition_uri'] == dial.edition_uri
+        assert 'edition_uri' not in data
         assert data['ebook_url'] == dial.ebook_url
         assert 'volumes_issues' in data
+        assert data['format'] == dial.work_format.name
         for vol in dial.edition_set.all():
             assert vol.display_text() in data['volumes_issues']
         assert data['circulation_years'] == [1936]

@@ -3,6 +3,60 @@
 CHANGELOG
 =========
 
+1.2.1
+-----
+
+* Minor adjustments to 100 years tweet format
+* design fix: set citation block to scroll horizontally on overflow (keep long urls from breaking mobile display)
+
+1.2
+---
+
+* As an admin, when I change work slugs I want past slugs stored and used for redirects on public views so that links for edited works continue to resolve.
+* New manage command to manage and post #100YearsAgoToday tweets, including an admin review page to check tweets before they are posted
+* Revise data export logic in preparation for data publication
+* Remove volume/issue list on individual book bibliography page
+* bugfix: subscription amount on membership activities list only includes price paid, not deposit
+
+1.1.1
+-----
+
+* bugfix: event footnotes can be edited in different places in django admin, which makes it easy to end up with duplicate footnotes
+* bugfix: book search is over-emphasizing stopwords, especially in author names
+* bugfix: Editions now sort on volume in numerical order after date
+* design fix: line height for names on card gallery view
+* design fix: correctly display irregular size images in card gallery view
+* Added variant event type for periodical subscriptions
+
+
+1.1
+---
+
+* As a user, I want to see larger size card images so that I can look at cards in more detail and decipher difficult handwriting.
+* As a user, I want to see circulation information on book search and detail pages so I understand how much and when a book circulated.
+* As a user, I want to see event labels for non-standard book events in the borrowing activity table and event data download so I know what the data represents.
+* As a content editor, I want to add basic formatting to public notes so that I can differentiate titles from authors and dates.
+* As a user I want to see addresses on member maps with arrondissements instead of postal codes, so that I see them in an historically accurate format.
+* As a user, I want to filter on members with "Unidentified" nationality so I can see how many members do not have nationality documented and can find them.
+* Match searches for author and member initials with and without spaces
+
+other improvements
+~~~~~~~~~~~~~~~~~~
+* bugfix: arrondissement facet counts on member page never change
+* bugfix: atypical card images are displayed incorrectly
+* bugfix: display both names for joint accuonts on book circulation lists
+* bugfix: member data export does not include postal code / arrondissement
+* bugfix: member search results have blank aria-label
+* bugfix: empty facets result in a 500 error on member search page
+* accessibility: leaflet maps are scroll traps
+* accessibiity: missing heading for home page
+* design fix: correct placement for nationality link icon
+* design fix: link styles for icons on the card gallery and card image viewer pages
+* design fix: correct pacing for public notes on book pages
+* design fix: make all the link styles 2px wide
+* design fix: Breadcrumbs should show current page unless 4th level deep
+* design fix: improve mobile display for borrowing and circulation activity pages
+
 1.0.1
 -----
 
@@ -30,6 +84,7 @@ This release makes the Books section available.
 * bugfix: result counters on search pages reset after page
 
 Various improvements
+~~~~~~~~~~~~~~~~~~~~
 * XML sitemaps for member and book pages
 * Last modified headers and conditional processing for member and book pages
 * Better preview titles and descriptions in page metadata

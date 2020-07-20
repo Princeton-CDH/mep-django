@@ -5,6 +5,8 @@
     // italicize titles in edition info
     .edition em { font-style: italic; }
 
+    .member a { display: block; }
+
     // mobile styles
     @media (max-width: calc(#{$breakpoint-s} - 1px)) {
 
@@ -25,7 +27,7 @@
             padding-right: 50%;
         }
 
-        .edition {
+        .edition { // removed from flow; always at right of card
             position: absolute;
             right: 1rem;
             top: 1rem;
@@ -47,6 +49,7 @@
 
             .start:not(.empty) + .end:not(.empty)::before {
                 content: '';
+                display: none;
             }
         }
     }

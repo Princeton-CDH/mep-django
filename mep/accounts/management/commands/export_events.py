@@ -26,7 +26,7 @@ class Command(BaseExport):
     csv_fields = [
         'event_type',
         'start_date', 'end_date',
-        'member_sort_names', 'member_names', 'member_URIs',
+        'member_uris', 'member_names', 'member_sort_names',
         # subscription specific
         'subscription_price_paid', 'subscription_deposit',
         'subscription_duration', 'subscription_duration_days',
@@ -38,9 +38,11 @@ class Command(BaseExport):
         'borrow_status',
         # purchase specific
         'purchase_price',
+        # currency applies to purchase, borrow, and subscription
+        'currency',
         # related book/item
-        'item_uri', 'item_title', 'item_work_uri', 'item_volume',
-        'item_notes',
+        'item_uri', 'item_title', 'item_volume', 'item_authors',
+        'item_year', 'item_notes',
         # footnote/citation
         'source_citation', 'source_manifest', 'source_image'
     ]
@@ -58,7 +60,8 @@ class Command(BaseExport):
          :class:`~mep.accounts.models.Event`'''
         event_type = obj.event_type
         data = OrderedDict([
-            ('event_type', event_type),
+            # use event label instead of type for more detail on some generics
+            ('event_type', obj.event_label),
             ('start_date', obj.partial_start_date or ''),
             ('end_date', obj.partial_end_date or ''),
             ('member', OrderedDict()),
@@ -69,37 +72,38 @@ class Command(BaseExport):
 
         # variable to store footnote reference, if any
         footnote = None
+        currency = None
 
         # subscription-specific data
         if event_type in ['Subscription', 'Supplement', 'Renewal']:
             data['subscription'] = self.subscription_info(obj)
+            currency = obj.subscription.currency
 
         # reimbursement data
         elif event_type in 'Reimbursement' and obj.reimbursement.refund:
             data['reimbursement'] = {
-                'refund': '%s%.2f' %
-                          (obj.reimbursement.currency_symbol(),
-                           obj.reimbursement.refund)
+                'refund': '%.2f' % obj.reimbursement.refund
             }
+            currency = obj.reimbursement.currency
 
         # borrow data
         elif event_type == 'Borrow':
             data['borrow'] = {
                 'status': obj.borrow.get_item_status_display()
             }
-            # capture a footnote if there is one
-            footnote = obj.borrow.footnotes.first()
 
         # purchase data
         elif event_type == 'Purchase' and obj.purchase.price:
             data['purchase'] = {
-                'price': '%s%.2f' %
-                         (obj.purchase.currency_symbol(), obj.purchase.price)
+                'price': '%.2f' % obj.purchase.price
             }
-            footnote = obj.purchase.footnotes.first()
+            currency = obj.purchase.currency
 
-        # check for footnote on the generic event if one was not already found
-        footnote = footnote or obj.event_footnotes.first()
+        if currency:
+            data['currency'] = currency
+
+        # footnote should always be attached to the base event
+        footnote = obj.footnotes.first()
 
         item_info = self.item_info(obj)
         if item_info:
@@ -116,9 +120,9 @@ class Command(BaseExport):
             return
 
         return OrderedDict([
-            ('sort_names', [m.sort_name for m in members]),
+            ('uris', [absolutize_url(m.get_absolute_url()) for m in members]),
             ('names', [m.name for m in members]),
-            ('URIs', [absolutize_url(m.get_absolute_url()) for m in members])
+            ('sort_names', [m.sort_name for m in members])
         ])
 
     def subscription_info(self, event):
@@ -129,12 +133,12 @@ class Command(BaseExport):
         except ObjectDoesNotExist:
             return
 
-        info = OrderedDict([
-            ('price_paid', '%s%.2f' % (subs.currency_symbol(),
-                                       subs.price_paid or 0)),
-            ('deposit', '%s%.2f' % (subs.currency_symbol(),
-                                    subs.deposit or 0))
-        ])
+        info = OrderedDict()
+        if subs.price_paid:
+            info['price_paid'] = '%.2f' % subs.price_paid
+        if subs.deposit:
+            info['deposit'] = '%.2f' % subs.deposit
+
         if subs.duration:
             info['duration'] = subs.readable_duration()
             info['duration_days'] = subs.duration
@@ -155,8 +159,11 @@ class Command(BaseExport):
             ])
             if event.edition:
                 item_info['volume'] = event.edition.display_text()
-            if event.work.uri:
-                item_info['work_uri'] = event.work.uri
+            if event.work.authors:
+                item_info['authors'] = [a.sort_name
+                                        for a in event.work.authors]
+            if event.work.year:
+                item_info['year'] = event.work.year
             if event.work.public_notes:
                 item_info['notes'] = event.work.public_notes
 

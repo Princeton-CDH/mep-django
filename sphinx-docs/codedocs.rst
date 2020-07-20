@@ -46,6 +46,11 @@ Partial Dates
 .. automodule:: mep.accounts.partial_date
     :members:
 
+views
+^^^^^^
+.. automodule:: mep.accounts.views
+    :members:
+
 
 Manage Commands
 ^^^^^^^^^^^^^^^
@@ -54,11 +59,19 @@ report timegaps
 ~~~~~~~~~~~~~~~
 
 .. automodule:: mep.accounts.management.commands.report_timegaps
+    :members:
 
 export events
 ~~~~~~~~~~~~~
 
 .. automodule:: mep.accounts.management.commands.export_events
+    :members:
+
+twitterbot 100years
+~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: mep.accounts.management.commands.twitterbot_100years
+    :members:
 
 
 Books

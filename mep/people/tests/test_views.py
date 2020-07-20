@@ -873,7 +873,7 @@ class TestMembersListView(TestCase):
         mock_qs.facet_field.assert_any_call(
             'gender', missing=True, exclude='gender')
         mock_qs.facet_field.assert_any_call(
-            'nationality', exclude='nationality', sort='value')
+            'nationality', exclude='nationality', sort='value', missing=True)
         mock_qs.facet_field.assert_any_call(
             'arrondissement', exclude='arrondissement', sort='value')
         # search and raw query not called without keyword search term
@@ -938,7 +938,7 @@ class TestMembersListView(TestCase):
         })
         del view._form
         sqs = view.get_queryset()
-        mock_qs.filter.assert_any_call(nationality__in=['"France"'],
+        mock_qs.filter.assert_any_call(nationality__in=['France'],
                                        tag='nationality')
 
         # filter on arrondissement
@@ -1083,7 +1083,8 @@ class TestMemberDetailView(TestCase):
         response = self.client.get(url)
         assert response.status_code == 200
         # library address is rendered as "null"
-        self.assertContains(response,
+        self.assertContains(
+            response,
             '<script id="library-address" type="application/json">null</script>')
 
     def test_get_non_member(self):
@@ -1092,6 +1093,15 @@ class TestMemberDetailView(TestCase):
         response = self.client.get(url)
         assert response.status_code == 404, \
             'non-members should not have a detail page'
+
+    def test_markdown_notes(self):
+        gay = Person.objects.get(name='Francisque Gay', slug='gay')
+        gay.public_notes = 'some *formatted* content'
+        gay.save()
+        url = reverse('people:member-detail', kwargs={'slug': gay.slug})
+        response = self.client.get(url)
+        # check that markdown is rendered
+        self.assertContains(response, '<em>formatted</em>')
 
 
 class TestPastSlugRedirects(TestCase):
@@ -1240,7 +1250,8 @@ class TestMembershipActivities(TestCase):
             response, 'data-sort="%s"' % subs.partial_start_date)
         self.assertContains(
             response, 'data-sort="%s"' % subs.partial_end_date)
-        self.assertContains(response, subs.price_paid)
+        self.assertContains(response, subs.total_amount())
+        # print(response.content)
         self.assertContains(response, subs.currency_symbol())
         self.assertContains(response, 'Reimbursement')
         reimburse = self.events['reimbursement']
@@ -1683,9 +1694,6 @@ class TestMemberCardDetail(TestCase):
         self.assertContains(response, '<li class="card active">')
         # descriptive alt for current card
         self.assertContains(response, 'alt="Gertrude Stein 1921 card"')
-        # current card/total counter is rendered
-        self.assertContains(response, '2<span aria-label="of">/</span>4',
-                            html=True)
 
         # cards nav
         for i, card in enumerate(context['cards'].all()):

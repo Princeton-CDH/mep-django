@@ -3,6 +3,51 @@
 Deploy and Upgrade notes
 ========================
 
+1.2
+---
+
+* Revised data exports should be generated::
+
+  python manage.py export_members
+  python manage.py export_events
+  python manage.py export_books
+
+* To use the new 100 years twitterbot code, you must configure
+  **TWITTER_100YEARS** in ``localsettings.py`` with Twitter API and
+  access credentials for the account where tweets should be posted, and
+  run the `twitterbot_100years` manage command in `schedule` mode
+  as a daily cron job every morning before 9am::
+
+    python twitterbot_100years schedule
+
+
+1.1.1
+-----
+
+* Includes Solr configuration changes to address a stopword search problem
+  on the book search. Copy all files under `solr_conf/conf/`
+  to the configured Solr configset and restart Solr to ensure the managed schema is
+  loaded. Then update the schema and reindex::
+
+    python manage.py solr_schema
+    python manage.py index
+
+1.1
+---
+
+* Includes updates to Solr managed schema. Copy all files under `solr_conf/conf/`
+  to the configured Solr configset and restart Solr to ensure the managed schema is
+  loaded. Then update the schema and reindex::
+
+    python manage.py solr_schema
+    python manage.py index
+
+* The migration to calculate purchase dates and adjust start dates for
+  subscription renewals has been revised and should be re-run::
+
+    python manage.py migrate accounts 0032
+    python manage.py migrate accounts
+
 1.0
 ---
 

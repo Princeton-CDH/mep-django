@@ -180,10 +180,14 @@
 
 // adds missing card icon as a background image; sizes must be set in context
 @mixin missing-card-image {
-    background-image: url('/static/img/icons/missing-card.svg');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100% 100%;
     color: transparent;  /* hide alt text */
-    display: block;
+    overflow: hidden;
+    &::before {
+        content: " ";
+        background-image: url('/static/img/icons/missing-card.svg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 100% 100%;
+        display: block;
+    }
 }

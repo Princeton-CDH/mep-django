@@ -70,7 +70,9 @@ $card-width: 11.25rem;
 
     picture {
         display: block;
-        height: 15.75rem;
+        @media (min-width: $breakpoint-s) {
+            height: 15.75rem;
+        }
     }
 
     img, source {
@@ -80,10 +82,14 @@ $card-width: 11.25rem;
 
     img {
         /* sized for fallback image display */
-        min-height: 13.25rem;
-        min-width: 11rem;
         width: 11rem;
+        height: auto;
         @include missing-card-image;
+
+        &::before {
+            min-height: 13.25rem;
+            min-width: 11rem;
+        }
     }
 
     dl {
@@ -98,11 +104,14 @@ $card-width: 11.25rem;
     dd.name {
         font-family: $serif;
         font-size: 1.2rem;
+        padding-bottom: 0.1rem;
+        line-height: 1.17;
     }
 
     dd.card-dates {
         font-family: $sans;
         font-size: 0.82rem;
+        margin-top: 0.15rem;
     }
     .card-dates.unknown  {
         color: $mid-grey;
@@ -139,27 +148,33 @@ $card-width: 11.25rem;
 
     a {
         margin-left: 0.75rem;
-        border-color: $transparent-pale-teal;
         display: inline-block;  /* required to center PUL logo */
-        font-size: 0;    /* avoid extra vertical space */
+        font-size: 0;           /* avoid extra vertical space */
+        border-bottom: 2px solid $green;
 
         @media (max-width: $breakpoint-s) {
             margin-left: 0.5rem;
         }
 
         &:hover, &:focus  {
+            border-bottom-color: $dark-green;
+
             img {
                 opacity: 1;
             }
         }
 
-
+        .logo {
+            &:hover, a:focus & {
+                filter: grayscale(100%) brightness(60%);
+            }
+        }
     }
 
     img {
         height: 1rem;
         opacity: 0.5;
-        margin-bottom: 5px;
+        padding-bottom: 5px;
 
         /* slightly smaller on card image viewer */
         @media (max-width: $breakpoint-s) {
@@ -170,14 +185,9 @@ $card-width: 11.25rem;
             height: 1.25rem;
             filter: grayscale(100%) brightness(30%);
 
-            &:hover, a:focus & {
-                filter: grayscale(100%) brightness(60%);
-            }
-
             @media (max-width: $breakpoint-s) {
                 height: 1rem;
             }
-
         }
     }
 }
