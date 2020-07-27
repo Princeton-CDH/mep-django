@@ -217,8 +217,10 @@ SCRIPT_USERNAME = 'script'
 # fallback for all protocols: block it
 CSP_DEFAULT_SRC = "'none'"
 
-# allow loading js locally and from google (for analytics)
-CSP_SCRIPT_SRC = ("'self'", 'www.googletagmanager.com', '*.google-analytics.com')
+# allow loading js locally, from google (for analytics), and
+# nytimes github (for svg crowbar)
+CSP_SCRIPT_SRC = ("'self'", 'www.googletagmanager.com',
+                  '*.google-analytics.com', 'nytimes.github.io')
 
 # allow loading fonts locally only
 CSP_FONT_SRC = ("'self'",)
