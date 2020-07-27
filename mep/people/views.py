@@ -3,7 +3,8 @@ from collections import OrderedDict, defaultdict
 from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, \
+    PermissionRequiredMixin
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.paginator import Paginator
@@ -22,9 +23,8 @@ from mep.accounts.models import Address, Event
 from mep.accounts.templatetags.account_tags import as_ranges
 from mep.common import SCHEMA_ORG
 from mep.common.utils import absolutize_url, alpha_pagelabels
-from mep.common.views import (AjaxTemplateMixin, FacetJSONMixin,
-                              LabeledPagesMixin, SolrLastModifiedMixin,
-                              LoginRequiredOr404Mixin, RdfViewMixin)
+from mep.common.views import AjaxTemplateMixin, FacetJSONMixin, \
+    LabeledPagesMixin, RdfViewMixin, SolrLastModifiedMixin
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
@@ -628,7 +628,7 @@ class MemberCardDetail(MemberPastSlugMixin, MemberLastModifiedListMixin,
         return context
 
 
-class MembershipGraphs(LoginRequiredOr404Mixin, TemplateView):
+class MembershipGraphs(LoginRequiredMixin, TemplateView):
     model = Person
     template_name = 'people/member_graphs.html'
 
