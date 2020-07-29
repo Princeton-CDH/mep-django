@@ -24,7 +24,8 @@ const bookstoreDates = {
     end: new Date(1942, 12, 31)
 }
 
-const svgheight = 280;
+const svgHeight = 280;
+const chartHeight = 260;
 
 const x = d3.scaleTime()
     // whole timeline
@@ -57,14 +58,17 @@ function drawMembershipGraph(el: HTMLDivElement) {
         .attr('aria-label', 'Chart: Membership Graph')
         .attr('role', 'img')
 
-    svg.append("g")
+    const chart = svg.append("g")
         .attr("transform", "translate(10,30)")
+
+    chart.append("g")
+        .attr('id', 'x-axis-ticks')
         .call(xAxis)
         .call(g => g.selectAll(".tick line")
             .attr("stroke", '#231F20')
             .attr("stroke-width", '0.25')
             .attr('stroke-dasharray', '2,2')
-            .attr("y2", 250)
+            .attr("y2", chartHeight)
             .attr("y1", 0))
         // remove domain path automatically added by d3 axis
         .call(g => g.select(".domain").remove())
@@ -74,22 +78,23 @@ function drawMembershipGraph(el: HTMLDivElement) {
     });
 
     const y = d3.scaleLinear()
-      .domain([maxCount, 0])
-      .range([0, 280]);
+      .domain([0, maxCount + 10])   // with current data, +10 gets us to ~250
+      .range([chartHeight, 0]);
 
     const yAxis = d3.axisRight(y)
       .ticks(5)
       .tickSize(0);
 
-
-    svg.append("g")
+    chart.append("g")
+        .attr('id', 'chart')
         .call(yAxis)
-      // remove domain path automatically added by d3 axis
-      .call(g => g.select(".domain").remove())
+          // remove domain path automatically added by d3 axis
+          .call(g => g.select(".domain").remove())
+        .attr("transform", "translate(-10,0)")
+        .attr('id', 'y-axis')
 
     if (dataSeries && dataSeries.includes('borrows')) {
-        svg.append('g')
-            .attr("transform", "translate(10,0)")
+        chart.append('g')
             .attr('class', 'borrowing-bars')
           .selectAll('bar')
           .data(membershipData.cards.filter(event => (new Date(event.startDate) < bookstoreDates.end)))
@@ -100,21 +105,20 @@ function drawMembershipGraph(el: HTMLDivElement) {
                               return x(new Date(d.startDate))
                              })
                             .attr('y', function (d) {
-                                return svgheight - d.count
+                                return y(d.count)
                             })
                             .attr("fill", color.borrows)
                             .attr("opacity", "0.8")
                             .attr("width", 2.35)
                             .attr("height",function (d) {
-                                return d.count
+                                return chartHeight - y(d.count)
                          })
             )
       }
 
     if (dataSeries && dataSeries.includes('subscriptions')) {
-        svg.append('g')
+        chart.append('g')
             .attr('class', 'subscription-bars')
-            .attr("transform", "translate(10,0)")
           .selectAll('bar')
           .data(membershipData.logbooks)
           .join(
@@ -124,21 +128,20 @@ function drawMembershipGraph(el: HTMLDivElement) {
                       return x(new Date(d.startDate))
                      })
                     .attr('y', function (d) {
-                        return svgheight - d.count
+                        return y(d.count)
                     })
                     .attr("fill", color.subscriptions)
                     .attr("opacity", "0.2")
                     .attr("width", 2.35)
                     .attr("height",function (d) {
-                        return d.count
+                        return chartHeight - y(d.count)
                 })
           )
     }
 
     if (dataSeries && dataSeries.includes('members')) {
-        svg.append('g')
+        chart.append('g')
             .attr('class', 'member-bars')
-            .attr("transform", "translate(10,0)")
           .selectAll('bar')
           .data(membershipData.members)
           .join(
@@ -148,13 +151,13 @@ function drawMembershipGraph(el: HTMLDivElement) {
                       return x(new Date(d.startDate))
                      })
                     .attr('y', function (d) {
-                        return svgheight - d.count
+                        return y(d.count)
                     })
                     .attr("fill", color.members)
                     .attr("opacity", "0.2")
                     .attr("width", 2.35)
                     .attr("height",function (d) {
-                        return d.count
+                        return chartHeight - y(d.count)
                      })
             )
     }
