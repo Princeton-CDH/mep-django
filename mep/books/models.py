@@ -469,7 +469,17 @@ class Work(TrackChangesModel, Notable, ModelIndexable, EventSetMixin):
         'accounts.Event': {
             'post_save': WorkSignalHandlers.event_save,
             'pre_delete': WorkSignalHandlers.event_delete,
-        }
+        },
+        # unfortunately the generic event signals aren't fired
+        # when subclass types are edited directly, so bind the same signal
+        'accounts.Borrow': {
+            'post_save': WorkSignalHandlers.event_save,
+            'pre_delete': WorkSignalHandlers.event_delete,
+        },
+        'accounts.Purchase': {
+            'post_save': WorkSignalHandlers.event_save,
+            'pre_delete': WorkSignalHandlers.event_delete,
+        },
     }
 
     @classmethod

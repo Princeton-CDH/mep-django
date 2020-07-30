@@ -12,7 +12,7 @@ bookstore and lending library in Paris.
 
 (This project was previously called "Mapping Expatriate Paris" or MEP).
 
-Python 3.5 / Django 1.11 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info
+Python 3.5 / Django 2.2 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3834179.svg
    :target: https://doi.org/10.5281/zenodo.3834179
