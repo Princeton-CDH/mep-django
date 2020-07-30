@@ -3,6 +3,13 @@
 CHANGELOG
 =========
 
+1.2.2
+-----
+
+* bugfix: fix membership graph so data and y-axis use the same linear scale
+* bugfix: reindex books when related events (specifically borrows and purchases) are modified
+* design fix: adjust author/title spacing mobile borrowing card view for authors with long names
+
 1.2.1
 -----
 
