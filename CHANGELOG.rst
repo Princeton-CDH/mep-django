@@ -3,6 +3,11 @@
 CHANGELOG
 =========
 
+1.2.3
+-----
+
+* Pin wagtail version to pre 2.10 for python 3.5 support
+
 1.2.2
 -----
 
