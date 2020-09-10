@@ -113,7 +113,8 @@ class TestHomePage(WagtailPageTests):
         self.assertAllowedParentPageTypes(HomePage, [Page])
 
     def test_subpages(self):
-        self.assertAllowedSubpageTypes(HomePage, [ContentLandingPage, EssayLandingPage])
+        self.assertAllowedSubpageTypes(
+            HomePage, [ContentLandingPage, EssayLandingPage, ContentPage])
 
     def test_template(self):
         site = Site.objects.first()
