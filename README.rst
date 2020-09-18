@@ -210,3 +210,5 @@ Github Pages. After the build completes, push to GitHub from the ``docs`` folder
 License
 -------
 This project is licensed under the `Apache 2.0 License <https://github.com/Princeton-CDH/mep-django/blob/master/LICENSE>`_.
+
+©2020 Trustees of Princeton University. Permission granted via Princeton Docket #21-3743-1 for distribution online under a standard Open Source license.
