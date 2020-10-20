@@ -218,8 +218,8 @@ def tweet_content(ev, day):
 
     elif event_label in ['Borrow', 'Purchase', 'Request']:
         tweet_pattern = 'verbed'
-        # convert event type into verb for the sentence
-        verb = '%sed' % ev.event_type.lower().rstrip('e')
+        # convert event label into verb for the sentence
+        verb = '%sed' % ev.event_label.lower().rstrip('e')
         if event_label == 'Borrow' and ev.end_date == day:
             verb = 'returned'
         work_text = work_label(ev.work)

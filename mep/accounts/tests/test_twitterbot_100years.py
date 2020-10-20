@@ -380,6 +380,16 @@ class TestTweetContent(TestCase):
         assert 'subscribed for 1 month, 2 volumes at a time'  \
             in tweet
 
+    def test_request_event(self):
+        # find a borrow with fully known start and end date
+        borrow = Event.objects.filter(
+            borrow__isnull=False, start_date__isnull=False,
+            end_date__isnull=False, start_date_precision=7).first()
+        # add notation to make it a request
+        borrow.notes = 'NOTATION: REQUEST'
+        tweet = tweet_content(borrow, borrow.partial_start_date)
+        assert 'requested' in tweet
+
     def test_tweet_text_tag(self):
         subs = Event.objects.get(pk=8810)
         subs.subscription.purchase_date = subs.start_date
