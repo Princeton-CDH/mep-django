@@ -288,8 +288,11 @@ def work_label(work):
     elif not work.year or work.year < 1500:
         title_punctuation = '.'
 
-    parts.append('“%s%s”' % (work.title.strip('"“”'),
-                 title_punctuation))
+    # remove any straight or smart quotes included
+    # redact offensive term known to occur in titles
+    title = work.title.strip('"“”').replace('Nigger', 'N[-----]')
+
+    parts.append('“%s%s”' % (title, title_punctuation))
 
     # add editors after title
     if include_editors:

@@ -268,6 +268,14 @@ class TestWorkLabel(TestCase):
         assert twitterbot_100years.work_label(the_dial) == \
             "an issue of “The Dial.”"
 
+    def test_redaction(self):
+        tenlittle = Work(title='Ten Little Niggers')
+        assert twitterbot_100years.work_label(tenlittle) == \
+            "“Ten Little N[-----]s.”"
+        tenlittle.title = 'Nigger Heaven'
+        assert twitterbot_100years.work_label(tenlittle) == \
+            "“N[-----] Heaven.”"
+
 
 class TestCanTweet(TestCase):
     fixtures = ['test_events']
