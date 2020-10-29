@@ -3,6 +3,13 @@
 CHANGELOG
 =========
 
+1.2.4
+-----
+
+* Fix 100 years tweets for generic events with event type indicated in notes
+* Redact n-word in titles when generating tweets
+
+
 1.2.3
 -----
 
