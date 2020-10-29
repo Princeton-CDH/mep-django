@@ -17,20 +17,20 @@ Python 3.5 / Django 2.2 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3834179.svg
    :target: https://doi.org/10.5281/zenodo.3834179
 
-.. image:: https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=master
+.. image:: https://travis-ci.org/Princeton-CDH/mep-django.svg?branch=main
     :target: https://travis-ci.org/Princeton-CDH/mep-django
     :alt: Build status
 
-.. image:: https://codecov.io/gh/Princeton-CDH/mep-django/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/master
+.. image:: https://codecov.io/gh/Princeton-CDH/mep-django/branch/main/graph/badge.svg
+    :target: https://codecov.io/gh/Princeton-CDH/mep-django/branch/main
     :alt: Code coverage
 
 .. image:: https://www.codefactor.io/repository/github/princeton-cdh/mep-django/badge
    :target: https://www.codefactor.io/repository/github/princeton-cdh/mep-django
    :alt: CodeFactor
 
-.. image:: https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=master
-     :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=master
+.. image:: https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=main
+     :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=main
      :alt: Requirements Status
 
 For specifics on the architecture and code, read `current release documentation <https://princeton-cdh.github.io/mep-django/>`_.
@@ -209,6 +209,6 @@ Github Pages. After the build completes, push to GitHub from the ``docs`` folder
 
 License
 -------
-This project is licensed under the `Apache 2.0 License <https://github.com/Princeton-CDH/mep-django/blob/master/LICENSE>`_.
+This project is licensed under the `Apache 2.0 License <https://github.com/Princeton-CDH/mep-django/blob/main/LICENSE>`_.
 
 ©2020 Trustees of Princeton University. Permission granted via Princeton Docket #21-3743-1 for distribution online under a standard Open Source license.
