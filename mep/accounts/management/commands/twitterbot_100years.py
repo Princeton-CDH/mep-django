@@ -94,8 +94,11 @@ class Command(BaseCommand):
                 self.stdout.write('\n')
 
     # times:  9 AM, 12 PM, 1:30 PM, 3 PM, 4:30 PM, 6 PM, 8 PM
-    tweet_times = ['9:00', '12:00', '13:30', '15:00', '16:30', '18:00',
-                   '20:00', '10:15', '11:30', '19:00']
+    tweet_times = [
+        '9:00', '12:00', '13:30', '15:00', '16:30',
+        '18:00', '20:00', '10:15', '11:30', '19:00',
+        '9:45', '12:45', '11:15', '14:15', '17:45',
+    ]
 
     def schedule(self, date):
         '''Schedule all tweetable events for the specified date.'''
