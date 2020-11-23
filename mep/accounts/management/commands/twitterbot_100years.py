@@ -230,7 +230,7 @@ def tweet_content(ev, day):
             'verb': verb,
             'work': work_text,
             # don't duplicate period inside quotes when no year
-            'period': '' if work_text[-1] == '.' else '.'
+            'period': '' if work_text[-2] == '.' else '.'
         })
 
     elif event_label == 'Reimbursement':

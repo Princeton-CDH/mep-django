@@ -371,6 +371,8 @@ class TestTweetContent(TestCase):
             (borrow.account.persons.first().name,
              twitterbot_100years.work_label(borrow.work))
         assert borrowed in tweet
+        # books with no date should not have a duplicate period
+        assert '.”.' not in tweet
 
         # return
         tweet = tweet_content(borrow, borrow.partial_end_date)
