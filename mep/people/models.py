@@ -1,5 +1,6 @@
 import datetime
 import logging
+from string import punctuation
 
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
@@ -670,7 +671,7 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
             # text version of sort name for search and display
             'sort_name_t': self.sort_name,
             # sort version of sort name
-            'sort_name_isort': self.sort_name,
+            'sort_name_isort': self.sort_name.lstrip(punctuation),
             'birth_year_i': self.birth_year,
             'death_year_i': self.death_year,
             'has_card_b': self.has_card(),
