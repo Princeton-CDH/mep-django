@@ -3,6 +3,13 @@
 Deploy and Upgrade notes
 ========================
 
+1.3 [IN PROGRESS]
+---
+
+* We updated how members are sorted. We'll need to reindex the Person model::
+
+  python manage.py index -i person
+
 1.2
 ---
 
