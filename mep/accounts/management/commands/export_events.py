@@ -44,7 +44,7 @@ class Command(BaseExport):
         'item_uri', 'item_title', 'item_volume', 'item_authors',
         'item_year', 'item_notes',
         # footnote/citation
-        'source_citation', 'source_manifest', 'source_image'
+        'source_type', 'source_citation', 'source_manifest', 'source_image'
     ]
 
     def get_queryset(self):
@@ -172,7 +172,8 @@ class Command(BaseExport):
     def source_info(self, footnote):
         '''source details from a footnote'''
         source_info = OrderedDict([
-            ('citation', footnote.bibliography.bibliographic_note)
+            ('citation', footnote.bibliography.bibliographic_note),
+            ('source_type', footnote.bibliography.source_type.name)
         ])
         if footnote.bibliography.manifest:
             source_info['manifest'] = footnote.bibliography.manifest.uri
