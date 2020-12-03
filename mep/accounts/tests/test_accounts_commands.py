@@ -527,7 +527,7 @@ class TestExportEvents(TestCase):
         assert info['citation'] == footnote.bibliography.bibliographic_note
         assert info['manifest'] == footnote.bibliography.manifest.uri
         assert info['image'] == str(footnote.image.image)
-        assert info['source_type'] == footnote.bibliography.source_type.name
+        assert info['type'] == footnote.bibliography.source_type.name
 
     def test_get_object_data(self):
         # get a subscription with no subcategory and both dates
