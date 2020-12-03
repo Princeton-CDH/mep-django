@@ -172,8 +172,8 @@ class Command(BaseExport):
     def source_info(self, footnote):
         '''source details from a footnote'''
         source_info = OrderedDict([
-            ('citation', footnote.bibliography.bibliographic_note),
-            ('source_type', footnote.bibliography.source_type.name)
+            ('source_type', footnote.bibliography.source_type.name),
+            ('citation', footnote.bibliography.bibliographic_note)
         ])
         if footnote.bibliography.manifest:
             source_info['manifest'] = footnote.bibliography.manifest.uri
