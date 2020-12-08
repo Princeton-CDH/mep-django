@@ -15,10 +15,10 @@ def add_missing_footnotes(apps, schema_editor):
         .get(model='event', app_label='accounts')
 
     # get bibliographic entries to be used as sources for footnotes
-    addressbook_pre1936 = Bibliography.objects \
+    addressbook_1936 = Bibliography.objects \
         .get(bibliographic_note__contains="Address Book 1919–1935",
              source_type__name='Address Book')
-    addressbook_1936 = Bibliography.objects \
+    addressbook_post1936 = Bibliography.objects \
         .get(bibliographic_note__contains="Address Book 1935–1937",
              source_type__name='Address Book')
     logbooks = Bibliography.objects \
@@ -28,41 +28,41 @@ def add_missing_footnotes(apps, schema_editor):
     # because footnote is a generic relation, it can't be used in a
     # queryset filter in a migration; instead, get a list event ids
     # with footnotes, so we can exclude them
-    event_footnotes = Footnote.objects \
+    events_with_footnotes = Footnote.objects \
         .filter(content_type=event_content_type) \
-        .values_list('object_id', flat=True)
-
-    for event in Event.objects.exclude(notes__contains='P36ADD',
-                                       pk__in=event_footnotes) \
-                              .filter(notes__contains='36ADD'):
-        # create a footnote associating each event with 1936 address book
-        # NOTE: use bulk create?
-        Footnote.objects.create(
-            bibliography=addressbook_1936,
-            content_type=event_content_type,
-            object_id=event.pk
-        )
+        .values_list('object_id')
 
     # find all events with tag P36ADD and no footnote
-    for event in Event.objects.filter(notes__contains='P36ADD') \
-                              .exclude(pk__in=event_footnotes):
-        # create a footnote associating each event with pre-1936 address book
-        # NOTE: use bulk create?
-        Footnote.objects.create(
-            bibliography=addressbook_pre1936,
-            content_type=event_content_type,
-            object_id=event.pk
-        )
+    events_post36add = Event.objects.filter(notes__contains='P36ADD') \
+                                    .exclude(pk__in=events_with_footnotes)
+    # bulk create footnotes to associate events with post-1936 address book
+    Footnote.objects.bulk_create([
+        Footnote(bibliography=addressbook_post1936,
+                 content_type=event_content_type,
+                 object_id=event.pk) for event in events_post36add
+    ])
 
-    # find all remaining events without footnotes and associate with logbooks
-    for event in Event.objects.exclude(pk__in=event_footnotes):
-        # create a footnote associating each event with logbooks
-        # NOTE: use bulk create?
-        Footnote.objects.create(
-            bibliography=logbooks,
-            content_type=event_content_type,
-            object_id=event.pk
-        )
+    # find events from the 1936 address book; exclude events from
+    # post-1936 address book or tha talready have
+    events_36add = Event.objects.filter(notes__contains='36ADD') \
+                        .exclude(notes__contains='P36ADD') \
+                        .exclude(pk__in=events_with_footnotes)
+    # bulk create footnotes to associate events with 1936 address book
+    Footnote.objects.bulk_create([
+        Footnote(bibliography=addressbook_1936,
+                 content_type=event_content_type,
+                 object_id=event.pk) for event in events_36add
+    ])
+
+    # find all remaining events without footnotes — from the logbooks
+    logbooks_events = Event.objects.exclude(notes__contains='36ADD') \
+                           .exclude(pk__in=events_with_footnotes)
+    # bulk create footnotes to associate events with logbooks
+    Footnote.objects.bulk_create([
+        Footnote(bibliography=logbooks,
+                 content_type=event_content_type,
+                 object_id=event.pk) for event in logbooks_events
+    ])
 
 
 class Migration(migrations.Migration):
