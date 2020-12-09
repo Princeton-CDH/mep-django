@@ -289,10 +289,13 @@
             font-style: italic;
         }
 
-
-
         // mobile only
         @media (max-width: calc(#{$breakpoint-s} - 1px)) {
+
+            // suppress empty titles on mobile (esp. for membership events)
+            td.title.empty {
+                display: none;
+            }
 
             .type {
                 text-transform: lowercase;
