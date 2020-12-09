@@ -22,15 +22,16 @@ def add_missing_footnotes(apps, schema_editor):
     script_user = User.objects.get(username=settings.SCRIPT_USERNAME)
 
     # get bibliographic entries to be used as sources for footnotes
+    # (but handle case where they don't exist, in a new db)
     addressbook_1936 = Bibliography.objects \
-        .get(bibliographic_note__contains="Address Book 1919–1935",
-             source_type__name='Address Book')
+        .filter(bibliographic_note__contains="Address Book 1919–1935",
+                source_type__name='Address Book').first()
     addressbook_post1936 = Bibliography.objects \
-        .get(bibliographic_note__contains="Address Book 1935–1937",
-             source_type__name='Address Book')
+        .filter(bibliographic_note__contains="Address Book 1935–1937",
+                source_type__name='Address Book').first()
     logbooks = Bibliography.objects \
-        .get(bibliographic_note__contains="Logbooks 1919–1941",
-             source_type__name='Logbook')
+        .filter(bibliographic_note__contains="Logbooks 1919–1941",
+                source_type__name='Logbook').first()
 
     # because footnote is a generic relation, it can't be used in a
     # queryset filter in a migration; instead, get a list event ids
@@ -39,61 +40,64 @@ def add_missing_footnotes(apps, schema_editor):
         .filter(content_type=event_content_type) \
         .values_list('object_id')
 
-    # find all events with tag P36ADD and no footnote
-    events_post36add = Event.objects.filter(notes__contains='P36ADD') \
-                                    .exclude(pk__in=events_with_footnotes)
-    # for each event: create footnote, then create log entry for the footnote
-    # NOTE: not using bulk create because the objects it returns don't have pks
-    for event in events_post36add:
-        footnote = Footnote.objects.create(
-            bibliography=addressbook_post1936,
-            content_type=event_content_type,
-            object_id=event.pk)
-        LogEntry.objects.create(
-            user_id=script_user.id,
-            content_type_id=footnote_content_type.pk,
-            object_id=footnote.pk,
-            object_repr='Footnote on event %s for %s' %
-                        (event.pk, addressbook_post1936.bibliographic_note),
-            change_message='Address book footnote created based on P36ADD tag',
-            action_flag=ADDITION)
+    if addressbook_post1936:
+        # find all events with tag P36ADD and no footnote
+        events_post36add = Event.objects.filter(notes__contains='P36ADD') \
+                                        .exclude(pk__in=events_with_footnotes)
+        # for each event: create footnote, then create log entry for the footnote
+        # NOTE: not using bulk create because the objects it returns don't have pks
+        for event in events_post36add:
+            footnote = Footnote.objects.create(
+                bibliography=addressbook_post1936,
+                content_type=event_content_type,
+                object_id=event.pk)
+            LogEntry.objects.create(
+                user_id=script_user.id,
+                content_type_id=footnote_content_type.pk,
+                object_id=footnote.pk,
+                object_repr='Footnote on event %s for %s' %
+                            (event.pk, addressbook_post1936.bibliographic_note),
+                change_message='Address book footnote created based on P36ADD tag',
+                action_flag=ADDITION)
 
-    # find events from the 1936 address book; exclude events from
-    # post-1936 address book or tha talready have
-    events_36add = Event.objects.filter(notes__contains='36ADD') \
-                        .exclude(notes__contains='P36ADD') \
-                        .exclude(pk__in=events_with_footnotes)
-    # for each event: create footnote, then create log entry for the footnote
-    for event in events_36add:
-        footnote = Footnote.objects.create(
-            bibliography=addressbook_1936,
-            content_type=event_content_type,
-            object_id=event.pk)
-        LogEntry.objects.create(
-            user_id=script_user.id,
-            content_type_id=footnote_content_type.pk,
-            object_id=footnote.pk,
-            object_repr='Footnote on event %s for %s' %
-                        (event.pk, addressbook_1936.bibliographic_note),
-            change_message='Address book footnote created based on 36ADD tag',
-            action_flag=ADDITION)
+    if addressbook_1936:
+        # find events from the 1936 address book; exclude events from
+        # post-1936 address book or tha talready have
+        events_36add = Event.objects.filter(notes__contains='36ADD') \
+                            .exclude(notes__contains='P36ADD') \
+                            .exclude(pk__in=events_with_footnotes)
+        # for each event: create footnote, then create log entry for the footnote
+        for event in events_36add:
+            footnote = Footnote.objects.create(
+                bibliography=addressbook_1936,
+                content_type=event_content_type,
+                object_id=event.pk)
+            LogEntry.objects.create(
+                user_id=script_user.id,
+                content_type_id=footnote_content_type.pk,
+                object_id=footnote.pk,
+                object_repr='Footnote on event %s for %s' %
+                            (event.pk, addressbook_1936.bibliographic_note),
+                change_message='Address book footnote created based on 36ADD tag',
+                action_flag=ADDITION)
 
-    # find all remaining events without footnotes — from the logbooks
-    logbooks_events = Event.objects.exclude(notes__contains='36ADD') \
-                           .exclude(pk__in=events_with_footnotes)
-    for event in logbooks_events:
-        footnote = Footnote.objects.create(
-            bibliography=logbooks,
-            content_type=event_content_type,
-            object_id=event.pk)
-        LogEntry.objects.create(
-            user_id=script_user.id,
-            content_type_id=footnote_content_type.pk,
-            object_id=footnote.pk,
-            object_repr='Footnote on event %s for %s' %
-                        (event.pk, logbooks.bibliographic_note),
-            change_message='Associated with logbooks',
-            action_flag=ADDITION)
+    if logbooks:
+        # find all remaining events without footnotes — from the logbooks
+        logbooks_events = Event.objects.exclude(notes__contains='36ADD') \
+                               .exclude(pk__in=events_with_footnotes)
+        for event in logbooks_events:
+            footnote = Footnote.objects.create(
+                bibliography=logbooks,
+                content_type=event_content_type,
+                object_id=event.pk)
+            LogEntry.objects.create(
+                user_id=script_user.id,
+                content_type_id=footnote_content_type.pk,
+                object_id=footnote.pk,
+                object_repr='Footnote on event %s for %s' %
+                            (event.pk, logbooks.bibliographic_note),
+                change_message='Associated with logbooks',
+                action_flag=ADDITION)
 
 
 class Migration(migrations.Migration):
@@ -101,6 +105,8 @@ class Migration(migrations.Migration):
     dependencies = [
         ('accounts', '0033_subscription_purchase_date_adjustments'),
         ('footnotes', '0005_consolidate_event_footnotes'),
+        ('admin', '0003_logentry_add_action_flag_choices'),
+        ('common', '0005_create_script_user')
     ]
 
     operations = [
