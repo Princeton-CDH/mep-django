@@ -425,5 +425,3 @@ class TestEventAddFootnotes(TestMigrations):
         logbook_fn = event_footnotes.get(object_id=self.sub_logbook.pk)
         assert logbook_fn.bibliography.pk == self.logbooks.pk
         assert log_entries.filter(object_id=logbook_fn.pk).count() == 1
-
-
