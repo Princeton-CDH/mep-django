@@ -464,7 +464,8 @@ class Subscription(Event, CurrencyMixin):
         # (can't use unique_together because of multi-table inheritance)
 
         # adapted from https://stackoverflow.com/questions/7366363/adding-custom-django-model-validation
-        qs = Subscription.objects.filter(start_date=self.start_date,
+        qs = Subscription.objects.filter(
+            start_date=self.start_date, end_date=self.end_date,
             account=self.account, subtype=self.subtype)
 
         # if current work is already saved, exclude it from the queryset
