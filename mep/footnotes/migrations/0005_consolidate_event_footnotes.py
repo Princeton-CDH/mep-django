@@ -16,11 +16,6 @@ def consolidate_event_footnotes(apps, schema_editor):
     create_permissions(accounts_app_config, apps=apps, verbosity=0)
     accounts_app_config.models_module = None
 
-    # for app_config in apps.get_app_configs():
-    #     if app_config.name == 'accounts':
-    #         app_config.models_module = True
-    #         create_permissions(app_config, apps=apps, verbosity=0)
-    #         app_config.models_module = None
     # get content types for the event models
     event_ctype = ContentType.objects.get(app_label='accounts', model='event')
     borrow_ctype = ContentType.objects.get(app_label='accounts',
