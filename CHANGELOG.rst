@@ -1,7 +1,19 @@
-.. _CHANGELOG:
+
 
 CHANGELOG
 =========
+
+1.3
+---
+
+* As a data editor, I need to enter subscriptions for the same person that start on the same date if they have different end dates, so I can track different subscriptions purchased at the same time.
+* As a user, I want to see an alphabetized list of members on the members page, where letters come alphabetically before punctuation.
+* Update event data export to include source type
+* Include VIAF id in admin CSV download for people
+* Rename subscription type "Other" to "Separate Deposit"
+* Update tagline for sources in main menu
+* bugfix: handle events without titles on card detail pages
+* bugfix: handle titles without years in 100 years tweets (fix duplicate period)
 
 1.2.4
 -----
