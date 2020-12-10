@@ -1,5 +1,7 @@
 import datetime
 
+from django.conf import settings
+from django.contrib.admin.models import ADDITION
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
 from django.test import TransactionTestCase
@@ -323,3 +325,103 @@ class TestSubscriptionPurchaseDateAdjustments(TestMigrations):
         assert account4_renew2.purchase_date == self.account4_renew2.start_date
         assert account4_renew2.start_date == account4_renew.end_date
         assert account4_renew2.end_date == datetime.date(1920, 8, 1)
+
+
+@pytest.mark.last
+class TestEventAddFootnotes(TestMigrations):
+
+    app = 'accounts'
+    migrate_from = '0033_subscription_purchase_date_adjustments'
+    migrate_to = '0034_add_event_footnotes'
+
+    def setUpBeforeMigration(self, apps):
+
+        Account = apps.get_model('accounts', 'Account')
+        Subscription = apps.get_model('accounts', 'Subscription')
+        SourceType = apps.get_model('footnotes', 'SourceType')
+        Bibliography = apps.get_model('footnotes', 'Bibliography')
+        Footnote = apps.get_model('footnotes', 'Footnote')
+        ContentType = apps.get_model('contenttypes', 'ContentType')
+        User = apps.get_model('auth', 'User')
+
+        event_content_type = ContentType.objects \
+            .get(model='event', app_label='accounts')
+
+        # create script user
+        User.objects.get_or_create(username=settings.SCRIPT_USERNAME)
+
+        # create bibliography & source entries for migration
+        addressbook_source = SourceType.objects \
+            .get_or_create(name='Address Book')[0]
+        logbook_source = SourceType.objects \
+            .get_or_create(name='Logbook')[0]
+        self.addressbook_1936 = Bibliography.objects.create(
+            bibliographic_note="Address Book 1919–1935",
+            source_type=addressbook_source)
+        self.addressbook_post1936 = Bibliography.objects.create(
+            bibliographic_note="Address Book 1935–1937",
+            source_type=addressbook_source)
+        self.logbooks = Bibliography.objects.create(
+            bibliographic_note="Logbooks 1919–1941",
+            source_type=logbook_source)
+
+        # create Account to hold events
+        account = Account.objects.create()
+
+        # create sub with footnote
+        self.sub_with_note = Subscription.objects.create(
+            account=account,
+            start_date=datetime.date(1950, 1, 5))
+        Footnote.objects.create(
+            bibliography=self.addressbook_1936, is_agree=True,
+            content_type=event_content_type, object_id=self.sub_with_note.pk)
+        # subs with P36ADD and 36ADD tags
+        self.sub_p36add_with_note = Subscription.objects.create(
+            account=account, notes='P36ADD',
+            start_date=datetime.date(1950, 2, 5))
+        Footnote.objects.create(
+            bibliography=self.addressbook_post1936, is_agree=True,
+            content_type=event_content_type, object_id=self.sub_p36add_with_note.pk)
+        self.sub_p36add = Subscription.objects.create(
+            account=account, notes='P36ADD',
+            start_date=datetime.date(1950, 2, 15))
+        self.sub_36add = Subscription.objects.create(
+            account=account, notes='36ADD',
+            start_date=datetime.date(1950, 3, 5))
+        # sub with no tags or footnotes
+        self.sub_logbook = Subscription.objects.create(
+            account=account,
+            start_date=datetime.date(1950, 2, 5))
+
+    def test_added_footnotes(self):
+        Footnote = self.apps.get_model('footnotes', 'Footnote')
+        ContentType = self.apps.get_model('contenttypes', 'ContentType')
+        LogEntry = self.apps.get_model('admin', 'LogEntry')
+
+        event_content_type = ContentType.objects \
+            .get(model='event', app_label='accounts')
+        footnote_content_type = ContentType.objects \
+            .get(model='footnote', app_label='footnotes')
+
+        # pre-filtered querysets for the following tests
+        event_footnotes = Footnote.objects.filter(content_type=event_content_type)
+        log_entries = LogEntry.objects.filter(
+            content_type_id=footnote_content_type, action_flag=ADDITION)
+
+        # should not add a second footnote
+        assert event_footnotes.filter(object_id=self.sub_with_note.pk) \
+            .count() == 1
+        # no second footnote even if there is a tag
+        assert event_footnotes.filter(object_id=self.sub_p36add_with_note.pk) \
+            .count() == 1
+
+        # new footnotes created with correct sources and log entries
+        sub_p36add_fn = event_footnotes.get(object_id=self.sub_p36add.pk)
+        assert sub_p36add_fn.bibliography.pk == self.addressbook_post1936.pk
+        assert log_entries.filter(object_id=sub_p36add_fn.pk).count() == 1
+        sub_36add_fn = event_footnotes.get(object_id=self.sub_36add.pk)
+        assert sub_36add_fn.bibliography.pk == self.addressbook_1936.pk
+        assert log_entries.filter(object_id=sub_36add_fn.pk).count() == 1
+        logbook_fn = event_footnotes.get(object_id=self.sub_logbook.pk)
+        assert logbook_fn.bibliography.pk == self.logbooks.pk
+        assert log_entries.filter(object_id=logbook_fn.pk).count() == 1
