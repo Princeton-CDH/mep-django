@@ -89,14 +89,15 @@
             </tr>
         </thead>
         {% for event in events %}
-        <tr id="e{{ event.pk }}">
+        <tr id="e{{ event.pk }}" class="{{ event.event_type|lower }}">
             <td class="start{% if not event.partial_start_date %} empty{% endif %}">
                 {{ event.partial_start_date|partialdate|default:'-' }}
             </td>
             <td class="title{% if not event.work.title %} empty{% endif %}">
+                {% if event.work.title %}
                 <a href="{{ event.work.get_absolute_url }}">
-                {{ event.work.title|default:'-' }}
-                </a>
+                {{ event.work.title }}</a>
+                {% else %}-{% endif %}
             </td>
             {% with event.event_label as event_label %}
             <td class="activity{% if event_label == 'Generic' %} empty{% endif %}">
