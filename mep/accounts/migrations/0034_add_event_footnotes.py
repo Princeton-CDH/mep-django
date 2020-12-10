@@ -7,6 +7,10 @@ from django.conf import settings
 
 def add_missing_footnotes(apps, schema_editor):
     '''
+    Add footnotes to document source for events without footnotes.
+    Events should be associated with one of two address books based on
+    P36ADD and 36ADD tags in the event notes; all other events without
+    footnotes are from the logbooks.
     '''
     Bibliography = apps.get_model('footnotes', 'Bibliography')
     Footnote = apps.get_model('footnotes', 'Footnote')
