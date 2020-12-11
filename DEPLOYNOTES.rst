@@ -3,10 +3,10 @@
 Deploy and Upgrade notes
 ========================
 
-1.3 [IN PROGRESS]
+1.3
 ---
 
-* We updated how members are sorted. We'll need to reindex the Person model::
+* Member sorting has been revised, so people should be reindexed in Solr::
 
   python manage.py index -i person
 

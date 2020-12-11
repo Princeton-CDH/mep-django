@@ -1,7 +1,20 @@
-.. _CHANGELOG:
+
 
 CHANGELOG
 =========
+
+1.3
+---
+
+* As a data export user, I want the event data export to include source type so I can easily see which events are from the logbooks, address books, or cards.
+* As a data editor or dataset user, I want all source citations for all events so that I can tell which ones came from logbooks, address books, or cards.
+* As a data editor, I need to enter subscriptions for the same person that start on the same date if they have different end dates, so I can track different subscriptions purchased at the same time.
+* Include VIAF id in admin CSV download for people
+* Rename subscription type "Other" to "Separate Deposit"
+* Update tagline for sources in main menu
+* bugfix: on the member list, member names that start with punctuation should sort based on first letter
+* bugfix: handle events without titles on card detail pages
+* bugfix: handle titles without years in 100 years tweets (fix duplicate period)
 
 1.2.4
 -----
