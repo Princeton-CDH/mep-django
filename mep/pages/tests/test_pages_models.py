@@ -113,7 +113,8 @@ class TestHomePage(WagtailPageTests):
         self.assertAllowedParentPageTypes(HomePage, [Page])
 
     def test_subpages(self):
-        self.assertAllowedSubpageTypes(HomePage, [ContentLandingPage, EssayLandingPage])
+        self.assertAllowedSubpageTypes(
+            HomePage, [ContentLandingPage, EssayLandingPage, ContentPage])
 
     def test_template(self):
         site = Site.objects.first()
@@ -303,7 +304,8 @@ class TestContentPage(WagtailPageTests):
         self.assertTemplateUsed(response, 'pages/content_page.html')
 
     def test_parent_pages(self):
-        self.assertAllowedParentPageTypes(ContentPage, [ContentLandingPage])
+        self.assertAllowedParentPageTypes(ContentPage,
+                                          [ContentLandingPage, HomePage])
 
     def test_subpages(self):
         self.assertAllowedSubpageTypes(ContentPage, [])
@@ -318,7 +320,8 @@ class TestEssayPage(WagtailPageTests):
             'title': 'A new analysis esssay',
             'slug': 'new-essay',
             'body': streamfield([
-                ('paragraph', rich_text('this page lives right under analysis'))
+                ('paragraph',
+                 rich_text('this page lives right under analysis'))
             ]),
             'authors-count': 0,
             'editors-count': 0

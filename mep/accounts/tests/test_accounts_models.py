@@ -695,11 +695,26 @@ class TestSubscription(TestCase):
         # creating new subscription for same account & date should error
         with pytest.raises(ValidationError):
             subscr = Subscription(account=self.account,
-                start_date=self.subscription.start_date)
+                                  start_date=self.subscription.start_date)
             subscr.validate_unique()
 
-        # same account + date with different subtype should be fine
+        # creating new subscription for same account with same
+        # start date AND end date should error
+        with pytest.raises(ValidationError):
+            subscr = Subscription(account=self.account,
+                                  start_date=self.subscription.start_date,
+                                  end_date=self.subscription.end_date)
+            subscr.validate_unique()
+
+        # same account, type, start date but different end date is valid
         subscr = Subscription(account=self.account,
+                              start_date=self.subscription.start_date,
+                              end_date=datetime.date(1931, 3, 6))
+        subscr.validate_unique()
+
+        # same account + date with different subtype should be fine
+        subscr = Subscription(
+            account=self.account,
             start_date=self.subscription.start_date, subtype='ren')
         subscr.validate_unique()
 

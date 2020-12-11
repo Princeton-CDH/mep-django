@@ -94,8 +94,11 @@ class Command(BaseCommand):
                 self.stdout.write('\n')
 
     # times:  9 AM, 12 PM, 1:30 PM, 3 PM, 4:30 PM, 6 PM, 8 PM
-    tweet_times = ['9:00', '12:00', '13:30', '15:00', '16:30', '18:00',
-                   '20:00', '10:15', '11:30', '19:00']
+    tweet_times = [
+        '9:00', '12:00', '13:30', '15:00', '16:30',
+        '18:00', '20:00', '10:15', '11:30', '19:00',
+        '9:45', '12:45', '11:15', '14:15', '17:45',
+    ]
 
     def schedule(self, date):
         '''Schedule all tweetable events for the specified date.'''
@@ -218,8 +221,8 @@ def tweet_content(ev, day):
 
     elif event_label in ['Borrow', 'Purchase', 'Request']:
         tweet_pattern = 'verbed'
-        # convert event type into verb for the sentence
-        verb = '%sed' % ev.event_type.lower().rstrip('e')
+        # convert event label into verb for the sentence
+        verb = '%sed' % ev.event_label.lower().rstrip('e')
         if event_label == 'Borrow' and ev.end_date == day:
             verb = 'returned'
         work_text = work_label(ev.work)
@@ -227,7 +230,7 @@ def tweet_content(ev, day):
             'verb': verb,
             'work': work_text,
             # don't duplicate period inside quotes when no year
-            'period': '' if work_text[-1] == '.' else '.'
+            'period': '' if work_text[-2] == '.' else '.'
         })
 
     elif event_label == 'Reimbursement':
@@ -288,8 +291,11 @@ def work_label(work):
     elif not work.year or work.year < 1500:
         title_punctuation = '.'
 
-    parts.append('“%s%s”' % (work.title.strip('"“”'),
-                 title_punctuation))
+    # remove any straight or smart quotes included
+    # redact offensive term known to occur in titles
+    title = work.title.strip('"“”').replace('Nigger', 'N[-----]')
+
+    parts.append('“%s%s”' % (title, title_punctuation))
 
     # add editors after title
     if include_editors:

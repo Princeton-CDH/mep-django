@@ -12,7 +12,7 @@ bookstore and lending library in Paris.
 
 (This project was previously called "Mapping Expatriate Paris" or MEP).
 
-Python 3.5 / Django 2.2 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info
+Python 3.5 / Django 2.2 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info / Solr 6.6
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3834179.svg
    :target: https://doi.org/10.5281/zenodo.3834179
@@ -71,6 +71,10 @@ Remember to add a ``SECRET_KEY`` setting!
   The manage command will automatically reload the core to ensure schema
   changes take effect.
 
+- Run the migrations
+
+    python manage.py migrate
+
 - Index all indexable content into Solr::
 
     python manage.py index
@@ -123,7 +127,6 @@ restart of your Django dev server to pick up the changed file paths.
 You must also configure Solr and install the configSet found under ``solr_conf``.
 If a core does not exist, and the configSet is installed correctly, an appropriate
 core will be made for you.
-
 To install the configSet::
 
 
@@ -210,3 +213,5 @@ Github Pages. After the build completes, push to GitHub from the ``docs`` folder
 License
 -------
 This project is licensed under the `Apache 2.0 License <https://github.com/Princeton-CDH/mep-django/blob/main/LICENSE>`_.
+
+©2020 Trustees of Princeton University. Permission granted via Princeton Docket #21-3743-1 for distribution online under a standard Open Source license.

@@ -151,10 +151,10 @@ class TestAliasIntegerField(TestCase):
 
     def test_error_on_create_non_field(self):
         # get with no instance should return the descriptor object
-        class TestModel(DateRange):
+        class TestModel2(DateRange):
             foo_year = AliasIntegerField(db_column='start_year')
 
-        assert isinstance(TestModel.foo_year, AliasIntegerField)
+        assert isinstance(TestModel2.foo_year, AliasIntegerField)
 
 
 class TestVerifyLatLon(TestCase):

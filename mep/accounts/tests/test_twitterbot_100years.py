@@ -268,6 +268,14 @@ class TestWorkLabel(TestCase):
         assert twitterbot_100years.work_label(the_dial) == \
             "an issue of “The Dial.”"
 
+    def test_redaction(self):
+        tenlittle = Work(title='Ten Little Niggers')
+        assert twitterbot_100years.work_label(tenlittle) == \
+            "“Ten Little N[-----]s.”"
+        tenlittle.title = 'Nigger Heaven'
+        assert twitterbot_100years.work_label(tenlittle) == \
+            "“N[-----] Heaven.”"
+
 
 class TestCanTweet(TestCase):
     fixtures = ['test_events']
@@ -363,6 +371,8 @@ class TestTweetContent(TestCase):
             (borrow.account.persons.first().name,
              twitterbot_100years.work_label(borrow.work))
         assert borrowed in tweet
+        # books with no date should not have a duplicate period
+        assert '.”.' not in tweet
 
         # return
         tweet = tweet_content(borrow, borrow.partial_end_date)
@@ -379,6 +389,16 @@ class TestTweetContent(TestCase):
         tweet = tweet_content(subs, subs.partial_start_date)
         assert 'subscribed for 1 month, 2 volumes at a time'  \
             in tweet
+
+    def test_request_event(self):
+        # find a borrow with fully known start and end date
+        borrow = Event.objects.filter(
+            borrow__isnull=False, start_date__isnull=False,
+            end_date__isnull=False, start_date_precision=7).first()
+        # add notation to make it a request
+        borrow.notes = 'NOTATION: REQUEST'
+        tweet = tweet_content(borrow, borrow.partial_start_date)
+        assert 'requested' in tweet
 
     def test_tweet_text_tag(self):
         subs = Event.objects.get(pk=8810)
