@@ -14,10 +14,10 @@ bookstore and lending library in Paris.
 
 Python 3.5 / Django 1.11 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info
 
-.. image:: https://github.com/Princeton-CDH/mep-django/workflows/ci/badge.svg
-    :target: https://github.com/Princeton-CDH/mep-django/actions?query=workflow%3Aci
-    :alt: CI status
-    
+.. image:: https://github.com/Princeton-CDH/mep-django/workflows/unit_tests/badge.svg
+    :target: https://github.com/Princeton-CDH/mep-django/actions?query=workflow%3Aunit_tests
+    :alt: Unit Test status
+
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3834179.svg
    :target: https://doi.org/10.5281/zenodo.3834179
 
