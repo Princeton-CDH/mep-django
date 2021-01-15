@@ -6,3 +6,4 @@ pytest-ordering
 #pytest-sugar
 django-debug-toolbar
 sphinx
+wheel
