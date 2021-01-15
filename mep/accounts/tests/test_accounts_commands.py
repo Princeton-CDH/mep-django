@@ -542,6 +542,16 @@ class TestExportEvents(TestCase):
         assert 'member' in data
         assert 'subscription' in data
 
+    def test_get_object_data_footnotes(self):
+        # get an event from the fixture with a footnote
+        event = Event.objects.filter(footnotes__isnull=False).first()
+        # add a second footnote (just copy the same bibliography)
+        fn1 = event.footnotes.first()
+        event.footnotes.create(bibliography=fn1.bibliography)
+        data = self.cmd.get_object_data(event)
+        # both should be included
+        assert len(data['source']) == 2
+
     def test_command_line(self):
         # test calling via command line with args
         tempdir = TemporaryDirectory()
