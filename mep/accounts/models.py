@@ -11,8 +11,8 @@ from django.template.defaultfilters import pluralize
 from djiffy.models import Canvas
 
 from mep.accounts.event_set import EventSetMixin
-from mep.accounts.partial_date import DatePrecisionField, PartialDate, \
-    PartialDateMixin
+from mep.accounts.partial_date import DatePrecision, DatePrecisionField, \
+    PartialDate, PartialDateMixin
 from mep.books.models import Edition, Work
 from mep.common.models import Named, Notable
 from mep.footnotes.models import Bibliography, Footnote
@@ -444,14 +444,32 @@ class Subscription(Event, CurrencyMixin):
         super(Subscription, self).save(*args, **kwargs)
 
     def calculate_duration(self):
-        '''calculate and set subscription duration based on start and end
-        date, when both are known'''
-        # NOTE: duration calculation currently ignores partial dates;
-        # assumes when partial dates are used they are used
-        # consistently for both start and end dates
-        if self.start_date and self.end_date:
+        '''Calculate and set subscription duration based on start and end
+        date, when both are known. Duration is only calculated when both
+        dates are fully known OR if both dates are month/day only (year
+        unknown), in which case we assume dates are sequential in the
+        same or subsequent year.'''
+
+        # full precision is either all flags or null/none
+        full_precision = [DatePrecision.year | DatePrecision.month |
+                          DatePrecision.day, None]
+        month_day = DatePrecision.month | DatePrecision.day
+
+        if self.start_date and self.end_date and \
+           all(dp in full_precision
+               for dp in (self.start_date_precision, self.end_date_precision))\
+           or (self.start_date_precision == self.end_date_precision == month_day):
             # calculate duration in days as timedelta from end to start
             self.duration = (self.end_date - self.start_date).days
+
+            # if we get a negative duration and year is not known,
+            # assume end date is the following year
+            if (self.duration < 0) and self.start_date_precision == month_day:
+                self.end_date += relativedelta(years=1)
+                self.duration = (self.end_date - self.start_date).days
+
+        else:
+            self.duration = None
 
     def validate_unique(self, *args, **kwargs):
         '''Validation check to prevent duplicate events from being
