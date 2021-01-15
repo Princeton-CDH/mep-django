@@ -83,6 +83,12 @@ jobs:
           MYSQL_ROOT_PASSWORD: sandco
         ports:
         - 3306:3306
+      solr:
+        image: solr:6.6
+        ports:
+          - 8983:8983
+        volumes:
+          - solr_conf:/opt/solr/server/solr/configsets/sandco
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -104,13 +110,6 @@ jobs:
         pip install wheel
         pip install -r requirements.txt
         pip install -r dev-requirements.txt
-    - name: Install and configure Solr
-      run: bash ci/config_solr.sh
-    - name: Download webpack bundle
-      uses: actions/download-artifact@v2
-      with:
-        name: bundles
-        path: bundles/
     - name: Download webpack stats
       uses: actions/download-artifact@v2
       with:
