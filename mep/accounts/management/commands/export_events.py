@@ -70,7 +70,6 @@ class Command(BaseExport):
         if member_info:
             data['member'] = member_info
 
-        # variable to store footnote reference, if any
         currency = None
 
         # subscription-specific data
