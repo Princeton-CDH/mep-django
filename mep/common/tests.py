@@ -927,6 +927,17 @@ class TestBaseExport(TestCase):
         flat_nested = BaseExport.flatten_dict(nested_list)
         assert flat_nested['page_label'] == '1;2;3'
 
+        # list of dict
+        list_of_dict = {
+            'source': [
+                {'type': 'card', 'citation': 'Lending card'},
+                {'type': 'logbook', 'citation': '1923 Logbook'}
+            ]
+        }
+        flat_list = BaseExport.flatten_dict(list_of_dict)
+        assert flat_list['source_type'] == 'card;logbook'
+        assert flat_list['source_citation'] == 'Lending card;1923 Logbook'
+
 
 @patch('mep.common.management.export.progressbar')
 class TestStreamArray(TestCase):

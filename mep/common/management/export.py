@@ -7,6 +7,8 @@ import codecs
 import csv
 import json
 import os.path
+from itertools import chain
+
 
 import progressbar
 from django.core.management.base import BaseCommand, ImproperlyConfigured
@@ -145,8 +147,20 @@ class BaseExport(BaseCommand):
                     flat_data['_'.join([key, subkey])] = subval
             # convert list to a delimited string
             elif isinstance(val, list):
-                # convert to string before joining (e.g. for list of integer)
-                flat_data[key] = ';'.join([str(v) for v in val])
+
+                # check for list of dict
+                if isinstance(val[0], dict):
+                    # get a list of all keys present in any of the dictionaries
+                    subkeys = set(chain.from_iterable(i.keys() for i in val))
+                    # flatten each field into a list of values
+                    for subkey in subkeys:
+                        flat_data['_'.join([key, subkey])] = ';'.join([
+                            str(v[subkey]) for v in val])
+
+                # otherwise, assume list of values (e.g., string or integer)
+                else:
+                    # convert to string before joining (e.g., list of integer)
+                    flat_data[key] = ';'.join([str(v) for v in val])
             else:
                 flat_data[key] = val
 
