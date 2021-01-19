@@ -84,8 +84,6 @@ jobs:
         image: solr:6.6
         ports:
           - 8983:8983
-        volumes:
-          - solr_conf:/opt/solr/server/solr/configsets/sandco
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -119,6 +117,10 @@ jobs:
       run: |
         cp ci/testsettings.py mep/local_settings.py
         python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
+    - name: Upload solr configset
+      run: |
+        zip -r configset.zip solr_conf
+        curl -X POST -d @configset.zip http://localhost:8983/solr/admin/configs?action=CREATE&name=sandco --header "Content-Type:text/xml"
     - name: Run pytest
       run: py.test --cov=./ --cov-report=xml
     - name: Upload test coverage to Codecov
