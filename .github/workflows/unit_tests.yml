@@ -118,7 +118,7 @@ jobs:
         cp ci/testsettings.py mep/local_settings.py
         python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
     - name: Copy Solr configset to solr service
-      run: docker cp solr_conf solr:/opt/solr/server/solr/configsets/sandco
+      run: docker cp solr_conf ${{ job.services.solr.id }}:/opt/solr/server/solr/configsets/sandco
     - name: Run pytest
       run: py.test --cov=./ --cov-report=xml
     - name: Upload test coverage to Codecov
