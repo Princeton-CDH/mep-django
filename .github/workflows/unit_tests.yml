@@ -145,19 +145,6 @@ jobs:
         JOB_STATUS: ${{ job.status }}
       run: echo "SLACK_COLOR=$(if [ "$JOB_STATUS" == "success" ]; then echo "good"; elif [ "$JOB_STATUS" == "failure" ]; then echo "danger"; else echo "warning"; fi)" >> $GITHUB_ENV
 
-    - uses: FranzDiebold/github-env-vars-action@v1.2.0
-    - name: Print environment variables
-      run: |
-        echo "GITHUB_REPOSITORY_SLUG=$GITHUB_REPOSITORY_SLUG"
-        echo "GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER"
-        echo "GITHUB_REPOSITORY_OWNER_SLUG=$GITHUB_REPOSITORY_OWNER_SLUG"
-        echo "GITHUB_REPOSITORY_NAME=$GITHUB_REPOSITORY_NAME"
-        echo "GITHUB_REPOSITORY_NAME_SLUG=$GITHUB_REPOSITORY_NAME_SLUG"
-        echo "GITHUB_REF_SLUG=$GITHUB_REF_SLUG"
-        echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
-        echo "GITHUB_REF_NAME_SLUG=$GITHUB_REF_NAME_SLUG"
-        echo "GITHUB_SHA_SHORT=$GITHUB_SHA_SHORT"
-
     # Send a message to slack to report the build status. The webhook is stored
     # at the organization level and available to all repositories. Only run on
     # scheduled builds & pushes, since PRs automatically report to Slack.
@@ -168,8 +155,8 @@ jobs:
       env:
         SLACK_COLOR: ${{ env.SLACK_COLOR }}
         SLACK_WEBHOOK: ${{ secrets.ACTIONS_SLACK_WEBHOOK }}
-        SLACK_TITLE: "Run #${{ github.run_number }} for workflow `${{ github.workflow }}`: ${{ job.status }}"
-        SLACK_MESSAGE: "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Run #${{ github.run_number }}> | <https://github.com/${{ github.repository }}/|${{ github.repository }}@${{ env.GITHUB_REF_NAME }}>"
+        SLACK_TITLE: "Run <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|#${{ github.run_number }}> for workflow `${{ github.workflow }}`: ${{ job.status }}"
+        SLACK_MESSAGE: "<https://github.com/${{ github.repository }}/|${{ github.repository }}@${{ github.ref }}>"
         SLACK_FOOTER: "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|View commit>"
         MSG_MINIMAL: true # use compact slack message format
 
