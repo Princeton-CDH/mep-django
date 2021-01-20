@@ -115,7 +115,7 @@ class HomePage(Page):
     # can only be child of Root
     parent_page_types = [Page]
     # only landingpage subtypes as children
-    subpage_types = ['ContentLandingPage', 'EssayLandingPage']
+    subpage_types = ['ContentLandingPage', 'EssayLandingPage', 'ContentPage']
     #: main page text
     body = StreamField(BodyContentBlock)
 
@@ -420,8 +420,8 @@ class ContentPage(BasePage):
     '''A simple :class:`BasePage` type that appears beneath `ContentLandingPage`s
     in the hierarchy.'''
 
-    # can only be child of ContentLandingPage
-    parent_page_types = ['ContentLandingPage']
+    # can be child of ContentLandingPage or HomePage
+    parent_page_types = ['ContentLandingPage', 'HomePage']
     # no allowed children
     subpage_types = []
 
@@ -434,7 +434,6 @@ class EssayPage(BasePage):
     parent_page_types = ['EssayLandingPage']
     # no allowed children
     subpage_types = []
-
 
     # taken from PPA
     def set_url_path(self, parent):

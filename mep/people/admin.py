@@ -238,7 +238,8 @@ class PersonAdmin(admin.ModelAdmin):
         'id', 'name', 'sort_name', 'mep_id', 'account_id', 'birth_year',
         'death_year', 'gender', 'title', 'profession', 'is_organization',
         'is_creator', 'has_account', 'in_logbooks', 'has_card',
-        'subscription_dates', 'verified', 'updated_at', 'admin_url'
+        'subscription_dates', 'verified', 'updated_at', 'admin_url',
+        'viaf_id'
     ]
 
     def csv_filename(self):

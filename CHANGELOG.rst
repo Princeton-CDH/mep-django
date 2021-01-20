@@ -1,7 +1,39 @@
-.. _CHANGELOG:
+
 
 CHANGELOG
 =========
+
+1.3
+---
+
+* As a data export user, I want the event data export to include source type so I can easily see which events are from the logbooks, address books, or cards.
+* As a data editor or dataset user, I want all source citations for all events so that I can tell which ones came from logbooks, address books, or cards.
+* As a data editor, I need to enter subscriptions for the same person that start on the same date if they have different end dates, so I can track different subscriptions purchased at the same time.
+* Include VIAF id in admin CSV download for people
+* Rename subscription type "Other" to "Separate Deposit"
+* Update tagline for sources in main menu
+* bugfix: on the member list, member names that start with punctuation should sort based on first letter
+* bugfix: handle events without titles on card detail pages
+* bugfix: handle titles without years in 100 years tweets (fix duplicate period)
+
+1.2.4
+-----
+
+* Fix 100 years tweets for generic events with event type indicated in notes
+* Redact n-word in titles when generating tweets
+
+
+1.2.3
+-----
+
+* Pin wagtail version to pre 2.10 for python 3.5 support
+
+1.2.2
+-----
+
+* bugfix: fix membership graph so data and y-axis use the same linear scale
+* bugfix: reindex books when related events (specifically borrows and purchases) are modified
+* design fix: adjust author/title spacing mobile borrowing card view for authors with long names
 
 1.2.1
 -----

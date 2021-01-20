@@ -6,8 +6,8 @@ django-cas-ng
 pucas>=0.6
 eulxml
 viapy>=0.2
-# require wagtail<2.10 since production is still python 3.5
-wagtail>=2.8,<2.10
+# require wagtail pre 2.10 for python3.5 support
+wagtail>=2.9,<2.10
 django-autocomplete-light>=3.5.1
 python-dateutil
 django-apptemplates

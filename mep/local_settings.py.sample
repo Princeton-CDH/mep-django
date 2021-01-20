@@ -23,9 +23,15 @@ SECRET_KEY = ''
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': "django.db.backends.mysql",
+        'NAME': 'sandco',
+        'USER': 'root',
+        'PASSWORD': '1234',
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # }
 }
 
 # Sample Solr config
@@ -33,7 +39,11 @@ SOLR_CONNECTIONS = {
     'default': {
         'URL': 'http://localhost:8983/solr',
         'COLLECTION': 'sco_example',
-        'CONFIGSET': 'sandco'
+        'CONFIGSET': 'sandco',
+        'TEST': {
+            # aggressive commitWithin for test only
+            'COMMITWITHIN': 750,
+        }
     }
 }
 

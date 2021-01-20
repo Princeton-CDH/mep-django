@@ -423,13 +423,13 @@ class Subscription(Event, CurrencyMixin):
 
     SUPPLEMENT = 'sup'
     RENEWAL = 'ren'
-    OTHER = 'oth'
+    SEPARATE_DEPOSIT = 'oth'  # for historical reasons, this code is "other"
 
     EVENT_TYPE_CHOICES = (
         ('', 'Subscription'),
         (SUPPLEMENT, 'Supplement'),
         (RENEWAL, 'Renewal'),
-        (OTHER, 'Other'),
+        (SEPARATE_DEPOSIT, 'Separate Deposit'),
     )
     subtype = models.CharField(
         verbose_name='Type', max_length=50, blank=True,
@@ -464,7 +464,8 @@ class Subscription(Event, CurrencyMixin):
         # (can't use unique_together because of multi-table inheritance)
 
         # adapted from https://stackoverflow.com/questions/7366363/adding-custom-django-model-validation
-        qs = Subscription.objects.filter(start_date=self.start_date,
+        qs = Subscription.objects.filter(
+            start_date=self.start_date, end_date=self.end_date,
             account=self.account, subtype=self.subtype)
 
         # if current work is already saved, exclude it from the queryset

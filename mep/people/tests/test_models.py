@@ -436,6 +436,15 @@ class TestPerson(TestCase):
         assert uk.name in index_data['nationality']
         assert denmark.name in index_data['nationality']
 
+        # ensure that punctuation is stripped during sort
+        pers = Person.objects.create(
+            name='"Friend of John Smith"', birth_year=1855, death_year=1876,
+            sort_name='"Friend of John Smith"'
+        )
+        acct = Account.objects.create()
+        acct.persons.add(pers)
+        index_data = pers.index_data()
+        assert index_data['sort_name_isort'] == 'Friend of John Smith"'
 
 class TestPersonQuerySet(TestCase):
 

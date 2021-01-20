@@ -18,7 +18,9 @@
 {% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static "css/local.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "css/test-banner.css" %}" />
+{% endblock %}
 
+{% block extrahead %}
     <script> {# make sure jquery is available #}
     if (!$) { $ = django.jQuery;}
     </script>
