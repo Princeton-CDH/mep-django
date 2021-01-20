@@ -149,7 +149,7 @@ class BaseExport(BaseCommand):
             elif isinstance(val, list):
 
                 # check for list of dict
-                if isinstance(val[0], dict):
+                if val and isinstance(val[0], dict):
                     # get a list of all keys present in any of the dictionaries
                     subkeys = set(chain.from_iterable(i.keys() for i in val))
                     # flatten each field into a list of values

@@ -938,6 +938,9 @@ class TestBaseExport(TestCase):
         assert flat_list['source_type'] == 'card;logbook'
         assert flat_list['source_citation'] == 'Lending card;1923 Logbook'
 
+        # empty list
+        assert BaseExport.flatten_dict({'empty': []}) == {'empty': ''}
+
 
 @patch('mep.common.management.export.progressbar')
 class TestStreamArray(TestCase):
