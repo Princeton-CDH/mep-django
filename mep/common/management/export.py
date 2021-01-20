@@ -11,7 +11,7 @@ from itertools import chain
 
 
 from django.core.management.base import BaseCommand, ImproperlyConfigured
-from rich.progress import Progress
+import progressbar
 
 
 class ExportEncoder(json.JSONEncoder):
@@ -24,20 +24,17 @@ class ExportEncoder(json.JSONEncoder):
         progress of the data used for JSON outupt
     '''
 
-    def __init__(self, csvwriter, progress, *args, **kwargs):
+    def __init__(self, csvwriter, *args, **kwargs):
         self.csvwriter = csvwriter
-        self.progress = progress
         super(). __init__(*args, **kwargs)
 
     def iterencode(self, data):
         '''extend iterencode to allow processing the data twice'''
-        # create a new task within the progress manager
-        task = self.progress.add_task("[blue]Export to JSON:",
-                                      total=data.total)
         # wrap the generator in a new stream array,
         # so that we can process it before handoff for json encoding
+        # don't display progress for the second stream array
         restream = StreamArray(self.reprocess_data(data), data.total,
-                               self.progress, task)
+                               progress=False)
         return super().iterencode(restream)
 
     def reprocess_data(self, data):
@@ -87,9 +84,6 @@ class BaseExport(BaseCommand):
                 }
             )
 
-        # create progress manager
-        self.progress = Progress()
-
         # define the output file
         base_filename = self.get_base_filename()
         if kwargs['directory']:
@@ -97,21 +91,20 @@ class BaseExport(BaseCommand):
 
         # get stream array / generator of data for export
         data = self.get_data(kwargs.get('max'))
-        with self.progress:
-            # open and initialize CSV file
-            with open('{}.csv'.format(base_filename), 'w') as csvfile:
-                # write utf-8 byte order mark at the beginning of the file
-                csvfile.write(codecs.BOM_UTF8.decode())
-                csvwriter = csv.DictWriter(csvfile,
-                                           fieldnames=self.csv_fields)
-                csvwriter.writeheader()
+        self.stdout.write('Exporting JSON and CSV')
+        # open and initialize CSV file
+        with open('{}.csv'.format(base_filename), 'w') as csvfile:
+            # write utf-8 byte order mark at the beginning of the file
+            csvfile.write(codecs.BOM_UTF8.decode())
+            csvwriter = csv.DictWriter(csvfile,
+                                       fieldnames=self.csv_fields)
+            csvwriter.writeheader()
 
-                # iteratively export as CSV and JSOn
-                with open('{}.json'.format(base_filename), 'w') as jsonfile:
-                    exporter = ExportEncoder(indent=2, csvwriter=csvwriter,
-                                             progress=self.progress)
-                    for chunk in exporter.iterencode(data):
-                        jsonfile.write(chunk)
+            # iteratively export as CSV and JSON
+            with open('{}.json'.format(base_filename), 'w') as jsonfile:
+                exporter = ExportEncoder(indent=2, csvwriter=csvwriter)
+                for chunk in exporter.iterencode(data):
+                    jsonfile.write(chunk)
 
     def get_base_filename(self):
         '''
@@ -156,9 +149,8 @@ class BaseExport(BaseCommand):
         if maximum:
             objects = objects[:maximum]
         total = objects.count()
-        task = self.progress.add_task("[green]Export to CSV:", total=total)
         return StreamArray((self.get_object_data(obj) for obj in objects),
-                           total, self.progress, task)
+                           total)
 
     def get_object_data(self, obj):
         '''
@@ -212,25 +204,31 @@ class StreamArray(list):
     :param gen: generator with data to be exported
     :param total: total number of items in the generator, for
         initializing the progress bar
-    :param progress: instance of `class:rich.progress.Progress` for tracking
-        progress as the data is consumed
-    :param task: progress task to be updated
     '''
 
     # adapted from answer on
     # https://stackoverflow.com/questions/21663800/python-make-a-list-generator-json-serializable
 
-    def __init__(self, gen, total, progress, task):
-        self.progress = progress
-        self.task = task
+    def __init__(self, gen, total, progress=True):
+        self.show_progress = progress
+        if self.show_progress:
+            self.progbar = progressbar.ProgressBar(redirect_stdout=True,
+                                                   max_value=total)
+            self.progress = 0
         self.gen = gen
         self.total = total
 
     def __iter__(self):
         for element in self.gen:
+            # update progress bar if progress is being shown
+            if self.show_progress:
+                self.progress += 1
+                self.progbar.update(self.progress)
             yield element
-            # advance progress by one after every element
-            self.progress.advance(self.task)
+
+        if self.show_progress:
+            # mark progress bar as finished when iteration finishes
+            self.progbar.finish()
 
     def __len__(self):
         return self.total
