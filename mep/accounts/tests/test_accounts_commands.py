@@ -567,8 +567,7 @@ class TestExportEvents(TestCase):
         stdout = StringIO()
         call_command('export_events', '-d', tempdir.name, stdout=stdout)
         output = stdout.getvalue()
-        assert 'Exporting JSON' in output
-        assert 'Exporting CSV' in output
+        assert 'Exporting JSON and CSV' in output
         assert os.path.exists(os.path.join(tempdir.name, 'events.json'))
         assert os.path.exists(os.path.join(tempdir.name, 'events.csv'))
 
@@ -577,5 +576,5 @@ class TestExportEvents(TestCase):
             mock_get_obj_data.return_value = {'event_type': 'test'}
             call_command('export_events', '-d', tempdir.name, '-m', 2,
                          stdout=stdout)
-            # 2 objects * 2 (once each for CSV, JSON)
-            assert mock_get_obj_data.call_count == 4
+            # 2 objects (once each)
+            assert mock_get_obj_data.call_count == 2

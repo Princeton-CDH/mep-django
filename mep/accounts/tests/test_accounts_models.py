@@ -778,6 +778,9 @@ class TestSubscription(TestCase):
 
         # test that calculate duration is called when it should be
         with patch.object(subs, 'calculate_duration') as mock_calcdur:
+            # return an arbitrary integer value so save does not error
+            mock_calcdur.return_value = 30
+
             # no dates - not called
             subs.save()
             mock_calcdur.assert_not_called()
