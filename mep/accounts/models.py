@@ -358,8 +358,7 @@ class Event(Notable, PartialDateMixin):
         same or subsequent year.'''
 
         # full precision is either all flags or null/none
-        full_precision = [DatePrecision.year | DatePrecision.month |
-                          DatePrecision.day, None]
+        full_precision = [DatePrecision.all_flags, None]
         month_day = DatePrecision.month | DatePrecision.day
         duration = None
         print(self.start_date, self.end_date)
