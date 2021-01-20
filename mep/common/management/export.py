@@ -7,9 +7,45 @@ import codecs
 import csv
 import json
 import os.path
+from itertools import chain
 
-import progressbar
+
 from django.core.management.base import BaseCommand, ImproperlyConfigured
+from rich.progress import Progress
+
+
+class ExportEncoder(json.JSONEncoder):
+    '''Extend :class`json.JsonEncoder`  so that generator content
+    used for iterative encoding as json can be output as CSV
+    at the same time.
+
+    :param csvwriter: instance of `class:csv.DictWriter` for CSV ouptut
+    :param progress: instance of `class:rich.progress.Progress` for tracking
+        progress of the data used for JSON outupt
+    '''
+
+    def __init__(self, csvwriter, progress, *args, **kwargs):
+        self.csvwriter = csvwriter
+        self.progress = progress
+        super(). __init__(*args, **kwargs)
+
+    def iterencode(self, data):
+        '''extend iterencode to allow processing the data twice'''
+        # create a new task within the progress manager
+        task = self.progress.add_task("[blue]Export to JSON:",
+                                      total=data.total)
+        # wrap the generator in a new stream array,
+        # so that we can process it before handoff for json encoding
+        restream = StreamArray(self.reprocess_data(data), data.total,
+                               self.progress, task)
+        return super().iterencode(restream)
+
+    def reprocess_data(self, data):
+        '''Generator: output each item in the data as CSV, then yield'''
+        for element in data:
+            # export to csv
+            self.csvwriter.writerow(BaseExport.flatten_dict(element))
+            yield element
 
 
 class BaseExport(BaseCommand):
@@ -51,30 +87,31 @@ class BaseExport(BaseCommand):
                 }
             )
 
+        # create progress manager
+        self.progress = Progress()
+
         # define the output file
         base_filename = self.get_base_filename()
         if kwargs['directory']:
             base_filename = os.path.join(kwargs['directory'], base_filename)
 
-        # write data as JSON; list of dicts is used directly
+        # get stream array / generator of data for export
         data = self.get_data(kwargs.get('max'))
-        self.stdout.write('Exporting JSON')
-        with open('{}.json'.format(base_filename), 'w') as jsonfile:
-            for chunk in json.JSONEncoder(indent=2).iterencode(data):
-                jsonfile.write(chunk)
+        with self.progress:
+            # open and initialize CSV file
+            with open('{}.csv'.format(base_filename), 'w') as csvfile:
+                # write utf-8 byte order mark at the beginning of the file
+                csvfile.write(codecs.BOM_UTF8.decode())
+                csvwriter = csv.DictWriter(csvfile,
+                                           fieldnames=self.csv_fields)
+                csvwriter.writeheader()
 
-        # write data as CSV; data must be fetched again from generator
-        data = self.get_data(kwargs.get('max'))
-        self.stdout.write('Exporting CSV')
-        with open('{}.csv'.format(base_filename), 'w') as csvfile:
-            # write utf-8 byte order mark at the beginning of the file
-            csvfile.write(codecs.BOM_UTF8.decode())
-
-            csvwriter = csv.DictWriter(csvfile, fieldnames=self.csv_fields)
-            csvwriter.writeheader()
-
-            for row in data:
-                csvwriter.writerow(self.flatten_dict(row))
+                # iteratively export as CSV and JSOn
+                with open('{}.json'.format(base_filename), 'w') as jsonfile:
+                    exporter = ExportEncoder(indent=2, csvwriter=csvwriter,
+                                             progress=self.progress)
+                    for chunk in exporter.iterencode(data):
+                        jsonfile.write(chunk)
 
     def get_base_filename(self):
         '''
@@ -118,8 +155,10 @@ class BaseExport(BaseCommand):
         # grab the first N if maximum is specified
         if maximum:
             objects = objects[:maximum]
+        total = objects.count()
+        task = self.progress.add_task("[green]Export to CSV:", total=total)
         return StreamArray((self.get_object_data(obj) for obj in objects),
-                           objects.count())
+                           total, self.progress, task)
 
     def get_object_data(self, obj):
         '''
@@ -145,8 +184,20 @@ class BaseExport(BaseCommand):
                     flat_data['_'.join([key, subkey])] = subval
             # convert list to a delimited string
             elif isinstance(val, list):
-                # convert to string before joining (e.g. for list of integer)
-                flat_data[key] = ';'.join([str(v) for v in val])
+
+                # check for list of dict
+                if val and isinstance(val[0], dict):
+                    # get a list of all keys present in any of the dictionaries
+                    subkeys = set(chain.from_iterable(i.keys() for i in val))
+                    # flatten each field into a list of values
+                    for subkey in subkeys:
+                        flat_data['_'.join([key, subkey])] = ';'.join([
+                            str(v[subkey]) for v in val])
+
+                # otherwise, assume list of values (e.g., string or integer)
+                else:
+                    # convert to string before joining (e.g., list of integer)
+                    flat_data[key] = ';'.join([str(v) for v in val])
             else:
                 flat_data[key] = val
 
@@ -161,25 +212,25 @@ class StreamArray(list):
     :param gen: generator with data to be exported
     :param total: total number of items in the generator, for
         initializing the progress bar
+    :param progress: instance of `class:rich.progress.Progress` for tracking
+        progress as the data is consumed
+    :param task: progress task to be updated
     '''
 
     # adapted from answer on
     # https://stackoverflow.com/questions/21663800/python-make-a-list-generator-json-serializable
 
-    def __init__(self, gen, total):
-        self.progbar = progressbar.ProgressBar(redirect_stdout=True,
-                                               max_value=total)
-        self.progress = 0
+    def __init__(self, gen, total, progress, task):
+        self.progress = progress
+        self.task = task
         self.gen = gen
         self.total = total
 
     def __iter__(self):
-        for el in self.gen:
-            self.progress += 1
-            self.progbar.update(self.progress)
-            yield el
-        # mark progress bar as finished when iteration finishes
-        self.progbar.finish()
+        for element in self.gen:
+            yield element
+            # advance progress by one after every element
+            self.progress.advance(self.task)
 
     def __len__(self):
         return self.total

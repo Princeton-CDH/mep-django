@@ -726,29 +726,51 @@ class TestSubscription(TestCase):
         # single day
         delta = relativedelta(days=3)
         subs = Subscription(start_date=today, end_date=today + delta)
-        subs.calculate_duration()
+        duration = subs.calculate_duration()
         expect = 3
-        assert subs.duration == expect, \
+        assert duration == expect, \
             "%s should generate duration of '%d', got '%d'" % \
-                (delta, expect, subs.duration)
+            (delta, expect, duration)
 
         # month duration should be actual day count
         # February in a non-leap year; 28 days
         subs = Subscription(start_date=datetime.date(2017, 2, 1),
                             end_date=datetime.date(2017, 3, 1))
-        subs.calculate_duration()
+        duration = subs.calculate_duration()
         expect = 28
-        assert subs.duration == expect, \
+        assert duration == expect, \
             "Month of February should generate duration of '%d', got '%d'" % \
-                (expect, subs.duration)
+            (expect, duration)
         # January in any year; 31 days
         subs = Subscription(start_date=datetime.date(2017, 1, 1),
                             end_date=datetime.date(2017, 2, 1))
-        subs.calculate_duration()
+        duration = subs.calculate_duration()
         expect = 31
-        assert subs.duration == expect, \
+        assert duration == expect, \
             "Month of January should generate duration of '%d', got '%d'" % \
-                (expect, subs.duration)
+            (expect, duration)
+
+    def test_calculate_duration_partial_dates(self):
+        subs = Subscription()
+        # month/day partial dates in (assumed) same year
+        subs.partial_start_date = '--11-05'
+        subs.partial_end_date = '--12-05'
+        assert subs.calculate_duration() == 30
+
+        # month/day partial dates that span new year's
+        subs.partial_start_date = '--12-02'
+        subs.partial_end_date = '--01-02'
+        assert subs.calculate_duration() == 31
+
+        # mixed precision
+        subs.partial_start_date = '1932-12-02'
+        subs.partial_end_date = '--01-02'
+        assert not subs.calculate_duration()
+
+        # unsupported precision
+        subs.partial_start_date = '1932-12'
+        subs.partial_end_date = '1933-01'
+        assert not subs.calculate_duration()
 
     def test_save(self):
         acct = Account.objects.create()
