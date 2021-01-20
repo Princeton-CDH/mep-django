@@ -476,6 +476,15 @@ class TestExportEvents(TestCase):
         event = Event.objects.filter(subscription__isnull=True).first()
         assert not self.cmd.subscription_info(event)
 
+    def test_borrow_info(self):
+        # get a borrow event with both dates
+        event = Event.objects.filter(
+            borrow__isnull=False,
+            start_date__isnull=False, end_date__isnull=False).first()
+        info = self.cmd.get_object_data(event)
+        assert info['borrow']['status'] == event.borrow.get_item_status_display()
+        assert info['borrow']['duration_days'] == event.calculate_duration()
+
     def test_item_data(self):
         # with work uri and notes
         event = Event.objects.filter(work__isnull=False, edition__isnull=True)\

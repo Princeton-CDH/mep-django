@@ -35,7 +35,7 @@ class Command(BaseExport):
         # reimbursement specific
         'reimbursement_refund',
         # borrow specific
-        'borrow_status',
+        'borrow_status', 'borrow_duration_days',
         # purchase specific
         'purchase_price',
         # currency applies to purchase, borrow, and subscription
@@ -89,6 +89,9 @@ class Command(BaseExport):
             data['borrow'] = {
                 'status': obj.borrow.get_item_status_display()
             }
+            borrow_duration = obj.calculate_duration()
+            if borrow_duration:
+                data['borrow']['duration_days'] = borrow_duration
 
         # purchase data
         elif event_type == 'Purchase' and obj.purchase.price:
