@@ -601,7 +601,7 @@ class TestMembersListView(TestCase):
         account.card = card
         account.save()
         Person.index_items(Person.objects.all())
-        time.sleep(1)
+        time.sleep(2)
 
         response = self.client.get(self.members_url)
 

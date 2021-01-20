@@ -15,7 +15,8 @@ django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader
-parasolr>=0.5.3
+# parasolr 0.6 has a regression in getting stats
+parasolr>=0.5.3,<0.6
 django-widget-tweaks
 pymarc
 progressbar2
