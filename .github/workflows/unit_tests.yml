@@ -155,8 +155,8 @@ jobs:
       env:
         SLACK_COLOR: ${{ env.SLACK_COLOR }}
         SLACK_WEBHOOK: ${{ secrets.ACTIONS_SLACK_WEBHOOK }}
-        SLACK_TITLE: "Run #${{ github.run_number }} for workflow `${{ github.workflow }}`: ${{ job.status }}"
-        SLACK_MESSAGE: "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Run #${{ github.run_number }}> | <https://github.com/${{ github.repository }}/|${{ github.repository }}@${{ github.ref }}>"
+        # SLACK_TITLE: "Run #${{ github.run_number }} for workflow `${{ github.workflow }}`: ${{ job.status }}"
+        SLACK_MESSAGE: "Run <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|#${{ github.run_number }}> for workflow `${{ github.workflow }}`: ${{ job.status }}\n<https://github.com/${{ github.repository }}/|${{ github.repository }}@${{ github.ref }}>"
         SLACK_FOOTER: "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|View commit>"
         MSG_MINIMAL: true # use compact slack message format
 
