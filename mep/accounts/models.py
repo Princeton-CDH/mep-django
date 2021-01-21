@@ -361,7 +361,6 @@ class Event(Notable, PartialDateMixin):
         full_precision = [DatePrecision.all_flags, None]
         month_day = DatePrecision.month | DatePrecision.day
         duration = None
-        print(self.start_date, self.end_date)
 
         if self.start_date and self.end_date and \
            all(dp in full_precision
