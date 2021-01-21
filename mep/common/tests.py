@@ -931,12 +931,13 @@ class TestBaseExport(TestCase):
         list_of_dict = {
             'source': [
                 {'type': 'card', 'citation': 'Lending card'},
-                {'type': 'logbook', 'citation': '1923 Logbook'}
+                {'type': 'logbook', 'citation': '1923 Logbook', 'image': 'foo'}
             ]
         }
         flat_list = BaseExport.flatten_dict(list_of_dict)
         assert flat_list['source_type'] == 'card;logbook'
         assert flat_list['source_citation'] == 'Lending card;1923 Logbook'
+        assert flat_list['source_image'] == ';foo'
 
         # empty list
         assert BaseExport.flatten_dict({'empty': []}) == {'empty': ''}

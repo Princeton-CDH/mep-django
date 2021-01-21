@@ -184,7 +184,7 @@ class BaseExport(BaseCommand):
                     # flatten each field into a list of values
                     for subkey in subkeys:
                         flat_data['_'.join([key, subkey])] = ';'.join([
-                            str(v[subkey]) for v in val])
+                            str(v.get(subkey, '')) for v in val])
 
                 # otherwise, assume list of values (e.g., string or integer)
                 else:
