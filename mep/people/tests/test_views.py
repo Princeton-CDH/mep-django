@@ -228,15 +228,15 @@ class TestPeopleViews(TestCase):
         # importing template tag to test with that formatting here
         self.assertContains(response, 'Subscription')
         self.assertContains(response, '%s - %s' % \
-            (format_date(subs.start_date), format_date(subs.end_date)))
+                            (subs.partial_start_date, subs.partial_end_date))
         self.assertContains(response, 'Renewal')
-        self.assertContains(response, '%s - ' % format_date(subs2.start_date))
+        self.assertContains(response, '%s - ' % subs2.partial_start_date)
         # Reimbursement events should be listed
         self.assertContains(response, 'Reimbursement')
-        self.assertContains(response, format_date(reimb.partial_start_date))
+        self.assertContains(response, reimb.partial_start_date)
         # Other event types should not be
         self.assertNotContains(response, 'Generic')
-        self.assertNotContains(response, format_date(generic.start_date))
+        self.assertNotContains(response, generic.partial_start_date)
 
     def test_person_admin_list(self):
         # create user with permission to load admin edit form
