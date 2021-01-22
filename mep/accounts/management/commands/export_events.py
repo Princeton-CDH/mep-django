@@ -35,7 +35,7 @@ class Command(BaseExport):
         # reimbursement specific
         'reimbursement_refund',
         # borrow specific
-        'borrow_status',
+        'borrow_status', 'borrow_duration_days',
         # purchase specific
         'purchase_price',
         # currency applies to purchase, borrow, and subscription
@@ -70,8 +70,6 @@ class Command(BaseExport):
         if member_info:
             data['member'] = member_info
 
-        # variable to store footnote reference, if any
-        footnote = None
         currency = None
 
         # subscription-specific data
@@ -91,6 +89,9 @@ class Command(BaseExport):
             data['borrow'] = {
                 'status': obj.borrow.get_item_status_display()
             }
+            borrow_duration = obj.calculate_duration()
+            if borrow_duration:
+                data['borrow']['duration_days'] = borrow_duration
 
         # purchase data
         elif event_type == 'Purchase' and obj.purchase.price:
@@ -102,14 +103,14 @@ class Command(BaseExport):
         if currency:
             data['currency'] = currency
 
-        # footnote should always be attached to the base event
-        footnote = obj.footnotes.first()
-
         item_info = self.item_info(obj)
         if item_info:
             data['item'] = item_info
-        if footnote:
-            data['source'] = self.source_info(footnote)
+        # footnote should always be attached to the base event;
+        # multiple footnotes should be supported
+        if obj.footnotes.exists():
+            data['source'] = [self.source_info(fn)
+                              for fn in obj.footnotes.all()]
         return data
 
     def member_info(self, event):

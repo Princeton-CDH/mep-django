@@ -8,13 +8,14 @@ eulxml
 viapy>=0.2
 # require wagtail pre 2.10 for python3.5 support
 wagtail>=2.9,<2.10
-django-autocomplete-light>=3.5.1
+# pin for js error with dal>3.5; see https://github.com/Princeton-CDH/mep-django/issues/716
+django-autocomplete-light==3.5.1
 python-dateutil
 django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader
-parasolr>=0.5.3
+parasolr>=0.6.1
 django-widget-tweaks
 pymarc
 progressbar2

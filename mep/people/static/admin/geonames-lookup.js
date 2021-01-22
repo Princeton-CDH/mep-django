@@ -14,10 +14,10 @@ function init_map() {
     // initialize the map for the first time
     if ($('#geonames_map').length && typeof L !== "undefined") {
         map = L.map('geonames_map');
-        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
             maxZoom: 18,
-            id: 'mapbox.streets',
+            id: 'mapbox/streets-v11',
             // get mapbox access token; passed in via hidden form field
             accessToken: $('input[name="mapbox_token"]').val(),
         }).addTo(map);
