@@ -3,6 +3,16 @@
 CHANGELOG
 =========
 
+1.4
+---
+
+
+* As a data user, I want to see multiple source types and source citations when an event is documented in multiple sources, so that I can understand and access the sources for the data.
+* As an events data user, I want borrowing duration available in days so that I can easily calculate and compare borrowing events with known durations.
+* bugfix: saving subscriptions with unknown years in subsequent years no longer causes an error calculating duration
+* data export scripts are now more efficient
+* continuous integration testing moved from Travis-CI to GitHub Actions
+
 1.3
 ---
 
