@@ -3,6 +3,11 @@
 CHANGELOG
 =========
 
+1.4.1
+-----
+
+Update book export so contributor fields are ordered based on admin-configured sort order (author first).
+
 1.4
 ---
 
