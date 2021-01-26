@@ -15,7 +15,7 @@ from mep.books.oclc import SRUSearch
 
 
 class Command(BaseCommand):
-    """Associate library items with OCLC entries via WordCat Search API"""
+    """Associate library items with OCLC entries via WorldCat Search API"""
     help = __doc__
 
     mode = None
