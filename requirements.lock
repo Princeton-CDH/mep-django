@@ -7,6 +7,8 @@ bleach==3.2.2
 cached-property==1.5.2
 certifi==2020.12.5
 chardet==4.0.0
+colorama==0.4.4
+commonmark==0.9.1
 coverage==5.3.1
 dictionaries==0.0.2
 Django==2.2.17
@@ -33,7 +35,6 @@ future==0.18.2
 html5lib==1.1
 idna==2.10
 imagesize==1.2.0
-importlib-metadata==3.4.0
 iniconfig==1.1.1
 isodate==0.6.0
 Jinja2==2.11.2
@@ -46,7 +47,7 @@ MarkupSafe==1.1.1
 mysqlclient==2.0.3
 oauthlib==3.1.0
 packaging==20.8
--e git+git@github.com:Princeton-CDH/parasolr.git@595f8a2b77110279a57e6f4e244b61f21c62eca9#egg=parasolr
+parasolr==0.6.1
 piffle==0.3.0
 Pillow==7.2.0
 pluggy==0.13.1
@@ -59,20 +60,22 @@ pyasn1==0.4.8
 Pygments==2.7.4
 pymarc==4.0.0
 pyparsing==2.4.7
+PySocks==1.7.1
 pytest==6.2.1
 pytest-cov==2.11.1
 pytest-django==4.1.0
 pytest-ordering==0.6
 python-cas==1.5.0
 python-dateutil==2.8.1
-python-utils==2.5.1
+python-utils==2.5.2
 pytz==2020.5
 rdflib==5.0.0
 rdflib-jsonld==0.5.0
 requests==2.25.1
 requests-oauthlib==1.3.0
+rich==9.8.2
 six==1.15.0
-snowballstemmer==2.0.0
+snowballstemmer==2.1.0
 soupsieve==2.1
 Sphinx==3.4.3
 sphinxcontrib-applehelp==1.0.2
@@ -93,4 +96,3 @@ wagtail==2.9.3
 webencodings==0.5.1
 Willow==1.3
 XlsxWriter==1.3.7
-zipp==3.4.0
