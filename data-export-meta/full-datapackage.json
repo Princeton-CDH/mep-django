@@ -1,6 +1,6 @@
 {
   "profile": "tabular-data-package",
-  "title": "Shakespeare and Company Project: Lending Library Members, Events, and Books",
+  "title": "Shakespeare and Company Project Dataset: Lending Library Members, Events, and Books",
   "id": "https://doi.org/10.34770/39sq-bm51",
   "homepage": "https://shakespeareandco.princeton.edu/about/data/",
   "version": "1.1.0",
