@@ -116,7 +116,7 @@
             "constraints": {
               "pattern": "(\\d{4}|-)?(?:-([01]\\d))?(?:-([0-3]\\d))?"
             },
-            "description": "date the subscription was purchased (ISO 8601 format; YYYY, YY-MM, YYYY-MM-DD, or --MM-DD)"
+            "description": "date the subscription was purchased (ISO 8601 format; YYYY, YYYY-MM, YYYY-MM-DD, or --MM-DD)"
           },
           {
             "name": "reimbursement_refund",
