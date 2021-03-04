@@ -551,6 +551,13 @@ class TestExportEvents(TestCase):
         assert 'member' in data
         assert 'subscription' in data
 
+        # test separate deposit gets subscription info
+        sub = event.subscription
+        sub.subtype = 'oth'
+        sub.save()
+        data = self.cmd.get_object_data(sub.event_ptr)
+        assert 'subscription' in data
+
     def test_get_object_data_footnotes(self):
         # get an event from the fixture with a footnote
         event = Event.objects.filter(footnotes__isnull=False).first()
