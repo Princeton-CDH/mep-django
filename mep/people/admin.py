@@ -165,14 +165,6 @@ class PersonTypeListFilter(admin.SimpleListFilter):
             return queryset.filter(account=None).filter(creator=None)
 
 
-class PersonAddressInline(AddressInline):
-    # extend address inline for person to specify foreign key field
-    # and remove account from editable fields
-    fields = ('location', 'partial_start_date', 'partial_end_date',
-              'care_of_person', 'notes')
-    fk_name = 'person'
-
-
 class PersonAdmin(admin.ModelAdmin):
     '''ModelAdmin for :class:`~mep.people.models.Person`.
     Uses custom template to display account subscription events and
@@ -202,7 +194,7 @@ class PersonAdmin(admin.ModelAdmin):
                    'is_organization')
     # Note: moving relationships to last for adjacency to list of relationships
     # *to* this person included in the template
-    inlines = [InfoURLInline, PersonAddressInline, FootnoteInline, RelationshipInline]
+    inlines = [InfoURLInline, FootnoteInline, RelationshipInline]
 
     # by default, set sort name from name for those cases where
     # only one name is known and they are the same
