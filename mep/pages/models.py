@@ -11,9 +11,9 @@ from wagtail.core import blocks
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core.models import Page
 from wagtail.documents.blocks import DocumentChooserBlock
+from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.images.edit_handlers import ImageChooserPanel
-from wagtail.images.models import Image
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.snippets.models import register_snippet
 
@@ -108,6 +108,7 @@ class BodyContentBlock(blocks.StreamBlock):
         classname='footnotes'
     )
     linkable_section = LinkableSectionBlock()
+    embed = EmbedBlock()
 
 
 class HomePage(Page):
