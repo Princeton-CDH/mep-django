@@ -3,6 +3,13 @@
 CHANGELOG
 =========
 
+1.5
+---
+* As a content editor, I want to embed external content in editorial and other pages, so that I can include dynamic content in essays.
+* Disabled person address inline in admin site to avoid associating addresses with people instead of accounts
+* bugfix: correct event export to include subscription price/deposit amounts for separate deposit events
+
+
 1.4.1
 -----
 

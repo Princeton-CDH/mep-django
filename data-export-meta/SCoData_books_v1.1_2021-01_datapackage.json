@@ -1,8 +1,9 @@
 {
   "profile": "tabular-data-package",
-  "title": "Shakespeare and Company Project: Lending Library Books",
+  "title": "Shakespeare and Company Project Dataset: Lending Library Books",
+  "id": "https://doi.org/10.34770/079z-h206",
   "homepage": "https://shakespeareandco.princeton.edu/about/data/",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "image": "https://shakespeareandco.princeton.edu/static/img/social.png",
   "licenses": [{
     "name": "CC-BY-4.0",
@@ -11,7 +12,7 @@
   }],
   "resources": [
     {
-      "path": "books.csv",
+      "path": "SCoData_books_v1.1_2021-01.csv",
       "profile": "tabular-data-resource",
       "name": "books",
       "format": "csv",
@@ -25,7 +26,8 @@
             "format": "uri",
             "constraints": {
               "required": true
-            }
+            },
+            "description": "identifier; book detail page on https://shakespeareandco.princeton.edu"
           },
           {
             "name": "title",
@@ -33,101 +35,118 @@
             "format": "default",
             "constraints": {
               "required": true
-            }
+            },
+            "description": "title of the book or other item"
           },
           {
             "name": "author",
             "type": "string",
             "format": "default",
-            "rdfType": "https://schema.org/ItemList"
-          },
-          {
-            "name": "editor",
-            "type": "string",
-            "format": "default",
-            "rdfType": "https://schema.org/ItemList"
-          },
-          {
-            "name": "contributor",
-            "type": "string",
-            "format": "default",
-            "rdfType": "https://schema.org/ItemList"
+            "rdfType": "https://schema.org/ItemList",
+            "description": "author or authors, last name first (could be multiple; separated by semicolon)"
           },
           {
             "name": "translator",
             "type": "string",
             "format": "default",
-            "rdfType": "https://schema.org/ItemList"
+            "rdfType": "https://schema.org/ItemList",
+            "description": "translator(s)"          },
+          {
+            "name": "editor",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList",
+            "description": "editor(s)"
+          },
+          {
+            "name": "contributor",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList",
+            "description": "contributor(s)"
           },
           {
             "name": "illustrator",
             "type": "string",
             "format": "default",
-            "rdfType": "https://schema.org/ItemList"
+            "rdfType": "https://schema.org/ItemList",
+            "description": "illustrator(s)"
           },
           {
             "name": "introduction",
             "type": "string",
             "format": "default",
-            "rdfType": "https://schema.org/ItemList"
+            "rdfType": "https://schema.org/ItemList",
+            "description": "author of an introduction"
           },
           {
             "name": "preface",
             "type": "string",
             "format": "default",
-            "rdfType": "https://schema.org/ItemList"
+            "rdfType": "https://schema.org/ItemList",
+            "description": "author of a preface"
           },
           {
             "name": "photographer",
             "type": "string",
             "format": "default",
-            "rdfType": "https://schema.org/ItemList"
+            "rdfType": "https://schema.org/ItemList",
+            "description": "photographer(s)"
           },
           {
             "name": "year",
             "type": "year",
-            "format": "default"
+            "format": "default",
+            "description": "year published"
           },
           {
             "name": "format",
             "type": "string",
-            "format": "default"
+            "format": "default",
+            "description": "type of item (Book, Periodical, Article)"
           },
           {
             "name": "uncertain",
             "type": "boolean",
-            "format": "default"
+            "format": "default",
+            "description": "boolean indicating if item is ambiguous or unidentifiable"
           },
           {
             "name": "ebook_url",
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "link to a digital edition of this work"
           },
           {
             "name": "volumes_issues",
             "type": "string",
             "format": "default",
-            "rdfType": "https://schema.org/ItemList"
+            "rdfType": "https://schema.org/ItemList",
+            "description": "list of multivolume volumes or periodical issues known to have circulated (separated by semicolon)"
           },
           {
             "name": "notes",
             "type": "string",
-            "format": "default"
+            "format": "default",
+            "description": "more information, e.g. about uncertain titles (text with markdown formatting)"
           },
           {
             "name": "event_count",
             "type": "integer",
-            "format": "default"
+            "format": "default",
+            "description": "total number of events associated with this title (integer)"
           },
           {
             "name": "borrow_count",
             "type": "integer",
-            "format": "default"
+            "format": "default",
+            "description": "total number of borrowing events associated with this title (integer)"
           },
           {
             "name": "purchase_count",
             "type": "integer",
-            "format": "default"
+            "format": "default",
+            "description": "total number of purchase events associated with this title (integer)"
           },
           {
             "name": "circulation_years",
@@ -136,12 +155,14 @@
             "format": "default",
             "constraints": {
               "pattern": "(\\d{4})?(;\\d{4})*"
-            }
+            },
+            "description": "list of years of known activity for this title (multiple, separated by semicolon)"
           },
           {
             "name": "updated",
             "type": "datetime",
-            "format": "%Y-%m-%dT%H:%M:%S+00:00"
+            "format": "%Y-%m-%dT%H:%M:%S+00:00",
+            "description": "timestamp record was last modified in the Shakespeare and Company Project database before export"
           }
         ],
         "missingValues": [

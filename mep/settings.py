@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'wagtail.images',
     'wagtail.admin',
     'wagtail.core',
+    'wagtail.embeds',
     'wagtail.contrib.redirects',
     'taggit',
     'widget_tweaks',
@@ -182,6 +183,16 @@ OPTIONAL_APPS = (
 )
 
 
+WAGTAILEMBEDS_FINDERS = [
+    {
+        'class': 'wagtail.embeds.finders.oembed'
+    },
+    {
+        'class': 'mep.pages.embed_finders.GlitchHubEmbedFinder'
+    },
+]
+
+
 # pucas configuration that is not expected to change across deploys
 # and does not reference local server configurations or fields
 PUCAS_LDAP = {
@@ -220,19 +231,21 @@ CSP_DEFAULT_SRC = "'none'"
 # allow loading js locally, from google (for analytics), and
 # nytimes github (for svg crowbar)
 CSP_SCRIPT_SRC = ("'self'", 'www.googletagmanager.com',
-                  '*.google-analytics.com', 'nytimes.github.io')
+                  '*.google-analytics.com', 'nytimes.github.io',
+                  'unpkg.com', 'd3js.org', 'princeton-cdh.github.io')
 
 # allow loading fonts locally only
 CSP_FONT_SRC = ("'self'",)
 
 # allow loading css locally & via inline styles
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'unpkg.com')
 
 # allow loading web manifest locally only
 CSP_MANIFEST_SRC = ("'self'",)
 
 # allow XMLHttpRequest or Fetch requests locally (for search), analytics & maps
-CSP_CONNECT_SRC = ("'self'", '*.google-analytics.com', '*.arcgis.com')
+CSP_CONNECT_SRC = ("'self'", '*.google-analytics.com', '*.arcgis.com',
+                   'princeton-cdh.github.io')
 
 # whitelisted image sources - analytics (tracking pixel?), IIIF, maps, etc.
 CSP_IMG_SRC = ("'self'", 'www.googletagmanager.com', '*.google-analytics.com',
