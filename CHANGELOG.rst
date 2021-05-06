@@ -3,6 +3,11 @@
 CHANGELOG
 =========
 
+1.5.1
+-----
+
+* bugfix: handle subscription events without duration in 100 years tweets
+
 1.5
 ---
 * As a content editor, I want to embed external content in editorial and other pages, so that I can include dynamic content in essays.
