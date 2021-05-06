@@ -390,6 +390,15 @@ class TestTweetContent(TestCase):
         assert 'subscribed for 1 month, 2 volumes at a time'  \
             in tweet
 
+        # no duration or volume information
+        subs.subscription.end_date = None
+        subs.subscription.duration = None
+        subs.subscription.volumes = None
+        tweet = tweet_content(subs, subs.partial_start_date)
+        # no empty duration
+        assert 'subscribed for .' not in tweet
+        assert 'subscribed.' in tweet
+
     def test_request_event(self):
         # find a borrow with fully known start and end date
         borrow = Event.objects.filter(

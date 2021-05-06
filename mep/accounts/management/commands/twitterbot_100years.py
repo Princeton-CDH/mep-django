@@ -171,7 +171,7 @@ def can_tweet(ev, day):
 
 tweet_format = {
     'verbed': '%(member)s %(verb)s %(work)s%(period)s',
-    'subscription': '%(member)s %(verb)s for %(duration)s%(volumes)s.',
+    'subscription': '%(member)s %(verb)s%(duration)s%(volumes)s.',
     'reimbursement': '%(member)s received a reimbursement for ' +
                      '%(amount)s%(currency)s.',
 }
@@ -207,12 +207,16 @@ def tweet_content(ev, day):
        and ev.subscription.purchase_date == day:
         tweet_pattern = 'subscription'
         verb = 'subscribed' if event_label == 'Subscription' else 'renewed'
-        # renewals include duration
+        # renewals may or may not include duration & volume information
         tweet_info.update({
             'verb': verb,
-            'duration': ev.subscription.readable_duration(),
+            'duration': '',
             'volumes': ''
         })
+        # include duration if known
+        if ev.subscription.duration:
+            tweet_info['duration'] = ' for %s' % \
+                ev.subscription.readable_duration()
         # include volume count if known
         if ev.subscription.volumes:
             tweet_info['volumes'] = ', %d volume%s at a time' % \
