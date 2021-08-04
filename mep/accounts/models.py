@@ -470,8 +470,6 @@ class Subscription(Event, CurrencyMixin):
             self.duration = self.calculate_duration()
         super(Subscription, self).save(*args, **kwargs)
 
-
-
     def validate_unique(self, *args, **kwargs):
         '''Validation check to prevent duplicate events from being
         added to the system.  Does not allow more than one subscription
@@ -612,11 +610,13 @@ class Reimbursement(Event, CurrencyMixin):
         `unique_together` because of multi-table inheritance.'''
         super(Reimbursement, self).validate_unique(*args, **kwargs)
 
-        # check to prevent duplicate event (reimbursement + date + account)
-        # should not have same date + account
+        # check to prevent duplicate event;
+        # reimbursement + date + account + refund amount
+        # should not have same date + account + amount
         try:
             qs = Reimbursement.objects.filter(start_date=self.start_date,
-                                              account=self.account)
+                                              account=self.account,
+                                              refund=self.refund)
         except ObjectDoesNotExist:
             # bail out without making any further assertions because
             # we've had a missing related field and other checks
