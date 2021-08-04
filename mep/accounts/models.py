@@ -450,13 +450,13 @@ class Subscription(Event, CurrencyMixin):
 
     SUPPLEMENT = 'sup'
     RENEWAL = 'ren'
-    SEPARATE_DEPOSIT = 'oth'  # for historical reasons, this code is "other"
+    SEPARATE_PAYMENT = 'oth'  # for historical reasons, this code is "other"
 
     EVENT_TYPE_CHOICES = (
         ('', 'Subscription'),
         (SUPPLEMENT, 'Supplement'),
         (RENEWAL, 'Renewal'),
-        (SEPARATE_DEPOSIT, 'Separate Deposit'),
+        (SEPARATE_PAYMENT, 'Separate Payment'),
     )
     subtype = models.CharField(
         verbose_name='Type', max_length=50, blank=True,
