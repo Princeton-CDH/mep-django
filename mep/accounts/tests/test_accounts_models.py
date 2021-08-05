@@ -975,10 +975,11 @@ class TestReimbursement(TestCase):
         # resaving existing record should not error
         self.reimbursement.validate_unique()
 
-        # creating new reimbursement for same account & date should error
+        # creating new reimbursement for same account & date & amount should error
         with pytest.raises(ValidationError):
             reimburse = Reimbursement(account=self.account,
-                start_date=self.reimbursement.start_date)
+                start_date=self.reimbursement.start_date,
+                refund=self.reimbursement.refund)
             reimburse.validate_unique()
 
         # a new reimbursement that is not on the same date should not be caught
@@ -986,7 +987,13 @@ class TestReimbursement(TestCase):
             start_date=datetime.date(1919, 1, 1))
         reimburse.validate_unique()
 
-        # a reimbursement withment without an account should not raise
+        # same account, same day, different refund amount is allowed
+        reimburse2 = Reimbursement(account=self.account,
+            start_date=self.reimbursement.start_date,
+            refund=100)
+        reimburse.validate_unique()
+
+        # a reimbursement without an account should not raise
         # a related object error
         Reimbursement().validate_unique()
 

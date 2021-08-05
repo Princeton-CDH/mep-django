@@ -2,7 +2,7 @@ Django>=2.2.10,<3.0
 mysqlclient>1.3.13
 django-grappelli>=2.13.4
 cached_property
-django-cas-ng
+django-cas-ng<4.2
 pucas>=0.6
 eulxml
 viapy>=0.2
@@ -14,8 +14,8 @@ python-dateutil
 django-apptemplates
 py-flags
 django-tabular-export
-django-webpack-loader
-parasolr>=0.6.1
+django-webpack-loader<1.0
+parasolr>=0.6.1,<0.7
 django-widget-tweaks
 pymarc
 progressbar2

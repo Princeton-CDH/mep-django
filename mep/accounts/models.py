@@ -450,13 +450,13 @@ class Subscription(Event, CurrencyMixin):
 
     SUPPLEMENT = 'sup'
     RENEWAL = 'ren'
-    SEPARATE_DEPOSIT = 'oth'  # for historical reasons, this code is "other"
+    SEPARATE_PAYMENT = 'oth'  # for historical reasons, this code is "other"
 
     EVENT_TYPE_CHOICES = (
         ('', 'Subscription'),
         (SUPPLEMENT, 'Supplement'),
         (RENEWAL, 'Renewal'),
-        (SEPARATE_DEPOSIT, 'Separate Deposit'),
+        (SEPARATE_PAYMENT, 'Separate Payment'),
     )
     subtype = models.CharField(
         verbose_name='Type', max_length=50, blank=True,
@@ -469,8 +469,6 @@ class Subscription(Event, CurrencyMixin):
         if self.start_date and self.end_date:
             self.duration = self.calculate_duration()
         super(Subscription, self).save(*args, **kwargs)
-
-
 
     def validate_unique(self, *args, **kwargs):
         '''Validation check to prevent duplicate events from being
@@ -612,11 +610,13 @@ class Reimbursement(Event, CurrencyMixin):
         `unique_together` because of multi-table inheritance.'''
         super(Reimbursement, self).validate_unique(*args, **kwargs)
 
-        # check to prevent duplicate event (reimbursement + date + account)
-        # should not have same date + account
+        # check to prevent duplicate event;
+        # reimbursement + date + account + refund amount
+        # should not have same date + account + amount
         try:
             qs = Reimbursement.objects.filter(start_date=self.start_date,
-                                              account=self.account)
+                                              account=self.account,
+                                              refund=self.refund)
         except ObjectDoesNotExist:
             # bail out without making any further assertions because
             # we've had a missing related field and other checks

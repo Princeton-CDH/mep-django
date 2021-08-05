@@ -74,7 +74,7 @@ class Command(BaseExport):
 
         # subscription-specific data
         if event_type in ['Subscription', 'Supplement', 'Renewal',
-                          'Separate Deposit']:
+                          'Separate Payment']:
             data['subscription'] = self.subscription_info(obj)
             currency = obj.subscription.currency
 
