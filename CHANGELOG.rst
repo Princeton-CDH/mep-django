@@ -3,6 +3,12 @@
 CHANGELOG
 =========
 
+1.5.2
+-----
+
+* Rename "separate deposit" subscription event type to "separate payment"
+* Allow multiple reimbursements for the same account on the same day as long as the amounts differ
+
 1.5.1
 -----
 
