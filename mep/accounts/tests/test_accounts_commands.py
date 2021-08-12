@@ -551,7 +551,7 @@ class TestExportEvents(TestCase):
         assert 'member' in data
         assert 'subscription' in data
 
-        # test separate deposit gets subscription info
+        # test separate payment event includes subscription info
         sub = event.subscription
         sub.subtype = 'oth'
         sub.save()
