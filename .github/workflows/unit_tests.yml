@@ -77,18 +77,15 @@ jobs:
     needs: build-static
     strategy:
       matrix:
-        python: [3.5, 3.6]
-        solr: [6.6.5, 8.6]
-        db: [mariadb, postgres]
-        exclude:
-          # for python 3.5, only test with mariadb and solr 6
-          - python: 3.5
-            solr: 8.6
-            db: postgres
-          # for python 3.6, only test with postgres and solr 8
-          - python: 3.6
-            solr: 6.6.5
-            db: mariadb
+        include:
+         # for python 3.5, only test with mariadb and solr 6
+         - python: 3.5
+           solr: 6.6.5
+           db: mysql
+        # for python 3.6, only test with postgres and solr 8
+         - python: 3.6
+           solr: 8.6
+           db: postgres
     services:
       mariadb:
         image: mariadb
@@ -115,8 +112,8 @@ jobs:
       # configure django's ORM based on whether we're testing postgres or mysql
       - name: Set django database backend adapter
         env:
-          BACKEND: ${{ matrix.backend }}
-        run: echo "DJANGO_DB_BACKEND=$(echo "$DB")" >> $GITHUB_ENV
+          BACKEND: ${{ matrix.db }}
+        run: echo "DJANGO_DB_BACKEND=$(echo "$BACKEND")" >> $GITHUB_ENV
 
       - name: Checkout repository
         uses: actions/checkout@v2
