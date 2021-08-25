@@ -91,8 +91,9 @@ jobs:
         image: mariadb
         env:
           MYSQL_DATABASE: ${{ env.DB_NAME }}
-          MYSQL_ROOT_USER: ${{ env.DB_USER }}
+          MYSQL_USER: ${{ env.DB_USER }}
           MYSQL_ROOT_PASSWORD: ${{ env.DB_PASSWORD }}
+          MYSQL_PASSWORD: ${{ env.DB_PASSWORD }}
         ports:
         - 3306:3306
       postgres:
@@ -154,6 +155,14 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install -r dev-requirements.txt
+
+      # For mysql only, grant permission to the DB_USER to create databases so
+      # that it doesn't fail trying to create the django test database
+      - name: Grant permissions to mysql user
+        if: matrix.db == 'mysql'
+        env:
+          GRANT_CMD: "grant all privileges on *.* to '${{ env.DB_USER }}'@'%';"
+        run: echo "$GRANT_CMD" | mysql -h 127.0.0.1 --user=root --password="$DB_PASSWORD"
 
       - name: Download webpack stats
         uses: actions/download-artifact@v2

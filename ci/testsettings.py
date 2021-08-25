@@ -16,21 +16,25 @@ DATABASES = {
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_NAME'),
         'HOST': '127.0.0.1',
-        # disable mysql specific init option for now
-        # 'OPTIONS': {
-        #     # In each case, we want strict mode on to catch truncation issues
-        #     'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        # },
-        # 'PORT': '3306',
-        # 'TEST': {
-        #         # We also want the test databse to for utf8 and the general
-        #         # collation to keep case sensitive unicode searches working
-        #         # as we would expect on production
-        #         'CHARSET': 'utf8',
-        #         'COLLATION': 'utf8_general_ci',
-        # },
     },
 }
+
+# mysql-specific init options
+if os.getenv('DJANGO_DB_BACKEND') == 'mysql':
+    DATABASES.update({
+        'OPTIONS': {
+            # In each case, we want strict mode on to catch truncation issues
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
+        'PORT': '3306',
+        'TEST': {
+                # We also want the test databse to for utf8 and the general
+                # collation to keep case sensitive unicode searches working
+                # as we would expect on production
+                'CHARSET': 'utf8',
+                'COLLATION': 'utf8_general_ci',
+        }
+    })
 
 
 SOLR_CONNECTIONS = {
