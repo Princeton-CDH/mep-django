@@ -128,8 +128,8 @@ jobs:
           docker exec --user root ${{ job.services.solr.id }} /bin/bash -c "chown -R solr:solr /opt/solr/server/solr/configsets/sandco"
 
       - name: Copy solr configsets to solr home directory (Solr 8 only)
-          run: "docker exec -d ${{ job.services.solr.id }} cp -r /opt/solr/server/solr/configsets /var/solr/data"
-          if: ${{ matrix.solr == 8.6 }}
+        run: "docker exec -d ${{ job.services.solr.id }} cp -r /opt/solr/server/solr/configsets /var/solr/data"
+        if: ${{ matrix.solr == 8.6 }}
 
       # NOTE: for duration of migration to PUL, use python version from build matrix
       # Python version to use is stored in the .python-version file, which is the
