@@ -85,7 +85,7 @@ jobs:
         # for python 3.6, only test with postgres and solr 8
          - python: 3.6
            solr: 8.6
-           db: postgres
+           db: postgresql
     services:
       mariadb:
         image: mariadb
@@ -191,7 +191,7 @@ jobs:
         env:
           SLACK_COLOR: ${{ env.SLACK_COLOR }}
           SLACK_WEBHOOK: ${{ secrets.ACTIONS_SLACK_WEBHOOK }}
-          SLACK_TITLE: "Run #${{ github.run_number }} for workflow `${{ github.workflow }} (${{ matrix.backend }})`: ${{ job.status }}"
+          SLACK_TITLE: "Run #${{ github.run_number }} for workflow `${{ github.workflow }} (python${{ matrix.python }}/${{ matrix.db }}/solr${{ matrix.solr }})`: ${{ job.status }}"
           SLACK_MESSAGE: "Run <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|#${{ github.run_number }}> on <https://github.com/${{ github.repository }}/|${{ github.repository }}@${{ github.ref }}>"
           SLACK_FOOTER: "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|View commit>"
           MSG_MINIMAL: true # use compact slack message format
