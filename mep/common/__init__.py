@@ -9,5 +9,3 @@ import rdflib
 
 default_app_config = 'mep.common.apps.CommonConfig'
 SCHEMA_ORG = rdflib.Namespace('http://schema.org/')
-
-from mep.common.solr import SolrSchema
