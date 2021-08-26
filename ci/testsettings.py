@@ -9,11 +9,13 @@ import os
 
 DEBUG = False
 
+DB_BACKEND = os.getenv('DJANGO_DB_BACKEND')
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.%s' % os.getenv('DJANGO_DB_BACKEND'),
+        'ENGINE': 'django.db.backends.%s' % DB_BACKEND,
         'NAME':  os.getenv('DB_PASSWORD'),
-        'USER': os.getenv('DB_USER'),
+        'USER': 'root' if DB_BACKEND == 'mysql' else os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_NAME'),
         'HOST': '127.0.0.1',
     },

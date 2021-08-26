@@ -91,9 +91,7 @@ jobs:
         image: mariadb
         env:
           MYSQL_DATABASE: ${{ env.DB_NAME }}
-          MYSQL_USER: ${{ env.DB_USER }}
           MYSQL_ROOT_PASSWORD: ${{ env.DB_PASSWORD }}
-          MYSQL_PASSWORD: ${{ env.DB_PASSWORD }}
         ports:
         - 3306:3306
       postgres:
