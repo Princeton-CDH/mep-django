@@ -79,9 +79,9 @@ jobs:
       matrix:
         include:
          # for python 3.5, only test with mariadb and solr 6
-         - python: 3.5
-           solr: 6.6.5
-           db: mysql
+        #  - python: 3.5
+        #    solr: 6.6.5
+        #    db: mysql
         # for python 3.6, only test with postgres and solr 8
          - python: 3.6
            solr: 8.6
