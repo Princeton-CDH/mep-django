@@ -156,11 +156,11 @@ jobs:
 
       # For mysql only, grant permission to the DB_USER to create databases so
       # that it doesn't fail trying to create the django test database
-      - name: Grant permissions to mysql user
-        if: matrix.db == 'mysql'
-        env:
-          GRANT_CMD: "grant all privileges on *.* to '${{ env.DB_USER }}'@'%';"
-        run: echo "$GRANT_CMD" | mysql -h 127.0.0.1 --user=root --password="$DB_PASSWORD"
+      # - name: Grant permissions to mysql user
+      #   if: matrix.db == 'mysql'
+      #   env:
+      #     GRANT_CMD: "grant all privileges on *.* to '${{ env.DB_USER }}'@'%';"
+      #   run: echo "$GRANT_CMD" | mysql -h 127.0.0.1 --user=root --password="$DB_PASSWORD"
 
       - name: Download webpack stats
         uses: actions/download-artifact@v2
