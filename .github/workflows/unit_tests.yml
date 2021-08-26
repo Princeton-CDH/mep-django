@@ -118,7 +118,7 @@ jobs:
         uses: actions/checkout@v2
 
       # use docker cp to copy the configset, then bash to set ownership to solr
-      - name: Copy Solr configset to solr service (Solr 6)
+      - name: Copy Solr configset to solr service
         run: |
           docker cp solr_conf ${{ job.services.solr.id }}:/opt/solr/server/solr/configsets/sandco
           docker exec --user root ${{ job.services.solr.id }} /bin/bash -c "chown -R solr:solr /opt/solr/server/solr/configsets/sandco"
@@ -166,6 +166,9 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: webpack-stats.json
+
+      - name: Debug output database configuration
+        run: python -c "import pprint; import ci.testsettings; pprint.pprint(ci.testsettings.DATABASES)"
 
       - name: Setup local_settings.py
         run: |

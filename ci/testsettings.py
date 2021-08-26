@@ -16,7 +16,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.%s' % DB_BACKEND,
         'NAME':  os.getenv('DB_PASSWORD'),
         'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_NAME'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
         # localhost, default port
     },
 }
@@ -30,7 +30,7 @@ if os.getenv('DJANGO_DB_BACKEND') == 'mysql':
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
         'TEST': {
-                # We also want the test databse to for utf8 and the general
+                # We also want the test database to for utf8 and the general
                 # collation to keep case sensitive unicode searches working
                 # as we would expect on production
                 'CHARSET': 'utf8',
