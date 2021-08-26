@@ -108,7 +108,7 @@ class TestWork(TestCase):
 
         # add one each of author, editor, and translator
         Creator.objects.create(
-            creator_type=author_type, person=author1, work=work)
+            creator_type=author_type, person=author1, work=work, order=1)
         Creator.objects.create(
             creator_type=editor_type, person=editor, work=work)
         Creator.objects.create(
@@ -120,7 +120,7 @@ class TestWork(TestCase):
 
         # add second author
         Creator.objects.create(creator_type=author_type, person=author2,
-                               work=work)
+                               work=work, order=2)
         assert len(work.authors) == 2
         assert author1 in work.authors
         assert author2 in work.authors
@@ -267,12 +267,12 @@ class TestWork(TestCase):
         author_type = CreatorType.objects.get(name='Author')
         author1 = Person.objects.create(name='Smith', slug='s')
         Creator.objects.create(
-            creator_type=author_type, person=author1, work=work)
+            creator_type=author_type, person=author1, work=work, order=1)
         assert work.author_list() == 'Smith'
         # multiple authors
         author2 = Person.objects.create(name='Jones', slug='j')
         Creator.objects.create(
-            creator_type=author_type, person=author2, work=work)
+            creator_type=author_type, person=author2, work=work, order=2)
         assert work.author_list() == 'Smith; Jones'
 
     def test_sort_author_list(self):

@@ -73,7 +73,11 @@ class TestTwitterBot100years(TestCase):
             self.cmd.get_date(date='1920-05', mode='report')
 
     def test_find_events(self):
-        borrow = Event.objects.filter(borrow__isnull=False).first()
+        borrow = Event.objects.filter(
+            borrow__isnull=False, start_date__isnull=False, end_date__isnull=False,
+            start_date_precision__knownyear=True, end_date_precision__knownyear=True) \
+            .first()
+
         # borrow — both start date and end date
         assert borrow in self.cmd.find_events(borrow.start_date)
         assert borrow in self.cmd.find_events(borrow.end_date)
