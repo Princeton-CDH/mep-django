@@ -156,7 +156,8 @@
 			"notes": "",
 			"creator_type": 1,
 			"person": 1,
-			"work": 1
+			"work": 1,
+			"order": 1
 		}
 	},
 	{
@@ -225,7 +226,6 @@
 			"profession": null,
 			"slug": "gay",
 			"nationalities": [
-				2
 			]
 		}
 	},
