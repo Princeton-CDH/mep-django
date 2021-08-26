@@ -123,12 +123,9 @@ server with hot reload using::
 Switching between the webpack dev server and serving from ``static/`` requires a
 restart of your Django dev server to pick up the changed file paths.
 
-
 You must also configure Solr and install the configSet found under ``solr_conf``.
 If a core does not exist, and the configSet is installed correctly, an appropriate
-core will be made for you.
-To install the configSet::
-
+core will be made for you. To install the configSet::
 
     (using root privileges for chown and permission as needed)
     cp -r solr_conf /path/to/solr/server/solr/configsets/sandco
