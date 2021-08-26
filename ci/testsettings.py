@@ -17,7 +17,7 @@ DATABASES = {
         'NAME':  os.getenv('DB_PASSWORD'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
-        # localhost, default port
+        "HOST": "127.0.0.1",
     },
 }
 
