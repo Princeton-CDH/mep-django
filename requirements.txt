@@ -32,3 +32,5 @@ django-markdownify<0.9
 tweepy
 # specify bs4 version to avoid wagtail version conflict
 beautifulsoup4<4.9
+# require pre-2.9 for python3.5 installation
+psycopg2-binary<2.9

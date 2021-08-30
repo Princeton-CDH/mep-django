@@ -119,7 +119,7 @@ class MembersList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
         return min_max_ranges
 
     #: name query alias field syntax (type defaults to edismax in solr config)
-    search_name_query = '{!qf=$name_qf pf=$name_pf v=$name_query}'
+    search_name_query = '{!type=edismax qf=$name_qf pf=$name_pf v=$name_query}'
 
     # map form sort to solr sort field
     solr_sort = {

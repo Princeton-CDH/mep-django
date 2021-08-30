@@ -111,7 +111,7 @@ class WorkList(LabeledPagesMixin, SolrLastModifiedMixin, ListView,
     # instead of hard-coding here
 
     #: bib data query alias field syntax (configured defaults is edismax)
-    search_bib_query = '{!qf=$bib_qf pf=$bib_pf v=$bib_query}'
+    search_bib_query = '{!type=edismax qf=$bib_qf pf=$bib_pf v=$bib_query}'
 
     def get_queryset(self):
         # NOTE faceting so that response doesn't register as an error;

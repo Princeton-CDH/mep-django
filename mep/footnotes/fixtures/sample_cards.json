@@ -161,15 +161,8 @@
         "public_notes": "",
         "slug": "three-black-pennys",
         "genres": [
-            158,
-            2,
-            48
         ],
         "subjects": [
-            910,
-            1167,
-            1168,
-            1169
         ]
     }
 },
@@ -189,7 +182,6 @@
         "public_notes": "",
         "slug": "study-modern-novel",
         "genres": [
-            12
         ],
         "subjects": []
     }
@@ -220,10 +212,8 @@
         "public_notes": "",
         "slug": "dial",
         "genres": [
-            31
         ],
         "subjects": [
-            66
         ]
     }
 },
