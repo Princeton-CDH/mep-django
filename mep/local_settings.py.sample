@@ -38,8 +38,8 @@ DATABASES = {
 SOLR_CONNECTIONS = {
     'default': {
         'URL': 'http://localhost:8983/solr',
-        'COLLECTION': 'sco_example',
-        'CONFIGSET': 'sandco',
+        'COLLECTION': 'shxco_example',
+        'CONFIGSET': 'shxco',
         'TEST': {
             # aggressive commitWithin for test only
             'COMMITWITHIN': 750,
