@@ -19,8 +19,7 @@ parasolr>=0.6.1,<0.7
 django-widget-tweaks
 pymarc
 progressbar2
-rdflib
-rdflib-jsonld
+rdflib>=6.0  # includes rdflib-jsonld as of 6.0
 djiffy>=0.6
 django-csp
 bleach
