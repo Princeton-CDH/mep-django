@@ -8,6 +8,7 @@ env:
   DB_USER: shxco
   DB_PASSWORD: shxco
   DJANGO_ENV: test
+  SOLR_VERSION: 8.6
 
 jobs:
 
@@ -75,25 +76,7 @@ jobs:
     name: Python unit tests
     runs-on: ubuntu-latest
     needs: build-static
-    strategy:
-      matrix:
-        include:
-         # for python 3.5, only test with mariadb and solr 6
-         - python: 3.5
-           solr: 6.6.5
-           db: mysql
-        # for python 3.6, only test with postgres and solr 8
-         - python: 3.6
-           solr: 8.6
-           db: postgresql
     services:
-      mariadb:
-        image: mariadb
-        env:
-          MYSQL_DATABASE: ${{ env.DB_NAME }}
-          MYSQL_ROOT_PASSWORD: ${{ env.DB_PASSWORD }}
-        ports:
-        - 3306:3306
       postgres:
         image: postgres:12
         env:
@@ -103,17 +86,10 @@ jobs:
         ports:
           - 5432:5432
       solr:
-        image: solr:${{ matrix.solr }}
+        image: solr:${{ env.SOLR_VERSION }}
         ports:
           - 8983:8983
     steps:
-      # Set the value of DJANGO_DB_BACKEND which is used in ci/testsettings.py to
-      # configure django's ORM based on whether we're testing postgres or mysql
-      - name: Set django database backend adapter
-        env:
-          BACKEND: ${{ matrix.db }}
-        run: echo "DJANGO_DB_BACKEND=$(echo "$BACKEND")" >> $GITHUB_ENV
-
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -123,21 +99,18 @@ jobs:
           docker cp solr_conf ${{ job.services.solr.id }}:/opt/solr/server/solr/configsets/sandco
           docker exec --user root ${{ job.services.solr.id }} /bin/bash -c "chown -R solr:solr /opt/solr/server/solr/configsets/sandco"
 
-      - name: Copy solr configsets to solr home directory (Solr 8 only)
+      - name: Copy solr configsets to solr home directory (Solr 8 specific)
         run: "docker exec -d ${{ job.services.solr.id }} cp -r /opt/solr/server/solr/configsets /var/solr/data"
-        if: ${{ matrix.solr == 8.6 }}
 
-      # NOTE: for duration of migration to PUL, use python version from build matrix
       # Python version to use is stored in the .python-version file, which is the
       # convention for pyenv: https://github.com/pyenv/pyenv
-      # - name: Get Python version
-      #   run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_ENV
+      - name: Get Python version
+        run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_ENV
 
-      # use python version for current build matrix
-      - name: Setup Python
+        - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python }}
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip
         uses: actions/cache@v2
@@ -158,9 +131,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: webpack-stats.json
-
-      - name: Debug output database configuration
-        run: python -c "import pprint; import ci.testsettings; pprint.pprint(ci.testsettings.DATABASES)"
 
       - name: Setup local_settings.py
         run: |
@@ -193,7 +163,7 @@ jobs:
         env:
           SLACK_COLOR: ${{ env.SLACK_COLOR }}
           SLACK_WEBHOOK: ${{ secrets.ACTIONS_SLACK_WEBHOOK }}
-          SLACK_TITLE: "Run #${{ github.run_number }} for workflow `${{ github.workflow }} (python${{ matrix.python }}/${{ matrix.db }}/solr${{ matrix.solr }})`: ${{ job.status }}"
+          SLACK_TITLE: "Run #${{ github.run_number }} for workflow `${{ github.workflow }}`: ${{ job.status }}"
           SLACK_MESSAGE: "Run <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|#${{ github.run_number }}> on <https://github.com/${{ github.repository }}/|${{ github.repository }}@${{ github.ref }}>"
           SLACK_FOOTER: "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|View commit>"
           MSG_MINIMAL: true # use compact slack message format
