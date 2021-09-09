@@ -1,5 +1,5 @@
-Django>=2.2.10,<3.0
-django-grappelli>=2.13.4
+Django>=3.0<3.1
+django-grappelli>=2.14.1   # min for django 3.0
 cached_property
 django-cas-ng<4.2
 pucas>=0.6
@@ -33,5 +33,5 @@ django-markdownify<0.9
 tweepy
 # specify bs4 version to avoid wagtail version conflict
 beautifulsoup4<4.9
-# require pre-2.9 for python3.5 installation
+# require pre-2.9 until upgraded past django 2.2
 psycopg2-binary<2.9
