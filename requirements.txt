@@ -6,7 +6,7 @@ pucas>=0.6
 eulxml
 viapy>=0.2
 # require wagtail pre 2.10 for python3.5 support
-wagtail>=2.9,<2.10
+wagtail>=2.10,<2.11
 # pin for js error with dal>3.5; see https://github.com/Princeton-CDH/mep-django/issues/716
 django-autocomplete-light==3.5.1
 python-dateutil
@@ -33,5 +33,5 @@ django-markdownify<0.9
 tweepy
 # specify bs4 version to avoid wagtail version conflict
 beautifulsoup4<4.9
-# require pre-2.9 until upgraded past django 2.2
+# require pre-2.9 until upgraded past django 2.2 (or 3.0?)
 psycopg2-binary<2.9
