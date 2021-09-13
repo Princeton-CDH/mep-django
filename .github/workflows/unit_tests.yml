@@ -107,7 +107,7 @@ jobs:
       - name: Get Python version
         run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_ENV
 
-        - name: Setup Python
+      - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ env.PYTHON_VERSION }}
