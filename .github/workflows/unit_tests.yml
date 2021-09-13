@@ -86,7 +86,7 @@ jobs:
         ports:
           - 5432:5432
       solr:
-        image: solr:${{ env.SOLR_VERSION }}
+        image: "solr:${{ env.SOLR_VERSION }}"
         ports:
           - 8983:8983
     steps:
