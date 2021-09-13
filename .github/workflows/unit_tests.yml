@@ -8,7 +8,6 @@ env:
   DB_USER: shxco
   DB_PASSWORD: shxco
   DJANGO_ENV: test
-  SOLR_VERSION: 8.6
 
 jobs:
 
@@ -86,7 +85,7 @@ jobs:
         ports:
           - 5432:5432
       solr:
-        image: "solr:${{ env.SOLR_VERSION }}"
+        image: solr:8.6
         ports:
           - 8983:8983
     steps:
