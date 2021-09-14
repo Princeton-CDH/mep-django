@@ -12,7 +12,7 @@ bookstore and lending library in Paris.
 
 (This project was previously called "Mapping Expatriate Paris" or MEP).
 
-Python 3.5 / Django 2.2 / Node 10.5.0 / MariaDB (MySQL) 5.5+ w/ timezone info / Solr 6.6
+Python 3.6 / Django 2.2 / Node 10.5.0 / Postgresql 13 / Solr 8
 
 .. image:: https://github.com/Princeton-CDH/mep-django/workflows/unit_tests/badge.svg
     :target: https://github.com/Princeton-CDH/mep-django/actions?query=workflow%3Aunit_tests
@@ -158,7 +158,7 @@ things easier. To run them, first install development requirements::
 
 Run tests using py.test::
 
-    py.test
+    pytest
 
 Javascript unit tests are written with `jest <https://jestjs.io/>`__. To run
 them::
