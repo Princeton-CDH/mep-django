@@ -14,6 +14,10 @@ from mep.accounts.partial_date import DatePrecision
 # and from winthrop-django
 
 
+skipif_postgres = pytest.mark.skipif(settings.DATABASES["default"]["ENGINE"].endswith('postgresql'),
+                                      reason="doesn't work on postgres")
+
+
 @pytest.mark.last
 class TestMigrations(TransactionTestCase):
 
@@ -133,6 +137,8 @@ class DatePrecisionCopies(TestMigrations):
 # to be present by other tests.
 # Django test runner runs transaction test cases after simple test cases,
 # but pytest / pytest-django do not.
+
+@skipif_postgres
 @pytest.mark.second_to_last
 class TestCopyPrecisions(DatePrecisionCopies):
 
@@ -163,6 +169,7 @@ class TestCopyPrecisions(DatePrecisionCopies):
         self.check_copy_precisions(self.old_purchases, Purchase)
 
 
+@skipif_postgres
 @pytest.mark.last
 class TestRevertPrecisionCopy(DatePrecisionCopies):
     migrate_from = '0028_generic_event_partial_dates'

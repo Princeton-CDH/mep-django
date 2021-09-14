@@ -19,7 +19,9 @@ parasolr>=0.6.1,<0.7
 django-widget-tweaks
 pymarc
 progressbar2
-rdflib
+# require rdflib<6.0 for py3.6 compatibility;
+# when we upgrade python version, require rdflib<=6.0 and drop separate rdflib-jsonld requirement (included in 6.0)
+rdflib<6.0
 rdflib-jsonld
 djiffy>=0.6
 django-csp
@@ -32,3 +34,5 @@ django-markdownify<0.9
 tweepy
 # specify bs4 version to avoid wagtail version conflict
 beautifulsoup4<4.9
+# require pre-2.9 for python3.5 installation
+psycopg2-binary<2.9

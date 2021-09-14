@@ -28,7 +28,7 @@ class WorkSolrQuerySet(AliasedSolrQuerySet):
     }
 
     # edismax alias for searching on admin work pseudo-field
-    admin_work_qf = '{!qf=$admin_work_qf pf=$admin_work_pf v=$work_query}'
+    admin_work_qf = '{!type=edismax qf=$admin_work_qf pf=$admin_work_pf v=$work_query}'
 
     def search_admin_work(self, search_term):
         return self.search(self.admin_work_qf) \

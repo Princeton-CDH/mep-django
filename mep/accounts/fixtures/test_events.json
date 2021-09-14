@@ -145,11 +145,7 @@
         "work_format": 1,
         "updated_at": "2019-12-02T04:47:37Z",
         "public_notes": "additional details",
-        "genres": [
-            30,
-            2,
-            10
-        ],
+        "genres": [],
         "subjects": [],
         "slug": "lonigan-young-manhood"
     }
@@ -212,11 +208,8 @@
         "updated_at": "2020-01-22T19:08:44Z",
         "public_notes": "",
         "slug": "dial",
-        "genres": [
-            31
-        ],
+        "genres": [],
         "subjects": [
-            66
         ]
     }
 },
@@ -259,9 +252,7 @@
         "updated_at": "2019-06-14T17:40:42Z",
         "public_notes": "",
         "slug": "buried-alive",
-        "genres": [
-            2
-        ],
+        "genres": [],
         "subjects": []
     }
 },
@@ -304,9 +295,7 @@
         "updated_at": "2019-06-14T17:11:23Z",
         "public_notes": "",
         "slug": "lolly-willowes",
-        "genres": [
-            2
-        ],
+        "genres": [],
         "subjects": []
     }
 },
@@ -397,8 +386,6 @@
         "slug": "vision",
         "genres": [],
         "subjects": [
-            1386,
-            1387
         ]
     }
 },
@@ -887,8 +874,6 @@
         "profession": null,
         "public_notes": "",
         "nationalities": [
-            8,
-            1
         ]
     }
 },
@@ -912,7 +897,6 @@
         "profession": null,
         "public_notes": "",
         "nationalities": [
-            1
         ]
     }
 },
@@ -980,7 +964,6 @@
         "profession": null,
         "public_notes": "",
         "nationalities": [
-            2
         ]
     }
 },
@@ -1001,6 +984,50 @@
         "updated_at": "2020-01-03T00:24:10Z",
         "gender": "F",
         "title": "Mme",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
+    "model": "people.person",
+    "pk": 48,
+    "fields": {
+        "notes": "",
+        "start_year": 1908,
+        "end_year": 1986,
+        "mep_id": "beau.si",
+        "name": "Simone de Beauvoir",
+        "sort_name": "de Beauvoir, Simone",
+        "viaf_id": "http://viaf.org/viaf/2466221",
+        "is_organization": false,
+        "verified": false,
+        "slug": "beauvoir-simone-de",
+        "updated_at": "2020-01-03T00:24:10Z",
+        "gender": "F",
+        "title": "Mlle",
+        "profession": null,
+        "public_notes": "",
+        "nationalities": []
+    }
+},
+{
+    "model": "people.person",
+    "pk": 428,
+    "fields": {
+        "notes": "",
+        "start_year": 1926,
+        "end_year": 2016,
+        "mep_id": "rey.je",
+        "name": "Jean-Dominique Rey",
+        "sort_name": "Rey, Jean-Dominique",
+        "viaf_id": "http://viaf.org/viaf/61551396",
+        "is_organization": false,
+        "verified": false,
+        "slug": "rey",
+        "updated_at": "2020-01-03T00:24:10Z",
+        "gender": "F",
+        "title": "",
         "profession": null,
         "public_notes": "",
         "nationalities": []

@@ -3,6 +3,17 @@
 CHANGELOG
 =========
 
+1.5.3
+-----
+
+* Switch database backend from MySQL to PostgreSQL
+* Upgrade to Solr 8
+* Upgrade to Python 3.6
+
+1.5.2
+-----
+
+
 1.5.2
 -----
 

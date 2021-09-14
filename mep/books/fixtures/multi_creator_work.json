@@ -39,7 +39,6 @@
         "slug": "jones",
         "profession": null,
         "nationalities": [
-            3
         ]
     }
 },
@@ -62,7 +61,6 @@
         "profession": null,
         "slug": "quennell",
         "nationalities": [
-            3
         ]
     }
 },
@@ -337,7 +335,6 @@
         "slug": "macaulay",
         "profession": null,
         "nationalities": [
-            3
         ]
     }
 },
@@ -360,7 +357,6 @@
         "slug": "macneice",
         "profession": null,
         "nationalities": [
-            16
         ]
     }
 },

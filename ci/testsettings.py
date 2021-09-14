@@ -5,29 +5,38 @@
 # have to be manually restarted because changes will not be noticed
 # immediately.
 
+import os
+
 DEBUG = False
+
+DB_BACKEND = os.getenv('DJANGO_DB_BACKEND')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sandco',
+        'ENGINE': 'django.db.backends.%s' % DB_BACKEND,
+        'NAME':  os.getenv('DB_PASSWORD'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        "HOST": "127.0.0.1",
+    },
+}
+
+# mysql-specific init options
+if os.getenv('DJANGO_DB_BACKEND') == 'mysql':
+    DATABASES['default'].update({
         'USER': 'root',
-        'PASSWORD': 'sandco',
-        'HOST': '127.0.0.1',
         'OPTIONS': {
             # In each case, we want strict mode on to catch truncation issues
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
-        'PORT': '3306',
         'TEST': {
-                # We also want the test databse to for utf8 and the general
+                # We also want the test database to for utf8 and the general
                 # collation to keep case sensitive unicode searches working
                 # as we would expect on production
                 'CHARSET': 'utf8',
                 'COLLATION': 'utf8_general_ci',
-        },
-    },
-}
+        }
+    })
 
 
 SOLR_CONNECTIONS = {

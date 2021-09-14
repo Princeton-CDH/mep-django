@@ -123,6 +123,22 @@
     <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
     <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
+
+    <!-- project specific fields for mep -->
+    <field name="item_type" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="nationality" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="edition_titles" type="text_en" indexed="true" stored="true" multiValued="true"/>
+    <field name="last_modified" type="pdate" multiValued="false" indexed="true" required="true" stored="true" default="NOW"/>
+
+    <!-- ngram version of names for searching -->
+    <copyField source="name_t" dest="name_ngram" maxChars="30000" />
+    <copyField source="sort_name_t" dest="name_ngram" maxChars="30000" />
+    <!-- stemmed version of titles for searching -->
+    <copyField source="title_t" dest="title_txt_ens" maxChars="30000" />
+    <copyField source="title_t" dest="title_txt_en_nostem" maxChars="30000" />
+    <!-- author names without stop words -->
+    <copyField source="authors_t" dest="authors_txt_en_nostem" maxChars="30000" />
+
     <!-- Only enabled in the "schemaless" data-driven example (assuming the client
          does not know what fields may be searched) because it's very expensive to index everything twice. -->
     <!-- <copyField source="*" dest="_text_"/> -->
