@@ -18,7 +18,10 @@ parasolr>=0.6.1,<0.7
 django-widget-tweaks
 pymarc
 progressbar2
-rdflib>=6.0
+# require rdflib<6.0 for py3.6 compatibility;
+# when we upgrade python version, require rdflib<=6.0 and drop separate rdflib-jsonld requirement (included in 6.0)
+rdflib<6.0
+rdflib-jsonld<0.6.2
 djiffy>=0.6
 django-csp
 bleach
