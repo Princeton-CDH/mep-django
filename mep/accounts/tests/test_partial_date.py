@@ -57,14 +57,14 @@ class TestPartialDate(TestCase):
         date_precision = DatePrecisionField()
 
         class Meta:
-            abstract = True
+            app_label = "test"
 
     # version that uses 1900 for unknown years
     class PartialDateObject1900(PartialDateObject):
         partial_date = PartialDate('date', 'date_precision', 1900)
 
         class Meta:
-            abstract = True
+            app_label = "test"
 
     def test_get(self):
         pdo = self.PartialDateObject()
@@ -149,7 +149,7 @@ class TestPartialDateMixin(TestCase):
     class PartialMixinObject(PartialDateMixin):
 
         class Meta:
-            abstract = True
+            app_label = "test"
 
     def test_calculate_date(self):
 

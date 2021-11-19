@@ -1055,9 +1055,8 @@ class TestCurrencyMixin(TestCase):
 
     # create test currency model to test mixin behavior
     class CurrencyObject(CurrencyMixin):
-
         class Meta:
-            abstract = True
+            app_label = 'test'
 
     def test_currency_symbol(self):
         coin = self.CurrencyObject()
