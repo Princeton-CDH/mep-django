@@ -67,3 +67,13 @@ class TestExportMembers(TestCase):
             account=account, start_date=datetime.date(1935, 5, 1))
         gay_data = self.cmd.get_object_data(gay)
         assert gay_data['membership_years'] == [1920, 1921, 1935]
+
+    def test_get_object_data_no_coords(self):
+        # handle addresses without coordinates
+        gay = Person.objects.get(name='Francisque Gay')
+        addr = gay.account_set.first().locations.first()
+        addr.longitude = None
+        addr.latitude = None
+        addr.save()
+        gay_data = self.cmd.get_object_data(gay)
+        assert '' in gay_data['coordinates']
