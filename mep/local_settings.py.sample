@@ -23,8 +23,8 @@ SECRET_KEY = ''
 
 DATABASES = {
     'default': {
-        'ENGINE': "django.db.backends.mysql",
-        'NAME': 'sandco',
+        'ENGINE': "django.db.backends.postgresql",
+        'NAME': 'shxco',
         'USER': 'root',
         'PASSWORD': '1234',
     }
