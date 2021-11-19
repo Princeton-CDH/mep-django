@@ -60,6 +60,9 @@ urlpatterns = [
     url(r'^cms/', include(wagtailadmin_urls)),
     url(r'^documents/', include(wagtaildocs_urls)),
     url(r'', include(wagtail_urls)),
+
+    # direct 500 access for testing
+    url("_500", lambda _: 1 / 0),
 ]
 
 
