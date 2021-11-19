@@ -219,7 +219,7 @@ class PersonAdmin(admin.ModelAdmin):
         # Get any querystrings including filters, pickle them as a urlencoded
         # string
         request.session['people_merge_filter'] = urlencode(request.GET.items())
-        selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+        selected = request.POST.getlist(admin.helpers.ACTION_CHECKBOX_NAME)
         redirect = '%s?ids=%s' % (reverse('people:merge'), ','.join(selected))
         return HttpResponseRedirect(redirect, status=303)   # 303 = See Other
     merge_people.short_description = 'Merge selected people'
