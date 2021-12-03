@@ -1,0 +1,66 @@
+{
+    "license": "Apache-2.0",
+    "upload_type": "software",
+    "creators": [
+        {
+            "orcid": "0000-0002-8762-8057",
+            "affiliation": "Princeton University",
+            "name": "Koeser, Rebecca Sutton"
+        },
+        {
+            "orcid": "0000-0002-4542-0899",
+            "affiliation": "Princeton University",
+            "name": "Budak, Nick"
+        },
+        {
+            "orcid": "0000-0002-6702-6964",
+            "affiliation": "Princeton University",
+            "name": "Gissoo Doroudian"
+        },
+        {
+            "orcid": "0000-0002-9973-560X",
+            "affiliation": "Princeton University",
+            "name": "Kevin McElwee"
+        },
+        {
+            "orcid": "0000-0002-9973-560X",
+            "name": "Hicks, Benjamin"
+        },
+        {
+            "orcid": "0000-0002-6114-3182",
+            "name": "Li, Xinyi"
+        }
+    ],
+    "access_right": "open",
+    "related_identifiers": [
+        {
+            "scheme": "url",
+            "identifier": "https://github.com/Princeton-CDH/mep-django",
+            "relation": "isSupplementTo"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.5281/zenodo.3834178",
+            "relation": "isVersionOf"
+        },
+        {
+            "scheme": "url",
+            "identifier": "https://shakespeareandco.princeton.edu/",
+            "relation": "compiles"
+        }
+    ],
+    "contributors": [
+        {
+            "orcid": "0000-0001-7092-5840",
+            "affiliation": "Princeton University",
+            "type": "ProjectLeader",
+            "name": "Kotin, Joshua"
+        },
+        {
+            "orcid": "0000-0002-8735-8405",
+            "affiliation": "Princeton University",
+            "type": "ProjectManager",
+            "name": "Munson, Rebecca"
+        }
+    ]
+}

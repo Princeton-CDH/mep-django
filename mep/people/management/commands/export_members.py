@@ -104,6 +104,7 @@ class Command(BaseExport):
                 data['addresses'].append(str(location))
                 data['coordinates'].append(
                     '%s, %s' % (location.latitude, location.longitude)
+                    if (location.latitude and location.longitude) else ''
                 )
                 data['postal_codes'].append(location.postal_code)
                 data['arrondissements'].append(location.arrondissement() or '')

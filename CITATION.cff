@@ -1,0 +1,40 @@
+# YAML 1.2
+# Metadata for citation of this software according to the CFF format (https://citation-file-format.github.io/)
+cff-version: 1.0.3
+message: If you use this software, please cite it using these metadata.
+title: 'Princeton-CDH/mep-django'
+doi: 10.5281/zenodo.4458099
+authors:
+- given-names: Rebecca Sutton
+  family-names: Koeser
+  affiliation: Princeton University
+  orcid: https://orcid.org/0000-0002-8762-8057
+- given-names: Nick
+  family-names: Budak
+  affiliation: Princeton University
+  orcid: https://orcid.org/0000-0002-4542-0899
+- given-names: Gissoo
+  family-names: Doroudian
+  affiliation: Princeton University
+  orcid: https://orcid.org/0000-0002-6702-6964
+- given-names: Kevin
+  family-names: McElwee
+  affiliation: Princeton University
+  orcid: https://orcid.org/0000-0002-9973-560X
+- given-names: Benjamin
+  family-names: Hicks
+- given-names: Xinyi
+  family-names: Li
+  orcid: https://orcid.org/0000-0002-6114-3182
+version: '1.5.4'
+date-released: 2021-12-03
+repository-code: https://github.com/Princeton-CDH/mep-django
+license: Apache-2.0
+references:
+- type: website
+  title: Shakespeare and Company Project
+  year: 2020
+  authors:
+  - name: The Center for Digital Humanities at Princeton
+    website: https://cdh.princeton.edu
+  url: https://shakespeareandco.princeton.edu/
