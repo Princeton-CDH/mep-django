@@ -3,16 +3,19 @@
 CHANGELOG
 =========
 
+1.5.4
+-----
+
+* Update Bibliographies to reflect the name change of Princeton University's Special Collections
+* Handle addresses without coordinates when generating members dataset
+* Upgrade to django 3.0 and wagtail 2.10
+
 1.5.3
 -----
 
 * Switch database backend from MySQL to PostgreSQL
 * Upgrade to Solr 8
 * Upgrade to Python 3.6
-
-1.5.2
------
-
 
 1.5.2
 -----
