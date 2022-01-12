@@ -5,11 +5,13 @@
   "homepage": "https://shakespeareandco.princeton.edu/about/data/",
   "version": "1.1.0",
   "image": "https://shakespeareandco.princeton.edu/static/img/social.png",
-  "licenses": [{
-    "name": "CC-BY-4.0",
-    "path": "https://creativecommons.org/licenses/by/4.0/",
-    "title": "Creative Commons Attribution 4.0"
-  }],
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "path": "https://creativecommons.org/licenses/by/4.0/",
+      "title": "Creative Commons Attribution 4.0"
+    }
+  ],
   "resources": [
     {
       "path": "SCoData_events_v1.2_2022-01.csv",
