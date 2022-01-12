@@ -1,7 +1,7 @@
 {
     "profile": "tabular-data-package",
     "title": "Shakespeare and Company Project Dataset: Lending Library Members",
-    "id": "https://doi.org/10.34770/nsa4-3t76",
+    "id": "https://doi.org/10.34770/8c2s-a169",
     "homepage": "https://shakespeareandco.princeton.edu/about/data/",
     "version": "1.2.0",
     "image": "https://shakespeareandco.princeton.edu/static/img/social.png",
@@ -12,7 +12,7 @@
     }],
     "resources": [
         {
-            "path": "SCoData_members_v1.2_2021-12.csv",
+            "path": "SCoData_members_v1.2_2022-01.csv",
             "profile": "tabular-data-resource",
             "name": "members",
             "format": "csv",
