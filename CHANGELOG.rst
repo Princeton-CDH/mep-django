@@ -3,6 +3,11 @@
 CHANGELOG
 =========
 
+1.5.5
+-----
+
+* Updated dataset metadata and scripts, including datapackage files, in support of dataset version 1.2
+
 1.5.4
 -----
 
