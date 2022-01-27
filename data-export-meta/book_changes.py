@@ -14,43 +14,41 @@ import pandas as pd
 import requests
 
 
-# published v1 members dataset
-members_v1 = "https://dataspace.princeton.edu/bitstream/88435/dsp0105741v63x/7/SCoData_members_v1_2020-07.csv"
-# local copy of v1.1
-# members_v1_1 = 'SCoData_members_v1.1_2021-01.csv'
+# published v1.1 books dataset
+books_previous = "https://dataspace.princeton.edu/bitstream/88435/dsp016d570067j/2/SCoData_books_v1.1_2021-01.csv"
 # local copy of v1.2 (not yet published)
-members_v1_2 = "SCoData_members_v1.2_2022-01.csv"
+books_new = "SCoData_books_v1.2_2022-01.csv"
 
 if __name__ == "__main__":
     old_version = "1.1"
     new_version = "1.2"
-    members_v1_df = pd.read_csv(members_v1)
+    books_prev_df = pd.read_csv(books_previous)
     # members_v1_1_df = pd.read_csv(members_v1_1)
-    members_df = pd.read_csv(members_v1_2)
+    books_df = pd.read_csv(books_new)
 
     # identify members in new version not in the previous
-    # FIXME: not useful because of merge/rename
-    new_members = members_df[~members_df.uri.isin(members_v1_df.uri)]
-    print("%d new members in %s not included in %s" % (len(new_members, old_version, new_version))
-    new_uris = list(new_members.uri)
+    # FIXME: probably not useful because of merge/rename
+    new_books = books_df[~books_df.uri.isin(books_prev_df.uri)]
+    print("%d new books in %s not included in %s" % (len(new_books), old_version, new_version))
+    new_uris = list(new_books.uri)
 
-    # identify members from previous version with uri not included in newer version
-    removed_members = members_v1_df[~members_v1_df.uri.isin(members_df.uri)]
+    # identify boks from previous version with uri not included in newer version
+    removed_books = books_prev_df[~books_prev_df.uri.isin(books_df.uri)]
     print(
-        "%d members from %s no longer included in %s"
-        % (len(removed_members), old_version, new_version)
+        "%d books from %s no longer included in %s"
+        % (len(removed_books), old_version, new_version)
     ),
 
-    with open("SCoData_members_removed.csv", "a") as csvfile:
+    with open("SCoData_books_removed.csv", "a") as csvfile:
         fieldnames = ["uri", "new_uri", "status", "in_version", "removed_version"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        # don't write header since we're appending now
-        # writer.writeheader()
+        # don't write header if appending
+        writer.writeheader()
         defaults = {"in_version": old_version, "removed_version": new_version}
-        for member in removed_members.itertuples():
-            response = requests.get(member.uri, allow_redirects=False)
+        for book in removed_books.itertuples():
+            response = requests.get(book.uri, allow_redirects=False)
             info = defaults.copy()
-            info["uri"] = member.uri
+            info["uri"] = book.uri
             if response.status_code == 301:
                 new_uri = response.headers.get("Location")
                 info["new_uri"] = new_uri
@@ -65,12 +63,12 @@ if __name__ == "__main__":
             else:
                 print(
                     "Unexpected status code %s for %s"
-                    % (response.status_code, member.uri)
+                    % (response.status_code, book.uri)
                 )
 
             writer.writerow(info)
 
     # identify new members that are not renames
-    removed_df = pd.read_csv("SCoData_members_removed.csv")
-    new_members = new_members[~new_members.uri.isin(removed_df.new_uri)]
-    print(new_members)
+    removed_df = pd.read_csv("SCoData_books_removed.csv")
+    new_books = new_books[~new_books.uri.isin(removed_df.new_uri)]
+    print(new_books)
