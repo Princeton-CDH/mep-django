@@ -39,11 +39,6 @@
             "relation": "isSupplementTo"
         },
         {
-            "scheme": "doi",
-            "identifier": "10.5281/zenodo.3834178",
-            "relation": "isVersionOf"
-        },
-        {
             "scheme": "url",
             "identifier": "https://shakespeareandco.princeton.edu/",
             "relation": "compiles"
