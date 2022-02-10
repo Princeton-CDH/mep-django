@@ -44,7 +44,7 @@
         "jest-environment-jsdom-fourteen": "^0.1.0",
         "jest-marbles": "^2.3.1",
         "mini-css-extract-plugin": "^0.5.0",
-        "node-sass": "^4.14.1",
+        "node-sass": "^7.0.0",
         "node-sass-glob-importer": "^5.3.0",
         "optimize-css-assets-webpack-plugin": "^5.0.1",
         "postcss-loader": "^3.0.0",
