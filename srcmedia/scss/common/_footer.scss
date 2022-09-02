@@ -44,13 +44,17 @@
             margin: 0;
         }
 
-        ul {
+        > ul {
             display: inline-block;
             vertical-align: top;
         }
 
         .secondary {
+            display: inline-block;
             margin-left: 2rem;
+            ul {
+               margin-left: 1em;
+            }
         }
 
         li {
@@ -138,6 +142,13 @@
         span {
             display: inline-block;
             flex: auto;
+            width: 90%;   // one per line on mobile
+            text-align: center;
+
+            @media (min-width: $breakpoint-s) {
+                width: auto;
+            }
+
         }
 
         .note {
@@ -157,22 +168,34 @@
         }
 
         #a11y-assist {
-            text-align: left;
-
             @media (min-width: $breakpoint-s) {
-                flex: none;
+                text-align: left;
+                white-space: nowrap;
+                flex-grow: 0;
             }
         }
 
         #copyright {
             @media(min-width: $breakpoint-s) {
-                flex: none;
                 margin-left: 2rem;
+                text-align: left;   
+                white-space: nowrap;             
             }
         }
 
         #sw-version {
-            text-align: right;
+            margin-bottom: 2rem;  // space between issn/version and a11y
+            @media (min-width: $breakpoint-s) {
+                text-align: right;
+                margin-bottom: 0;
+            }
+        }
+
+        .issn {
+            @media (min-width: $breakpoint-s) {
+                width: 85%;
+                text-align: right;
+            }                
         }
     }
 }
