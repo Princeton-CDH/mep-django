@@ -44,13 +44,17 @@
             margin: 0;
         }
 
-        ul {
+        > ul {
             display: inline-block;
             vertical-align: top;
         }
 
         .secondary {
+            display: inline-block;
             margin-left: 2rem;
+            ul {
+               margin-left: 1em;
+            }
         }
 
         li {

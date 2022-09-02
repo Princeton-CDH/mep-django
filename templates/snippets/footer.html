@@ -6,18 +6,22 @@
                 <li><a href="{% slugurl 'home' %}">Home</a><li>
                 <li><a href="{% url 'people:members-list' %}">Members</a><li>
                 <li><a href="{% url 'books:books-list' %}">Books</a><li>
-                <li><a href="{% slugurl 'analysis' %}">Analysis</a><li>
-                <li><a href="{% slugurl 'sources' %}">Sources</a><li>
-                <li><a href="{% slugurl 'about' %}">About</a><li>
-            </ul>
-            <ul class="secondary" aria-label="secondary navigation">
-                <li><a href="{% slugurl 'contact' %}">Contact</a><li>
-                <li><a href="{% slugurl 'faq' %}">FAQ</a><li>
-                <li><a href="{% slugurl 'data' %}">Data Export</a><li>
-                <li><a href="{% slugurl 'technical' %}">Technical</a><li>
-                <li><a href="{% slugurl 'cite' %}">How to Cite</a><li>
-                <li><a href="{% slugurl 'credits' %}">Credits</a><li>
-            </ul>
+                {# display top-level pages based on wagtail contents #}
+                {% for page in site.root_page.get_children.live.in_menu %}
+                    {# skip about, since that is the next group #}
+                    {% if not page.title == 'About' %}
+                    <li><a href="{{ page.url }}">{{ page.title }}</a><li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+            <div class="secondary" aria-label="secondary navigation">
+                <a href="{{ about_page.url }}">{{ about_page.title }}</a>
+                <ul>
+                    {% for page in about_page.get_children.live.in_menu %}
+                        <li><a href="{{ page.url }}">{{ page.title }}</a><li>
+                    {% endfor %}
+                <ul>
+        </div>
         </nav>
         <a id="sco-logo" href="{% slugurl 'home' %}">
             <img src="{% static 'img/logo/SCo_logo_vert.png' %}" alt="Shakespeare and Company Project">
