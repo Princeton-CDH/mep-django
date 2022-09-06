@@ -3,6 +3,13 @@
 CHANGELOG
 =========
 
+1.5.6
+-----
+
+* Revise footer to include ISSN, accommodate more About pages, and pull from Wagtail
+* Add daily total to 100 years twitter review page; add times for up to 20 per day
+
+
 1.5.5
 -----
 

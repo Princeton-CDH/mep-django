@@ -3,25 +3,19 @@
     <div class="nav-logos">
         <nav aria-label="footer">
             <ul class="primary" aria-label="primary navigation">
-                <li><a href="{% slugurl 'home' %}">Home</a><li>
-                <li><a href="{% url 'people:members-list' %}">Members</a><li>
-                <li><a href="{% url 'books:books-list' %}">Books</a><li>
+                <li><a href="{% slugurl 'home' %}">Home</a></li>
+                <li><a href="{% url 'people:members-list' %}">Members</a></li>
+                <li><a href="{% url 'books:books-list' %}">Books</a></li>
                 {# display top-level pages based on wagtail contents #}
                 {% for page in site.root_page.get_children.live.in_menu %}
-                    {# skip about, since that is the next group #}
-                    {% if not page.title == 'About' %}
-                    <li><a href="{{ page.url }}">{{ page.title }}</a><li>
-                    {% endif %}
+                    <li><a href="{{ page.url }}">{{ page.title }}</a></li>
                 {% endfor %}
                 </ul>
-            <div class="secondary" aria-label="secondary navigation">
-                <a href="{{ about_page.url }}">{{ about_page.title }}</a>
-                <ul>
-                    {% for page in about_page.get_children.live.in_menu %}
-                        <li><a href="{{ page.url }}">{{ page.title }}</a><li>
-                    {% endfor %}
-                <ul>
-        </div>
+            <ul class="secondary" aria-label="secondary navigation">
+                {% for page in about_page.get_children.live.in_menu %}
+                    <li><a href="{{ page.url }}">{{ page.title }}</a></li>
+                {% endfor %}
+            </ul>
         </nav>
         <a id="sco-logo" href="{% slugurl 'home' %}">
             <img src="{% static 'img/logo/SCo_logo_vert.png' %}" alt="Shakespeare and Company Project">
