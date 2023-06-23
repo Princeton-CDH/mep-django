@@ -16,20 +16,20 @@ django-tabular-export
 django-webpack-loader<1.0
 parasolr>=0.6.1,<0.7
 django-widget-tweaks
-pymarc
+# pymarc api changes significantly in 5.0
+pymarc<5.0
 progressbar2
 # require rdflib<6.0 for py3.6 compatibility;
 # when we upgrade python version, require rdflib<=6.0 and drop separate rdflib-jsonld requirement (included in 6.0)
-rdflib<6.0
-rdflib-jsonld<0.6.2
+rdflib>=6.0
+#rdflib-jsonld<0.6.2
 djiffy>=0.6
 django-csp
 bleach
 django-fullurl
 unidecode
 stop_words
-# require django-markdownify < 0.9 for python 3.5 support
-django-markdownify<0.9
+django-markdownify>=0.9
 tweepy
 # specify bs4 version to avoid wagtail version conflict
 beautifulsoup4<4.9
