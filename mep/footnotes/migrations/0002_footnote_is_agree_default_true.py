@@ -6,15 +6,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('footnotes', '0001_initial'),
+        ("footnotes", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='footnote',
-            name='is_agree',
-            field=models.BooleanField(default=True, help_text='True if the evidence supports the information in the system, False if it contradicts.', verbose_name='Supports'),
+            model_name="footnote",
+            name="is_agree",
+            field=models.BooleanField(
+                default=True,
+                help_text="True if the evidence supports the information in the system, False if it contradicts.",
+                verbose_name="Supports",
+            ),
         ),
     ]

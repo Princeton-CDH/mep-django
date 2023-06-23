@@ -7,20 +7,19 @@ import mep.accounts.partial_date
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0026_rm_subevent_item_rename_generic_item'),
+        ("accounts", "0026_rm_subevent_item_rename_generic_item"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='address',
-            name='end_date_precision',
+            model_name="address",
+            name="end_date_precision",
             field=mep.accounts.partial_date.DatePrecisionField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='address',
-            name='start_date_precision',
+            model_name="address",
+            name="start_date_precision",
             field=mep.accounts.partial_date.DatePrecisionField(blank=True, null=True),
         ),
     ]

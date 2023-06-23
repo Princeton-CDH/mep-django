@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+
 def deduplicate_locations(apps, schema_editor):
     Location = apps.get_model("people", "Location")
     Address = apps.get_model("accounts", "Address")
@@ -13,16 +14,14 @@ def deduplicate_locations(apps, schema_editor):
     # Handle them explicitly.
 
     # Hôtel/Hotel Odessa and Hôtel/Hotel Lutetia
-    for name in ['Odessa', 'Lutetia']:
+    for name in ["Odessa", "Lutetia"]:
         # find all variants
         locations = Location.objects.filter(name__contains=name)
         if locations.count() > 1:
             # both instances have only two versions
             # explicitly find primary and duplicate by accent
-            primary = [loc for loc in locations
-                       if loc.name.startswith('Hôtel')][0]
-            dupe = [loc for loc in locations
-                     if loc.name.startswith('Hotel')][0]
+            primary = [loc for loc in locations if loc.name.startswith("Hôtel")][0]
+            dupe = [loc for loc in locations if loc.name.startswith("Hotel")][0]
             # update all addresses associated with the duplicate
             # to point to the primary
             Address.objects.filter(location=dupe).update(location=primary)
@@ -31,17 +30,15 @@ def deduplicate_locations(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0006_update_person_locations'),
-        ('accounts', '0014_add_address_rel_to_person')
+        ("people", "0006_update_person_locations"),
+        ("accounts", "0014_add_address_rel_to_person"),
     ]
 
     operations = [
-        migrations.RunPython(deduplicate_locations,
-                             migrations.RunPython.noop),
+        migrations.RunPython(deduplicate_locations, migrations.RunPython.noop),
         migrations.AlterUniqueTogether(
-            name='location',
-            unique_together=set([('name', 'street_address', 'city', 'country')]),
+            name="location",
+            unique_together=set([("name", "street_address", "city", "country")]),
         ),
     ]

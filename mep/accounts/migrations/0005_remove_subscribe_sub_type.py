@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0004_subtype_choices_to_subscription_type_foreignkey'),
+        ("accounts", "0004_subtype_choices_to_subscription_type_foreignkey"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='subscribe',
-            name='sub_type',
+            model_name="subscribe",
+            name="sub_type",
         ),
     ]

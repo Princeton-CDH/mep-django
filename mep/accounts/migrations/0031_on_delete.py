@@ -5,25 +5,43 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0030_event_edition'),
+        ("accounts", "0030_event_edition"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='account',
-            name='card',
-            field=models.ForeignKey(blank=True, help_text='Lending Library Card for this account', limit_choices_to={'source_type__name': 'Lending Library Card'}, null=True, on_delete=django.db.models.deletion.SET_NULL, to='footnotes.Bibliography'),
+            model_name="account",
+            name="card",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Lending Library Card for this account",
+                limit_choices_to={"source_type__name": "Lending Library Card"},
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="footnotes.Bibliography",
+            ),
         ),
         migrations.AlterField(
-            model_name='address',
-            name='care_of_person',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='care_of_addresses', to='people.Person'),
+            model_name="address",
+            name="care_of_person",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="care_of_addresses",
+                to="people.Person",
+            ),
         ),
         migrations.AlterField(
-            model_name='subscription',
-            name='category',
-            field=models.ForeignKey(blank=True, help_text='Code to indicate the kind of subscription', null=True, on_delete=django.db.models.deletion.SET_NULL, to='accounts.SubscriptionType'),
+            model_name="subscription",
+            name="category",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Code to indicate the kind of subscription",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="accounts.SubscriptionType",
+            ),
         ),
     ]

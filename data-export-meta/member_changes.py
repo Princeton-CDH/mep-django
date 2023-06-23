@@ -31,7 +31,10 @@ if __name__ == "__main__":
     # identify members in new version not in the previous
     # FIXME: not useful because of merge/rename
     new_members = members_df[~members_df.uri.isin(members_v1_df.uri)]
-    print("%d new members in %s not included in %s" % (len(new_members, old_version, new_version))
+    print(
+        "%d new members in %s not included in %s"
+        % (len(new_members, old_version, new_version))
+    )
     new_uris = list(new_members.uri)
 
     # identify members from previous version with uri not included in newer version

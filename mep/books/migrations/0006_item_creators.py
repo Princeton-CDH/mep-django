@@ -6,16 +6,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0008_person_is_organization'),
-        ('books', '0005_item_mepid_allow_null'),
+        ("people", "0008_person_is_organization"),
+        ("books", "0005_item_mepid_allow_null"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='item',
-            name='creators',
-            field=models.ManyToManyField(through='books.Creator', to='people.Person'),
+            model_name="item",
+            name="creators",
+            field=models.ManyToManyField(through="books.Creator", to="people.Person"),
         ),
     ]

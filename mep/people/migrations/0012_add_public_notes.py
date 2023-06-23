@@ -6,15 +6,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0011_person_verified'),
+        ("people", "0011_person_verified"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='person',
-            name='public_notes',
-            field=models.TextField(blank=True, help_text='Notes for display on the public website'),
+            model_name="person",
+            name="public_notes",
+            field=models.TextField(
+                blank=True, help_text="Notes for display on the public website"
+            ),
         ),
     ]

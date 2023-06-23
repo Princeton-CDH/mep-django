@@ -6,30 +6,70 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0006_rename_subscribe_and_modification'),
+        ("accounts", "0006_rename_subscribe_and_modification"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='purchase',
-            name='currency',
-            field=models.CharField(blank=True, choices=[('', '----'), ('USD', 'US Dollar'), ('FRF', 'French Franc'), ('GBP', 'British Pound')], default='FRF', max_length=3),
+            model_name="purchase",
+            name="currency",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "----"),
+                    ("USD", "US Dollar"),
+                    ("FRF", "French Franc"),
+                    ("GBP", "British Pound"),
+                ],
+                default="FRF",
+                max_length=3,
+            ),
         ),
         migrations.AlterField(
-            model_name='reimbursement',
-            name='currency',
-            field=models.CharField(blank=True, choices=[('', '----'), ('USD', 'US Dollar'), ('FRF', 'French Franc'), ('GBP', 'British Pound')], default='FRF', max_length=3),
+            model_name="reimbursement",
+            name="currency",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "----"),
+                    ("USD", "US Dollar"),
+                    ("FRF", "French Franc"),
+                    ("GBP", "British Pound"),
+                ],
+                default="FRF",
+                max_length=3,
+            ),
         ),
         migrations.AlterField(
-            model_name='subscription',
-            name='currency',
-            field=models.CharField(blank=True, choices=[('', '----'), ('USD', 'US Dollar'), ('FRF', 'French Franc'), ('GBP', 'British Pound')], default='FRF', max_length=3),
+            model_name="subscription",
+            name="currency",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "----"),
+                    ("USD", "US Dollar"),
+                    ("FRF", "French Franc"),
+                    ("GBP", "British Pound"),
+                ],
+                default="FRF",
+                max_length=3,
+            ),
         ),
         migrations.AlterField(
-            model_name='subscription',
-            name='subtype',
-            field=models.CharField(blank=True, choices=[('', 'Subscription'), ('sup', 'Supplement'), ('ren', 'Renewal'), ('oth', 'Other')], help_text='Type of subscription event, e.g. supplement or renewal.', max_length=50, verbose_name='Type'),
+            model_name="subscription",
+            name="subtype",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "Subscription"),
+                    ("sup", "Supplement"),
+                    ("ren", "Renewal"),
+                    ("oth", "Other"),
+                ],
+                help_text="Type of subscription event, e.g. supplement or renewal.",
+                max_length=50,
+                verbose_name="Type",
+            ),
         ),
     ]

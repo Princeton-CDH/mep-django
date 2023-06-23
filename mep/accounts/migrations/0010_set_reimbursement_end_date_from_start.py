@@ -4,26 +4,25 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+
 def populate_reimbursement_end_date(apps, schema_editor):
     Reimbursement = apps.get_model("accounts", "Reimbursement")
 
     # find all reimbursements with start dates but no end dates and
     # set the end dates based on start date
     # (explicitly mark reimbursements as one-day event)
-    for reimb in Reimbursement.objects.filter(start_date__isnull=False,
-                                              end_date__isnull=True):
+    for reimb in Reimbursement.objects.filter(
+        start_date__isnull=False, end_date__isnull=True
+    ):
         reimb.end_date = reimb.start_date
         reimb.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0009_event_ordering_reimbursement_price_to_refund'),
+        ("accounts", "0009_event_ordering_reimbursement_price_to_refund"),
     ]
 
     operations = [
-        migrations.RunPython(populate_reimbursement_end_date,
-                             migrations.RunPython.noop)
-
+        migrations.RunPython(populate_reimbursement_end_date, migrations.RunPython.noop)
     ]

@@ -6,15 +6,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0010_set_reimbursement_end_date_from_start'),
+        ("accounts", "0010_set_reimbursement_end_date_from_start"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subscription',
-            name='duration',
-            field=models.PositiveIntegerField(blank=True, help_text='Subscription duration in days.', null=True),
+            model_name="subscription",
+            name="duration",
+            field=models.PositiveIntegerField(
+                blank=True, help_text="Subscription duration in days.", null=True
+            ),
         ),
     ]

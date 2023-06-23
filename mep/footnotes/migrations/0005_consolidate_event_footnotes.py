@@ -5,23 +5,21 @@ from django.db import migrations
 
 
 def consolidate_event_footnotes(apps, schema_editor):
-    Footnote = apps.get_model('footnotes', 'Footnote')
-    ContentType = apps.get_model('contenttypes', 'ContentType')
-    Event = apps.get_model('accounts', 'Event')
+    Footnote = apps.get_model("footnotes", "Footnote")
+    ContentType = apps.get_model("contenttypes", "ContentType")
+    Event = apps.get_model("accounts", "Event")
 
     # run create permissions for all accounts apps to ensure
     # that needed content types are created
-    accounts_app_config = apps.get_app_config('accounts')
+    accounts_app_config = apps.get_app_config("accounts")
     accounts_app_config.models_module = True
     create_permissions(accounts_app_config, apps=apps, verbosity=0)
     accounts_app_config.models_module = None
 
     # get content types for the event models
-    event_ctype = ContentType.objects.get(app_label='accounts', model='event')
-    borrow_ctype = ContentType.objects.get(app_label='accounts',
-                                           model='borrow')
-    purchase_ctype = ContentType.objects.get(app_label='accounts',
-                                             model='purchase')
+    event_ctype = ContentType.objects.get(app_label="accounts", model="event")
+    borrow_ctype = ContentType.objects.get(app_label="accounts", model="borrow")
+    purchase_ctype = ContentType.objects.get(app_label="accounts", model="purchase")
 
     # update all footnotes linked to borrows to event content type
     # and event id for associated borrow
@@ -40,11 +38,10 @@ def consolidate_event_footnotes(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('footnotes', '0004_on_delete'),
-        ('accounts', '0031_on_delete'),
-        ('contenttypes', '0002_remove_content_type_name')
+        ("footnotes", "0004_on_delete"),
+        ("accounts", "0031_on_delete"),
+        ("contenttypes", "0002_remove_content_type_name"),
     ]
 
     operations = [

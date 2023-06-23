@@ -6,15 +6,15 @@ from mep.people.sitemaps import MemberSitemap
 
 
 class BookSitemap(MemberSitemap):
-    url_route = 'books:book-detail'
+    url_route = "books:book-detail"
 
     def get_queryset(self):
         return WorkSolrQuerySet()
 
 
 class BookCirculationSitemap(BookSitemap):
-    url_route = 'books:book-circ'
+    url_route = "books:book-circ"
 
 
 class BookCardListSitemap(BookSitemap):
-    url_route = 'books:book-card-list'
+    url_route = "books:book-card-list"

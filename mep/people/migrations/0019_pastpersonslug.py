@@ -5,18 +5,39 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0018_on_delete'),
+        ("people", "0018_on_delete"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PastPersonSlug',
+            name="PastPersonSlug",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('slug', models.SlugField(help_text='Short, durable, unique identifier for use in URLs. Editing will change the public, citable URL for library members.', max_length=100, unique=True)),
-                ('person', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='past_slugs', to='people.Person')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(
+                        help_text="Short, durable, unique identifier for use in URLs. Editing will change the public, citable URL for library members.",
+                        max_length=100,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "person",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="past_slugs",
+                        to="people.Person",
+                    ),
+                ),
             ],
         ),
     ]

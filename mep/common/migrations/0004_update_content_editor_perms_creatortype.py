@@ -7,9 +7,14 @@ from django.db import migrations
 
 
 new_content_editor_perms = [
-    'add_creator', 'change_creator', 'delete_creator',
-    'add_creatortype', 'change_creatortype', 'delete_creatortype',
+    "add_creator",
+    "change_creator",
+    "delete_creator",
+    "add_creatortype",
+    "change_creatortype",
+    "delete_creatortype",
 ]
+
 
 def update_content_editor_group(apps, schema_editor):
     # adapted from 0002 content editor migration
@@ -25,7 +30,7 @@ def update_content_editor_group(apps, schema_editor):
         create_permissions(app_config, apps=apps, verbosity=0)
         app_config.models_module = None
 
-    editor_group = Group.objects.get(name='Content Editor')
+    editor_group = Group.objects.get(name="Content Editor")
     permissions = []
     for codename in new_content_editor_perms:
         # using explicit get so that there will be an error if an
@@ -37,13 +42,13 @@ def update_content_editor_group(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('common', '0003_content_editor_perms_location'),
-        ('books', '0006_item_creators'),
+        ("common", "0003_content_editor_perms_location"),
+        ("books", "0006_item_creators"),
     ]
 
     operations = [
-        migrations.RunPython(update_content_editor_group,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            update_content_editor_group, reverse_code=migrations.RunPython.noop
+        ),
     ]

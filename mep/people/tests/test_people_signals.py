@@ -8,11 +8,11 @@ from mep.people.models import Country, Person, Location, PersonSignalHandlers
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_country_save(mock_indexitems):
     uk = Country(
-        name='United Kingdom', code='UK',
-        geonames_id='http://sws.geonames.org/2635167/')
+        name="United Kingdom", code="UK", geonames_id="http://sws.geonames.org/2635167/"
+    )
 
     # unsaved - ignore
     PersonSignalHandlers.country_save(Country, uk)
@@ -28,7 +28,7 @@ def test_country_save(mock_indexitems):
     # add nationality
     pers.nationalities.add(uk)
     # change country
-    uk.name = 'Britannia'
+    uk.name = "Britannia"
     uk.save()
     PersonSignalHandlers.country_save(Country, uk)
     # person is not a library member - not called
@@ -44,14 +44,14 @@ def test_country_save(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_country_delete(mock_indexitems):
     denmark = Country.objects.create(
-        name='Denmark', code='DK',
-        geonames_id='http://sws.geonames.org/2623032/')
+        name="Denmark", code="DK", geonames_id="http://sws.geonames.org/2623032/"
+    )
     uk = Country.objects.create(
-        name='United Kingdom', code='UK',
-        geonames_id='http://sws.geonames.org/2635167/')
+        name="United Kingdom", code="UK", geonames_id="http://sws.geonames.org/2635167/"
+    )
 
     # delete country with no members - nothing to do
     denmark.delete()
@@ -71,7 +71,7 @@ def test_country_delete(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_account_save(mock_indexitems):
     # unsaved - ignore
     acct = Account()
@@ -93,7 +93,7 @@ def test_account_save(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_account_delete(mock_indexitems):
     acct = Account.objects.create()
     # saved but no people - ignore
@@ -110,7 +110,7 @@ def test_account_delete(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_event_save(mock_indexitems):
     # unsaved - ignore
     acct = Account.objects.create()
@@ -133,7 +133,7 @@ def test_event_save(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_event_delete(mock_indexitems):
     acct = Account.objects.create()
     evt = Event.objects.create(account=acct)
@@ -153,11 +153,11 @@ def test_event_delete(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_address_save(mock_indexitems):
     # none saved - ignore
-    pers = Person.objects.create(name='Mr. Foo')
-    loc = Location.objects.create(name='L\'Hotel', city='Paris')
+    pers = Person.objects.create(name="Mr. Foo")
+    loc = Location.objects.create(name="L'Hotel", city="Paris")
     addr = Address(location=loc)
     PersonSignalHandlers.address_save(Address, addr)
     mock_indexitems.assert_not_called()
@@ -183,10 +183,10 @@ def test_address_save(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_address_delete(mock_indexitems):
-    pers = Person.objects.create(name='Mr. Foo')
-    loc = Location.objects.create(name='L\'Hotel', city='Paris')
+    pers = Person.objects.create(name="Mr. Foo")
+    loc = Location.objects.create(name="L'Hotel", city="Paris")
     addr = Address(location=loc)
 
     # associated directly to Person instead of their Account; ignore deletion

@@ -6,15 +6,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0012_add_public_notes'),
+        ("books", "0012_add_public_notes"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='item',
-            name='ebook_url',
-            field=models.URLField(blank=True, help_text='Link to a webpage where one or more ebook versions can be             downloaded, e.g. Project Gutenberg page for this item', verbose_name='eBook URL'),
+            model_name="item",
+            name="ebook_url",
+            field=models.URLField(
+                blank=True,
+                help_text="Link to a webpage where one or more ebook versions can be             downloaded, e.g. Project Gutenberg page for this item",
+                verbose_name="eBook URL",
+            ),
         ),
     ]

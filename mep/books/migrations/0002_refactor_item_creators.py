@@ -7,65 +7,86 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0007_location_unique_constraints'),
-        ('books', '0001_initial'),
+        ("people", "0007_location_unique_constraints"),
+        ("books", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Creator',
+            name="Creator",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('notes', models.TextField(blank=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("notes", models.TextField(blank=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='CreatorType',
+            name="CreatorType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('notes', models.TextField(blank=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                ("notes", models.TextField(blank=True)),
             ],
             options={
-                'ordering': ['name'],
-                'abstract': False,
+                "ordering": ["name"],
+                "abstract": False,
             },
         ),
         migrations.RemoveField(
-            model_name='item',
-            name='authors',
+            model_name="item",
+            name="authors",
         ),
         migrations.RemoveField(
-            model_name='item',
-            name='editors',
+            model_name="item",
+            name="editors",
         ),
         migrations.RemoveField(
-            model_name='item',
-            name='translators',
+            model_name="item",
+            name="translators",
         ),
         migrations.AlterField(
-            model_name='item',
-            name='mep_id',
+            model_name="item",
+            name="mep_id",
             field=models.CharField(blank=True, max_length=255, unique=True),
         ),
         migrations.AddField(
-            model_name='creator',
-            name='creator_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='books.CreatorType'),
+            model_name="creator",
+            name="creator_type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="books.CreatorType"
+            ),
         ),
         migrations.AddField(
-            model_name='creator',
-            name='item',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='books.Item'),
+            model_name="creator",
+            name="item",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="books.Item"
+            ),
         ),
         migrations.AddField(
-            model_name='creator',
-            name='person',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='people.Person'),
+            model_name="creator",
+            name="person",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="people.Person"
+            ),
         ),
     ]

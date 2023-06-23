@@ -29,7 +29,10 @@ if __name__ == "__main__":
     # identify members in new version not in the previous
     # FIXME: probably not useful because of merge/rename
     new_books = books_df[~books_df.uri.isin(books_prev_df.uri)]
-    print("%d new books in %s not included in %s" % (len(new_books), old_version, new_version))
+    print(
+        "%d new books in %s not included in %s"
+        % (len(new_books), old_version, new_version)
+    )
     new_uris = list(new_books.uri)
 
     # identify boks from previous version with uri not included in newer version

@@ -3,12 +3,10 @@ from django.test import TestCase
 from wagtail.core.models import Page
 
 from mep.pages.management.commands import setup_site_pages
-from mep.pages.models import (ContentLandingPage, ContentPage,
-                              EssayLandingPage, HomePage)
+from mep.pages.models import ContentLandingPage, ContentPage, EssayLandingPage, HomePage
 
 
 class TestSetupSitePagesCommand(TestCase):
-
     def setUp(self):
         self.cmd = setup_site_pages.Command()
 
@@ -26,37 +24,46 @@ class TestSetupSitePagesCommand(TestCase):
         assert wagtail_site.is_default_site
 
         # port should be split out when present
-        site.domain = 'localhost:8000'
+        site.domain = "localhost:8000"
         site.save()
         wagtail_site = self.cmd.create_wagtail_site(root_page)
-        assert wagtail_site.hostname == 'localhost'
-        assert wagtail_site.port == '8000'
+        assert wagtail_site.hostname == "localhost"
+        assert wagtail_site.port == "8000"
 
     def test_create_pages(self):
         self.cmd.handle()
 
-        assert not Page.objects.filter(slug='home',
-                                       title__contains='Welcome').count(), \
-                                       'should delete welcome page'
+        assert not Page.objects.filter(
+            slug="home", title__contains="Welcome"
+        ).count(), "should delete welcome page"
 
-        assert HomePage.objects.count() == 1, 'should create 1 homepage'
+        assert HomePage.objects.count() == 1, "should create 1 homepage"
 
-        assert ContentLandingPage.objects.count() == 2, 'should create sources and about landing page'
+        assert (
+            ContentLandingPage.objects.count() == 2
+        ), "should create sources and about landing page"
 
-        assert EssayLandingPage.objects.count() == 1, 'should create analysis landing page'
+        assert (
+            EssayLandingPage.objects.count() == 1
+        ), "should create analysis landing page"
 
-        assert ContentPage.objects.count() == 8, 'should create 8 content pages'
+        assert ContentPage.objects.count() == 8, "should create 8 content pages"
 
-        self.cmd.handle() # run again
+        self.cmd.handle()  # run again
 
-        assert HomePage.objects.count() == 1, \
-            'running twice shouldn\'t duplicate homepage'
+        assert (
+            HomePage.objects.count() == 1
+        ), "running twice shouldn't duplicate homepage"
 
-        assert ContentLandingPage.objects.count() == 2, \
-            'running twice shouldn\'t create duplicate landing pages'
+        assert (
+            ContentLandingPage.objects.count() == 2
+        ), "running twice shouldn't create duplicate landing pages"
 
-        assert EssayLandingPage.objects.count() == 1, \
-            'running twice shouldn\'t create duplicate landing pages'
+        assert (
+            EssayLandingPage.objects.count() == 1
+        ), "running twice shouldn't create duplicate landing pages"
 
-        assert ContentPage.objects.count() == 8, 'running twice shouldn\'t \
-            create duplicate content pages'
+        assert (
+            ContentPage.objects.count() == 8
+        ), "running twice shouldn't \
+            create duplicate content pages"

@@ -6,15 +6,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0022_add_partial_date_purchase'),
+        ("accounts", "0022_add_partial_date_purchase"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='purchase',
-            name='price',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=8, null=True),
+            model_name="purchase",
+            name="price",
+            field=models.DecimalField(
+                blank=True, decimal_places=2, max_digits=8, null=True
+            ),
         ),
     ]

@@ -6,19 +6,18 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0008_flag_duplicate_events'),
+        ("accounts", "0008_flag_duplicate_events"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='event',
-            options={'ordering': ('start_date', 'account__persons__sort_name')},
+            name="event",
+            options={"ordering": ("start_date", "account__persons__sort_name")},
         ),
         migrations.RenameField(
-            model_name='reimbursement',
-            old_name='price',
-            new_name='refund',
+            model_name="reimbursement",
+            old_name="price",
+            new_name="refund",
         ),
     ]

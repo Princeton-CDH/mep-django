@@ -7,34 +7,34 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0028_generic_event_partial_dates'),
-        ('books', '0014_item_to_work'),
+        ("accounts", "0028_generic_event_partial_dates"),
+        ("books", "0014_item_to_work"),
     ]
 
     operations = [
         # convert foreign key to integer to drop constraints but preserve data
         migrations.AlterField(
-            model_name='event',
-            name='item',
+            model_name="event",
+            name="item",
             field=models.IntegerField(blank=True, null=True),
         ),
         # rename the field from item to work
         migrations.RenameField(
-            model_name='event',
-            old_name='item',
-            new_name='work',
+            model_name="event",
+            old_name="item",
+            new_name="work",
         ),
         # alter event item to make new foreignkey to new work model
         migrations.AlterField(
-            model_name='event',
-            name='work',
+            model_name="event",
+            name="work",
             field=models.ForeignKey(
                 blank=True,
-                help_text='Work associated with this event, if any.',
+                help_text="Work associated with this event, if any.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                to='books.Work'),
-        )
+                to="books.Work",
+            ),
+        ),
     ]

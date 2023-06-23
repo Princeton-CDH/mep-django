@@ -6,20 +6,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0016_generate_person_slugs'),
+        ("people", "0016_generate_person_slugs"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='person',
-            name='public_notes',
-            field=models.TextField(blank=True, help_text='Notes for display on the public site'),
+            model_name="person",
+            name="public_notes",
+            field=models.TextField(
+                blank=True, help_text="Notes for display on the public site"
+            ),
         ),
         migrations.AlterField(
-            model_name='person',
-            name='slug',
-            field=models.SlugField(help_text='Short, durable, unique identifier for use in URLs.', max_length=100, unique=True),
+            model_name="person",
+            name="slug",
+            field=models.SlugField(
+                help_text="Short, durable, unique identifier for use in URLs.",
+                max_length=100,
+                unique=True,
+            ),
         ),
     ]

@@ -6,20 +6,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0008_person_is_organization'),
+        ("people", "0008_person_is_organization"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='person',
-            name='end_year',
+            model_name="person",
+            name="end_year",
             field=models.SmallIntegerField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='person',
-            name='start_year',
+            model_name="person",
+            name="start_year",
             field=models.SmallIntegerField(blank=True, null=True),
         ),
     ]
