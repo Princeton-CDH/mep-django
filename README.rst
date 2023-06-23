@@ -183,6 +183,23 @@ Then, run pa11y-ci to craw the sitemap and test for accessibility issues::
 Running with ``DEBUG`` enabled will include the (inaccessible) Django
 debug toolbar, so you'll probably want to turn it off.
 
+Setup pre-commit hooks
+~~~~~~~~~~~~~~~~~~~~~~
+
+If you plan to contribute to this repository, please run the following command:
+
+    pre-commit install
+
+This will add a pre-commit hook to automatically format python code with `black <https://github.com/psf/black>`_.
+
+Because these styling conventions were instituted after multiple releases of development on this project, ``git blame`` may not reflect the true author of a given line. In order to see a more accurate ``git blame`` execute the following command:
+
+    git blame <FILE> --ignore-revs-file .git-blame-ignore-revs
+
+Or configure your git to always ignore styling revision commits:
+
+    git config blame.ignoreRevsFile .git-blame-ignore-revs
+
 Documentation
 -------------
 
