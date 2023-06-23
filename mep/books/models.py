@@ -111,15 +111,11 @@ class Subject(models.Model):
             # determine label
             # based on preferredLabel method in rdlib<6.0
             labels = list(graph.objects(uriref, SKOS.prefLabel))
-            print("labels")
-            print(labels)
 
             # viaf records include multiple languages and some records
             # have language codes for them; filter by language if possible
             if "viaf.org" in uri:
                 en_labels = [l for l in labels if l.language == "en-US"]
-                print("en labels")
-                print(en_labels)
                 if en_labels:
                     labels = en_labels
             # if still no labels, bail out

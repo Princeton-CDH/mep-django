@@ -6,19 +6,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0005_remove_subscribe_sub_type'),
+        ("accounts", "0005_remove_subscribe_sub_type"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='Subscribe',
-            new_name='Subscription',
+            old_name="Subscribe",
+            new_name="Subscription",
         ),
         migrations.RenameField(
-            model_name='subscription',
-            old_name='modification',
-            new_name='subtype'
+            model_name="subscription", old_name="modification", new_name="subtype"
         ),
     ]

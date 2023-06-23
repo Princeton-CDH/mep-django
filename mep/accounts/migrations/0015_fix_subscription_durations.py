@@ -8,9 +8,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     def recalculate_durations(apps, schema_editor):
-        '''
+        """
         Recalculate subscription durations based on duration in months
         for Subscriptions without end date.
 
@@ -22,17 +21,15 @@ class Migration(migrations.Migration):
         The migration targets Subscription objects that have a start_date, lack
         an end date, and have a duration that is still reflecting months rather
         than the current unit of day for duration.
-        '''
+        """
 
-        Subscription = apps.get_model('accounts', 'Subscription')
+        Subscription = apps.get_model("accounts", "Subscription")
         # - fetch subscriptiosn that meet the following criteria
         # 1) have a start_date
         # 2) lack an end_date
         # 3) have a duration set
         subs = Subscription.objects.filter(
-            start_date__isnull=False,
-            end_date__isnull=True,
-            duration__isnull=False
+            start_date__isnull=False, end_date__isnull=True, duration__isnull=False
         )
 
         for sub in subs:
@@ -47,7 +44,7 @@ class Migration(migrations.Migration):
             sub.save()
 
     dependencies = [
-        ('accounts', '0014_add_address_rel_to_person'),
+        ("accounts", "0014_add_address_rel_to_person"),
     ]
 
     operations = [

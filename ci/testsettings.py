@@ -10,30 +10,30 @@ import os
 DEBUG = False
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME':  os.getenv('DB_PASSWORD'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_PASSWORD"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": "127.0.0.1",
     },
 }
 
 
 SOLR_CONNECTIONS = {
-    'default': {
-        'URL': 'http://localhost:8983/solr/',
-        'COLLECTION': 'sandco',
-        'CONFIGSET': 'sandco',
-        'TEST': {
+    "default": {
+        "URL": "http://localhost:8983/solr/",
+        "COLLECTION": "sandco",
+        "CONFIGSET": "sandco",
+        "TEST": {
             # aggressive commitWithin for test only
-            'COMMITWITHIN': 750,
-        }
+            "COMMITWITHIN": 750,
+        },
     }
 }
 
 
 # required by mezzanine for unit tests
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 # secret key added as a travis build step

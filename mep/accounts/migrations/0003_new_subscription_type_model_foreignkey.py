@@ -7,27 +7,40 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0002_field_adjustments_logbook_import'),
+        ("accounts", "0002_field_adjustments_logbook_import"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SubscriptionType',
+            name="SubscriptionType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('notes', models.TextField(blank=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                ("notes", models.TextField(blank=True)),
             ],
             options={
-                'abstract': False,
-                'ordering': ['name'],
+                "abstract": False,
+                "ordering": ["name"],
             },
         ),
         migrations.AddField(
-            model_name='subscribe',
-            name='category',
-            field=models.ForeignKey(blank=True, help_text='Code to indicate the kind of subscription', null=True, on_delete=django.db.models.deletion.CASCADE, to='accounts.SubscriptionType'),
+            model_name="subscribe",
+            name="category",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Code to indicate the kind of subscription",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="accounts.SubscriptionType",
+            ),
         ),
     ]

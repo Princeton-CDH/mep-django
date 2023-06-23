@@ -7,56 +7,107 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('contenttypes', '0001_initial'),
+        ("contenttypes", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Bibliography',
+            name="Bibliography",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('notes', models.TextField(blank=True)),
-                ('bibliographic_note', models.TextField(help_text='Full bibliographic citation')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("notes", models.TextField(blank=True)),
+                (
+                    "bibliographic_note",
+                    models.TextField(help_text="Full bibliographic citation"),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Bibliographies',
+                "verbose_name_plural": "Bibliographies",
             },
         ),
         migrations.CreateModel(
-            name='Footnote',
+            name="Footnote",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('notes', models.TextField(blank=True)),
-                ('location', models.TextField(blank=True, help_text='Page number for a book, URL for part of a website, or other location inside of a larger work.')),
-                ('snippet_text', models.TextField(blank=True)),
-                ('object_id', models.PositiveIntegerField()),
-                ('is_agree', models.BooleanField(help_text='True if the evidence supports the information in the system, False if it contradicts.')),
-                ('bibliography', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='footnotes.Bibliography')),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("notes", models.TextField(blank=True)),
+                (
+                    "location",
+                    models.TextField(
+                        blank=True,
+                        help_text="Page number for a book, URL for part of a website, or other location inside of a larger work.",
+                    ),
+                ),
+                ("snippet_text", models.TextField(blank=True)),
+                ("object_id", models.PositiveIntegerField()),
+                (
+                    "is_agree",
+                    models.BooleanField(
+                        help_text="True if the evidence supports the information in the system, False if it contradicts."
+                    ),
+                ),
+                (
+                    "bibliography",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="footnotes.Bibliography",
+                    ),
+                ),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.ContentType",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='SourceType',
+            name="SourceType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('notes', models.TextField(blank=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                ("notes", models.TextField(blank=True)),
             ],
             options={
-                'ordering': ['name'],
-                'abstract': False,
+                "ordering": ["name"],
+                "abstract": False,
             },
         ),
         migrations.AddField(
-            model_name='bibliography',
-            name='source_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='footnotes.SourceType'),
+            model_name="bibliography",
+            name="source_type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="footnotes.SourceType"
+            ),
         ),
     ]

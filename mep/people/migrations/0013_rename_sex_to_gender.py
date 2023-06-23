@@ -6,20 +6,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0012_add_public_notes'),
+        ("people", "0012_add_public_notes"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='person',
-            old_name='sex',
-            new_name='gender',
+            model_name="person",
+            old_name="sex",
+            new_name="gender",
         ),
         migrations.AlterField(
-            model_name='person',
-            name='gender',
-            field=models.CharField(blank=True, choices=[('F', 'Female'), ('M', 'Male'), ('N', 'Nonbinary')], max_length=1),
+            model_name="person",
+            name="gender",
+            field=models.CharField(
+                blank=True,
+                choices=[("F", "Female"), ("M", "Male"), ("N", "Nonbinary")],
+                max_length=1,
+            ),
         ),
     ]

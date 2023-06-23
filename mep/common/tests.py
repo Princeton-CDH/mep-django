@@ -45,6 +45,7 @@ class TestNamed(TestCase):
     def test_repr(self):
         named_obj = self.LocalNamed(name="foo")
         assert repr(named_obj) == "<LocalNamed %s>" % named_obj.name
+
         # subclass
 
         class MyName(Named):
@@ -361,6 +362,8 @@ class TestLabeledPagesMixin(TestCase):
         assert "page_labels" in context
         # should be 7 pages of 5 items each
         assert len(context["page_labels"]) == 7
+
+        # last page label shows only the remaining items
         assert context["page_labels"][-1] == (7, "31 – 33")
         # with no items, should return an empty list
         view.object_list = []

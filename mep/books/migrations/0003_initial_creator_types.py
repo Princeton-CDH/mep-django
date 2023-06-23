@@ -8,17 +8,15 @@ from django.db import migrations
 def initial_creator_types(apps, schema_editor):
     CreatorType = apps.get_model("books", "CreatorType")
 
-    for creator_type in ['Author', 'Editor', 'Translator']:
+    for creator_type in ["Author", "Editor", "Translator"]:
         CreatorType.objects.get_or_create(name=creator_type)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0002_refactor_item_creators'),
+        ("books", "0002_refactor_item_creators"),
     ]
 
     operations = [
-        migrations.RunPython(initial_creator_types,
-                             migrations.RunPython.noop)
+        migrations.RunPython(initial_creator_types, migrations.RunPython.noop)
     ]

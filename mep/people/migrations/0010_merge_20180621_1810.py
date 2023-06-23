@@ -6,11 +6,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0009_allow_negative_years'),
-        ('people', '0009_person_updated_at'),
+        ("people", "0009_allow_negative_years"),
+        ("people", "0009_person_updated_at"),
     ]
 
-    operations = [
-    ]
+    operations = []

@@ -15,7 +15,7 @@
 
 {% for event_date, events in events_by_date.items %}
     <h2>{{ event_date }}</h2>
-
+    <p>{{ events|length }} event{{events|pluralize }}</p
     {% for event in events %}
         {% tweet_text event event_date as tweet_content %}
         {% if tweet_content %}

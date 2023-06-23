@@ -7,16 +7,21 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0007_item_updated_at'),
-        ('accounts', '0023_optional_price'),
+        ("books", "0007_item_updated_at"),
+        ("accounts", "0023_optional_price"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='generic_item',
-            field=models.ForeignKey(blank=True, help_text='Item associated with this event, if any.', null=True, on_delete=django.db.models.deletion.CASCADE, to='books.Item'),
+            model_name="event",
+            name="generic_item",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Item associated with this event, if any.",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="books.Item",
+            ),
         ),
     ]

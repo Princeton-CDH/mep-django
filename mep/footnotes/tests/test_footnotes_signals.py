@@ -5,13 +5,12 @@ from parasolr.django.indexing import ModelIndexable
 import pytest
 
 from mep.accounts.models import Account, Event
-from mep.footnotes.models import Bibliography, BibliographySignalHandlers, \
-    SourceType
+from mep.footnotes.models import Bibliography, BibliographySignalHandlers, SourceType
 from mep.people.models import Person
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_person_save(mock_indexitems):
     # unsaved - ignore
     pers = Person()
@@ -30,7 +29,7 @@ def test_person_save(mock_indexitems):
     mock_indexitems.assert_not_called()
 
     # associate card - should reindex
-    src_type = SourceType.objects.create(name='website')
+    src_type = SourceType.objects.create(name="website")
     acct.card = Bibliography.objects.create(source_type=src_type)
     acct.save()
     mock_indexitems.resetmock()
@@ -41,7 +40,7 @@ def test_person_save(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_person_delete(mock_indexitems):
     # unsaved - ignore
     pers = Person()
@@ -60,7 +59,7 @@ def test_person_delete(mock_indexitems):
     mock_indexitems.assert_not_called()
 
     # associate card - should reindex
-    src_type = SourceType.objects.create(name='website')
+    src_type = SourceType.objects.create(name="website")
     acct.card = Bibliography.objects.create(source_type=src_type)
     acct.save()
     mock_indexitems.resetmock()
@@ -71,7 +70,7 @@ def test_person_delete(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_account_save(mock_indexitems):
     # unsaved - ignore
     acct = Account()
@@ -84,7 +83,7 @@ def test_account_save(mock_indexitems):
     mock_indexitems.assert_not_called()
 
     # associate card - should reindex
-    src_type = SourceType.objects.create(name='website')
+    src_type = SourceType.objects.create(name="website")
     acct.card = Bibliography.objects.create(source_type=src_type)
     acct.save()
     mock_indexitems.resetmock()
@@ -95,7 +94,7 @@ def test_account_save(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_account_delete(mock_indexitems):
     # unsaved - ignore
     acct = Account()
@@ -108,7 +107,7 @@ def test_account_delete(mock_indexitems):
     mock_indexitems.assert_not_called()
 
     # associate card - should reindex
-    src_type = SourceType.objects.create(name='website')
+    src_type = SourceType.objects.create(name="website")
     card = Bibliography.objects.create(source_type=src_type)
     acct.card = card
     acct.save()
@@ -121,7 +120,7 @@ def test_account_delete(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_manifest_save(mock_indexitems):
     # unsaved - ignore
     manif = Manifest()
@@ -134,9 +133,8 @@ def test_manifest_save(mock_indexitems):
     mock_indexitems.assert_not_called()
 
     # associate card - should reindex
-    src_type = SourceType.objects.create(name='website')
-    card = Bibliography.objects.create(source_type=src_type,
-                                       manifest=manif)
+    src_type = SourceType.objects.create(name="website")
+    card = Bibliography.objects.create(source_type=src_type, manifest=manif)
     mock_indexitems.resetmock()
     BibliographySignalHandlers.manifest_save(Manifest, manif)
     assert mock_indexitems.call_count == 1
@@ -145,7 +143,7 @@ def test_manifest_save(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_manifest_delete(mock_indexitems):
     # unsaved - ignore
     manif = Manifest()
@@ -158,9 +156,8 @@ def test_manifest_delete(mock_indexitems):
     mock_indexitems.assert_not_called()
 
     # associate card - should reindex
-    src_type = SourceType.objects.create(name='website')
-    card = Bibliography.objects.create(source_type=src_type,
-                                       manifest=manif)
+    src_type = SourceType.objects.create(name="website")
+    card = Bibliography.objects.create(source_type=src_type, manifest=manif)
     BibliographySignalHandlers.manifest_delete(Manifest, manif)
     # hits twice, once for person and once for bibliography (?!?)
     assert mock_indexitems.call_count == 1
@@ -169,7 +166,7 @@ def test_manifest_delete(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_canvas_save(mock_indexitems):
     # unsaved - ignore
     manif = Manifest.objects.create()
@@ -183,9 +180,8 @@ def test_canvas_save(mock_indexitems):
     mock_indexitems.assert_not_called()
 
     # associate card - should reindex
-    src_type = SourceType.objects.create(name='website')
-    card = Bibliography.objects.create(source_type=src_type,
-                                       manifest=manif)
+    src_type = SourceType.objects.create(name="website")
+    card = Bibliography.objects.create(source_type=src_type, manifest=manif)
     mock_indexitems.resetmock()
     BibliographySignalHandlers.canvas_save(Canvas, page)
     assert mock_indexitems.call_count == 1
@@ -194,7 +190,7 @@ def test_canvas_save(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_canvas_delete(mock_indexitems):
     # unsaved - ignore
     manif = Manifest()
@@ -208,9 +204,8 @@ def test_canvas_delete(mock_indexitems):
     mock_indexitems.assert_not_called()
 
     # associate card - should reindex
-    src_type = SourceType.objects.create(name='website')
-    card = Bibliography.objects.create(source_type=src_type,
-                                       manifest=manif)
+    src_type = SourceType.objects.create(name="website")
+    card = Bibliography.objects.create(source_type=src_type, manifest=manif)
     BibliographySignalHandlers.canvas_delete(Canvas, page)
     # hits twice, once for person and once for bibliography (?!?)
     assert mock_indexitems.call_count == 1
@@ -219,7 +214,7 @@ def test_canvas_delete(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_event_save(mock_indexitems):
     # unsaved - ignore
     acct = Account.objects.create()
@@ -233,7 +228,7 @@ def test_event_save(mock_indexitems):
     mock_indexitems.assert_not_called()
 
     # associate card - should reindex
-    src_type = SourceType.objects.create(name='website')
+    src_type = SourceType.objects.create(name="website")
     acct.card = Bibliography.objects.create(source_type=src_type)
     acct.save()
     mock_indexitems.resetmock()
@@ -244,7 +239,7 @@ def test_event_save(mock_indexitems):
 
 
 @pytest.mark.django_db
-@patch.object(ModelIndexable, 'index_items')
+@patch.object(ModelIndexable, "index_items")
 def test_event_delete(mock_indexitems):
     # unsaved - ignore
     acct = Account.objects.create()
@@ -258,7 +253,7 @@ def test_event_delete(mock_indexitems):
     mock_indexitems.assert_not_called()
 
     # associate card - should reindex
-    src_type = SourceType.objects.create(name='website')
+    src_type = SourceType.objects.create(name="website")
     card = Bibliography.objects.create(source_type=src_type)
     acct.card = card
     acct.save()

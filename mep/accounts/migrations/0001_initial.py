@@ -7,122 +7,256 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('books', '0001_initial'),
-        ('people', '0001_initial'),
+        ("books", "0001_initial"),
+        ("people", "0001_initial"),
     ]
 
     run_before = [
-        ('people', '0004_rename_address_to_location'),
+        ("people", "0004_rename_address_to_location"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Account',
+            name="Account",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='AccountAddress',
+            name="AccountAddress",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('notes', models.TextField(blank=True)),
-                ('start_date', models.DateField(blank=True, null=True)),
-                ('end_date', models.DateField(blank=True, null=True)),
-                ('account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='accounts.Account')),
-                ('address', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='people.Address')),
-                ('care_of_person', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='people.Person')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("notes", models.TextField(blank=True)),
+                ("start_date", models.DateField(blank=True, null=True)),
+                ("end_date", models.DateField(blank=True, null=True)),
+                (
+                    "account",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounts.Account",
+                    ),
+                ),
+                (
+                    "address",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="people.Address"
+                    ),
+                ),
+                (
+                    "care_of_person",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="people.Person",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Event',
+            name="Event",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('notes', models.TextField(blank=True)),
-                ('start_date', models.DateField(blank=True, null=True)),
-                ('end_date', models.DateField(blank=True, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("notes", models.TextField(blank=True)),
+                ("start_date", models.DateField(blank=True, null=True)),
+                ("end_date", models.DateField(blank=True, null=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Borrow',
+            name="Borrow",
             fields=[
-                ('event_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='accounts.Event')),
+                (
+                    "event_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="accounts.Event",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('accounts.event',),
+            bases=("accounts.event",),
         ),
         migrations.CreateModel(
-            name='Purchase',
+            name="Purchase",
             fields=[
-                ('event_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='accounts.Event')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=8)),
-                ('currency', models.CharField(blank=True, choices=[('', '----'), ('USD', 'US Dollar'), ('FRF', 'French Franc'), ('GBP', 'British Pound')], max_length=3)),
-                ('item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='books.Item')),
+                (
+                    "event_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="accounts.Event",
+                    ),
+                ),
+                ("price", models.DecimalField(decimal_places=2, max_digits=8)),
+                (
+                    "currency",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("", "----"),
+                            ("USD", "US Dollar"),
+                            ("FRF", "French Franc"),
+                            ("GBP", "British Pound"),
+                        ],
+                        max_length=3,
+                    ),
+                ),
+                (
+                    "item",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="books.Item"
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('accounts.event',),
+            bases=("accounts.event",),
         ),
         migrations.CreateModel(
-            name='Reimbursement',
+            name="Reimbursement",
             fields=[
-                ('event_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='accounts.Event')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=8)),
-                ('currency', models.CharField(blank=True, choices=[('', '----'), ('USD', 'US Dollar'), ('FRF', 'French Franc'), ('GBP', 'British Pound')], max_length=3)),
+                (
+                    "event_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="accounts.Event",
+                    ),
+                ),
+                ("price", models.DecimalField(decimal_places=2, max_digits=8)),
+                (
+                    "currency",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("", "----"),
+                            ("USD", "US Dollar"),
+                            ("FRF", "French Franc"),
+                            ("GBP", "British Pound"),
+                        ],
+                        max_length=3,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('accounts.event',),
+            bases=("accounts.event",),
         ),
         migrations.CreateModel(
-            name='Subscribe',
+            name="Subscribe",
             fields=[
-                ('event_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='accounts.Event')),
-                ('duration', models.PositiveSmallIntegerField()),
-                ('volumes', models.PositiveIntegerField()),
-                ('sub_type', models.CharField(max_length=255, verbose_name='type')),
-                ('price_paid', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('deposit', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
-                ('currency', models.CharField(blank=True, max_length=3)),
-                ('modification', models.CharField(blank=True, choices=[('', '----'), ('f', 'Foo'), ('b', 'Bar')], max_length=50)),
+                (
+                    "event_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="accounts.Event",
+                    ),
+                ),
+                ("duration", models.PositiveSmallIntegerField()),
+                ("volumes", models.PositiveIntegerField()),
+                ("sub_type", models.CharField(max_length=255, verbose_name="type")),
+                ("price_paid", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "deposit",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True
+                    ),
+                ),
+                ("currency", models.CharField(blank=True, max_length=3)),
+                (
+                    "modification",
+                    models.CharField(
+                        blank=True,
+                        choices=[("", "----"), ("f", "Foo"), ("b", "Bar")],
+                        max_length=50,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=('accounts.event',),
+            bases=("accounts.event",),
         ),
         migrations.AddField(
-            model_name='event',
-            name='account',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='accounts.Account'),
+            model_name="event",
+            name="account",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="accounts.Account"
+            ),
         ),
         migrations.AddField(
-            model_name='account',
-            name='addresses',
-            field=models.ManyToManyField(blank=True, through='accounts.AccountAddress', to='people.Address'),
+            model_name="account",
+            name="addresses",
+            field=models.ManyToManyField(
+                blank=True, through="accounts.AccountAddress", to="people.Address"
+            ),
         ),
         migrations.AddField(
-            model_name='account',
-            name='persons',
-            field=models.ManyToManyField(blank=True, to='people.Person'),
+            model_name="account",
+            name="persons",
+            field=models.ManyToManyField(blank=True, to="people.Person"),
         ),
         migrations.AddField(
-            model_name='borrow',
-            name='purchase_id',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='purchase', to='accounts.Purchase', verbose_name='purchase'),
+            model_name="borrow",
+            name="purchase_id",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="purchase",
+                to="accounts.Purchase",
+                verbose_name="purchase",
+            ),
         ),
     ]

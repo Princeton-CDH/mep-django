@@ -1,0 +1,230 @@
+{
+  "profile": "tabular-data-package",
+  "title": "Shakespeare and Company Project Dataset: Lending Library Events",
+  "id": "https://doi.org/10.34770/nz90-ym25",
+  "homepage": "https://shakespeareandco.princeton.edu/about/data/",
+  "version": "1.1.0",
+  "image": "https://shakespeareandco.princeton.edu/static/img/social.png",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "path": "https://creativecommons.org/licenses/by/4.0/",
+      "title": "Creative Commons Attribution 4.0"
+    }
+  ],
+  "resources": [
+    {
+      "path": "SCoData_events_v1.2_2022-01.csv",
+      "profile": "tabular-data-resource",
+      "name": "events",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8-sig",
+      "schema": {
+        "fields": [
+          {
+            "name": "event_type",
+            "type": "string",
+            "format": "default",
+            "constraints": {
+              "required": true
+            },
+            "description": "type of event"
+          },
+          {
+            "name": "start_date",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/Date",
+            "constraints": {
+              "pattern": "(\\d{4}|-)?(?:-([01]\\d))?(?:-([0-3]\\d))?"
+            },
+            "description": "start date, if known (ISO 8601 format; YYYY, YY-MM, YYYY-MM-DD, or --MM-DD)"
+          },
+          {
+            "name": "end_date",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/Date",
+            "constraints": {
+              "pattern": "(\\d{4}|-)?(?:-([01]\\d))?(?:-([0-3]\\d))?"
+            },
+            "description": "end date, if known (ISO 8601 format; YYYY, YY-MM, YYYY-MM-DD, or --MM-DD)"
+          },
+          {
+            "name": "member_uris",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList",
+            "description": "list of URIs for members associated with this event (could be multiple, separated by semicolons)"
+          },
+          {
+            "name": "member_names",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList",
+            "description": "list of full member names with variants (multiple, separated by semicolons; order matches member_uris)"
+          },
+          {
+            "name": "member_sort_names",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList",
+            "description": "list of member authorized sort names (multiple, separated by semicolons; order matches member_uris)"
+          },
+          {
+            "name": "subscription_price_paid",
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount",
+            "description": "amount paid for a subscription event (numeric)"
+          },
+          {
+            "name": "subscription_deposit",
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount",
+            "description": "amount deposited for a new subscription (numeric)"
+          },
+          {
+            "name": "subscription_duration",
+            "type": "string",
+            "format": "default",
+            "description": "logical subscription duration (human readable, e.g. 6 months, 1 year)"
+          },
+          {
+            "name": "subscription_duration_days",
+            "type": "integer",
+            "format": "default",
+            "description": "actual subscription duration in days (integer)"
+          },
+          {
+            "name": "subscription_volumes",
+            "type": "integer",
+            "format": "default",
+            "description": "number of volumes paid for in the subscription"
+          },
+          {
+            "name": "subscription_category",
+            "type": "string",
+            "format": "default",
+            "description": "subscription plan, if any; see https://shakespeareandco.princeton.edu/about/faq/#lending-library-plans "
+          },
+          {
+            "name": "subscription_purchase_date",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/Date",
+            "constraints": {
+              "pattern": "(\\d{4}|-)?(?:-([01]\\d))?(?:-([0-3]\\d))?"
+            },
+            "description": "date the subscription was purchased (ISO 8601 format; YYYY, YYYY-MM, YYYY-MM-DD, or --MM-DD)"
+          },
+          {
+            "name": "reimbursement_refund",
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount",
+            "description": "amount refunded for a reimbursement event (numeric)"
+          },
+          {
+            "name": "borrow_status",
+            "type": "string",
+            "format": "default",
+            "description": "status code indicating how a borrowing event ended (Returned, Bought, Missing, Unknown)"
+          },
+          {
+            "name": "borrow_duration_days",
+            "type": "integer",
+            "format": "default",
+            "description": "borrow duration in days, if known (integer)"
+          },
+          {
+            "name": "purchase_price",
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount",
+            "description": "amount paid for a purchase"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "format": "default",
+            "description": "currency code indicating currency of subscription price paid, deposit, reimbursement refund, or purchase price (ISO 4217 currency code)"
+          },
+          {
+            "name": "item_uri",
+            "type": "string",
+            "format": "default",
+            "description": "identifier for book associated with this event, if there is one"
+          },
+          {
+            "name": "item_title",
+            "type": "string",
+            "format": "default",
+            "description": "title of the book associated with this event"
+          },
+          {
+            "name": "item_volume",
+            "type": "string",
+            "format": "default",
+            "description": "volume / issue information for this event, if item is a multivolume work or periodical and volume/issue information is known"
+          },
+          {
+            "name": "item_authors",
+            "type": "string",
+            "format": "default",
+            "description": "list of authors for this work; authorized names, last name first (could be multiple; separated by semicolon)"
+          },
+          {
+            "name": "item_year",
+            "type": "string",
+            "format": "default",
+            "description": "publication year"
+          },
+          {
+            "name": "item_notes",
+            "type": "string",
+            "format": "default",
+            "description": "notes about the item"
+          },
+          {
+            "name": "source_type",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList",
+            "description": "type of source this data was drawn from (could be multiple; separated by semicolons)",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "source_citation",
+            "type": "string",
+            "format": "default",
+            "description": "bibliographic citation for the source of this data",
+            "rdfType": "https://schema.org/ItemList",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "source_manifest",
+            "type": "string",
+            "rdfType": "https://schema.org/ItemList",
+            "description": "IIIF Presentation manifest URL for a digitized edition of the source of this data (could be multiple; separated by semicolons)"
+          },
+          {
+            "name": "source_image",
+            "type": "string",
+            "rdfType": "https://schema.org/ItemList",
+            "description": "IIIF Image URL for the digitized image in the IIIF manifest documenting this event, if known (could be multiple; separated by semicolons)"
+          }
+        ],
+        "missingValues": [
+          ""
+        ]
+      }
+    }
+  ]
+}

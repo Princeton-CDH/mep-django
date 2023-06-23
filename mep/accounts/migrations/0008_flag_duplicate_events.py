@@ -12,41 +12,41 @@ def flag_duplicate_events(apps, schema_editor):
 
     # look for repeated reimbursement start date and account combinations
     # using django count queries
-    duplicates = Reimbursement.objects.values('start_date', 'account') \
-        .annotate(Count('start_date'), Count('account')) \
-        .filter(start_date__count__gt=1, account__count__gt=1) \
-        .values('start_date', 'account')
+    duplicates = (
+        Reimbursement.objects.values("start_date", "account")
+        .annotate(Count("start_date"), Count("account"))
+        .filter(start_date__count__gt=1, account__count__gt=1)
+        .values("start_date", "account")
+    )
 
     for dupe in duplicates:
         # use start date and account values as filter to find the
         # records to be flagged as possible duplicates
         for reimb in Reimbursement.objects.filter(**dupe):
-            if 'duplicate reimbursement event' not in reimb.notes:
-                reimb.notes += '\nduplicate reimbursement event'
+            if "duplicate reimbursement event" not in reimb.notes:
+                reimb.notes += "\nduplicate reimbursement event"
                 reimb.save()
 
     # look for repeated subscription start date, account, and type combinations
-    duplicates = Subscription.objects.values('start_date', 'account', 'subtype') \
-        .annotate(Count('start_date'), Count('account'), Count('subtype')) \
-        .filter(start_date__count__gt=1, account__count__gt=1,
-                subtype__count__gt=1) \
-        .values('start_date', 'account', 'subtype')
+    duplicates = (
+        Subscription.objects.values("start_date", "account", "subtype")
+        .annotate(Count("start_date"), Count("account"), Count("subtype"))
+        .filter(start_date__count__gt=1, account__count__gt=1, subtype__count__gt=1)
+        .values("start_date", "account", "subtype")
+    )
 
     for dupe in duplicates:
         for subscr in Subscription.objects.filter(**dupe):
-            if 'duplicate subscription event' not in subscr.notes:
-                subscr.notes += '\nduplicate subscription event'
+            if "duplicate subscription event" not in subscr.notes:
+                subscr.notes += "\nduplicate subscription event"
                 subscr.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0007_currency_default_to_franc'),
+        ("accounts", "0007_currency_default_to_franc"),
     ]
 
     operations = [
-            migrations.RunPython(flag_duplicate_events,
-                             migrations.RunPython.noop)
-
+        migrations.RunPython(flag_duplicate_events, migrations.RunPython.noop)
     ]

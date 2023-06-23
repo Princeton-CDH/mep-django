@@ -6,15 +6,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0007_location_unique_constraints'),
+        ("people", "0007_location_unique_constraints"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='person',
-            name='is_organization',
-            field=models.BooleanField(default=False, help_text='Mark as true to indicate this is an organization'),
+            model_name="person",
+            name="is_organization",
+            field=models.BooleanField(
+                default=False,
+                help_text="Mark as true to indicate this is an organization",
+            ),
         ),
     ]

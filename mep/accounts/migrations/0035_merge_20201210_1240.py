@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0034_subscription_other_to_separate_deposit'),
-        ('accounts', '0034_add_event_footnotes'),
+        ("accounts", "0034_subscription_other_to_separate_deposit"),
+        ("accounts", "0034_add_event_footnotes"),
     ]
 
-    operations = [
-    ]
+    operations = []

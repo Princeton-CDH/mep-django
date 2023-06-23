@@ -6,15 +6,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0014_library_location'),
+        ("people", "0014_library_location"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='person',
-            name='slug',
-            field=models.SlugField(blank=True, help_text='Short, durable, unique identifier for use in URLs. Editing will change the public, citable URL for library members.', null=True, max_length=100),
+            model_name="person",
+            name="slug",
+            field=models.SlugField(
+                blank=True,
+                help_text="Short, durable, unique identifier for use in URLs. Editing will change the public, citable URL for library members.",
+                null=True,
+                max_length=100,
+            ),
         )
     ]

@@ -6,20 +6,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0010_merge_20180621_1810'),
+        ("people", "0010_merge_20180621_1810"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='person',
-            name='verified',
-            field=models.BooleanField(default=False, help_text='Check to indicate information in this record has been checked against the relevant archival sources.'),
+            model_name="person",
+            name="verified",
+            field=models.BooleanField(
+                default=False,
+                help_text="Check to indicate information in this record has been checked against the relevant archival sources.",
+            ),
         ),
         migrations.AlterField(
-            model_name='person',
-            name='is_organization',
-            field=models.BooleanField(default=False, help_text='Check to indicate this entity is an organization rather than a person'),
+            model_name="person",
+            name="is_organization",
+            field=models.BooleanField(
+                default=False,
+                help_text="Check to indicate this entity is an organization rather than a person",
+            ),
         ),
     ]

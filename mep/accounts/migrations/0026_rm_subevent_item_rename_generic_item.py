@@ -6,23 +6,22 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0025_subevent_item_to_generic'),
+        ("accounts", "0025_subevent_item_to_generic"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='purchase',
-            name='item',
+            model_name="purchase",
+            name="item",
         ),
         migrations.RemoveField(
-            model_name='borrow',
-            name='item',
+            model_name="borrow",
+            name="item",
         ),
         migrations.RenameField(
-            model_name='event',
-            old_name='generic_item',
-            new_name='item',
+            model_name="event",
+            old_name="generic_item",
+            new_name="item",
         ),
     ]

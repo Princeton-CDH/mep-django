@@ -5,7 +5,6 @@ from mep.accounts.tests.test_accounts_migrations import TestMigrations
 
 @pytest.mark.last
 class TestPersonGenerateSlugs(TestMigrations):
-
     app = "people"
     migrate_from = "0015_add_person_optional_slug"
     migrate_to = "0017_person_require_unique_slugs"

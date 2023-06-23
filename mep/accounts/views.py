@@ -12,40 +12,43 @@ from mep.accounts.partial_date import DatePrecision
 
 
 class AccountAutocomplete(autocomplete.Select2QuerySetView):
-    '''Basic autocomplete lookup, for use with django-autocomplete-light and
-    :class:`mep.accounts.models.Account` in address many-to-many'''
+    """Basic autocomplete lookup, for use with django-autocomplete-light and
+    :class:`mep.accounts.models.Account` in address many-to-many"""
 
     def get_queryset(self):
-        '''Get a queryset filtered by query string. Searches on account id,
+        """Get a queryset filtered by query string. Searches on account id,
         people associated with account, and addresses associated with account
-        '''
+        """
 
-        return Account.objects.filter(
-            Q(id__contains=self.q) |
-            Q(persons__name__icontains=self.q) |
-            Q(persons__mep_id__icontains=self.q) |
-            Q(locations__name__icontains=self.q) |
-            Q(locations__street_address__icontains=self.q) |
-            Q(locations__city__icontains=self.q)
-        ).distinct().order_by('id')
+        return (
+            Account.objects.filter(
+                Q(id__contains=self.q)
+                | Q(persons__name__icontains=self.q)
+                | Q(persons__mep_id__icontains=self.q)
+                | Q(locations__name__icontains=self.q)
+                | Q(locations__street_address__icontains=self.q)
+                | Q(locations__city__icontains=self.q)
+            )
+            .distinct()
+            .order_by("id")
+        )
 
 
 class Twitter100yearsReview(LoginRequiredMixin, ListView):
-    '''Admin view to review upcoming 100 years tweets before they
+    """Admin view to review upcoming 100 years tweets before they
     are posted on twitter. Finds and displays tweets for events
     in the next three months, using the same logic for generating
     tweet content that the twitter bot manage command uses.
-    '''
+    """
 
     model = Event
-    template_name = 'accounts/100years_twitter_review.html'
+    template_name = "accounts/100years_twitter_review.html"
 
-    full_precision = DatePrecision.year | DatePrecision.month | \
-        DatePrecision.day
+    full_precision = DatePrecision.year | DatePrecision.month | DatePrecision.day
 
     def get_date_range(self):
-        '''Determine start and end date for events to review. Start
-        100 years before today, end 4 weeks after that.'''
+        """Determine start and end date for events to review. Start
+        100 years before today, end 4 weeks after that."""
         # determine date exactly 100 years earlier
         self.date_start = datetime.date.today() - relativedelta(years=100)
         # determine end date for tweets to review
@@ -56,16 +59,25 @@ class Twitter100yearsReview(LoginRequiredMixin, ListView):
     def get_queryset(self):
         date_start, date_end = self.get_date_range()
 
-        events = Event.objects \
-            .filter(Q(start_date__gte=date_start,
-                      start_date__lte=date_end) |
-                    Q(subscription__purchase_date__gte=date_start,
-                      subscription__purchase_date__lte=date_end) |
-                    Q(borrow__isnull=False, end_date__gte=date_start,
-                      end_date__lte=date_end)) \
-            .filter(Q(start_date_precision__isnull=True) |
-                    Q(start_date_precision=int(self.full_precision))) \
+        events = (
+            Event.objects.filter(
+                Q(start_date__gte=date_start, start_date__lte=date_end)
+                | Q(
+                    subscription__purchase_date__gte=date_start,
+                    subscription__purchase_date__lte=date_end,
+                )
+                | Q(
+                    borrow__isnull=False,
+                    end_date__gte=date_start,
+                    end_date__lte=date_end,
+                )
+            )
+            .filter(
+                Q(start_date_precision__isnull=True)
+                | Q(start_date_precision=int(self.full_precision))
+            )
             .exclude(work__notes__contains="UNCERTAINTYICON")
+        )
 
         return events
 
@@ -77,10 +89,9 @@ class Twitter100yearsReview(LoginRequiredMixin, ListView):
         events_by_date = defaultdict(list)
 
         for ev in self.object_list:
-            if ev.event_label in ['Subscription', 'Renewal']:
-                events_by_date[
-                    ev.subscription.partial_purchase_date].append(ev)
-            elif ev.event_label == 'Borrow':
+            if ev.event_label in ["Subscription", "Renewal"]:
+                events_by_date[ev.subscription.partial_purchase_date].append(ev)
+            elif ev.event_label == "Borrow":
                 events_by_date[ev.partial_start_date].append(ev)
                 events_by_date[ev.partial_end_date].append(ev)
             else:
@@ -94,9 +105,12 @@ class Twitter100yearsReview(LoginRequiredMixin, ListView):
         # filter out any dates before the current range
         date_start_iso = self.date_start.isoformat()
         date_end_iso = self.date_end.isoformat()
-        events_by_date = OrderedDict([
-            (k, events_by_date[k])
-            for k in sorted(events_by_date)
-            if k and date_start_iso <= k <= date_end_iso])
-        context['events_by_date'] = events_by_date
+        events_by_date = OrderedDict(
+            [
+                (k, events_by_date[k])
+                for k in sorted(events_by_date)
+                if k and date_start_iso <= k <= date_end_iso
+            ]
+        )
+        context["events_by_date"] = events_by_date
         return context

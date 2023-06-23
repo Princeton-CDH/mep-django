@@ -8,36 +8,41 @@ from mep.accounts.partial_date import DatePrecisionField
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0016_group_works_by_uri'),
+        ("books", "0016_group_works_by_uri"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='edition',
-            name='number',
+            model_name="edition",
+            name="number",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='edition',
-            name='season',
-            field=models.CharField(blank=True, max_length=255,
-                help_text='Spell out month or season if part of numbering', ),
+            model_name="edition",
+            name="season",
+            field=models.CharField(
+                blank=True,
+                max_length=255,
+                help_text="Spell out month or season if part of numbering",
+            ),
         ),
         migrations.AddField(
-            model_name='edition',
-            name='date',
-            field=models.DateField(blank=True, null=True,
-                help_text='Date of Publication for this edition',),
+            model_name="edition",
+            name="date",
+            field=models.DateField(
+                blank=True,
+                null=True,
+                help_text="Date of Publication for this edition",
+            ),
         ),
         migrations.AddField(
-            model_name='edition',
-            name='date_precision',
+            model_name="edition",
+            name="date_precision",
             field=DatePrecisionField(blank=True, null=True),
         ),
         migrations.AlterModelOptions(
-            name='edition',
-            options={'ordering': ['date']},
+            name="edition",
+            options={"ordering": ["date"]},
         ),
     ]

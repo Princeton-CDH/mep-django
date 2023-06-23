@@ -6,11 +6,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('pages', '0004_landingpage_optional_body'),
-        ('pages', '0003_image_alt_text'),
+        ("pages", "0004_landingpage_optional_body"),
+        ("pages", "0003_image_alt_text"),
     ]
 
-    operations = [
-    ]
+    operations = []

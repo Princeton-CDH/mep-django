@@ -7,20 +7,30 @@ from django.db import migrations
 
 
 new_content_editor_perms = {
-    'books': [
-        'add_work', 'change_work', 'delete_work',
-        'add_edition', 'change_edition', 'delete_edition',
-        'add_editioncreator', 'change_editioncreator', 'delete_editioncreator',
+    "books": [
+        "add_work",
+        "change_work",
+        "delete_work",
+        "add_edition",
+        "change_edition",
+        "delete_edition",
+        "add_editioncreator",
+        "change_editioncreator",
+        "delete_editioncreator",
     ],
-    'djiffy': [
-        'add_manifest', 'change_manifest', 'delete_manifest',
-        'add_canvas', 'change_canvas', 'delete_canvas',
+    "djiffy": [
+        "add_manifest",
+        "change_manifest",
+        "delete_manifest",
+        "add_canvas",
+        "change_canvas",
+        "delete_canvas",
     ],
-
 }
 
 
 # NOTE: reused from common 0002
+
 
 def update_content_editor_group(apps, schema_editor):
     Group = apps.get_model("auth", "Group")
@@ -34,7 +44,7 @@ def update_content_editor_group(apps, schema_editor):
         create_permissions(app_config, apps=apps, verbosity=0)
         app_config.models_module = None
 
-    editor_group = Group.objects.get(name='Content Editor')
+    editor_group = Group.objects.get(name="Content Editor")
     permissions = []
     for model, codenames in new_content_editor_perms.items():
         # using explicit get so that there will be an error if an
@@ -45,8 +55,8 @@ def update_content_editor_group(apps, schema_editor):
             except Permission.DoesNotExist:
                 # model rename means the permission codename can vary
                 # depending on when this migration is run (old db or new setup)
-                if 'subscribe' in codename:
-                    codename = codename.replace('subscribe', 'subscription')
+                if "subscribe" in codename:
+                    codename = codename.replace("subscribe", "subscription")
                     permissions.append(Permission.objects.get(codename=codename))
 
     # add the new permissions without removing existing ones
@@ -54,13 +64,12 @@ def update_content_editor_group(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('common', '0005_create_script_user'),
+        ("common", "0005_create_script_user"),
     ]
 
     operations = [
-        migrations.RunPython(update_content_editor_group,
-                             reverse_code=migrations.RunPython.noop),
-
+        migrations.RunPython(
+            update_content_editor_group, reverse_code=migrations.RunPython.noop
+        ),
     ]

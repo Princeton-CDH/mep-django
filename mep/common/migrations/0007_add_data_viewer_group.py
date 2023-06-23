@@ -4,49 +4,45 @@ from django.contrib.auth.management import create_permissions
 from django.db import migrations
 
 data_viewer_perms = {
-    'accounts': [
-        'view_account',
+    "accounts": [
+        "view_account",
         "view_address",
-        'view_accountaddress',
-        'view_borrow',
-        'view_event',
-        'view_purchase',
-        'view_reimbursement',
-        'view_subscription',
-        'view_subscriptiontype'
+        "view_accountaddress",
+        "view_borrow",
+        "view_event",
+        "view_purchase",
+        "view_reimbursement",
+        "view_subscription",
+        "view_subscriptiontype",
     ],
-    'books': [
-        'view_publisher',
-        'view_publisherplace',
-        'view_creator',
-        'view_creatortype',
-        'view_work',
-        'view_edition',
-        'view_editioncreator',
+    "books": [
+        "view_publisher",
+        "view_publisherplace",
+        "view_creator",
+        "view_creatortype",
+        "view_work",
+        "view_edition",
+        "view_editioncreator",
     ],
-    'footnotes': [
-        'view_bibliography',
-        'view_footnote',
-        'view_sourcetype'
+    "footnotes": ["view_bibliography", "view_footnote", "view_sourcetype"],
+    "people": [
+        "view_country",
+        "view_infourl",
+        "view_person",
+        "view_profession",
+        "view_relationship",
+        "view_relationshiptype",
     ],
-    'people': [
-        'view_country',
-        'view_infourl',
-        'view_person',
-        'view_profession',
-        'view_relationship',
-        'view_relationshiptype'
+    "djiffy": [
+        "view_manifest",
+        "view_canvas",
     ],
-    'djiffy': [
-        'view_manifest',
-        'view_canvas',
-    ]
 }
 
 
 def create_data_viewer_group(apps, schema_editor):
-    Group = apps.get_model('auth', 'Group')
-    Permission = apps.get_model('auth', 'Permission')
+    Group = apps.get_model("auth", "Group")
+    Permission = apps.get_model("auth", "Permission")
 
     # make sure permissions are created before loading the fixture
     # which references them
@@ -56,7 +52,7 @@ def create_data_viewer_group(apps, schema_editor):
         create_permissions(app_config, apps=apps, verbosity=0)
         app_config.models_module = None
 
-    data_viewer, created = Group.objects.get_or_create(name='Data Viewer')
+    data_viewer, created = Group.objects.get_or_create(name="Data Viewer")
     permissions = []
     for app_name, codenames in data_viewer_perms.items():
         # using explicit get so that there will be an error if an
@@ -65,24 +61,25 @@ def create_data_viewer_group(apps, schema_editor):
             # NOTE: djiffy permissions exist twice, since the app
             # previously defined its own view permissions
             perms = Permission.objects.filter(
-                codename=codename, content_type__app_label=app_name)
+                codename=codename, content_type__app_label=app_name
+            )
             permissions.extend(perms)
 
     data_viewer.permissions.set(permissions)
 
 
 def remove_data_viewer_group(apps, schema_editor):
-    Group = apps.get_model('auth', 'Group')
-    Group.objects.filter(name='Data Viewer').delete()
+    Group = apps.get_model("auth", "Group")
+    Group.objects.filter(name="Data Viewer").delete()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('common', '0006_update_content_editor_perms_works_and_djiffy'),
+        ("common", "0006_update_content_editor_perms_works_and_djiffy"),
     ]
 
     operations = [
-        migrations.RunPython(create_data_viewer_group,
-                             reverse_code=remove_data_viewer_group)
+        migrations.RunPython(
+            create_data_viewer_group, reverse_code=remove_data_viewer_group
+        )
     ]

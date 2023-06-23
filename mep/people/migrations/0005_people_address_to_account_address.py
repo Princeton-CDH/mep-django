@@ -29,13 +29,13 @@ def associate_people_addresses_with_accounts(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0004_rename_address_to_location'),
-        ('accounts', '0013_rename_accountaddress_to_address'),
+        ("people", "0004_rename_address_to_location"),
+        ("accounts", "0013_rename_accountaddress_to_address"),
     ]
 
     operations = [
-        migrations.RunPython(associate_people_addresses_with_accounts,
-                             migrations.RunPython.noop)
+        migrations.RunPython(
+            associate_people_addresses_with_accounts, migrations.RunPython.noop
+        )
     ]

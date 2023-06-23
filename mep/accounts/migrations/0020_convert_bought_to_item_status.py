@@ -6,23 +6,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0019_allow_null_precision'),
+        ("accounts", "0019_allow_null_precision"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='event',
-            options={'ordering': ('start_date',)},
+            name="event",
+            options={"ordering": ("start_date",)},
         ),
         migrations.RemoveField(
-            model_name='borrow',
-            name='bought',
+            model_name="borrow",
+            name="bought",
         ),
         migrations.AddField(
-            model_name='borrow',
-            name='item_status',
-            field=models.CharField(blank=True, choices=[('', 'Unknown'), ('R', 'Returned'), ('B', 'Bought'), ('M', 'Missing')], help_text='Status of borrowed item (bought, missing, returned)', max_length=2),
+            model_name="borrow",
+            name="item_status",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "Unknown"),
+                    ("R", "Returned"),
+                    ("B", "Bought"),
+                    ("M", "Missing"),
+                ],
+                help_text="Status of borrowed item (bought, missing, returned)",
+                max_length=2,
+            ),
         ),
     ]
