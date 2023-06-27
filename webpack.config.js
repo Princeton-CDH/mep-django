@@ -2,7 +2,7 @@ const path = require('path')
 const BundleTracker = require('webpack-bundle-tracker');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
-const CleanWebpackPlugin = require('clean-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const globImporter = require('node-sass-glob-importer');
 const TerserPlugin = require('terser-webpack-plugin')
 const devMode = process.env.NODE_ENV !== 'production' // i.e. not prod or qa
@@ -78,7 +78,9 @@ module.exports = env => ({
         new MiniCssExtractPlugin({ // extracts CSS to a single file per entrypoint
             filename: devMode ? 'css/[name].css' : 'css/[name]-[hash].min.css', // append hashes in prod/qa
         }),
-        ...(devMode ? [] : [new CleanWebpackPlugin('bundles')]), // clear out static when rebuilding in prod/qa
+        ...(devMode ? [] : [new CleanWebpackPlugin({
+            cleanOnceBeforeBuildPatterns: [ 'bundles/**'],  // clear out static when rebuilding in prod/qa
+        })]),
     ],
     resolve: {
         extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.scss'] // enables importing these without extensions
