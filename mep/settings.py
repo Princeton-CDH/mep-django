@@ -29,6 +29,9 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    # auto-complete light before grappelli & admin to override jquery init
+    "dal",
+    "dal_select2",
     "grappelli.dashboard",
     "grappelli",
     "django.contrib.admin",
@@ -41,8 +44,6 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django_cas_ng",
     "pucas",
-    "dal",
-    "dal_select2",
     "viapy",
     "parasolr",
     "djiffy",
