@@ -107,7 +107,7 @@ class RxChoiceFacet extends Rx<HTMLFieldSetElement> {
 class RxTextFacet extends RxChoiceFacet {
 
     // choices with counts <= this number will be hidden, if supplied
-    private threshold: Number | undefined
+    private threshold: number | undefined
 
     constructor (element: HTMLFieldSetElement) {
         super(element)

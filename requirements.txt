@@ -13,7 +13,7 @@ python-dateutil
 django-apptemplates
 py-flags
 django-tabular-export
-django-webpack-loader<1.0
+django-webpack-loader<=2.0
 parasolr>=0.6.1,<0.7
 django-widget-tweaks
 # pymarc api changes significantly in 5.0

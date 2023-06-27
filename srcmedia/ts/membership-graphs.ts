@@ -1,5 +1,15 @@
-import * as d3 from "d3"
+import { axisTop, axisRight } from "d3-axis";
+import { scaleLinear, scaleTime } from "d3-scale";
+import { select } from "d3-selection";
 
+// combine d3 imports into a d3 object for convenience
+const d3 = {
+  axisTop,
+  axisRight,
+  scaleLinear,
+  scaleTime,  
+  select,
+};
 
 // membership data - defined in the global scope outside this module, in the template
 type MembershipCount = {

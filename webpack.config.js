@@ -1,9 +1,9 @@
 const path = require('path')
-const BundleTracker = require('webpack-bundle-tracker')
+const BundleTracker = require('webpack-bundle-tracker');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin')
-const GlobImporter = require('node-sass-glob-importer')
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const globImporter = require('node-sass-glob-importer');
 const TerserPlugin = require('terser-webpack-plugin')
 const devMode = process.env.NODE_ENV !== 'production' // i.e. not prod or qa
 
@@ -36,7 +36,7 @@ module.exports = env => ({
         rules: [
             { // compile TypeScript to js
                 test: /\.tsx?$/,
-                loader: 'awesome-typescript-loader',
+                loader: 'ts-loader',
                 exclude: /node_modules/, // don't transpile dependencies
             },
             { // ensure output js has preserved sourcemaps
@@ -53,9 +53,15 @@ module.exports = env => ({
                 test: /\.(sa|sc|c)ss$/,
                 use: [
                     devMode ? 'style-loader' : MiniCssExtractPlugin.loader, // use style-loader for hot reload in dev
-                    'css-loader',
+                    { loader: 'css-loader', options: { url: false } },
                     'postcss-loader', // for autoprefixer
-                    { loader: 'sass-loader', options: { importer: GlobImporter() } }, // allow glob scss imports
+                    "resolve-url-loader",
+                    { loader: 'sass-loader', options: {
+                        sassOptions: {
+                                importer: globImporter()
+                            }
+                        }
+                    }, // allow glob scss imports
                 ],
             },
             { // load images
@@ -68,7 +74,7 @@ module.exports = env => ({
         ]
     },
     plugins: [
-        new BundleTracker({ filename: 'webpack-stats.json' }), // tells Django where to find webpack output
+        new BundleTracker({ path: __dirname, filename: 'webpack-stats.json' }), // tells Django where to find webpack output
         new MiniCssExtractPlugin({ // extracts CSS to a single file per entrypoint
             filename: devMode ? 'css/[name].css' : 'css/[name]-[hash].min.css', // append hashes in prod/qa
         }),
@@ -78,8 +84,8 @@ module.exports = env => ({
         extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.scss'] // enables importing these without extensions
     },
     devServer: {
-        contentBase: path.join(__dirname, 'bundles'), // serve this as webroot
-        overlay: true,
+        // contentBase: path.join(__dirname, 'bundles'), // serve this as webroot
+        // overlay: true,
         port: 3000,
         allowedHosts: ['localhost'],
         headers: {
@@ -87,24 +93,27 @@ module.exports = env => ({
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
             'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
         },
-        stats: { // hides file-level verbose output when server is running
-            children: false,
-            modules: false,
-        }
+        // stats: { // hides file-level verbose output when server is running
+        //     children: false,
+        //     modules: false,
+        // }
     },
     devtool: 'source-map', // allow sourcemaps in dev & qa
     optimization: {
         minimizer: [
             new TerserPlugin({ // minify JS in prod
-                cache: true, // cache unchanged assets
+                terserOptions: {
+                   // cache: true, // cache unchanged assets
+                    sourceMap: env.maps // preserve sourcemaps if env.maps was passed
+                },
                 parallel: true, // run in parallel (recommended)
-                sourceMap: env.maps // preserve sourcemaps if env.maps was passed
             }),
-            new OptimizeCSSAssetsPlugin({ // minify CSS in prod/qa
-                ... (env.maps && { cssProcessorOptions: { // if env.maps was passed,
-                    map: { inline: false, annotation: true } // preserve sourcemaps
-                }})
-            })
+          //   new OptimizeCSSAssetsPlugin({ // minify CSS in prod/qa
+          //       ... (env.maps && { cssProcessorOptions: { // if env.maps was passed,
+          //           map: { inline: false, annotation: true } // preserve sourcemaps
+          //       }})
+          //   }),
+          new CssMinimizerPlugin(),
         ]
     }
 })
