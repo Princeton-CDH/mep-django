@@ -1,3 +1,24 @@
+"""
+
+Manage command used to power 100 years twitter bot.
+
+This command has multiple modes:
+
+- report: generate a report of all tweets for a specific date
+  (defaults to current date if not specified), with event id and
+  text content as it will be tweeted
+- schedule: schedule tweets for all events for the current date.
+  Intended to be run as a cron job early in the morning. Uses `at` jobs
+  to schedule commands to post tweets later, based on the number of events.
+- tweet: create a tweet for a specific event. Requires an event id.
+
+Access tokens for the bot account should be generated using Twitter's
+pin-based auth, as documented here:
+https://developer.twitter.com/en/docs/authentication/oauth-1-0a/pin-based-oauth
+And can be done using tweepy, as documented here:
+https://docs.tweepy.org/en/stable/authentication.html#pin-based-oauth
+
+"""
 import datetime
 import subprocess
 import sys
@@ -158,23 +179,20 @@ class Command(BaseCommand):
         content = tweet_content(event, date)
         if not content:
             return
-        api = self.get_tweepy()
-        api.update_status(content)
+        tweepy_client = self.get_tweepy()
+        tweepy_client.update_status(content)
 
     def get_tweepy(self):
         """Initialize tweepy API client based on django settings."""
         if not getattr(settings, "TWITTER_100YEARS", None):
             raise CommandError("Configuration for twitter access not found")
 
-        auth = tweepy.OAuthHandler(
-            settings.TWITTER_100YEARS["API"]["key"],
-            settings.TWITTER_100YEARS["API"]["secret_key"],
+        return tweepy.Client(
+            consumer_key=settings.TWITTER_100YEARS["API"]["key"],
+            consumer_secret=settings.TWITTER_100YEARS["API"]["secret_key"],
+            access_token=settings.TWITTER_100YEARS["ACCESS"]["token"],
+            access_token_secret=settings.TWITTER_100YEARS["ACCESS"]["secret"],
         )
-        auth.set_access_token(
-            settings.TWITTER_100YEARS["ACCESS"]["token"],
-            settings.TWITTER_100YEARS["ACCESS"]["secret"],
-        )
-        return tweepy.API(auth)
 
 
 tweetable_event_types = [
