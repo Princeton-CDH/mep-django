@@ -722,6 +722,11 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
         """data for indexing in Solr"""
 
         index_data = super().index_data()
+        # parasolr 0.7 renamed item_type to item_type_s;
+        # switch it back for this codebase
+        index_data["item_type"] = index_data["item_type_s"]
+        del index_data["item_type_s"]
+
         # only library members are indexed; if person has no
         # account, return id only.
         # This will blank out any previously indexed values, and item

@@ -527,6 +527,10 @@ class Work(TrackChangesModel, Notable, ModelIndexable, EventSetMixin):
     def index_data(self):
         """data for indexing in Solr"""
         index_data = super().index_data()
+        # parasolr 0.7 renamed item_type to item_type_s;
+        # switch it back for this codebase
+        index_data["item_type"] = index_data["item_type_s"]
+        del index_data["item_type_s"]
 
         index_data.update(
             {
