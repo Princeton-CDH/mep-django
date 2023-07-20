@@ -24,8 +24,40 @@ class EventSetMixin:
 
     @property
     def event_years(self):
-        """list of unique years, based on :attr:`event_dates`"""
-        return list(set(d.year for d in self.event_dates))
+        """list of years covered by all event dates (including
+        years covered by multiyear subscriptions)"""
+        # FIXME: what does this do to long-running borrows?
+        event_dates = self.event_set.known_years()
+
+        # for subscriptions/renewals ONLY, we need to fill in intervening years
+        # between start and end date
+        date_values = event_dates.membership_activities().values_list(
+            "start_date", "end_date"
+        )
+        # get a unique list of year ranges
+        year_ranges = list(
+            set(
+                [
+                    (start.year if start else None, end.year if end else None)
+                    for start, end in date_values
+                ]
+            )
+        )
+        years = []
+        for start, end in year_ranges:
+            # if both start and end year are known, add all years in range
+            if start is not None and end is not None:
+                years.extend(range(start, end + 1))
+            # otherwise add whichever year is known
+            elif start is not None:
+                years.append(start)
+            elif end is not None:
+                years.append(end)
+
+        # for book activity, we only want specified years
+        years.extend([d.year for d in self.event_dates])
+
+        return list(set(years))
 
     def event_date_ranges(self, event_type=None):
         """Generate and return a list of date ranges this account/book
