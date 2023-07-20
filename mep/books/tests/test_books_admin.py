@@ -18,8 +18,13 @@ class TestWorkAdmin(TestCase):
     fixtures = ["sample_works"]
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        # doesn't support deep copy so must be set here instead of testdata
         cls.work_admin = WorkAdmin(model=Work, admin_site=admin.site)
+        super().setUpClass()
+
+    @classmethod
+    def setUpTestData(cls):
         cls.francisque_gay = Account.objects.get(
             pk=4852
         )  # account of library member Francisque Gay

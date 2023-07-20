@@ -38,9 +38,14 @@ from mep.people.models import Person
 
 
 class TestNamed(TestCase):
+    class LocalNamed(Named):
+        class Meta:
+            app_label = "test"
+
     def test_repr(self):
-        named_obj = Named(name="foo")
-        assert repr(named_obj) == "<Named %s>" % named_obj.name
+        named_obj = self.LocalNamed(name="foo")
+        assert repr(named_obj) == "<LocalNamed %s>" % named_obj.name
+
         # subclass
 
         class MyName(Named):
@@ -50,13 +55,17 @@ class TestNamed(TestCase):
         assert repr(mynamed) == "<MyName %s>" % mynamed.name
 
     def test_str(self):
-        named_obj = Named(name="foo")
+        named_obj = self.LocalNamed(name="foo")
         assert str(named_obj) == "foo"
 
 
 class TestNotable(TestCase):
+    class LocalNotable(Notable):
+        class Meta:
+            app_label = "test"
+
     def test_has_notes(self):
-        noted = Notable()
+        noted = self.LocalNotable()
         assert not noted.has_notes()
         noted.notes = "some text"
         assert noted.has_notes()
@@ -66,7 +75,7 @@ class TestNotable(TestCase):
         assert not noted.has_notes()
 
     def test_note_snippet(self):
-        noted = Notable()
+        noted = self.LocalNotable()
         assert noted.note_snippet() == ""
 
         noted.notes = "short note"
@@ -80,8 +89,12 @@ class TestNotable(TestCase):
 
 
 class TestDateRange(TestCase):
+    class LocalDateRange(DateRange):
+        class Meta:
+            app_label = "test"
+
     def test_dates(self):
-        span = DateRange()
+        span = self.LocalDateRange()
         # no dates set
         assert span.dates == ""
         # date range with start and end
@@ -120,16 +133,16 @@ class TestDateRange(TestCase):
 
     def test_clean(self):
         with pytest.raises(ValidationError):
-            DateRange(start_year=1901, end_year=1900).clean()
+            self.LocalDateRange(start_year=1901, end_year=1900).clean()
 
         # should not raise exception
         # - same year is ok (single year range)
-        DateRange(start_year=1901, end_year=1901).clean()
+        self.LocalDateRange(start_year=1901, end_year=1901).clean()
         # - end after start
-        DateRange(start_year=1901, end_year=1905).clean()
+        self.LocalDateRange(start_year=1901, end_year=1905).clean()
         # - only one date set
-        DateRange(start_year=1901).clean()
-        DateRange(end_year=1901).clean()
+        self.LocalDateRange(start_year=1901).clean()
+        self.LocalDateRange(end_year=1901).clean()
 
 
 class TestAliasIntegerField(TestCase):
@@ -349,6 +362,7 @@ class TestLabeledPagesMixin(TestCase):
         assert "page_labels" in context
         # should be 7 pages of 5 items each
         assert len(context["page_labels"]) == 7
+
         # last page label shows only the remaining items
         assert context["page_labels"][-1] == (7, "31 – 33")
         # with no items, should return an empty list
@@ -366,7 +380,7 @@ class TestLabeledPagesMixin(TestCase):
         view._page_labels = [(1, "1 – 5"), (2, "6 – 10")]
         # make an ajax request
         view.request = Mock()
-        view.request.is_ajax.return_value = True
+        view.request.headers = {"x-requested-with": "XMLHttpRequest"}
         response = view.dispatch(view.request)
         # should return serialized labels using '|' separator and using hyphen
         # instead of en dash to avoid sending unicode via http header
@@ -716,10 +730,9 @@ class TestAjaxTemplateMixin(TestCase):
 
         myview = MyAjaxyView()
         myview.request = Mock()
-        myview.request.is_ajax.return_value = False
         assert myview.get_template_names() == [MyAjaxyView.template_name]
 
-        myview.request.is_ajax.return_value = True
+        myview.request.headers = {"x-requested-with": "XMLHttpRequest"}
         assert myview.get_template_names() == MyAjaxyView.ajax_template_name
 
 

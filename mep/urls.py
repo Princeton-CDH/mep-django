@@ -2,7 +2,7 @@
 mep URL Configuration
 """
 from django.conf import settings
-from django.conf.urls import include, url
+from django.urls import re_path, path, include
 from django.conf.urls.static import serve
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
@@ -36,41 +36,41 @@ SITEMAPS = {
 }
 
 urlpatterns = [
-    url(
+    re_path(
         r"^robots\.txt$",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
     ),
-    url(
+    re_path(
         r"^favicon\.ico$",
         RedirectView.as_view(url="/static/favicon/favicon.ico", permanent=True),
     ),
-    url(r"^admin/", admin.site.urls),
-    url(r"^grappelli/", include("grappelli.urls")),
-    url(r"^accounts/", include("pucas.cas_urls")),
-    url(r"^viaf/", include("viapy.urls", namespace="viaf")),
-    url(r"^", include(people_urls)),
-    url(r"^", include(accounts_urls)),
-    url(r"^", include(books_urls)),
-    url(r"^", include(footnote_urls)),
+    path("admin/", admin.site.urls),
+    path("grappelli/", include("grappelli.urls")),
+    path("accounts/", include("pucas.cas_urls")),
+    path("viaf/", include("viapy.urls", namespace="viaf")),
+    re_path(r"^", include(people_urls)),
+    re_path(r"^", include(accounts_urls)),
+    re_path(r"^", include(books_urls)),
+    re_path(r"^", include(footnote_urls)),
     # sitemaps
-    url(
+    re_path(
         r"^sitemap\.xml$",
         sitemap_views.index,
         {"sitemaps": SITEMAPS},
         name="sitemap-index",
     ),
-    url(
+    re_path(
         r"^sitemap-(?P<section>.+)\.xml$",
         sitemap_views.sitemap,
         {"sitemaps": SITEMAPS},
         name="django.contrib.sitemaps.views.sitemap",
     ),
     # wagtail urls
-    url(r"^cms/", include(wagtailadmin_urls)),
-    url(r"^documents/", include(wagtaildocs_urls)),
-    url(r"", include(wagtail_urls)),
+    path("cms/", include(wagtailadmin_urls)),
+    path("documents/", include(wagtaildocs_urls)),
+    re_path(r"", include(wagtail_urls)),
     # direct 500 access for testing
-    url("_500", lambda _: 1 / 0),
+    re_path(r"^_500$", lambda _: 1 / 0),
 ]
 
 
@@ -80,12 +80,12 @@ if settings.DEBUG:
         import debug_toolbar
 
         # add debug toolbar urls first to avoid getting caught by other urls
-        urlpatterns.insert(0, url(r"^__debug__/", include(debug_toolbar.urls)))
+        urlpatterns.insert(0, re_path(r"^__debug__/", include(debug_toolbar.urls)))
     except ImportError:
         pass
 
     urlpatterns.append(
-        url(
+        re_path(
             r"^media/(?P<path>.*)$",
             serve,
             {

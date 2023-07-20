@@ -296,7 +296,7 @@ class TestBasePage(WagtailPageTests):
         # blockquotes should be stripped
         mypage.body = [("paragraph", "<p><blockquote>h</blockquote>i</p>")]
         desc = mypage.get_description()
-        assert desc == "hi"
+        assert desc == "\nhi"
 
         # test content page with image for first block
         mypage2 = ContentPage(

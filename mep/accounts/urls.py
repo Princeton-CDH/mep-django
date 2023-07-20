@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import path
 
 from mep.accounts.views import AccountAutocomplete, Twitter100yearsReview
 
@@ -6,8 +6,6 @@ from mep.accounts.views import AccountAutocomplete, Twitter100yearsReview
 app_name = "accounts"
 
 urlpatterns = [
-    url(
-        r"^accounts/autocomplete/$", AccountAutocomplete.as_view(), name="autocomplete"
-    ),
-    url(r"^events/100-years-review/$", Twitter100yearsReview.as_view()),
+    path("accounts/autocomplete/", AccountAutocomplete.as_view(), name="autocomplete"),
+    path("events/100-years-review/", Twitter100yearsReview.as_view()),
 ]

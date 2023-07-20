@@ -1,6 +1,7 @@
 import logging
 
 import rdflib
+from rdflib.namespace import SKOS
 import requests
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
@@ -101,24 +102,27 @@ class Subject(models.Model):
             # some results return json-ld, and rdflib does not autodetect
             if response.headers["content-type"] == "application/ld+json":
                 parse_opts["format"] = "json-ld"
+            elif response.headers["content-type"] == "application/rdf+xml":
+                # default format for rdflib < 6.0.0
+                parse_opts["format"] = "xml"
 
             graph.parse(data=response.content.decode(), **parse_opts)
 
-            label_opts = {}
+            # determine label
+            # based on preferredLabel method in rdlib<6.0
+            labels = list(graph.objects(uriref, SKOS.prefLabel))
+
             # viaf records include multiple languages and some records
-            # have language codes for them; try with language filter first
+            # have language codes for them; filter by language if possible
             if "viaf.org" in uri:
-                label_opts["lang"] = "en-US"
-            labels = graph.preferredLabel(uriref, **label_opts)
-            # if no labels were found with language tag, try without
-            if not labels:
-                labels = graph.preferredLabel(uriref)
+                en_labels = [l for l in labels if l.language == "en-US"]
+                if en_labels:
+                    labels = en_labels
             # if still no labels, bail out
             if not labels:
                 return
-            # preferred label returns a list of predicate, object
             # use the object for the first result
-            name = str(labels[0][1])
+            name = str(labels[0])
             rdf_type = str(graph.value(uriref, rdflib.RDF.type))
             return Subject.objects.create(uri=uri, name=name, rdf_type=rdf_type)
 

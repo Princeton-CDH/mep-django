@@ -1,8 +1,7 @@
 from django import forms
-from django.conf.urls import url
 from django.contrib import admin
 from django.core.validators import ValidationError
-from django.urls import reverse
+from django.urls import path, reverse
 from django.db.models import Count
 from django.utils.html import format_html
 from django.utils.timezone import now
@@ -319,8 +318,8 @@ class WorkAdmin(admin.ModelAdmin):
     def get_urls(self):
         # adds a custom URL for exporting all items as CSRF_FAILURE_VIEW = ''
         urls = [
-            url(
-                r"^csv/$",
+            path(
+                "csv/",
                 self.admin_site.admin_view(self.export_to_csv),
                 name="books_work_csv",
             )

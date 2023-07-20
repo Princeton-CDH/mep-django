@@ -1,10 +1,9 @@
 from dal import autocomplete
 from django import forms
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import path, reverse
 from django.contrib import admin
 from django.http import HttpResponseRedirect
-from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
@@ -278,7 +277,7 @@ class PersonAdmin(admin.ModelAdmin):
         # Get any querystrings including filters, pickle them as a urlencoded
         # string
         request.session["people_merge_filter"] = urlencode(request.GET.items())
-        selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+        selected = request.POST.getlist(admin.helpers.ACTION_CHECKBOX_NAME)
         redirect = "%s?ids=%s" % (reverse("people:merge"), ",".join(selected))
         return HttpResponseRedirect(redirect, status=303)  # 303 = See Other
 
@@ -357,8 +356,8 @@ class PersonAdmin(admin.ModelAdmin):
         """Return admin urls; adds a custom URL for exporting all people
         as CSV"""
         urls = [
-            url(
-                r"^csv/$",
+            path(
+                "csv/",
                 self.admin_site.admin_view(self.export_to_csv),
                 name="people_person_csv",
             )

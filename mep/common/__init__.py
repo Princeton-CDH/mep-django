@@ -7,5 +7,4 @@ used by models in multiple apps within the project.
 import rdflib
 
 
-default_app_config = "mep.common.apps.CommonConfig"
 SCHEMA_ORG = rdflib.Namespace("http://schema.org/")

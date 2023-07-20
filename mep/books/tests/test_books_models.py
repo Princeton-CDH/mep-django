@@ -500,6 +500,7 @@ class TestSubject(TestCase):
 
         viaf_uri = "http://viaf.org/viaf/97006051"
         new_subject = Subject.create_from_uri(viaf_uri)
+
         # should create subject with fields populated
         assert isinstance(new_subject, Subject)
         assert new_subject.uri == viaf_uri

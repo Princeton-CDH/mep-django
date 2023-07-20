@@ -29,6 +29,9 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    # auto-complete light before grappelli & admin to override jquery init
+    "dal",
+    "dal_select2",
     "grappelli.dashboard",
     "grappelli",
     "django.contrib.admin",
@@ -41,8 +44,6 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django_cas_ng",
     "pucas",
-    "dal",
-    "dal_select2",
     "viapy",
     "parasolr",
     "djiffy",
@@ -78,7 +79,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "wagtail.core.middleware.SiteMiddleware",
+    "wagtail.contrib.legacy.sitemiddleware.SiteMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
     "csp.middleware.CSPMiddleware",
 ]

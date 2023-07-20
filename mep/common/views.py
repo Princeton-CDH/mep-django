@@ -62,7 +62,7 @@ class LabeledPagesMixin(ContextMixin):
         # hyphen when requested via ajax because unicode can't be sent via the
         # X-Page-Labels header. this needs to get converted back to an en dash
         # on the client side.
-        if self.request.is_ajax():
+        if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
             response["X-Page-Labels"] = "|".join(
                 [label.replace("–", "-") for index, label in self._page_labels]
             )
@@ -93,9 +93,9 @@ class RdfViewMixin(ContextMixin):
         """add jsonld and breadcrumb list to context dictionary"""
         context.update(
             {
-                "page_jsonld": self.as_rdf()
-                .serialize(format="json-ld", auto_compact=True)
-                .decode(),
+                "page_jsonld": self.as_rdf().serialize(
+                    format="json-ld", auto_compact=True
+                ),
                 "breadcrumbs": self.get_breadcrumbs(),
             }
         )
@@ -172,7 +172,7 @@ class AjaxTemplateMixin(TemplateResponseMixin, VaryOnHeadersMixin):
     def get_template_names(self):
         """Return :attr:`ajax_template_name` if this is an ajax request;
         otherwise return default template name."""
-        if self.request.is_ajax():
+        if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
             return self.ajax_template_name
         return super().get_template_names()
 

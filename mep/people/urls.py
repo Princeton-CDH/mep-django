@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import path, re_path
 
 from mep.people import views
 
@@ -7,55 +7,53 @@ app_name = "people"
 
 urlpatterns = [
     # public member urls
-    url(r"^members/$", views.MembersList.as_view(), name="members-list"),
-    url(r"^members/graphs/$", views.MembershipGraphs.as_view(), name="member-graphs"),
-    url(
+    path("members/", views.MembersList.as_view(), name="members-list"),
+    path("members/graphs/", views.MembershipGraphs.as_view(), name="member-graphs"),
+    re_path(
         r"^members/(?P<slug>[\w-]+)/$",
         views.MemberDetail.as_view(),
         name="member-detail",
     ),
-    url(
+    re_path(
         r"^members/(?P<slug>[\w-]+)/membership/$",
         views.MembershipActivities.as_view(),
         name="membership-activities",
     ),
-    url(
+    re_path(
         r"^members/(?P<slug>[\w-]+)/borrowing/$",
         views.BorrowingActivities.as_view(),
         name="borrowing-activities",
     ),
-    url(
+    re_path(
         r"^members/(?P<slug>[\w-]+)/cards/$",
         views.MemberCardList.as_view(),
         name="member-card-list",
     ),
-    url(
+    re_path(
         r"^members/(?P<slug>[\w-]+)/cards/(?P<short_id>[\w-]+)/$",
         views.MemberCardDetail.as_view(),
         name="member-card-detail",
     ),
     # admin urls
-    url(r"^places/geonames/$", views.GeoNamesLookup.as_view(), name="geonames-lookup"),
-    url(
-        r"^places/geonames/country/$",
+    path("places/geonames/", views.GeoNamesLookup.as_view(), name="geonames-lookup"),
+    path(
+        "places/geonames/country/",
         views.GeoNamesLookup.as_view(),
         {"mode": "country"},
         name="country-lookup",
     ),
-    url(
-        r"^people/autocomplete/$",
-        views.PersonAutocomplete.as_view(),
-        name="autocomplete",
+    path(
+        "people/autocomplete/", views.PersonAutocomplete.as_view(), name="autocomplete"
     ),
-    url(
-        r"^people/country/autocomplete",
+    path(
+        "people/country/autocomplete",
         views.CountryAutocomplete.as_view(),
         name="country-autocomplete",
     ),
-    url(
-        r"^people/location/autocomplete",
+    path(
+        "people/location/autocomplete",
         views.LocationAutocomplete.as_view(),
         name="location-autocomplete",
     ),
-    url(r"^people/merge/$", views.PersonMerge.as_view(), name="merge"),
+    path("people/merge/", views.PersonMerge.as_view(), name="merge"),
 ]
