@@ -189,6 +189,26 @@ class TestAccount(TestCase):
         purchase.save()
         assert account.event_dates == [date1, date2, date3]
 
+    def test_event_years(self):
+        account = Account.objects.create()
+        # multi-year subscription
+        date1 = datetime.date(1927, 1, 1)
+        date2 = datetime.date(1931, 1, 1)
+        subs = Subscription.objects.create(
+            account=account, start_date=date1, end_date=date2
+        )
+        assert account.event_years == [1927, 1928, 1929, 1930, 1931]
+
+        # handle unset dates
+        subs.end_date = None
+        subs.save()
+        assert account.event_years == [1927]
+
+        # handle multiyear borrows *without* filling in years
+        # (aka the james joyce rule)
+        Borrow(account=account, start_date=date1, end_date=date2).save()
+        assert set(account.event_years) == {1927, 1931}
+
     def test_earliest_date(self):
         account = Account.objects.create()
         # no date, no error

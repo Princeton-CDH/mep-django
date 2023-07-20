@@ -770,15 +770,13 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
             logbook_months = account.active_months("membership")
             card_months = account.active_months("books")
 
-            # generate list of years from all event dates (not based on
-            # active months since that excludes partial dates where only
-            # year is known)
-            account_years = set(date.year for date in account_dates)
+            # index all years covered by account activity
+            account_years = account.event_years
 
             # convert sets back to list for json serialization
             index_data.update(
                 {
-                    "account_years_is": list(account_years),
+                    "account_years_is": account_years,
                     "account_yearmonths_is": list(months),
                     "logbook_yearmonths_is": list(logbook_months),
                     "card_yearmonths_is": list(card_months),
