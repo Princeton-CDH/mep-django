@@ -115,6 +115,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "mep.wsgi.application"
 
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 GRAPPELLI_ADMIN_TITLE = "Shakespeare & Company Project Admin"
 
 WAGTAIL_SITE_NAME = "Shakespeare & Company Project"
