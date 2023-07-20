@@ -267,6 +267,11 @@ class Bibliography(Notable, ModelIndexable):
     def index_data(self):
         """data for indexing in Solr"""
         index_data = super().index_data()
+        # parasolr 0.7 renamed item_type to item_type_s;
+        # switch it back for this codebase
+        index_data["item_type"] = index_data["item_type_s"]
+        del index_data["item_type_s"]
+
         # only library lending cards are indexed; if bibliography
         # does not have a manifest or is not associated with an account,
         # return id only.

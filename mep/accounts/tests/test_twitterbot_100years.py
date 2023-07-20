@@ -195,10 +195,12 @@ class TestTwitterBot100years(TestCase):
 
         with override_settings(TWITTER_100YEARS=mock_config):
             self.cmd.get_tweepy()
-            mock_tweepy.OAuthHandler.assert_called_with(api_key, api_secret)
-            auth = mock_tweepy.OAuthHandler.return_value
-            auth.set_access_token.assert_called_with(access_token, access_secret)
-            mock_tweepy.API.assert_called_with(auth)
+            mock_tweepy.Client.assert_called_with(
+                consumer_key=api_key,
+                consumer_secret=api_secret,
+                access_token=access_token,
+                access_token_secret=access_secret,
+            )
 
 
 class TestWorkLabel(TestCase):
