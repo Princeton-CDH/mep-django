@@ -148,6 +148,8 @@ $shadow: rgba(0, 0, 0, 0.2);
         tbody tr {
             border-top: solid 2px $white-two;
             border-bottom: solid 2px $white-two;
+            // clear sticky table header when using anchor link to title
+            scroll-margin-top: 100px;
 
             &:last-child {
                 border-bottom: none;
