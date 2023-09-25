@@ -12,7 +12,7 @@ bookstore and lending library in Paris.
 
 (This project was previously called "Mapping Expatriate Paris" or MEP).
 
-Python 3.9 / Django 3.2 / Node 18 / Postgresql 13 / Solr 8
+Python 3.8 / Django 3.2 / Node 18 / Postgresql 13 / Solr 8
 
 .. image:: https://github.com/Princeton-CDH/mep-django/workflows/unit_tests/badge.svg
     :target: https://github.com/Princeton-CDH/mep-django/actions?query=workflow%3Aunit_tests
@@ -40,13 +40,29 @@ Development instructions
 
 Initial setup and installation:
 
-- recommended: create and activate a python 3.5 virtualenv::
+- recommended: create and activate a python 3.8 virtual environment. Using pyenv:
 
-    virtualenv mep -p python3.5
+    # if pyenv is not installed
+    curl https://pyenv.run | bash
+
+    # install 3.8
+    pyenv install 3.8.14
+
+    # activate 3.8
+    pyenv shell 3.8.14    
+
+    # create virtual environmnt
+    python -m venv mep
+
+    # activate virtual environment
     source mep/bin/activate
 
 - Install required python dependencies::
 
+    # make sure latest pip and wheel package is installed
+    pip install -U pip wheel
+
+    # install requirements
     pip install -r requirements.txt
     pip install -r dev-requirements.txt
 
