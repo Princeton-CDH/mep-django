@@ -52,10 +52,10 @@ Initial setup and installation:
     pyenv shell 3.8.14    
 
     # create virtual environmnt
-    python -m venv mep
+    python -m venv venv
 
     # activate virtual environment
-    source mep/bin/activate
+    . venv/bin/activate
 
 - Install required python dependencies::
 

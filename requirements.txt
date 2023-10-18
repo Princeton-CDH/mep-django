@@ -34,3 +34,5 @@ tweepy
 beautifulsoup4<4.9
 # require pre-2.9 until upgraded past django 2.2 (or 3.0?)
 psycopg2-binary<2.9
+# TODO: unpin piffle from 0.4 once breaking changes with piffle.iiif are handled
+piffle==0.4
