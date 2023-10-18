@@ -322,3 +322,5 @@ WEBPACK_LOADER = {
         "IGNORE": [r".+\.hot-update.js", r".+\.map"],
     }
 }
+
+WAGTAILADMIN_BASE_URL = "https://shakespeareandco.princeton.edu/cms/"
