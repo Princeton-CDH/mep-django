@@ -134,7 +134,7 @@ class HomePage(Page):
     # only landingpage subtypes as children
     subpage_types = ["ContentLandingPage", "EssayLandingPage", "ContentPage"]
     #: main page text
-    body = StreamField(BodyContentBlock)
+    body = StreamField(BodyContentBlock, use_json_field=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("body"),
@@ -173,7 +173,7 @@ class LandingPage(RdfPageMixin, Page):
     #: short introductory text shown just below the header, before content
     tagline = models.CharField(max_length=500)
     #: main page text
-    body = StreamField(BodyContentBlock, blank=True)
+    body = StreamField(BodyContentBlock, blank=True, use_json_field=True)
     #: image that will be used for the header
     header_image = models.ForeignKey(
         "wagtailimages.image",
@@ -395,18 +395,20 @@ class BasePage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
     functionality to be shared across `Page` subtypes."""
 
     #: main page text
-    body = StreamField(BodyContentBlock)
+    body = StreamField(BodyContentBlock, use_json_field=True)
     #: authors - collection of Person snippets
     authors = StreamField(
         [("author", SnippetChooserBlock(Person))],
         blank=True,
-        help_text="Select or create new people to add as authors.",
+        help_text="Select or create new people to add as authors.", 
+        use_json_field=True
     )
     #: editors - collection of Person snippets
     editors = StreamField(
         [("editor", SnippetChooserBlock(Person))],
         blank=True,
         help_text="Select or create new people to add as editors.",
+        use_json_field=True
     )
     #: featured image for tile preview and social media
     featured_image = models.ForeignKey(
