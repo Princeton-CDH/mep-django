@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
-import wagtail.core.blocks
-import wagtail.core.fields
+import wagtail.blocks
+import wagtail.fields
 import wagtail.documents.blocks
 import wagtail.images.blocks
 
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="contentpage",
             name="description",
-            field=wagtail.core.fields.RichTextField(
+            field=wagtail.fields.RichTextField(
                 blank=True,
                 help_text="Optional. Brief description for preview display. Will also be used for search description (without tags), if one is not entered.",
             ),
@@ -40,11 +40,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="contentpage",
             name="body",
-            field=wagtail.core.fields.StreamField(
+            field=wagtail.fields.StreamField(
                 [
                     (
                         "paragraph",
-                        wagtail.core.blocks.RichTextBlock(
+                        wagtail.blocks.RichTextBlock(
                             features=[
                                 "h3",
                                 "h4",
@@ -60,12 +60,12 @@ class Migration(migrations.Migration):
                     ("image", wagtail.images.blocks.ImageChooserBlock()),
                     (
                         "captioned_image",
-                        wagtail.core.blocks.StructBlock(
+                        wagtail.blocks.StructBlock(
                             [
                                 ("image", wagtail.images.blocks.ImageChooserBlock()),
                                 (
                                     "caption",
-                                    wagtail.core.blocks.RichTextBlock(
+                                    wagtail.blocks.RichTextBlock(
                                         features=["bold", "italic", "link"]
                                     ),
                                 ),
@@ -75,7 +75,7 @@ class Migration(migrations.Migration):
                     ("document", wagtail.documents.blocks.DocumentChooserBlock()),
                     (
                         "footnotes",
-                        wagtail.core.blocks.RichTextBlock(
+                        wagtail.blocks.RichTextBlock(
                             classname="footnotes",
                             features=["ol", "ul", "bold", "italic", "link"],
                         ),
@@ -86,11 +86,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="homepage",
             name="body",
-            field=wagtail.core.fields.StreamField(
+            field=wagtail.fields.StreamField(
                 [
                     (
                         "paragraph",
-                        wagtail.core.blocks.RichTextBlock(
+                        wagtail.blocks.RichTextBlock(
                             features=[
                                 "h3",
                                 "h4",
@@ -106,12 +106,12 @@ class Migration(migrations.Migration):
                     ("image", wagtail.images.blocks.ImageChooserBlock()),
                     (
                         "captioned_image",
-                        wagtail.core.blocks.StructBlock(
+                        wagtail.blocks.StructBlock(
                             [
                                 ("image", wagtail.images.blocks.ImageChooserBlock()),
                                 (
                                     "caption",
-                                    wagtail.core.blocks.RichTextBlock(
+                                    wagtail.blocks.RichTextBlock(
                                         features=["bold", "italic", "link"]
                                     ),
                                 ),
@@ -121,7 +121,7 @@ class Migration(migrations.Migration):
                     ("document", wagtail.documents.blocks.DocumentChooserBlock()),
                     (
                         "footnotes",
-                        wagtail.core.blocks.RichTextBlock(
+                        wagtail.blocks.RichTextBlock(
                             classname="footnotes",
                             features=["ol", "ul", "bold", "italic", "link"],
                         ),
@@ -132,11 +132,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="landingpage",
             name="body",
-            field=wagtail.core.fields.StreamField(
+            field=wagtail.fields.StreamField(
                 [
                     (
                         "paragraph",
-                        wagtail.core.blocks.RichTextBlock(
+                        wagtail.blocks.RichTextBlock(
                             features=[
                                 "h3",
                                 "h4",
@@ -152,12 +152,12 @@ class Migration(migrations.Migration):
                     ("image", wagtail.images.blocks.ImageChooserBlock()),
                     (
                         "captioned_image",
-                        wagtail.core.blocks.StructBlock(
+                        wagtail.blocks.StructBlock(
                             [
                                 ("image", wagtail.images.blocks.ImageChooserBlock()),
                                 (
                                     "caption",
-                                    wagtail.core.blocks.RichTextBlock(
+                                    wagtail.blocks.RichTextBlock(
                                         features=["bold", "italic", "link"]
                                     ),
                                 ),
@@ -167,7 +167,7 @@ class Migration(migrations.Migration):
                     ("document", wagtail.documents.blocks.DocumentChooserBlock()),
                     (
                         "footnotes",
-                        wagtail.core.blocks.RichTextBlock(
+                        wagtail.blocks.RichTextBlock(
                             classname="footnotes",
                             features=["ol", "ul", "bold", "italic", "link"],
                         ),

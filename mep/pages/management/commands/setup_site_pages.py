@@ -11,8 +11,8 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
-from wagtail.core.models import Page
-from wagtail.core.models import Site as WagtailSite
+from wagtail.models import Page
+from wagtail.models import Site as WagtailSite
 
 from mep.pages.models import ContentLandingPage, ContentPage, EssayLandingPage, HomePage
 

@@ -6,10 +6,10 @@ from django.http import Http404
 from django.template.defaultfilters import striptags, truncatechars_html
 from django.utils.functional import cached_property
 from django.utils.text import slugify
-from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
-from wagtail.core import blocks
-from wagtail.core.fields import RichTextField, StreamField
-from wagtail.core.models import Page
+from wagtail.admin.panels import FieldPanel, StreamFieldPanel
+from wagtail import blocks
+from wagtail.fields import RichTextField, StreamField
+from wagtail.models import Page
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
@@ -26,7 +26,7 @@ briefly communicate the intended message of the image in this context."""
 
 
 class CaptionedImageBlock(blocks.StructBlock):
-    """:class:`~wagtail.core.blocks.StructBlock` for an image with
+    """:class:`~wagtail.blocks.StructBlock` for an image with
     alternative text and optional formatted caption, so
     that both caption and alternative text can be context-specific."""
 
@@ -42,7 +42,7 @@ class CaptionedImageBlock(blocks.StructBlock):
 
 
 class SVGImageBlock(blocks.StructBlock):
-    """:class:`~wagtail.core.blocks.StructBlock` for an SVG image with
+    """:class:`~wagtail.blocks.StructBlock` for an SVG image with
     alternative text and optional formatted caption. Separate from
     :class:`CaptionedImageBlock` because Wagtail image handling
     does not work with SVG."""
@@ -86,7 +86,7 @@ bodytext_features = [
 
 
 class LinkableSectionBlock(blocks.StructBlock):
-    """:class:`~wagtail.core.blocks.StructBlock` for a rich text block and an
+    """:class:`~wagtail.blocks.StructBlock` for a rich text block and an
     associated `title` that will render as an <h2>. Creates an anchor (<a>)
     so that the section can be directly linked to using a url fragment."""
 
@@ -127,7 +127,7 @@ class BodyContentBlock(blocks.StreamBlock):
 
 
 class HomePage(Page):
-    """:class:`wagtail.core.models.Page` model for S&Co. home page."""
+    """:class:`wagtail.models.Page` model for S&Co. home page."""
 
     # can only be child of Root
     parent_page_types = [Page]
@@ -165,7 +165,7 @@ class RdfPageMixin(RdfViewMixin):
 
 
 class LandingPage(RdfPageMixin, Page):
-    """Abstract :class:`wagtail.core.models.Page` model for aggregating other
+    """Abstract :class:`wagtail.models.Page` model for aggregating other
     pages as its children."""
 
     # must be a child of the HomePage directly
@@ -391,7 +391,7 @@ class Person(models.Model):
 
 
 class BasePage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
-    """Abstract :class:`wagtail.core.models.Page` model that contains all
+    """Abstract :class:`wagtail.models.Page` model that contains all
     functionality to be shared across `Page` subtypes."""
 
     #: main page text

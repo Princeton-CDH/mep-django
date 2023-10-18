@@ -126,3 +126,7 @@ ENV/
 
 # ts lib files
 !srcmedia/ts/lib/
+
+notebooks
+data
+*dwellings*

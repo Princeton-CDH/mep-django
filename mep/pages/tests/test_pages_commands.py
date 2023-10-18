@@ -1,6 +1,6 @@
 from django.contrib.sites.models import Site
 from django.test import TestCase
-from wagtail.core.models import Page
+from wagtail.models import Page
 
 from mep.pages.management.commands import setup_site_pages
 from mep.pages.models import ContentLandingPage, ContentPage, EssayLandingPage, HomePage
