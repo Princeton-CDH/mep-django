@@ -6,14 +6,14 @@ from django.http import Http404
 from django.template.defaultfilters import striptags, truncatechars_html
 from django.utils.functional import cached_property
 from django.utils.text import slugify
-from wagtail.admin.panels import FieldPanel, StreamFieldPanel
+from wagtail.admin.panels import FieldPanel
 from wagtail import blocks
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.images.edit_handlers import ImageChooserPanel
+# from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.snippets.models import register_snippet
 
@@ -137,7 +137,7 @@ class HomePage(Page):
     body = StreamField(BodyContentBlock)
 
     content_panels = Page.content_panels + [
-        StreamFieldPanel("body"),
+        FieldPanel("body"),
     ]
 
     class Meta:
@@ -184,9 +184,9 @@ class LandingPage(RdfPageMixin, Page):
     )
 
     content_panels = Page.content_panels + [
-        ImageChooserPanel("header_image"),
+        FieldPanel("header_image"),
         FieldPanel("tagline"),
-        StreamFieldPanel("body"),
+        FieldPanel("body"),
     ]
 
     class Meta:
@@ -421,10 +421,10 @@ class BasePage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
-        StreamFieldPanel("authors"),
-        StreamFieldPanel("editors"),
-        ImageChooserPanel("featured_image"),
-        StreamFieldPanel("body"),
+        FieldPanel("authors"),
+        FieldPanel("editors"),
+        FieldPanel("featured_image"),
+        FieldPanel("body"),
     ]
 
     class Meta:
