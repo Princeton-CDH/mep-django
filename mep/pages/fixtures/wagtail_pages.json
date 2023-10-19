@@ -217,7 +217,7 @@
             "url_path": "/home/sources/cards/"
         },
         "model": "wagtailcore.page",
-        "pk": 11
+        "pk": 11    
     },
     {
         "fields": {
@@ -485,13 +485,13 @@
     {
         "fields": {
             "approved_go_live_at": null,
-            "content_json": "{\"pk\": 14, \"path\": \"0001000100020001\", \"depth\": 4, \"numchild\": 0, \"title\": \"Test Analysis\", \"draft_title\": \"Test Analysis\", \"slug\": \"test-analysis\", \"content_type\": 60, \"live\": true, \"has_unpublished_changes\": false, \"url_path\": \"/home/analysis/2019/11/test-analysis/\", \"owner\": 2, \"seo_title\": \"\", \"show_in_menus\": false, \"search_description\": \"\", \"go_live_at\": null, \"expire_at\": null, \"expired\": false, \"locked\": false, \"first_published_at\": null, \"last_published_at\": null, \"latest_revision_created_at\": null, \"live_revision\": null, \"description\": \"<p>here&#x27;s my description!</p>\", \"body\": \"[{\\\"type\\\": \\\"paragraph\\\", \\\"value\\\": \\\"<p>here&#x27;s the body.</p>\\\", \\\"id\\\": \\\"52af9af6-48ba-4aef-a2b1-8a3562e6b281\\\"}]\", \"authors\": \"[]\", \"editors\": \"[]\", \"featured_image\": null}",
+            "content": {"pk": 14, "path": "0001000100020001", "depth": 4, "numchild": 0, "title": "Test Analysis", "draft_title": "Test Analysis", "slug": "test-analysis", "content_type": 60, "live": true, "has_unpublished_changes": false, "url_path": "/home/analysis/2019/11/test-analysis/", "owner": 2, "seo_title": "", "show_in_menus": false, "search_description": "", "go_live_at": null, "expire_at": null, "expired": false, "locked": false, "first_published_at": null, "last_published_at": null, "latest_revision_created_at": null, "live_revision": null, "description": "<p>here&#x27;s my description!</p>", "body": "[{\"type\": \"paragraph\", \"value\": \"<p>here&#x27;s the body.</p>\", \"id\": \"52af9af6-48ba-4aef-a2b1-8a3562e6b281\"}]", "authors": "[]", "editors": "[]", "featured_image": null},
             "created_at": "2019-11-15T15:40:39.303Z",
             "page": 14,
             "submitted_for_moderation": false,
             "user": 2
         },
-        "model": "wagtailcore.pagerevision",
+        "model": "wagtailcore.revision",
         "pk": 1
     },
     {
