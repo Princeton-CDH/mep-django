@@ -45,11 +45,14 @@ Initial setup and installation:
     # if pyenv is not installed
     curl https://pyenv.run | bash
 
-    # install 3.8
-    pyenv install 3.8.14
+    # get recommended python version
+    vnum=$(cat .python-version)
 
-    # activate 3.8
-    pyenv shell 3.8.14    
+    # install that version
+    pyenv install $vnum
+
+    # activate it
+    pyenv shell $num   
 
     # create virtual environmnt
     python -m venv venv
@@ -59,12 +62,9 @@ Initial setup and installation:
 
 - Install required python dependencies::
 
-    # make sure latest pip and wheel package is installed
-    pip install -U pip wheel
-
     # install requirements
-    pip install -r requirements.txt
     pip install -r dev-requirements.txt
+    pip install -r requirements.txt
 
 - Install javascript dependencies::
 
