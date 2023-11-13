@@ -1,536 +1,668 @@
 [
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "homepage"
-            ],
-            "depth": 2,
-            "draft_title": "Shakespeare & Company Project",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": null,
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": null,
-            "latest_revision_created_at": null,
-            "live": true,
-            "live_revision": null,
-            "locked": false,
-            "numchild": 3,
-            "owner": null,
-            "path": "00010001",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": true,
-            "slug": "home",
-            "title": "Shakespeare & Company Project",
-            "url_path": "/home/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "body": "[]"
-        },
-        "model": "pages.homepage",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "contentlandingpage"
-            ],
-            "depth": 3,
-            "draft_title": "Sources",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": null,
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": null,
-            "latest_revision_created_at": null,
-            "live": true,
-            "live_revision": null,
-            "locked": false,
-            "numchild": 2,
-            "owner": null,
-            "path": "000100010001",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": true,
-            "slug": "sources",
-            "title": "Sources",
-            "url_path": "/home/sources/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 10
-    },
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "contentlandingpage"
-            ],
-            "depth": 3,
-            "draft_title": "About",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": null,
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": null,
-            "latest_revision_created_at": null,
-            "live": true,
-            "live_revision": null,
-            "locked": false,
-            "numchild": 5,
-            "owner": null,
-            "path": "000100010000",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": true,
-            "slug": "about",
-            "title": "About",
-            "url_path": "/home/about/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 4
-    },
-    {
-        "fields": {
-            "body": "[]",
-            "header_image": null,
-            "tagline": "Learn about the lending library cards and logbooks."
-        },
-        "model": "pages.contentlandingpage",
-        "pk": 10
-    },
-    {
-        "fields": {
-            "body": "[]",
-            "header_image": null,
-            "tagline": "Learn about the Shakespeare and Company Project."
-        },
-        "model": "pages.contentlandingpage",
-        "pk": 4
-    },
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "essaylandingpage"
-            ],
-            "depth": 3,
-            "draft_title": "Analysis",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": null,
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": null,
-            "latest_revision_created_at": null,
-            "live": true,
-            "live_revision": null,
-            "locked": false,
-            "numchild": 1,
-            "owner": null,
-            "path": "000100010002",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": true,
-            "slug": "analysis",
-            "title": "Analysis",
-            "url_path": "/home/analysis/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 13
-    },
-    {
-        "fields": {
-            "body": "[]",
-            "header_image": null,
-            "tagline": "Analyze the Shakespeare and Company community."
-        },
-        "model": "pages.essaylandingpage",
-        "pk": 13
-    },
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "contentpage"
-            ],
-            "depth": 4,
-            "draft_title": "Logbooks",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": null,
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": null,
-            "latest_revision_created_at": null,
-            "live": true,
-            "live_revision": null,
-            "locked": false,
-            "numchild": 0,
-            "owner": null,
-            "path": "0001000100010001",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": true,
-            "slug": "logbooks",
-            "title": "Logbooks",
-            "url_path": "/home/sources/logbooks/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 12
-    },
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "contentpage"
-            ],
-            "depth": 4,
-            "draft_title": "Lending Library Cards",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": null,
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": null,
-            "latest_revision_created_at": null,
-            "live": true,
-            "live_revision": null,
-            "locked": false,
-            "numchild": 0,
-            "owner": null,
-            "path": "0001000100010000",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": true,
-            "slug": "cards",
-            "title": "Lending Library Cards",
-            "url_path": "/home/sources/cards/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 11    
-    },
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "contentpage"
-            ],
-            "depth": 4,
-            "draft_title": "Technical",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": null,
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": null,
-            "latest_revision_created_at": null,
-            "live": true,
-            "live_revision": null,
-            "locked": false,
-            "numchild": 0,
-            "owner": null,
-            "path": "0001000100000004",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": true,
-            "slug": "technical",
-            "title": "Technical",
-            "url_path": "/home/about/technical/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 9
-    },
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "contentpage"
-            ],
-            "depth": 4,
-            "draft_title": "Credits",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": null,
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": null,
-            "latest_revision_created_at": null,
-            "live": true,
-            "live_revision": null,
-            "locked": false,
-            "numchild": 0,
-            "owner": null,
-            "path": "0001000100000003",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": true,
-            "slug": "credits",
-            "title": "Credits",
-            "url_path": "/home/about/credits/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 8
-    },
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "contentpage"
-            ],
-            "depth": 4,
-            "draft_title": "How to Cite",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": null,
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": null,
-            "latest_revision_created_at": null,
-            "live": true,
-            "live_revision": null,
-            "locked": false,
-            "numchild": 0,
-            "owner": null,
-            "path": "0001000100000002",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": true,
-            "slug": "cite",
-            "title": "How to Cite",
-            "url_path": "/home/about/cite/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 7
-    },
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "contentpage"
-            ],
-            "depth": 4,
-            "draft_title": "Data Export",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": null,
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": null,
-            "latest_revision_created_at": null,
-            "live": true,
-            "live_revision": null,
-            "locked": false,
-            "numchild": 0,
-            "owner": null,
-            "path": "0001000100000001",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": true,
-            "slug": "data",
-            "title": "Data Export",
-            "url_path": "/home/about/data/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 6
-    },
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "contentpage"
-            ],
-            "depth": 4,
-            "draft_title": "Contact Us",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": null,
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": null,
-            "latest_revision_created_at": null,
-            "live": true,
-            "live_revision": null,
-            "locked": false,
-            "numchild": 0,
-            "owner": null,
-            "path": "0001000100000000",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": true,
-            "slug": "contact",
-            "title": "Contact Us",
-            "url_path": "/home/about/contact/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 5
-    },
-    {
-        "fields": {
-            "authors": "[]",
-            "body": "[]",
-            "description": "",
-            "editors": "[]",
-            "featured_image": null
-        },
-        "model": "pages.contentpage",
-        "pk": 12
-    },
-    {
-        "fields": {
-            "authors": "[]",
-            "body": "[]",
-            "description": "",
-            "editors": "[]",
-            "featured_image": null
-        },
-        "model": "pages.contentpage",
-        "pk": 11
-    },
-    {
-        "fields": {
-            "authors": "[]",
-            "body": "[]",
-            "description": "",
-            "editors": "[]",
-            "featured_image": null
-        },
-        "model": "pages.contentpage",
-        "pk": 9
-    },
-    {
-        "fields": {
-            "authors": "[]",
-            "body": "[]",
-            "description": "",
-            "editors": "[]",
-            "featured_image": null
-        },
-        "model": "pages.contentpage",
-        "pk": 8
-    },
-    {
-        "fields": {
-            "authors": "[]",
-            "body": "[]",
-            "description": "",
-            "editors": "[]",
-            "featured_image": null
-        },
-        "model": "pages.contentpage",
-        "pk": 7
-    },
-    {
-        "fields": {
-            "authors": "[]",
-            "body": "[]",
-            "description": "",
-            "editors": "[]",
-            "featured_image": null
-        },
-        "model": "pages.contentpage",
-        "pk": 6
-    },
-    {
-        "fields": {
-            "authors": "[]",
-            "body": "[]",
-            "description": "",
-            "editors": "[]",
-            "featured_image": null
-        },
-        "model": "pages.contentpage",
-        "pk": 5
-    },
-    {
-        "fields": {
-            "content_type": [
-                "pages",
-                "essaypage"
-            ],
-            "depth": 4,
-            "draft_title": "Test Analysis",
-            "expire_at": null,
-            "expired": false,
-            "first_published_at": "2019-11-15T15:40:39.317Z",
-            "go_live_at": null,
-            "has_unpublished_changes": false,
-            "last_published_at": "2019-11-15T15:40:39.317Z",
-            "latest_revision_created_at": "2019-11-15T15:40:39.303Z",
-            "live": true,
-            "live_revision": 1,
-            "locked": false,
-            "numchild": 0,
-            "owner": 2,
-            "path": "0001000100020001",
-            "search_description": "",
-            "seo_title": "",
-            "show_in_menus": false,
-            "slug": "test-analysis",
-            "title": "Test Analysis",
-            "url_path": "/home/analysis/2019/11/test-analysis/"
-        },
-        "model": "wagtailcore.page",
-        "pk": 14
-    },
-    {
-        "fields": {
-            "approved_go_live_at": null,
-            "content": {"pk": 14, "path": "0001000100020001", "depth": 4, "numchild": 0, "title": "Test Analysis", "draft_title": "Test Analysis", "slug": "test-analysis", "content_type": 60, "live": true, "has_unpublished_changes": false, "url_path": "/home/analysis/2019/11/test-analysis/", "owner": 2, "seo_title": "", "show_in_menus": false, "search_description": "", "go_live_at": null, "expire_at": null, "expired": false, "locked": false, "first_published_at": null, "last_published_at": null, "latest_revision_created_at": null, "live_revision": null, "description": "<p>here&#x27;s my description!</p>", "body": "[{\"type\": \"paragraph\", \"value\": \"<p>here&#x27;s the body.</p>\", \"id\": \"52af9af6-48ba-4aef-a2b1-8a3562e6b281\"}]", "authors": "[]", "editors": "[]", "featured_image": null},
-            "created_at": "2019-11-15T15:40:39.303Z",
-            "page": 14,
-            "submitted_for_moderation": false,
-            "user": 2
-        },
-        "model": "wagtailcore.revision",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "date_joined": "2019-11-15T15:38:14.023Z",
-            "email": "nick@princeton.edu",
-            "first_name": "Nick",
-            "groups": [],
-            "is_active": true,
-            "is_staff": true,
-            "is_superuser": true,
-            "last_login": "2019-11-15T15:38:33.150Z",
-            "last_name": "B",
-            "password": "",
-            "user_permissions": [],
-            "username": "nick"
-        },
-        "model": "auth.user",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "authors": "[]",
-            "body": "[{\"type\": \"paragraph\", \"value\": \"<p>here&#x27;s the body.</p>\", \"id\": \"52af9af6-48ba-4aef-a2b1-8a3562e6b281\"}]",
-            "description": "<p>here&#x27;s my description!</p>",
-            "editors": "[]",
-            "featured_image": null
-        },
-        "model": "pages.essaypage",
-        "pk": 14
-    },
-    {
-        "model": "wagtailcore.site",
-        "fields": {
-            "hostname": "localhost",
-            "port": 8000,
-            "site_name": "dev",
-            "root_page": 2,
-            "is_default_site": true
-        }
+{
+    "model": "wagtailcore.page",
+    "pk": 1,
+    "fields": {
+        "path": "0001",
+        "depth": 1,
+        "numchild": 1,
+        "translation_key": "6a6b339e-cdda-4136-9506-3590211b986b",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "Root",
+        "draft_title": "Root",
+        "slug": "root",
+        "content_type": 37,
+        "url_path": "/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": false,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
     }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 2,
+    "fields": {
+        "path": "00010001",
+        "depth": 2,
+        "numchild": 3,
+        "translation_key": "304187a7-03ed-43b8-a8a5-8a291d7d7284",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "Shakespeare & Company Project",
+        "draft_title": "Shakespeare & Company Project",
+        "slug": "home",
+        "content_type": 70,
+        "url_path": "/home/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 4,
+    "fields": {
+        "path": "000100010000",
+        "depth": 3,
+        "numchild": 5,
+        "translation_key": "f05b39e2-0c30-4f97-acfb-1c697e53cd4d",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "About",
+        "draft_title": "About",
+        "slug": "about",
+        "content_type": 74,
+        "url_path": "/home/about/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 5,
+    "fields": {
+        "path": "0001000100000000",
+        "depth": 4,
+        "numchild": 0,
+        "translation_key": "e1d0e04f-d3a5-4004-8e90-43a12ffd33ee",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "Contact Us",
+        "draft_title": "Contact Us",
+        "slug": "contact",
+        "content_type": 69,
+        "url_path": "/home/about/contact/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 6,
+    "fields": {
+        "path": "0001000100000001",
+        "depth": 4,
+        "numchild": 0,
+        "translation_key": "07819fe0-9d0f-45ea-864a-566064f17fe5",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "Data Export",
+        "draft_title": "Data Export",
+        "slug": "data",
+        "content_type": 69,
+        "url_path": "/home/about/data/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 7,
+    "fields": {
+        "path": "0001000100000002",
+        "depth": 4,
+        "numchild": 0,
+        "translation_key": "1f2f1e1d-f63d-4039-ad3d-dafa0b6bb533",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "How to Cite",
+        "draft_title": "How to Cite",
+        "slug": "cite",
+        "content_type": 69,
+        "url_path": "/home/about/cite/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 8,
+    "fields": {
+        "path": "0001000100000003",
+        "depth": 4,
+        "numchild": 0,
+        "translation_key": "be2d9072-f7c1-4d0b-a12c-9e66135ffd0c",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "Credits",
+        "draft_title": "Credits",
+        "slug": "credits",
+        "content_type": 69,
+        "url_path": "/home/about/credits/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 9,
+    "fields": {
+        "path": "0001000100000004",
+        "depth": 4,
+        "numchild": 0,
+        "translation_key": "6f17b2e9-4073-418f-a3a6-cc13cba9f4e8",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "Technical",
+        "draft_title": "Technical",
+        "slug": "technical",
+        "content_type": 69,
+        "url_path": "/home/about/technical/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 10,
+    "fields": {
+        "path": "000100010001",
+        "depth": 3,
+        "numchild": 2,
+        "translation_key": "5b4fe1e9-e23b-4ab2-b217-2b6515be4a38",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "Sources",
+        "draft_title": "Sources",
+        "slug": "sources",
+        "content_type": 74,
+        "url_path": "/home/sources/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 11,
+    "fields": {
+        "path": "0001000100010000",
+        "depth": 4,
+        "numchild": 0,
+        "translation_key": "197d1726-c98a-4786-8abf-1122079dd575",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "Lending Library Cards",
+        "draft_title": "Lending Library Cards",
+        "slug": "cards",
+        "content_type": 69,
+        "url_path": "/home/sources/cards/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 12,
+    "fields": {
+        "path": "0001000100010001",
+        "depth": 4,
+        "numchild": 0,
+        "translation_key": "3731ca03-de43-4d71-ac53-fd8a39d2ca9e",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "Logbooks",
+        "draft_title": "Logbooks",
+        "slug": "logbooks",
+        "content_type": 69,
+        "url_path": "/home/sources/logbooks/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 13,
+    "fields": {
+        "path": "000100010002",
+        "depth": 3,
+        "numchild": 1,
+        "translation_key": "6454a930-0a7a-4653-b276-f58235249bf0",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": null,
+        "last_published_at": null,
+        "live_revision": null,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "Analysis",
+        "draft_title": "Analysis",
+        "slug": "analysis",
+        "content_type": 71,
+        "url_path": "/home/analysis/",
+        "owner": null,
+        "seo_title": "",
+        "show_in_menus": true,
+        "search_description": "",
+        "latest_revision_created_at": null,
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.page",
+    "pk": 14,
+    "fields": {
+        "path": "0001000100020001",
+        "depth": 4,
+        "numchild": 0,
+        "translation_key": "b9372a56-6e61-4e06-b434-87f402f8cb6c",
+        "locale": 1,
+        "latest_revision": null,
+        "live": true,
+        "has_unpublished_changes": false,
+        "first_published_at": "2019-11-15T15:40:39.317Z",
+        "last_published_at": "2019-11-15T15:40:39.317Z",
+        "live_revision": 1,
+        "go_live_at": null,
+        "expire_at": null,
+        "expired": false,
+        "locked": false,
+        "locked_at": null,
+        "locked_by": null,
+        "title": "Test Analysis",
+        "draft_title": "Test Analysis",
+        "slug": "test-analysis",
+        "content_type": 72,
+        "url_path": "/home/analysis/2019/11/test-analysis/",
+        "owner": 2,
+        "seo_title": "",
+        "show_in_menus": false,
+        "search_description": "",
+        "latest_revision_created_at": "2019-11-15T15:40:39.303Z",
+        "alias_of": null
+    }
+},
+{
+    "model": "wagtailcore.revision",
+    "pk": 1,
+    "fields": {
+        "content_type": 60,
+        "base_content_type": 37,
+        "object_id": "14",
+        "submitted_for_moderation": false,
+        "created_at": "2019-11-15T15:40:39.303Z",
+        "user": 2,
+        "object_str": "\"Test Analysis\"",
+        "content": {
+            "pk": 14,
+            "body": "[{\"type\": \"paragraph\", \"value\": \"<p>here&#x27;s the body.</p>\", \"id\": \"52af9af6-48ba-4aef-a2b1-8a3562e6b281\"}]",
+            "live": true,
+            "path": "0001000100020001",
+            "slug": "test-analysis",
+            "depth": 4,
+            "owner": 2,
+            "title": "Test Analysis",
+            "locked": false,
+            "authors": "[]",
+            "editors": "[]",
+            "expired": false,
+            "numchild": 0,
+            "url_path": "/home/analysis/2019/11/test-analysis/",
+            "expire_at": null,
+            "seo_title": "",
+            "go_live_at": null,
+            "description": "<p>here&#x27;s my description!</p>",
+            "draft_title": "Test Analysis",
+            "content_type": 60,
+            "live_revision": null,
+            "show_in_menus": false,
+            "featured_image": null,
+            "last_published_at": null,
+            "first_published_at": null,
+            "search_description": "",
+            "has_unpublished_changes": false,
+            "latest_revision_created_at": null
+        },
+        "approved_go_live_at": null
+    }
+},
+{
+    "model": "wagtailcore.site",
+    "pk": 1,
+    "fields": {
+        "hostname": "localhost",
+        "port": 80,
+        "site_name": "",
+        "root_page": 2,
+        "is_default_site": true
+    }
+},
+{
+    "model": "wagtailcore.site",
+    "pk": 2,
+    "fields": {
+        "hostname": "localhost",
+        "port": 8000,
+        "site_name": "dev",
+        "root_page": 2,
+        "is_default_site": true
+    }
+},
+{
+    "model": "pages.homepage",
+    "pk": 2,
+    "fields": {
+        "body": "[]"
+    }
+},
+{
+    "model": "pages.contentlandingpage",
+    "pk": 4,
+    "fields": {
+        "tagline": "Learn about the Shakespeare and Company Project.",
+        "body": "[]",
+        "header_image": null
+    }
+},
+{
+    "model": "pages.contentlandingpage",
+    "pk": 10,
+    "fields": {
+        "tagline": "Learn about the lending library cards and logbooks.",
+        "body": "[]",
+        "header_image": null
+    }
+},
+{
+    "model": "pages.essaylandingpage",
+    "pk": 13,
+    "fields": {
+        "tagline": "Analyze the Shakespeare and Company community.",
+        "body": "[]",
+        "header_image": null
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 5,
+    "fields": {
+        "description": "",
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 6,
+    "fields": {
+        "description": "",
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 7,
+    "fields": {
+        "description": "",
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 8,
+    "fields": {
+        "description": "",
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 9,
+    "fields": {
+        "description": "",
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 11,
+    "fields": {
+        "description": "",
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
+    }
+},
+{
+    "model": "pages.contentpage",
+    "pk": 12,
+    "fields": {
+        "description": "",
+        "body": "[]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
+    }
+},
+{
+    "model": "pages.essaypage",
+    "pk": 14,
+    "fields": {
+        "description": "<p>here&#x27;s my description!</p>",
+        "body": "[{\"type\": \"paragraph\", \"value\": \"<p>here&#x27;s the body.</p>\", \"id\": \"52af9af6-48ba-4aef-a2b1-8a3562e6b281\"}]",
+        "authors": "[]",
+        "editors": "[]",
+        "featured_image": null
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+        "password": "",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "script",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": false,
+        "is_active": false,
+        "date_joined": "2023-11-01T18:45:15.045Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+        "password": "",
+        "last_login": "2019-11-15T15:38:33.150Z",
+        "is_superuser": true,
+        "username": "nick",
+        "first_name": "Nick",
+        "last_name": "B",
+        "email": "nick@princeton.edu",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2019-11-15T15:38:14.023Z",
+        "groups": [],
+        "user_permissions": []
+    }
+}
 ]
