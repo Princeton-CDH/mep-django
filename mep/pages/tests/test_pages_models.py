@@ -6,7 +6,6 @@ from wagtail.models import Page, Site
 from wagtail.documents.models import Document
 from wagtail.test.utils import WagtailPageTests
 from wagtail.test.utils.form_data import nested_form_data, rich_text, streamfield
-
 from mep.pages.models import (
     CaptionedImageBlock,
     ContentLandingPage,
@@ -18,6 +17,15 @@ from mep.pages.models import (
     SVGImageBlock,
     Person,
 )
+import wagtail_factories
+from wagtail import blocks
+import factory
+from wagtail.rich_text import RichText
+
+HOMEPAGE_TITLE = "S&Co."
+HOMEPAGE_SLUG= "newhome"
+HOMEPAGE_PARA="homepage body text"
+HOMEPAGE_FOOT="homepage footnotes"
 
 
 class TestLinkableSectionBlock(SimpleTestCase):
@@ -109,27 +117,48 @@ class TestSVGImageBlock(SimpleTestCase):
         assert desc in html
 
 
+class HomePageFactory(wagtail_factories.PageFactory):
+    title=HOMEPAGE_TITLE
+    slug=HOMEPAGE_SLUG
+    body=wagtail_factories.StreamFieldFactory({
+        "paragraph":factory.SubFactory(wagtail_factories.CharBlockFactory),
+        "footnotes":factory.SubFactory(wagtail_factories.CharBlockFactory)
+    })
+
+    class Meta:
+        model = HomePage
+
 class TestHomePage(WagtailPageTests):
     fixtures = ["wagtail_pages"]
 
-    def test_can_create(self):
-        root = Page.objects.get(title="Root")
-        self.assertCanCreate(
-            root,
-            HomePage,
-            nested_form_data(
-                {
-                    "title": "S&Co.",
-                    "slug": "newhome",
-                    "body": streamfield(
-                        [
-                            ("paragraph", rich_text("homepage body text")),
-                            ("footnotes", rich_text("homepage footnotes")),
-                        ]
-                    ),
-                }
-            ),
+    def setUp(self):
+        self.homepage = HomePageFactory.create(
+            body__0__paragraph=RichText(HOMEPAGE_PARA),
+            body__1__footnotes=RichText(HOMEPAGE_FOOT),
         )
+        self.site = Site.objects.first()
+        self.site.root_page = self.homepage
+        self.site.save()
+        self.site.refresh_from_db()
+
+    def test_can_create(self):
+        self.assertIsNotNone(self.homepage.pk)
+        assert self.homepage.title == HOMEPAGE_TITLE
+        assert self.homepage.slug == HOMEPAGE_SLUG
+        body = self.homepage.body
+
+        assert len(body) == 2
+        block1,block2 = body
+        type1,type2=block1.block_type, block2.block_type
+        val1,val2=str(block1), str(block2)
+
+        assert type1 == 'paragraph'
+        assert HOMEPAGE_PARA in val1
+        assert val1 == f'<div class="rich-text">{HOMEPAGE_PARA}</div>'
+        
+        assert type2 == 'footnotes'
+        assert HOMEPAGE_FOOT in val2
+        assert val2 == f'<div class="rich-text">{HOMEPAGE_FOOT}</div>'
 
     def test_parent_pages(self):
         self.assertAllowedParentPageTypes(HomePage, [Page])
@@ -140,9 +169,8 @@ class TestHomePage(WagtailPageTests):
         )
 
     def test_template(self):
-        site = Site.objects.first()
-        home = HomePage.objects.first()
-        response = self.client.get(home.relative_url(site))
+        url = self.homepage.relative_url(self.site)
+        response = self.client.get(url)
         self.assertTemplateUsed(response, "base.html")
         self.assertTemplateUsed(response, "pages/home_page.html")
 

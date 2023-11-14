@@ -6,3 +6,4 @@ django-debug-toolbar
 sphinx
 wheel
 pre-commit
+wagtail-factories
