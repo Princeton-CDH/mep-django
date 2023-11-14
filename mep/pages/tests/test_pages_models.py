@@ -150,15 +150,13 @@ class TestHomePage(WagtailPageTests):
         assert len(body) == 2
         block1,block2 = body
         type1,type2=block1.block_type, block2.block_type
-        val1,val2=str(block1), str(block2)
+        val1,val2=block1.value.source, block2.value.source
 
         assert type1 == 'paragraph'
-        assert HOMEPAGE_PARA in val1
-        assert val1 == f'<div class="rich-text">{HOMEPAGE_PARA}</div>'
+        assert val1 == HOMEPAGE_PARA
         
         assert type2 == 'footnotes'
-        assert HOMEPAGE_FOOT in val2
-        assert val2 == f'<div class="rich-text">{HOMEPAGE_FOOT}</div>'
+        assert val2 == HOMEPAGE_FOOT
 
     def test_parent_pages(self):
         self.assertAllowedParentPageTypes(HomePage, [Page])
