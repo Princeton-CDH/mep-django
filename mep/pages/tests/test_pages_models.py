@@ -127,6 +127,28 @@ class PageFactory(wagtail_factories.PageFactory):
     class Meta:
         model = Page
 
+class PageTester(WagtailPageTests):
+    def setUp(self):
+        self.site = Site.objects.first()
+        self.homepage = HomePageFactory.create(
+            body__0__paragraph=RichText(HOMEPAGE_PARA),
+            body__1__footnotes=RichText(HOMEPAGE_FOOT),
+        )
+        self.site.root_page = self.homepage
+        self.site.save()
+        self.site.refresh_from_db()
+
+def assert_page_body_contains(page, paragraph, footnote):
+    body = page.body
+    assert len(body) == 2
+    block1,block2 = body
+    type1,type2=block1.block_type, block2.block_type
+    val1,val2=block1.value.source, block2.value.source
+    assert type1 == 'paragraph'
+    assert val1 == paragraph
+    
+    assert type2 == 'footnotes'
+    assert val2 == footnote
 
 
 ###################
@@ -144,32 +166,7 @@ class HomePageFactory(PageFactory):
     class Meta:
         model = HomePage
 
-def assert_page_body_contains(page, paragraph, footnote):
-    body = page.body
-    assert len(body) == 2
-    block1,block2 = body
-    type1,type2=block1.block_type, block2.block_type
-    val1,val2=block1.value.source, block2.value.source
-    assert type1 == 'paragraph'
-    assert val1 == paragraph
-    
-    assert type2 == 'footnotes'
-    assert val2 == footnote
-
-
-class TestHomePage(WagtailPageTests):
-    fixtures = ["wagtail_pages"]
-
-    def setUp(self):
-        self.homepage = HomePageFactory.create(
-            body__0__paragraph=RichText(HOMEPAGE_PARA),
-            body__1__footnotes=RichText(HOMEPAGE_FOOT),
-        )
-        self.site = Site.objects.first()
-        self.site.root_page = self.homepage
-        self.site.save()
-        self.site.refresh_from_db()
-
+class TestHomePage(PageTester):
     def test_can_create(self):
         self.assertIsNotNone(self.homepage.pk)
         assert self.homepage.title == HOMEPAGE_TITLE
@@ -214,10 +211,9 @@ class LandingPageFactory(PageFactory):
     class Meta:
         model = ContentLandingPage
 
-class TestLandingPage(WagtailPageTests):
-    fixtures = ["wagtail_pages"]
-
+class TestLandingPage(PageTester):
     def setUp(self):
+        super().setUp()
         self.page = LandingPageFactory.create(
             body__0__paragraph=RichText(LANDINGPAGE_PARA),
             body__1__footnotes=RichText(LANDINGPAGE_FOOT),
@@ -238,27 +234,42 @@ class TestLandingPage(WagtailPageTests):
         self.assertAllowedParentPageTypes(ContentLandingPage, [HomePage])
 
 
-class TestContentLandingPage(WagtailPageTests):
-    fixtures = ["wagtail_pages"]
+
+##############################
+# CONTENT LANDING PAGE tests #
+##############################
+
+CONTENTLANDINGPAGE_TITLE="Sources 2"
+CONTENTLANDINGPAGE_SLUG="sources2"
+CONTENTLANDINGPAGE_TAGLINE="like sources, but better"
+CONTENTLANDINGPAGE_PARA="the new sources landing page"
+CONTENTLANDINGPAGE_FOOT="some landing page footnotes"
+
+class ContentLandingPageFactory(PageFactory):
+    title=CONTENTLANDINGPAGE_TITLE
+    slug=CONTENTLANDINGPAGE_SLUG
+    tagline=CONTENTLANDINGPAGE_TAGLINE
+    class Meta:
+        model = ContentLandingPage
+
+class TestContentLandingPage(PageTester):
+    def setUp(self):
+        super().setUp()
+        self.page = ContentLandingPageFactory.create(
+            body__0__paragraph=RichText(CONTENTLANDINGPAGE_PARA),
+            body__1__footnotes=RichText(CONTENTLANDINGPAGE_FOOT),
+            parent=self.homepage
+        )
 
     def test_can_create(self):
-        home = HomePage.objects.first()
-        self.assertCanCreate(
-            home,
-            ContentLandingPage,
-            nested_form_data(
-                {
-                    "title": "Sources 2",
-                    "slug": "sources2",
-                    "tagline": "like sources, but better",
-                    "body": streamfield(
-                        [
-                            ("paragraph", rich_text("the new sources landing page")),
-                            ("footnotes", rich_text("some landing page footnotes")),
-                        ]
-                    ),
-                }
-            ),
+        self.assertIsNotNone(self.page.pk)
+        assert self.page.title == CONTENTLANDINGPAGE_TITLE
+        assert self.page.slug == CONTENTLANDINGPAGE_SLUG
+        assert self.page.tagline == CONTENTLANDINGPAGE_TAGLINE
+        assert_page_body_contains(
+            self.page,
+            CONTENTLANDINGPAGE_PARA,
+            CONTENTLANDINGPAGE_FOOT
         )
 
     def test_parent_pages(self):
@@ -268,37 +279,61 @@ class TestContentLandingPage(WagtailPageTests):
         self.assertAllowedSubpageTypes(ContentLandingPage, [ContentPage])
 
     def test_template(self):
-        site = Site.objects.first()
-        landing_page = ContentLandingPage.objects.get(slug="about")
-        response = self.client.get(landing_page.relative_url(site))
+        url = self.page.relative_url(self.site)
+        response = self.client.get(url)
         self.assertTemplateUsed(response, "base.html")
         self.assertTemplateUsed(response, "pages/landing_page.html")
         self.assertTemplateUsed(response, "pages/content_landing_page.html")
 
 
-class TestEssayLandingPage(WagtailPageTests):
-    fixtures = ["wagtail_pages"]
+
+############################
+# ESSAY LANDING PAGE tests #
+############################
+
+ESSAYLANDINGPAGE_TITLE="Analysis 2"
+ESSAYLANDINGPAGE_SLUG="analysis2"
+ESSAYLANDINGPAGE_TAGLINE="do some more analysis"
+ESSAYLANDINGPAGE_PARA="the second analysis landing page"
+ESSAYLANDINGPAGE_FOOT=""
+
+ESSAYPAGE_TITLE="Test Analysis"
+ESSAYPAGE_SLUG="test-analysis"
+
+class EssayLandingPageFactory(PageFactory):
+    title=ESSAYLANDINGPAGE_TITLE
+    slug=ESSAYLANDINGPAGE_SLUG
+    tagline=ESSAYLANDINGPAGE_TAGLINE
+    class Meta:
+        model = EssayLandingPage
+
+class EssayPageFactory(PageFactory):
+    title=ESSAYPAGE_TITLE
+    slug=ESSAYPAGE_SLUG
+    class Meta:
+        model = EssayPage
+
+
+class TestEssayLandingPage(PageTester):
+    def setUp(self):
+        super().setUp()
+        self.page = EssayLandingPageFactory.create(
+            body__0__paragraph=RichText(ESSAYLANDINGPAGE_PARA),
+            body__1__footnotes=RichText(ESSAYLANDINGPAGE_FOOT),
+            parent=self.homepage
+        )
+        self.essay = EssayPageFactory.create(parent=self.page)
 
     def test_can_create(self):
-        home = HomePage.objects.first()
-        self.assertCanCreate(
-            home,
-            EssayLandingPage,
-            nested_form_data(
-                {
-                    "title": "Analysis 2",
-                    "slug": "analysis2",
-                    "tagline": "do some more analysis",
-                    "body": streamfield(
-                        [
-                            (
-                                "paragraph",
-                                rich_text("the second analysis landing page"),
-                            ),
-                        ]
-                    ),
-                }
-            ),
+        self.assertIsNotNone(self.page.pk)
+        assert self.page.title == ESSAYLANDINGPAGE_TITLE
+        assert self.page.slug == ESSAYLANDINGPAGE_SLUG
+        assert self.page.tagline == ESSAYLANDINGPAGE_TAGLINE
+        assert_page_body_contains(
+            self.page,
+            ESSAYLANDINGPAGE_PARA,
+            ESSAYLANDINGPAGE_FOOT
+            
         )
 
     def test_parent_pages(self):
@@ -308,16 +343,15 @@ class TestEssayLandingPage(WagtailPageTests):
         self.assertAllowedSubpageTypes(EssayLandingPage, [EssayPage])
 
     def test_template(self):
-        site = Site.objects.first()
-        analysis_index = EssayLandingPage.objects.first()
-        response = self.client.get(analysis_index.relative_url(site))
+        url = self.page.relative_url(self.site)
+        response = self.client.get(url)
         self.assertTemplateUsed(response, "base.html")
         self.assertTemplateUsed(response, "pages/landing_page.html")
         self.assertTemplateUsed(response, "pages/essay_landing_page.html")
 
     def test_get_context(self):
-        analysis_index = EssayLandingPage.objects.first()
-        analysis_essay = EssayPage.objects.get(slug="test-analysis")
+        analysis_index = self.page
+        analysis_essay = self.essay
         context = analysis_index.get_context({})
         assert "essays" in context
         assert analysis_essay in context["essays"]
