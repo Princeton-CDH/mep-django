@@ -22,11 +22,6 @@ from wagtail import blocks
 import factory
 from wagtail.rich_text import RichText
 
-HOMEPAGE_TITLE = "S&Co."
-HOMEPAGE_SLUG= "newhome"
-HOMEPAGE_PARA="homepage body text"
-HOMEPAGE_FOOT="homepage footnotes"
-
 
 class TestLinkableSectionBlock(SimpleTestCase):
     def test_clean(self):
@@ -117,16 +112,50 @@ class TestSVGImageBlock(SimpleTestCase):
         assert desc in html
 
 
-class HomePageFactory(wagtail_factories.PageFactory):
-    title=HOMEPAGE_TITLE
-    slug=HOMEPAGE_SLUG
+##########################
+# PAGE FACTORY for tests #
+##########################
+
+class PageFactory(wagtail_factories.PageFactory):
+    title=""
+    slug=""
     body=wagtail_factories.StreamFieldFactory({
         "paragraph":factory.SubFactory(wagtail_factories.CharBlockFactory),
         "footnotes":factory.SubFactory(wagtail_factories.CharBlockFactory)
     })
 
     class Meta:
+        model = Page
+
+
+
+###################
+# HOME PAGE tests #
+################### 
+
+HOMEPAGE_TITLE = "S&Co."
+HOMEPAGE_SLUG= "newhome"
+HOMEPAGE_PARA="homepage body text"
+HOMEPAGE_FOOT="homepage footnotes"
+
+class HomePageFactory(PageFactory):
+    title=HOMEPAGE_TITLE
+    slug=HOMEPAGE_SLUG
+    class Meta:
         model = HomePage
+
+def assert_page_body_contains(page, paragraph, footnote):
+    body = page.body
+    assert len(body) == 2
+    block1,block2 = body
+    type1,type2=block1.block_type, block2.block_type
+    val1,val2=block1.value.source, block2.value.source
+    assert type1 == 'paragraph'
+    assert val1 == paragraph
+    
+    assert type2 == 'footnotes'
+    assert val2 == footnote
+
 
 class TestHomePage(WagtailPageTests):
     fixtures = ["wagtail_pages"]
@@ -145,18 +174,11 @@ class TestHomePage(WagtailPageTests):
         self.assertIsNotNone(self.homepage.pk)
         assert self.homepage.title == HOMEPAGE_TITLE
         assert self.homepage.slug == HOMEPAGE_SLUG
-        body = self.homepage.body
-
-        assert len(body) == 2
-        block1,block2 = body
-        type1,type2=block1.block_type, block2.block_type
-        val1,val2=block1.value.source, block2.value.source
-
-        assert type1 == 'paragraph'
-        assert val1 == HOMEPAGE_PARA
-        
-        assert type2 == 'footnotes'
-        assert val2 == HOMEPAGE_FOOT
+        assert_page_body_contains(
+            self.homepage,
+            HOMEPAGE_PARA,
+            HOMEPAGE_FOOT
+        )
 
     def test_parent_pages(self):
         self.assertAllowedParentPageTypes(HomePage, [Page])
@@ -173,28 +195,43 @@ class TestHomePage(WagtailPageTests):
         self.assertTemplateUsed(response, "pages/home_page.html")
 
 
+
+
+######################
+# LANDING PAGE tests #
+######################
+
+LANDINGPAGE_TITLE="My Kinda Landing Page!"
+LANDINGPAGE_SLUG="mylp"
+LANDINGPAGE_TAGLINE="now thats what im talkin about"
+LANDINGPAGE_PARA="this landing page rules"
+LANDINGPAGE_FOOT="footnotes to prove it, baby"
+
+class LandingPageFactory(PageFactory):
+    title=LANDINGPAGE_TITLE
+    slug=LANDINGPAGE_SLUG
+    tagline=LANDINGPAGE_TAGLINE
+    class Meta:
+        model = ContentLandingPage
+
 class TestLandingPage(WagtailPageTests):
     fixtures = ["wagtail_pages"]
 
+    def setUp(self):
+        self.page = LandingPageFactory.create(
+            body__0__paragraph=RichText(LANDINGPAGE_PARA),
+            body__1__footnotes=RichText(LANDINGPAGE_FOOT),
+        )
+
     def test_can_create(self):
-        # test by instantiating a non-abstract model that inherits from it
-        home = HomePage.objects.first()
-        self.assertCanCreate(
-            home,
-            ContentLandingPage,
-            nested_form_data(
-                {
-                    "title": "My Kinda Landing Page!",
-                    "slug": "mylp",
-                    "tagline": "now thats what im talkin about",
-                    "body": streamfield(
-                        [
-                            ("paragraph", rich_text("this landing page rules")),
-                            ("footnotes", rich_text("footnotes to prove it, baby")),
-                        ]
-                    ),
-                }
-            ),
+        self.assertIsNotNone(self.page.pk)
+        assert self.page.title == LANDINGPAGE_TITLE
+        assert self.page.slug == LANDINGPAGE_SLUG
+        assert self.page.tagline == LANDINGPAGE_TAGLINE
+        assert_page_body_contains(
+            self.page,
+            LANDINGPAGE_PARA,
+            LANDINGPAGE_FOOT
         )
 
     def test_parent_pages(self):
