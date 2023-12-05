@@ -21,7 +21,8 @@ import wagtail_factories
 from wagtail import blocks
 import factory
 from wagtail.rich_text import RichText
-
+from datetime import timedelta
+from django.utils import timezone
 
 class TestLinkableSectionBlock(SimpleTestCase):
     def test_clean(self):
@@ -123,6 +124,7 @@ class PageFactory(wagtail_factories.PageFactory):
         "paragraph":factory.SubFactory(wagtail_factories.CharBlockFactory),
         "footnotes":factory.SubFactory(wagtail_factories.CharBlockFactory)
     })
+    first_published_at = timezone.now() - timedelta(days=365)
 
     class Meta:
         model = Page
