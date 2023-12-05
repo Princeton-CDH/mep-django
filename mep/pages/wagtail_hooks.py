@@ -1,6 +1,6 @@
 import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from wagtail.admin.rich_text.converters.html_to_contentstate import BlockElementHandler
-from wagtail.core import hooks
+from wagtail import hooks
 
 # blockquote registration example taken from:
 # http://docs.wagtail.io/en/v2.4/advanced_topics/customisation/extending_draftail.html#creating-new-blocks

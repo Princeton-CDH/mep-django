@@ -5,8 +5,7 @@ django-cas-ng
 pucas>=0.8
 eulxml>=1.1.3
 viapy>=0.2
-wagtail>=2.16,<2.17
-# pin for js error with dal>3.5; see https://github.com/Princeton-CDH/mep-django/issues/716
+wagtail>=5.1,<5.2
 django-autocomplete-light>=3.9
 python-dateutil
 django-apptemplates
@@ -34,3 +33,5 @@ tweepy
 beautifulsoup4<4.9
 # require pre-2.9 until upgraded past django 2.2 (or 3.0?)
 psycopg2-binary<2.9
+# TODO: unpin piffle from 0.4 once breaking changes with piffle.iiif are handled
+piffle==0.4

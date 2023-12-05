@@ -6,14 +6,13 @@ from django.http import Http404
 from django.template.defaultfilters import striptags, truncatechars_html
 from django.utils.functional import cached_property
 from django.utils.text import slugify
-from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
-from wagtail.core import blocks
-from wagtail.core.fields import RichTextField, StreamField
-from wagtail.core.models import Page
+from wagtail.admin.panels import FieldPanel
+from wagtail import blocks
+from wagtail.fields import RichTextField, StreamField
+from wagtail.models import Page
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.snippets.models import register_snippet
 
@@ -26,7 +25,7 @@ briefly communicate the intended message of the image in this context."""
 
 
 class CaptionedImageBlock(blocks.StructBlock):
-    """:class:`~wagtail.core.blocks.StructBlock` for an image with
+    """:class:`~wagtail.blocks.StructBlock` for an image with
     alternative text and optional formatted caption, so
     that both caption and alternative text can be context-specific."""
 
@@ -42,7 +41,7 @@ class CaptionedImageBlock(blocks.StructBlock):
 
 
 class SVGImageBlock(blocks.StructBlock):
-    """:class:`~wagtail.core.blocks.StructBlock` for an SVG image with
+    """:class:`~wagtail.blocks.StructBlock` for an SVG image with
     alternative text and optional formatted caption. Separate from
     :class:`CaptionedImageBlock` because Wagtail image handling
     does not work with SVG."""
@@ -86,7 +85,7 @@ bodytext_features = [
 
 
 class LinkableSectionBlock(blocks.StructBlock):
-    """:class:`~wagtail.core.blocks.StructBlock` for a rich text block and an
+    """:class:`~wagtail.blocks.StructBlock` for a rich text block and an
     associated `title` that will render as an <h2>. Creates an anchor (<a>)
     so that the section can be directly linked to using a url fragment."""
 
@@ -127,17 +126,17 @@ class BodyContentBlock(blocks.StreamBlock):
 
 
 class HomePage(Page):
-    """:class:`wagtail.core.models.Page` model for S&Co. home page."""
+    """:class:`wagtail.models.Page` model for S&Co. home page."""
 
     # can only be child of Root
     parent_page_types = [Page]
     # only landingpage subtypes as children
     subpage_types = ["ContentLandingPage", "EssayLandingPage", "ContentPage"]
     #: main page text
-    body = StreamField(BodyContentBlock)
+    body = StreamField(BodyContentBlock, use_json_field=True)
 
     content_panels = Page.content_panels + [
-        StreamFieldPanel("body"),
+        FieldPanel("body"),
     ]
 
     class Meta:
@@ -165,7 +164,7 @@ class RdfPageMixin(RdfViewMixin):
 
 
 class LandingPage(RdfPageMixin, Page):
-    """Abstract :class:`wagtail.core.models.Page` model for aggregating other
+    """Abstract :class:`wagtail.models.Page` model for aggregating other
     pages as its children."""
 
     # must be a child of the HomePage directly
@@ -173,7 +172,7 @@ class LandingPage(RdfPageMixin, Page):
     #: short introductory text shown just below the header, before content
     tagline = models.CharField(max_length=500)
     #: main page text
-    body = StreamField(BodyContentBlock, blank=True)
+    body = StreamField(BodyContentBlock, blank=True, use_json_field=True)
     #: image that will be used for the header
     header_image = models.ForeignKey(
         "wagtailimages.image",
@@ -184,9 +183,9 @@ class LandingPage(RdfPageMixin, Page):
     )
 
     content_panels = Page.content_panels + [
-        ImageChooserPanel("header_image"),
+        FieldPanel("header_image"),
         FieldPanel("tagline"),
-        StreamFieldPanel("body"),
+        FieldPanel("body"),
     ]
 
     class Meta:
@@ -391,22 +390,24 @@ class Person(models.Model):
 
 
 class BasePage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
-    """Abstract :class:`wagtail.core.models.Page` model that contains all
+    """Abstract :class:`wagtail.models.Page` model that contains all
     functionality to be shared across `Page` subtypes."""
 
     #: main page text
-    body = StreamField(BodyContentBlock)
+    body = StreamField(BodyContentBlock, use_json_field=True)
     #: authors - collection of Person snippets
     authors = StreamField(
         [("author", SnippetChooserBlock(Person))],
         blank=True,
-        help_text="Select or create new people to add as authors.",
+        help_text="Select or create new people to add as authors.", 
+        use_json_field=True
     )
     #: editors - collection of Person snippets
     editors = StreamField(
         [("editor", SnippetChooserBlock(Person))],
         blank=True,
         help_text="Select or create new people to add as editors.",
+        use_json_field=True
     )
     #: featured image for tile preview and social media
     featured_image = models.ForeignKey(
@@ -421,10 +422,10 @@ class BasePage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
 
     content_panels = Page.content_panels + [
         FieldPanel("description"),
-        StreamFieldPanel("authors"),
-        StreamFieldPanel("editors"),
-        ImageChooserPanel("featured_image"),
-        StreamFieldPanel("body"),
+        FieldPanel("authors"),
+        FieldPanel("editors"),
+        FieldPanel("featured_image"),
+        FieldPanel("body"),
     ]
 
     class Meta:

@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     "wagtail.images",
     "wagtail.admin",
     "wagtail.contrib.legacy.richtext",  # preserve rich-text class behavior after wagtail 2.10
-    "wagtail.core",
+    "wagtail",
     "wagtail.embeds",
     "wagtail.contrib.redirects",
     "taggit",
@@ -322,3 +322,5 @@ WEBPACK_LOADER = {
         "IGNORE": [r".+\.hot-update.js", r".+\.map"],
     }
 }
+
+WAGTAILADMIN_BASE_URL = "https://shakespeareandco.princeton.edu/cms/"
