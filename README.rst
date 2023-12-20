@@ -12,7 +12,7 @@ bookstore and lending library in Paris.
 
 (This project was previously called "Mapping Expatriate Paris" or MEP).
 
-Python 3.6 / Django 2.2 / Node 10.5.0 / Postgresql 13 / Solr 8
+Python 3.8 / Django 3.2 / Node 18 / Postgresql 13 / Solr 8
 
 .. image:: https://github.com/Princeton-CDH/mep-django/workflows/unit_tests/badge.svg
     :target: https://github.com/Princeton-CDH/mep-django/actions?query=workflow%3Aunit_tests
@@ -40,15 +40,31 @@ Development instructions
 
 Initial setup and installation:
 
-- recommended: create and activate a python 3.5 virtualenv::
+- recommended: create and activate a python 3.8 virtual environment. Using pyenv:
 
-    virtualenv mep -p python3.5
-    source mep/bin/activate
+    # if pyenv is not installed
+    curl https://pyenv.run | bash
+
+    # get recommended python version
+    vnum=$(cat .python-version)
+
+    # install that version
+    pyenv install $vnum
+
+    # activate it
+    pyenv shell $num   
+
+    # create virtual environmnt
+    python -m venv venv
+
+    # activate virtual environment
+    . venv/bin/activate
 
 - Install required python dependencies::
 
-    pip install -r requirements.txt
+    # install requirements
     pip install -r dev-requirements.txt
+    pip install -r requirements.txt
 
 - Install javascript dependencies::
 
@@ -182,6 +198,23 @@ Then, run pa11y-ci to craw the sitemap and test for accessibility issues::
 
 Running with ``DEBUG`` enabled will include the (inaccessible) Django
 debug toolbar, so you'll probably want to turn it off.
+
+Setup pre-commit hooks
+~~~~~~~~~~~~~~~~~~~~~~
+
+If you plan to contribute to this repository, please run the following command:
+
+    pre-commit install
+
+This will add a pre-commit hook to automatically format python code with `black <https://github.com/psf/black>`_.
+
+Because these styling conventions were instituted after multiple releases of development on this project, ``git blame`` may not reflect the true author of a given line. In order to see a more accurate ``git blame`` execute the following command:
+
+    git blame <FILE> --ignore-revs-file .git-blame-ignore-revs
+
+Or configure your git to always ignore styling revision commits:
+
+    git config blame.ignoreRevsFile .git-blame-ignore-revs
 
 Documentation
 -------------

@@ -3,42 +3,483 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-import wagtail.core.blocks
-import wagtail.core.fields
+import wagtail.blocks
+import wagtail.fields
 import wagtail.documents.blocks
 import wagtail.images.blocks
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('pages', '0007_essay_landingpage_and_creators'),
+        ("pages", "0007_essay_landingpage_and_creators"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contentlandingpage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul', 'blockquote'])), ('image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('alternative_text', wagtail.core.blocks.TextBlock(help_text='Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.', required=True)), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link'], required=False))])), ('svg_image', wagtail.core.blocks.StructBlock([('image', wagtail.documents.blocks.DocumentChooserBlock()), ('alternative_text', wagtail.core.blocks.TextBlock(help_text='Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.', required=True)), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link'], required=False))])), ('document', wagtail.documents.blocks.DocumentChooserBlock()), ('footnotes', wagtail.core.blocks.RichTextBlock(classname='footnotes', features=['ol', 'ul', 'bold', 'italic', 'link'])), ('linkable_section', wagtail.core.blocks.StructBlock([('title', wagtail.core.blocks.CharBlock()), ('anchor_text', wagtail.core.blocks.CharBlock(help_text='Short label for anchor link')), ('body', wagtail.core.blocks.RichTextBlock())]))], blank=True),
+            model_name="contentlandingpage",
+            name="body",
+            field=wagtail.fields.StreamField(
+                [
+                    (
+                        "paragraph",
+                        wagtail.blocks.RichTextBlock(
+                            features=[
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "link",
+                                "ol",
+                                "ul",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    (
+                        "image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "alternative_text",
+                                    wagtail.blocks.TextBlock(
+                                        help_text="Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.",
+                                        required=True,
+                                    ),
+                                ),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"],
+                                        required=False,
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    (
+                        "svg_image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                (
+                                    "image",
+                                    wagtail.documents.blocks.DocumentChooserBlock(),
+                                ),
+                                (
+                                    "alternative_text",
+                                    wagtail.blocks.TextBlock(
+                                        help_text="Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.",
+                                        required=True,
+                                    ),
+                                ),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"],
+                                        required=False,
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "footnotes",
+                        wagtail.blocks.RichTextBlock(
+                            classname="footnotes",
+                            features=["ol", "ul", "bold", "italic", "link"],
+                        ),
+                    ),
+                    (
+                        "linkable_section",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("title", wagtail.blocks.CharBlock()),
+                                (
+                                    "anchor_text",
+                                    wagtail.blocks.CharBlock(
+                                        help_text="Short label for anchor link"
+                                    ),
+                                ),
+                                ("body", wagtail.blocks.RichTextBlock()),
+                            ]
+                        ),
+                    ),
+                ],
+                blank=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='contentpage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul', 'blockquote'])), ('image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('alternative_text', wagtail.core.blocks.TextBlock(help_text='Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.', required=True)), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link'], required=False))])), ('svg_image', wagtail.core.blocks.StructBlock([('image', wagtail.documents.blocks.DocumentChooserBlock()), ('alternative_text', wagtail.core.blocks.TextBlock(help_text='Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.', required=True)), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link'], required=False))])), ('document', wagtail.documents.blocks.DocumentChooserBlock()), ('footnotes', wagtail.core.blocks.RichTextBlock(classname='footnotes', features=['ol', 'ul', 'bold', 'italic', 'link'])), ('linkable_section', wagtail.core.blocks.StructBlock([('title', wagtail.core.blocks.CharBlock()), ('anchor_text', wagtail.core.blocks.CharBlock(help_text='Short label for anchor link')), ('body', wagtail.core.blocks.RichTextBlock())]))]),
+            model_name="contentpage",
+            name="body",
+            field=wagtail.fields.StreamField(
+                [
+                    (
+                        "paragraph",
+                        wagtail.blocks.RichTextBlock(
+                            features=[
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "link",
+                                "ol",
+                                "ul",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    (
+                        "image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "alternative_text",
+                                    wagtail.blocks.TextBlock(
+                                        help_text="Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.",
+                                        required=True,
+                                    ),
+                                ),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"],
+                                        required=False,
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    (
+                        "svg_image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                (
+                                    "image",
+                                    wagtail.documents.blocks.DocumentChooserBlock(),
+                                ),
+                                (
+                                    "alternative_text",
+                                    wagtail.blocks.TextBlock(
+                                        help_text="Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.",
+                                        required=True,
+                                    ),
+                                ),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"],
+                                        required=False,
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "footnotes",
+                        wagtail.blocks.RichTextBlock(
+                            classname="footnotes",
+                            features=["ol", "ul", "bold", "italic", "link"],
+                        ),
+                    ),
+                    (
+                        "linkable_section",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("title", wagtail.blocks.CharBlock()),
+                                (
+                                    "anchor_text",
+                                    wagtail.blocks.CharBlock(
+                                        help_text="Short label for anchor link"
+                                    ),
+                                ),
+                                ("body", wagtail.blocks.RichTextBlock()),
+                            ]
+                        ),
+                    ),
+                ]
+            ),
         ),
         migrations.AlterField(
-            model_name='essaylandingpage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul', 'blockquote'])), ('image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('alternative_text', wagtail.core.blocks.TextBlock(help_text='Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.', required=True)), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link'], required=False))])), ('svg_image', wagtail.core.blocks.StructBlock([('image', wagtail.documents.blocks.DocumentChooserBlock()), ('alternative_text', wagtail.core.blocks.TextBlock(help_text='Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.', required=True)), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link'], required=False))])), ('document', wagtail.documents.blocks.DocumentChooserBlock()), ('footnotes', wagtail.core.blocks.RichTextBlock(classname='footnotes', features=['ol', 'ul', 'bold', 'italic', 'link'])), ('linkable_section', wagtail.core.blocks.StructBlock([('title', wagtail.core.blocks.CharBlock()), ('anchor_text', wagtail.core.blocks.CharBlock(help_text='Short label for anchor link')), ('body', wagtail.core.blocks.RichTextBlock())]))], blank=True),
+            model_name="essaylandingpage",
+            name="body",
+            field=wagtail.fields.StreamField(
+                [
+                    (
+                        "paragraph",
+                        wagtail.blocks.RichTextBlock(
+                            features=[
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "link",
+                                "ol",
+                                "ul",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    (
+                        "image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "alternative_text",
+                                    wagtail.blocks.TextBlock(
+                                        help_text="Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.",
+                                        required=True,
+                                    ),
+                                ),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"],
+                                        required=False,
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    (
+                        "svg_image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                (
+                                    "image",
+                                    wagtail.documents.blocks.DocumentChooserBlock(),
+                                ),
+                                (
+                                    "alternative_text",
+                                    wagtail.blocks.TextBlock(
+                                        help_text="Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.",
+                                        required=True,
+                                    ),
+                                ),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"],
+                                        required=False,
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "footnotes",
+                        wagtail.blocks.RichTextBlock(
+                            classname="footnotes",
+                            features=["ol", "ul", "bold", "italic", "link"],
+                        ),
+                    ),
+                    (
+                        "linkable_section",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("title", wagtail.blocks.CharBlock()),
+                                (
+                                    "anchor_text",
+                                    wagtail.blocks.CharBlock(
+                                        help_text="Short label for anchor link"
+                                    ),
+                                ),
+                                ("body", wagtail.blocks.RichTextBlock()),
+                            ]
+                        ),
+                    ),
+                ],
+                blank=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='essaypage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul', 'blockquote'])), ('image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('alternative_text', wagtail.core.blocks.TextBlock(help_text='Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.', required=True)), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link'], required=False))])), ('svg_image', wagtail.core.blocks.StructBlock([('image', wagtail.documents.blocks.DocumentChooserBlock()), ('alternative_text', wagtail.core.blocks.TextBlock(help_text='Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.', required=True)), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link'], required=False))])), ('document', wagtail.documents.blocks.DocumentChooserBlock()), ('footnotes', wagtail.core.blocks.RichTextBlock(classname='footnotes', features=['ol', 'ul', 'bold', 'italic', 'link'])), ('linkable_section', wagtail.core.blocks.StructBlock([('title', wagtail.core.blocks.CharBlock()), ('anchor_text', wagtail.core.blocks.CharBlock(help_text='Short label for anchor link')), ('body', wagtail.core.blocks.RichTextBlock())]))]),
+            model_name="essaypage",
+            name="body",
+            field=wagtail.fields.StreamField(
+                [
+                    (
+                        "paragraph",
+                        wagtail.blocks.RichTextBlock(
+                            features=[
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "link",
+                                "ol",
+                                "ul",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    (
+                        "image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "alternative_text",
+                                    wagtail.blocks.TextBlock(
+                                        help_text="Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.",
+                                        required=True,
+                                    ),
+                                ),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"],
+                                        required=False,
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    (
+                        "svg_image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                (
+                                    "image",
+                                    wagtail.documents.blocks.DocumentChooserBlock(),
+                                ),
+                                (
+                                    "alternative_text",
+                                    wagtail.blocks.TextBlock(
+                                        help_text="Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.",
+                                        required=True,
+                                    ),
+                                ),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"],
+                                        required=False,
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "footnotes",
+                        wagtail.blocks.RichTextBlock(
+                            classname="footnotes",
+                            features=["ol", "ul", "bold", "italic", "link"],
+                        ),
+                    ),
+                    (
+                        "linkable_section",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("title", wagtail.blocks.CharBlock()),
+                                (
+                                    "anchor_text",
+                                    wagtail.blocks.CharBlock(
+                                        help_text="Short label for anchor link"
+                                    ),
+                                ),
+                                ("body", wagtail.blocks.RichTextBlock()),
+                            ]
+                        ),
+                    ),
+                ]
+            ),
         ),
         migrations.AlterField(
-            model_name='homepage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul', 'blockquote'])), ('image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('alternative_text', wagtail.core.blocks.TextBlock(help_text='Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.', required=True)), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link'], required=False))])), ('svg_image', wagtail.core.blocks.StructBlock([('image', wagtail.documents.blocks.DocumentChooserBlock()), ('alternative_text', wagtail.core.blocks.TextBlock(help_text='Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.', required=True)), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link'], required=False))])), ('document', wagtail.documents.blocks.DocumentChooserBlock()), ('footnotes', wagtail.core.blocks.RichTextBlock(classname='footnotes', features=['ol', 'ul', 'bold', 'italic', 'link'])), ('linkable_section', wagtail.core.blocks.StructBlock([('title', wagtail.core.blocks.CharBlock()), ('anchor_text', wagtail.core.blocks.CharBlock(help_text='Short label for anchor link')), ('body', wagtail.core.blocks.RichTextBlock())]))]),
+            model_name="homepage",
+            name="body",
+            field=wagtail.fields.StreamField(
+                [
+                    (
+                        "paragraph",
+                        wagtail.blocks.RichTextBlock(
+                            features=[
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "link",
+                                "ol",
+                                "ul",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    (
+                        "image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "alternative_text",
+                                    wagtail.blocks.TextBlock(
+                                        help_text="Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.",
+                                        required=True,
+                                    ),
+                                ),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"],
+                                        required=False,
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    (
+                        "svg_image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                (
+                                    "image",
+                                    wagtail.documents.blocks.DocumentChooserBlock(),
+                                ),
+                                (
+                                    "alternative_text",
+                                    wagtail.blocks.TextBlock(
+                                        help_text="Alternative text for visually impaired users to\nbriefly communicate the intended message of the image in this context.",
+                                        required=True,
+                                    ),
+                                ),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"],
+                                        required=False,
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "footnotes",
+                        wagtail.blocks.RichTextBlock(
+                            classname="footnotes",
+                            features=["ol", "ul", "bold", "italic", "link"],
+                        ),
+                    ),
+                    (
+                        "linkable_section",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("title", wagtail.blocks.CharBlock()),
+                                (
+                                    "anchor_text",
+                                    wagtail.blocks.CharBlock(
+                                        help_text="Short label for anchor link"
+                                    ),
+                                ),
+                                ("body", wagtail.blocks.RichTextBlock()),
+                            ]
+                        ),
+                    ),
+                ]
+            ),
         ),
     ]

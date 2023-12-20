@@ -3,7 +3,7 @@ name: unit_tests
 on: [push, pull_request]
 
 env:
-  NODE_VERSION: 10
+  NODE_VERSION: 18
   DB_NAME: shxco
   DB_USER: shxco
   DB_PASSWORD: shxco
@@ -16,13 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Setup node
-      uses: actions/setup-node@v2-beta
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ env.NODE_VERSION }}
     - name: Cache node modules
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.npm
         key: npm-${{ hashFiles('package-lock.json') }}
@@ -34,12 +34,12 @@ jobs:
     - name: Run webpack build
       run: npm run build:prod
     - name: Upload built files
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: bundles
         path: bundles/
     - name: Upload stats file
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: webpack-stats.json
         path: webpack-stats.json
@@ -49,13 +49,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Setup node
-      uses: actions/setup-node@v2-beta
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ env.NODE_VERSION }}
     - name: Cache node modules
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.npm
         key: npm-${{ hashFiles('package-lock.json') }}
@@ -67,7 +67,7 @@ jobs:
     - name: Run Jest
       run: npx jest --collectCoverage
     - name: Upload test coverage to Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
       with:
         flags: typescript
 
@@ -90,7 +90,7 @@ jobs:
           - 8983:8983
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # use docker cp to copy the configset, then bash to set ownership to solr
       - name: Copy Solr configset to solr service
@@ -107,12 +107,12 @@ jobs:
         run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_ENV
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: pip-${{ matrix.python }}-${{ hashFiles('requirements.txt') }}
@@ -127,7 +127,7 @@ jobs:
           pip install -r dev-requirements.txt
 
       - name: Download webpack stats
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: webpack-stats.json
 
@@ -140,7 +140,7 @@ jobs:
         run: py.test --cov=./ --cov-report=xml
 
       - name: Upload test coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           flags: python
 
@@ -156,7 +156,7 @@ jobs:
       # at the organization level and available to all repositories. Only run on
       # scheduled builds & pushes, since PRs automatically report to Slack.
       - name: Report status to Slack
-        uses: rtCamp/action-slack-notify@master
+        uses: rtCamp/action-slack-notify@v2
         if: ${{ always() && (github.event_name == 'schedule' || github.event_name == 'push') }}
         continue-on-error: true
         env:

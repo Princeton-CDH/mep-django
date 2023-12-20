@@ -5,10 +5,11 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 INITIAL_FORMATS = [
-    ('Book', 'http://schema.org/Book'),
-    ('Periodical', 'http://schema.org/Periodical'),
-    ('Article', 'http://schema.org/Article')
+    ("Book", "http://schema.org/Book"),
+    ("Periodical", "http://schema.org/Periodical"),
+    ("Article", "http://schema.org/Article"),
 ]
+
 
 def initial_item_formats(apps, schema_editor):
     Format = apps.get_model("books", "Format")
@@ -18,13 +19,8 @@ def initial_item_formats(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0009_item_format'),
+        ("books", "0009_item_format"),
     ]
 
-    operations = [
-        migrations.RunPython(initial_item_formats,
-                             migrations.RunPython.noop)
-
-    ]
+    operations = [migrations.RunPython(initial_item_formats, migrations.RunPython.noop)]

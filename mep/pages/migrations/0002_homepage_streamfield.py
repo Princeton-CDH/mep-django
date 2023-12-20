@@ -3,22 +3,48 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-import wagtail.core.blocks
-import wagtail.core.fields
+import wagtail.blocks
+import wagtail.fields
 import wagtail.documents.blocks
 import wagtail.images.blocks
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('pages', '0001_initial'),
+        ("pages", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='homepage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock()), ('image', wagtail.images.blocks.ImageChooserBlock()), ('captioned_image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link']))])), ('document', wagtail.documents.blocks.DocumentChooserBlock()), ('footnotes', wagtail.core.blocks.RichTextBlock(classname='footnotes', features=['ol', 'ul', 'bold', 'italic', 'link']))]),
+            model_name="homepage",
+            name="body",
+            field=wagtail.fields.StreamField(
+                [
+                    ("paragraph", wagtail.blocks.RichTextBlock()),
+                    ("image", wagtail.images.blocks.ImageChooserBlock()),
+                    (
+                        "captioned_image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"]
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "footnotes",
+                        wagtail.blocks.RichTextBlock(
+                            classname="footnotes",
+                            features=["ol", "ul", "bold", "italic", "link"],
+                        ),
+                    ),
+                ]
+            ),
         ),
     ]

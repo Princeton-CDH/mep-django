@@ -4,43 +4,175 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
-import wagtail.core.blocks
-import wagtail.core.fields
+import wagtail.blocks
+import wagtail.fields
 import wagtail.documents.blocks
 import wagtail.images.blocks
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('wagtailimages', '0021_image_file_hash'),
-        ('pages', '0002_homepage_streamfield'),
+        ("wagtailimages", "0021_image_file_hash"),
+        ("pages", "0002_homepage_streamfield"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='contentpage',
-            name='description',
-            field=wagtail.core.fields.RichTextField(blank=True, help_text='Optional. Brief description for preview display. Will also be used for search description (without tags), if one is not entered.'),
+            model_name="contentpage",
+            name="description",
+            field=wagtail.fields.RichTextField(
+                blank=True,
+                help_text="Optional. Brief description for preview display. Will also be used for search description (without tags), if one is not entered.",
+            ),
         ),
         migrations.AddField(
-            model_name='contentpage',
-            name='featured_image',
-            field=models.ForeignKey(blank=True, help_text='Preview image for landing page list (if supported) and social media.', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='wagtailimages.Image'),
+            model_name="contentpage",
+            name="featured_image",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Preview image for landing page list (if supported) and social media.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="+",
+                to="wagtailimages.Image",
+            ),
         ),
         migrations.AlterField(
-            model_name='contentpage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul', 'blockquote'])), ('image', wagtail.images.blocks.ImageChooserBlock()), ('captioned_image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link']))])), ('document', wagtail.documents.blocks.DocumentChooserBlock()), ('footnotes', wagtail.core.blocks.RichTextBlock(classname='footnotes', features=['ol', 'ul', 'bold', 'italic', 'link']))]),
+            model_name="contentpage",
+            name="body",
+            field=wagtail.fields.StreamField(
+                [
+                    (
+                        "paragraph",
+                        wagtail.blocks.RichTextBlock(
+                            features=[
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "link",
+                                "ol",
+                                "ul",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    ("image", wagtail.images.blocks.ImageChooserBlock()),
+                    (
+                        "captioned_image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"]
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "footnotes",
+                        wagtail.blocks.RichTextBlock(
+                            classname="footnotes",
+                            features=["ol", "ul", "bold", "italic", "link"],
+                        ),
+                    ),
+                ]
+            ),
         ),
         migrations.AlterField(
-            model_name='homepage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul', 'blockquote'])), ('image', wagtail.images.blocks.ImageChooserBlock()), ('captioned_image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link']))])), ('document', wagtail.documents.blocks.DocumentChooserBlock()), ('footnotes', wagtail.core.blocks.RichTextBlock(classname='footnotes', features=['ol', 'ul', 'bold', 'italic', 'link']))]),
+            model_name="homepage",
+            name="body",
+            field=wagtail.fields.StreamField(
+                [
+                    (
+                        "paragraph",
+                        wagtail.blocks.RichTextBlock(
+                            features=[
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "link",
+                                "ol",
+                                "ul",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    ("image", wagtail.images.blocks.ImageChooserBlock()),
+                    (
+                        "captioned_image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"]
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "footnotes",
+                        wagtail.blocks.RichTextBlock(
+                            classname="footnotes",
+                            features=["ol", "ul", "bold", "italic", "link"],
+                        ),
+                    ),
+                ]
+            ),
         ),
         migrations.AlterField(
-            model_name='landingpage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul', 'blockquote'])), ('image', wagtail.images.blocks.ImageChooserBlock()), ('captioned_image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link']))])), ('document', wagtail.documents.blocks.DocumentChooserBlock()), ('footnotes', wagtail.core.blocks.RichTextBlock(classname='footnotes', features=['ol', 'ul', 'bold', 'italic', 'link']))]),
+            model_name="landingpage",
+            name="body",
+            field=wagtail.fields.StreamField(
+                [
+                    (
+                        "paragraph",
+                        wagtail.blocks.RichTextBlock(
+                            features=[
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "link",
+                                "ol",
+                                "ul",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    ("image", wagtail.images.blocks.ImageChooserBlock()),
+                    (
+                        "captioned_image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"]
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "footnotes",
+                        wagtail.blocks.RichTextBlock(
+                            classname="footnotes",
+                            features=["ol", "ul", "bold", "italic", "link"],
+                        ),
+                    ),
+                ]
+            ),
         ),
     ]

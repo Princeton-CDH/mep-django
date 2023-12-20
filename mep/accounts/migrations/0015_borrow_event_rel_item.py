@@ -7,21 +7,27 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0003_initial_creator_types'),
-        ('accounts', '0014_add_address_rel_to_person'),
+        ("books", "0003_initial_creator_types"),
+        ("accounts", "0014_add_address_rel_to_person"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='borrow',
-            name='item',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='books.Item'),
+            model_name="borrow",
+            name="item",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="books.Item",
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='persons',
-            field=models.ManyToManyField(blank=True, to='people.Person', verbose_name='Account holder(s)'),
+            model_name="account",
+            name="persons",
+            field=models.ManyToManyField(
+                blank=True, to="people.Person", verbose_name="Account holder(s)"
+            ),
         ),
     ]

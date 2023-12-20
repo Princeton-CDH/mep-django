@@ -5,8 +5,8 @@ from django.db import migrations
 
 
 def calculate_purchase_date(apps, schema_editor):
-    '''populate purchase dates for subscription events'''
-    Subscription = apps.get_model('accounts', 'Subscription')
+    """populate purchase dates for subscription events"""
+    Subscription = apps.get_model("accounts", "Subscription")
 
     for sub in Subscription.objects.all():
         # in all cases, set purchase date from start date
@@ -17,13 +17,15 @@ def calculate_purchase_date(apps, schema_editor):
         # if this is a renewal with a start date, check if there is a
         # preceding subscription and recalculate subscription dates
         # - ignore supplements, since we expect them to overlap
-        if sub.start_date and sub.subtype != 'sup':
+        if sub.start_date and sub.subtype != "sup":
             # find closest preceding subscription for the same account
-            preceding_sub = Subscription.objects \
-                .filter(account=sub.account,
-                        start_date__lt=sub.start_date) \
-                .exclude(pk=sub.pk) \
+            preceding_sub = (
+                Subscription.objects.filter(
+                    account=sub.account, start_date__lt=sub.start_date
+                )
+                .exclude(pk=sub.pk)
                 .last()
+            )
 
             # if there is a preceding subscription with an end date
             if preceding_sub and preceding_sub.end_date:
@@ -43,9 +45,8 @@ def calculate_purchase_date(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0032_subscription_add_purchase_date'),
+        ("accounts", "0032_subscription_add_purchase_date"),
     ]
 
     operations = [

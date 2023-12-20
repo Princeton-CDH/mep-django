@@ -3,54 +3,58 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import wagtail.core.blocks
-import wagtail.core.fields
+import wagtail.blocks
+import wagtail.fields
 import wagtail.documents.blocks
 import wagtail.images.blocks
 
 
 def split_names(apps, schema_editor):
-    '''Splits the name of each Person on its final space, setting first_name to
-    everything before that space and last_name to everything after.'''
-    Person = apps.get_model('pages', 'Person')
+    """Splits the name of each Person on its final space, setting first_name to
+    everything before that space and last_name to everything after."""
+    Person = apps.get_model("pages", "Person")
     for person in Person.objects.all():
-        (person.first_name, _, person.last_name) = person.name.rpartition(' ')
+        (person.first_name, _, person.last_name) = person.name.rpartition(" ")
         person.save()
 
 
 def join_names(apps, schema_editor):
-    '''Joins the first_name and last_name of each Person into a single name.'''
-    Person = apps.get_model('pages', 'Person')
+    """Joins the first_name and last_name of each Person into a single name."""
+    Person = apps.get_model("pages", "Person")
     for person in Person.objects.all():
-        person.name = '%s %s' % (person.first_name, person.last_name)
+        person.name = "%s %s" % (person.first_name, person.last_name)
         person.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('pages', '0009_svg_extended_description'),
+        ("pages", "0009_svg_extended_description"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='person',
-            name='first_name',
-            field=models.CharField(default='', help_text='First or given name and all non-family or middle names, e.g."Henry Wadsworth", as it would appear in a citation.', max_length=255),
+            model_name="person",
+            name="first_name",
+            field=models.CharField(
+                default="",
+                help_text='First or given name and all non-family or middle names, e.g."Henry Wadsworth", as it would appear in a citation.',
+                max_length=255,
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='person',
-            name='last_name',
-            field=models.CharField(default='', help_text='Last or family name, e.g. "Longfellow".', max_length=255),
+            model_name="person",
+            name="last_name",
+            field=models.CharField(
+                default="",
+                help_text='Last or family name, e.g. "Longfellow".',
+                max_length=255,
+            ),
             preserve_default=False,
         ),
-        migrations.RunPython(
-            split_names,
-            reverse_code=join_names
-        ),
+        migrations.RunPython(split_names, reverse_code=join_names),
         migrations.RemoveField(
-            model_name='person',
-            name='name',
+            model_name="person",
+            name="name",
         ),
     ]

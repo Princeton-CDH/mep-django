@@ -12,9 +12,9 @@ def rename_pul_specialcollections(apps, schema_editor):
     User = apps.get_model("auth", "User")
     LogEntry = apps.get_model("admin", "LogEntry")
 
-
     bibl_content_type = ContentType.objects.get(
-        app_label="footnotes", model="bibliography",
+        app_label="footnotes",
+        model="bibliography",
     )
     script_user = User.objects.get(username=settings.SCRIPT_USERNAME)
 
@@ -29,7 +29,9 @@ def rename_pul_specialcollections(apps, schema_editor):
     update_pks = list(to_update.values_list("pk", flat=True))
     # do a bulk update to replace the text
     to_update.update(
-        bibliographic_note=Replace("bibliographic_note", Value(from_text), Value(to_text))
+        bibliographic_note=Replace(
+            "bibliographic_note", Value(from_text), Value(to_text)
+        )
     )
     # get fresh copies of the updated records and create log entries
     for record in Bibliography.objects.filter(pk__in=update_pks):
@@ -39,17 +41,15 @@ def rename_pul_specialcollections(apps, schema_editor):
             object_id=record.pk,
             object_repr=str(record),
             action_flag=CHANGE,
-            change_message="Updated PUL Special Collections name in bibliographic note"
-            )
+            change_message="Updated PUL Special Collections name in bibliographic note",
+        )
+
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("footnotes", "0006_alter_footnote_content_type"),
     ]
 
     operations = [
-        migrations.RunPython(rename_pul_specialcollections,
-                        migrations.RunPython.noop)
-
+        migrations.RunPython(rename_pul_specialcollections, migrations.RunPython.noop)
     ]

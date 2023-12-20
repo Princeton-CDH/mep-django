@@ -5,25 +5,38 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0017_person_require_unique_slugs'),
+        ("people", "0017_person_require_unique_slugs"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='location',
-            name='country',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='people.Country'),
+            model_name="location",
+            name="country",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="people.Country",
+            ),
         ),
         migrations.AlterField(
-            model_name='person',
-            name='profession',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='people.Profession'),
+            model_name="person",
+            name="profession",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="people.Profession",
+            ),
         ),
         migrations.AlterField(
-            model_name='person',
-            name='slug',
-            field=models.SlugField(help_text='Short, durable, unique identifier for use in URLs. Editing will change the public, citable URL for library members.', max_length=100, unique=True),
+            model_name="person",
+            name="slug",
+            field=models.SlugField(
+                help_text="Short, durable, unique identifier for use in URLs. Editing will change the public, citable URL for library members.",
+                max_length=100,
+                unique=True,
+            ),
         ),
     ]

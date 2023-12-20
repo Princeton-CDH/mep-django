@@ -7,16 +7,21 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0015_split_work_edition'),
-        ('accounts', '0029_event_item_to_work'),
+        ("books", "0015_split_work_edition"),
+        ("accounts", "0029_event_item_to_work"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='edition',
-            field=models.ForeignKey(blank=True, help_text='Edition of the work, if known.', null=True, on_delete=django.db.models.deletion.SET_NULL, to='books.Edition'),
+            model_name="event",
+            name="edition",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Edition of the work, if known.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="books.Edition",
+            ),
         ),
     ]

@@ -6,15 +6,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0004_viaf_to_uri'),
+        ("books", "0004_viaf_to_uri"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='item',
-            name='mep_id',
-            field=models.CharField(blank=True, max_length=255, null=True, unique=True, verbose_name='MEP ID'),
+            model_name="item",
+            name="mep_id",
+            field=models.CharField(
+                blank=True,
+                max_length=255,
+                null=True,
+                unique=True,
+                verbose_name="MEP ID",
+            ),
         ),
     ]

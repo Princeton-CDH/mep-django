@@ -14,6 +14,12 @@
             "dom", // assume DOM APIs are present
             "dom.iterable", // assume newer DOM APIs are present
         ],
+         "useDefineForClassFields": false,
+        /* Linting */
+        "strict": false,
+        // "noUnusedLocals": true,
+        // "noUnusedParameters": true,
+        // "noFallthroughCasesInSwitch": true
     },
     "include": [
         "srcmedia/"

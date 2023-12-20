@@ -4,15 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0035_merge_20201210_1240'),
+        ("accounts", "0035_merge_20201210_1240"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subscription',
-            name='subtype',
-            field=models.CharField(blank=True, choices=[('', 'Subscription'), ('sup', 'Supplement'), ('ren', 'Renewal'), ('oth', 'Separate Payment')], help_text='Type of subscription event, e.g. supplement or renewal.', max_length=50, verbose_name='Type'),
+            model_name="subscription",
+            name="subtype",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "Subscription"),
+                    ("sup", "Supplement"),
+                    ("ren", "Renewal"),
+                    ("oth", "Separate Payment"),
+                ],
+                help_text="Type of subscription event, e.g. supplement or renewal.",
+                max_length=50,
+                verbose_name="Type",
+            ),
         ),
     ]

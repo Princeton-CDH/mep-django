@@ -6,28 +6,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0012_recalculate_durations'),
+        ("accounts", "0012_recalculate_durations"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='AccountAddress',
-            new_name='Address',
+            old_name="AccountAddress",
+            new_name="Address",
         ),
         migrations.AlterModelOptions(
-            name='address',
-            options={'verbose_name': 'Address'},
+            name="address",
+            options={"verbose_name": "Address"},
         ),
-       migrations.RenameField(
-            model_name='account',
-            old_name='addresses',
-            new_name='locations',
+        migrations.RenameField(
+            model_name="account",
+            old_name="addresses",
+            new_name="locations",
         ),
         migrations.AlterField(
-            model_name='subscription',
-            name='duration',
-            field=models.PositiveIntegerField(blank=True, help_text='Subscription duration in days. Automatically calculated from start and end date.', null=True, verbose_name='Days'),
+            model_name="subscription",
+            name="duration",
+            field=models.PositiveIntegerField(
+                blank=True,
+                help_text="Subscription duration in days. Automatically calculated from start and end date.",
+                null=True,
+                verbose_name="Days",
+            ),
         ),
     ]

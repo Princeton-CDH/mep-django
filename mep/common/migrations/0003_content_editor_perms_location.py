@@ -7,8 +7,12 @@ from django.db import migrations
 
 
 new_content_editor_perms = [
-    'add_address', 'change_address', 'delete_address',
-    'add_location', 'change_location', 'delete_location',
+    "add_address",
+    "change_address",
+    "delete_address",
+    "add_location",
+    "change_location",
+    "delete_location",
 ]
 
 
@@ -24,7 +28,7 @@ def update_content_editor_group(apps, schema_editor):
         create_permissions(app_config, apps=apps, verbosity=0)
         app_config.models_module = None
 
-    editor_group = Group.objects.get(name='Content Editor')
+    editor_group = Group.objects.get(name="Content Editor")
     permissions = []
     for codename in new_content_editor_perms:
         # using explicit get so that there will be an error if an
@@ -36,12 +40,12 @@ def update_content_editor_group(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('common', '0002_update_content_editor_perms_subscriptiontype'),
+        ("common", "0002_update_content_editor_perms_subscriptiontype"),
     ]
 
     operations = [
-            migrations.RunPython(update_content_editor_group,
-                reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            update_content_editor_group, reverse_code=migrations.RunPython.noop
+        ),
     ]

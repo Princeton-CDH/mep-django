@@ -8,25 +8,30 @@ import mep.accounts.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0021_account_card'),
+        ("accounts", "0021_account_card"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='purchase',
-            name='end_date_precision',
+            model_name="purchase",
+            name="end_date_precision",
             field=mep.accounts.partial_date.DatePrecisionField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='purchase',
-            name='start_date_precision',
+            model_name="purchase",
+            name="start_date_precision",
             field=mep.accounts.partial_date.DatePrecisionField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='card',
-            field=models.ForeignKey(blank=True, help_text='Lending Library Card for this account', null=True, on_delete=django.db.models.deletion.SET_NULL, to='footnotes.Bibliography'),
+            model_name="account",
+            name="card",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Lending Library Card for this account",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="footnotes.Bibliography",
+            ),
         ),
     ]

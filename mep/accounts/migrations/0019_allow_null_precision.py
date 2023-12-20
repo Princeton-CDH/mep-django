@@ -7,20 +7,19 @@ import mep.accounts.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0018_merge_20180418_1607'),
+        ("accounts", "0018_merge_20180418_1607"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='borrow',
-            name='end_date_precision',
+            model_name="borrow",
+            name="end_date_precision",
             field=mep.accounts.partial_date.DatePrecisionField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='borrow',
-            name='start_date_precision',
+            model_name="borrow",
+            name="start_date_precision",
             field=mep.accounts.partial_date.DatePrecisionField(blank=True, null=True),
         ),
     ]

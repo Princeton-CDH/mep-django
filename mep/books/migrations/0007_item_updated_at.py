@@ -6,15 +6,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0006_item_creators'),
+        ("books", "0006_item_creators"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='item',
-            name='updated_at',
+            model_name="item",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True, null=True),
         ),
     ]

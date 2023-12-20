@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0021_creator_type_order'),
-        ('books', '0022_generate_work_slugs'),
+        ("books", "0021_creator_type_order"),
+        ("books", "0022_generate_work_slugs"),
     ]
 
-    operations = [
-    ]
+    operations = []

@@ -6,15 +6,21 @@ from django.contrib.auth.management import create_permissions
 from django.db import migrations
 
 new_content_editor_perms = {
-    'accounts': [
-        'add_subscription', 'change_subscription', 'delete_subscription',
-        'add_subscriptiontype', 'change_subscriptiontype', 'delete_subscriptiontype',
-        ],
+    "accounts": [
+        "add_subscription",
+        "change_subscription",
+        "delete_subscription",
+        "add_subscriptiontype",
+        "change_subscriptiontype",
+        "delete_subscriptiontype",
+    ],
 }
 
 remove_content_editor_perms = {
-    'accounts': [
-        'add_subscribe', 'change_subscribe', 'delete_subscribe',
+    "accounts": [
+        "add_subscribe",
+        "change_subscribe",
+        "delete_subscribe",
     ]
 }
 
@@ -31,7 +37,7 @@ def update_content_editor_group(apps, schema_editor):
         create_permissions(app_config, apps=apps, verbosity=0)
         app_config.models_module = None
 
-    editor_group = Group.objects.get(name='Content Editor')
+    editor_group = Group.objects.get(name="Content Editor")
     permissions = []
     for model, codenames in new_content_editor_perms.items():
         # using explicit get so that there will be an error if an
@@ -42,8 +48,8 @@ def update_content_editor_group(apps, schema_editor):
             except Permission.DoesNotExist:
                 # model rename means the permission codename can vary
                 # depending on when this migration is run (old db or new setup)
-                if 'subscribe' in codename:
-                    codename = codename.replace('subscribe', 'subscription')
+                if "subscribe" in codename:
+                    codename = codename.replace("subscribe", "subscription")
                     permissions.append(Permission.objects.get(codename=codename))
 
     # add the new permissions without removing existing ones
@@ -55,12 +61,12 @@ def update_content_editor_group(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('common', '0001_content_editor_group'),
+        ("common", "0001_content_editor_group"),
     ]
 
     operations = [
-        migrations.RunPython(update_content_editor_group,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            update_content_editor_group, reverse_code=migrations.RunPython.noop
+        ),
     ]

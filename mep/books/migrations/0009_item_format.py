@@ -7,32 +7,51 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0008_add_oclc_item_fields'),
+        ("books", "0008_add_oclc_item_fields"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Format',
+            name="Format",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('notes', models.TextField(blank=True)),
-                ('uri', models.URLField(help_text='Format or type URI', unique=True, verbose_name='URI')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                ("notes", models.TextField(blank=True)),
+                (
+                    "uri",
+                    models.URLField(
+                        help_text="Format or type URI", unique=True, verbose_name="URI"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
-                'abstract': False,
+                "ordering": ["name"],
+                "abstract": False,
             },
         ),
         migrations.RemoveField(
-            model_name='item',
-            name='item_type',
+            model_name="item",
+            name="item_type",
         ),
         migrations.AddField(
-            model_name='item',
-            name='item_format',
-            field=models.ForeignKey(blank=True, help_text='Format of the item, e.g. book or periodical', null=True, on_delete=django.db.models.deletion.CASCADE, to='books.Format', verbose_name='Format'),
+            model_name="item",
+            name="item_format",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Format of the item, e.g. book or periodical",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="books.Format",
+                verbose_name="Format",
+            ),
         ),
     ]

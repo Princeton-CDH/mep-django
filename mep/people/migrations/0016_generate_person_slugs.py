@@ -20,20 +20,21 @@ def group_by_name(queryset):
     # grouping doesn't work properly if not already sorted, and
     # queryset sort doesn't do exactly what we want (can't ignore unicode)
     for name_start, items in itertools.groupby(
-            sorted(queryset, key=lambda x: unidecode(x.sort_name).lower()),
-            lambda x: unidecode(x.sort_name).lower()[:3]):
+        sorted(queryset, key=lambda x: unidecode(x.sort_name).lower()),
+        lambda x: unidecode(x.sort_name).lower()[:3],
+    ):
         yield (name_start, items)
 
 
 def generate_slugs(apps, schema_editor):
-    '''Generate uniuqe slugs for people'''
-    Person = apps.get_model('people', 'Person')
+    """Generate uniuqe slugs for people"""
+    Person = apps.get_model("people", "Person")
 
     # sort by sort name and then earliest date so that numbered slugs
     # will occur in order of currently known dates
-    people = Person.objects \
-        .annotate(earliest_date=models.Min('account__event__start_date')) \
-        .order_by(Lower('sort_name'), 'earliest_date')
+    people = Person.objects.annotate(
+        earliest_date=models.Min("account__event__start_date")
+    ).order_by(Lower("sort_name"), "earliest_date")
 
     # iterate in chunks based on start of last name
     for name_start, people in group_by_name(people):
@@ -44,18 +45,18 @@ def generate_slugs(apps, schema_editor):
         # generate a list of counts by last names to check uniqueness
         group_last_names = defaultdict(int)
         for person in people:
-            last_name = unidecode(person.sort_name.split(', ')[0]).lower()
+            last_name = unidecode(person.sort_name.split(", ")[0]).lower()
             group_last_names[last_name] += 1
 
         group_slugs = defaultdict(int)
 
         # loop through and generate slugs
         for person in people:
-            if ', ' in person.sort_name:
-                last_name, first_name = person.sort_name.split(', ', 1)
+            if ", " in person.sort_name:
+                last_name, first_name = person.sort_name.split(", ", 1)
             else:
                 last_name = person.sort_name
-                first_name = ''
+                first_name = ""
 
             # start with last name as the basis for the slug
             # - unidecode & lower case to check group last name variants
@@ -63,14 +64,14 @@ def generate_slugs(apps, schema_editor):
 
             # if last name is not unique, add first name (if known)
             if group_last_names[slug_text] > 1 and first_name:
-                slug_text = '%s %s' % (last_name, first_name)
+                slug_text = "%s %s" % (last_name, first_name)
 
             slug = slugify(unidecode(slug_text))
             # increment the count for the base slug, in case of multiples
             group_slugs[slug] += 1
             # if the slug has already been used, add a number to differentiate
             if group_slugs[slug] > 1:
-                slug = '%s-%d' % (slug, group_slugs[slug])
+                slug = "%s-%d" % (slug, group_slugs[slug])
 
             # save the slug in the database
             person.slug = slug
@@ -78,9 +79,8 @@ def generate_slugs(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0015_add_person_optional_slug'),
+        ("people", "0015_add_person_optional_slug"),
     ]
 
     operations = [
@@ -88,5 +88,4 @@ class Migration(migrations.Migration):
             code=generate_slugs,
             reverse_code=migrations.RunPython.noop,
         ),
-
     ]

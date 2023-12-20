@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-subscription_choices = ['A', 'B', 'A+B', 'AdL', 'Student', 'Professor',
-    'Other']
+subscription_choices = ["A", "B", "A+B", "AdL", "Student", "Professor", "Other"]
+
 
 def subtype_choice_to_foreignkey(apps, schema_editor):
     Subscribe = apps.get_model("accounts", "Subscribe")
@@ -22,18 +22,17 @@ def subtype_choice_to_foreignkey(apps, schema_editor):
     for subscription in Subscribe.objects.all():
         # set new foreign key category based on choice field value
         if subscription.sub_type:
-            subscription.category = \
-                subscription_types[subscription.get_sub_type_display()]
+            subscription.category = subscription_types[
+                subscription.get_sub_type_display()
+            ]
             subscription.save()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0003_new_subscription_type_model_foreignkey'),
+        ("accounts", "0003_new_subscription_type_model_foreignkey"),
     ]
 
     operations = [
-        migrations.RunPython(subtype_choice_to_foreignkey,
-                             migrations.RunPython.noop)
+        migrations.RunPython(subtype_choice_to_foreignkey, migrations.RunPython.noop)
     ]

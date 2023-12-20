@@ -5,15 +5,21 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0019_edition_remove_year'),
+        ("books", "0019_edition_remove_year"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='work',
-            name='work_format',
-            field=models.ForeignKey(blank=True, help_text='Format, e.g. book or periodical', null=True, on_delete=django.db.models.deletion.SET_NULL, to='books.Format', verbose_name='Format'),
+            model_name="work",
+            name="work_format",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Format, e.g. book or periodical",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="books.Format",
+                verbose_name="Format",
+            ),
         ),
     ]

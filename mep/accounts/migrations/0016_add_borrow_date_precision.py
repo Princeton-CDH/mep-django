@@ -7,20 +7,19 @@ import mep.accounts.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0015_borrow_event_rel_item'),
+        ("accounts", "0015_borrow_event_rel_item"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='borrow',
-            name='end_date_precision',
+            model_name="borrow",
+            name="end_date_precision",
             field=mep.accounts.partial_date.DatePrecisionField(default=7),
         ),
         migrations.AddField(
-            model_name='borrow',
-            name='start_date_precision',
+            model_name="borrow",
+            name="start_date_precision",
             field=mep.accounts.partial_date.DatePrecisionField(default=7),
         ),
     ]

@@ -6,34 +6,45 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0003_initial_creator_types'),
+        ("books", "0003_initial_creator_types"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='item',
-            name='viaf_id',
+            model_name="item",
+            name="viaf_id",
         ),
         migrations.AddField(
-            model_name='item',
-            name='uri',
-            field=models.URLField(blank=True, help_text='Linked data URI for this work', verbose_name='URI'),
+            model_name="item",
+            name="uri",
+            field=models.URLField(
+                blank=True,
+                help_text="Linked data URI for this work",
+                verbose_name="URI",
+            ),
         ),
         migrations.AlterField(
-            model_name='item',
-            name='mep_id',
-            field=models.CharField(blank=True, max_length=255, unique=True, verbose_name='MEP ID'),
+            model_name="item",
+            name="mep_id",
+            field=models.CharField(
+                blank=True, max_length=255, unique=True, verbose_name="MEP ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='item',
-            name='pub_places',
-            field=models.ManyToManyField(blank=True, to='books.PublisherPlace', verbose_name='Places of Publication'),
+            model_name="item",
+            name="pub_places",
+            field=models.ManyToManyField(
+                blank=True,
+                to="books.PublisherPlace",
+                verbose_name="Places of Publication",
+            ),
         ),
         migrations.AlterField(
-            model_name='item',
-            name='year',
-            field=models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='Date of Publication'),
+            model_name="item",
+            name="year",
+            field=models.PositiveSmallIntegerField(
+                blank=True, null=True, verbose_name="Date of Publication"
+            ),
         ),
     ]

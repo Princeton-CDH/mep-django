@@ -6,32 +6,35 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('people', '0005_people_address_to_account_address'),
+        ("people", "0005_people_address_to_account_address"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='infourl',
-            options={'verbose_name': 'Informational URL'},
+            name="infourl",
+            options={"verbose_name": "Informational URL"},
         ),
         migrations.AlterModelOptions(
-            name='location',
+            name="location",
             options={},
         ),
         migrations.RemoveField(
-            model_name='person',
-            name='addresses',
+            model_name="person",
+            name="addresses",
         ),
         migrations.AddField(
-            model_name='person',
-            name='locations',
-            field=models.ManyToManyField(blank=True, through='accounts.Address', to='people.Location'),
+            model_name="person",
+            name="locations",
+            field=models.ManyToManyField(
+                blank=True, through="accounts.Address", to="people.Location"
+            ),
         ),
         migrations.AlterField(
-            model_name='infourl',
-            name='url',
-            field=models.URLField(help_text='Additional (non-VIAF) URLs for a person.', verbose_name='URL'),
+            model_name="infourl",
+            name="url",
+            field=models.URLField(
+                help_text="Additional (non-VIAF) URLs for a person.", verbose_name="URL"
+            ),
         ),
     ]

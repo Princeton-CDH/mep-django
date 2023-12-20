@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0018_edition_date_to_partial'),
+        ("books", "0018_edition_date_to_partial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='edition',
-            name='year',
+            model_name="edition",
+            name="year",
         ),
     ]

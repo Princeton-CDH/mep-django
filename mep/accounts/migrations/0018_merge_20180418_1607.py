@@ -6,11 +6,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0017_revise_purchase_from_borrow'),
-        ('accounts', '0015_fix_subscription_durations'),
+        ("accounts", "0017_revise_purchase_from_borrow"),
+        ("accounts", "0015_fix_subscription_durations"),
     ]
 
-    operations = [
-    ]
+    operations = []

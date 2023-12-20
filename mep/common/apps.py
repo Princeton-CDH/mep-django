@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class CommonConfig(AppConfig):
-    name = 'mep.common'
+    name = "mep.common"
 
     def ready(self):
         # import and connect signal handlers for Solr indexing

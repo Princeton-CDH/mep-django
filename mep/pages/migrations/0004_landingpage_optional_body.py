@@ -3,22 +3,63 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-import wagtail.core.blocks
-import wagtail.core.fields
+import wagtail.blocks
+import wagtail.fields
 import wagtail.documents.blocks
 import wagtail.images.blocks
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('pages', '0003_contentpage_add_featured_image_description'),
+        ("pages", "0003_contentpage_add_featured_image_description"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='landingpage',
-            name='body',
-            field=wagtail.core.fields.StreamField([('paragraph', wagtail.core.blocks.RichTextBlock(features=['h3', 'h4', 'bold', 'italic', 'link', 'ol', 'ul', 'blockquote'])), ('image', wagtail.images.blocks.ImageChooserBlock()), ('captioned_image', wagtail.core.blocks.StructBlock([('image', wagtail.images.blocks.ImageChooserBlock()), ('caption', wagtail.core.blocks.RichTextBlock(features=['bold', 'italic', 'link']))])), ('document', wagtail.documents.blocks.DocumentChooserBlock()), ('footnotes', wagtail.core.blocks.RichTextBlock(classname='footnotes', features=['ol', 'ul', 'bold', 'italic', 'link']))], blank=True),
+            model_name="landingpage",
+            name="body",
+            field=wagtail.fields.StreamField(
+                [
+                    (
+                        "paragraph",
+                        wagtail.blocks.RichTextBlock(
+                            features=[
+                                "h3",
+                                "h4",
+                                "bold",
+                                "italic",
+                                "link",
+                                "ol",
+                                "ul",
+                                "blockquote",
+                            ]
+                        ),
+                    ),
+                    ("image", wagtail.images.blocks.ImageChooserBlock()),
+                    (
+                        "captioned_image",
+                        wagtail.blocks.StructBlock(
+                            [
+                                ("image", wagtail.images.blocks.ImageChooserBlock()),
+                                (
+                                    "caption",
+                                    wagtail.blocks.RichTextBlock(
+                                        features=["bold", "italic", "link"]
+                                    ),
+                                ),
+                            ]
+                        ),
+                    ),
+                    ("document", wagtail.documents.blocks.DocumentChooserBlock()),
+                    (
+                        "footnotes",
+                        wagtail.blocks.RichTextBlock(
+                            classname="footnotes",
+                            features=["ol", "ul", "bold", "italic", "link"],
+                        ),
+                    ),
+                ],
+                blank=True,
+            ),
         ),
     ]

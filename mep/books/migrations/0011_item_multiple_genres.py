@@ -6,30 +6,39 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0010_add_initial_formats'),
+        ("books", "0010_add_initial_formats"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Genre',
+            name="Genre",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
             ],
             options={
-                'ordering': ['name'],
-                'abstract': False,
+                "ordering": ["name"],
+                "abstract": False,
             },
         ),
         migrations.RemoveField(
-            model_name='item',
-            name='genre',
+            model_name="item",
+            name="genre",
         ),
         migrations.AddField(
-            model_name='item',
-            name='genres',
-            field=models.ManyToManyField(blank=True, help_text='Genre(s) from OCLC record', to='books.Genre'),
+            model_name="item",
+            name="genres",
+            field=models.ManyToManyField(
+                blank=True, help_text="Genre(s) from OCLC record", to="books.Genre"
+            ),
         ),
     ]

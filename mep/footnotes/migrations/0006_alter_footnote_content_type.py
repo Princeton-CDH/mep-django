@@ -5,15 +5,28 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('footnotes', '0005_consolidate_event_footnotes'),
+        ("footnotes", "0005_consolidate_event_footnotes"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='footnote',
-            name='content_type',
-            field=models.ForeignKey(limit_choices_to=models.Q(models.Q(('app_label', 'people'), ('model__in', ['country', 'person', 'address', 'profession'])), models.Q(('app_label', 'accounts'), ('model__in', ['account', 'event'])), models.Q(('app_label', 'books'), ('model__in', ['work'])), _connector='OR'), on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
+            model_name="footnote",
+            name="content_type",
+            field=models.ForeignKey(
+                limit_choices_to=models.Q(
+                    models.Q(
+                        ("app_label", "people"),
+                        ("model__in", ["country", "person", "address", "profession"]),
+                    ),
+                    models.Q(
+                        ("app_label", "accounts"), ("model__in", ["account", "event"])
+                    ),
+                    models.Q(("app_label", "books"), ("model__in", ["work"])),
+                    _connector="OR",
+                ),
+                on_delete=django.db.models.deletion.CASCADE,
+                to="contenttypes.ContentType",
+            ),
         ),
     ]

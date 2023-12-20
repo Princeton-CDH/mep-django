@@ -6,8 +6,8 @@ from mep.books.utils import generate_sort_title
 
 
 def populate_sort_titles(apps, schema_editor):
-    '''populate sort titles for works'''
-    Work = apps.get_model('books', 'Work')
+    """populate sort titles for works"""
+    Work = apps.get_model("books", "Work")
 
     works = Work.objects.all()
     for work in works:
@@ -16,9 +16,8 @@ def populate_sort_titles(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('books', '0024_add_work_sort_title'),
+        ("books", "0024_add_work_sort_title"),
     ]
 
     operations = [
@@ -26,5 +25,4 @@ class Migration(migrations.Migration):
             code=populate_sort_titles,
             reverse_code=migrations.RunPython.noop,
         ),
-
     ]
