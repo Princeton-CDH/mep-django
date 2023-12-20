@@ -24,6 +24,7 @@ export default class MainMenu {
         this.element.style.zIndex = '100'
         this.element.style.opacity = '1'
         this.element.style.pointerEvents = 'all'
+        this.element.setAttribute('tabindex', '0')
         this.element.removeAttribute('aria-hidden')
         document.body.style.overflowY = 'hidden'
         return new Promise(resolve => setTimeout(resolve, this.transitionDuration))
@@ -40,6 +41,7 @@ export default class MainMenu {
         this.element.style.zIndex = '-100'
         this.element.style.opacity = '0'
         this.element.style.pointerEvents = 'none'
+        this.element.setAttribute('tabindex', '-1')
         this.element.setAttribute('aria-hidden', 'true')
         document.body.style.overflowY = ''
         return new Promise(resolve => setTimeout(resolve, this.transitionDuration))
