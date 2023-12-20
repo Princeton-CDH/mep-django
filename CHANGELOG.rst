@@ -1,7 +1,14 @@
-
-
 CHANGELOG
 =========
+
+1.5.7
+-----
+
+* Upgrade to Python 3.8
+* Upgrade to Django 3.2 and Wagtail 5.1
+* bugfix: anchor link to borrowing events in card table hidden by sticky table header
+* bugfix: admin autocompletes incompatibility error with django-autocomplete-light upgrade
+* bugfix: years for members with multi-year range membership and no other activity are reported incorrectly
 
 1.5.6
 -----
