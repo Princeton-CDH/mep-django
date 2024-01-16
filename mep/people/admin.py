@@ -9,7 +9,6 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from tabular_export.admin import export_to_csv_response
 from viapy.widgets import ViafWidget
-from pprint import pprint
 from mep.accounts.admin import AddressInline
 from mep.common.admin import (
     CollapsedTabularInline,
@@ -435,14 +434,6 @@ class LocationAdmin(admin.ModelAdmin):
 
 
 
-
-class GenderWidget(Widget):
-    def clean(value, **kwargs):
-        inp = str(value).strip() 
-        out = inp[0].upper() if inp else ''
-        print([value,out])
-        return out
-
 class PersonResource(ModelResource):
     def before_import(self, dataset, *args, **kwargs):
         # lower and camel_case headers
@@ -450,8 +441,13 @@ class PersonResource(ModelResource):
 
     def before_import_row(self, row, **kwargs):
         # gender to one char
-        row['gender']=GenderWidget.clean(row.get('gender'))  # for some reason genderwidget use as below returns wrong val
+        def fmt_gender(x):
+            x = str(x).strip()
+            return x[0].upper() if x else ''
+        row['gender']=fmt_gender(row.get('gender'))
 
+    name = Field(column_name='name', attribute='name')
+    gender = Field(column_name='gender', attribute='gender')
     nationalities = Field(
         column_name='nationality',
         attribute='nationalities',
@@ -465,10 +461,12 @@ class PersonResource(ModelResource):
         skip_unchanged = True
         report_skipped = True
 
+
 class PersonAdminWithImport(PersonAdmin, ImportExportModelAdmin):
     resource_class = PersonResource
     change_list_template = "templates/admin/people/person/change_list.html"
     
+
 # enable default admin to see imported data
 admin.site.register(Person, PersonAdminWithImport)
 admin.site.register(Location, LocationAdmin)
