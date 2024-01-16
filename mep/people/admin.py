@@ -87,6 +87,14 @@ class CountryAdminForm(forms.ModelForm):
             )
         }
 
+class CountryAdmin(admin.ModelAdmin):
+    form = CountryAdminForm
+    list_display = ("name", "geonames_id", "code")
+    search_fields = ("name", "geonames_id", "code")
+    fields = ["geonames_id", "name", "code"]
+
+    class Media:
+        js = ["admin/geonames-lookup.js"]
 
 
 class RelationshipInlineForm(forms.ModelForm):
@@ -469,6 +477,7 @@ class PersonAdminWithImport(PersonAdmin, ImportExportModelAdmin):
 
 # enable default admin to see imported data
 admin.site.register(Person, PersonAdminWithImport)
+admin.site.register(Country, CountryAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Profession, NamedNotableAdmin)
 admin.site.register(RelationshipType, NamedNotableAdmin)
