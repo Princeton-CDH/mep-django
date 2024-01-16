@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from tabular_export.admin import export_to_csv_response
 from viapy.widgets import ViafWidget
-
+from pprint import pprint
 from mep.accounts.admin import AddressInline
 from mep.common.admin import (
     CollapsedTabularInline,
@@ -27,6 +27,14 @@ from .models import (
     Relationship,
     RelationshipType,
 )
+from import_export.admin import (
+    ExportActionModelAdmin,
+    ImportExportModelAdmin,
+    ImportMixin,
+)
+from import_export.resources import ModelResource
+from import_export.widgets import ManyToManyWidget, Widget, CharWidget
+from import_export.fields import Field
 
 
 class InfoURLInline(CollapsibleTabularInline):
@@ -82,15 +90,6 @@ class CountryAdminForm(forms.ModelForm):
             )
         }
 
-
-class CountryAdmin(admin.ModelAdmin):
-    form = CountryAdminForm
-    list_display = ("name", "geonames_id", "code")
-    search_fields = ("name", "geonames_id", "code")
-    fields = ["geonames_id", "name", "code"]
-
-    class Media:
-        js = ["admin/geonames-lookup.js"]
 
 
 class RelationshipInlineForm(forms.ModelForm):
@@ -436,9 +435,161 @@ class LocationAdmin(admin.ModelAdmin):
         ]
 
 
+
+
+
+class GenderWidget(Widget):
+    colname = 'Gender'
+
+    def clean(self, row=None, **kwargs):
+        inp = (
+            row.get(GenderWidget.colname, '').strip() 
+            if row 
+            else ''
+        )
+        out = (
+            inp[0].upper()
+            if inp
+            else ''
+        )
+        return out
+        
+
+class PersonResource(ModelResource):
+    # def before_import(self, dataset, *args, **kwargs):
+    def import_data(self, dataset, *args, **kwargs):
+        # Rename columns in the dataset
+        dataset.headers = [x.lower().replace(' ','_') for x in dataset.headers]
+
+
+        # # prune
+        # keep_columns = {'gender', 'name'}
+
+        # for h in list(dataset.headers):
+        #     if h not in keep_columns:
+        #         del dataset[h]
+
+        # pprint(dataset.headers)
+        # pprint(dataset._data)
+
+        # keep_columns_index = {i for i,x in enumerate(dataset.headers) if x in keep_columns}
+
+        # dataset._data = [
+        #     [x for i,x in enumerate(row) if i in keep_columns_index]
+        #     for row in dataset._data
+        # ]
+        # dataset.headers = [h for i,h in enumerate(dataset.headers) if i in keep_columns_index]
+        
+        subset = dataset.subset(cols=['name','gender'])
+        # dataset._data, dataset.headers = subset._data, subset.headers
+
+        # pprint(dataset.headers)
+        # pprint(dataset._data)
+        return super().import_data(subset, *args, **kwargs)
+
+    # id = Field(column_name='id', attribute='id')
+    name = Field(column_name='name', attribute='name')
+    # # sort_name = Field(column_name='sort_name', attribute='sort_name')
+    # # birth_year = Field(column_name='birth_year', attribute='birth_year')
+    # # death_year = Field(column_name='death_year', attribute='death_year')
+    # # has_account = Field(column_name='has_account', attribute='has_account')
+    # # admin = Field(column_name='admin', attribute='admin')
+    # # viaf_id = Field(column_name='viaf_id', attribute='viaf_id')
+    gender = Field(
+        column_name='gender',
+        attribute='gender',
+        widget=GenderWidget
+    )
+    # nationality = Field(column_name='nationality', attribute='nationality')
+    # birth_date = Field(column_name='birth_date', attribute='birth_date')
+    # death_date = Field(column_name='death_date', attribute='death_date')
+    # wikidata_url = Field(column_name='wikidata_url', attribute='wikidata_url')
+    # wikipedia_url = Field(column_name='wikipedia_url', attribute='wikipedia_url')
+
+    # nationalities = Field(
+    #     column_name='Nationality',
+    #     attribute='nationalities',
+    #     widget=ManyToManyWidget(Country, field='name', separator=';')
+    # )
+
+    
+    class Meta:
+        model = Person
+        fields = (
+            # 'id',
+            'name',
+            # 'sort_name',
+            # 'birth_year',
+            # 'death_year',
+            # 'has_account',
+            # 'admin',
+            # 'viaf_id',
+            'gender',
+            # 'nationality',
+            # 'birth_date',
+            # 'death_date',
+            # 'wikidata_url',
+            # 'wikipedia_url'
+        )
+        import_id_fields = ('name',)
+        skip_unchanged = False
+        report_skipped = True
+        # exclude = (
+        #     "id",
+        #     "title",
+        #     #"name", 
+        #     "sort_name",
+        #     "slug", 
+        #     "mep_id",
+        #     "has_account", 
+        #     "in_logbooks", 
+        #     "has_card", 
+        #     "is_creator",
+        #     "viaf_id",
+        #     "birth_year", 
+        #     "death_year",
+        #     # "gender",
+        #     "profession",
+        #     "nationalities",
+        #     "is_organization",
+        #     "verified",
+        #     "notes",
+        #     "public_notes",
+        #     "past_slugs_list",
+        # )
+        exclude = (
+            'id',
+            # 'name',
+            'sort_name',
+            'birth_year',
+            'death_year',
+            'has_account',
+            'admin',
+            'viaf_id',
+            # 'gender',
+            'nationality',
+            'birth_date',
+            'death_date',
+            'wikidata_url',
+            'wikipedia_url'
+        )
+
+
+
+        
+
+
+
+class PersonAdminWithImport(ImportExportModelAdmin):
+    resource_class = PersonResource
+    change_list_template = "templates/admin/people/person/change_list.html"
+    
+
+
+
+
 # enable default admin to see imported data
-admin.site.register(Person, PersonAdmin)
-admin.site.register(Country, CountryAdmin)
+admin.site.register(Person, PersonAdminWithImport)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Profession, NamedNotableAdmin)
 admin.site.register(RelationshipType, NamedNotableAdmin)

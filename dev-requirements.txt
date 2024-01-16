@@ -7,3 +7,4 @@ sphinx
 wheel
 pre-commit
 wagtail-factories
+django-import-export
