@@ -444,7 +444,6 @@ class GenderWidget(Widget):
         out = inp[0].upper() if inp else ''
         print([value,out])
         return out
-        
 
 class PersonResource(ModelResource):
     # def import_data(self, dataset, *args, **kwargs):
@@ -467,6 +466,8 @@ class PersonResource(ModelResource):
         # gender to one char
         row['gender']=GenderWidget.clean(row.get('gender'))
 
+        
+
 
 
     
@@ -479,9 +480,9 @@ class PersonResource(ModelResource):
     # admin = Field(column_name='admin', attribute='admin')
     # viaf_id = Field(column_name='viaf_id', attribute='viaf_id')
     # gender = Field(
-    #     column_name='gender',
+    #     column_name='Gender',
     #     attribute='gender',
-    #     widget=GenderWidget
+    #     # widget=GenderWidget
     # )
     # # nationality = Field(column_name='nationality', attribute='nationality')
     # # birth_date = Field(column_name='birth_date', attribute='birth_date')
@@ -489,11 +490,11 @@ class PersonResource(ModelResource):
     # # wikidata_url = Field(column_name='wikidata_url', attribute='wikidata_url')
     # # wikipedia_url = Field(column_name='wikipedia_url', attribute='wikipedia_url')
 
-    # nationalities = Field(
-    #     column_name='nationality',
-    #     attribute='nationalities',
-    #     widget=ManyToManyWidget(Country, field='name', separator=';')
-    # )
+    nationalities = Field(
+        column_name='nationality',
+        attribute='nationalities',
+        widget=ManyToManyWidget(Country, field='name', separator=';')
+    )
 
     class Meta:
         model = Person
@@ -513,7 +514,7 @@ class PersonResource(ModelResource):
         #     'wikidata_url',
         #     'wikipedia_url'
         # )
-        fields = ('name','gender')
+        fields = ('name','gender','nationalities')
         import_id_fields = ('name',)
         skip_unchanged = True
         report_skipped = True
@@ -553,11 +554,7 @@ class PersonResource(ModelResource):
 
 
 
-class PersonAdminWithImport(ImportExportModelAdmin):
-    list_display = (
-        "name",
-        "gender",
-    )
+class PersonAdminWithImport(PersonAdmin, ImportExportModelAdmin):
     resource_class = PersonResource
     change_list_template = "templates/admin/people/person/change_list.html"
     
