@@ -28,12 +28,10 @@ from .models import (
     RelationshipType,
 )
 from import_export.admin import (
-    ExportActionModelAdmin,
     ImportExportModelAdmin,
-    ImportMixin,
 )
 from import_export.resources import ModelResource
-from import_export.widgets import ManyToManyWidget, Widget, CharWidget
+from import_export.widgets import ManyToManyWidget, Widget
 from import_export.fields import Field
 
 
@@ -446,49 +444,13 @@ class GenderWidget(Widget):
         return out
 
 class PersonResource(ModelResource):
-    # def import_data(self, dataset, *args, **kwargs):
-    #     dataset.headers = [x.lower().replace(' ','_') for x in dataset.headers]
-    #     subset = dataset.subset(cols=['name','gender'])
-    #     pprint(subset.headers)
-    #     pprint(subset._data)
-    #     dataset._data, dataset.headers = subset._data, subset.headers
-    #     return super().import_data(subset, *args, **kwargs)
-
     def before_import(self, dataset, *args, **kwargs):
+        # lower and camel_case headers
         dataset.headers = [x.lower().replace(' ','_') for x in dataset.headers]
 
-
-    def before_import_row(self, row, row_number=None, **kwargs):
-        # for key in list(row.keys()):
-        #     if key not in {'name','gender'}:
-        #         del row[key]
-
+    def before_import_row(self, row, **kwargs):
         # gender to one char
-        row['gender']=GenderWidget.clean(row.get('gender'))
-
-        
-
-
-
-    
-    # id = Field(column_name='id', attribute='id')
-    # name = Field(column_name='name', attribute='name')
-    # sort_name = Field(column_name='sort_name', attribute='sort_name')
-    # birth_year = Field(column_name='birth_year', attribute='birth_year')
-    # death_year = Field(column_name='death_year', attribute='death_year')
-    # has_account = Field(column_name='has_account', attribute='has_account')
-    # admin = Field(column_name='admin', attribute='admin')
-    # viaf_id = Field(column_name='viaf_id', attribute='viaf_id')
-    # gender = Field(
-    #     column_name='Gender',
-    #     attribute='gender',
-    #     # widget=GenderWidget
-    # )
-    # # nationality = Field(column_name='nationality', attribute='nationality')
-    # # birth_date = Field(column_name='birth_date', attribute='birth_date')
-    # # death_date = Field(column_name='death_date', attribute='death_date')
-    # # wikidata_url = Field(column_name='wikidata_url', attribute='wikidata_url')
-    # # wikipedia_url = Field(column_name='wikipedia_url', attribute='wikipedia_url')
+        row['gender']=GenderWidget.clean(row.get('gender'))  # for some reason genderwidget use as below returns wrong val
 
     nationalities = Field(
         column_name='nationality',
@@ -498,70 +460,15 @@ class PersonResource(ModelResource):
 
     class Meta:
         model = Person
-        # fields = (
-        #     'id',
-        #     'name',
-        #     'sort_name',
-        #     'birth_year',
-        #     'death_year',
-        #     'has_account',
-        #     'admin',
-        #     'viaf_id',
-        #     'gender',
-        #     'nationality',
-        #     'birth_date',
-        #     'death_date',
-        #     'wikidata_url',
-        #     'wikipedia_url'
-        # )
         fields = ('name','gender','nationalities')
         import_id_fields = ('name',)
         skip_unchanged = True
         report_skipped = True
-        # exclude = (
-        #     'id',
-        #     # 'name',
-        #     'sort_name',
-        #     'birth_year',
-        #     'death_year',
-        #     'has_account',
-        #     'admin',
-        #     'viaf_id',
-        #     # 'gender',
-        #     'nationality',
-        #     'birth_date',
-        #     'death_date',
-        #     'wikidata_url',
-        #     'wikipedia_url'
-        # )
-
-    
-
-    # def __init__(self, *args, **kwargs):
-        # super().__init__(*args, **kwargs)
-        # print(self)
-        # pprint(self.fields)
-        # self.fields['gender'] = Field(
-        #     column_name='gender',
-        #     attribute='gender',
-        #     widget=GenderWidget
-        # )
-        # pprint(self.fields)
-
-
-
-        
-
-
 
 class PersonAdminWithImport(PersonAdmin, ImportExportModelAdmin):
     resource_class = PersonResource
     change_list_template = "templates/admin/people/person/change_list.html"
     
-
-
-
-
 # enable default admin to see imported data
 admin.site.register(Person, PersonAdminWithImport)
 admin.site.register(Location, LocationAdmin)
