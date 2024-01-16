@@ -32,6 +32,7 @@ from import_export.admin import (
 from import_export.resources import ModelResource
 from import_export.widgets import ManyToManyWidget, Widget
 from import_export.fields import Field
+from parasolr.django.signals import IndexableSignalHandler
 
 
 class InfoURLInline(CollapsibleTabularInline):
@@ -446,6 +447,13 @@ class PersonResource(ModelResource):
     def before_import(self, dataset, *args, **kwargs):
         # lower and camel_case headers
         dataset.headers = [x.lower().replace(' ','_') for x in dataset.headers]
+        # turn off indexing temporarily
+        IndexableSignalHandler.disconnect()
+
+    def after_import(self, *args, **kwargs):
+        super().after_import(*args, **kwargs)
+        # reconnect indexing signal handler
+        IndexableSignalHandler.connect()
 
     def before_import_row(self, row, **kwargs):
         # gender to one char
