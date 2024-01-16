@@ -439,140 +439,113 @@ class LocationAdmin(admin.ModelAdmin):
 
 
 class GenderWidget(Widget):
-    colname = 'Gender'
-
-    def clean(self, row=None, **kwargs):
-        inp = (
-            row.get(GenderWidget.colname, '').strip() 
-            if row 
-            else ''
-        )
-        out = (
-            inp[0].upper()
-            if inp
-            else ''
-        )
+    def clean(value, **kwargs):
+        inp = str(value).strip() 
+        out = inp[0].upper() if inp else ''
+        print([value,out])
         return out
         
 
 class PersonResource(ModelResource):
-    # def before_import(self, dataset, *args, **kwargs):
-    def import_data(self, dataset, *args, **kwargs):
-        # Rename columns in the dataset
+    # def import_data(self, dataset, *args, **kwargs):
+    #     dataset.headers = [x.lower().replace(' ','_') for x in dataset.headers]
+    #     subset = dataset.subset(cols=['name','gender'])
+    #     pprint(subset.headers)
+    #     pprint(subset._data)
+    #     dataset._data, dataset.headers = subset._data, subset.headers
+    #     return super().import_data(subset, *args, **kwargs)
+
+    def before_import(self, dataset, *args, **kwargs):
         dataset.headers = [x.lower().replace(' ','_') for x in dataset.headers]
 
 
-        # # prune
-        # keep_columns = {'gender', 'name'}
+    def before_import_row(self, row, row_number=None, **kwargs):
+        # for key in list(row.keys()):
+        #     if key not in {'name','gender'}:
+        #         del row[key]
 
-        # for h in list(dataset.headers):
-        #     if h not in keep_columns:
-        #         del dataset[h]
+        # gender to one char
+        row['gender']=GenderWidget.clean(row.get('gender'))
 
-        # pprint(dataset.headers)
-        # pprint(dataset._data)
 
-        # keep_columns_index = {i for i,x in enumerate(dataset.headers) if x in keep_columns}
 
-        # dataset._data = [
-        #     [x for i,x in enumerate(row) if i in keep_columns_index]
-        #     for row in dataset._data
-        # ]
-        # dataset.headers = [h for i,h in enumerate(dataset.headers) if i in keep_columns_index]
-        
-        subset = dataset.subset(cols=['name','gender'])
-        # dataset._data, dataset.headers = subset._data, subset.headers
-
-        # pprint(dataset.headers)
-        # pprint(dataset._data)
-        return super().import_data(subset, *args, **kwargs)
-
+    
     # id = Field(column_name='id', attribute='id')
-    name = Field(column_name='name', attribute='name')
-    # # sort_name = Field(column_name='sort_name', attribute='sort_name')
-    # # birth_year = Field(column_name='birth_year', attribute='birth_year')
-    # # death_year = Field(column_name='death_year', attribute='death_year')
-    # # has_account = Field(column_name='has_account', attribute='has_account')
-    # # admin = Field(column_name='admin', attribute='admin')
-    # # viaf_id = Field(column_name='viaf_id', attribute='viaf_id')
-    gender = Field(
-        column_name='gender',
-        attribute='gender',
-        widget=GenderWidget
-    )
-    # nationality = Field(column_name='nationality', attribute='nationality')
-    # birth_date = Field(column_name='birth_date', attribute='birth_date')
-    # death_date = Field(column_name='death_date', attribute='death_date')
-    # wikidata_url = Field(column_name='wikidata_url', attribute='wikidata_url')
-    # wikipedia_url = Field(column_name='wikipedia_url', attribute='wikipedia_url')
+    # name = Field(column_name='name', attribute='name')
+    # sort_name = Field(column_name='sort_name', attribute='sort_name')
+    # birth_year = Field(column_name='birth_year', attribute='birth_year')
+    # death_year = Field(column_name='death_year', attribute='death_year')
+    # has_account = Field(column_name='has_account', attribute='has_account')
+    # admin = Field(column_name='admin', attribute='admin')
+    # viaf_id = Field(column_name='viaf_id', attribute='viaf_id')
+    # gender = Field(
+    #     column_name='gender',
+    #     attribute='gender',
+    #     widget=GenderWidget
+    # )
+    # # nationality = Field(column_name='nationality', attribute='nationality')
+    # # birth_date = Field(column_name='birth_date', attribute='birth_date')
+    # # death_date = Field(column_name='death_date', attribute='death_date')
+    # # wikidata_url = Field(column_name='wikidata_url', attribute='wikidata_url')
+    # # wikipedia_url = Field(column_name='wikipedia_url', attribute='wikipedia_url')
 
     # nationalities = Field(
-    #     column_name='Nationality',
+    #     column_name='nationality',
     #     attribute='nationalities',
     #     widget=ManyToManyWidget(Country, field='name', separator=';')
     # )
 
-    
     class Meta:
         model = Person
-        fields = (
-            # 'id',
-            'name',
-            # 'sort_name',
-            # 'birth_year',
-            # 'death_year',
-            # 'has_account',
-            # 'admin',
-            # 'viaf_id',
-            'gender',
-            # 'nationality',
-            # 'birth_date',
-            # 'death_date',
-            # 'wikidata_url',
-            # 'wikipedia_url'
-        )
+        # fields = (
+        #     'id',
+        #     'name',
+        #     'sort_name',
+        #     'birth_year',
+        #     'death_year',
+        #     'has_account',
+        #     'admin',
+        #     'viaf_id',
+        #     'gender',
+        #     'nationality',
+        #     'birth_date',
+        #     'death_date',
+        #     'wikidata_url',
+        #     'wikipedia_url'
+        # )
+        fields = ('name','gender')
         import_id_fields = ('name',)
-        skip_unchanged = False
+        skip_unchanged = True
         report_skipped = True
         # exclude = (
-        #     "id",
-        #     "title",
-        #     #"name", 
-        #     "sort_name",
-        #     "slug", 
-        #     "mep_id",
-        #     "has_account", 
-        #     "in_logbooks", 
-        #     "has_card", 
-        #     "is_creator",
-        #     "viaf_id",
-        #     "birth_year", 
-        #     "death_year",
-        #     # "gender",
-        #     "profession",
-        #     "nationalities",
-        #     "is_organization",
-        #     "verified",
-        #     "notes",
-        #     "public_notes",
-        #     "past_slugs_list",
+        #     'id',
+        #     # 'name',
+        #     'sort_name',
+        #     'birth_year',
+        #     'death_year',
+        #     'has_account',
+        #     'admin',
+        #     'viaf_id',
+        #     # 'gender',
+        #     'nationality',
+        #     'birth_date',
+        #     'death_date',
+        #     'wikidata_url',
+        #     'wikipedia_url'
         # )
-        exclude = (
-            'id',
-            # 'name',
-            'sort_name',
-            'birth_year',
-            'death_year',
-            'has_account',
-            'admin',
-            'viaf_id',
-            # 'gender',
-            'nationality',
-            'birth_date',
-            'death_date',
-            'wikidata_url',
-            'wikipedia_url'
-        )
+
+    
+
+    # def __init__(self, *args, **kwargs):
+        # super().__init__(*args, **kwargs)
+        # print(self)
+        # pprint(self.fields)
+        # self.fields['gender'] = Field(
+        #     column_name='gender',
+        #     attribute='gender',
+        #     widget=GenderWidget
+        # )
+        # pprint(self.fields)
 
 
 
@@ -581,6 +554,10 @@ class PersonResource(ModelResource):
 
 
 class PersonAdminWithImport(ImportExportModelAdmin):
+    list_display = (
+        "name",
+        "gender",
+    )
     resource_class = PersonResource
     change_list_template = "templates/admin/people/person/change_list.html"
     
