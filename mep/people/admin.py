@@ -507,7 +507,6 @@ class PersonResource(ModelResource):
 
 class PersonAdminImportExport(PersonAdmin, ImportExportModelAdmin):
     resource_class = PersonResource
-    change_list_template = "templates/admin/people/person/change_list.html"
     
 
 # enable default admin to see imported data
