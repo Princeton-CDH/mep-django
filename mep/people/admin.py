@@ -25,6 +25,7 @@ from .models import (
     Profession,
     Relationship,
     RelationshipType,
+    ViafSignalHandler
 )
 from import_export.admin import (
     ImportExportModelAdmin,
@@ -33,6 +34,30 @@ from import_export.resources import ModelResource
 from import_export.widgets import ManyToManyWidget, Widget
 from import_export.fields import Field
 from parasolr.django.signals import IndexableSignalHandler
+
+PERSON_IMPORT_EXPORT_COLUMNS = (
+    'id',
+    'name',
+    'birth_year',
+    'death_year',
+    'gender',
+    'nationalities',
+    'notes',
+    'start_year',
+    'end_year',
+    'mep_id',
+    'sort_name',
+    'viaf_id',
+    'is_organization',
+    'verified',
+    'title',
+    'profession',
+    'relations',
+    'public_notes',
+    'locations',
+    'slug',
+    'updated_at',
+)
 
 
 class InfoURLInline(CollapsibleTabularInline):
@@ -449,11 +474,13 @@ class PersonResource(ModelResource):
         dataset.headers = [x.lower().replace(' ','_') for x in dataset.headers]
         # turn off indexing temporarily
         IndexableSignalHandler.disconnect()
+        ViafSignalHandler.disconnect()
 
     def after_import(self, *args, **kwargs):
         super().after_import(*args, **kwargs)
         # reconnect indexing signal handler
         IndexableSignalHandler.connect()
+        ViafSignalHandler.connect()
 
     def before_import_row(self, row, **kwargs):
         # gender to one char
@@ -465,26 +492,26 @@ class PersonResource(ModelResource):
     name = Field(column_name='name', attribute='name')
     gender = Field(column_name='gender', attribute='gender')
     nationalities = Field(
-        column_name='nationality',
+        column_name='nationalities',
         attribute='nationalities',
         widget=ManyToManyWidget(Country, field='name', separator=';')
     )
 
     class Meta:
         model = Person
-        fields = ('name','gender','nationalities')
-        import_id_fields = ('name',)
+        import_id_fields = ('slug',)
+        export_order = PERSON_IMPORT_EXPORT_COLUMNS
         skip_unchanged = True
         report_skipped = True
 
 
-class PersonAdminWithImport(PersonAdmin, ImportExportModelAdmin):
+class PersonAdminImportExport(PersonAdmin, ImportExportModelAdmin):
     resource_class = PersonResource
     change_list_template = "templates/admin/people/person/change_list.html"
     
 
 # enable default admin to see imported data
-admin.site.register(Person, PersonAdminWithImport)
+admin.site.register(Person, PersonAdminImportExport)
 admin.site.register(Country, CountryAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Profession, NamedNotableAdmin)
