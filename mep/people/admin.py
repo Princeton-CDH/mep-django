@@ -35,6 +35,16 @@ from import_export.widgets import ManyToManyWidget, Widget
 from import_export.fields import Field
 from parasolr.django.signals import IndexableSignalHandler
 
+PERSON_IMPORT_COLUMNS = (
+    'id',
+    'slug',
+    'name',
+    'birth_year',
+    'death_year',
+    'gender',
+    'nationalities'
+)
+
 PERSON_IMPORT_EXPORT_COLUMNS = (
     'id',
     'name',
@@ -489,6 +499,15 @@ class PersonResource(ModelResource):
             return x[0].upper() if x else ''
         row['gender']=fmt_gender(row.get('gender'))
 
+        def fmt_nation(x):
+            x=str(x).strip()
+            if not x or x=='[no country]': return
+            return x
+        row['nation'] = fmt_nation(row.get('nation'))
+
+    def get_import_fields(self):
+        return [self.fields[fname] for fname in self.fields if fname in PERSON_IMPORT_COLUMNS]
+
     name = Field(column_name='name', attribute='name')
     gender = Field(column_name='gender', attribute='gender')
     nationalities = Field(
@@ -499,8 +518,9 @@ class PersonResource(ModelResource):
 
     class Meta:
         model = Person
+        fields = PERSON_IMPORT_COLUMNS
         import_id_fields = ('slug',)
-        export_order = PERSON_IMPORT_EXPORT_COLUMNS
+        export_order = PERSON_IMPORT_COLUMNS
         skip_unchanged = True
         report_skipped = True
 
