@@ -325,3 +325,5 @@ WEBPACK_LOADER = {
 }
 
 WAGTAILADMIN_BASE_URL = "https://shakespeareandco.princeton.edu/cms/"
+
+SKIP_VIAF_LOOKUP = False

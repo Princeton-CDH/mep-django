@@ -25,7 +25,6 @@ from .models import (
     Profession,
     Relationship,
     RelationshipType,
-    ViafSignalHandler
 )
 from import_export.admin import (
     ImportExportModelAdmin,
@@ -36,17 +35,13 @@ from import_export.fields import Field
 from parasolr.django.signals import IndexableSignalHandler
 
 PERSON_IMPORT_COLUMNS = (
-    'id',
     'slug',
-    'name',
-    'birth_year',
-    'death_year',
     'gender',
     'nationalities'
 )
 
 PERSON_IMPORT_EXPORT_COLUMNS = (
-    'id',
+    'slug',
     'name',
     'birth_year',
     'death_year',
@@ -65,8 +60,8 @@ PERSON_IMPORT_EXPORT_COLUMNS = (
     'relations',
     'public_notes',
     'locations',
-    'slug',
     'updated_at',
+    'id',
 )
 
 
@@ -476,7 +471,12 @@ class LocationAdmin(admin.ModelAdmin):
         ]
 
 
-
+class ExportPersonResource(ModelResource):
+    class Meta:
+        model = Person
+        fields = PERSON_IMPORT_EXPORT_COLUMNS
+        export_order = PERSON_IMPORT_EXPORT_COLUMNS
+    
 
 class PersonResource(ModelResource):
     def before_import(self, dataset, *args, **kwargs):
@@ -484,31 +484,26 @@ class PersonResource(ModelResource):
         dataset.headers = [x.lower().replace(' ','_') for x in dataset.headers]
         # turn off indexing temporarily
         IndexableSignalHandler.disconnect()
-        ViafSignalHandler.disconnect()
+        settings.SKIP_VIAF_LOOKUP = True
 
     def after_import(self, *args, **kwargs):
         super().after_import(*args, **kwargs)
         # reconnect indexing signal handler
         IndexableSignalHandler.connect()
-        ViafSignalHandler.connect()
+        settings.SKIP_VIAF_LOOKUP = False
 
     def before_import_row(self, row, **kwargs):
-        # gender to one char
-        def fmt_gender(x):
-            x = str(x).strip()
-            return x[0].upper() if x else ''
-        row['gender']=fmt_gender(row.get('gender'))
+        # just make sure nation has no string padding
+        row['nation'] = str(row.get('nation')).strip()
 
-        def fmt_nation(x):
-            x=str(x).strip()
-            if not x or x=='[no country]': return
-            return x
-        row['nation'] = fmt_nation(row.get('nation'))
+        # gender to one char
+        gstr = str(row.get('gender')).strip()
+        row['gender']=gstr[0].upper() if gstr else ''
 
     def get_import_fields(self):
         return [self.fields[fname] for fname in self.fields if fname in PERSON_IMPORT_COLUMNS]
 
-    name = Field(column_name='name', attribute='name')
+    # name = Field(column_name='name', attribute='name')
     gender = Field(column_name='gender', attribute='gender')
     nationalities = Field(
         column_name='nationalities',
@@ -527,6 +522,10 @@ class PersonResource(ModelResource):
 
 class PersonAdminImportExport(PersonAdmin, ImportExportModelAdmin):
     resource_class = PersonResource
+
+
+    def get_export_resource_class(self):
+        return ExportPersonResource
     
 
 # enable default admin to see imported data

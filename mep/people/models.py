@@ -1,7 +1,7 @@
 import datetime
 import logging
 from string import punctuation
-
+from django.conf import settings
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import MultipleObjectsReturned
@@ -25,17 +25,6 @@ from mep.footnotes.models import Footnote
 
 
 logger = logging.getLogger(__name__)
-
-VIAF_SIGNAL_ACTIVE=True
-class ViafSignalHandler:
-    def disconnect():
-        global VIAF_SIGNAL_ACTIVE
-        VIAF_SIGNAL_ACTIVE = False
-    def connect():
-        global VIAF_SIGNAL_ACTIVE
-        VIAF_SIGNAL_ACTIVE = True
-    def is_connected():
-        return VIAF_SIGNAL_ACTIVE
 
 
 class Country(Named):
@@ -544,7 +533,7 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
         """Adds birth and death dates if they aren't already set
         and there's a viaf id for the record"""
 
-        if ViafSignalHandler.is_connected() and self.viaf_id and not self.birth_year and not self.death_year:
+        if not getattr(settings,'SKIP_VIAF_LOOKUP',False) and self.viaf_id and not self.birth_year and not self.death_year:
             self.set_birth_death_years()
 
         # if slug has changed, save the old one as a past slug
