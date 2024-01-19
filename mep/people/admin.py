@@ -502,6 +502,17 @@ class PersonResource(ModelResource):
 
     def get_import_fields(self):
         return [self.fields[fname] for fname in self.fields if fname in PERSON_IMPORT_COLUMNS]
+    
+    def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
+        imported_objects = []
+
+        for row_result in result:
+            object_id = row_result.object_id
+            object = self.Meta.model.get(id=object_id)
+            imported_objects.append(object)
+
+        self.Meta.model.index_items(imported_objects)
+
 
     # name = Field(column_name='name', attribute='name')
     gender = Field(column_name='gender', attribute='gender')
