@@ -482,6 +482,7 @@ class PersonResource(ModelResource):
     def __init__(self,*x,**y):
         super().__init__(*x,**y)
         self.imported_objects = []
+        self.num_import = 0
 
     def before_import(self, dataset, *args, **kwargs):
         # lower and camel_case headers
@@ -489,12 +490,6 @@ class PersonResource(ModelResource):
         # turn off indexing temporarily
         IndexableSignalHandler.disconnect()
         settings.SKIP_VIAF_LOOKUP = True
-
-    def after_import(self, *args, **kwargs):
-        super().after_import(*args, **kwargs)
-        # reconnect indexing signal handler
-        IndexableSignalHandler.connect()
-        settings.SKIP_VIAF_LOOKUP = False
 
     def before_import_row(self, row, **kwargs):
         # just make sure nation has no string padding
@@ -512,13 +507,19 @@ class PersonResource(ModelResource):
         return super().after_save_instance(instance, using_transactions, dry_run)
 
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
+        super().after_import(dataset, result, using_transactions, dry_run, **kwargs)
+        
+        # reconnect indexing signal handler
+        # IndexableSignalHandler.connect()           # this is breaking by connection refused, see note
+
+        # index objects
         print(f'indexing {len(self.imported_objects)} objects')
-        #if self.imported_objects:
-        #    Person.index_items(self.imported_objects) # this is breaking by connection refused, see note
+        # if self.imported_objects:
+            # Person.index_items(self.imported_objects) # this is breaking by connection refused, see note
 
 
-    # name = Field(column_name='name', attribute='name')
-    gender = Field(column_name='gender', attribute='gender')
+
+    # only customized fields need specifying here
     nationalities = Field(
         column_name='nationalities',
         attribute='nationalities',
