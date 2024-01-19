@@ -479,6 +479,10 @@ class ExportPersonResource(ModelResource):
     
 
 class PersonResource(ModelResource):
+    def __init__(self,*x,**y):
+        super().__init__(*x,**y)
+        self.imported_objects = []
+
     def before_import(self, dataset, *args, **kwargs):
         # lower and camel_case headers
         dataset.headers = [x.lower().replace(' ','_') for x in dataset.headers]
@@ -503,15 +507,14 @@ class PersonResource(ModelResource):
     def get_import_fields(self):
         return [self.fields[fname] for fname in self.fields if fname in PERSON_IMPORT_COLUMNS]
     
+    def after_save_instance(self, instance, using_transactions, dry_run):
+        self.imported_objects.append(instance)
+        return super().after_save_instance(instance, using_transactions, dry_run)
+
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
-        imported_objects = []
-
-        for row_result in result:
-            object_id = row_result.object_id
-            object = self.Meta.model.get(id=object_id)
-            imported_objects.append(object)
-
-        self.Meta.model.index_items(imported_objects)
+        print(f'indexing {len(self.imported_objects)} objects')
+        #if self.imported_objects:
+        #    Person.index_items(self.imported_objects) # this is breaking by connection refused, see note
 
 
     # name = Field(column_name='name', attribute='name')
