@@ -180,10 +180,6 @@ class TestPersonAdmin(TestCase):
         input_format=0,
         follow=False
     ):
-        input_format = input_format
-        filename = os.path.join(
-            os.path.dirname(__file__), os.path.pardir, "exports", filename
-        )
         with open(filename, "rb") as f:
             data = {
                 "input_format": str(input_format),
