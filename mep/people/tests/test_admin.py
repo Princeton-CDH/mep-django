@@ -129,7 +129,7 @@ class TestPersonAdmin(TestCase):
 
         ### test can post to page and get csv data back
         date_str = datetime.now().strftime("%Y-%m-%d")
-        response = self.client._djangoimportexport_do_export_post(file_format=0) # csv
+        response = self._djangoimportexport_do_export_post(file_format=0) # csv
         
         # test response
         self.assertEqual(response.status_code, 200)
