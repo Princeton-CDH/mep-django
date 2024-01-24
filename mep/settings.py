@@ -69,7 +69,7 @@ INSTALLED_APPS = [
     "mep.books",
     "mep.footnotes",
     "mep.pages",
-    "import_export"
+    "import_export",
 ]
 
 MIDDLEWARE = [
@@ -325,5 +325,3 @@ WEBPACK_LOADER = {
 }
 
 WAGTAILADMIN_BASE_URL = "https://shakespeareandco.princeton.edu/cms/"
-
-SKIP_VIAF_LOOKUP = False

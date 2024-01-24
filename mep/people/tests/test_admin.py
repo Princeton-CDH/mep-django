@@ -19,10 +19,10 @@ from mep.people.admin import (
     PersonTypeListFilter,
     PersonAdminImportExport,
     PERSON_IMPORT_EXPORT_COLUMNS,
-    ExportPersonResource,
 )
 from mep.people.models import Person, PastPersonSlug, Country
 from django.conf import settings
+import uuid
 
 
 class TestPersonAdmin(TestCase):
@@ -32,16 +32,16 @@ class TestPersonAdmin(TestCase):
         User = apps.get_model("auth", "User")
         # script user needed for log entry logic
         # store the password to login later
-        password = "adminpass"
+        password = str(uuid.uuid4())
         self.admin_user = User.objects.create_superuser(
             "admin", "admin@admin.com", password
         )
         self.client = Client()
         # You'll need to log him in before you can send requests through the client
         self.client.login(username=self.admin_user.username, password=password)
-        self.url_person_import = "/admin/people/person/import/"
-        self.url_person_process_import = "/admin/people/person/process_import/"
-        self.url_person_export = "/admin/people/person/export/"
+        self.url_person_import = reverse("admin:people_person_import")
+        self.url_person_process_import = reverse("admin:people_person_process_import")
+        self.url_person_export = reverse("admin:people_person_export")
 
     def test_merge_people(self):
         mockrequest = Mock()
@@ -126,6 +126,9 @@ class TestPersonAdmin(TestCase):
             assert "Is Creator" in headers
 
     def _djangoimportexport_do_export_post(self, file_format=0):
+        """
+        Send POST request to exporting url, and return HTTP response object
+        """
         response = self.client.post(
             self.url_person_export, {"file_format": str(file_format)}
         )
@@ -183,6 +186,10 @@ class TestPersonAdmin(TestCase):
     def _djangoimportexport_do_import_post(
         self, url, filename, input_format=0, follow=False
     ):
+        """
+        Send POST request to import url, with a filename to import,
+        and return HTTP response object
+        """
         with open(filename, "rb") as f:
             data = {
                 "input_format": str(input_format),
@@ -319,10 +326,3 @@ class TestPersonTypeListFilter(TestCase):
         assert foo in qs
         assert not engelbert in qs
         assert not humperdinck in qs
-
-
-# New tests:
-# `before_import_row
-# import formatting methods for gender and nation (you'll need to adjust the nesting)
-# get_import_fields
-# Person.save optional behavior (skip viaf lookup)

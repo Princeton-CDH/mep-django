@@ -1,3 +1,4 @@
+import logging
 from dal import autocomplete
 from django import forms
 from django.conf import settings
@@ -59,6 +60,8 @@ PERSON_IMPORT_EXPORT_COLUMNS = (
     "updated_at",
     "id",
 )
+
+logger = logging.getLogger(__name__)
 
 
 class InfoURLInline(CollapsibleTabularInline):
@@ -498,9 +501,6 @@ class PersonResource(ModelResource):
         principle of charity to annotators before passing
         values into django-import-export lookup logic.
         """
-        # just make sure nation has no string padding
-        row["nation"] = str(row.get("nation")).strip()
-
         # gender to one char
         gstr = str(row.get("gender")).strip()
         row["gender"] = gstr[0].upper() if gstr else ""
@@ -522,7 +522,9 @@ class PersonResource(ModelResource):
         super().after_import(dataset, result, using_transactions, dry_run, **kwargs)
 
         # report how many need indexing
-        print(f"indexing {len(self.objects_to_index)} objects, dry_run = {dry_run}")
+        logger.debug(
+            f"indexing {len(self.objects_to_index)} objects, dry_run = {dry_run}"
+        )
 
         # only continue if not a dry run
         if not dry_run:
@@ -550,6 +552,7 @@ class PersonResource(ModelResource):
         export_order = PERSON_IMPORT_COLUMNS
         skip_unchanged = True
         report_skipped = True
+        store_instance = True
 
 
 class PersonAdminImportExport(PersonAdmin, ImportExportModelAdmin):
