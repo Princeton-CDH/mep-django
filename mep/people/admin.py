@@ -34,34 +34,30 @@ from import_export.widgets import ManyToManyWidget, Widget
 from import_export.fields import Field
 from parasolr.django.signals import IndexableSignalHandler
 
-PERSON_IMPORT_COLUMNS = (
-    'slug',
-    'gender',
-    'nationalities'
-)
+PERSON_IMPORT_COLUMNS = ("slug", "gender", "nationalities")
 
 PERSON_IMPORT_EXPORT_COLUMNS = (
-    'slug',
-    'name',
-    'birth_year',
-    'death_year',
-    'gender',
-    'nationalities',
-    'notes',
-    'start_year',
-    'end_year',
-    'mep_id',
-    'sort_name',
-    'viaf_id',
-    'is_organization',
-    'verified',
-    'title',
-    'profession',
-    'relations',
-    'public_notes',
-    'locations',
-    'updated_at',
-    'id',
+    "slug",
+    "name",
+    "birth_year",
+    "death_year",
+    "gender",
+    "nationalities",
+    "notes",
+    "start_year",
+    "end_year",
+    "mep_id",
+    "sort_name",
+    "viaf_id",
+    "is_organization",
+    "verified",
+    "title",
+    "profession",
+    "relations",
+    "public_notes",
+    "locations",
+    "updated_at",
+    "id",
 )
 
 
@@ -117,6 +113,7 @@ class CountryAdminForm(forms.ModelForm):
                 },
             )
         }
+
 
 class CountryAdmin(admin.ModelAdmin):
     form = CountryAdminForm
@@ -476,17 +473,17 @@ class ExportPersonResource(ModelResource):
         model = Person
         fields = PERSON_IMPORT_EXPORT_COLUMNS
         export_order = PERSON_IMPORT_EXPORT_COLUMNS
-    
+
 
 class PersonResource(ModelResource):
-    def __init__(self,*x,**y):
-        super().__init__(*x,**y)
+    def __init__(self, *x, **y):
+        super().__init__(*x, **y)
         # list to contain updated objects for batch indexing at end
         self.objects_to_index = []
 
     def before_import(self, dataset, *args, **kwargs):
         # lower and camel_case headers
-        dataset.headers = [x.lower().replace(' ','_') for x in dataset.headers]
+        dataset.headers = [x.lower().replace(" ", "_") for x in dataset.headers]
 
         # turn off indexing temporarily
         IndexableSignalHandler.disconnect()
@@ -502,11 +499,11 @@ class PersonResource(ModelResource):
         values into django-import-export lookup logic.
         """
         # just make sure nation has no string padding
-        row['nation'] = str(row.get('nation')).strip()
+        row["nation"] = str(row.get("nation")).strip()
 
         # gender to one char
-        gstr = str(row.get('gender')).strip()
-        row['gender']=gstr[0].upper() if gstr else ''
+        gstr = str(row.get("gender")).strip()
+        row["gender"] = gstr[0].upper() if gstr else ""
 
     def after_save_instance(self, instance, using_transactions, dry_run):
         """
@@ -517,16 +514,16 @@ class PersonResource(ModelResource):
 
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
         """
-        Called after importing, twice: once with dry_run==True (preview), 
+        Called after importing, twice: once with dry_run==True (preview),
         once dry_run==False. We report how many objects were updated and need to be indexed.
         We only do so when dry_run is False.
         """
         # run parent method
         super().after_import(dataset, result, using_transactions, dry_run, **kwargs)
-        
+
         # report how many need indexing
-        print(f'indexing {len(self.objects_to_index)} objects, dry_run = {dry_run}')        
-        
+        print(f"indexing {len(self.objects_to_index)} objects, dry_run = {dry_run}")
+
         # only continue if not a dry run
         if not dry_run:
             # re-enable indexing
@@ -539,19 +536,17 @@ class PersonResource(ModelResource):
         # turn viaf lookups back on
         settings.SKIP_VIAF_LOOKUP = False
 
-
-
     # only customized fields need specifying here
     nationalities = Field(
-        column_name='nationalities',
-        attribute='nationalities',
-        widget=ManyToManyWidget(Country, field='name', separator=';')
+        column_name="nationalities",
+        attribute="nationalities",
+        widget=ManyToManyWidget(Country, field="name", separator=";"),
     )
 
     class Meta:
         model = Person
         fields = PERSON_IMPORT_COLUMNS
-        import_id_fields = ('slug',)
+        import_id_fields = ("slug",)
         export_order = PERSON_IMPORT_COLUMNS
         skip_unchanged = True
         report_skipped = True
@@ -560,14 +555,13 @@ class PersonResource(ModelResource):
 class PersonAdminImportExport(PersonAdmin, ImportExportModelAdmin):
     resource_class = PersonResource
 
-
     def get_export_resource_class(self):
         """
         Specifies the resource class to use for exporting,
         so that separate fields can be exported than those imported
         """
         return ExportPersonResource
-    
+
 
 # enable default admin to see imported data
 admin.site.register(Person, PersonAdminImportExport)
