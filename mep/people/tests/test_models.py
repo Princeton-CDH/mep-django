@@ -1,7 +1,7 @@
 import datetime
 from datetime import date
 from unittest.mock import patch
-
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.test import TestCase
@@ -170,6 +170,9 @@ class TestPerson(TestCase):
     def test_save(self):
         pers = Person(name="Humperdinck")
         with patch.object(pers, "set_birth_death_years") as mock_setbirthdeath:
+            # ensure viaf activated
+            settings.SKIP_VIAF_LOOKUP = False
+
             # no viaf - should not call set birth/death
             pers.save()
             mock_setbirthdeath.assert_not_called()
@@ -187,6 +190,14 @@ class TestPerson(TestCase):
             mock_setbirthdeath.assert_not_called()
 
             # viaf and one date set - *should* call set birth/death
+
+            # ..unless settings disabled
+            settings.SKIP_VIAF_LOOKUP = True
+            pers.save()
+            mock_setbirthdeath.assert_not_called()
+            settings.SKIP_VIAF_LOOKUP = False
+
+            # make sure save called in this latter case
             pers.death_year = None
             pers.save()
             mock_setbirthdeath.assert_called_with()
