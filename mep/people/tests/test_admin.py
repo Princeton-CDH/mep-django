@@ -14,9 +14,16 @@ from django.apps import apps
 
 from mep.accounts.models import Account, Subscription
 from mep.books.models import Creator, CreatorType, Work
-from mep.people.admin import PersonAdmin, PersonTypeListFilter, PersonAdminImportExport, PERSON_IMPORT_EXPORT_COLUMNS, ExportPersonResource
+from mep.people.admin import (
+    PersonAdmin,
+    PersonTypeListFilter,
+    PersonAdminImportExport,
+    PERSON_IMPORT_EXPORT_COLUMNS,
+    ExportPersonResource,
+)
 from mep.people.models import Person, PastPersonSlug, Country
 from django.conf import settings
+
 
 class TestPersonAdmin(TestCase):
     fixtures = ["sample_people"]
@@ -25,14 +32,16 @@ class TestPersonAdmin(TestCase):
         User = apps.get_model("auth", "User")
         # script user needed for log entry logic
         # store the password to login later
-        password = 'adminpass' 
-        self.admin_user = User.objects.create_superuser('admin', 'admin@admin.com', password)
+        password = "adminpass"
+        self.admin_user = User.objects.create_superuser(
+            "admin", "admin@admin.com", password
+        )
         self.client = Client()
         # You'll need to log him in before you can send requests through the client
         self.client.login(username=self.admin_user.username, password=password)
-        self.url_person_import = '/admin/people/person/import/'
-        self.url_person_process_import = '/admin/people/person/process_import/'
-        self.url_person_export = '/admin/people/person/export/'
+        self.url_person_import = "/admin/people/person/import/"
+        self.url_person_process_import = "/admin/people/person/process_import/"
+        self.url_person_export = "/admin/people/person/export/"
 
     def test_merge_people(self):
         mockrequest = Mock()
@@ -116,11 +125,11 @@ class TestPersonAdmin(TestCase):
             # or title case for property with no verbose name
             assert "Is Creator" in headers
 
-
     def _djangoimportexport_do_export_post(self, file_format=0):
-        response = self.client.post(self.url_person_export, {'file_format':str(file_format)})
+        response = self.client.post(
+            self.url_person_export, {"file_format": str(file_format)}
+        )
         return response
-
 
     def test_djangoimportexport_export(self):
         ### test can get page
@@ -129,8 +138,8 @@ class TestPersonAdmin(TestCase):
 
         ### test can post to page and get csv data back
         date_str = datetime.now().strftime("%Y-%m-%d")
-        response = self._djangoimportexport_do_export_post(file_format=0) # csv
-        
+        response = self._djangoimportexport_do_export_post(file_format=0)  # csv
+
         # test response
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.has_header("Content-Disposition"))
@@ -142,43 +151,37 @@ class TestPersonAdmin(TestCase):
 
         # test csv as binary string response
         lines = response.content.splitlines()
-        assert len(lines)>0, 'no header returned'
+        assert len(lines) > 0, "no header returned"
         self.assertEqual(
-            ','.join(PERSON_IMPORT_EXPORT_COLUMNS).encode(),
+            ",".join(PERSON_IMPORT_EXPORT_COLUMNS).encode(),
             lines[0],
         )
 
         # test csv via csv reader
         f = StringIO(response.content.decode())
-        reader = csv.DictReader(f, delimiter=',')
+        reader = csv.DictReader(f, delimiter=",")
         rows = list(reader)
         persons = Person.objects.all()
-        
+
         # test num lines, should be a row per person
         assert len(rows) == len(persons)
-        
 
         # test values by row
         person_admin = PersonAdminImportExport(model=Person, admin_site=admin.site)
         export_class = person_admin.get_export_resource_class()
         exporter = export_class()
 
-        def getstr(person,attr,default=''):
+        def getstr(person, attr, default=""):
             field = exporter.fields[attr]
             res = exporter.export_field(field, person)
-            return str(res) if res or res==0 else default
+            return str(res) if res or res == 0 else default
 
-        for person,row in zip(persons,rows):
+        for person, row in zip(persons, rows):
             for attr in PERSON_IMPORT_EXPORT_COLUMNS:
-                self.assertEquals(getstr(person,attr), row[attr])
+                self.assertEquals(getstr(person, attr), row[attr])
 
-    
     def _djangoimportexport_do_import_post(
-        self, 
-        url, 
-        filename, 
-        input_format=0,
-        follow=False
+        self, url, filename, input_format=0, follow=False
     ):
         with open(filename, "rb") as f:
             data = {
@@ -195,29 +198,35 @@ class TestPersonAdmin(TestCase):
         self.assertTemplateUsed(response, "admin/import_export/import.html")
         self.assertContains(response, 'form action=""')
 
-        tmpfn = 'persons.csv'
+        tmpfn = "persons.csv"
         ## test import with changed data
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            csv_filename = os.path.join(tmpdir,tmpfn)
+            csv_filename = os.path.join(tmpdir, tmpfn)
             # quick export
             response = self._djangoimportexport_do_export_post()
             # modify
             f = StringIO(response.content.decode())
-            reader = csv.DictReader(f, delimiter=',')
+            reader = csv.DictReader(f, delimiter=",")
             rows = list(reader)
             countries = [c.name for c in Country.objects.all()]
             for row in rows:
-                row['gender'] = random.choice([x for x,y in Person.GENDER_CHOICES if x!=row['gender']])
-                row['nationalities'] = random.choice([x for x in countries if x!=row['nationalities']])
+                row["gender"] = random.choice(
+                    [x for x, y in Person.GENDER_CHOICES if x != row["gender"]]
+                )
+                row["nationalities"] = random.choice(
+                    [x for x in countries if x != row["nationalities"]]
+                )
             # save
-            with open(csv_filename,'w') as of:
+            with open(csv_filename, "w") as of:
                 writer = csv.DictWriter(of, fieldnames=reader.fieldnames)
                 writer.writeheader()
                 writer.writerows(rows)
-            
+
             # now import
-            response = self._djangoimportexport_do_import_post(self.url_person_import, csv_filename)
+            response = self._djangoimportexport_do_import_post(
+                self.url_person_import, csv_filename
+            )
             self.assertEqual(response.status_code, 200)
             self.assertIn("result", response.context)
             self.assertFalse(response.context["result"].has_errors())
@@ -226,7 +235,9 @@ class TestPersonAdmin(TestCase):
 
             data = confirm_form.initial
             self.assertEqual(data["original_file_name"], tmpfn)
-            response = self.client.post(self.url_person_process_import, data, follow=True)
+            response = self.client.post(
+                self.url_person_process_import, data, follow=True
+            )
             self.assertEqual(response.status_code, 200)
             self.assertContains(
                 response,
@@ -236,8 +247,6 @@ class TestPersonAdmin(TestCase):
             )
 
             assert response.content.count(b'<tr class="grp-row') == len(rows)
-
-
 
     def test_past_slugs_list(self):
         person_admin = PersonAdmin(model=Person, admin_site=admin.site)
