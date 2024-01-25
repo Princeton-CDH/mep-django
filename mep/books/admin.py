@@ -14,6 +14,15 @@ from mep.books.models import Creator, CreatorType, Work, Subject, Format, Genre,
 from mep.books.queryset import WorkSolrQuerySet
 from mep.common.admin import CollapsibleTabularInline
 
+from import_export.admin import (
+    ImportExportModelAdmin,
+)
+from import_export.resources import ModelResource
+from import_export.widgets import ManyToManyWidget, Widget
+from import_export.fields import Field
+from parasolr.django.signals import IndexableSignalHandler
+from django.conf import settings
+
 
 class WorkCreatorInlineForm(forms.ModelForm):
     class Meta:
@@ -353,7 +362,95 @@ class FormatAdmin(admin.ModelAdmin):
     fields = ("name", "uri", "notes")
 
 
-admin.site.register(Work, WorkAdmin)
+class ExportWorkResource(ModelResource):
+    class Meta:
+        model = Work
+        # fields = PERSON_IMPORT_EXPORT_COLUMNS
+        # export_order = PERSON_IMPORT_EXPORT_COLUMNS
+
+
+class WorkResource(ModelResource):
+    def __init__(self, *x, **y):
+        super().__init__(*x, **y)
+        # list to contain updated objects for batch indexing at end
+        self.objects_to_index = []
+
+    def before_import(self, dataset, *args, **kwargs):
+        # lower and camel_case headers
+        dataset.headers = [x.lower().replace(" ", "_") for x in dataset.headers]
+
+        # turn off indexing temporarily
+        IndexableSignalHandler.disconnect()
+
+        # turn off viaf lookups
+        settings.SKIP_VIAF_LOOKUP = True
+
+    # def before_import_row(self, row, **kwargs):
+    #     """
+    #     Called on an OrderedDictionary of row attributes.
+    #     Opportunity to do quick string formatting as a
+    #     principle of charity to annotators before passing
+    #     values into django-import-export lookup logic.
+    #     """
+    #     # gender to one char
+    #     gstr = str(row.get("gender")).strip()
+    #     row["gender"] = gstr[0].upper() if gstr else ""
+
+    def after_save_instance(self, instance, using_transactions, dry_run):
+        """
+        Called when an instance either was or would be saved (depending on dry_run)
+        """
+        self.objects_to_index.append(instance)
+        return super().after_save_instance(instance, using_transactions, dry_run)
+
+    def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
+        """
+        Called after importing, twice: once with dry_run==True (preview),
+        once dry_run==False. We report how many objects were updated and need to be indexed.
+        We only do so when dry_run is False.
+        """
+        # run parent method
+        super().after_import(dataset, result, using_transactions, dry_run, **kwargs)
+
+        # report how many need indexing
+        logger.debug(
+            f"indexing {len(self.objects_to_index)} objects, dry_run = {dry_run}"
+        )
+
+        # only continue if not a dry run
+        if not dry_run:
+            # re-enable indexing
+            IndexableSignalHandler.connect()
+
+            # index objects
+            if self.objects_to_index:
+                self.Meta.model.index_items(self.objects_to_index)
+
+        # turn viaf lookups back on
+        settings.SKIP_VIAF_LOOKUP = False
+
+    class Meta:
+        model = Work
+        # fields = PERSON_IMPORT_COLUMNS
+        # import_id_fields = ("slug",)
+        # export_order = PERSON_IMPORT_COLUMNS
+        skip_unchanged = True
+        report_skipped = True
+        store_instance = True
+
+
+class WorkAdminImportExport(WorkAdmin, ImportExportModelAdmin):
+    resource_class = WorkResource
+
+    def get_export_resource_class(self):
+        """
+        Specifies the resource class to use for exporting,
+        so that separate fields can be exported than those imported
+        """
+        return ExportWorkResource
+
+
+admin.site.register(Work, WorkAdminImportExport)
 admin.site.register(CreatorType, CreatorTypeAdmin)
 admin.site.register(Subject, SubjectAdmin)
 admin.site.register(Format, FormatAdmin)
