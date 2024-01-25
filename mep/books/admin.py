@@ -7,10 +7,12 @@ from django.utils.html import format_html
 from django.utils.timezone import now
 
 from tabular_export.admin import export_to_csv_response
+from mep.common.admin import ImportExportModelResource
 
 from mep.accounts.admin import AUTOCOMPLETE
 from mep.accounts.partial_date import PartialDateFormMixin
 from mep.books.models import Creator, CreatorType, Work, Subject, Format, Genre, Edition
+from mep.people.models import Person
 from mep.books.queryset import WorkSolrQuerySet
 from mep.common.admin import CollapsibleTabularInline
 
@@ -18,10 +20,42 @@ from import_export.admin import (
     ImportExportModelAdmin,
 )
 from import_export.resources import ModelResource
-from import_export.widgets import ManyToManyWidget, Widget
+from import_export.widgets import ManyToManyWidget, ForeignKeyWidget
 from import_export.fields import Field
 from parasolr.django.signals import IndexableSignalHandler
 from django.conf import settings
+
+WORK_IMPORT_EXPORT_COLUMNS = [
+    "id",
+    "slug",
+    "creators",
+    "title",
+    "year",
+    "notes",
+    "genres",
+    "category",
+    "mep_id",
+    "uri",
+    "edition_uri",
+    "sort_title",
+    "ebook_url",
+    "work_format",
+    "subjects",
+    "public_notes",
+    "updated_at",
+]
+
+# WORK_IMPORT_COLUMNS = [
+#     col
+#     for col in WORK_IMPORT_EXPORT_COLUMNS
+#     if col not in {
+#         'updated_at',
+#         'id',
+#         'notes'
+#     }
+# ]
+
+WORK_IMPORT_COLUMNS = ["slug", "title", "category"]
 
 
 class WorkCreatorInlineForm(forms.ModelForm):
@@ -102,6 +136,8 @@ class WorkAdmin(admin.ModelAdmin):
         "display_title",
         "author_list",
         "notes",
+        "genre_list",
+        "genre_category",
         "events",
         "borrows",
         "purchases",
@@ -119,6 +155,8 @@ class WorkAdmin(admin.ModelAdmin):
         "notes",
         "public_notes",
         "creator__person__name",
+        "genres__name",
+        "genre_category",
         "id",
         "slug",
     )
@@ -265,6 +303,7 @@ class WorkAdmin(admin.ModelAdmin):
         "uri",
         "edition_uri",
         "genre_list",
+        "genre_category",
         "format",
         "subject_list",
         "event_count",
@@ -362,99 +401,123 @@ class FormatAdmin(admin.ModelAdmin):
     fields = ("name", "uri", "notes")
 
 
-class ExportWorkResource(ModelResource):
-    class Meta:
-        model = Work
-        # fields = PERSON_IMPORT_EXPORT_COLUMNS
-        # export_order = PERSON_IMPORT_EXPORT_COLUMNS
+class GenreAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    # override default order to put notes last
+    fields = ("name",)
+    search_fields = ("name",)
 
 
-class WorkResource(ModelResource):
-    def __init__(self, *x, **y):
-        super().__init__(*x, **y)
-        # list to contain updated objects for batch indexing at end
-        self.objects_to_index = []
+class WorkResource(ImportExportModelResource):
+    # only customized fields need specifying here
+    # creators = Field(
+    #     column_name="creators",
+    #     attribute="creators",
+    #     widget=ManyToManyWidget(Person, field="name", separator=";"),
+    # )
 
-    def before_import(self, dataset, *args, **kwargs):
-        # lower and camel_case headers
-        dataset.headers = [x.lower().replace(" ", "_") for x in dataset.headers]
+    # genres = Field(
+    #     column_name="genres",
+    #     attribute="genres",
+    #     widget=ManyToManyWidget(Genre, field="name", separator=";"),
+    # )
 
-        # turn off indexing temporarily
-        IndexableSignalHandler.disconnect()
+    category = Field(
+        column_name="category",
+        attribute="category",
+        widget=ForeignKeyWidget(Genre, field="name"),
+    )
 
-        # turn off viaf lookups
-        settings.SKIP_VIAF_LOOKUP = True
+    # work_format = Field(
+    #     column_name="work_format",
+    #     attribute="work_format",
+    #     widget=ForeignKeyWidget(Format, field='name')
+    # )
 
-    # def before_import_row(self, row, **kwargs):
-    #     """
-    #     Called on an OrderedDictionary of row attributes.
-    #     Opportunity to do quick string formatting as a
-    #     principle of charity to annotators before passing
-    #     values into django-import-export lookup logic.
-    #     """
-    #     # gender to one char
-    #     gstr = str(row.get("gender")).strip()
-    #     row["gender"] = gstr[0].upper() if gstr else ""
-
-    def after_save_instance(self, instance, using_transactions, dry_run):
-        """
-        Called when an instance either was or would be saved (depending on dry_run)
-        """
-        self.objects_to_index.append(instance)
-        return super().after_save_instance(instance, using_transactions, dry_run)
-
-    def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
-        """
-        Called after importing, twice: once with dry_run==True (preview),
-        once dry_run==False. We report how many objects were updated and need to be indexed.
-        We only do so when dry_run is False.
-        """
-        # run parent method
-        super().after_import(dataset, result, using_transactions, dry_run, **kwargs)
-
-        # report how many need indexing
-        logger.debug(
-            f"indexing {len(self.objects_to_index)} objects, dry_run = {dry_run}"
-        )
-
-        # only continue if not a dry run
-        if not dry_run:
-            # re-enable indexing
-            IndexableSignalHandler.connect()
-
-            # index objects
-            if self.objects_to_index:
-                self.Meta.model.index_items(self.objects_to_index)
-
-        # turn viaf lookups back on
-        settings.SKIP_VIAF_LOOKUP = False
+    # subjects = Field(
+    #     column_name="subjects",
+    #     attribute="subjects",
+    #     widget=ManyToManyWidget(Subject, field="name", separator=";"),
+    # )
 
     class Meta:
         model = Work
-        # fields = PERSON_IMPORT_COLUMNS
-        # import_id_fields = ("slug",)
-        # export_order = PERSON_IMPORT_COLUMNS
+        fields = WORK_IMPORT_COLUMNS
+        import_id_fields = ("slug",)
+        export_order = WORK_IMPORT_COLUMNS
         skip_unchanged = True
         report_skipped = True
-        store_instance = True
+
+    def before_import_row(self, row, **kwargs):
+        """
+        Called on an OrderedDictionary of row attributes.
+        """
+        # make sure we have a genre category for this
+        category_name = row["category"]
+        Genre.objects.get_or_create(
+            name=category_name, defaults={"name": category_name}
+        )
+
+
+def unique_list(l):
+    l2 = []
+    for x in l:
+        if x not in set(l2):
+            l2.append(x)
+    return l2
+
+
+class ExportWorkResource(WorkResource):
+    _sep = ";"
+
+    work_format = Field()
+    creators = Field()
+    genres = Field()
+    subjects = Field()
+    category = Field()
+
+    def dehydrate_creators(self, work):
+        return self._sep.join(
+            unique_list([creator.name for creator in work.creators.all()])
+        )
+
+    def dehydrate_work_format(self, work):
+        return work.work_format.name if work.work_format else ""
+
+    def dehydrate_genres(self, work):
+        return self._sep.join(unique_list([genre.name for genre in work.genres.all()]))
+
+    def dehydrate_subjects(self, work):
+        return self._sep.join(
+            unique_list([subject.name for subject in work.subjects.all()])
+        )
+
+    def dehydrate_category(self, work):
+        return work.category.name if work.category else ""
+
+    class Meta:
+        model = Work
+        fields = WORK_IMPORT_EXPORT_COLUMNS
+        export_order = WORK_IMPORT_EXPORT_COLUMNS
 
 
 class WorkAdminImportExport(WorkAdmin, ImportExportModelAdmin):
-    resource_class = WorkResource
+    resource_classes = [WorkResource]
 
-    def get_export_resource_class(self):
+    def get_export_resource_classes(self):
         """
         Specifies the resource class to use for exporting,
         so that separate fields can be exported than those imported
         """
-        return ExportWorkResource
+        return [ExportWorkResource]
 
 
+# enable default admin to see imported data
 admin.site.register(Work, WorkAdminImportExport)
 admin.site.register(CreatorType, CreatorTypeAdmin)
 admin.site.register(Subject, SubjectAdmin)
 admin.site.register(Format, FormatAdmin)
-admin.site.register(Genre)
+admin.site.register(Genre, GenreAdmin)
 
 # NOTE: edition needs to be registered to allow adding from event
 # edit form; allow editing not inline?
