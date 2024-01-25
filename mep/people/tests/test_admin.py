@@ -171,7 +171,7 @@ class TestPersonAdmin(TestCase):
 
         # test values by row
         person_admin = PersonAdminImportExport(model=Person, admin_site=admin.site)
-        export_class = person_admin.get_export_resource_class()
+        export_class = person_admin.get_export_resource_classes()[0]
         exporter = export_class()
 
         def getstr(person, attr, default=""):
@@ -181,7 +181,7 @@ class TestPersonAdmin(TestCase):
 
         for person, row in zip(persons, rows):
             for attr in PERSON_IMPORT_EXPORT_COLUMNS:
-                self.assertEquals(getstr(person, attr), row[attr])
+                self.assertEqual(getstr(person, attr), row[attr])
 
     def _djangoimportexport_do_import_post(
         self, url, filename, input_format=0, follow=False
