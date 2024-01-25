@@ -535,6 +535,9 @@ class PersonResource(ModelResource):
             if self.objects_to_index:
                 Person.index_items(self.objects_to_index)
 
+            # disconnect indexing once done
+            IndexableSignalHandler.disconnect()
+
         # turn viaf lookups back on
         settings.SKIP_VIAF_LOOKUP = False
 
