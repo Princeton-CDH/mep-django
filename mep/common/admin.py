@@ -3,8 +3,10 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from import_export.resources import ModelResource
+from import_export.admin import ImportExportModelAdmin
 from parasolr.django.signals import IndexableSignalHandler
 from django.conf import settings
+from django.contrib import messages
 import logging
 
 logger = logging.getLogger(__name__)
@@ -50,8 +52,11 @@ class LocalUserAdmin(UserAdmin):
 
 
 class ImportExportModelResource(ModelResource):
-    def __init__(self, *x, **y):
-        super().__init__(*x, **y)
+    max_objects_to_index = 100
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request", None)
+        super().__init__(*args, **kwargs)
         # list to contain updated objects for batch indexing at end
         self.objects_to_index = []
 
@@ -92,8 +97,19 @@ class ImportExportModelResource(ModelResource):
 
         # report how many need indexing
         logger.debug(
-            f"indexing {len(self.objects_to_index)} objects, dry_run = {dry_run}"
+            f"requesting index of {len(self.objects_to_index)} objects, dry_run = {dry_run}"
         )
+
+        # warn if too many
+        max2index = self.max_objects_to_index
+        num2index = len(self.objects_to_index)
+        if max2index and num2index > max2index:
+            messages.warning(
+                self.request,
+                f"The number of updated records in need of indexing ({num2index:,})"
+                f" exceeds the maximum amount indexable from the web interface ({max2index:,})."
+                f" Please be aware that you will need to manually re-index this table on the server.",
+            )
 
         # only continue if not a dry run
         if not dry_run:
@@ -102,7 +118,10 @@ class ImportExportModelResource(ModelResource):
 
             # index objects
             if self.objects_to_index:
-                self.Meta.model.index_items(self.objects_to_index)
+                items2index = self.objects_to_index[: max2index if max2index else None]
+                logger.debug(f"indexing {len(items2index):,} items now")
+                self.Meta.model.index_items(items2index)
+                logger.debug(f"done indexing {len(items2index):,} items")
 
         # turn viaf lookups back on
         settings.SKIP_VIAF_LOOKUP = False
@@ -113,6 +132,22 @@ class ImportExportModelResource(ModelResource):
     class Meta:
         skip_unchanged = True
         report_skipped = True
+
+
+class ImportExportAdmin(ImportExportModelAdmin):
+    resource_classes = []
+
+    def get_export_resource_classes(self):
+        """
+        Specifies the resource class to use for exporting,
+        so that separate fields can be exported than those imported
+        """
+        # Subclass this function
+        return super().get_export_resource_classes()
+
+    def get_resource_kwargs(self, request, *args, **kwargs):
+        """Passing request to resource obj to control exported fields dynamically"""
+        return {"request": request}
 
 
 admin.site.unregister(User)
