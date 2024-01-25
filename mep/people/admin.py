@@ -17,6 +17,7 @@ from mep.common.admin import (
     NamedNotableAdmin,
 )
 from mep.footnotes.admin import FootnoteInline
+from mep.common.admin import ImportExportModelResource
 
 from .models import (
     Country,
@@ -478,22 +479,7 @@ class ExportPersonResource(ModelResource):
         export_order = PERSON_IMPORT_EXPORT_COLUMNS
 
 
-class PersonResource(ModelResource):
-    def __init__(self, *x, **y):
-        super().__init__(*x, **y)
-        # list to contain updated objects for batch indexing at end
-        self.objects_to_index = []
-
-    def before_import(self, dataset, *args, **kwargs):
-        # lower and camel_case headers
-        dataset.headers = [x.lower().replace(" ", "_") for x in dataset.headers]
-
-        # turn off indexing temporarily
-        IndexableSignalHandler.disconnect()
-
-        # turn off viaf lookups
-        settings.SKIP_VIAF_LOOKUP = True
-
+class PersonResource(ImportExportModelResource):
     def before_import_row(self, row, **kwargs):
         """
         Called on an OrderedDictionary of row attributes.
@@ -504,39 +490,6 @@ class PersonResource(ModelResource):
         # gender to one char
         gstr = str(row.get("gender")).strip()
         row["gender"] = gstr[0].upper() if gstr else ""
-
-    def after_save_instance(self, instance, using_transactions, dry_run):
-        """
-        Called when an instance either was or would be saved (depending on dry_run)
-        """
-        self.objects_to_index.append(instance)
-        return super().after_save_instance(instance, using_transactions, dry_run)
-
-    def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
-        """
-        Called after importing, twice: once with dry_run==True (preview),
-        once dry_run==False. We report how many objects were updated and need to be indexed.
-        We only do so when dry_run is False.
-        """
-        # run parent method
-        super().after_import(dataset, result, using_transactions, dry_run, **kwargs)
-
-        # report how many need indexing
-        logger.debug(
-            f"indexing {len(self.objects_to_index)} objects, dry_run = {dry_run}"
-        )
-
-        # only continue if not a dry run
-        if not dry_run:
-            # re-enable indexing
-            IndexableSignalHandler.connect()
-
-            # index objects
-            if self.objects_to_index:
-                Person.index_items(self.objects_to_index)
-
-        # turn viaf lookups back on
-        settings.SKIP_VIAF_LOOKUP = False
 
     # only customized fields need specifying here
     nationalities = Field(
@@ -556,14 +509,14 @@ class PersonResource(ModelResource):
 
 
 class PersonAdminImportExport(PersonAdmin, ImportExportModelAdmin):
-    resource_class = PersonResource
+    resource_classes = [PersonResource]
 
-    def get_export_resource_class(self):
+    def get_export_resource_classes(self):
         """
         Specifies the resource class to use for exporting,
         so that separate fields can be exported than those imported
         """
-        return ExportPersonResource
+        return [ExportPersonResource]
 
 
 # enable default admin to see imported data
