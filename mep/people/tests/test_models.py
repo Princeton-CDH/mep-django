@@ -1,10 +1,10 @@
 import datetime
 from datetime import date
 from unittest.mock import patch
-
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import resolve, reverse
 from django.utils import timezone
 import pytest
@@ -190,6 +190,13 @@ class TestPerson(TestCase):
             pers.death_year = None
             pers.save()
             mock_setbirthdeath.assert_called_with()
+
+            # should lookup normally, but configured to skip
+            with override_settings(SKIP_VIAF_LOOKUP=True):
+                mock_setbirthdeath.reset_mock()
+                pers.death_year = None
+                pers.save()
+                mock_setbirthdeath.assert_not_called()
 
     def test_save_old_slug(self):
         pers = Person.objects.create(name="Humperdinck", slug="hp")

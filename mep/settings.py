@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "mep.books",
     "mep.footnotes",
     "mep.pages",
+    "import_export",
 ]
 
 MIDDLEWARE = [

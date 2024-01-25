@@ -1,3 +1,4 @@
+import logging
 from dal import autocomplete
 from django import forms
 from django.conf import settings
@@ -9,7 +10,6 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from tabular_export.admin import export_to_csv_response
 from viapy.widgets import ViafWidget
-
 from mep.accounts.admin import AddressInline
 from mep.common.admin import (
     CollapsedTabularInline,
@@ -17,6 +17,7 @@ from mep.common.admin import (
     NamedNotableAdmin,
 )
 from mep.footnotes.admin import FootnoteInline
+from mep.common.admin import ImportExportModelResource
 
 from .models import (
     Country,
@@ -27,6 +28,41 @@ from .models import (
     Relationship,
     RelationshipType,
 )
+from import_export.admin import (
+    ImportExportModelAdmin,
+)
+from import_export.resources import ModelResource
+from import_export.widgets import ManyToManyWidget, Widget
+from import_export.fields import Field
+from parasolr.django.signals import IndexableSignalHandler
+
+PERSON_IMPORT_COLUMNS = ("slug", "gender", "nationalities")
+
+PERSON_IMPORT_EXPORT_COLUMNS = (
+    "slug",
+    "name",
+    "birth_year",
+    "death_year",
+    "gender",
+    "nationalities",
+    "notes",
+    "start_year",
+    "end_year",
+    "mep_id",
+    "sort_name",
+    "viaf_id",
+    "is_organization",
+    "verified",
+    "title",
+    "profession",
+    "relations",
+    "public_notes",
+    "locations",
+    "updated_at",
+    "id",
+)
+
+logger = logging.getLogger(__name__)
 
 
 class InfoURLInline(CollapsibleTabularInline):
@@ -436,8 +472,55 @@ class LocationAdmin(admin.ModelAdmin):
         ]
 
 
+class ExportPersonResource(ModelResource):
+    class Meta:
+        model = Person
+        fields = PERSON_IMPORT_EXPORT_COLUMNS
+        export_order = PERSON_IMPORT_EXPORT_COLUMNS
+
+
+class PersonResource(ImportExportModelResource):
+    def before_import_row(self, row, **kwargs):
+        """
+        Called on an OrderedDictionary of row attributes.
+        Opportunity to do quick string formatting as a
+        principle of charity to annotators before passing
+        values into django-import-export lookup logic.
+        """
+        # gender to one char
+        gstr = str(row.get("gender")).strip()
+        row["gender"] = gstr[0].upper() if gstr else ""
+
+    # only customized fields need specifying here
+    nationalities = Field(
+        column_name="nationalities",
+        attribute="nationalities",
+        widget=ManyToManyWidget(Country, field="name", separator=";"),
+    )
+
+    class Meta:
+        model = Person
+        fields = PERSON_IMPORT_COLUMNS
+        import_id_fields = ("slug",)
+        export_order = PERSON_IMPORT_COLUMNS
+        skip_unchanged = True
+        report_skipped = True
+        store_instance = True
+
+
+class PersonAdminImportExport(PersonAdmin, ImportExportModelAdmin):
+    resource_classes = [PersonResource]
+
+    def get_export_resource_classes(self):
+        """
+        Specifies the resource class to use for exporting,
+        so that separate fields can be exported than those imported
+        """
+        return [ExportPersonResource]
+
+
 # enable default admin to see imported data
-admin.site.register(Person, PersonAdmin)
+admin.site.register(Person, PersonAdminImportExport)
 admin.site.register(Country, CountryAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Profession, NamedNotableAdmin)
