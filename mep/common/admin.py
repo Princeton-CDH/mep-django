@@ -146,7 +146,7 @@ class ImportExportAdmin(ImportExportModelAdmin):
         return super().get_export_resource_classes()
 
     def get_resource_kwargs(self, request, *args, **kwargs):
-        """Passing request to resource obj to control exported fields dynamically"""
+        """Passing request to resource obj for use in django messages"""
         return {"request": request}
 
 
