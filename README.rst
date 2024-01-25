@@ -29,10 +29,6 @@ Python 3.8 / Django 3.2 / Node 18 / Postgresql 13 / Solr 8
    :target: https://www.codefactor.io/repository/github/princeton-cdh/mep-django
    :alt: CodeFactor
 
-.. image:: https://requires.io/github/Princeton-CDH/mep-django/requirements.svg?branch=main
-     :target: https://requires.io/github/Princeton-CDH/mep-django/requirements/?branch=main
-     :alt: Requirements Status
-
 For specifics on the architecture and code, read `current release documentation <https://princeton-cdh.github.io/mep-django/>`_.
 
 Development instructions
