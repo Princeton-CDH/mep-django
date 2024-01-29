@@ -16,10 +16,13 @@ from mep.people.models import Person
 from mep.books.queryset import WorkSolrQuerySet
 from mep.common.admin import CollapsibleTabularInline
 from import_export.resources import ModelResource
-from import_export.widgets import ManyToManyWidget, ForeignKeyWidget
+from import_export.widgets import ManyToManyWidget, ForeignKeyWidget, Widget
 from import_export.fields import Field
 from parasolr.django.signals import IndexableSignalHandler
 from django.conf import settings
+import logging
+
+logger = logging.getLogger()
 
 WORK_IMPORT_EXPORT_COLUMNS = [
     "id",
@@ -40,16 +43,6 @@ WORK_IMPORT_EXPORT_COLUMNS = [
     "public_notes",
     "updated_at",
 ]
-
-# WORK_IMPORT_COLUMNS = [
-#     col
-#     for col in WORK_IMPORT_EXPORT_COLUMNS
-#     if col not in {
-#         'updated_at',
-#         'id',
-#         'notes'
-#     }
-# ]
 
 WORK_IMPORT_COLUMNS = ["slug", "title", "category"]
 
@@ -133,7 +126,7 @@ class WorkAdmin(admin.ModelAdmin):
         "author_list",
         "notes",
         "genre_list",
-        "genre_category",
+        "category",
         "events",
         "borrows",
         "purchases",
@@ -152,7 +145,7 @@ class WorkAdmin(admin.ModelAdmin):
         "public_notes",
         "creator__person__name",
         "genres__name",
-        "genre_category",
+        "category",
         "id",
         "slug",
     )
@@ -299,7 +292,7 @@ class WorkAdmin(admin.ModelAdmin):
         "uri",
         "edition_uri",
         "genre_list",
-        "genre_category",
+        "category",
         "format",
         "subject_list",
         "event_count",
@@ -399,7 +392,6 @@ class FormatAdmin(admin.ModelAdmin):
 
 class GenreAdmin(admin.ModelAdmin):
     list_display = ("name",)
-    # override default order to put notes last
     fields = ("name",)
     search_fields = ("name",)
 
@@ -455,41 +447,29 @@ class WorkResource(ImportExportModelResource):
         )
 
 
-def unique_list(l):
-    l2 = []
-    for x in l:
-        if x not in set(l2):
-            l2.append(x)
-    return l2
+class NamedListWidget(Widget):
+    sep = ";"
+
+    @classmethod
+    def render(cls, queryset):
+        return cls.sep.join(child.name for child in queryset.all())
 
 
 class ExportWorkResource(WorkResource):
-    _sep = ";"
-
-    work_format = Field()
     creators = Field()
     genres = Field()
     subjects = Field()
-    category = Field()
+    category = Field("category__name")
+    work_format = Field("work_format__name")
 
     def dehydrate_creators(self, work):
-        return self._sep.join(
-            unique_list([creator.name for creator in work.creators.all()])
-        )
-
-    def dehydrate_work_format(self, work):
-        return work.work_format.name if work.work_format else ""
+        return NamedListWidget.render(work.creators)
 
     def dehydrate_genres(self, work):
-        return self._sep.join(unique_list([genre.name for genre in work.genres.all()]))
+        return NamedListWidget.render(work.genres)
 
     def dehydrate_subjects(self, work):
-        return self._sep.join(
-            unique_list([subject.name for subject in work.subjects.all()])
-        )
-
-    def dehydrate_category(self, work):
-        return work.category.name if work.category else ""
+        return NamedListWidget.render(work.subjects)
 
     class Meta:
         model = Work

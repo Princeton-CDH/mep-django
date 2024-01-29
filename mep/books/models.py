@@ -314,7 +314,7 @@ class Work(TrackChangesModel, Notable, ModelIndexable, EventSetMixin):
         Genre, blank=True, help_text="Genre(s) from OCLC record"
     )
 
-    # top level category
+    #: top level category
     category = models.ForeignKey(
         Genre,
         verbose_name="Genre Cateogry",
@@ -493,10 +493,6 @@ class Work(TrackChangesModel, Notable, ModelIndexable, EventSetMixin):
     def genre_list(self):
         """semicolon separated list of genres"""
         return "; ".join([genre.name for genre in self.genres.all()])
-
-    def genre_category(self):
-        """string representation of category"""
-        return self.category.name if self.category else ""
 
     def format(self):
         """format of this work if known (e.g. book or periodical)"""
