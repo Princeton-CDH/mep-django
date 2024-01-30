@@ -44,7 +44,7 @@ WORK_IMPORT_EXPORT_COLUMNS = [
     "updated_at",
 ]
 
-WORK_IMPORT_COLUMNS = ["slug", "title", "category"]
+WORK_IMPORT_COLUMNS = ["slug", "category"]
 
 
 class WorkCreatorInlineForm(forms.ModelForm):
@@ -398,35 +398,11 @@ class GenreAdmin(admin.ModelAdmin):
 
 class WorkResource(ImportExportModelResource):
     # only customized fields need specifying here
-    # creators = Field(
-    #     column_name="creators",
-    #     attribute="creators",
-    #     widget=ManyToManyWidget(Person, field="name", separator=";"),
-    # )
-
-    # genres = Field(
-    #     column_name="genres",
-    #     attribute="genres",
-    #     widget=ManyToManyWidget(Genre, field="name", separator=";"),
-    # )
-
     category = Field(
         column_name="category",
         attribute="category",
         widget=ForeignKeyWidget(Genre, field="name"),
     )
-
-    # work_format = Field(
-    #     column_name="work_format",
-    #     attribute="work_format",
-    #     widget=ForeignKeyWidget(Format, field='name')
-    # )
-
-    # subjects = Field(
-    #     column_name="subjects",
-    #     attribute="subjects",
-    #     widget=ManyToManyWidget(Subject, field="name", separator=";"),
-    # )
 
     class Meta:
         model = Work

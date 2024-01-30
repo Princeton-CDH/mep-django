@@ -8,6 +8,7 @@ from parasolr.django.signals import IndexableSignalHandler
 from django.conf import settings
 from django.contrib import messages
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,7 @@ class LocalUserAdmin(UserAdmin):
 
 
 class ImportExportModelResource(ModelResource):
-    max_objects_to_index = 100
+    max_objects_to_index = 1000
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request", None)
@@ -100,17 +101,6 @@ class ImportExportModelResource(ModelResource):
             f"requesting index of {len(self.objects_to_index)} objects, dry_run = {dry_run}"
         )
 
-        # warn if too many
-        max2index = self.max_objects_to_index
-        num2index = len(self.objects_to_index)
-        if max2index and num2index > max2index:
-            messages.warning(
-                self.request,
-                f"The number of updated records in need of indexing ({num2index:,})"
-                f" exceeds the maximum amount indexable from the web interface ({max2index:,})."
-                f" Please be aware that you will need to manually re-index this table on the server.",
-            )
-
         # only continue if not a dry run
         if not dry_run:
             # re-enable indexing
@@ -118,10 +108,26 @@ class ImportExportModelResource(ModelResource):
 
             # index objects
             if self.objects_to_index:
-                items2index = self.objects_to_index[: max2index if max2index else None]
+                # get objects to index
+                items2index = self.objects_to_index[: self.max_objects_to_index]
                 logger.debug(f"indexing {len(items2index):,} items now")
+                start = time.time()
+
+                # do indexing
                 self.Meta.model.index_items(items2index)
-                logger.debug(f"done indexing {len(items2index):,} items")
+                logger.debug(
+                    f"finished indexing {len(items2index):,} items in {time.time() - start:.1f} seconds"
+                )
+
+                # warn if only so many indexed
+                n_indexed, n_updated = len(items2index), len(self.objects_to_index)
+                n_remaining = n_updated - n_indexed
+                if n_remaining:
+                    messages.warning(
+                        self.request,
+                        f"Updated {n_updated:,} records and indexed the first {n_indexed:,}. "
+                        f"The remaining {n_remaining:,} must be indexed on the server.",
+                    )
 
         # turn viaf lookups back on
         settings.SKIP_VIAF_LOOKUP = False
