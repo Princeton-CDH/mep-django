@@ -7,12 +7,44 @@ from django.utils.html import format_html
 from django.utils.timezone import now
 
 from tabular_export.admin import export_to_csv_response
+from mep.common.admin import ImportExportModelResource, ImportExportAdmin
 
 from mep.accounts.admin import AUTOCOMPLETE
 from mep.accounts.partial_date import PartialDateFormMixin
 from mep.books.models import Creator, CreatorType, Work, Subject, Format, Genre, Edition
+from mep.people.models import Person
 from mep.books.queryset import WorkSolrQuerySet
 from mep.common.admin import CollapsibleTabularInline
+from import_export.resources import ModelResource
+from import_export.widgets import ManyToManyWidget, ForeignKeyWidget, Widget
+from import_export.fields import Field
+from parasolr.django.signals import IndexableSignalHandler
+from django.conf import settings
+import logging
+
+logger = logging.getLogger()
+
+WORK_IMPORT_EXPORT_COLUMNS = [
+    "id",
+    "slug",
+    "creators",
+    "title",
+    "year",
+    "notes",
+    "genres",
+    "category",
+    "mep_id",
+    "uri",
+    "edition_uri",
+    "sort_title",
+    "ebook_url",
+    "work_format",
+    "subjects",
+    "public_notes",
+    "updated_at",
+]
+
+WORK_IMPORT_COLUMNS = ["slug", "category"]
 
 
 class WorkCreatorInlineForm(forms.ModelForm):
@@ -93,6 +125,8 @@ class WorkAdmin(admin.ModelAdmin):
         "display_title",
         "author_list",
         "notes",
+        "genre_list",
+        "category",
         "events",
         "borrows",
         "purchases",
@@ -110,6 +144,8 @@ class WorkAdmin(admin.ModelAdmin):
         "notes",
         "public_notes",
         "creator__person__name",
+        "genres__name",
+        "category",
         "id",
         "slug",
     )
@@ -256,6 +292,7 @@ class WorkAdmin(admin.ModelAdmin):
         "uri",
         "edition_uri",
         "genre_list",
+        "category",
         "format",
         "subject_list",
         "event_count",
@@ -353,11 +390,86 @@ class FormatAdmin(admin.ModelAdmin):
     fields = ("name", "uri", "notes")
 
 
-admin.site.register(Work, WorkAdmin)
+class GenreAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    fields = ("name",)
+    search_fields = ("name",)
+
+
+class WorkResource(ImportExportModelResource):
+    # only customized fields need specifying here
+    category = Field(
+        column_name="category",
+        attribute="category",
+        widget=ForeignKeyWidget(Genre, field="name"),
+    )
+
+    class Meta:
+        model = Work
+        fields = WORK_IMPORT_COLUMNS
+        import_id_fields = ("slug",)
+        export_order = WORK_IMPORT_COLUMNS
+        skip_unchanged = True
+        report_skipped = True
+
+    def before_import_row(self, row, **kwargs):
+        """
+        Called on an OrderedDictionary of row attributes.
+        """
+        # make sure we have a genre category for this
+        category_name = row["category"]
+        Genre.objects.get_or_create(
+            name=category_name, defaults={"name": category_name}
+        )
+
+
+class NamedListWidget(Widget):
+    sep = ";"
+
+    @classmethod
+    def render(cls, queryset):
+        return cls.sep.join(child.name for child in queryset.all())
+
+
+class ExportWorkResource(WorkResource):
+    creators = Field()
+    genres = Field()
+    subjects = Field()
+    category = Field("category__name")
+    work_format = Field("work_format__name")
+
+    def dehydrate_creators(self, work):
+        return NamedListWidget.render(work.creators)
+
+    def dehydrate_genres(self, work):
+        return NamedListWidget.render(work.genres)
+
+    def dehydrate_subjects(self, work):
+        return NamedListWidget.render(work.subjects)
+
+    class Meta:
+        model = Work
+        fields = WORK_IMPORT_EXPORT_COLUMNS
+        export_order = WORK_IMPORT_EXPORT_COLUMNS
+
+
+class WorkAdminImportExport(WorkAdmin, ImportExportAdmin):
+    resource_classes = [WorkResource]
+
+    def get_export_resource_classes(self):
+        """
+        Specifies the resource class to use for exporting,
+        so that separate fields can be exported than those imported
+        """
+        return [ExportWorkResource]
+
+
+# enable default admin to see imported data
+admin.site.register(Work, WorkAdminImportExport)
 admin.site.register(CreatorType, CreatorTypeAdmin)
 admin.site.register(Subject, SubjectAdmin)
 admin.site.register(Format, FormatAdmin)
-admin.site.register(Genre)
+admin.site.register(Genre, GenreAdmin)
 
 # NOTE: edition needs to be registered to allow adding from event
 # edit form; allow editing not inline?

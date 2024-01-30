@@ -313,6 +313,19 @@ class Work(TrackChangesModel, Notable, ModelIndexable, EventSetMixin):
     genres = models.ManyToManyField(
         Genre, blank=True, help_text="Genre(s) from OCLC record"
     )
+
+    #: top level category
+    category = models.ForeignKey(
+        Genre,
+        verbose_name="Genre Cateogry",
+        related_name="genres",
+        null=True,
+        blank=True,
+        help_text="Top-level genre category "
+        "(Fiction, Nonfiction, Drama, Poetry, Periodical)",
+        on_delete=models.SET_NULL,
+    )
+
     #: optional subjects, from OCLC record
     subjects = models.ManyToManyField(Subject, blank=True)
     #: a field for notes publicly displayed on the website
