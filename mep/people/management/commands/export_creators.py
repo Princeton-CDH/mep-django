@@ -1,7 +1,7 @@
 """
-Manage command to export member data for use by others.
+Manage command to export creator data for use by others.
 
-Generates a CSV and JSON file including details on every library member in the
+Generates a CSV and JSON file including details on every creator
 database, with summary details and coordinates for associated addresses.
 
 """
