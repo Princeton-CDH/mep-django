@@ -22,7 +22,7 @@ class Command(BaseExport):
     model = Person
 
     csv_fields = [
-        "uri",
+        "slug",
         "name",
         "sort_name",
         "title",
@@ -62,7 +62,8 @@ class Command(BaseExport):
         # required properties
         data = OrderedDict(
             [
-                ("uri", absolutize_url(obj.get_absolute_url())),
+                # ("uri", absolutize_url(obj.get_absolute_url())),
+                ("slug", obj.slug),
                 ("name", obj.name),
                 ("sort_name", obj.sort_name),
                 ("is_organization", obj.is_organization),
@@ -85,8 +86,10 @@ class Command(BaseExport):
         if obj.death_year:
             data["death_year"] = obj.death_year
         # set for unique, list for json serialization
-        data["membership_years"] = list(
-            set(d.year for d in obj.account_set.first().event_dates)
+        data["membership_years"] = (
+            list(set(d.year for d in obj.account_set.first().event_dates))
+            if obj.account_set.first()
+            else []
         )
 
         # viaf & wikipedia URLs
@@ -104,21 +107,23 @@ class Command(BaseExport):
                 data["nationalities"].append(country.name)
 
         # add ordered list of addresses & coordinates
-        locations = obj.account_set.first().locations
-        if locations.exists():
-            data["addresses"] = []
-            data["coordinates"] = []
-            data["postal_codes"] = []
-            data["arrondissements"] = []
-            for location in locations.all():
-                data["addresses"].append(str(location))
-                data["coordinates"].append(
-                    "%s, %s" % (location.latitude, location.longitude)
-                    if (location.latitude and location.longitude)
-                    else ""
-                )
-                data["postal_codes"].append(location.postal_code)
-                data["arrondissements"].append(location.arrondissement() or "")
+        locations_obj = obj.account_set.first()
+        if locations_obj:
+            locations = locations_obj.locations
+            if locations.exists():
+                data["addresses"] = []
+                data["coordinates"] = []
+                data["postal_codes"] = []
+                data["arrondissements"] = []
+                for location in locations.all():
+                    data["addresses"].append(str(location))
+                    data["coordinates"].append(
+                        "%s, %s" % (location.latitude, location.longitude)
+                        if (location.latitude and location.longitude)
+                        else ""
+                    )
+                    data["postal_codes"].append(location.postal_code)
+                    data["arrondissements"].append(location.arrondissement() or "")
 
         # add public notes
         if obj.public_notes:
