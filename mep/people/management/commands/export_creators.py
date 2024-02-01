@@ -12,7 +12,7 @@ from mep.people.management.commands.export_members import Command as ExportMembe
 
 
 class Command(ExportMemberCommand):
-    """Export member data."""
+    """Export creator data."""
 
     csv_fields = [
         "id",  # will be saved as id
