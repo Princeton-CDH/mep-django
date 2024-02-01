@@ -109,7 +109,7 @@ class Command(BaseExport):
             )
 
         # viaf & wikipedia URLs
-        if "viaf_id" in field_set and obj.viaf_id:
+        if "viaf_url" in field_set and obj.viaf_id:
             data["viaf_url"] = obj.viaf_id
         if "wikipedia_url" in field_set:
             for info_url in obj.urls.all():
