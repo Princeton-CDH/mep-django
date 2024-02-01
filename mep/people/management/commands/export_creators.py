@@ -14,10 +14,27 @@ from mep.people.management.commands.export_members import Command as ExportMembe
 class Command(ExportMemberCommand):
     """Export member data."""
 
+    csv_fields = [
+        "id",  # will be saved as id
+        "name",
+        "sort_name",
+        "title",
+        "gender",
+        "is_organization",
+        "birth_year",
+        "death_year",
+        "viaf_url",
+        "wikipedia_url",
+        # related country
+        "nationalities",
+        # generic
+        "notes",
+        "updated",
+    ]
+
     def get_queryset(self):
         """filter to creators"""
-        creator_ids = {c.person_id for c in Creator.objects.all()}
-        return Person.objects.filter(pk__in=creator_ids)
+        return Person.objects.filter(creator__isnull=False)
 
     def get_base_filename(self):
         """set the filename to "creators.csv" since it's a subset of people"""
