@@ -94,6 +94,8 @@ class BaseExport(BaseCommand):
         # get stream array / generator of data for export
         data = self.get_data(kwargs.get("max"))
         self.stdout.write("Exporting JSON and CSV")
+        # ensure directory exists (useful to allow command line user to specify dated dir)
+        os.makedirs(os.path.dirname(base_filename), exist_ok=True)
         # open and initialize CSV file
         with open("{}.csv".format(base_filename), "w") as csvfile:
             # write utf-8 byte order mark at the beginning of the file

@@ -41,6 +41,7 @@ class Command(BaseExport):
         + [
             "year",
             "format",
+            # "genre_category",
             "uncertain",
             "ebook_url",
             "volumes_issues",
@@ -84,9 +85,14 @@ class Command(BaseExport):
         data.update(self.creator_info(work))
         if work.year:
             data["year"] = work.year
+
         # format is not currently set for all items
         if work.work_format:
             data["format"] = work.work_format.name
+
+        # genre category
+        # if work.category:
+        # data['genre_category'] = work.category.name
 
         data["uncertain"] = work.is_uncertain
 
