@@ -22,6 +22,8 @@ class Command(BaseExport):
     model = Person
 
     csv_fields = [
+        "id",  # including "id" to store slug for exports,
+        # given not all exported entities have a URI
         "uri",
         "name",
         "sort_name",

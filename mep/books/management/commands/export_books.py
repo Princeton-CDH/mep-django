@@ -36,12 +36,14 @@ class Command(BaseExport):
     # query the database at load time (but maybe only a problem for tests)
 
     csv_fields = (
-        ["uri", "title"]
+        # including "id" to store slug for exports,
+        # given not all exported entities have a URI
+        ["id", "uri", "title"]
         + [creator.lower() for creator in creator_types]
         + [
             "year",
             "format",
-            # "genre_category",
+            "genre_category",
             "uncertain",
             "ebook_url",
             "volumes_issues",
@@ -78,6 +80,7 @@ class Command(BaseExport):
         # required properties
         data = OrderedDict(
             [
+                ("id", work.slug),
                 ("uri", absolutize_url(work.get_absolute_url())),
                 ("title", work.title),
             ]
@@ -91,8 +94,8 @@ class Command(BaseExport):
             data["format"] = work.work_format.name
 
         # genre category
-        # if work.category:
-        # data['genre_category'] = work.category.name
+        if work.category:
+            data["genre_category"] = work.category.name
 
         data["uncertain"] = work.is_uncertain
 
@@ -116,7 +119,6 @@ class Command(BaseExport):
 
         # date last modified
         data["updated"] = work.updated_at.isoformat()
-
         return data
 
     def creator_info(self, work):

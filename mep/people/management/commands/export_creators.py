@@ -15,7 +15,7 @@ class Command(ExportMemberCommand):
     """Export creator data."""
 
     csv_fields = [
-        "id",  # slug will be used (unlike members, no URI to use)
+        "id",  # no URI for authors so using slug as ID
         "name",
         "sort_name",
         "title",
