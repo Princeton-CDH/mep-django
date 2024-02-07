@@ -148,7 +148,9 @@ class BaseExport(BaseCommand):
         # grab the first N if maximum is specified
         if maximum:
             objects = objects[:maximum]
-        total = objects.count()
+        total = len(
+            objects
+        )  # fewer assumptions, allows other (multi model/class) objects
         return StreamArray((self.get_object_data(obj) for obj in objects), total)
 
     def get_object_data(self, obj):
