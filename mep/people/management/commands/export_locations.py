@@ -86,14 +86,8 @@ class Command(BaseExport):
             member_id=person.slug,
             member_uri=absolutize_url(person.get_absolute_url()),
             # Address data
-            start_date=addr.start_date.isoformat() if addr.start_date else None,
-            end_date=addr.end_date.isoformat() if addr.end_date else None,
-            start_date_precision=serialize_precision(addr.start_date_precision)
-            if addr.start_date_precision
-            else None,
-            end_date_precision=serialize_precision(addr.end_date_precision)
-            if addr.end_date_precision
-            else None,
+            start_date=addr.partial_start_date,
+            end_date=addr.partial_end_date,
             care_of_person_id=addr.care_of_person.slug if addr.care_of_person else None,
             # Location data
             street_address=loc.street_address,
