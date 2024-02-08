@@ -100,12 +100,3 @@ class Command(BaseExport):
         )
 
 
-def serialize_precision(date_prec):
-    o = []
-    if date_prec.year:
-        o.append("Y")
-    if date_prec.month:
-        o.append("M")
-    if date_prec.day:
-        o.append("D")
-    return "-".join(o)
