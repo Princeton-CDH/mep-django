@@ -36,8 +36,6 @@ class Command(BaseExport):
         "country",
         "start_date",
         "end_date",
-        "start_date_precision",
-        "end_date_precision",
         "longitude",
         "latitude",
     ]
