@@ -68,7 +68,8 @@ class BaseExport(BaseCommand):
         parser.add_argument(
             "-d",
             "--directory",
-            help="Specify the directory where files should be generated",
+            help="Specify the directory where files should be generated. "
+            "The directory will be created if it does not already exist.",
         )
         parser.add_argument(
             "-m",

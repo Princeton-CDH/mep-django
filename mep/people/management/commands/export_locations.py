@@ -1,9 +1,10 @@
 """
-Manage command to export member data for use by others.
+Manage command to export location data for use by others.
 
-Generates a CSV and JSON file including details on every library member in the
-database, with summary details and coordinates for associated addresses.
-
+Generates a CSV and JSON file including details on which member
+of the library lived where (if known) during what time period 
+(if known). The table includes summary details and coordinates 
+for associated addresses.
 """
 
 from collections import OrderedDict
@@ -24,8 +25,6 @@ class Command(BaseExport):
     model = Address
 
     csv_fields = [
-        "id",  # including "id" to store slug for exports,
-        # given not all exported entities have a URI
         "member_id",  # member slug
         "member_uri",
         "care_of_person_id",  # person slug
@@ -69,20 +68,9 @@ class Command(BaseExport):
         person, addr = obj
         loc = addr.location
 
-        # format id
-        id_parts = [
-            person.slug,
-            loc.street_address,
-            loc.city,
-            addr.start_date.isoformat() if addr.start_date else None,
-            addr.end_date.isoformat() if addr.end_date else None,
-        ]
-        id = "-".join(x for x in id_parts if x).lower()
-
         # required properties
         return dict(
             # Member
-            id=id,
             member_id=person.slug,
             member_uri=absolutize_url(person.get_absolute_url()),
             # Address data
@@ -98,5 +86,3 @@ class Command(BaseExport):
             country=loc.country.name if loc.country else None,
             arrrondissement=loc.arrondissement(),
         )
-
-

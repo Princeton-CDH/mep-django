@@ -2,8 +2,8 @@
 Manage command to export creator data for use by others.
 
 Generates a CSV and JSON file including details on every creator
-database, with summary details and coordinates for associated addresses.
-
+(author, translated, editor, etc) in the database, with details
+on creator nationality, gender, and other information.
 """
 
 from mep.people.models import Person
