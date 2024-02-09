@@ -7,7 +7,6 @@ on creator nationality, gender, and other information.
 """
 
 from mep.people.models import Person
-from mep.books.models import Creator
 from mep.people.management.commands.export_members import Command as ExportMemberCommand
 
 

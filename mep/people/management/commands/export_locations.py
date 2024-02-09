@@ -7,14 +7,10 @@ of the library lived where (if known) during what time period
 for associated addresses.
 """
 
-from collections import OrderedDict
 from django.db.models import Prefetch
 from mep.common.management.export import BaseExport
-from mep.common.templatetags.mep_tags import domain
 from mep.common.utils import absolutize_url
-from mep.people.models import Location, Person
-from mep.accounts.models import Account, Address
-from mep.accounts.partial_date import DatePrecisionField
+from mep.accounts.models import Address
 
 
 class Command(BaseExport):

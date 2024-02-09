@@ -8,9 +8,7 @@ and purchases.
 """
 
 from collections import OrderedDict
-
 from django.db.models import F
-
 from mep.books.models import CreatorType, Work
 from mep.common.management.export import BaseExport
 from mep.common.utils import absolutize_url
