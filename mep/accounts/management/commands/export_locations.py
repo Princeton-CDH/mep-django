@@ -27,7 +27,7 @@ class Command(BaseExport):
         "street_address",
         "postal_code",
         "city",
-        "arrrondissement",
+        "arrondissement",
         "country",
         "start_date",
         "end_date",
@@ -80,5 +80,5 @@ class Command(BaseExport):
             latitude=float(loc.latitude) if loc.latitude is not None else None,
             longitude=float(loc.longitude) if loc.longitude is not None else None,
             country=loc.country.name if loc.country else None,
-            arrrondissement=loc.arrondissement(),
+            arrondissement=loc.arrondissement(),
         )
