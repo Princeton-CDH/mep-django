@@ -1,6 +1,5 @@
 import codecs
 import os.path
-from pprint import pprint
 from collections import OrderedDict
 from datetime import date, timedelta
 from io import StringIO
@@ -646,7 +645,6 @@ class TestExportLocations(TestCase):
         gay = Person.objects.get(name="Francisque Gay")
         address = Address.objects.get(pk=236)
         gay_data = self.cmd.get_object_data((gay, address))
-        pprint(gay_data)
 
         # check some basic data
 
