@@ -80,6 +80,26 @@ class ImportExportModelResource(ModelResource):
         """
         pass
 
+    def validate_row_by_slug(self, row):
+        if not row.get("slug"):
+            return False
+        if not self.Meta.model.objects.filter(slug=row["slug"]).exists():
+            # past slug?
+            work = self.Meta.model.objects.filter(past_slugs__slug=row["slug"]).first()
+            if work:
+                logger.debug(f'renaming {row["slug"]} to {work.slug}')
+                row["slug"] = work.slug
+            else:
+                err = f'{self.Meta.model.__name__} with slug {row["slug"]} not found'
+                logger.error(err)
+                return False
+        return True
+
+    def skip_row(self, instance, original, row, import_validation_errors=None):
+        if not self.validate_row_by_slug(row):
+            return True
+        return super().skip_row(instance, original, row, import_validation_errors)
+
     def after_save_instance(self, instance, using_transactions, dry_run):
         """
         Called when an instance either was or would be saved (depending on dry_run)

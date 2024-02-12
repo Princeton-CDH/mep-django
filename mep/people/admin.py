@@ -1,4 +1,7 @@
+from functools import cached_property
 import logging
+import os
+import csv
 from dal import autocomplete
 from django import forms
 from django.conf import settings
@@ -480,6 +483,21 @@ class ExportPersonResource(ModelResource):
 
 
 class PersonResource(ImportExportModelResource):
+    @cached_property
+    def country_to_data(self):
+        filename = os.path.join(
+            os.path.dirname(__file__), "static", "admin", "geonames-countryInfo.csv"
+        )
+        data = {}
+        with open(filename, "r", newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                data[row["name"]] = {
+                    "geonames_id": f"http://sws.geonames.org/{row['geonames_id']}/",
+                    "code": row["code"],
+                }
+        return data
+
     def before_import_row(self, row, **kwargs):
         """
         Called on an OrderedDictionary of row attributes.
@@ -487,9 +505,16 @@ class PersonResource(ImportExportModelResource):
         principle of charity to annotators before passing
         values into django-import-export lookup logic.
         """
+        # make sure slug is valid and matches
+        self.validate_row_by_slug(row)
+
         # gender to one char
         gstr = str(row.get("gender")).strip()
         row["gender"] = gstr[0].upper() if gstr else ""
+
+        # ensure we have countries
+        for country_name in row["nationalities"].strip().split(";"):
+            Country.objects.get_or_create(name=country_name.strip())
 
     # only customized fields need specifying here
     nationalities = Field(

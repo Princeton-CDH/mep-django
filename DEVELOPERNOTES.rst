@@ -43,4 +43,4 @@ Create role and password::
 
 Import database dump (change path as appropriate)::
 
-    psql -d postgres -U cdh_shxco < data/13_daily_cdh_shxco_cdh_shxco_2023-04-05.Wednesday.sql
+    psql -d postgres -U cdh_shxco < data/13_daily_cdh_shxco_cdh_shxco_2023-12-03.Sunday.sql

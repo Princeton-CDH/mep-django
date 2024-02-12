@@ -32,7 +32,7 @@ WORK_IMPORT_EXPORT_COLUMNS = [
     "year",
     "notes",
     "genres",
-    "category",
+    "categories",
     "mep_id",
     "uri",
     "edition_uri",
@@ -44,7 +44,7 @@ WORK_IMPORT_EXPORT_COLUMNS = [
     "updated_at",
 ]
 
-WORK_IMPORT_COLUMNS = ["slug", "category"]
+WORK_IMPORT_COLUMNS = ["slug", "categories"]
 
 
 class WorkCreatorInlineForm(forms.ModelForm):
@@ -126,7 +126,7 @@ class WorkAdmin(admin.ModelAdmin):
         "author_list",
         "notes",
         "genre_list",
-        "category",
+        "category_list",
         "events",
         "borrows",
         "purchases",
@@ -145,7 +145,7 @@ class WorkAdmin(admin.ModelAdmin):
         "public_notes",
         "creator__person__name",
         "genres__name",
-        "category",
+        "categories__name",
         "id",
         "slug",
     )
@@ -292,7 +292,7 @@ class WorkAdmin(admin.ModelAdmin):
         "uri",
         "edition_uri",
         "genre_list",
-        "category",
+        "categories",
         "format",
         "subject_list",
         "event_count",
@@ -398,10 +398,10 @@ class GenreAdmin(admin.ModelAdmin):
 
 class WorkResource(ImportExportModelResource):
     # only customized fields need specifying here
-    category = Field(
-        column_name="category",
-        attribute="category",
-        widget=ForeignKeyWidget(Genre, field="name"),
+    categories = Field(
+        column_name="categories",
+        attribute="categories",
+        widget=ManyToManyWidget(Genre, field="name", separator=";"),
     )
 
     class Meta:
@@ -416,11 +416,13 @@ class WorkResource(ImportExportModelResource):
         """
         Called on an OrderedDictionary of row attributes.
         """
-        # make sure we have a genre category for this
-        category_name = row["category"]
-        Genre.objects.get_or_create(
-            name=category_name, defaults={"name": category_name}
-        )
+        # make sure slug is valid and matches
+        self.validate_row_by_slug(row)
+
+        # make sure we have a genre category for each listed
+        category_names = row["categories"]
+        for cat in category_names.split(";"):
+            Genre.objects.get_or_create(name=cat.strip())
 
 
 class NamedListWidget(Widget):
@@ -435,11 +437,14 @@ class ExportWorkResource(WorkResource):
     creators = Field()
     genres = Field()
     subjects = Field()
-    category = Field("category__name")
+    categories = Field()
     work_format = Field("work_format__name")
 
     def dehydrate_creators(self, work):
         return NamedListWidget.render(work.creators)
+
+    def dehydrate_categories(self, work):
+        return NamedListWidget.render(work.categories)
 
     def dehydrate_genres(self, work):
         return NamedListWidget.render(work.genres)
