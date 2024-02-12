@@ -483,21 +483,6 @@ class ExportPersonResource(ModelResource):
 
 
 class PersonResource(ImportExportModelResource):
-    @cached_property
-    def country_to_data(self):
-        filename = os.path.join(
-            os.path.dirname(__file__), "static", "admin", "geonames-countryInfo.csv"
-        )
-        data = {}
-        with open(filename, "r", newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                data[row["name"]] = {
-                    "geonames_id": f"http://sws.geonames.org/{row['geonames_id']}/",
-                    "code": row["code"],
-                }
-        return data
-
     def before_import_row(self, row, **kwargs):
         """
         Called on an OrderedDictionary of row attributes.
