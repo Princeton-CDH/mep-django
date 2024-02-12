@@ -35,22 +35,22 @@ class Command(BaseExport):
         "latitude",
     ]
 
-    def get_queryset(self):
-        """
-        custom filter needed to return person-address combos,
-        so we can pass a one object per row to `get_object_data`
-        """
-        addresses = Address.objects.prefetch_related(
-            Prefetch("account"),
-            Prefetch("person"),
-            Prefetch("location"),
-        )
-        res = []
-        for addr in addresses.all():
-            persons = [addr.person] if addr.person else addr.account.persons.all()
-            for person in persons:
-                res.append((person, addr))
-        return res
+    # def get_queryset(self):
+    #     """
+    #     custom filter needed to return person-address combos,
+    #     so we can pass a one object per row to `get_object_data`
+    #     """
+    #     addresses = Address.objects.prefetch_related(
+    #         Prefetch("account"),
+    #         Prefetch("person"),
+    #         Prefetch("location"),
+    #     )
+    #     res = []
+    #     for addr in addresses.all():
+    #         persons = [addr.person] if addr.person else addr.account.persons.all()
+    #         for person in persons:
+    #             res.append((person, addr))
+    #     return res
 
     def get_base_filename(self):
         """set the filename to 'locations.csv'"""
@@ -61,14 +61,17 @@ class Command(BaseExport):
         Generate dictionary of data to export for a single
         :class:`~mep.people.models.Person`
         """
-        person, addr = obj
+        addr = obj
         loc = addr.location
+        persons = addr.account.persons.all()
 
         # required properties
         return dict(
             # Member
-            member_id=person.slug,
-            member_uri=absolutize_url(person.get_absolute_url()),
+            member_id=[person.slug for person in persons],
+            member_uri=[
+                absolutize_url(person.get_absolute_url()) for person in persons
+            ],
             # Address data
             start_date=addr.partial_start_date,
             end_date=addr.partial_end_date,
