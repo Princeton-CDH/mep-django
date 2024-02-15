@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django import forms
 from django.contrib import admin
 from django.core.validators import ValidationError
@@ -412,6 +413,32 @@ class WorkResource(ImportExportModelResource):
         skip_unchanged = True
         report_skipped = True
 
+    def before_import(self, dataset, using_transactions, dry_run, **kwargs):
+        # run parent method
+        super().before_import(dataset, using_transactions, dry_run, **kwargs)
+
+        # ensure nationalities
+        genre_categories = {
+            nat.strip()
+            for row in dataset.dict
+            for nat in row["categories"].split(";")
+            if nat.strip()
+        }
+        try:
+            added = 0
+            for genre in genre_categories:
+                if not Genre.objects.filter(name=genre).exists():
+                    logger.debug(f'Genre "{genre}" does not exist in db, creating now')
+                    Genre.objects.create(name=genre)
+                    added += 1
+            logger.debug(f"Successfully created {added} new genres")
+        except IntegrityError as e:
+            logger.debug(
+                f"Database integrity error occurred in creating new genres: {e}"
+            )
+        except Exception as e:
+            logger.debug(f"Error occurred in creating new genres: {e}")
+
     def before_import_row(self, row, **kwargs):
         """
         Called on an OrderedDictionary of row attributes.
@@ -419,10 +446,10 @@ class WorkResource(ImportExportModelResource):
         # make sure slug is valid and matches
         self.validate_row_by_slug(row)
 
-        # make sure we have a genre category for each listed
-        category_names = row["categories"]
-        for cat in category_names.split(";"):
-            Genre.objects.get_or_create(name=cat.strip())
+    #     # make sure we have a genre category for each listed
+    #     category_names = row["categories"]
+    #     for cat in category_names.split(";"):
+    #         Genre.objects.get_or_create(name=cat.strip())
 
 
 class NamedListWidget(Widget):

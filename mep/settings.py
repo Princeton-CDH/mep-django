@@ -325,3 +325,8 @@ WEBPACK_LOADER = {
 }
 
 WAGTAILADMIN_BASE_URL = "https://shakespeareandco.princeton.edu/cms/"
+
+
+IMPORT_EXPORT_USE_TRANSACTIONS = (
+    False  # before_import object creation won't work otherwise
+)
