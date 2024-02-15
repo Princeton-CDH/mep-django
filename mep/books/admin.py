@@ -1,3 +1,4 @@
+from dal import autocomplete
 from django.db import IntegrityError
 from django import forms
 from django.contrib import admin
@@ -176,12 +177,13 @@ class WorkAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "OCLC metadata",
+            "Genre metadata",
             {
                 "fields": (
                     "uri",
                     "edition_uri",
                     "work_format",
+                    "categories",
                     "genres",
                     "subjects",
                 )
