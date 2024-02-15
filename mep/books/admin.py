@@ -198,7 +198,7 @@ class WorkAdmin(admin.ModelAdmin):
         "sort_title",
         "past_slugs_list",
     )
-    filter_horizontal = ("genres", "subjects")
+    filter_horizontal = ("categories", "genres", "subjects")
 
     actions = ["export_to_csv"]
 
