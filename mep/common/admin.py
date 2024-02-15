@@ -81,6 +81,7 @@ class ImportExportModelResource(ModelResource):
         pass
 
     def validate_row_by_slug(self, row):
+     """Make sure the record to update can be found by slug or past slug; if the slug is a past slug, row data is updated to use the current slug."""
         if not row.get("slug"):
             return False
         if not self.Meta.model.objects.filter(slug=row["slug"]).exists():
