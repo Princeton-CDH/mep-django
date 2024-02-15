@@ -443,7 +443,7 @@ class WorkResource(ImportExportModelResource):
         """
         Called on an OrderedDictionary of row attributes.
         """
-        # make sure slug is valid and matches
+        # alter slug if a previous version of present one
         self.validate_row_by_slug(row)
 
     #     # make sure we have a genre category for each listed
