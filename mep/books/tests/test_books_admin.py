@@ -373,8 +373,8 @@ class TestWorkAdmin(TestCase):
             rows = list(reader)
             categories = ["Fiction", "Nonfiction", "Drama", "Poetry", "Periodical", ""]
             for row in rows:
-                row["category"] = random.choice(
-                    [x for x in categories if x != row["category"]]
+                row["categories"] = random.choice(
+                    [x for x in categories if x != row["categories"]]
                 )
             # save
             with open(csv_filename, "w") as of:

@@ -295,7 +295,7 @@ class WorkAdmin(admin.ModelAdmin):
         "uri",
         "edition_uri",
         "genre_list",
-        "categories",
+        "category_list",
         "format",
         "subject_list",
         "event_count",
