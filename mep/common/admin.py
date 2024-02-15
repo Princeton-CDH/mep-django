@@ -87,7 +87,7 @@ class ImportExportModelResource(ModelResource):
             # past slug?
             work = self.Meta.model.objects.filter(past_slugs__slug=row["slug"]).first()
             if work:
-                logger.debug(f'renaming {row["slug"]} to {work.slug}')
+                logger.debug(f'Record found by past slug {row["slug"]}, updating to {work.slug}')
                 row["slug"] = work.slug
             else:
                 err = f'{self.Meta.model.__name__} with slug {row["slug"]} not found'
