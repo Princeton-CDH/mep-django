@@ -32,11 +32,11 @@ class Country(Named):
     or location of an :class:`Address`"""
 
     geonames_id = models.URLField(
-        "GeoNames ID", unique=False, blank=True, help_text="GeoNames identifier"
+        "GeoNames ID", unique=True, blank=True, help_text="GeoNames identifier"
     )
     code = models.CharField(
         "Country Code",
-        unique=False,
+        unique=True,
         blank=True,
         help_text="Two-letter country code",
         max_length=2,
