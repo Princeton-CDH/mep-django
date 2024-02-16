@@ -119,6 +119,7 @@ class TestMergeWorks(TestCase):
         # should copy attributes
         assert merged_work.ebook_url == work2.ebook_url
         # should document the merge in notes
+        print([merged_work, work2, work2.pk])
         assert "Merged on" in merged_work.notes
         assert "with %d" % work2.pk in merged_work.notes
         # should not flag for title variation
