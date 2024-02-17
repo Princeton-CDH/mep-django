@@ -128,6 +128,10 @@ class TestMergeWorks(TestCase):
                 work2.slug,
                 work2.id,
                 repr(work2),
+                work.mep_id,
+                merged_work.mep_id,
+                work2.mep_id,
+                merged_work.notes,
             ]
         )
         assert "Merged on" in merged_work.notes
