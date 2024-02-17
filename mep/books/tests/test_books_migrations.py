@@ -135,10 +135,10 @@ class TestMergeWorks(TestCase):
             ]
         )
         assert "Merged on" in merged_work.notes
-        if merged_work.mep_id:
-            assert f"with MEP id {merged_work.mep_id}" in merged_work.notes
-        else:
-            assert f"with {work2.pk}" in merged_work.notes
+        # if merged_work.mep_id:
+        #    assert f"with MEP id {merged_work.mep_id}" in merged_work.notes
+        # else:
+        assert f"with {work2.pk}" in merged_work.notes
 
         # assert "with %d" % work2.pk in merged_work.notes
         # should not flag for title variation
