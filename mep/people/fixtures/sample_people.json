@@ -18,6 +18,15 @@
         }
     },
     {
+        "model": "people.country",
+        "pk": 3,
+        "fields": {
+            "name": "Ancient Greece",
+            "geonames_id": "http://sws.geonames.org/8354443/",
+            "code": "GR"
+        }
+    },
+    {
         "model": "people.person",
         "pk": 189,
         "fields": {
@@ -78,7 +87,9 @@
             "title": "",
             "profession": null,
             "slug": "aeschylus",
-            "nationalities": []
+            "nationalities": [
+                3
+            ]
         }
     },
     {
@@ -143,9 +154,9 @@
             "location": 213,
             "account": 4852,
             "person": null,
-            "start_date": null,
-            "end_date": null,
-            "care_of_person": null
+            "start_date": "1919-01-01",
+            "end_date": "1930-01-01",
+            "care_of_person": 224
         }
     },
     {
