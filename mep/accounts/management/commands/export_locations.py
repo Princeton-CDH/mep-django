@@ -43,7 +43,7 @@ class Command(BaseExport):
             Prefetch("account"),
             Prefetch("location"),
             Prefetch("account__persons"),
-        )
+        ).distinct()
 
     def get_base_filename(self):
         """set the filename to 'locations.csv'"""
