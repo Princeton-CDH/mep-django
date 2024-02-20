@@ -35,22 +35,15 @@ class Command(BaseExport):
         "latitude",
     ]
 
-    # def get_queryset(self):
-    #     """
-    #     custom filter needed to return person-address combos,
-    #     so we can pass a one object per row to `get_object_data`
-    #     """
-    #     addresses = Address.objects.prefetch_related(
-    #         Prefetch("account"),
-    #         Prefetch("person"),
-    #         Prefetch("location"),
-    #     )
-    #     res = []
-    #     for addr in addresses.all():
-    #         persons = [addr.person] if addr.person else addr.account.persons.all()
-    #         for person in persons:
-    #             res.append((person, addr))
-    #     return res
+    def get_queryset(self):
+        """
+        prefetch account, location and account persons
+        """
+        return Address.objects.prefetch_related(
+            Prefetch("account"),
+            Prefetch("location"),
+            Prefetch("account__persons"),
+        )
 
     def get_base_filename(self):
         """set the filename to 'locations.csv'"""

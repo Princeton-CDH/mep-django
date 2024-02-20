@@ -8,6 +8,7 @@ on creator nationality, gender, and other information.
 
 from mep.people.models import Person
 from mep.people.management.commands.export_members import Command as ExportMemberCommand
+from django.db.models import Prefetch
 
 
 class Command(ExportMemberCommand):
@@ -33,7 +34,11 @@ class Command(ExportMemberCommand):
 
     def get_queryset(self):
         """filter to creators"""
-        return Person.objects.filter(creator__isnull=False).distinct()
+        return (
+            Person.objects.filter(creator__isnull=False)
+            .prefetch_related(Prefetch("nationalities"))
+            .distinct()
+        )
 
     def get_base_filename(self):
         """set the filename to "creators.csv" since it's a subset of people"""

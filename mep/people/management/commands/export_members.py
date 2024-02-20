@@ -7,7 +7,7 @@ database, with summary details and coordinates for associated addresses.
 """
 
 from collections import OrderedDict
-
+from django.db.models import Prefetch
 from mep.common.management.export import BaseExport
 from mep.common.templatetags.mep_tags import domain
 from mep.common.utils import absolutize_url
@@ -50,7 +50,9 @@ class Command(BaseExport):
 
     def get_queryset(self):
         """filter to library members"""
-        return Person.objects.library_members()
+        return Person.objects.library_members().prefetch_related(
+            Prefetch("nationalities")
+        )
 
     def get_base_filename(self):
         """set the filename to "members.csv" since it's a subset of people"""

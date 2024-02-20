@@ -8,7 +8,7 @@ and purchases.
 """
 
 from collections import OrderedDict
-from django.db.models import F
+from django.db.models import F, Prefetch
 from mep.books.models import CreatorType, Work
 from mep.common.management.export import BaseExport
 from mep.common.utils import absolutize_url
@@ -65,7 +65,7 @@ class Command(BaseExport):
         return (
             super()
             .get_queryset()
-            .prefetch_related("creator_set")
+            .prefetch_related(Prefetch("creator_set"), Prefetch("category"))
             .count_events()
             .order_by(F("year").asc(nulls_last=True), "title")
         )
