@@ -54,6 +54,7 @@ class Command(BaseExport):
         Generate dictionary of data to export for a single
         :class:`~mep.people.models.Person`
         """
+        print(obj)
         addr = obj
         loc = addr.location
         persons = addr.account.persons.all()

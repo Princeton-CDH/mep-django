@@ -633,24 +633,21 @@ class TestExportLocations(TestCase):
         member = Person.objects.get(pk=189)  # francisque gay, member
         location = Location.objects.get(pk=213)
         address = Address.objects.get(pk=236)
-        qs = self.cmd.get_queryset()
-        people, addresses = zip(*qs)
-        assert member in set(people)
+        addresses = self.cmd.get_queryset()
         assert address in set(addresses)
         assert address.location == location
         assert member in set(address.account.persons.all())
 
     def test_get_object_data(self):
         # fetch some example people from fixture & call get_object_data
-        gay = Person.objects.get(name="Francisque Gay")
         address = Address.objects.get(pk=236)
-        gay_data = self.cmd.get_object_data((gay, address))
+        gay_data = self.cmd.get_object_data(address)
 
         # check some basic data
 
         # slug is 'gay' in sample_people, 'gay-francisque' in db
-        assert gay_data["member_id"] == "gay"
-        assert gay_data["member_uri"] == "https://example.com/members/gay/"
+        assert gay_data["member_id"] == ["gay"]
+        assert gay_data["member_uri"] == ["https://example.com/members/gay/"]
 
         # check addresses & coordinates
         assert "3 Rue Garancière" == gay_data["street_address"]
