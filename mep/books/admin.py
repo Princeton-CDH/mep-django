@@ -1,3 +1,5 @@
+from dal import autocomplete
+from django.db import IntegrityError
 from django import forms
 from django.contrib import admin
 from django.core.validators import ValidationError
@@ -32,7 +34,7 @@ WORK_IMPORT_EXPORT_COLUMNS = [
     "year",
     "notes",
     "genres",
-    "category",
+    "categories",
     "mep_id",
     "uri",
     "edition_uri",
@@ -44,7 +46,7 @@ WORK_IMPORT_EXPORT_COLUMNS = [
     "updated_at",
 ]
 
-WORK_IMPORT_COLUMNS = ["slug", "category"]
+WORK_IMPORT_COLUMNS = ["slug", "categories"]
 
 
 class WorkCreatorInlineForm(forms.ModelForm):
@@ -126,7 +128,7 @@ class WorkAdmin(admin.ModelAdmin):
         "author_list",
         "notes",
         "genre_list",
-        "category",
+        "category_list",
         "events",
         "borrows",
         "purchases",
@@ -145,7 +147,7 @@ class WorkAdmin(admin.ModelAdmin):
         "public_notes",
         "creator__person__name",
         "genres__name",
-        "category",
+        "categories__name",
         "id",
         "slug",
     )
@@ -175,12 +177,13 @@ class WorkAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "OCLC metadata",
+            "Genre metadata",
             {
                 "fields": (
                     "uri",
                     "edition_uri",
                     "work_format",
+                    "categories",
                     "genres",
                     "subjects",
                 )
@@ -195,7 +198,7 @@ class WorkAdmin(admin.ModelAdmin):
         "sort_title",
         "past_slugs_list",
     )
-    filter_horizontal = ("genres", "subjects")
+    filter_horizontal = ("categories", "genres", "subjects")
 
     actions = ["export_to_csv"]
 
@@ -292,7 +295,7 @@ class WorkAdmin(admin.ModelAdmin):
         "uri",
         "edition_uri",
         "genre_list",
-        "category",
+        "category_list",
         "format",
         "subject_list",
         "event_count",
@@ -398,10 +401,10 @@ class GenreAdmin(admin.ModelAdmin):
 
 class WorkResource(ImportExportModelResource):
     # only customized fields need specifying here
-    category = Field(
-        column_name="category",
-        attribute="category",
-        widget=ForeignKeyWidget(Genre, field="name"),
+    categories = Field(
+        column_name="categories",
+        attribute="categories",
+        widget=ManyToManyWidget(Genre, field="name", separator=";"),
     )
 
     class Meta:
@@ -412,15 +415,43 @@ class WorkResource(ImportExportModelResource):
         skip_unchanged = True
         report_skipped = True
 
+    def before_import(self, dataset, using_transactions, dry_run, **kwargs):
+        # run parent method
+        super().before_import(dataset, using_transactions, dry_run, **kwargs)
+
+        # ensure nationalities
+        genre_categories = {
+            nat.strip()
+            for row in dataset.dict
+            for nat in row["categories"].split(";")
+            if nat.strip()
+        }
+        try:
+            added = 0
+            for genre in genre_categories:
+                if not Genre.objects.filter(name=genre).exists():
+                    logger.debug(f'Genre "{genre}" does not exist in db, creating now')
+                    Genre.objects.create(name=genre)
+                    added += 1
+            logger.debug(f"Successfully created {added} new genres")
+        except IntegrityError as e:
+            logger.debug(
+                f"Database integrity error occurred in creating new genres: {e}"
+            )
+        except Exception as e:
+            logger.debug(f"Error occurred in creating new genres: {e}")
+
     def before_import_row(self, row, **kwargs):
         """
         Called on an OrderedDictionary of row attributes.
         """
-        # make sure we have a genre category for this
-        category_name = row["category"]
-        Genre.objects.get_or_create(
-            name=category_name, defaults={"name": category_name}
-        )
+        # alter slug if a previous version of present one
+        self.validate_row_by_slug(row)
+
+    #     # make sure we have a genre category for each listed
+    #     category_names = row["categories"]
+    #     for cat in category_names.split(";"):
+    #         Genre.objects.get_or_create(name=cat.strip())
 
 
 class NamedListWidget(Widget):
@@ -435,11 +466,14 @@ class ExportWorkResource(WorkResource):
     creators = Field()
     genres = Field()
     subjects = Field()
-    category = Field("category__name")
+    categories = Field()
     work_format = Field("work_format__name")
 
     def dehydrate_creators(self, work):
         return NamedListWidget.render(work.creators)
+
+    def dehydrate_categories(self, work):
+        return NamedListWidget.render(work.categories)
 
     def dehydrate_genres(self, work):
         return NamedListWidget.render(work.genres)

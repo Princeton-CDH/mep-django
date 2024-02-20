@@ -1,4 +1,8 @@
+from django.db import IntegrityError
+from functools import cached_property
 import logging
+import os
+import csv
 from dal import autocomplete
 from django import forms
 from django.conf import settings
@@ -480,6 +484,32 @@ class ExportPersonResource(ModelResource):
 
 
 class PersonResource(ImportExportModelResource):
+    def before_import(self, dataset, using_transactions, dry_run, **kwargs):
+        # run parent method
+        super().before_import(dataset, using_transactions, dry_run, **kwargs)
+
+        # ensure nationalities
+        nationalities = {
+            nat.strip()
+            for row in dataset.dict
+            for nat in row["nationalities"].split(";")
+            if nat.strip()
+        }
+        try:
+            added = 0
+            for nat in nationalities:
+                if not Country.objects.filter(name=nat).exists():
+                    logger.debug(f'Country "{nat}" does not exist in db, creating now')
+                    Country.objects.create(name=nat, code=None, geonames_id=None)
+                    added += 1
+            logger.debug(f"Successfully created {added} new countries")
+        except IntegrityError as e:
+            logger.debug(
+                f"Database integrity error occurred in creating new countries: {e}"
+            )
+        except Exception as e:
+            logger.debug(f"Error occurred in creating new countries: {e}")
+
     def before_import_row(self, row, **kwargs):
         """
         Called on an OrderedDictionary of row attributes.
@@ -487,9 +517,28 @@ class PersonResource(ImportExportModelResource):
         principle of charity to annotators before passing
         values into django-import-export lookup logic.
         """
+        # make sure slug is valid and matches
+        self.validate_row_by_slug(row)
+
         # gender to one char
         gstr = str(row.get("gender")).strip()
         row["gender"] = gstr[0].upper() if gstr else ""
+
+        # ensure empty strings
+        # self.ensure_nulls(row)
+
+        # # ensure we have countries
+        # if row['nationalities']:
+        #     for country_name in row["nationalities"].strip().split(";"):
+        #         country_name = country_name.strip()
+        #         if not Country.objects.filter(name=country_name).exists():
+        #             logger.debug(f'Country "{country_name}" does not exist in db, creating now')
+        #             Country.objects.create(
+        #                 name=country_name,
+        #                 code=None,
+        #                 geonames_id=None
+        #             )
+        #             assert Country.objects.filter(name=country_name).exists()
 
     # only customized fields need specifying here
     nationalities = Field(
