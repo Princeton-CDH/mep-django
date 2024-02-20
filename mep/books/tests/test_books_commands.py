@@ -406,7 +406,7 @@ class TestExportBooks(TestCase):
         assert data["uri"] == absolutize_url(exit_e.get_absolute_url())
         assert data["title"] == exit_e.title
         assert data["year"] == exit_e.year
-        assert data["genre_category"] == exit_e.category.name
+        assert data["genre_category"] == [cat.name for cat in exit_e.categories.all()]
         assert data["format"] == exit_e.work_format.name
         assert not data["uncertain"]  # not marked uncertain
         assert "work_uri" not in data

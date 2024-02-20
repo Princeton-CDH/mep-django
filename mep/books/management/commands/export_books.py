@@ -65,7 +65,7 @@ class Command(BaseExport):
         return (
             super()
             .get_queryset()
-            .prefetch_related(Prefetch("creator_set"), Prefetch("category"))
+            .prefetch_related(Prefetch("creator_set"), Prefetch("categories"))
             .count_events()
             .order_by(F("year").asc(nulls_last=True), "title")
         )
@@ -92,8 +92,8 @@ class Command(BaseExport):
             data["format"] = work.work_format.name
 
         # genre category
-        if work.category:
-            data["genre_category"] = work.category.name
+        if work.categories:
+            data["genre_category"] = [cat.name for cat in work.categories.all()]
 
         data["uncertain"] = work.is_uncertain
 

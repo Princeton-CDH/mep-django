@@ -9,7 +9,7 @@
 			"sort_title": "Exit Eliza",
 			"year": 1912,
 			"slug": "exit-eliza",
-			"category_id":1,
+			"categories":[1],
 			"work_format": 1,
 			"uri": "http://www.worldcat.org/oclc/2777112",
 			"updated_at": "2020-03-27T13:26:15Z"
@@ -25,7 +25,7 @@
 			"sort_title": "Grimm Fairy Tales",
 			"year": null,
 			"uri": "",
-			"category_id":1,
+			"categories":[1],
 			"slug": "grimm-fairy-tales",
 			"work_format": 1,
 			"updated_at": "2020-03-27T13:26:15Z"
@@ -40,7 +40,7 @@
 			"title": "The Kreutzer sonata",
 			"sort_title": "Kreutzer sonata",
 			"year": null,
-			"category_id":1,
+			"categories":[1],
 			"work_format": 1,
 			"uri": "http://worldcat.org/entity/work/id/4918580916",
 			"slug": "kreutzer-sonata",
@@ -55,7 +55,7 @@
 			"mep_id": null,
 			"title": "Chronicle of my Life",
 			"sort_title": "Chronicle of my Life",
-			"category_id":2,
+			"categories":[2],
 			"year": null,
 			"uri": "",
 			"slug": "chronicle-life",
@@ -72,7 +72,7 @@
 			"mep_id": null,
 			"title": "Murder on the Blue Train",
 			"sort_title": "Murder on the Blue Train",
-			"category_id":1,
+			"categories":[1],
 			"year": null,
 			"uri": "",
 			"slug": "murder-blue-train",
@@ -93,7 +93,7 @@
 			"edition_uri": "http://www.worldcat.org/oclc/243873605",
 			"ebook_url": "http://example.com",
 			"work_format": 2,
-			"category_id":2,
+			"categories":[2],
 			"slug": "dial",
 			"updated_at": "2020-03-27T13:26:15Z"
 		}
