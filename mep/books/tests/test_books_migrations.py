@@ -135,10 +135,7 @@ class TestMergeWorks(TestCase):
             ]
         )
         assert "Merged on" in merged_work.notes
-        if work.mep_id:
-            assert f"with MEP id {work.mep_id}" in merged_work.notes
-        else:
-            assert f"with {work2.pk}" in merged_work.notes
+        assert f"with {work2.pk}" in merged_work.notes
 
         # should not flag for title variation
         assert "TITLEVAR" not in Work.objects.get(pk=work.pk).notes
@@ -225,7 +222,7 @@ class GroupWorksbyUri(TestMigrations):
         User = apps.get_model("auth", "User")
 
         # script user needed for log entry logic
-        User.objects.create(username=settings.SCRIPT_USERNAME)
+        User.objects.get_or_create(username=settings.SCRIPT_USERNAME)
 
         # create works to test merge logic
 

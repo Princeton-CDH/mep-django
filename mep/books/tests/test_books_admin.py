@@ -6,12 +6,14 @@ import csv
 import os
 import random
 import tempfile
+
 from django.apps import apps
 from django.contrib import admin
 from django.db.models.query import EmptyQuerySet
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils.timezone import now
+import pytest
 
 from mep.accounts.models import Account, Borrow, Purchase
 from mep.accounts.partial_date import DatePrecision
@@ -353,6 +355,7 @@ class TestWorkAdmin(TestCase):
             response = self.client.post(url, data, follow=follow)
         return response
 
+    @pytest.mark.last
     def test_djangoimportexport_import(self):
         ### test can get page
         response = self.client.get(self.url_import)
