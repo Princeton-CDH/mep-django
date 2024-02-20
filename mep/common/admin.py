@@ -54,6 +54,7 @@ class LocalUserAdmin(UserAdmin):
 
 class ImportExportModelResource(ModelResource):
     max_objects_to_index = 1000
+    use_transactions = False
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request", None)
@@ -61,9 +62,14 @@ class ImportExportModelResource(ModelResource):
         # list to contain updated objects for batch indexing at end
         self.objects_to_index = []
 
-    def before_import(self, dataset, *args, **kwargs):
+    def before_import(self, dataset, using_transactions, dry_run, **kwargs):
         # lower and camel_case headers
         dataset.headers = [x.lower().replace(" ", "_") for x in dataset.headers]
+
+        # log
+        logger.debug(
+            f"importing dataset of {len(dataset.headers)} columns, using_transactions = {using_transactions}, dry_run = {dry_run}"
+        )
 
         # turn off indexing temporarily
         IndexableSignalHandler.disconnect()
@@ -79,6 +85,31 @@ class ImportExportModelResource(ModelResource):
         values into django-import-export lookup logic.
         """
         pass
+
+    def validate_row_by_slug(self, row):
+        """Make sure the record to update can be found by slug or past slug; if the slug is a past slug, row data is updated to use the current slug."""
+        if not row.get("slug"):
+            return False
+        if not self.Meta.model.objects.filter(slug=row["slug"]).exists():
+            # past slug?
+            instance = self.Meta.model.objects.filter(
+                past_slugs__slug=row["slug"]
+            ).first()
+            if instance:
+                logger.debug(
+                    f'Record found by past slug {row["slug"]}, updating to {instance.slug}'
+                )
+                row["slug"] = instance.slug
+            else:
+                err = f'{self.Meta.model.__name__} with slug {row["slug"]} not found'
+                logger.error(err)
+                return False
+        return True
+
+    def skip_row(self, instance, original, row, import_validation_errors=None):
+        if not self.validate_row_by_slug(row):
+            return True
+        return super().skip_row(instance, original, row, import_validation_errors)
 
     def after_save_instance(self, instance, using_transactions, dry_run):
         """
@@ -123,17 +154,22 @@ class ImportExportModelResource(ModelResource):
                 n_indexed, n_updated = len(items2index), len(self.objects_to_index)
                 n_remaining = n_updated - n_indexed
                 if n_remaining:
-                    messages.warning(
-                        self.request,
+                    msg = (
                         f"Updated {n_updated:,} records and indexed the first {n_indexed:,}. "
-                        f"The remaining {n_remaining:,} must be indexed on the server.",
+                        f"The remaining {n_remaining:,} must be indexed on the server."
                     )
+                    logger.debug(msg)
+                    messages.warning(self.request, msg)
 
         # turn viaf lookups back on
         settings.SKIP_VIAF_LOOKUP = False
 
         # make sure indexing disconnected afterward
         IndexableSignalHandler.disconnect()
+
+    def ensure_nulls(self, row):
+        for k, v in row.items():
+            row[k] = v if v or v == 0 else None
 
     class Meta:
         skip_unchanged = True

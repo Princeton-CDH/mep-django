@@ -6,12 +6,14 @@ import csv
 import os
 import random
 import tempfile
+
 from django.apps import apps
 from django.contrib import admin
 from django.db.models.query import EmptyQuerySet
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils.timezone import now
+import pytest
 
 from mep.accounts.models import Account, Borrow, Purchase
 from mep.accounts.partial_date import DatePrecision
@@ -295,7 +297,7 @@ class TestWorkAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
 
         ### test can post to page and get csv data back
-        date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+        date_str = now().strftime("%Y-%m-%d")
         response = self._djangoimportexport_do_export_post(file_format=0)  # csv
 
         # test response
@@ -353,6 +355,7 @@ class TestWorkAdmin(TestCase):
             response = self.client.post(url, data, follow=follow)
         return response
 
+    @pytest.mark.last
     def test_djangoimportexport_import(self):
         ### test can get page
         response = self.client.get(self.url_import)
@@ -373,8 +376,8 @@ class TestWorkAdmin(TestCase):
             rows = list(reader)
             categories = ["Fiction", "Nonfiction", "Drama", "Poetry", "Periodical", ""]
             for row in rows:
-                row["category"] = random.choice(
-                    [x for x in categories if x != row["category"]]
+                row["categories"] = random.choice(
+                    [x for x in categories if x != row["categories"]]
                 )
             # save
             with open(csv_filename, "w") as of:

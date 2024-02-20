@@ -32,12 +32,17 @@ class Country(Named):
     or location of an :class:`Address`"""
 
     geonames_id = models.URLField(
-        "GeoNames ID", unique=True, blank=True, help_text="GeoNames identifier"
+        "GeoNames ID",
+        unique=True,
+        blank=True,
+        null=True,
+        help_text="GeoNames identifier",
     )
     code = models.CharField(
         "Country Code",
         unique=True,
         blank=True,
+        null=True,
         help_text="Two-letter country code",
         max_length=2,
     )
@@ -533,7 +538,12 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
         """Adds birth and death dates if they aren't already set
         and there's a viaf id for the record"""
 
-        if not getattr(settings,'SKIP_VIAF_LOOKUP',False) and self.viaf_id and not self.birth_year and not self.death_year:
+        if (
+            not getattr(settings, "SKIP_VIAF_LOOKUP", False)
+            and self.viaf_id
+            and not self.birth_year
+            and not self.death_year
+        ):
             self.set_birth_death_years()
 
         # if slug has changed, save the old one as a past slug

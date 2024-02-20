@@ -315,15 +315,13 @@ class Work(TrackChangesModel, Notable, ModelIndexable, EventSetMixin):
     )
 
     #: top level category
-    category = models.ForeignKey(
+    categories = models.ManyToManyField(
         Genre,
-        verbose_name="Genre Cateogry",
+        verbose_name="Genre Categories",
         related_name="genres",
-        null=True,
         blank=True,
         help_text="Top-level genre category "
         "(Fiction, Nonfiction, Drama, Poetry, Periodical)",
-        on_delete=models.SET_NULL,
     )
 
     #: optional subjects, from OCLC record
@@ -493,6 +491,10 @@ class Work(TrackChangesModel, Notable, ModelIndexable, EventSetMixin):
     def genre_list(self):
         """semicolon separated list of genres"""
         return "; ".join([genre.name for genre in self.genres.all()])
+
+    def category_list(self):
+        """semicolon separated list of genres"""
+        return "; ".join([genre.name for genre in self.categories.all()])
 
     def format(self):
         """format of this work if known (e.g. book or periodical)"""
