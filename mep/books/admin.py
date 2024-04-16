@@ -1,28 +1,31 @@
+import logging
+
 from dal import autocomplete
-from django.db import IntegrityError
 from django import forms
+from django.db import IntegrityError
+from django.db.models import Count
+from django.conf import settings
 from django.contrib import admin
 from django.core.validators import ValidationError
 from django.urls import path, reverse
-from django.db.models import Count
 from django.utils.html import format_html
 from django.utils.timezone import now
-
+from import_export.resources import ModelResource
+from import_export.widgets import ManyToManyWidget, ForeignKeyWidget, Widget
+from import_export.fields import Field
 from tabular_export.admin import export_to_csv_response
-from mep.common.admin import ImportExportModelResource, ImportExportAdmin
+from parasolr.django.signals import IndexableSignalHandler
 
 from mep.accounts.admin import AUTOCOMPLETE
 from mep.accounts.partial_date import PartialDateFormMixin
 from mep.books.models import Creator, CreatorType, Work, Subject, Format, Genre, Edition
 from mep.people.models import Person
 from mep.books.queryset import WorkSolrQuerySet
-from mep.common.admin import CollapsibleTabularInline
-from import_export.resources import ModelResource
-from import_export.widgets import ManyToManyWidget, ForeignKeyWidget, Widget
-from import_export.fields import Field
-from parasolr.django.signals import IndexableSignalHandler
-from django.conf import settings
-import logging
+from mep.common.admin import (
+    CollapsibleTabularInline,
+    ImportExportModelResource,
+    LocalImportExportModelAdmin,
+)
 
 logger = logging.getLogger()
 
@@ -487,7 +490,7 @@ class ExportWorkResource(WorkResource):
         export_order = WORK_IMPORT_EXPORT_COLUMNS
 
 
-class WorkAdminImportExport(WorkAdmin, ImportExportAdmin):
+class WorkAdminImportExport(WorkAdmin, LocalImportExportModelAdmin):
     resource_classes = [WorkResource]
 
     def get_export_resource_classes(self):

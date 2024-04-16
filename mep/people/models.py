@@ -607,10 +607,12 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
             self.death_year = self.viaf.deathyear
 
     def list_nationalities(self):
-        """Return comma separated list of nationalities (if any) for :class:`Person` list_view."""
-        nationalities = self.nationalities.all().order_by("name")
-        if nationalities.exists():
-            return ", ".join(country.name for country in nationalities)
+        """comma separated list of nationalities (if any) for :class:`Person` list_view."""
+        # avoid queryset ordering, count, exists check so we can
+        # take advantage of prefetching
+        nationalities = self.nationalities.all()
+        if len(nationalities):
+            return ", ".join(sorted(country.name for country in nationalities))
         return ""
 
     list_nationalities.short_description = "Nationalities"

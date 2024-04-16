@@ -1,19 +1,24 @@
-from django.db import IntegrityError
-from functools import cached_property
 import logging
 import os
 import csv
+from functools import cached_property
+
 from dal import autocomplete
 from django import forms
 from django.conf import settings
+from django.db import IntegrityError
 from django.urls import path, reverse
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
+from import_export.resources import ModelResource
+from import_export.widgets import ManyToManyWidget, Widget
+from import_export.fields import Field
 from tabular_export.admin import export_to_csv_response
 from viapy.widgets import ViafWidget
+
 from mep.accounts.admin import AddressInline
 from mep.common.admin import (
     CollapsedTabularInline,
@@ -21,8 +26,7 @@ from mep.common.admin import (
     NamedNotableAdmin,
 )
 from mep.footnotes.admin import FootnoteInline
-from mep.common.admin import ImportExportModelResource
-
+from mep.common.admin import ImportExportModelResource, LocalImportExportModelAdmin
 from mep.people.models import (
     Country,
     InfoURL,
@@ -32,13 +36,6 @@ from mep.people.models import (
     Relationship,
     RelationshipType,
 )
-from import_export.admin import (
-    ImportExportModelAdmin,
-)
-from import_export.resources import ModelResource
-from import_export.widgets import ManyToManyWidget, Widget
-from import_export.fields import Field
-from parasolr.django.signals import IndexableSignalHandler
 
 
 logger = logging.getLogger(__name__)
@@ -505,11 +502,12 @@ class PersonResource(ImportExportModelResource):
         )
         unknown_countries = nationalities - set(known_countries)
         try:
-            logger.debug(f"{len(unknown_countries)} new countries; creating records")
             countries = Country.objects.bulk_create(
                 [Country(name=nat) for nat in unknown_countries]
             )
-            logger.debug(f"Successfully created {len(countries)} new countries")
+            logger.debug(
+                f"Successfully created records for {len(countries)} new countries"
+            )
         except IntegrityError as e:
             logger.debug(
                 f"Database integrity error occurred in creating new countries: {e}"
@@ -548,15 +546,29 @@ class PersonResource(ImportExportModelResource):
         store_instance = True
 
 
-class PersonAdminImportExport(PersonAdmin, ImportExportModelAdmin):
+class PersonAdminImportExport(PersonAdmin, LocalImportExportModelAdmin):
     resource_classes = [PersonResource]
 
     def get_export_resource_classes(self):
         """
-        Specifies the resource class to use for exporting,
-        so that separate fields can be exported than those imported
+        Use a distinct resource class for exporting,
+        since export and import have support different fields
         """
         return [ExportPersonResource]
+
+    def get_queryset(self, request):
+        # add prefetching so admin list display and export will be faster
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("profession")
+            .prefetch_related(
+                "nationalities",
+                "account_set",
+                "account_set__locations",
+                "account_set__persons",
+            )
+        )
 
 
 # enable default admin to see imported data
