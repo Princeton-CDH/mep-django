@@ -74,14 +74,17 @@ class ImportExportModelResource(ModelResource):
             + f"(using_transactions={using_transactions}, dry_run={dry_run})"
         )
 
-        # turn off indexing temporarily
-        IndexableSignalHandler.disconnect()
+        # turn off indexing temporarily; track whether indexing was enabled
+        # (as of parasolr v0.9.2, disconnect returns # of handlers disconnected)
+        self.indexing_enabled = IndexableSignalHandler.disconnect()
+        print(f"indexing enabled {self.indexing_enabled}")
 
         # turn off viaf lookups
         settings.SKIP_VIAF_LOOKUP = True
 
     def validate_row_by_slug(self, row):
-        """Make sure the record to update can be found by slug or past slug; if the slug is a past slug, row data is updated to use the current slug."""
+        """Make sure the record to update can be found by slug or past slug;
+        if the slug is a past slug, row data is updated to use the current slug."""
         if not row.get("slug"):
             return False
         if not self.Meta.model.objects.filter(slug=row["slug"]).exists():
@@ -151,13 +154,10 @@ class ImportExportModelResource(ModelResource):
         # turn viaf lookups back on
         settings.SKIP_VIAF_LOOKUP = False
 
-        # re-enable indexing
-        IndexableSignalHandler.connect()
-
-    # FIXME: no longer needed?
-    def ensure_nulls(self, row):
-        for k, v in row.items():
-            row[k] = v if v or v == 0 else None
+        # re-enable indexing signal handlers if any were disconnected
+        # (i.e., don't enable in unit tests when they're already disabled)
+        if self.indexing_enabled:
+            IndexableSignalHandler.connect()
 
     class Meta:
         skip_unchanged = True
@@ -165,16 +165,6 @@ class ImportExportModelResource(ModelResource):
 
 
 class LocalImportExportModelAdmin(ImportExportModelAdmin):
-    resource_classes = []
-
-    # def get_export_resource_classes(self):
-    #     """
-    #     Specifies the resource class to use for exporting,
-    #     so that separate fields can be exported than those imported
-    #     """
-    #     # Subclass this function
-    #     return super().get_export_resource_classes()
-
     def get_resource_kwargs(self, request, *args, **kwargs):
         """Pass request object to resource for use in django messages"""
         kwargs = super().get_resource_kwargs(request, *args, **kwargs)
