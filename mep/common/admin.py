@@ -57,7 +57,8 @@ class ImportExportModelResource(ModelResource):
     use_transactions = False
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop("request", None)
+        # FIXME: request is not available here
+        self.request = kwargs.get("request", None)
         super().__init__(*args, **kwargs)
         # list to contain updated objects for batch indexing at end
         self.objects_to_index = []
@@ -167,6 +168,7 @@ class ImportExportModelResource(ModelResource):
         # make sure indexing disconnected afterward
         IndexableSignalHandler.disconnect()
 
+    # FIXME: no longer needed?
     def ensure_nulls(self, row):
         for k, v in row.items():
             row[k] = v if v or v == 0 else None

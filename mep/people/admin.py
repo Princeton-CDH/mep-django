@@ -23,7 +23,7 @@ from mep.common.admin import (
 from mep.footnotes.admin import FootnoteInline
 from mep.common.admin import ImportExportModelResource
 
-from .models import (
+from mep.people.models import (
     Country,
     InfoURL,
     Location,
@@ -40,31 +40,6 @@ from import_export.widgets import ManyToManyWidget, Widget
 from import_export.fields import Field
 from parasolr.django.signals import IndexableSignalHandler
 
-PERSON_IMPORT_COLUMNS = ("slug", "gender", "nationalities")
-
-PERSON_IMPORT_EXPORT_COLUMNS = (
-    "slug",
-    "name",
-    "birth_year",
-    "death_year",
-    "gender",
-    "nationalities",
-    "notes",
-    "start_year",
-    "end_year",
-    "mep_id",
-    "sort_name",
-    "viaf_id",
-    "is_organization",
-    "verified",
-    "title",
-    "profession",
-    "relations",
-    "public_notes",
-    "locations",
-    "updated_at",
-    "id",
-)
 
 logger = logging.getLogger(__name__)
 
@@ -476,33 +451,65 @@ class LocationAdmin(admin.ModelAdmin):
         ]
 
 
+PERSON_IMPORT_COLUMNS = ("slug", "gender", "nationalities")
+
+PERSON_IMPORT_EXPORT_COLUMNS = (
+    "slug",
+    "name",
+    "birth_year",
+    "death_year",
+    "gender",
+    "nationalities",
+    "notes",
+    "mep_id",
+    "sort_name",
+    "viaf_id",
+    "is_organization",
+    "verified",
+    "title",
+    "profession",
+    "public_notes",
+    "updated_at",
+)
+
+
 class ExportPersonResource(ModelResource):
+    nationalities = Field(
+        attribute="nationalities",
+        widget=ManyToManyWidget(Country, field="name", separator=";"),
+    )
+
     class Meta:
         model = Person
         fields = PERSON_IMPORT_EXPORT_COLUMNS
         export_order = PERSON_IMPORT_EXPORT_COLUMNS
+        chunk_size = 1000
 
 
 class PersonResource(ImportExportModelResource):
     def before_import(self, dataset, using_transactions, dry_run, **kwargs):
-        # run parent method
+        # run shared mep.common import/export steps
         super().before_import(dataset, using_transactions, dry_run, **kwargs)
 
-        # ensure nationalities
+        # identify and create any new countries for nationalities
         nationalities = {
             nat.strip()
             for row in dataset.dict
             for nat in row["nationalities"].split(";")
             if nat.strip()
         }
+        known_countries = (
+            Country.objects.filter(name__in=nationalities)
+            .distinct("name")
+            .values_list("name", flat=True)
+        )
+        unknown_countries = nationalities - set(known_countries)
         try:
-            added = 0
-            for nat in nationalities:
-                if not Country.objects.filter(name=nat).exists():
-                    logger.debug(f'Country "{nat}" does not exist in db, creating now')
-                    Country.objects.create(name=nat, code=None, geonames_id=None)
-                    added += 1
-            logger.debug(f"Successfully created {added} new countries")
+            logger.debug(f"{len(unknown_countries)} new countries; creating records")
+            countries = Country.objects.bulk_create(
+                [Country(name=nat) for nat in unknown_countries]
+            )
+            logger.debug(f"Successfully created {len(countries)} new countries")
         except IntegrityError as e:
             logger.debug(
                 f"Database integrity error occurred in creating new countries: {e}"
@@ -524,23 +531,7 @@ class PersonResource(ImportExportModelResource):
         gstr = str(row.get("gender")).strip()
         row["gender"] = gstr[0].upper() if gstr else ""
 
-        # ensure empty strings
-        # self.ensure_nulls(row)
-
-        # # ensure we have countries
-        # if row['nationalities']:
-        #     for country_name in row["nationalities"].strip().split(";"):
-        #         country_name = country_name.strip()
-        #         if not Country.objects.filter(name=country_name).exists():
-        #             logger.debug(f'Country "{country_name}" does not exist in db, creating now')
-        #             Country.objects.create(
-        #                 name=country_name,
-        #                 code=None,
-        #                 geonames_id=None
-        #             )
-        #             assert Country.objects.filter(name=country_name).exists()
-
-    # only customized fields need specifying here
+    # Use many-to-many widget to separate and import nationalities
     nationalities = Field(
         column_name="nationalities",
         attribute="nationalities",
