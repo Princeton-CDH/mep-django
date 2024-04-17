@@ -1,6 +1,8 @@
 import datetime
 import logging
 from string import punctuation
+from functools import cached_property
+
 from django.conf import settings
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
@@ -573,11 +575,12 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
             return reverse("people:member-detail", args=[self.slug])
         # for now returning no url for person with no account
 
-    @property
+    @cached_property
     def viaf(self):
         """:class:`viapy.api.ViafEntity` for this record if :attr:`viaf_id`
         is set."""
         if self.viaf_id:
+            # viaf URI should not include trailing slash
             return ViafEntity(self.viaf_id.strip("/"))
 
     @property
