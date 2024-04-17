@@ -12,7 +12,7 @@ django-apptemplates
 py-flags
 django-tabular-export
 django-webpack-loader<=2.0
-parasolr>=0.9
+parasolr>=0.9.2
 django-widget-tweaks
 # pymarc api changes significantly in 5.0
 pymarc<5.0

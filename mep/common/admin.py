@@ -55,39 +55,36 @@ class LocalUserAdmin(UserAdmin):
 class ImportExportModelResource(ModelResource):
     max_objects_to_index = 1000
     use_transactions = False
+    # store updated objects for bulk indexing after import completes
+    store_instance = True
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop("request", None)
+        # NOTE: request is not passed in by default;
+        # extend get_resource_kwargs or use LocalImportExportModelAdmin
+        self.request = kwargs.get("request", None)
         super().__init__(*args, **kwargs)
-        # list to contain updated objects for batch indexing at end
-        self.objects_to_index = []
 
     def before_import(self, dataset, using_transactions, dry_run, **kwargs):
-        # lower and camel_case headers
+        # lower and snake_case headers
         dataset.headers = [x.lower().replace(" ", "_") for x in dataset.headers]
 
-        # log
+        # log summary of what will be done
         logger.debug(
-            f"importing dataset of {len(dataset.headers)} columns, using_transactions = {using_transactions}, dry_run = {dry_run}"
+            f"importing dataset with {len(dataset.headers)} columns "
+            + f"(using_transactions={using_transactions}, dry_run={dry_run})"
         )
 
-        # turn off indexing temporarily
-        IndexableSignalHandler.disconnect()
+        # turn off indexing temporarily; track whether indexing was enabled
+        # (as of parasolr v0.9.2, disconnect returns # of handlers disconnected)
+        self.indexing_enabled = IndexableSignalHandler.disconnect()
+        print(f"indexing enabled {self.indexing_enabled}")
 
         # turn off viaf lookups
         settings.SKIP_VIAF_LOOKUP = True
 
-    def before_import_row(self, row, **kwargs):
-        """
-        Called on an OrderedDictionary of row attributes.
-        Opportunity to do quick string formatting as a
-        principle of charity to annotators before passing
-        values into django-import-export lookup logic.
-        """
-        pass
-
     def validate_row_by_slug(self, row):
-        """Make sure the record to update can be found by slug or past slug; if the slug is a past slug, row data is updated to use the current slug."""
+        """Make sure the record to update can be found by slug or past slug;
+        if the slug is a past slug, row data is updated to use the current slug."""
         if not row.get("slug"):
             return False
         if not self.Meta.model.objects.filter(slug=row["slug"]).exists():
@@ -111,47 +108,40 @@ class ImportExportModelResource(ModelResource):
             return True
         return super().skip_row(instance, original, row, import_validation_errors)
 
-    def after_save_instance(self, instance, using_transactions, dry_run):
-        """
-        Called when an instance either was or would be saved (depending on dry_run)
-        """
-        self.objects_to_index.append(instance)
-        return super().after_save_instance(instance, using_transactions, dry_run)
-
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
         """
-        Called after importing, twice: once with dry_run==True (preview),
-        once dry_run==False. We report how many objects were updated and need to be indexed.
-        We only do so when dry_run is False.
+        After import completes, report how many objects were updated and
+        need to be indexed. When `dry_run` is true, this is called to display
+        import preview; indexing is only done when `dry_run` is false.
         """
-        # run parent method
-        super().after_import(dataset, result, using_transactions, dry_run, **kwargs)
+        # default implementation does nothing, no need to call parent method
+        # result is a list of rowresult obects; we only care
+        # about updates since we don't support creation or deletion
+        updated_objects = [
+            row_result.instance
+            for row_result in result
+            if row_result.import_type == "update"
+        ]
 
-        # report how many need indexing
-        logger.debug(
-            f"requesting index of {len(self.objects_to_index)} objects, dry_run = {dry_run}"
-        )
+        # if this is a dry run, report how many would be indexd
+        if dry_run:
+            # report how many need indexing
+            logger.debug(f"{len(updated_objects):,} records to index")
 
-        # only continue if not a dry run
-        if not dry_run:
-            # re-enable indexing
-            IndexableSignalHandler.connect()
+        # is this is not a dry run, index the updated objects
+        else:
+            if updated_objects:
+                # get objects to index, up to configured maximum
+                items2index = updated_objects[: self.max_objects_to_index]
 
-            # index objects
-            if self.objects_to_index:
-                # get objects to index
-                items2index = self.objects_to_index[: self.max_objects_to_index]
-                logger.debug(f"indexing {len(items2index):,} items now")
+                # do the actual indexing
                 start = time.time()
-
-                # do indexing
                 self.Meta.model.index_items(items2index)
                 logger.debug(
-                    f"finished indexing {len(items2index):,} items in {time.time() - start:.1f} seconds"
+                    f"Indexing {len(items2index):,} records in {time.time() - start:.1f} seconds"
                 )
-
-                # warn if only so many indexed
-                n_indexed, n_updated = len(items2index), len(self.objects_to_index)
+                # warn if there are updated records that were not indexud
+                n_indexed, n_updated = len(items2index), len(updated_objects)
                 n_remaining = n_updated - n_indexed
                 if n_remaining:
                     msg = (
@@ -164,32 +154,23 @@ class ImportExportModelResource(ModelResource):
         # turn viaf lookups back on
         settings.SKIP_VIAF_LOOKUP = False
 
-        # make sure indexing disconnected afterward
-        IndexableSignalHandler.disconnect()
-
-    def ensure_nulls(self, row):
-        for k, v in row.items():
-            row[k] = v if v or v == 0 else None
+        # re-enable indexing signal handlers if any were disconnected
+        # (i.e., don't enable in unit tests when they're already disabled)
+        if self.indexing_enabled:
+            IndexableSignalHandler.connect()
 
     class Meta:
         skip_unchanged = True
         report_skipped = True
 
 
-class ImportExportAdmin(ImportExportModelAdmin):
-    resource_classes = []
-
-    def get_export_resource_classes(self):
-        """
-        Specifies the resource class to use for exporting,
-        so that separate fields can be exported than those imported
-        """
-        # Subclass this function
-        return super().get_export_resource_classes()
-
+class LocalImportExportModelAdmin(ImportExportModelAdmin):
     def get_resource_kwargs(self, request, *args, **kwargs):
-        """Passing request to resource obj for use in django messages"""
-        return {"request": request}
+        """Pass request object to resource for use in django messages"""
+        kwargs = super().get_resource_kwargs(request, *args, **kwargs)
+        # pass request object in so we can use messages to warn
+        kwargs["request"] = request
+        return kwargs
 
 
 admin.site.unregister(User)
