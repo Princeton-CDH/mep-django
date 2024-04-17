@@ -1,7 +1,6 @@
 import datetime
 import logging
 from string import punctuation
-from functools import cached_property
 
 from django.conf import settings
 from django.apps import apps
@@ -575,7 +574,7 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
             return reverse("people:member-detail", args=[self.slug])
         # for now returning no url for person with no account
 
-    @cached_property
+    @property
     def viaf(self):
         """:class:`viapy.api.ViafEntity` for this record if :attr:`viaf_id`
         is set."""
@@ -606,8 +605,10 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
     def set_birth_death_years(self):
         """Set local birth and death dates based on information from VIAF"""
         if self.viaf_id:
-            self.birth_year = self.viaf.birthyear
-            self.death_year = self.viaf.deathyear
+            # store viaf object so we don't load remote rdf twice
+            viaf_entity = self.viaf
+            self.birth_year = viaf_entity.birthyear
+            self.death_year = viaf_entity.deathyear
 
     def list_nationalities(self):
         """comma separated list of nationalities (if any) for :class:`Person` list_view."""
