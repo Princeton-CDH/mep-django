@@ -1,6 +1,7 @@
 import datetime
 import logging
 from string import punctuation
+
 from django.conf import settings
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
@@ -578,7 +579,8 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
         """:class:`viapy.api.ViafEntity` for this record if :attr:`viaf_id`
         is set."""
         if self.viaf_id:
-            return ViafEntity(self.viaf_id)
+            # viaf URI should not include trailing slash
+            return ViafEntity(self.viaf_id.strip("/"))
 
     @property
     def short_name(self):
@@ -603,8 +605,10 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
     def set_birth_death_years(self):
         """Set local birth and death dates based on information from VIAF"""
         if self.viaf_id:
-            self.birth_year = self.viaf.birthyear
-            self.death_year = self.viaf.deathyear
+            # store viaf object so we don't load remote rdf twice
+            viaf_entity = self.viaf
+            self.birth_year = viaf_entity.birthyear
+            self.death_year = viaf_entity.deathyear
 
     def list_nationalities(self):
         """comma separated list of nationalities (if any) for :class:`Person` list_view."""

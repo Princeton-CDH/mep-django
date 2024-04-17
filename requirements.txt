@@ -4,7 +4,8 @@ cached_property
 django-cas-ng
 pucas>=0.8
 eulxml>=1.1.3
-viapy>=0.2
+#viapy>=0.3
+git+https://github.com/Princeton-CDH/viapy@release/0.3#egg=viapy
 wagtail>=5.1,<5.2
 django-autocomplete-light>=3.9
 python-dateutil
