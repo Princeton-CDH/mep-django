@@ -578,7 +578,7 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
         """:class:`viapy.api.ViafEntity` for this record if :attr:`viaf_id`
         is set."""
         if self.viaf_id:
-            return ViafEntity(self.viaf_id)
+            return ViafEntity(self.viaf_id.strip("/"))
 
     @property
     def short_name(self):
