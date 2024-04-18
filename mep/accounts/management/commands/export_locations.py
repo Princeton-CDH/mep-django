@@ -40,30 +40,28 @@ class Command(BaseExport):
         prefetch account, location and account persons
         """
         return Address.objects.prefetch_related(
-            Prefetch("account"),
-            Prefetch("location"),
-            Prefetch("account__persons"),
-        ).distinct()
+            "account",
+            "location",
+            "account__persons",
+        )
 
     def get_base_filename(self):
         """set the filename to 'locations.csv'"""
         return "locations"
 
-    def get_object_data(self, obj):
+    def get_object_data(self, addr):
         """
         Generate dictionary of data to export for a single
         :class:`~mep.people.models.Person`
         """
-        print(obj)
-        addr = obj
         loc = addr.location
         persons = addr.account.persons.all()
 
         # required properties
-        return dict(
+        data = dict(
             # Member
-            member_id=[person.slug for person in persons],
-            member_uri=[
+            member_ids=[person.slug for person in persons],
+            member_uris=[
                 absolutize_url(person.get_absolute_url()) for person in persons
             ],
             # Address data
@@ -79,3 +77,5 @@ class Command(BaseExport):
             country=loc.country.name if loc.country else None,
             arrondissement=loc.arrondissement(),
         )
+        # filter out unset values so we don't get unnecessary content in json
+        return {k: v for k, v in data.items() if v is not None}
