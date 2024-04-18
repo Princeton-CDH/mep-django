@@ -7,15 +7,15 @@ on creator nationality, gender, and other information.
 """
 
 from mep.people.models import Person
-from mep.people.management.commands.export_members import Command as ExportMemberCommand
-from django.db.models import Prefetch
+from mep.people.management.commands import export_members
 
 
-class Command(ExportMemberCommand):
+class Command(export_members.Command):
     """Export creator data."""
 
     csv_fields = [
-        "id",  # no URI for authors so using slug as ID
+        # authors don't have public URLs, so use person slug as id
+        "id",
         "name",
         "sort_name",
         "title",
@@ -27,6 +27,8 @@ class Command(ExportMemberCommand):
         "wikipedia_url",
         # related country
         "nationalities",
+        # if also a library member, include member uri
+        "member_uri",
         # generic
         "notes",
         "updated",
@@ -36,7 +38,11 @@ class Command(ExportMemberCommand):
         """filter to creators"""
         return (
             Person.objects.filter(creator__isnull=False)
-            .prefetch_related(Prefetch("nationalities"))
+            .prefetch_related(
+                "nationalities",
+                "account_set",  # needed to determine if member, for member uri
+                "urls",
+            )
             .distinct()
         )
 

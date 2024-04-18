@@ -7,7 +7,6 @@ database, with summary details and coordinates for associated addresses.
 """
 
 from collections import OrderedDict
-from django.db.models import Prefetch
 from mep.common.management.export import BaseExport
 from mep.common.templatetags.mep_tags import domain
 from mep.common.utils import absolutize_url
@@ -51,7 +50,11 @@ class Command(BaseExport):
     def get_queryset(self):
         """filter to library members"""
         return Person.objects.library_members().prefetch_related(
-            Prefetch("nationalities")
+            "nationalities",
+            "account_set",
+            # prefetching currently doesn't help with membership years
+            "account_set__locations",
+            "urls",
         )
 
     def get_base_filename(self):
@@ -65,16 +68,21 @@ class Command(BaseExport):
         """
         field_set = set(self.csv_fields)
 
-        # required properties
+        # since JSON export currently relies on order,
+        # all configured fields are added to data dict here in desired order
+
         data = OrderedDict()
 
         # slug/id
         if "id" in field_set:
-            data["id"] = obj.slug  # note renamed to ID
+            data["id"] = obj.slug
 
         # uri
         if "uri" in field_set:
             data["uri"] = absolutize_url(obj.get_absolute_url())
+        # optional member uri
+        elif "member_uri" in field_set and obj.has_account():
+            data["member_uri"] = absolutize_url(obj.get_absolute_url())
 
         # name
         if "name" in field_set:
