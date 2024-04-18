@@ -21,9 +21,10 @@ class Command(BaseExport):
     model = Address
 
     csv_fields = [
-        "member_id",  # member slug
-        "member_uri",
-        "care_of_person_id",  # person slug
+        "member_ids",  # member slug
+        "member_uris",
+        "care_of_person_id",  # c/o person slug
+        "care_of_person",  # c/o person name
         "street_address",
         "postal_code",
         "city",
@@ -59,15 +60,13 @@ class Command(BaseExport):
 
         # required properties
         data = dict(
-            # Member
-            member_ids=[person.slug for person in persons],
-            member_uris=[
-                absolutize_url(person.get_absolute_url()) for person in persons
-            ],
+            # Member info
+            member=self.member_info(addr),
             # Address data
             start_date=addr.partial_start_date,
             end_date=addr.partial_end_date,
             care_of_person_id=addr.care_of_person.slug if addr.care_of_person else None,
+            care_of_person=addr.care_of_person.name if addr.care_of_person else None,
             # Location data
             street_address=loc.street_address,
             city=loc.city,
@@ -79,3 +78,17 @@ class Command(BaseExport):
         )
         # filter out unset values so we don't get unnecessary content in json
         return {k: v for k, v in data.items() if v is not None}
+
+    def member_info(self, location):
+        """Event about member(s) associated with this location"""
+        # adapted from event export logic
+        # NOTE: would be nicer and more logical if each member had their own
+        # dict entry, but that doesn't work with current flatting logic for csv
+        members = location.account.persons.all()
+        return dict(
+            ids=[m.slug for m in members],
+            uris=[absolutize_url(m.get_absolute_url()) for m in members],
+            # useful to include or too redundant?
+            # ("names", [m.name for m in members]),
+            # ("sort_names", [m.sort_name for m in members]),
+        )

@@ -646,8 +646,8 @@ class TestExportLocations(TestCase):
         # check some basic data
 
         # slug is 'gay' in sample_people, 'gay-francisque' in db
-        assert gay_data["member_id"] == ["gay"]
-        assert gay_data["member_uri"] == ["https://example.com/members/gay/"]
+        assert gay_data["member"]["ids"] == ["gay"]
+        assert gay_data["member"]["uris"] == ["https://example.com/members/gay/"]
 
         # check addresses & coordinates
         assert "3 Rue Garancière" == gay_data["street_address"]
