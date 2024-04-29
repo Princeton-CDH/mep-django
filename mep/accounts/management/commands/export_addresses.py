@@ -1,10 +1,10 @@
 """
-Manage command to export location data for use by others.
+Manage command to export library member location data.
 
-Generates a CSV and JSON file including details on which member
-of the library lived where (if known) during what time period 
-(if known). The table includes summary details and coordinates 
-for associated addresses.
+Generates CSV and JSON files with details on known addresses
+of library members; where the information is known, includes
+start and end dates for the address, since some members have multiple
+addresses.
 """
 
 from django.db.models import Prefetch
@@ -14,7 +14,7 @@ from mep.accounts.models import Address
 
 
 class Command(BaseExport):
-    """Export member data."""
+    """Export address information for library members."""
 
     help = __doc__
 
@@ -47,8 +47,8 @@ class Command(BaseExport):
         )
 
     def get_base_filename(self):
-        """set the filename to 'locations.csv'"""
-        return "locations"
+        """set export filename to 'addresses.csv'"""
+        return "addresses"
 
     def get_object_data(self, addr):
         """
