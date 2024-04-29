@@ -22,7 +22,7 @@ from mep.accounts.management.commands import (
     export_events,
     import_figgy_cards,
     report_timegaps,
-    export_locations,
+    export_addresses,
 )
 from mep.accounts.models import Account, Borrow, Event, Address, Location
 from mep.books.models import Creator, CreatorType
@@ -621,11 +621,11 @@ class TestExportEvents(TestCase):
             assert mock_get_obj_data.call_count == 2
 
 
-class TestExportLocations(TestCase):
+class TestExportAddresses(TestCase):
     fixtures = ["sample_people"]
 
     def setUp(self):
-        self.cmd = export_locations.Command()
+        self.cmd = export_addresses.Command()
         self.cmd.stdout = StringIO()
 
     def test_get_queryset(self):
