@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "parasolr",
     "djiffy",
     "fullurl",
+    "admin_log_entries",
     "webpack_loader",
     "wagtail.sites",
     "wagtail.users",

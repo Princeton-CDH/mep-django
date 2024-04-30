@@ -38,3 +38,4 @@ psycopg2-binary<2.9
 piffle==0.4
 # 4.0 is not compatible with django 3.2, so pin to pre 4.0
 django-import-export<4.0
+django-adminlogentries
