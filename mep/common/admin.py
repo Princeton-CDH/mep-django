@@ -77,7 +77,6 @@ class ImportExportModelResource(ModelResource):
         # turn off indexing temporarily; track whether indexing was enabled
         # (as of parasolr v0.9.2, disconnect returns # of handlers disconnected)
         self.indexing_enabled = IndexableSignalHandler.disconnect()
-        print(f"indexing enabled {self.indexing_enabled}")
 
         # turn off viaf lookups
         settings.SKIP_VIAF_LOOKUP = True

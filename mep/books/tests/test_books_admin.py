@@ -1,6 +1,6 @@
 import datetime
 import time
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
 from io import StringIO
 import csv
 import os
@@ -21,6 +21,7 @@ from mep.books.admin import (
     EditionForm,
     WorkAdmin,
     WorkAdminImportExport,
+    WorkResource,
     WORK_IMPORT_COLUMNS,
     WORK_IMPORT_EXPORT_COLUMNS,
 )
@@ -407,6 +408,14 @@ class TestWorkAdmin(TestCase):
             )
 
             assert response.content.count(b'<tr class="grp-row') == len(rows)
+
+
+class TestWorkResouce:
+    def test_before_import(self):
+        dataset = MagicMock(headers=["slug", "category"])
+        WorkResource().before_import(dataset, using_transactions=False, dry_run=True)
+        assert "category" not in dataset.headers
+        assert "categories" in dataset.headers
 
 
 class TestEditionForm(TestCase):

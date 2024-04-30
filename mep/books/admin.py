@@ -422,21 +422,32 @@ class WorkResource(ImportExportModelResource):
         # run parent method
         super().before_import(dataset, using_transactions, dry_run, **kwargs)
 
-        # ensure nationalities
+        # for historical reasons, support both category and categories
+        if "category" in dataset.headers:
+            # if category is present, rename to categories
+            dataset.headers[dataset.headers.index("category")] = "categories"
+
+        # preprocess categories; create any new ones not in the database
         genre_categories = {
-            nat.strip()
+            category.strip()
             for row in dataset.dict
-            for nat in row["categories"].split(";")
-            if nat.strip()
+            for category in row.get("categories", "").split(";")
+            if category.strip()
         }
+
+        known_categories = (
+            Genre.objects.filter(name__in=genre_categories)
+            .distinct("name")
+            .values_list("name", flat=True)
+        )
+        unknown_categories = genre_categories - set(known_categories)
         try:
-            added = 0
-            for genre in genre_categories:
-                if not Genre.objects.filter(name=genre).exists():
-                    logger.debug(f'Genre "{genre}" does not exist in db, creating now')
-                    Genre.objects.create(name=genre)
-                    added += 1
-            logger.debug(f"Successfully created {added} new genres")
+            genres = Genre.objects.bulk_create(
+                [Genre(name=category) for category in unknown_categories]
+            )
+            logger.debug(
+                f"Successfully created records for {len(genres)} new genre/categories"
+            )
         except IntegrityError as e:
             logger.debug(
                 f"Database integrity error occurred in creating new genres: {e}"
@@ -450,11 +461,6 @@ class WorkResource(ImportExportModelResource):
         """
         # alter slug if a previous version of present one
         self.validate_row_by_slug(row)
-
-    #     # make sure we have a genre category for each listed
-    #     category_names = row["categories"]
-    #     for cat in category_names.split(";"):
-    #         Genre.objects.get_or_create(name=cat.strip())
 
 
 class NamedListWidget(Widget):
