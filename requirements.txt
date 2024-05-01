@@ -17,10 +17,7 @@ django-widget-tweaks
 # pymarc api changes significantly in 5.0
 pymarc<5.0
 progressbar2
-# require rdflib<6.0 for py3.6 compatibility;
-# when we upgrade python version, require rdflib<=6.0 and drop separate rdflib-jsonld requirement (included in 6.0)
 rdflib>=6.0
-#rdflib-jsonld<0.6.2
 djiffy>=0.6
 django-csp
 bleach
@@ -31,8 +28,7 @@ django-markdownify>=0.9
 tweepy
 # specify bs4 version to avoid wagtail version conflict
 beautifulsoup4<4.9
-# require pre-2.9 until upgraded past django 2.2 (or 3.0?)
-psycopg2-binary<2.9
+psycopg2-binary
 # TODO: unpin piffle from 0.4 once breaking changes with piffle.iiif are handled in djiffy
 piffle==0.4
 # 4.0 is not compatible with django 3.2, so pin to pre 4.0
