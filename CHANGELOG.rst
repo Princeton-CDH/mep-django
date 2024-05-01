@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+1.6
+---
+
+* As a content editor, I want to batch import new data on books' genre, so that I can update multiple records with annotations made externally.
+* As a content editor, I want to batch import authors/creator information, so that I can update multiple records with annotations made externally.
+* As a content admin, I want to export information about creators from the database so I can work with the data using other tools.
+* As a content admin, I want to export member addresses with more details in a separate file so I can more easily work with member locations.
+* bugfix: viaf lookup for birth/death dates
+* bugfix: admin geonames lookup
+* data migration to populate person birth and death dates from VIAF where VIAF id set but dates are not
+
 1.5.7
 -----
 
