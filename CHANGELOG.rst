@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+1.6.1
+-----
+
+* Pin django-markdownify to 0.9.3 to avoid an incompatibility error with bleach in django-markdownify 0.9.4
+
 1.6
 ---
 
