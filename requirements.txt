@@ -24,7 +24,8 @@ bleach
 django-fullurl
 unidecode
 stop_words
-django-markdownify>=0.9
+# as of 2024-05-08 django-markdownify==0.9.4 causes an error with bleach
+django-markdownify==0.9.3
 tweepy
 # specify bs4 version to avoid wagtail version conflict
 beautifulsoup4<4.9
