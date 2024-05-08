@@ -18,7 +18,6 @@ class Command(export_members.Command):
         "id",
         "name",
         "sort_name",
-        "title",
         "gender",
         "is_organization",
         "birth_year",
