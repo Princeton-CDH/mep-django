@@ -8,9 +8,7 @@ and purchases.
 """
 
 from collections import OrderedDict
-
-from django.db.models import F
-
+from django.db.models import F, Prefetch
 from mep.books.models import CreatorType, Work
 from mep.common.management.export import BaseExport
 from mep.common.utils import absolutize_url
@@ -36,11 +34,14 @@ class Command(BaseExport):
     # query the database at load time (but maybe only a problem for tests)
 
     csv_fields = (
-        ["uri", "title"]
+        # including "id" to store slug for exports,
+        # given not all exported entities have a URI
+        ["id", "uri", "title"]
         + [creator.lower() for creator in creator_types]
         + [
             "year",
             "format",
+            "genre_category",
             "uncertain",
             "ebook_url",
             "volumes_issues",
@@ -64,7 +65,7 @@ class Command(BaseExport):
         return (
             super()
             .get_queryset()
-            .prefetch_related("creator_set")
+            .prefetch_related(Prefetch("creator_set"), Prefetch("categories"))
             .count_events()
             .order_by(F("year").asc(nulls_last=True), "title")
         )
@@ -77,6 +78,7 @@ class Command(BaseExport):
         # required properties
         data = OrderedDict(
             [
+                ("id", work.slug),
                 ("uri", absolutize_url(work.get_absolute_url())),
                 ("title", work.title),
             ]
@@ -84,9 +86,14 @@ class Command(BaseExport):
         data.update(self.creator_info(work))
         if work.year:
             data["year"] = work.year
+
         # format is not currently set for all items
         if work.work_format:
             data["format"] = work.work_format.name
+
+        # genre category
+        if work.categories:
+            data["genre_category"] = [cat.name for cat in work.categories.all()]
 
         data["uncertain"] = work.is_uncertain
 
@@ -110,7 +117,6 @@ class Command(BaseExport):
 
         # date last modified
         data["updated"] = work.updated_at.isoformat()
-
         return data
 
     def creator_info(self, work):

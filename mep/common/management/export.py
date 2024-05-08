@@ -68,7 +68,8 @@ class BaseExport(BaseCommand):
         parser.add_argument(
             "-d",
             "--directory",
-            help="Specify the directory where files should be generated",
+            help="Specify the directory where files should be generated. "
+            "The directory will be created if it does not already exist.",
         )
         parser.add_argument(
             "-m",
@@ -94,6 +95,11 @@ class BaseExport(BaseCommand):
         # get stream array / generator of data for export
         data = self.get_data(kwargs.get("max"))
         self.stdout.write("Exporting JSON and CSV")
+        # ensure directory exists (useful to allow command line user to specify dated dir)
+        base_dir = os.path.dirname(base_filename)
+        if base_dir:
+            os.makedirs(os.path.dirname(base_filename), exist_ok=True)
+
         # open and initialize CSV file
         with open("{}.csv".format(base_filename), "w") as csvfile:
             # write utf-8 byte order mark at the beginning of the file
@@ -146,7 +152,9 @@ class BaseExport(BaseCommand):
         # grab the first N if maximum is specified
         if maximum:
             objects = objects[:maximum]
-        total = objects.count()
+        total = len(
+            objects
+        )  # fewer assumptions, allows other (multi model/class) objects
         return StreamArray((self.get_object_data(obj) for obj in objects), total)
 
     def get_object_data(self, obj):

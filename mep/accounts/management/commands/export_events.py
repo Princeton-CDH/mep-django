@@ -11,8 +11,11 @@ from collections import OrderedDict
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import Coalesce
+from django.db.models.query import Prefetch
+from djiffy.models import Manifest
 
 from mep.accounts.models import Event
+from mep.books.models import Creator
 from mep.common.management.export import BaseExport
 from mep.common.utils import absolutize_url
 
@@ -28,6 +31,7 @@ class Command(BaseExport):
         "event_type",
         "start_date",
         "end_date",
+        "member_ids",
         "member_uris",
         "member_names",
         "member_sort_names",
@@ -66,9 +70,24 @@ class Command(BaseExport):
         """get event objects to be exported"""
         # Order events by date. Order on precision first so unknown dates
         # will be last, then sort by first known date of start/end.
-        return Event.objects.all().order_by(
-            Coalesce("start_date_precision", "end_date_precision"),
-            Coalesce("start_date", "end_date").asc(nulls_last=True),
+        return (
+            Event.objects.all()
+            .select_related(
+                "subscription", "reimbursement", "borrow", "purchase", "work", "edition"
+            )
+            .prefetch_related(
+                "account__persons",
+                "footnotes",
+                "footnotes__bibliography__manifest",
+                Prefetch(
+                    "work__creators",
+                    queryset=Creator.objects.select_related("person", "creator_type"),
+                ),
+            )
+            .order_by(
+                Coalesce("start_date_precision", "end_date_precision"),
+                Coalesce("start_date", "end_date").asc(nulls_last=True),
+            )
         )
 
     def get_object_data(self, obj):
@@ -133,6 +152,7 @@ class Command(BaseExport):
 
         return OrderedDict(
             [
+                ("ids", [m.slug for m in members]),
                 ("uris", [absolutize_url(m.get_absolute_url()) for m in members]),
                 ("names", [m.name for m in members]),
                 ("sort_names", [m.sort_name for m in members]),

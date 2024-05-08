@@ -1,12 +1,21 @@
+import logging
+import os
+import csv
+from functools import cached_property
+
 from dal import autocomplete
 from django import forms
 from django.conf import settings
+from django.db import IntegrityError
 from django.urls import path, reverse
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
+from import_export.resources import ModelResource
+from import_export.widgets import ManyToManyWidget, Widget
+from import_export.fields import Field
 from tabular_export.admin import export_to_csv_response
 from viapy.widgets import ViafWidget
 
@@ -17,8 +26,8 @@ from mep.common.admin import (
     NamedNotableAdmin,
 )
 from mep.footnotes.admin import FootnoteInline
-
-from .models import (
+from mep.common.admin import ImportExportModelResource, LocalImportExportModelAdmin
+from mep.people.models import (
     Country,
     InfoURL,
     Location,
@@ -27,6 +36,9 @@ from .models import (
     Relationship,
     RelationshipType,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 class InfoURLInline(CollapsibleTabularInline):
@@ -436,8 +448,131 @@ class LocationAdmin(admin.ModelAdmin):
         ]
 
 
+PERSON_IMPORT_COLUMNS = ("slug", "gender", "nationalities")
+
+PERSON_IMPORT_EXPORT_COLUMNS = (
+    "slug",
+    "name",
+    "birth_year",
+    "death_year",
+    "gender",
+    "nationalities",
+    "notes",
+    "mep_id",
+    "sort_name",
+    "viaf_id",
+    "is_organization",
+    "verified",
+    "title",
+    "profession",
+    "public_notes",
+    "updated_at",
+)
+
+
+class ExportPersonResource(ModelResource):
+    nationalities = Field(
+        attribute="nationalities",
+        widget=ManyToManyWidget(Country, field="name", separator=";"),
+    )
+
+    class Meta:
+        model = Person
+        fields = PERSON_IMPORT_EXPORT_COLUMNS
+        export_order = PERSON_IMPORT_EXPORT_COLUMNS
+        chunk_size = 1000
+
+
+class PersonResource(ImportExportModelResource):
+    def before_import(self, dataset, using_transactions, dry_run, **kwargs):
+        # run shared mep.common import/export steps
+        super().before_import(dataset, using_transactions, dry_run, **kwargs)
+
+        # identify and create any new countries for nationalities
+        nationalities = {
+            nat.strip()
+            for row in dataset.dict
+            for nat in row["nationalities"].split(";")
+            if nat.strip()
+        }
+        known_countries = (
+            Country.objects.filter(name__in=nationalities)
+            .distinct("name")
+            .values_list("name", flat=True)
+        )
+        unknown_countries = nationalities - set(known_countries)
+        try:
+            countries = Country.objects.bulk_create(
+                [Country(name=nat) for nat in unknown_countries]
+            )
+            logger.debug(
+                f"Successfully created records for {len(countries)} new countries"
+            )
+        except IntegrityError as e:
+            logger.debug(
+                f"Database integrity error occurred in creating new countries: {e}"
+            )
+        except Exception as e:
+            logger.debug(f"Error occurred in creating new countries: {e}")
+
+    def before_import_row(self, row, **kwargs):
+        """
+        Called on an OrderedDictionary of row attributes.
+        Opportunity to do quick string formatting as a
+        principle of charity to annotators before passing
+        values into django-import-export lookup logic.
+        """
+        # make sure slug is valid and matches
+        self.validate_row_by_slug(row)
+
+        # gender to one char
+        gstr = str(row.get("gender")).strip()
+        row["gender"] = gstr[0].upper() if gstr else ""
+
+    # Use many-to-many widget to separate and import nationalities
+    nationalities = Field(
+        column_name="nationalities",
+        attribute="nationalities",
+        widget=ManyToManyWidget(Country, field="name", separator=";"),
+    )
+
+    class Meta:
+        model = Person
+        fields = PERSON_IMPORT_COLUMNS
+        import_id_fields = ("slug",)
+        export_order = PERSON_IMPORT_COLUMNS
+        skip_unchanged = True
+        report_skipped = True
+        store_instance = True
+
+
+class PersonAdminImportExport(PersonAdmin, LocalImportExportModelAdmin):
+    resource_classes = [PersonResource]
+
+    def get_export_resource_classes(self):
+        """
+        Use a distinct resource class for exporting,
+        since export and import have support different fields
+        """
+        return [ExportPersonResource]
+
+    def get_queryset(self, request):
+        # add prefetching so admin list display and export will be faster
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("profession")
+            .prefetch_related(
+                "nationalities",
+                "account_set",
+                "account_set__locations",
+                "account_set__persons",
+            )
+        )
+
+
 # enable default admin to see imported data
-admin.site.register(Person, PersonAdmin)
+admin.site.register(Person, PersonAdminImportExport)
 admin.site.register(Country, CountryAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Profession, NamedNotableAdmin)

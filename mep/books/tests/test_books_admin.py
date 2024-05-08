@@ -1,21 +1,51 @@
 import datetime
 import time
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
+from io import StringIO
+import csv
+import os
+import random
+import tempfile
 
+from django.apps import apps
 from django.contrib import admin
 from django.db.models.query import EmptyQuerySet
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils.timezone import now
+import pytest
 
 from mep.accounts.models import Account, Borrow, Purchase
 from mep.accounts.partial_date import DatePrecision
-from mep.books.admin import EditionForm, WorkAdmin
+from mep.books.admin import (
+    EditionForm,
+    WorkAdmin,
+    WorkAdminImportExport,
+    WorkResource,
+    WORK_IMPORT_COLUMNS,
+    WORK_IMPORT_EXPORT_COLUMNS,
+)
 from mep.books.models import Edition, Work
+import uuid
 
 
 class TestWorkAdmin(TestCase):
     fixtures = ["sample_works"]
+
+    def setUp(self):
+        User = apps.get_model("auth", "User")
+        # script user needed for log entry logic
+        # store the password to login later
+        password = str(uuid.uuid4())
+        self.admin_user = User.objects.create_superuser(
+            "admin", "admin@admin.com", password
+        )
+        self.client = Client()
+        # You'll need to log him in before you can send requests through the client
+        self.client.login(username=self.admin_user.username, password=password)
+        self.url_import = reverse("admin:books_work_import")
+        self.url_process_import = reverse("admin:books_work_process_import")
+        self.url_export = reverse("admin:books_work_export")
 
     @classmethod
     def setUpClass(cls):
@@ -254,6 +284,138 @@ class TestWorkAdmin(TestCase):
             Mock(), Work.objects.all(), ""
         )
         assert queryset.count() == Work.objects.all().count()
+
+    def _djangoimportexport_do_export_post(self, file_format=0):
+        """
+        Send POST request to exporting url, and return HTTP response object
+        """
+        response = self.client.post(self.url_export, {"file_format": str(file_format)})
+        return response
+
+    def test_djangoimportexport_export(self):
+        ### test can get page
+        response = self.client.get(self.url_export)
+        self.assertEqual(response.status_code, 200)
+
+        ### test can post to page and get csv data back
+        date_str = now().strftime("%Y-%m-%d")
+        response = self._djangoimportexport_do_export_post(file_format=0)  # csv
+
+        # test response
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.has_header("Content-Disposition"))
+        self.assertEqual(response["Content-Type"], "text/csv")
+        self.assertEqual(
+            response["Content-Disposition"],
+            'attachment; filename="Work-{}.csv"'.format(date_str),
+        )
+
+        # test csv as binary string response
+        lines = response.content.splitlines()
+        assert len(lines) > 0, "no header returned"
+        self.assertEqual(
+            ",".join(WORK_IMPORT_EXPORT_COLUMNS).encode(),
+            lines[0],
+        )
+
+        # test csv via csv reader
+        f = StringIO(response.content.decode())
+        reader = csv.DictReader(f, delimiter=",")
+        rows = list(reader)
+        works = Work.objects.all()
+
+        # test num lines, should be a row per work
+        assert len(rows) == len(works)
+
+        # test values by row
+        work_admin = WorkAdminImportExport(model=Work, admin_site=admin.site)
+        export_class = work_admin.get_export_resource_classes()[0]
+        exporter = export_class()
+
+        def getstr(work, attr, default=""):
+            field = exporter.fields[attr]
+            res = exporter.export_field(field, work)
+            return str(res) if res or res == 0 else default
+
+        for work, row in zip(works, rows):
+            for attr in WORK_IMPORT_EXPORT_COLUMNS:
+                self.assertEqual(getstr(work, attr), row[attr])
+
+    def _djangoimportexport_do_import_post(
+        self, url, filename, input_format=0, follow=False
+    ):
+        """
+        Send POST request to import url, with a filename to import,
+        and return HTTP response object
+        """
+        with open(filename, "rb") as f:
+            data = {
+                "input_format": str(input_format),
+                "import_file": f,
+            }
+            response = self.client.post(url, data, follow=follow)
+        return response
+
+    @pytest.mark.last
+    def test_djangoimportexport_import(self):
+        ### test can get page
+        response = self.client.get(self.url_import)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "admin/import_export/import.html")
+        self.assertContains(response, 'form action=""')
+
+        tmpfn = "works.csv"
+        ## test import with changed data
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_filename = os.path.join(tmpdir, tmpfn)
+            # quick export
+            response = self._djangoimportexport_do_export_post()
+            # modify
+            f = StringIO(response.content.decode())
+            reader = csv.DictReader(f, delimiter=",")
+            rows = list(reader)
+            categories = ["Fiction", "Nonfiction", "Drama", "Poetry", "Periodical", ""]
+            for row in rows:
+                row["categories"] = random.choice(
+                    [x for x in categories if x != row["categories"]]
+                )
+            # save
+            with open(csv_filename, "w") as of:
+                writer = csv.DictWriter(of, fieldnames=reader.fieldnames)
+                writer.writeheader()
+                writer.writerows(rows)
+
+            # now import
+            response = self._djangoimportexport_do_import_post(
+                self.url_import, csv_filename
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("result", response.context)
+            self.assertFalse(response.context["result"].has_errors())
+            self.assertIn("confirm_form", response.context)
+            confirm_form = response.context["confirm_form"]
+
+            data = confirm_form.initial
+            self.assertEqual(data["original_file_name"], tmpfn)
+            response = self.client.post(self.url_process_import, data, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(
+                response,
+                ("Import finished, with {} new and {} updated {}.").format(
+                    0, len(rows), Work._meta.verbose_name_plural
+                ),
+            )
+
+            assert response.content.count(b'<tr class="grp-row') == len(rows)
+
+
+class TestWorkResouce:
+    def test_before_import(self):
+        dataset = MagicMock(headers=["slug", "category"])
+        WorkResource().before_import(dataset, using_transactions=False, dry_run=True)
+        assert "category" not in dataset.headers
+        assert "categories" in dataset.headers
 
 
 class TestEditionForm(TestCase):

@@ -1,4 +1,8 @@
 /* NOTE: this logic is currently specific to country editing */
+
+// alias jquery to $ for convenience
+const $ = jQuery;
+
 $(document).on('select2:select', function(evt) {   // fixme: restrict to .geonames-lookup ?
     var data = evt.params.data;
     // update link display and target

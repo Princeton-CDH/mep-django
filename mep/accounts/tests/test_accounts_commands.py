@@ -22,8 +22,9 @@ from mep.accounts.management.commands import (
     export_events,
     import_figgy_cards,
     report_timegaps,
+    export_addresses,
 )
-from mep.accounts.models import Account, Borrow, Event
+from mep.accounts.models import Account, Borrow, Event, Address, Location
 from mep.books.models import Creator, CreatorType
 from mep.common.management.export import StreamArray
 from mep.common.utils import absolutize_url
@@ -618,3 +619,45 @@ class TestExportEvents(TestCase):
             call_command("export_events", "-d", tempdir.name, "-m", 2, stdout=stdout)
             # 2 objects (once each)
             assert mock_get_obj_data.call_count == 2
+
+
+class TestExportAddresses(TestCase):
+    fixtures = ["sample_people"]
+
+    def setUp(self):
+        self.cmd = export_addresses.Command()
+        self.cmd.stdout = StringIO()
+
+    def test_get_queryset(self):
+        # queryset should only include library members
+        member = Person.objects.get(pk=189)  # francisque gay, member
+        location = Location.objects.get(pk=213)
+        address = Address.objects.get(pk=236)
+        addresses = self.cmd.get_queryset()
+        assert address in set(addresses)
+        assert address.location == location
+        assert member in set(address.account.persons.all())
+
+    def test_get_object_data(self):
+        # fetch some example people from fixture & call get_object_data
+        address = Address.objects.get(pk=236)
+        gay_data = self.cmd.get_object_data(address)
+
+        # check some basic data
+
+        # slug is 'gay' in sample_people, 'gay-francisque' in db
+        assert gay_data["member"]["ids"] == ["gay"]
+        assert gay_data["member"]["uris"] == ["https://example.com/members/gay/"]
+
+        # check addresses & coordinates
+        assert "3 Rue Garancière" == gay_data["street_address"]
+        assert "Paris" == gay_data["city"]
+        assert "France" == gay_data["country"]
+        assert 48.85101 == gay_data["latitude"]
+        assert 2.33590 == gay_data["longitude"]
+        assert "75006" == gay_data["postal_code"]
+        assert 6 == gay_data["arrondissement"]
+        assert gay_data["start_date"] == "1919-01-01"
+        assert gay_data["start_date"] == "1919-01-01"
+        assert gay_data["end_date"] == "1930-01-01"
+        assert gay_data["care_of_person_id"] == "hemingway"

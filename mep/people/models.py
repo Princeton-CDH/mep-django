@@ -2,6 +2,7 @@ import datetime
 import logging
 from string import punctuation
 
+from django.conf import settings
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import MultipleObjectsReturned
@@ -32,12 +33,17 @@ class Country(Named):
     or location of an :class:`Address`"""
 
     geonames_id = models.URLField(
-        "GeoNames ID", unique=True, blank=True, help_text="GeoNames identifier"
+        "GeoNames ID",
+        unique=True,
+        blank=True,
+        null=True,
+        help_text="GeoNames identifier",
     )
     code = models.CharField(
         "Country Code",
         unique=True,
         blank=True,
+        null=True,
         help_text="Two-letter country code",
         max_length=2,
     )
@@ -533,7 +539,12 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
         """Adds birth and death dates if they aren't already set
         and there's a viaf id for the record"""
 
-        if self.viaf_id and not self.birth_year and not self.death_year:
+        if (
+            not getattr(settings, "SKIP_VIAF_LOOKUP", False)
+            and self.viaf_id
+            and not self.birth_year
+            and not self.death_year
+        ):
             self.set_birth_death_years()
 
         # if slug has changed, save the old one as a past slug
@@ -568,7 +579,8 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
         """:class:`viapy.api.ViafEntity` for this record if :attr:`viaf_id`
         is set."""
         if self.viaf_id:
-            return ViafEntity(self.viaf_id)
+            # viaf URI should not include trailing slash
+            return ViafEntity(self.viaf_id.strip("/"))
 
     @property
     def short_name(self):
@@ -593,14 +605,18 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
     def set_birth_death_years(self):
         """Set local birth and death dates based on information from VIAF"""
         if self.viaf_id:
-            self.birth_year = self.viaf.birthyear
-            self.death_year = self.viaf.deathyear
+            # store viaf object so we don't load remote rdf twice
+            viaf_entity = self.viaf
+            self.birth_year = viaf_entity.birthyear
+            self.death_year = viaf_entity.deathyear
 
     def list_nationalities(self):
-        """Return comma separated list of nationalities (if any) for :class:`Person` list_view."""
-        nationalities = self.nationalities.all().order_by("name")
-        if nationalities.exists():
-            return ", ".join(country.name for country in nationalities)
+        """comma separated list of nationalities (if any) for :class:`Person` list_view."""
+        # avoid queryset ordering, count, exists check so we can
+        # take advantage of prefetching
+        nationalities = self.nationalities.all()
+        if len(nationalities):
+            return ", ".join(sorted(country.name for country in nationalities))
         return ""
 
     list_nationalities.short_description = "Nationalities"

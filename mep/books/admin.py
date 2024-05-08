@@ -1,18 +1,55 @@
+import logging
+
+from dal import autocomplete
 from django import forms
+from django.db import IntegrityError
+from django.db.models import Count
+from django.conf import settings
 from django.contrib import admin
 from django.core.validators import ValidationError
 from django.urls import path, reverse
-from django.db.models import Count
 from django.utils.html import format_html
 from django.utils.timezone import now
-
+from import_export.resources import ModelResource
+from import_export.widgets import ManyToManyWidget, ForeignKeyWidget, Widget
+from import_export.fields import Field
 from tabular_export.admin import export_to_csv_response
+from parasolr.django.signals import IndexableSignalHandler
 
 from mep.accounts.admin import AUTOCOMPLETE
 from mep.accounts.partial_date import PartialDateFormMixin
 from mep.books.models import Creator, CreatorType, Work, Subject, Format, Genre, Edition
+from mep.people.models import Person
 from mep.books.queryset import WorkSolrQuerySet
-from mep.common.admin import CollapsibleTabularInline
+from mep.common.admin import (
+    CollapsibleTabularInline,
+    ImportExportModelResource,
+    LocalImportExportModelAdmin,
+)
+
+logger = logging.getLogger()
+
+WORK_IMPORT_EXPORT_COLUMNS = [
+    "id",
+    "slug",
+    "creators",
+    "title",
+    "year",
+    "notes",
+    "genres",
+    "categories",
+    "mep_id",
+    "uri",
+    "edition_uri",
+    "sort_title",
+    "ebook_url",
+    "work_format",
+    "subjects",
+    "public_notes",
+    "updated_at",
+]
+
+WORK_IMPORT_COLUMNS = ["slug", "categories"]
 
 
 class WorkCreatorInlineForm(forms.ModelForm):
@@ -93,6 +130,8 @@ class WorkAdmin(admin.ModelAdmin):
         "display_title",
         "author_list",
         "notes",
+        "genre_list",
+        "category_list",
         "events",
         "borrows",
         "purchases",
@@ -110,6 +149,8 @@ class WorkAdmin(admin.ModelAdmin):
         "notes",
         "public_notes",
         "creator__person__name",
+        "genres__name",
+        "categories__name",
         "id",
         "slug",
     )
@@ -139,12 +180,13 @@ class WorkAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "OCLC metadata",
+            "Genre metadata",
             {
                 "fields": (
                     "uri",
                     "edition_uri",
                     "work_format",
+                    "categories",
                     "genres",
                     "subjects",
                 )
@@ -159,7 +201,7 @@ class WorkAdmin(admin.ModelAdmin):
         "sort_title",
         "past_slugs_list",
     )
-    filter_horizontal = ("genres", "subjects")
+    filter_horizontal = ("categories", "genres", "subjects")
 
     actions = ["export_to_csv"]
 
@@ -256,6 +298,7 @@ class WorkAdmin(admin.ModelAdmin):
         "uri",
         "edition_uri",
         "genre_list",
+        "category_list",
         "format",
         "subject_list",
         "event_count",
@@ -353,11 +396,123 @@ class FormatAdmin(admin.ModelAdmin):
     fields = ("name", "uri", "notes")
 
 
-admin.site.register(Work, WorkAdmin)
+class GenreAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    fields = ("name",)
+    search_fields = ("name",)
+
+
+class WorkResource(ImportExportModelResource):
+    # only customized fields need specifying here
+    categories = Field(
+        column_name="categories",
+        attribute="categories",
+        widget=ManyToManyWidget(Genre, field="name", separator=";"),
+    )
+
+    class Meta:
+        model = Work
+        fields = WORK_IMPORT_COLUMNS
+        import_id_fields = ("slug",)
+        export_order = WORK_IMPORT_COLUMNS
+        skip_unchanged = True
+        report_skipped = True
+
+    def before_import(self, dataset, using_transactions, dry_run, **kwargs):
+        # run parent method
+        super().before_import(dataset, using_transactions, dry_run, **kwargs)
+
+        # for historical reasons, support both category and categories
+        if "category" in dataset.headers:
+            # if category is present, rename to categories
+            dataset.headers[dataset.headers.index("category")] = "categories"
+
+        # preprocess categories; create any new ones not in the database
+        genre_categories = {
+            category.strip()
+            for row in dataset.dict
+            for category in row.get("categories", "").split(";")
+            if category.strip()
+        }
+
+        known_categories = (
+            Genre.objects.filter(name__in=genre_categories)
+            .distinct("name")
+            .values_list("name", flat=True)
+        )
+        unknown_categories = genre_categories - set(known_categories)
+        try:
+            genres = Genre.objects.bulk_create(
+                [Genre(name=category) for category in unknown_categories]
+            )
+            logger.debug(
+                f"Successfully created records for {len(genres)} new genre/categories"
+            )
+        except IntegrityError as e:
+            logger.debug(
+                f"Database integrity error occurred in creating new genres: {e}"
+            )
+        except Exception as e:
+            logger.debug(f"Error occurred in creating new genres: {e}")
+
+    def before_import_row(self, row, **kwargs):
+        """
+        Called on an OrderedDictionary of row attributes.
+        """
+        # alter slug if a previous version of present one
+        self.validate_row_by_slug(row)
+
+
+class NamedListWidget(Widget):
+    sep = ";"
+
+    @classmethod
+    def render(cls, queryset):
+        return cls.sep.join(child.name for child in queryset.all())
+
+
+class ExportWorkResource(WorkResource):
+    creators = Field()
+    genres = Field()
+    subjects = Field()
+    categories = Field()
+    work_format = Field("work_format__name")
+
+    def dehydrate_creators(self, work):
+        return NamedListWidget.render(work.creators)
+
+    def dehydrate_categories(self, work):
+        return NamedListWidget.render(work.categories)
+
+    def dehydrate_genres(self, work):
+        return NamedListWidget.render(work.genres)
+
+    def dehydrate_subjects(self, work):
+        return NamedListWidget.render(work.subjects)
+
+    class Meta:
+        model = Work
+        fields = WORK_IMPORT_EXPORT_COLUMNS
+        export_order = WORK_IMPORT_EXPORT_COLUMNS
+
+
+class WorkAdminImportExport(WorkAdmin, LocalImportExportModelAdmin):
+    resource_classes = [WorkResource]
+
+    def get_export_resource_classes(self):
+        """
+        Specifies the resource class to use for exporting,
+        so that separate fields can be exported than those imported
+        """
+        return [ExportWorkResource]
+
+
+# enable default admin to see imported data
+admin.site.register(Work, WorkAdminImportExport)
 admin.site.register(CreatorType, CreatorTypeAdmin)
 admin.site.register(Subject, SubjectAdmin)
 admin.site.register(Format, FormatAdmin)
-admin.site.register(Genre)
+admin.site.register(Genre, GenreAdmin)
 
 # NOTE: edition needs to be registered to allow adding from event
 # edit form; allow editing not inline?

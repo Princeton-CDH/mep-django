@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "parasolr",
     "djiffy",
     "fullurl",
+    "admin_log_entries",
     "webpack_loader",
     "wagtail.sites",
     "wagtail.users",
@@ -69,6 +70,7 @@ INSTALLED_APPS = [
     "mep.books",
     "mep.footnotes",
     "mep.pages",
+    "import_export",
 ]
 
 MIDDLEWARE = [
@@ -324,3 +326,8 @@ WEBPACK_LOADER = {
 }
 
 WAGTAILADMIN_BASE_URL = "https://shakespeareandco.princeton.edu/cms/"
+
+
+IMPORT_EXPORT_USE_TRANSACTIONS = (
+    False  # before_import object creation won't work otherwise
+)
