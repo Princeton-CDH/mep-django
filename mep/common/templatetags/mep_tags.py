@@ -7,7 +7,7 @@ from django import forms
 from django.template.defaultfilters import date
 from django.template.defaulttags import register
 from django.utils.safestring import mark_safe
-from piffle.iiif import IIIFImageClientException
+from piffle.image import IIIFImageClientException
 
 from mep.accounts.models import Event
 from mep.accounts.partial_date import DatePrecision
@@ -158,7 +158,7 @@ def formfield_selected_filter(context, boundfield):
 @register.filter
 def iiif_image(img, args):
     """Add options to resize or otherwise change the display of an iiif
-    image; expects an instance of :class:`piffle.iiif.IIIFImageClient`.
+    image; expects an instance of :class:`piffle.image.IIIFImageClient`.
     Provide the method and arguments as filter string, i.e.::
 
         {{ myimg|iiif_image:"size:width=225,height=255" }}
