@@ -6,10 +6,26 @@
         "label": "Stein, Gertrude",
         "short_id": "9f6f307d-2eb7-4960-8dc1-9dec4ea53022",
         "uri": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest",
-        "metadata": "{\"Date Created\":[\"1920-03-18/1922-04-13\"],\"Extent\":[\"4 cards\"],\"Identifier\":[\"ark:/88435/ws859k779\"],\"Title\":[\"Stein, Gertrude\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3660\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "metadata": {"Date Created":["1920-03-18/1922-04-13"],"Extent":["4 cards"],"Identifier":["ark:/88435/ws859k779"],"Title":["Stein, Gertrude"],"Creator":["Beach, Sylvia."],"Language":["English"],"Publisher":["Beach, Sylvia."],"Source Metadata Identifier":["C0108_c3660"],"Member Of Collections":["Sylvia Beach Papers C0108"],"Archival Collection Code":["C0108"]},
         "created": "2019-10-14",
         "last_modified": "2019-10-14",
-        "extra_data": "{\"https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022.jsonld\":{\"system_updated_at\":\"2019-10-13T23:28:40Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T22:18:53Z\",\"@id\":\"https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022\",\"identifier\":[\"ark:/88435/ws859k779\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Stein, Gertrude\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3660.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/ws859k779\"}}"
+        "extra_data": {
+            "https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022.jsonld":
+            {"system_updated_at":"2019-10-13T23:28:40Z",
+                "@context":"https://bibdata.princeton.edu/context.json",
+                "system_created_at":"2019-06-12T22:18:53Z",
+                "@id":"https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022",
+                "identifier":["ark:/88435/ws859k779"],"memberOf":[{"@type":"pcdm:Collection",
+                    "@id":"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd",
+                "title":"Sylvia Beach Papers C0108"}],"edm_rights":{"@type":"dcterms:RightsStatement",
+                    "@id":"http://rightsstatements.org/vocab/NKC/1.0/",
+                "pref_label":"No Known Copyright"},
+                "title":[{"@value":"Stein, Gertrude",
+                "@language":"eng"}]},
+                "https://findingaids.princeton.edu/collections/C0108/c3660.xml?scope=record":{},
+                "logo":"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png",
+                "license":"http://rightsstatements.org/vocab/NKC/1.0/",
+                "rendering":{"format":"text/html","@id":"http://arks.princeton.edu/ark:/88435/ws859k779"}}
     }
 },
 {
@@ -278,10 +294,10 @@
         "label": "Stein, Leo",
         "short_id": "8493520c-be69-47f1-b159-262f4b8c0e04",
         "uri": "https://figgy.princeton.edu/concern/scanned_resources/8493520c-be69-47f1-b159-262f4b8c0e04/manifest",
-        "metadata": "{\"Date Created\":[\"1923-08-20/1933-06-17\"],\"Extent\":[\"5 cards\"],\"Identifier\":[\"ark:/88435/3n204320r\"],\"Title\":[\"Stein, Leo\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3661\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "metadata": {"Date Created":["1923-08-20/1933-06-17"],"Extent":["5 cards"],"Identifier":["ark:/88435/3n204320r"],"Title":["Stein, Leo"],"Creator":["Beach, Sylvia."],"Language":["English"],"Publisher":["Beach, Sylvia."],"Source Metadata Identifier":["C0108_c3661"],"Member Of Collections":["Sylvia Beach Papers C0108"],"Archival Collection Code":["C0108"]},
         "created": "2019-10-14",
         "last_modified": "2019-10-14",
-        "extra_data": "{\"https://figgy.princeton.edu/catalog/8493520c-be69-47f1-b159-262f4b8c0e04.jsonld\":{\"system_updated_at\":\"2019-10-13T23:32:12Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T22:19:04Z\",\"@id\":\"https://figgy.princeton.edu/catalog/8493520c-be69-47f1-b159-262f4b8c0e04\",\"identifier\":[\"ark:/88435/3n204320r\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Stein, Leo\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3661.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/3n204320r\"}}"
+        "extra_data": {"https://figgy.princeton.edu/catalog/8493520c-be69-47f1-b159-262f4b8c0e04.jsonld":{"system_updated_at":"2019-10-13T23:32:12Z","@context":"https://bibdata.princeton.edu/context.json","system_created_at":"2019-06-12T22:19:04Z","@id":"https://figgy.princeton.edu/catalog/8493520c-be69-47f1-b159-262f4b8c0e04","identifier":["ark:/88435/3n204320r"],"memberOf":[{"@type":"pcdm:Collection","@id":"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd","title":"Sylvia Beach Papers C0108"}],"edm_rights":{"@type":"dcterms:RightsStatement","@id":"http://rightsstatements.org/vocab/NKC/1.0/","pref_label":"No Known Copyright"},"title":[{"@value":"Stein, Leo","@language":"eng"}]},"https://findingaids.princeton.edu/collections/C0108/c3661.xml?scope=record":{},"logo":"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png","license":"http://rightsstatements.org/vocab/NKC/1.0/","rendering":{"format":"text/html","@id":"http://arks.princeton.edu/ark:/88435/3n204320r"}}
     }
 },
 {
@@ -291,10 +307,10 @@
         "label": "Stein, Gertrude",
         "short_id": "9f6f307d-2eb7-4960-8dc1-9dec4ea53022",
         "uri": "https://figgy.princeton.edu/concern/scanned_resources/9f6f307d-2eb7-4960-8dc1-9dec4ea53022/manifest",
-        "metadata": "{\"Date Created\":[\"1920-03-18/1922-04-13\"],\"Extent\":[\"4 cards\"],\"Identifier\":[\"ark:/88435/ws859k779\"],\"Title\":[\"Stein, Gertrude\"],\"Creator\":[\"Beach, Sylvia.\"],\"Language\":[\"English\"],\"Publisher\":[\"Beach, Sylvia.\"],\"Source Metadata Identifier\":[\"C0108_c3660\"],\"Member Of Collections\":[\"Sylvia Beach Papers C0108\"],\"Archival Collection Code\":[\"C0108\"]}",
+        "metadata": {"Date Created":["1920-03-18/1922-04-13"],"Extent":["4 cards"],"Identifier":["ark:/88435/ws859k779"],"Title":["Stein, Gertrude"],"Creator":["Beach, Sylvia."],"Language":["English"],"Publisher":["Beach, Sylvia."],"Source Metadata Identifier":["C0108_c3660"],"Member Of Collections":["Sylvia Beach Papers C0108"],"Archival Collection Code":["C0108"]},
         "created": "2019-10-14",
         "last_modified": "2019-10-14",
-        "extra_data": "{\"https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022.jsonld\":{\"system_updated_at\":\"2019-10-13T23:28:40Z\",\"@context\":\"https://bibdata.princeton.edu/context.json\",\"system_created_at\":\"2019-06-12T22:18:53Z\",\"@id\":\"https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022\",\"identifier\":[\"ark:/88435/ws859k779\"],\"memberOf\":[{\"@type\":\"pcdm:Collection\",\"@id\":\"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd\",\"title\":\"Sylvia Beach Papers C0108\"}],\"edm_rights\":{\"@type\":\"dcterms:RightsStatement\",\"@id\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"pref_label\":\"No Known Copyright\"},\"title\":[{\"@value\":\"Stein, Gertrude\",\"@language\":\"eng\"}]},\"https://findingaids.princeton.edu/collections/C0108/c3660.xml?scope=record\":{},\"logo\":\"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png\",\"license\":\"http://rightsstatements.org/vocab/NKC/1.0/\",\"rendering\":{\"format\":\"text/html\",\"@id\":\"http://arks.princeton.edu/ark:/88435/ws859k779\"}}"
+        "extra_data": {"https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022.jsonld":{"system_updated_at":"2019-10-13T23:28:40Z","@context":"https://bibdata.princeton.edu/context.json","system_created_at":"2019-06-12T22:18:53Z","@id":"https://figgy.princeton.edu/catalog/9f6f307d-2eb7-4960-8dc1-9dec4ea53022","identifier":["ark:/88435/ws859k779"],"memberOf":[{"@type":"pcdm:Collection","@id":"https://figgy.princeton.edu/catalog/f8201b0f-7ea2-4166-b6b2-033e0de9a6bd","title":"Sylvia Beach Papers C0108"}],"edm_rights":{"@type":"dcterms:RightsStatement","@id":"http://rightsstatements.org/vocab/NKC/1.0/","pref_label":"No Known Copyright"},"title":[{"@value":"Stein, Gertrude","@language":"eng"}]},"https://findingaids.princeton.edu/collections/C0108/c3660.xml?scope=record":{},"logo":"https://figgy.princeton.edu/assets/pul_logo_icon-7b5f9384dfa5ca04f4851c6ee9e44e2d6953e55f893472a3e205e1591d3b2ca6.png","license":"http://rightsstatements.org/vocab/NKC/1.0/","rendering":{"format":"text/html","@id":"http://arks.princeton.edu/ark:/88435/ws859k779"}}
     }
 },
 {
@@ -308,7 +324,7 @@
         "manifest": 336,
         "thumbnail": false,
         "order": 8,
-        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/9242203d-d33e-416a-8658-59ec52b46736/file/89fadffe-567e-4926-8dd2-5ddbe192f19d\",\"label\":\"Download the original file\"}]}"
+        "extra_data": {"rendering":[{"format":"image/tiff","@id":"https://figgy.princeton.edu/downloads/9242203d-d33e-416a-8658-59ec52b46736/file/89fadffe-567e-4926-8dd2-5ddbe192f19d","label":"Download the original file"}]}
     }
 },
 {
@@ -332,7 +348,7 @@
         "manifest": 394,
         "thumbnail": false,
         "order": 4,
-        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/9d839618-9d3e-4e8e-9d6c-28b46d337b11/file/209ebdda-b57d-4e1d-9e36-193eb4a3df12\",\"label\":\"Download the original file\"}]}"
+        "extra_data": {"rendering":[{"format":"image/tiff","@id":"https://figgy.princeton.edu/downloads/9d839618-9d3e-4e8e-9d6c-28b46d337b11/file/209ebdda-b57d-4e1d-9e36-193eb4a3df12","label":"Download the original file"}]}
     }
 },
 {
@@ -346,7 +362,7 @@
         "manifest": 394,
         "thumbnail": false,
         "order": 2,
-        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/d3182e87-bc20-44f9-a92b-ff978de18d37/file/12a43393-1d18-4414-85b3-9fcb966e2231\",\"label\":\"Download the original file\"}]}"
+        "extra_data": {"rendering":[{"format":"image/tiff","@id":"https://figgy.princeton.edu/downloads/d3182e87-bc20-44f9-a92b-ff978de18d37/file/12a43393-1d18-4414-85b3-9fcb966e2231","label":"Download the original file"}]}
     }
 },
 {
@@ -360,7 +376,7 @@
         "manifest": 394,
         "thumbnail": false,
         "order": 1,
-        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/68fd36f1-a463-441e-9f13-dfc4a6cd4114/file/79be0c46-98e6-4999-80f3-372eb8dfcae9\",\"label\":\"Download the original file\"}]}"
+        "extra_data": {"rendering":[{"format":"image/tiff","@id":"https://figgy.princeton.edu/downloads/68fd36f1-a463-441e-9f13-dfc4a6cd4114/file/79be0c46-98e6-4999-80f3-372eb8dfcae9","label":"Download the original file"}]}
     }
 },
 {
@@ -374,7 +390,7 @@
         "manifest": 394,
         "thumbnail": true,
         "order": 0,
-        "extra_data": "{\"rendering\":[{\"format\":\"image/tiff\",\"@id\":\"https://figgy.princeton.edu/downloads/31f9c24e-6f97-4149-afb2-e9d2f7ba6cbe/file/73c0d641-1718-43e9-a904-b91184935dde\",\"label\":\"Download the original file\"}]}"
+        "extra_data": {"rendering":[{"format":"image/tiff","@id":"https://figgy.princeton.edu/downloads/31f9c24e-6f97-4149-afb2-e9d2f7ba6cbe/file/73c0d641-1718-43e9-a904-b91184935dde","label":"Download the original file"}]}
     }
 },
 {
