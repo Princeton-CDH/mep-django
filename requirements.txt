@@ -18,7 +18,7 @@ django-widget-tweaks
 pymarc<5.0
 progressbar2
 rdflib>=6.0
-djiffy>=0.6
+djiffy>=0.9
 django-csp
 bleach
 django-fullurl
