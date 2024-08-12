@@ -543,13 +543,18 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
 
     def save(self, *args, **kwargs):
         """Adds birth and death dates if they aren't already set
-        and there's a viaf id for the record"""
+        and there's a viaf id for the record; keep a record of
+        past person slugs when a person slug has changed"""
 
+        # set birth and death date if VIAF id is set and birth year and death
+        # year are NOT set; UNLESS skip viaf lookup config or
+        # viaf date override are true
         if (
             not getattr(settings, "SKIP_VIAF_LOOKUP", False)
             and self.viaf_id
             and not self.birth_year
             and not self.death_year
+            and not self.viaf_date_override
         ):
             self.set_birth_death_years()
 
