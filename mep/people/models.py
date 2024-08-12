@@ -449,6 +449,12 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
     birth_year = AliasIntegerField(db_column="start_year", blank=True, null=True)
     #: death year
     death_year = AliasIntegerField(db_column="end_year", blank=True, null=True)
+    #: override for setting dates from viaf
+    viaf_date_override = models.BooleanField(
+        "VIAF override",
+        default=False,
+        help_text="Do not set birth/death date from VIAF on save",
+    )
     #: flag to indicate organization instead of person
     is_organization = models.BooleanField(
         default=False,
