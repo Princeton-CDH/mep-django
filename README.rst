@@ -36,31 +36,18 @@ Development instructions
 
 Initial setup and installation:
 
-- recommended: create and activate a python 3.9 virtual environment. Using pyenv:
+- Recommended: create and activate a python virtual environment using the
+python version in `.python-version` using `pyenv <https://github.com/pyenv/pyenv>`_.
 
-    # if pyenv is not installed
-    curl https://pyenv.run | bash
-
-    # get recommended python version
-    vnum=$(cat .python-version)
-
-    # install that version
-    pyenv install $vnum
-
-    # activate it
-    pyenv shell $num   
-
-    # create virtual environmnt
-    python -m venv venv
-
-    # activate virtual environment
-    . venv/bin/activate
+   - `pyenv install` will install the specified version of python, if needed;
+     `pyenv local` will report the configured version
+   - Run `python -m venv env`  to create a new virtual environment named `env`
+   - `source env/bin/activate` to activate the virtual environment
 
 - Install required python dependencies::
 
-    # install requirements
-    pip install -r dev-requirements.txt
-    pip install -r requirements.txt
+    # install python dependencies, including dev dependencies
+    pip install -e '.[dev]'
 
 - Install javascript dependencies::
 
@@ -83,7 +70,7 @@ Remember to add a ``SECRET_KEY`` setting!
   The manage command will automatically reload the core to ensure schema
   changes take effect.
 
-- Run the migrations
+- Run the migrations::
 
     python manage.py migrate
 
@@ -118,7 +105,6 @@ docs <http://django-admin-tools.readthedocs.io/en/latest/dashboard.html#>`_.
 
 If you make changes to js or scss files and need to rebuild static assets::
 
-
     npm run build:qa
 
 This will compile and minify all assets to ``static/`` with sourcemaps.
@@ -128,7 +114,6 @@ Alternatively, to run a production build without sourcemaps, you can use::
 
 Finally, for iterative frontend development, you can activate a webpack dev
 server with hot reload using::
-
 
     npm start
 
@@ -162,11 +147,11 @@ You will also need to configure Django to use the Solr instance in
 Unit Tests
 ----------
 
-Python unit tests are written with `py.test <http://doc.pytest.org/>`__ but use
+Python unit tests are written with `py.test <http://doc.pytest.org/>`_ but use
 Django fixture loading and convenience testing methods when that makes
 things easier. To run them, first install development requirements::
 
-    pip install -r dev-requirements.txt
+    pip install -e '.[dev]'
 
 Run tests using py.test::
 
@@ -198,17 +183,17 @@ debug toolbar, so you'll probably want to turn it off.
 Setup pre-commit hooks
 ~~~~~~~~~~~~~~~~~~~~~~
 
-If you plan to contribute to this repository, please run the following command:
+If you plan to contribute to this repository, please run the following command::
 
     pre-commit install
 
 This will add a pre-commit hook to automatically format python code with `black <https://github.com/psf/black>`_.
 
-Because these styling conventions were instituted after multiple releases of development on this project, ``git blame`` may not reflect the true author of a given line. In order to see a more accurate ``git blame`` execute the following command:
+Because these styling conventions were instituted after multiple releases of development on this project, ``git blame`` may not reflect the true author of a given line. In order to see a more accurate ``git blame`` execute the following command::
 
     git blame <FILE> --ignore-revs-file .git-blame-ignore-revs
 
-Or configure your git to always ignore styling revision commits:
+Or configure your git to always ignore styling revision commits::
 
     git config blame.ignoreRevsFile .git-blame-ignore-revs
 
@@ -239,4 +224,4 @@ License
 -------
 This project is licensed under the `Apache 2.0 License <https://github.com/Princeton-CDH/mep-django/blob/main/LICENSE>`_.
 
-©2020 Trustees of Princeton University. Permission granted via Princeton Docket #21-3743-1 for distribution online under a standard Open Source license.
+©2024 Trustees of Princeton University. Permission granted via Princeton Docket #21-3743-1 for distribution online under a standard Open Source license.
