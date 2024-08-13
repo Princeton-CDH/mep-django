@@ -78,7 +78,7 @@
         @include responsive-banner('/static/img/headers/SCo_banner_about');
     }
 
-    &.analysis {
+    &.analysis, &.discoveries {
         @include responsive-banner('/static/img/headers/SCo_banner_anlys');
     }
 
