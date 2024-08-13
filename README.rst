@@ -58,9 +58,8 @@ Initial setup and installation:
 
 - Install required python dependencies::
 
-    # install requirements
-    pip install -r dev-requirements.txt
-    pip install -r requirements.txt
+    # install python dependencies, including dev dependencies
+    pip install -e '.[dev]'
 
 - Install javascript dependencies::
 
