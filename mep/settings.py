@@ -158,8 +158,6 @@ TIME_ZONE = "America/New_York"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 # Use three-letter month names everywhere (instead of default AP style)
