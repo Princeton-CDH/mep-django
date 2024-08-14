@@ -231,7 +231,7 @@ class PersonAdmin(admin.ModelAdmin):
         ("slug", "mep_id"),
         ("has_account", "in_logbooks", "has_card", "is_creator"),
         "viaf_id",
-        ("birth_year", "death_year"),
+        ("birth_year", "death_year", "viaf_date_override"),
         "gender",
         "profession",
         "nationalities",

@@ -1,9 +1,0 @@
-pytest>=5
-pytest-django>=3.4.7
-pytest-cov
-pytest-ordering
-django-debug-toolbar
-sphinx
-wheel
-pre-commit
-wagtail-factories

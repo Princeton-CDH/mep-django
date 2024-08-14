@@ -191,6 +191,15 @@ class TestPerson(TestCase):
             pers.save()
             mock_setbirthdeath.assert_called_with()
 
+            # viaf set, no dates, and date override set to true
+            # - should NOT call
+            pers.viaf_date_override = True
+            pers.birth_year = None
+            pers.death_year = None
+            mock_setbirthdeath.reset_mock()
+            pers.save()
+            mock_setbirthdeath.assert_not_called()
+
             # should lookup normally, but configured to skip
             with override_settings(SKIP_VIAF_LOOKUP=True):
                 mock_setbirthdeath.reset_mock()

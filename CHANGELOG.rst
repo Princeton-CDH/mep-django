@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+1.6.2
+-----
+
+* bugfix: add an option to prevent VIAF birth/death dates from being populated
+  on person record save when blank, so incorrect VIAF dates can be removed
+
 1.6.1
 -----
 
