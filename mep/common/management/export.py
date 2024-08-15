@@ -58,6 +58,8 @@ class BaseExport(BaseCommand):
     :meth:`get_queryset`.
     """
 
+    #: default verbosity
+    v_normal = 1
     #: specify a model here or override get_queryset() for more control
     model = None
 
@@ -80,6 +82,7 @@ class BaseExport(BaseCommand):
 
     def handle(self, *args, **kwargs):
         """Export all model data into a CSV file and JSON file."""
+        self.verbosity = kwargs.get("verbosity", self.v_normal)
         # check that CSV export fields are defined before running
         if self.csv_fields is None:
             raise ImproperlyConfigured(
@@ -94,7 +97,8 @@ class BaseExport(BaseCommand):
 
         # get stream array / generator of data for export
         data = self.get_data(kwargs.get("max"))
-        self.stdout.write("Exporting JSON and CSV")
+        if self.verbosity >= self.v_normal:
+            self.stdout.write("Exporting JSON and CSV")
         # ensure directory exists (useful to allow command line user to specify dated dir)
         base_dir = os.path.dirname(base_filename)
         if base_dir:
