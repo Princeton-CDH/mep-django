@@ -47,8 +47,8 @@ class Command(BaseExport):
         )
 
     def get_base_filename(self):
-        """set export filename to 'addresses.csv'"""
-        return "addresses"
+        """set export filename to 'member_addresses.csv'"""
+        return "member_addresses"
 
     def get_object_data(self, addr):
         """
