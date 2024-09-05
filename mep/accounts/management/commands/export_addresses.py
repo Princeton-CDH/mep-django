@@ -6,6 +6,7 @@ of library members; where the information is known, includes
 start and end dates for the address, since some members have multiple
 addresses.
 """
+import argparse
 
 from django.db.models import Prefetch
 from mep.common.management.export import BaseExport
@@ -20,7 +21,7 @@ class Command(BaseExport):
 
     model = Address
 
-    csv_fields = [
+    _csv_fields = [
         "member_ids",  # member slug
         "member_uris",
         "care_of_person_id",  # c/o person slug
@@ -35,6 +36,29 @@ class Command(BaseExport):
         "longitude",
         "latitude",
     ]
+    include_dates = False
+
+    def add_arguments(self, parser):
+        super().add_arguments(parser)
+        # in addition to base options, add a param to control date inclusion
+        parser.add_argument(
+            "--dates",
+            action=argparse.BooleanOptionalAction,
+            default=self.include_dates,
+            help="Include start and end dates from export?",
+        )
+
+    @property
+    def csv_fields(self):
+        if not self.include_dates:
+            return [f for f in self._csv_fields if not f.endswith("_date")]
+        else:
+            return self._csv_fields
+
+    def handle(self, *args, **kwargs):
+        """Export all model data into a CSV file and JSON file."""
+        self.include_dates = kwargs.get("dates", self.include_dates)
+        super().handle(*args, **kwargs)
 
     def get_queryset(self):
         """
@@ -76,6 +100,9 @@ class Command(BaseExport):
             country=loc.country.name if loc.country else None,
             arrondissement=loc.arrondissement(),
         )
+        if not self.include_dates:
+            del data["start_date"]
+            del data["end_date"]
         # filter out unset values so we don't get unnecessary content in json
         return {k: v for k, v in data.items() if v is not None}
 
