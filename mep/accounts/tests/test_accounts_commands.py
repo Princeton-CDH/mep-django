@@ -578,6 +578,7 @@ class TestExportEvents(TestCase):
             end_date__isnull=False,
             subscription__category__isnull=True,
         ).first()
+
         data = self.cmd.get_object_data(event)
         assert data["event_type"] == event.event_label
         assert data["currency"] == "FRF"
@@ -638,11 +639,20 @@ class TestExportAddresses(TestCase):
         assert address.location == location
         assert member in set(address.account.persons.all())
 
+    def test_csv_fields(self):
+        self.cmd.include_dates = True
+        assert self.cmd.csv_fields == self.cmd._csv_fields
+        self.cmd.include_dates = False
+        assert len(self.cmd.csv_fields) != len(self.cmd._csv_fields)
+        assert "start_date" not in self.cmd.csv_fields
+        assert "end_date" not in self.cmd.csv_fields
+
     def test_get_object_data(self):
         # fetch some example people from fixture & call get_object_data
         address = Address.objects.get(pk=236)
+        # with dates included
+        self.cmd.include_dates = True
         gay_data = self.cmd.get_object_data(address)
-
         # check some basic data
 
         # slug is 'gay' in sample_people, 'gay-francisque' in db
@@ -660,4 +670,15 @@ class TestExportAddresses(TestCase):
         assert gay_data["start_date"] == "1919-01-01"
         assert gay_data["start_date"] == "1919-01-01"
         assert gay_data["end_date"] == "1930-01-01"
+        assert gay_data["care_of_person_id"] == "hemingway"
+
+        # without dates
+        self.cmd.include_dates = False
+        gay_data = self.cmd.get_object_data(address)
+        # doesn't include dates
+        assert "start_date" not in gay_data
+        assert "end_date" not in gay_data
+        # does include other data
+        assert gay_data["member"]["ids"] == ["gay"]
+        assert gay_data["member"]["uris"] == ["https://example.com/members/gay/"]
         assert gay_data["care_of_person_id"] == "hemingway"
