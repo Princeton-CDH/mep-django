@@ -656,8 +656,8 @@ class TestExportAddresses(TestCase):
         # check some basic data
 
         # slug is 'gay' in sample_people, 'gay-francisque' in db
-        assert gay_data["member"]["ids"] == ["gay"]
-        assert gay_data["member"]["uris"] == ["https://example.com/members/gay/"]
+        assert gay_data["members"][0]["id"] == "gay"
+        assert gay_data["members"][0]["uri"] == "https://example.com/members/gay/"
 
         # check addresses & coordinates
         assert "3 Rue Garancière" == gay_data["street_address"]
@@ -678,7 +678,10 @@ class TestExportAddresses(TestCase):
         # doesn't include dates
         assert "start_date" not in gay_data
         assert "end_date" not in gay_data
-        # does include other data
-        assert gay_data["member"]["ids"] == ["gay"]
-        assert gay_data["member"]["uris"] == ["https://example.com/members/gay/"]
+        # other member data
+        assert gay_data["members"][0]["id"] == "gay"
+        assert gay_data["members"][0]["uri"] == "https://example.com/members/gay/"
+        assert gay_data["members"][0]["name"] == "Francisque Gay"
+        assert gay_data["members"][0]["sort_name"] == "Gay, Francisque"
         assert gay_data["care_of_person_id"] == "hemingway"
+        assert gay_data["care_of_person_name"] == "Ernest Hemingway"
