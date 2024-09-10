@@ -437,24 +437,23 @@ class TestExportEvents(TestCase):
         assert data.total == Event.objects.count()
         event_data = list(data)
         assert len(event_data) == Event.objects.count()
-        assert isinstance(event_data[0], OrderedDict)
+        assert isinstance(event_data[0], dict)
 
     def test_member_info(self):
         # test single member data
         event = Event.objects.filter(account__persons__name__contains="Brue").first()
         person = event.account.persons.first()
         member_info = self.cmd.member_info(event)
-        assert member_info["sort_names"][0] == person.sort_name
-        assert member_info["names"][0] == person.name
-        assert member_info["uris"][0] == absolutize_url(person.get_absolute_url())
+        assert member_info[0]["sort_name"] == person.sort_name
+        assert member_info[0]["name"] == person.name
+        assert member_info[0]["uri"] == absolutize_url(person.get_absolute_url())
 
         # event with two members; fixture includes Edel joint account
         event = Event.objects.filter(account__persons__name__contains="Edel").first()
 
         member_info = self.cmd.member_info(event)
-        # each field should have two values
-        for field in ("sort_names", "names", "uris"):
-            assert len(member_info[field]) == 2
+        # we should have two members
+        assert len(member_info) == 2
 
         # test event with account but no person
         nomember = Event.objects.filter(account__persons__isnull=True).first()
@@ -582,7 +581,7 @@ class TestExportEvents(TestCase):
         data = self.cmd.get_object_data(event)
         assert data["event_type"] == event.event_label
         assert data["currency"] == "FRF"
-        assert "member" in data
+        assert "member" not in data  # we don't want an empty member dict
         assert "subscription" in data
 
         # test separate payment event includes subscription info
