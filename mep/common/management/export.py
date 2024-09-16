@@ -190,8 +190,15 @@ class BaseExport(BaseCommand):
                     # get a list of all keys present in any of the dictionaries
                     subkeys = set(chain.from_iterable(i.keys() for i in val))
                     # flatten each field into a list of values
+                    csv_key = key
+                    suffix = ""
+                    # special case: if the key ends with s, move that to the sub key,
+                    # e.g. {members : [{id: 'xxx'}]} becomes member_ids
+                    if key.endswith("s"):
+                        csv_key = key[:-1]
+                        suffix = "s"
                     for subkey in subkeys:
-                        flat_data["_".join([key, subkey])] = ";".join(
+                        flat_data[f"{csv_key}_{subkey}{suffix}"] = ";".join(
                             [str(v.get(subkey, "")) for v in val]
                         )
 
