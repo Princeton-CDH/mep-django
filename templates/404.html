@@ -14,3 +14,11 @@
     alt="beach notecard reading 'absent on business, will return shortly'"
     class="e404">
 {% endblock %}
+
+
+{% block js %}
+{{ block.super }}
+{% if PLAUSIBLE_ANALYTICS_404s %}
+<script>document.addEventListener('DOMContentLoaded', function () { plausible('404', { props: { path: document.location.pathname } }); });</script>
+{% endif %}
+{% endblock %}

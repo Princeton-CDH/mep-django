@@ -12,6 +12,7 @@ Revisions to data exports in preparation for 2.0 dataset publication:
 with an optional flag to include them
 - Address export includes care of person id and name, location name, and member names, sort names, and uris
 - Nested information in JSON data exports is now grouped by entity
+- Add support for Plausible analytics, configurable with PLAUSIBLE_ANALYTICS_SCRIPT and PLAUSIBLE_ANALYTICS_404s in django settings
 
 1.6.2
 -----

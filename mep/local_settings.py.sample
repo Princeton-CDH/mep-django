@@ -143,6 +143,13 @@ LOGGING = {
 # https://support.google.com/analytics/answer/2709828
 # GTAGS_ANALYTICS_ENV = ''
 
+# INCLUDE_ANALYTICS = True
+
+# Configure to enable Plausible analytics in production with desired options
+# PLAUSIBLE_ANALYTICS_SCRIPT = "https://plausible.io/js/script.file-downloads.hash.outbound-links.js"
+# PLAUSIBLE_ANALYTICS_404s = True
+
+
 # secret settings for twitter api access 100 years twitter account
 TWITTER_100YEARS = {
     'API': {

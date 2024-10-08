@@ -33,6 +33,7 @@
         <!-- scripts -->
         {% render_bundle 'main' 'js' %}
         {% block js %}{% endblock %}
+        {% include "snippets/plausible_analytics.html" %}
     </head>
     <body>
         {% include 'snippets/test_banner.html' %}
