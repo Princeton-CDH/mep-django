@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+1.7.1
+-----
+
+- Add `INCLUDE_ANALYTICS` to template context so Plausible analytics can be enabled
+
 1.7
 ---
 
