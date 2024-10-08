@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+1.7
+---
+
+Revisions to data exports in preparation for 2.0 dataset publication:
+
+- Address export files renamed `member_addresses` (both csv and json)
+- Creator export files renamed `book_creators` (both csv and json)
+- Address export manage command now does not include start and end dates by default,
+with an optional flag to include them
+- Address export includes care of person id and name, location name, and member names, sort names, and uris
+
 1.6.2
 -----
 
