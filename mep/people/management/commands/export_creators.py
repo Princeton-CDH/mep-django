@@ -46,5 +46,5 @@ class Command(export_members.Command):
         )
 
     def get_base_filename(self):
-        """set the filename to "creators.csv" since it's a subset of people"""
-        return "creators"
+        """set the filename to 'book_creators.csv' to indicate connection to book data"""
+        return "book_creators"

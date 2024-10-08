@@ -7,7 +7,6 @@ and purchases.
 
 """
 
-from collections import OrderedDict
 from django.db.models import F, Prefetch
 from mep.books.models import CreatorType, Work
 from mep.common.management.export import BaseExport
@@ -76,12 +75,10 @@ class Command(BaseExport):
         :class:`~mep.books.models.Work`
         """
         # required properties
-        data = OrderedDict(
-            [
-                ("id", work.slug),
-                ("uri", absolutize_url(work.get_absolute_url())),
-                ("title", work.title),
-            ]
+        data = dict(
+            id=work.slug,
+            uri=absolutize_url(work.get_absolute_url()),
+            title=work.title,
         )
         data.update(self.creator_info(work))
         if work.year:
@@ -122,7 +119,7 @@ class Command(BaseExport):
     def creator_info(self, work):
         """Add information about authors, editors, etc based on creators
         associated with this work."""
-        info = OrderedDict()
+        info = {}
         for creator_type in self.creator_types:
             creators = work.creator_by_type(creator_type)
             if creators:

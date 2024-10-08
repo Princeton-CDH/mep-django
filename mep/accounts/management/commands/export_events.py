@@ -12,7 +12,6 @@ from collections import OrderedDict
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import Coalesce
 from django.db.models.query import Prefetch
-from djiffy.models import Manifest
 
 from mep.accounts.models import Event
 from mep.books.models import Creator
@@ -94,18 +93,15 @@ class Command(BaseExport):
         """Generate a dictionary of data to export for a single
         :class:`~mep.accounts.models.Event`"""
         event_type = obj.event_type
-        data = OrderedDict(
-            [
-                # use event label instead of type for more detail on some generics
-                ("event_type", obj.event_label),
-                ("start_date", obj.partial_start_date or ""),
-                ("end_date", obj.partial_end_date or ""),
-                ("member", OrderedDict()),
-            ]
+        data = dict(
+            # use event label instead of type for more detail on some generics
+            event_type=obj.event_label,
+            start_date=obj.partial_start_date or "",
+            end_date=obj.partial_end_date or "",
         )
         member_info = self.member_info(obj)
         if member_info:
-            data["member"] = member_info
+            data["members"] = member_info
 
         currency = None
 
@@ -150,14 +146,15 @@ class Command(BaseExport):
         if not members:
             return
 
-        return OrderedDict(
-            [
-                ("ids", [m.slug for m in members]),
-                ("uris", [absolutize_url(m.get_absolute_url()) for m in members]),
-                ("names", [m.name for m in members]),
-                ("sort_names", [m.sort_name for m in members]),
-            ]
-        )
+        return [
+            dict(
+                id=m.slug,
+                uri=absolutize_url(m.get_absolute_url()),
+                name=m.name,
+                sort_name=m.sort_name,
+            )
+            for m in members
+        ]
 
     def subscription_info(self, event):
         """subscription details for an event"""
@@ -187,11 +184,9 @@ class Command(BaseExport):
     def item_info(self, event):
         """associated work details for an event"""
         if event.work:
-            item_info = OrderedDict(
-                [
-                    ("uri", absolutize_url(event.work.get_absolute_url())),
-                    ("title", event.work.title),
-                ]
+            item_info = dict(
+                uri=absolutize_url(event.work.get_absolute_url()),
+                title=event.work.title,
             )
             if event.edition:
                 item_info["volume"] = event.edition.display_text()
@@ -206,11 +201,9 @@ class Command(BaseExport):
 
     def source_info(self, footnote):
         """source details from a footnote"""
-        source_info = OrderedDict(
-            [
-                ("type", footnote.bibliography.source_type.name),
-                ("citation", footnote.bibliography.bibliographic_note),
-            ]
+        source_info = dict(
+            type=footnote.bibliography.source_type.name,
+            citation=footnote.bibliography.bibliographic_note,
         )
         if footnote.bibliography.manifest:
             source_info["manifest"] = footnote.bibliography.manifest.uri

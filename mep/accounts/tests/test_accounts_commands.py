@@ -437,24 +437,23 @@ class TestExportEvents(TestCase):
         assert data.total == Event.objects.count()
         event_data = list(data)
         assert len(event_data) == Event.objects.count()
-        assert isinstance(event_data[0], OrderedDict)
+        assert isinstance(event_data[0], dict)
 
     def test_member_info(self):
         # test single member data
         event = Event.objects.filter(account__persons__name__contains="Brue").first()
         person = event.account.persons.first()
         member_info = self.cmd.member_info(event)
-        assert member_info["sort_names"][0] == person.sort_name
-        assert member_info["names"][0] == person.name
-        assert member_info["uris"][0] == absolutize_url(person.get_absolute_url())
+        assert member_info[0]["sort_name"] == person.sort_name
+        assert member_info[0]["name"] == person.name
+        assert member_info[0]["uri"] == absolutize_url(person.get_absolute_url())
 
         # event with two members; fixture includes Edel joint account
         event = Event.objects.filter(account__persons__name__contains="Edel").first()
 
         member_info = self.cmd.member_info(event)
-        # each field should have two values
-        for field in ("sort_names", "names", "uris"):
-            assert len(member_info[field]) == 2
+        # we should have two members
+        assert len(member_info) == 2
 
         # test event with account but no person
         nomember = Event.objects.filter(account__persons__isnull=True).first()
@@ -578,10 +577,11 @@ class TestExportEvents(TestCase):
             end_date__isnull=False,
             subscription__category__isnull=True,
         ).first()
+
         data = self.cmd.get_object_data(event)
         assert data["event_type"] == event.event_label
         assert data["currency"] == "FRF"
-        assert "member" in data
+        assert "member" not in data  # we don't want an empty member dict
         assert "subscription" in data
 
         # test separate payment event includes subscription info
@@ -638,16 +638,25 @@ class TestExportAddresses(TestCase):
         assert address.location == location
         assert member in set(address.account.persons.all())
 
+    def test_csv_fields(self):
+        self.cmd.include_dates = True
+        assert self.cmd.csv_fields == self.cmd._csv_fields
+        self.cmd.include_dates = False
+        assert len(self.cmd.csv_fields) != len(self.cmd._csv_fields)
+        assert "start_date" not in self.cmd.csv_fields
+        assert "end_date" not in self.cmd.csv_fields
+
     def test_get_object_data(self):
         # fetch some example people from fixture & call get_object_data
         address = Address.objects.get(pk=236)
+        # with dates included
+        self.cmd.include_dates = True
         gay_data = self.cmd.get_object_data(address)
-
         # check some basic data
 
         # slug is 'gay' in sample_people, 'gay-francisque' in db
-        assert gay_data["member"]["ids"] == ["gay"]
-        assert gay_data["member"]["uris"] == ["https://example.com/members/gay/"]
+        assert gay_data["members"][0]["id"] == "gay"
+        assert gay_data["members"][0]["uri"] == "https://example.com/members/gay/"
 
         # check addresses & coordinates
         assert "3 Rue Garancière" == gay_data["street_address"]
@@ -661,3 +670,17 @@ class TestExportAddresses(TestCase):
         assert gay_data["start_date"] == "1919-01-01"
         assert gay_data["end_date"] == "1930-01-01"
         assert gay_data["care_of_person_id"] == "hemingway"
+
+        # without dates
+        self.cmd.include_dates = False
+        gay_data = self.cmd.get_object_data(address)
+        # doesn't include dates
+        assert "start_date" not in gay_data
+        assert "end_date" not in gay_data
+        # other member data
+        assert gay_data["members"][0]["id"] == "gay"
+        assert gay_data["members"][0]["uri"] == "https://example.com/members/gay/"
+        assert gay_data["members"][0]["name"] == "Francisque Gay"
+        assert gay_data["members"][0]["sort_name"] == "Gay, Francisque"
+        assert gay_data["care_of_person_id"] == "hemingway"
+        assert gay_data["care_of_person_name"] == "Ernest Hemingway"
