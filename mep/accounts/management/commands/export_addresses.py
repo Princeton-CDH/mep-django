@@ -95,6 +95,7 @@ class Command(BaseExport):
             care_of_person_id=obj.care_of_person.slug if obj.care_of_person else None,
             care_of_person_name=obj.care_of_person.name if obj.care_of_person else None,
             # Location data
+            location_name=loc.name.strip(),
             street_address=loc.street_address,
             city=loc.city,
             postal_code=loc.postal_code,
