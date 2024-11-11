@@ -684,3 +684,6 @@ class TestExportAddresses(TestCase):
         assert gay_data["members"][0]["sort_name"] == "Gay, Francisque"
         assert gay_data["care_of_person_id"] == "hemingway"
         assert gay_data["care_of_person_name"] == "Ernest Hemingway"
+
+        # with location name
+        # TODO!
