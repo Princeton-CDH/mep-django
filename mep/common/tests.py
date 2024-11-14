@@ -16,7 +16,7 @@ from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
 from django.views.generic.list import ListView
-from piffle.iiif import IIIFImageClient
+from piffle.image import IIIFImageClient
 
 from mep.accounts.models import Account, Event
 from mep.common import SCHEMA_ORG, views

@@ -7,7 +7,7 @@ from django import forms
 from django.template.defaultfilters import date
 from django.template.defaulttags import register
 from django.utils.safestring import mark_safe
-from piffle.iiif import IIIFImageClientException
+from piffle.image import IIIFImageClientException
 
 from mep.accounts.models import Event
 from mep.accounts.partial_date import DatePrecision
