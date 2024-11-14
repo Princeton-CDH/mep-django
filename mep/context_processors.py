@@ -15,5 +15,12 @@ def template_settings(request):
         "site": site,
         # needed for footer; easier to get here than in template
         "about_page": site.root_page.get_children().filter(slug="about").first(),
+        "INCLUDE_ANALYTICS": getattr(settings, "INCLUDE_ANALYTICS", False),
+        "PLAUSIBLE_ANALYTICS_SCRIPT": getattr(
+            settings, "PLAUSIBLE_ANALYTICS_SCRIPT", None
+        ),
+        "PLAUSIBLE_ANALYTICS_404s": getattr(
+            settings, "PLAUSIBLE_ANALYTICS_404s", False
+        ),
     }
     return context_extras
