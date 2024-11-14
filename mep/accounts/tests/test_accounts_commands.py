@@ -670,6 +670,8 @@ class TestExportAddresses(TestCase):
         assert gay_data["start_date"] == "1919-01-01"
         assert gay_data["end_date"] == "1930-01-01"
         assert gay_data["care_of_person_id"] == "hemingway"
+        # location does not have a name
+        assert gay_data["location_name"] == ""
 
         # without dates
         self.cmd.include_dates = False
@@ -685,5 +687,9 @@ class TestExportAddresses(TestCase):
         assert gay_data["care_of_person_id"] == "hemingway"
         assert gay_data["care_of_person_name"] == "Ernest Hemingway"
 
-        # with location name
-        # TODO!
+        # add a location name to confirm it is included
+        loc = address.location
+        loc.name = "Le Hotel"
+        loc.save()
+        gay_data = self.cmd.get_object_data(address)
+        assert gay_data["location_name"] == loc.name
