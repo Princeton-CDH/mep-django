@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+1.7.2
+-----
+
+- bugfix: include address location name in member address data export
+
 1.7.1
 -----
 
