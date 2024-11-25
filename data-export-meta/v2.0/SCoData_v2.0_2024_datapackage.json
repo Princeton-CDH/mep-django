@@ -366,6 +366,23 @@
             "title": "Source image",
             "description": "IIIF Image URL for the digitized image in the IIIF manifest documenting this event, if known (if multiple, separated by semicolons)"
           }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "foreignKeys": [
+          {
+            "fields": "member_uris",
+            "reference": {
+              "resource": "members",
+              "fields": "uri"
+            },
+            "fields": "item_uri",
+            "reference": {
+              "resource": "books",
+              "fields": "uri"
+            }
+          }
         ]
       }
     },
@@ -633,8 +650,11 @@
             "title": "Latitude",
             "description": "latitudinal coordinate of address (numeric) "
           }
+        ],
+        "missingValues": [
+          ""
         ]
-      }
+       }
     },
     {
       "name": "book_creators",
