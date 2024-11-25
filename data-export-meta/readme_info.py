@@ -8,11 +8,13 @@
 
 import json
 import sys
+import argparse
+import pathlib
 
 import pandas as pd
 
 
-def readme_info(df, dp_resource):
+def readme_info(df, dp_resource, field_list=True):
     print("1. Number of fields: %d\n" % len(df.columns))
     print("2. Number of rows: {:,}\n".format(len(df)))
     schema_fields = dp_resource["schema"]["fields"]
@@ -20,21 +22,33 @@ def readme_info(df, dp_resource):
     assert len(schema_fields) == len(df.columns)
     field_info = {field["name"]: field for field in schema_fields}
 
-    print("3. Field List:")
-    for col in df.columns:
-        print("%s : %s" % (col, field_info[col]["description"]))
+    if field_list:
+        print("3. Field List:")
+        for col in df.columns:
+            print("%s : %s" % (col, field_info[col]["description"]))
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Please provide path to frictionless datapackage file")
-        exit(0)
+    parser = argparse.ArgumentParser(
+        "Generate dataset info readme from datapackage and data files"
+    )
+    parser.add_argument("datapackage", type=pathlib.Path)
+    # flag to determine whether fields be listed
+    parser.add_argument(
+        "--field-list",
+        help="Generate field list in readme.txt format",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+    )
+    args = parser.parse_args()
 
-    with open(sys.argv[1]) as packagejson:
+    with args.datapackage.open() as packagejson:
         datapackage = json.load(packagejson)
 
-    for resource in datapackage["resources"]:
-        csvfile = resource["path"]
-        print("\n\nInspecting %s...\n\n" % csvfile)
-        df = pd.read_csv(csvfile)
-        readme_info(df, resource)
+        for resource in datapackage["resources"]:
+            # resource path should be relative to the datapackage file
+            datafile = args.datapackage.parent / resource["path"]
+            print("\n\nInspecting %s...\n\n" % datafile)
+            with datafile.open() as csvfile:
+                df = pd.read_csv(csvfile)
+            readme_info(df, resource, field_list=args.field_list)
