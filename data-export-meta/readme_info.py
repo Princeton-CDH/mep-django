@@ -33,8 +33,8 @@ if __name__ == "__main__":
     with open(sys.argv[1]) as packagejson:
         datapackage = json.load(packagejson)
 
-    csvfile = datapackage["resources"][0]["path"]
-    print("Inspecting %s...\n\n" % csvfile)
-
-    df = pd.read_csv(csvfile)
-    readme_info(df, datapackage["resources"][0])
+    for resource in datapackage["resources"]:
+        csvfile = resource["path"]
+        print("\n\nInspecting %s...\n\n" % csvfile)
+        df = pd.read_csv(csvfile)
+        readme_info(df, resource)
