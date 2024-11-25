@@ -10,6 +10,7 @@ import json
 import sys
 import argparse
 import pathlib
+import csv
 
 import pandas as pd
 
@@ -40,8 +41,21 @@ if __name__ == "__main__":
         action=argparse.BooleanOptionalAction,
         default=True,
     )
+    parser.add_argument(
+        "-dd",
+        "--data-dictionary",
+        help="Create a data dictionary in the specified file",
+        type=pathlib.Path,
+    )
+
     args = parser.parse_args()
 
+    if args.data_dictionary:
+        if args.data_dictionary.exists():
+            print(
+                f"Requested data dictionary file {args.data_dictionary} already exists"
+            )
+            raise SystemExit(1)
     with args.datapackage.open() as packagejson:
         datapackage = json.load(packagejson)
 
@@ -52,3 +66,29 @@ if __name__ == "__main__":
             with datafile.open() as csvfile:
                 df = pd.read_csv(csvfile)
             readme_info(df, resource, field_list=args.field_list)
+
+        if args.data_dictionary:
+            print(f"\n\nWriting data dictionary to {args.data_dictionary}")
+            with args.data_dictionary.open("w", encoding="utf-8") as csv_datadict:
+                fieldnames = [
+                    "Filename",
+                    "Variable",
+                    "Variable name",
+                    "Description",
+                    "Type",
+                    "Format",
+                ]
+                csvwriter = csv.DictWriter(csv_datadict, fieldnames=fieldnames)
+                csvwriter.writeheader()
+                for resource in datapackage["resources"]:
+                    for field in resource["schema"]["fields"]:
+                        csvwriter.writerow(
+                            {
+                                "Filename": resource["path"],
+                                "Variable": field["title"],
+                                "Variable name": field["name"],
+                                "Description": field["description"],
+                                "Type": field["type"],
+                                "Format": field.get("format"),
+                            }
+                        )
