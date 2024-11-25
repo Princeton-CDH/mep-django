@@ -1,5 +1,9 @@
 {
   "profile": "tabular-data-package",
+  "title": "Shakespeare and Company Project Dataset: Lending Library Members, Events, and Books",
+  "homepage": "https://shakespeareandco.princeton.edu/about/data/",
+  "version": "2.0",
+  "image": "https://shakespeareandco.princeton.edu/static/img/social.png",
   "resources": [
     {
       "name": "book_creators",
@@ -57,7 +61,7 @@
           {
             "name": "viaf_url",
             "type": "string",
-            "format": "default",
+            "format": "uri",
             "title": "VIAF url ",
             "description": "URL for Virtual Internet Authority File (VIAF, https://viaf.org/) identifier, if available"
           },
@@ -135,35 +139,35 @@
           },
           {
             "name": "editor",
-            "type": "any",
+            "type": "string",
             "format": "default",
             "title": "Editor(s)",
             "description": "editor(s) of work"
           },
           {
             "name": "translator",
-            "type": "any",
+            "type": "string",
             "format": "default",
             "title": "Translator(s)",
             "description": "translator(s) of work"
           },
           {
             "name": "introduction",
-            "type": "any",
+            "type": "string",
             "format": "default",
             "title": "Author of introduction",
             "description": "author of an introduction to work"
           },
           {
             "name": "illustrator",
-            "type": "any",
+            "type": "string",
             "format": "default",
             "description": "illustrator(s) of work",
             "title": "Illustrator(s)"
           },
           {
             "name": "photographer",
-            "type": "any",
+            "type": "string",
             "format": "default",
             "title": "Photographer(s)",
             "description": "photographer(s) featured in work"
@@ -667,7 +671,7 @@
           {
             "name": "viaf_url",
             "type": "string",
-            "format": "default",
+            "format": "uri",
             "title": "VIAF URL",
             "description": "URL for Virtual Internet Authority File (VIAF, https://viaf.org/) identifier, if available"
           },
