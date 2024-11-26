@@ -77,7 +77,6 @@ if __name__ == "__main__":
                     "Description",
                     "Type",
                     "Format",
-                    "Constraints",
                 ]
                 csvwriter = csv.DictWriter(csv_datadict, fieldnames=fieldnames)
                 csvwriter.writeheader()
@@ -91,8 +90,5 @@ if __name__ == "__main__":
                                 "Description": field["description"],
                                 "Type": field["type"],
                                 "Format": field.get("format"),
-                                "Constraints": field["constraints"]["pattern"]
-                                if "constraints" in field
-                                else "",
                             }
                         )
