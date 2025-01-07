@@ -5,7 +5,7 @@
 #
 # pip install pandas
 # usage:
-#   python member_changes.py
+#   python book_changes.py
 
 import csv
 
@@ -14,17 +14,20 @@ import pandas as pd
 import requests
 
 
-# published v1.1 books dataset
-books_previous = "https://dataspace.princeton.edu/bitstream/88435/dsp016d570067j/2/SCoData_books_v1.1_2021-01.csv"
-# local copy of v1.2 (not yet published)
-books_new = "SCoData_books_v1.2_2022-01.csv"
+books_csv = {
+    # published v1.1 books dataset
+    "1.1": "https://dataspace.princeton.edu/bitstream/88435/dsp016d570067j/2/SCoData_books_v1.1_2021-01.csv",
+    # local copy of v1.2
+    "1.2": "v1.2/SCoData_books_v1.2_2022-01.csv",
+    "2.0": "v2.0/SCoData_books_v2.0_2025.csv",
+}
 
 if __name__ == "__main__":
-    old_version = "1.1"
-    new_version = "1.2"
-    books_prev_df = pd.read_csv(books_previous)
+    old_version = "1.2"
+    new_version = "2.0"
+    books_prev_df = pd.read_csv(books_csv[old_version])
     # members_v1_1_df = pd.read_csv(members_v1_1)
-    books_df = pd.read_csv(books_new)
+    books_df = pd.read_csv(books_csv[new_version])
 
     # identify members in new version not in the previous
     # FIXME: probably not useful because of merge/rename

@@ -1,0 +1,53 @@
+﻿# Change log for Shakespeare and Company Project Dataset: Lending Library Members
+
+## Version 2.0, January 2025
+
+New field: 'id'. Short id field based on the unique portion of the uri field, for convenience and for cross-referencing members who are also in book_creators.
+
+No modified fields.
+
+Total number of members decreased by 199 to 5,036 total, due to matching previously unmatched accounts.
+
+Additional demographic information for over one thousand members:
+- Added 1,168 birth years
+- Added 944 death years
+- Added 1,171 nationalities
+- Added 271 VIAF identifiers
+- Added 109 Wikipedia links
+- Added 27 addresses
+
+Member uris in the 1.2 dataset not present in the 2.0 dataset were either renamed, merged with an existing account, or deleted. See  SCoData_members_v2.0_removed.csv for status and new uri when available, in the case of merged and renamed records.
+
+Member address data fields (addresses, postal_codes, arrondissements, coordinates) are preserved for compatibility with previous versions of this dataset, but we highly recommend using the new member_addresses data file, which provides more detail and an easier format for working with members who have multiple addresses.
+
+
+## Version 1.2, January 2022
+
+
+No new fields, no modified fields.
+
+
+Total number of members decreased by 366. The decrease is due, in large part, to matching (and then merging) accounts with subscriptions, but no reimbursements, with accounts with reimbursements but no subscriptions.
+
+
+Added 126 VIAF numbers
+Added 113 Wikipedia links
+Added 164 nationalities
+Added 162 addresses and 79 coordinates
+
+
+1908 member uris in the 1.1 dataset are not present in the 1.2 dataset. These were either renamed, merged with an existing account, or deleted. See  SCoData_members_v1.2_removed.csv for status and new uri if available (in the case of merged and renamed records).
+
+
+## Version 1.1, January 2021
+
+
+No new fields, no modified fields.
+
+
+Total number of members decreased by 125.
+Added 859 addresses.
+Corrected mistakes including some VIAF urls.
+
+
+856 member uris in the 1.0 dataset are not present in the 1.1 dataset. These were either renamed, merged with an existing account, or deleted. See  SCoData_members_v1.1_removed.csv for status and new uri if available (in the case of merged and renamed records).

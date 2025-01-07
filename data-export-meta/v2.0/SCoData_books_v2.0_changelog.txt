@@ -1,0 +1,49 @@
+﻿# Change log for Shakespeare and Company Project Dataset: Lending Library Books
+
+## Version 2.0, January 2025
+
+New field: 'genre_category'. Indicates whether a book is fiction, nonfiction, poetry, drama, a periodical, or a combination.
+
+No modified fields.
+
+Total number of books decreased by 10 to 6,010 total, due to matching previously unidentified books to extant book records.
+
+Added 25 eBook links (3,180 total).
+Decreased the number of uncertain books by 14 (461 total)
+
+
+## Version 1.2, January 2022
+
+
+Removed fields:
+- contributor
+- preface
+
+
+Added 2 total books.
+Added 1,957 eBook links.
+
+
+Havelock Ellis’s seven volume Studies in the Psychology of Sex (1897–1928) was previouly considered a single book; for v1.2, it has been split into seven, for consistency with other multivolume works. (Multivolume works published in the same year appear as one item; multivolume works published over multiple years appear as separate items.) 
+
+
+Some previously unclear titles were deciphered and merged with existing book records.
+
+
+Reduced books labeled “uncertain” by 93. Most were identified using records from the Beach papers. But we also tightened the criteria for labeling a book as “uncertain” in the first place. In v1.2, only “generic” books (i.e. books with titles that match many different books) and “unidentifiable” books (i.e. books with titles that do not match any books) receive the “uncertain” label.
+
+
+127 book uris in the 1.1 dataset are not present in the 1.2 dataset. These were either renamed, merged, or deleted. See  SCoData_books_v1.2_removed.csv for status and new uri if available (in the case of merged and renamed records).
+
+
+## Version 1.1, January 2021
+
+
+No new fields, no modified fields.
+
+
+Added 7 books
+Added 230 ebook_url entries 
+
+
+Corrected mistakes including some publication dates.

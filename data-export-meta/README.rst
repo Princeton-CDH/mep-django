@@ -26,3 +26,10 @@ All scripts require pandas (`pip install pandas`).
 - `readme_info.py` - use to generate dataset summary information for inclusion in plain-text readme (number of fields, number of rows, optional list of fields with descriptions); can also be used to generate a CSV data dictionary. Takes a path to the datapackage file; resource paths referenced in the datapackage must resolve.
 - `member_changes.py` - for members in an old version not in the new version, creates a csv of changes with new ids for member ids that changed; requires pandas. Must be updated for new versions and should be added to changes from previous versions.
 - `book_changes.py` - same as above, but for book ids
+
+To generate updated the member and book changes: 
+- download the _removed.csv file from the previous release and rename it to remove the version
+- update the script with the path to the member or book csv for the new version
+- update the old and new versions in the script
+- run the script; it will append to the existing removed.csv file in the current directory
+- rename the updated removed file to include the version number and copy to the appropriate folder
