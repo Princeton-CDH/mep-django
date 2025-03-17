@@ -8,7 +8,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("djiffy", "0003_extra_data_revisions"),
+        ("djiffy", "0001_squashed_0004_migrate_jsonfield"),
         ("footnotes", "0002_footnote_is_agree_default_true"),
     ]
 
