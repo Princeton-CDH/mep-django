@@ -109,11 +109,10 @@
        wraps solr.StandardDirectoryFactory and caches small files in memory
        for better NRT performance.
 
-       One can force a particular implementation via solr.MMapDirectoryFactory,
-       solr.NIOFSDirectoryFactory, or solr.SimpleFSDirectoryFactory.
+       One can force a particular implementation via solr.MMapDirectoryFactory
+       or solr.NIOFSDirectoryFactory.
 
-       solr.RAMDirectoryFactory is memory based, not
-       persistent, and doesn't work with replication.
+       solr.RAMDirectoryFactory is memory based and not persistent.
     -->
   <directoryFactory name="DirectoryFactory"
                     class="${solr.directoryFactory:solr.NRTCachingDirectoryFactory}"/>
@@ -162,6 +161,15 @@
     <!-- <ramBufferSizeMB>100</ramBufferSizeMB> -->
     <!-- <maxBufferedDocs>1000</maxBufferedDocs> -->
 
+    <!-- Expert: ramPerThreadHardLimitMB sets the maximum amount of RAM that can be consumed
+         per thread before they are flushed. When limit is exceeded, this triggers a forced
+         flush even if ramBufferSizeMB has not been exceeded.
+         This is a safety limit to prevent Lucene's DocumentsWriterPerThread from address space
+         exhaustion due to its internal 32 bit signed integer based memory addressing.
+         The specified value should be greater than 0 and less than 2048MB. When not specified,
+         Solr uses Lucene's default value 1945. -->
+    <!-- <ramPerThreadHardLimitMB>1945</ramPerThreadHardLimitMB> -->
+
     <!-- Expert: Merge Policy
          The Merge Policy in Lucene controls how merging of segments is done.
          The default since Solr/Lucene 3.3 is TieredMergePolicy.
@@ -203,7 +211,7 @@
                    'simple' is the default
 
          More details on the nuances of each LockFactory...
-         http://wiki.apache.org/lucene-java/AvailableLockFactories
+         https://cwiki.apache.org/confluence/display/lucene/AvailableLockFactories
     -->
     <lockType>${solr.lock.type:native}</lockType>
 
@@ -275,7 +283,7 @@
          Instead of enabling autoCommit, consider using "commitWithin"
          when adding documents.
 
-         http://wiki.apache.org/solr/UpdateXmlMessages
+         https://solr.apache.org/guide/solr/latest/indexing-guide/indexing-with-update-handlers.html
 
          maxDocs - Maximum number of documents to add since the last
                    commit before automatically triggering a new commit.
@@ -301,6 +309,8 @@
          faster and more near-realtime friendly than a hard commit.
       -->
 
+    <!-- Disable soft commit -->
+
     <autoSoftCommit>
       <maxTime>${solr.autoSoftCommit.maxTime:-1}</maxTime>
     </autoSoftCommit>
@@ -312,29 +322,6 @@
 
          postCommit - fired after every commit or optimize command
          postOptimize - fired after every optimize command
-      -->
-    <!-- The RunExecutableListener executes an external command from a
-         hook such as postCommit or postOptimize.
-
-         exe - the name of the executable to run
-         dir - dir to use as the current working directory. (default=".")
-         wait - the calling thread waits until the executable returns.
-                (default="true")
-         args - the arguments to pass to the program.  (default is none)
-         env - environment variables to set.  (default is none)
-      -->
-    <!-- This example shows how RunExecutableListener could be used
-         with the script based replication...
-         http://wiki.apache.org/solr/CollectionDistribution
-      -->
-    <!--
-       <listener event="postCommit" class="solr.RunExecutableListener">
-         <str name="exe">solr/bin/snapshooter</str>
-         <str name="dir">.</str>
-         <bool name="wait">true</bool>
-         <arr name="args"> <str>arg1</str> <str>arg2</str> </arr>
-         <arr name="env"> <str>MYVAR=val1</str> </arr>
-       </listener>
       -->
 
   </updateHandler>
@@ -521,6 +508,23 @@
       -->
     <queryResultMaxDocsCached>200</queryResultMaxDocsCached>
 
+  <!-- Use Filter For Sorted Query
+
+   A possible optimization that attempts to use a filter to
+   satisfy a search.  If the requested sort does not include
+   score, then the filterCache will be checked for a filter
+   matching the query. If found, the filter will be used as the
+   source of document ids, and then the sort will be applied to
+   that.
+
+   For most situations, this will not be useful unless you
+   frequently get the same search repeatedly with different sort
+   options, and none of them ever use "score"
+-->
+    <!--
+       <useFilterForSortedQuery>true</useFilterForSortedQuery>
+      -->
+
     <!-- Query Related Event Listeners
 
          Various IndexSearcher related events can trigger Listeners to
@@ -663,32 +667,21 @@
 
   <!-- Request Handlers
 
-       http://wiki.apache.org/solr/SolrRequestHandler
+       https://solr.apache.org/guide/solr/latest/configuration-guide/requesthandlers-searchcomponents.html
 
-       Incoming queries will be dispatched to a specific handler by name
-       based on the path specified in the request.
+       Incoming queries will be dispatched to a specific handler by name based on the path specified in the request.
 
-       Legacy behavior: If the request path uses "/select" but no Request
-       Handler has that name, and if handleSelect="true" has been specified in
-       the requestDispatcher, then the Request Handler is dispatched based on
-       the qt parameter.  Handlers without a leading '/' are accessed this way
-       like so: http://host/app/[core/]select?qt=name  If no qt is
-       given, then the requestHandler that declares default="true" will be
-       used or the one named "standard".
+       All handlers (Search Handlers, Update Request Handlers, and other specialized types) can have default parameters (defaults, appends and invariants).
 
-       If a Request Handler is declared with startup="lazy", then it will
-       not be initialized until the first request that uses it.
+       Search Handlers can also (append, prepend or even replace) default or defined Search Components.
 
+       Update Request Handlers can leverage Update Request Processors to pre-process documents after they are loaded
+       and before they are indexed/stored.
+
+       Not all Request Handlers are defined in the solrconfig.xml, many are implicit.
     -->
-  <!-- SearchHandler
 
-       http://wiki.apache.org/solr/SearchHandler
-
-       For processing Search Queries, the primary Request Handler
-       provided with Solr is "SearchHandler" It delegates to a sequent
-       of SearchComponents (see below) and supports distributed
-       queries across multiple shards
-    -->
+  <!-- Primary search handler, expected by most clients, examples and UI frameworks -->
   <requestHandler name="/select" class="solr.SearchHandler">
     <!-- default values for query parameters can be specified, these
          will be overridden by parameters in the request
@@ -771,58 +764,6 @@
       </str>
 
     </lst>
-    <!-- In addition to defaults, "appends" params can be specified
-         to identify values which should be appended to the list of
-         multi-val params from the query (or the existing "defaults").
-      -->
-    <!-- In this example, the param "fq=instock:true" would be appended to
-         any query time fq params the user may specify, as a mechanism for
-         partitioning the index, independent of any user selected filtering
-         that may also be desired (perhaps as a result of faceted searching).
-
-         NOTE: there is *absolutely* nothing a client can do to prevent these
-         "appends" values from being used, so don't use this mechanism
-         unless you are sure you always want it.
-      -->
-    <!--
-       <lst name="appends">
-         <str name="fq">inStock:true</str>
-       </lst>
-      -->
-    <!-- "invariants" are a way of letting the Solr maintainer lock down
-         the options available to Solr clients.  Any params values
-         specified here are used regardless of what values may be specified
-         in either the query, the "defaults", or the "appends" params.
-
-         In this example, the facet.field and facet.query params would
-         be fixed, limiting the facets clients can use.  Faceting is
-         not turned on by default - but if the client does specify
-         facet=true in the request, these are the only facets they
-         will be able to see counts for; regardless of what other
-         facet.field or facet.query params they may specify.
-
-         NOTE: there is *absolutely* nothing a client can do to prevent these
-         "invariants" values from being used, so don't use this mechanism
-         unless you are sure you always want it.
-      -->
-    <!--
-       <lst name="invariants">
-         <str name="facet.field">cat</str>
-         <str name="facet.field">manu_exact</str>
-         <str name="facet.query">price:[* TO 500]</str>
-         <str name="facet.query">price:[500 TO *]</str>
-       </lst>
-      -->
-    <!-- If the default list of SearchComponents is not desired, that
-         list can either be overridden completely, or components can be
-         prepended or appended to the default list.  (see below)
-      -->
-    <!--
-       <arr name="components">
-         <str>nameOfCustomComponent1</str>
-         <str>nameOfCustomComponent2</str>
-       </arr>
-      -->
   </requestHandler>
 
   <!-- A request handler that returns indented JSON by default -->
@@ -850,6 +791,7 @@
     </lst>
   </requestHandler>
 
+  <!-- Shared parameters for multiple Request Handlers -->
   <initParams path="/update/**,/query,/select,/tvrh,/elevate,/spell,/browse">
     <lst name="defaults">
       <str name="df">_text_</str>
@@ -1327,7 +1269,7 @@
 
   <!-- Response Writers
 
-       http://wiki.apache.org/solr/QueryResponseWriter
+       https://solr.apache.org/guide/solr/latest/query-guide/response-writers.html
 
        Request responses will be written using the writer specified by
        the 'wt' request parameter matching the name of a registered
@@ -1352,11 +1294,11 @@
      <queryResponseWriter name="schema.xml" class="solr.SchemaXmlResponseWriter"/>
     -->
 
+  <!-- Overriding the content-type of the response writer.
+       For example, Default content-type of JSON is application/json. This can be overridden to
+       text/plain so that response is easy to read in *any* browser.
+   -->
   <queryResponseWriter name="json" class="solr.JSONResponseWriter">
-    <!-- For the purposes of the tutorial, JSON responses are written as
-     plain text so that they are easy to read in *any* browser.
-     If you expect a MIME type of "application/json" just remove this override.
-    -->
     <str name="content-type">text/plain; charset=UTF-8</str>
   </queryResponseWriter>
 
