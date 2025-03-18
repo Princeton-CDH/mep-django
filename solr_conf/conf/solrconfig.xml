@@ -390,21 +390,18 @@
        Query section - these settings control query time things like caches
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <query>
-    <!-- Max Boolean Clauses
 
-         Maximum number of clauses in each BooleanQuery,  an exception
-         is thrown if exceeded.
+    <!-- Maximum number of clauses allowed when parsing a boolean query string.
 
-         ** WARNING **
+         This limit only impacts boolean queries specified by a user as part of a query string,
+         and provides per-collection controls on how complex user specified boolean queries can
+         be.  Query strings that specify more clauses than this will result in an error.
 
-         This option actually modifies a global Lucene property that
-         will affect all SolrCores.  If multiple solrconfig.xml files
-         disagree on this property, the value at any given moment will
-         be based on the last SolrCore to be initialized.
-
+         If this per-collection limit is greater than the global `maxBooleanClauses` limit
+         specified in `solr.xml`, it will have no effect, as that setting also limits the size
+         of user specified boolean queries.
       -->
-    <maxBooleanClauses>1024</maxBooleanClauses>
-
+    <maxBooleanClauses>${solr.max.booleanClauses:1024}</maxBooleanClauses>
 
     <!-- Solr Internal Query Caches
          Starting with Solr 9.0 the default cache implementation used is CaffeineCache.
