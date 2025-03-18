@@ -248,25 +248,6 @@
     <!-- <infoStream file="INFOSTREAM.txt">false</infoStream> -->
   </indexConfig>
 
-
-  <!-- JMX
-
-       This example enables JMX if and only if an existing MBeanServer
-       is found, use this if you want to configure JMX through JVM
-       parameters. Remove this to disable exposing Solr configuration
-       and statistics to JMX.
-
-       For more details see http://wiki.apache.org/solr/SolrJmx
-    -->
-  <jmx />
-  <!-- If you want to connect to a particular server, specify the
-       agentId
-    -->
-  <!-- <jmx agentId="myAgent" /> -->
-  <!-- If you want to start a new MBeanServer, specify the serviceUrl -->
-  <!-- <jmx serviceUrl="service:jmx:rmi:///jndi/rmi://localhost:9999/solr"/>
-    -->
-
   <!-- The default high-performance update handler -->
   <updateHandler class="solr.DirectUpdateHandler2">
 
@@ -594,29 +575,13 @@
        This section contains instructions for how the SolrDispatchFilter
        should behave when processing requests for this SolrCore.
 
-       handleSelect is a legacy option that affects the behavior of requests
-       such as /select?qt=XXX
-
-       handleSelect="true" will cause the SolrDispatchFilter to process
-       the request and dispatch the query to a handler specified by the
-       "qt" param, assuming "/select" isn't already registered.
-
-       handleSelect="false" will cause the SolrDispatchFilter to
-       ignore "/select" requests, resulting in a 404 unless a handler
-       is explicitly registered with the name "/select"
-
-       handleSelect="true" is not recommended for new users, but is the default
-       for backwards compatibility
     -->
-  <requestDispatcher handleSelect="false" >
+  <requestDispatcher>
     <!-- Request Parsing
 
          These settings indicate how Solr Requests may be parsed, and
          what restrictions may be placed on the ContentStreams from
          those requests
-
-         enableRemoteStreaming - enables use of the stream.file
-         and stream.url parameters for specifying remote streams.
 
          multipartUploadLimitInKB - specifies the max size (in KiB) of
          Multipart File Uploads that Solr will allow in a Request.
@@ -633,14 +598,11 @@
          Solr components, but may be useful when developing custom
          plugins.
 
-         *** WARNING ***
-         The settings below authorize Solr to fetch remote files, You
-         should make sure your system has some authentication before
-         using enableRemoteStreaming="true"
-
+    <requestParsers multipartUploadLimitInKB="-1"
+                    formdataUploadLimitInKB="-1"
+                    addHttpRequestToContext="false"/>
       -->
-    <requestParsers enableRemoteStreaming="true"
-                    multipartUploadLimitInKB="2048000"
+    <requestParsers multipartUploadLimitInKB="2048000"
                     formdataUploadLimitInKB="2048"
                     addHttpRequestToContext="false"/>
 
