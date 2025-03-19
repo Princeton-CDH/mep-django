@@ -11,7 +11,6 @@ Deploy and Upgrade notes
   and restart Solr to ensure the managed schema is loaded. Then update the schema
   and reindex::
 
-    python manage.py solr_schema
     python manage.py index
 
 1.3
