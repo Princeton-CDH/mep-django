@@ -29,7 +29,9 @@ dependencies = [
     "pymarc<5.0",
     "progressbar2",
     "rdflib>=6.0",
-    "djiffy>=0.9.1",
+    # "djiffy>=0.9.2",
+    # For testing only; uncomment "djiffy>=0.9.2" when testing is complete
+    "djiffy @ git+https://github.com/Princeton-CDH/djiffy.git@release/0.9.2",
     "django-csp",
     "bleach",
     "django-fullurl",
