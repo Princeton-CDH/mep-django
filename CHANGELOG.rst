@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+1.8
+---
+
+- Upgrade to solr 9
+- Revisions to datapackage validation & readme script for 2.0 dataset publication
+
 1.7.2
 -----
 
