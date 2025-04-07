@@ -3,6 +3,16 @@
 Deploy and Upgrade notes
 ========================
 
+1.8
+---
+
+* The minimum required Solr version has been bumped to 9.2. Please upgrade to this
+  version, copy all files under `solr_conf/conf/` to the configured Solr configset,
+  and restart Solr to ensure the managed schema is loaded. Then update the schema
+  and reindex::
+
+    python manage.py index
+
 1.3
 ---
 
