@@ -9,7 +9,7 @@ requires-python = ">=3.9"
 license = { text = "Apache-2" }
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
-    "Django>=3.2.4,<4.0",
+    "Django>=4.0,<4.1",
     "django-grappelli>=3.0",
     "cached_property",
     "django-cas-ng",
@@ -21,15 +21,19 @@ dependencies = [
     "python-dateutil",
     "django-apptemplates",
     "py-flags",
-    "django-tabular-export",
+    # latest django-tabular-export does not support Django 4.0+; await release or consider migrating away
+    # "django-tabular-export",
+    "django-tabular-export @ git+https://github.com/rlskoeser/django-tabular-export@django4-compatibility",
     "django-webpack-loader<=2.0",
     "parasolr>=0.9.2",
     "django-widget-tweaks",
     # pymarc api changes significantly in 5.0
     "pymarc<5.0",
     "progressbar2",
-    "rdflib>=6.0",
-    "djiffy>=0.9.2",
+    "rdflib>=7.0",
+    # pin to tag until djiffy 1.0.0 released for django 4 compatibility
+    # "djiffy>=1.0.0",
+    "djiffy @ git+https://github.com/Princeton-CDH/djiffy@1.0.0-rc1",
     "django-csp",
     "bleach",
     "django-fullurl",
