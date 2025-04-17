@@ -336,7 +336,7 @@ def work_label(work):
     include_editors = False
 
     # include author if known
-    if work.authors:
+    if work.pk and work.authors:
         # handle multiple authors
         if len(work.authors) <= 2:
             # one or two: join by and
@@ -347,7 +347,7 @@ def work_label(work):
         parts.append("%s’s" % author)
 
     # if no author but editors, we will include editor
-    elif work.editors:
+    elif work.pk and work.editors:
         include_editors = True
 
     # should always have title; use quotes since we can't italicize

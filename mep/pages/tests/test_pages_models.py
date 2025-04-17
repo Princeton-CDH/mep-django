@@ -1,11 +1,7 @@
-from unittest.mock import Mock
-
 from django.template.defaultfilters import striptags
 from django.test import SimpleTestCase, TestCase
 from wagtail.models import Page, Site
-from wagtail.documents.models import Document
 from wagtail.test.utils import WagtailPageTests
-from wagtail.test.utils.form_data import nested_form_data, rich_text, streamfield
 from mep.pages.models import (
     CaptionedImageBlock,
     ContentLandingPage,
@@ -18,7 +14,6 @@ from mep.pages.models import (
     Person,
 )
 import wagtail_factories
-from wagtail import blocks
 import factory
 from wagtail.rich_text import RichText
 from datetime import timedelta
@@ -411,13 +406,13 @@ class TestBasePage(WagtailPageTests):
         mypage2 = ContentPage(
             title="What is Prosody?",
             body=[
-                ("image", '<img src="milton-example.png"/>'),
+                ("image", {"image": '<img src="milton-example.png"/>'}),
                 (
                     "paragraph",
-                    "<p>Prosody today means both the study of "
-                    'and <a href="#">pronunciation</a></p>',
+                    RichText("<p>Prosody today means both the study of "
+                    'and <a href="#">pronunciation</a></p>'),
                 ),
-                ("paragraph", "<p>More content here...</p>"),
+                ("paragraph", RichText("<p>More content here...</p>")),
             ],
         )
         # should ignore image block and use first paragraph content

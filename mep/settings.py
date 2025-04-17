@@ -158,8 +158,6 @@ TIME_ZONE = "America/New_York"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 # Use three-letter month names everywhere (instead of default AP style)
@@ -295,10 +293,10 @@ CSP_INCLUDE_NONCE_IN = ("script-src",)
 f = os.path.join(BASE_DIR, "mep", "local_settings.py")
 if os.path.exists(f):
     import sys
-    import imp
+    import types
 
     module_name = "mep.local_settings"
-    module = imp.new_module(module_name)
+    module = types.ModuleType(module_name)
     module.__file__ = f
     sys.modules[module_name] = module
     exec(open(f, "rb").read())
