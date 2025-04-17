@@ -1,4 +1,5 @@
 from datetime import date
+import re
 
 import bleach
 from django.db import models
@@ -312,7 +313,8 @@ class PagePreviewDescriptionMixin(models.Model):
             # Iterate over blocks and use content from first paragraph content
             for block in self.body:
                 if block.block_type == "paragraph":
-                    description = block
+                    # strip legacy rich-text div from block
+                    description = re.sub(r'^<div class="rich-text">|</div>$', '', str(block))
                     # stop after the first instead of using last
                     break
 
