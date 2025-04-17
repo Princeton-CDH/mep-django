@@ -16,7 +16,7 @@ dependencies = [
     "pucas>=0.8",
     "eulxml>=1.1.3",
     "viapy>=0.3",
-    "wagtail>=6.1,<6.2",
+    "wagtail>=6.4,<6.5",
     "django-autocomplete-light>=3.9",
     "python-dateutil",
     "django-apptemplates",
