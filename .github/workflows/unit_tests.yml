@@ -76,6 +76,9 @@ jobs:
   py-unit:
     name: Python unit tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.11"]
     needs: build-static
     services:
       postgres:
@@ -103,15 +106,10 @@ jobs:
       - name: Copy solr configsets to solr home directory
         run: "docker exec -d ${{ job.services.solr.id }} cp -r /opt/solr/server/solr/configsets /var/solr/data"
 
-      # Python version to use is stored in the .python-version file, which is the
-      # convention for pyenv: https://github.com/pyenv/pyenv
-      - name: Get Python version
-        run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_ENV
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ matrix.python }}
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -141,6 +139,8 @@ jobs:
 
       - name: Upload test coverage to Codecov
         uses: codecov/codecov-action@v4
+        # prevent uploading coverage for every python version
+        if: matrix.python == 3.11
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
