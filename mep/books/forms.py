@@ -1,6 +1,7 @@
 from django import forms
 
 from mep.common.forms import (
+    ChoiceFieldWithDisabled,
     FacetForm,
     RangeField,
     RangeForm,
@@ -35,7 +36,7 @@ class WorkSearchForm(RangeForm, FacetForm):
             }
         ),
     )
-    sort = forms.ChoiceField(
+    sort = ChoiceFieldWithDisabled(
         choices=SORT_CHOICES, required=False, widget=SelectWithDisabled
     )
     circulation_dates = RangeField(

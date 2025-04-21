@@ -7,7 +7,7 @@ from django.template.defaultfilters import date as format_date
 
 from mep.accounts.models import Account, Subscription, Borrow
 from mep.books.models import Work
-from mep.common.forms import RadioSelectWithDisabled
+from mep.common.forms import ChoiceFieldWithDisabled, RadioSelectWithDisabled
 from mep.people.forms import PersonChoiceField, PersonMergeForm, MemberSearchForm
 from mep.people.models import Person
 
@@ -114,7 +114,7 @@ class TestRadioWithDisabled(TestCase):
                 ("yes", "yes can select"),
             )
 
-            yes_no = forms.ChoiceField(choices=CHOICES, widget=RadioSelectWithDisabled)
+            yes_no = ChoiceFieldWithDisabled(choices=CHOICES, widget=RadioSelectWithDisabled)
 
         self.form = TestForm()
 

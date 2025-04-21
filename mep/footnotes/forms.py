@@ -1,6 +1,6 @@
 from django import forms
 
-from mep.common.forms import FacetForm, SelectWithDisabled
+from mep.common.forms import ChoiceFieldWithDisabled, FacetForm, SelectWithDisabled
 
 
 class CardSearchForm(FacetForm):
@@ -25,6 +25,6 @@ class CardSearchForm(FacetForm):
             }
         ),
     )
-    sort = forms.ChoiceField(
+    sort = ChoiceFieldWithDisabled(
         choices=SORT_CHOICES, required=False, widget=SelectWithDisabled
     )

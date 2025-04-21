@@ -3,6 +3,7 @@ from django.template.loader import get_template
 
 from mep.common.forms import (
     CheckboxFieldset,
+    ChoiceFieldWithDisabled,
     FacetChoiceField,
     FacetForm,
     RangeField,
@@ -63,7 +64,7 @@ class MemberSearchForm(RangeForm, FacetForm):
             attrs={"placeholder": "Search member", "aria-label": "Keyword or Phrase"}
         ),
     )
-    sort = forms.ChoiceField(
+    sort = ChoiceFieldWithDisabled(
         choices=SORT_CHOICES, required=False, widget=SelectWithDisabled
     )
     has_card = forms.BooleanField(

@@ -14,6 +14,15 @@ class SelectDisabledMixin:
         {'label': 'option', 'disabled': True}.
     """
 
+    # required for Django 5+ to prevent dict choice label normalization
+    @property
+    def choices(self):
+        return self._choices
+
+    @choices.setter
+    def choices(self, value):
+        self._choices = value
+
     # Using a solution at https://djangosnippets.org/snippets/2453/
     def create_option(
         self, name, value, label, selected, index, subindex=None, attrs=None
@@ -42,6 +51,19 @@ class SelectWithDisabled(SelectDisabledMixin, forms.Select):
     Subclass of :class:`django.forms.Select` with option to mark
     a choice as disabled.
     """
+
+
+class ChoiceFieldWithDisabled(forms.ChoiceField):
+    """
+    Subclass of :class:`django.forms.ChoiceField` that prevents normalization
+    of a dict choice label into a list of tuples, in order to continue using
+    :class:`SelectDisabledMixin` in Django 5+ (which attempts to normalize
+    a passed dict twice).
+    """
+
+    @forms.ChoiceField.choices.setter
+    def choices(self, value):
+        self._choices = self.widget.choices = value
 
 
 class CheckboxFieldset(forms.CheckboxSelectMultiple):
