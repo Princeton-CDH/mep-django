@@ -304,7 +304,7 @@ class TestPersonTypeListFilter(TestCase):
         assert not foo.is_creator()
         # request only people with accounts (members)
         pfilter = PersonTypeListFilter(
-            None, {"person_type": "member"}, Person, PersonAdmin
+            None, {"person_type": ["member"]}, Person, PersonAdmin
         )
         qs = pfilter.queryset(None, Person.objects.all())
         assert humperdinck in qs
@@ -312,7 +312,7 @@ class TestPersonTypeListFilter(TestCase):
         assert not foo in qs
         # request only people who are creators
         pfilter = PersonTypeListFilter(
-            None, {"person_type": "creator"}, Person, PersonAdmin
+            None, {"person_type": ["creator"]}, Person, PersonAdmin
         )
         qs = pfilter.queryset(None, Person.objects.all())
         assert engelbert in qs
@@ -320,7 +320,7 @@ class TestPersonTypeListFilter(TestCase):
         assert not foo in qs
         # request uncategorized people (neither members nor creators)
         pfilter = PersonTypeListFilter(
-            None, {"person_type": "uncategorized"}, Person, PersonAdmin
+            None, {"person_type": ["uncategorized"]}, Person, PersonAdmin
         )
         qs = pfilter.queryset(None, Person.objects.all())
         assert foo in qs

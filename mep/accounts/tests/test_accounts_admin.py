@@ -222,7 +222,7 @@ class TestEventTypeListFilter(TestCase):
         for event_type, event_obj in event_types.items():
             # create event type filter for requested event type
             efilter = EventTypeListFilter(
-                None, {"event_type": event_type}, Event, EventAdmin
+                None, {"event_type": [event_type]}, Event, EventAdmin
             )
             qs = efilter.queryset(None, Event.objects.all())
             assert qs.count() == 1
