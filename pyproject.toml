@@ -9,7 +9,7 @@ requires-python = ">=3.9"
 license = { text = "Apache-2" }
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
-    "Django>=5.1,<5.2",
+    "Django>=5.2,<5.3",
     "django-grappelli>=3.0",
     "cached_property",
     "django-cas-ng",
