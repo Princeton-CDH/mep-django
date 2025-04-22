@@ -8,7 +8,7 @@ import time
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from eulxml import xmlmap
+from neuxml.xmlmap import core, fields
 from lxml.etree import XMLSyntaxError
 import pymarc
 import rdflib
@@ -69,15 +69,15 @@ class WorldCatClientBase:
             logger.exception(err)
 
 
-class SRWResponse(xmlmap.XmlObject):
+class SRWResponse(core.XmlObject):
     """Object to parse SRW formatted responses."""
 
     ROOT_NAMESPACES = {"srw": "http://www.loc.gov/zing/srw/"}
 
     #: number of records found for the query
-    num_records = xmlmap.IntegerField("srw:numberOfRecords")
-    #: returned records as :class:`~eulxml.xmlmap.XmlObject`
-    records = xmlmap.NodeField("srw:records", xmlmap.XmlObject)
+    num_records = fields.IntegerField("srw:numberOfRecords")
+    #: returned records as :class:`~neuxml.xmlmap.XmlObject`
+    records = fields.NodeField("srw:records", core.XmlObject)
 
     @property
     def marc_records(self):
@@ -300,7 +300,7 @@ class SRUSearch(WorldCatClientBase):
         if response:
             # parse and return as SRW Response
             try:
-                return xmlmap.load_xmlobject_from_string(response.content, SRWResponse)
+                return core.load_xmlobject_from_string(response.content, SRWResponse)
             except XMLSyntaxError as err:
                 # occasionally getting parsing error exceptions; log it
                 # include first part of response content in case it helps
