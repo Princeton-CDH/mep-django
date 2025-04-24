@@ -4,7 +4,21 @@ from django.core.validators import RegexValidator
 from django.utils.html import mark_safe
 
 
-class SelectDisabledMixin:
+class ChoiceLabel:
+    """Custom choice label that can be used to set an option as disabled
+    without resulting in extra choices when normalized.
+    
+    Implementation from ppa-django."""
+
+    def __init__(self, label, disabled=False):
+        self.label = label
+        self.disabled = disabled
+
+    def __str__(self):
+        return str(self.label)
+
+
+class SelectDisabledMixin(object):
     """
     Mixin for :class:`django.forms.RadioSelect` or :class:`django.forms.CheckboxSelect`
     classes to set an option as disabled. To disable, the widget's choice
@@ -14,23 +28,18 @@ class SelectDisabledMixin:
         {'label': 'option', 'disabled': True}.
     """
 
-    # required for Django 5+ to prevent dict choice label normalization
-    @property
-    def choices(self):
-        return self._choices
-
-    @choices.setter
-    def choices(self, value):
-        self._choices = value
-
     # Using a solution at https://djangosnippets.org/snippets/2453/
     def create_option(
         self, name, value, label, selected, index, subindex=None, attrs=None
     ):
+        """Overide option creation to optionally disable specified values"""
         disabled = None
 
         if isinstance(label, dict):
             label, disabled = label["label"], label.get("disabled", False)
+        elif isinstance(label, ChoiceLabel):
+            disabled = label.disabled
+
         option_dict = super().create_option(
             name, value, label, selected, index, subindex=subindex, attrs=attrs
         )
@@ -51,19 +60,6 @@ class SelectWithDisabled(SelectDisabledMixin, forms.Select):
     Subclass of :class:`django.forms.Select` with option to mark
     a choice as disabled.
     """
-
-
-class ChoiceFieldWithDisabled(forms.ChoiceField):
-    """
-    Subclass of :class:`django.forms.ChoiceField` that prevents normalization
-    of a dict choice label into a list of tuples, in order to continue using
-    :class:`SelectDisabledMixin` in Django 5+ (which attempts to normalize
-    a passed dict twice).
-    """
-
-    @forms.ChoiceField.choices.setter
-    def choices(self, value):
-        self._choices = self.widget.choices = value
 
 
 class CheckboxFieldset(forms.CheckboxSelectMultiple):
