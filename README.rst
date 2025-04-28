@@ -12,7 +12,7 @@ bookstore and lending library in Paris.
 
 (This project was previously called "Mapping Expatriate Paris" or MEP).
 
-Python 3.10+ / Django 5 / Node 18 / Postgresql 14 / Solr 9
+Python 3.12 / Django 5 / Node 18 / Postgresql 14 / Solr 9
 
 .. image:: https://github.com/Princeton-CDH/mep-django/workflows/unit_tests/badge.svg
     :target: https://github.com/Princeton-CDH/mep-django/actions?query=workflow%3Aunit_tests
