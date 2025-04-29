@@ -1,4 +1,3 @@
-import os
 from mep.settings import DATABASES, SOLR_CONNECTIONS
 
 # These settings correspond to the service container settings in the
@@ -6,10 +5,14 @@ from mep.settings import DATABASES, SOLR_CONNECTIONS
 DATABASES["default"].update(
     {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_PASSWORD"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "NAME": "shxco",
+        "USER": "shxco",
+        "PASSWORD": "shxco",
         "HOST": "127.0.0.1",
+        "PORT": "5432",
+        "TEST": {
+            "CHARSET": "utf8",
+        },
     }
 )
 SOLR_CONNECTIONS["default"].update(
