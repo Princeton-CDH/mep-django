@@ -1,6 +1,8 @@
 # local settings for sensitive configurations that should not be
 # checked into version control
 
+import os
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

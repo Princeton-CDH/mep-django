@@ -132,9 +132,7 @@ jobs:
           name: webpack-stats.json
 
       - name: Setup local_settings.py
-        run: |
-          cp ci/testsettings.py mep/local_settings.py
-          python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
+        run: python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> mep/local_settings.py
 
       - name: Run pytest
         run: py.test --cov=./ --cov-report=xml
