@@ -59,7 +59,7 @@ python version in `.python-version` using `pyenv <https://github.com/pyenv/pyenv
 
 - Copy sample local settings and configure for your environment::
 
-    cp mep/local_settings.py.sample mep/local_settings.py
+    cp mep/settings/local_settings.py.sample mep/settings/local_settings.py
 
 Remember to add a ``SECRET_KEY`` setting!
 

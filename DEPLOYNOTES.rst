@@ -3,6 +3,13 @@
 Deploy and Upgrade notes
 ========================
 
+1.9
+---
+
+* Settings are now configured with django-split-settings as a module;
+  ``local_settings.py`` must be moved to ``mep/settings/local_settings.py``,
+  and ``import os`` must be included in the file.
+
 1.8
 ---
 
