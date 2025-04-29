@@ -59,7 +59,7 @@ python version in `.python-version` using `pyenv <https://github.com/pyenv/pyenv
 
 - Copy sample local settings and configure for your environment::
 
-    cp mep/local_settings.py.sample mep/local_settings.py
+    cp mep/settings/local_settings.py.sample mep/settings/local_settings.py
 
 Remember to add a ``SECRET_KEY`` setting!
 
@@ -135,13 +135,13 @@ You will also need to configure Django to use the Solr instance in
 ``local_settings.py``::
 
 
-    SOLR_CONNECTIONS = {
-        'default': {
+    SOLR_CONNECTIONS["default"].update(
+        {
             'URL': 'http://localhost:8983/solr/',
             'COLLECTION': 'shxco_dev',
             'CONFIGSET': 'shxco'
         }
-    }
+    )
 
 
 Unit Tests
