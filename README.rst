@@ -135,13 +135,13 @@ You will also need to configure Django to use the Solr instance in
 ``local_settings.py``::
 
 
-    SOLR_CONNECTIONS = {
-        'default': {
+    SOLR_CONNECTIONS["default"].update(
+        {
             'URL': 'http://localhost:8983/solr/',
             'COLLECTION': 'shxco_dev',
             'CONFIGSET': 'shxco'
         }
-    }
+    )
 
 
 Unit Tests

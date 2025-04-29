@@ -23,22 +23,18 @@ SECRET_KEY = ''
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
+DATABASES["default"].update(
+    {
         'ENGINE': "django.db.backends.postgresql",
         'NAME': 'shxco',
         'USER': 'root',
         'PASSWORD': '1234',
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
-}
+)
 
 # Sample Solr config
-SOLR_CONNECTIONS = {
-    'default': {
+SOLR_CONNECTIONS["default"].update(
+    {
         'URL': 'http://localhost:8983/solr',
         'COLLECTION': 'shxco_example',
         'CONFIGSET': 'shxco',
@@ -47,7 +43,7 @@ SOLR_CONNECTIONS = {
             'COMMITWITHIN': 750,
         }
     }
-}
+)
 
 
 # CAS login configuration

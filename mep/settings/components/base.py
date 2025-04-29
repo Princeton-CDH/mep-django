@@ -293,3 +293,26 @@ WEBPACK_LOADER = {
 IMPORT_EXPORT_USE_TRANSACTIONS = (
     False  # before_import object creation won't work otherwise
 )
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "shxco",
+        "USER": "shxco",
+        "PASSWORD": "",
+        "HOST": "",  # empty string for localhost
+        "PORT": "",  # empty string for default
+    }
+}
+
+SOLR_CONNECTIONS = {
+    "default": {
+        "URL": "http://localhost:8983/solr/",
+        "COLLECTION": "shxco",
+        "CONFIGSET": "shxco",
+        "TEST": {
+            # set aggressive commitWithin when testing
+            "COMMITWITHIN": 750,
+        },
+    }
+}
