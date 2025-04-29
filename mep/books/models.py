@@ -376,7 +376,7 @@ class Work(TrackChangesModel, Notable, ModelIndexable, EventSetMixin):
         # customize uniqueness validation to ensure new slugs don't
         # conflict with past slugs
         super().validate_unique(exclude)
-        if PastWorkSlug.objects.filter(slug=self.slug).exclude(work=self).count():
+        if PastWorkSlug.objects.filter(slug=self.slug).exclude(work__pk=self.pk).count():
             raise ValidationError(
                 "Slug is not unique " + "(conflicts with previously used slugs)"
             )

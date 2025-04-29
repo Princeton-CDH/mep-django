@@ -3,6 +3,7 @@ from django.template.loader import get_template
 
 from mep.common.forms import (
     CheckboxFieldset,
+    ChoiceLabel,
     FacetChoiceField,
     FacetForm,
     RangeField,
@@ -112,11 +113,11 @@ class MemberSearchForm(RangeForm, FacetForm):
         if data and data.get("query", None):
             self.fields["sort"].widget.choices[1] = (
                 self.SORT_CHOICES[1][0],
-                {"label": self.SORT_CHOICES[1][1], "disabled": True},
+                ChoiceLabel(self.SORT_CHOICES[1][1], disabled=True),
             )
         # otherwise, relevance is disabled
         else:
             self.fields["sort"].widget.choices[0] = (
                 self.SORT_CHOICES[0][0],
-                {"label": self.SORT_CHOICES[0][1], "disabled": True},
+                ChoiceLabel(self.SORT_CHOICES[0][1], disabled=True),
             )

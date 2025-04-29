@@ -6,7 +6,7 @@ from django.db import IntegrityError
 from django.db.models import Count
 from django.conf import settings
 from django.contrib import admin
-from django.core.validators import ValidationError
+from django.core.exceptions import ValidationError
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.timezone import now

@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from mep.books.forms import WorkSearchForm
+from mep.common.forms import ChoiceLabel
 
 
 class TestWorkSearchForm(TestCase):
@@ -15,15 +16,17 @@ class TestWorkSearchForm(TestCase):
         # empty query, relevance disabled
         data["query"] = ""
         form = WorkSearchForm(data)
-        assert form.fields["sort"].widget.choices[-1] == (
-            "relevance",
-            {"label": "Relevance", "disabled": True},
-        )
+        assert form.fields["sort"].widget.choices[-1][0] == "relevance"
+        label = form.fields["sort"].widget.choices[-1][1]
+        assert isinstance(label, ChoiceLabel)
+        assert label.label == "Relevance"
+        assert label.disabled == True
 
         # no query but some data; relevance still disabled
         del data["query"]
         form = WorkSearchForm(data)
-        assert form.fields["sort"].widget.choices[-1] == (
-            "relevance",
-            {"label": "Relevance", "disabled": True},
-        )
+        assert form.fields["sort"].widget.choices[-1][0] == "relevance"
+        label = form.fields["sort"].widget.choices[-1][1]
+        assert isinstance(label, ChoiceLabel)
+        assert label.label == "Relevance"
+        assert label.disabled == True

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
-from eulxml import xmlmap
+from neuxml.xmlmap import core
 import pymarc
 import pytest
 import rdflib
@@ -98,7 +98,7 @@ SRW_RESPONSE_FIXTURE = os.path.join(FIXTURE_DIR, "oclc_srw_response.xml")
 def get_srwresponse_xml_fixture():
     # test utility method to initialize and return SRWResponse
     # XmlObject from fixture
-    return xmlmap.load_xmlobject_from_file(SRW_RESPONSE_FIXTURE, SRWResponse)
+    return core.load_xmlobject_from_file(SRW_RESPONSE_FIXTURE, SRWResponse)
 
 
 @override_settings(OCLC_WSKEY="my-secret-key")

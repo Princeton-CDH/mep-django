@@ -4,7 +4,21 @@ from django.core.validators import RegexValidator
 from django.utils.html import mark_safe
 
 
-class SelectDisabledMixin:
+class ChoiceLabel:
+    """Custom choice label that can be used to set an option as disabled
+    without resulting in extra choices when normalized.
+    
+    Implementation from ppa-django."""
+
+    def __init__(self, label, disabled=False):
+        self.label = label
+        self.disabled = disabled
+
+    def __str__(self):
+        return str(self.label)
+
+
+class SelectDisabledMixin(object):
     """
     Mixin for :class:`django.forms.RadioSelect` or :class:`django.forms.CheckboxSelect`
     classes to set an option as disabled. To disable, the widget's choice
@@ -18,10 +32,14 @@ class SelectDisabledMixin:
     def create_option(
         self, name, value, label, selected, index, subindex=None, attrs=None
     ):
+        """Overide option creation to optionally disable specified values"""
         disabled = None
 
         if isinstance(label, dict):
             label, disabled = label["label"], label.get("disabled", False)
+        elif isinstance(label, ChoiceLabel):
+            disabled = label.disabled
+
         option_dict = super().create_option(
             name, value, label, selected, index, subindex=subindex, attrs=attrs
         )

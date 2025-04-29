@@ -236,13 +236,14 @@ class TestWorkAdmin(TestCase):
     def test_export_csv(self, mock_export_to_csv_response):
         with patch.object(self.work_admin, "tabulate_queryset") as tabulate_queryset:
             # if no queryset provided, should use default queryset
-            items = self.work_admin.get_queryset(Mock())
-            self.work_admin.export_to_csv(Mock())
-            assert tabulate_queryset.called_once_with(items)
+            request = Mock()
+            items = self.work_admin.get_queryset(request)
+            self.work_admin.export_to_csv(request)
+            self.assertQuerySetEqual(items, tabulate_queryset.call_args.args[0])
             # otherwise should respect the provided queryset
             first_item = Work.objects.all()[:0]
-            self.work_admin.export_to_csv(Mock(), first_item)
-            assert tabulate_queryset.called_once_with(first_item)
+            self.work_admin.export_to_csv(request, first_item)
+            self.assertQuerySetEqual(first_item, tabulate_queryset.call_args.args[0])
 
             export_args, export_kwargs = mock_export_to_csv_response.call_args
             # first arg is filename

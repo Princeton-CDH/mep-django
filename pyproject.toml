@@ -5,31 +5,37 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mep-django"
 description = "Shakespeare and Company Project - Python/Django web application"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { text = "Apache-2" }
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
-    "Django>=3.2.4,<4.0",
+    "Django>=5.2,<5.3",
     "django-grappelli>=3.0",
     "cached_property",
     "django-cas-ng",
     "pucas>=0.8",
-    "eulxml>=1.1.3",
+    # github until neuxml 1.0.0 released
+    # "neuxml>=1.0.0",
+    "neuxml @ git+https://github.com/Princeton-CDH/neuxml",
     "viapy>=0.3",
-    "wagtail>=5.1,<5.2",
+    "wagtail>=6.4,<6.5",
     "django-autocomplete-light>=3.9",
     "python-dateutil",
     "django-apptemplates",
     "py-flags",
-    "django-tabular-export",
+    # latest django-tabular-export does not support Django 4.0+; await release or consider migrating away
+    # "django-tabular-export",
+    "django-tabular-export @ git+https://github.com/rlskoeser/django-tabular-export@django4-compatibility",
     "django-webpack-loader<=2.0",
     "parasolr>=0.9.2",
     "django-widget-tweaks",
     # pymarc api changes significantly in 5.0
     "pymarc<5.0",
     "progressbar2",
-    "rdflib>=6.0",
-    "djiffy>=0.9.2",
+    "rdflib>=7.0",
+    # pin to tag until djiffy 1.0.0 released for django 4 compatibility
+    # "djiffy>=1.0.0",
+    "djiffy @ git+https://github.com/Princeton-CDH/djiffy@1.0.0-rc1",
     "django-csp",
     "bleach",
     "django-fullurl",

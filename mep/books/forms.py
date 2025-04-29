@@ -1,6 +1,7 @@
 from django import forms
 
 from mep.common.forms import (
+    ChoiceLabel,
     FacetForm,
     RangeField,
     RangeForm,
@@ -53,5 +54,5 @@ class WorkSearchForm(RangeForm, FacetForm):
         if data and not data.get("query", None):
             self.fields["sort"].widget.choices[-1] = (
                 self.SORT_CHOICES[-1][0],
-                {"label": self.SORT_CHOICES[-1][1], "disabled": True},
+                ChoiceLabel(self.SORT_CHOICES[-1][1], disabled=True),
             )
