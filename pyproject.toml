@@ -17,7 +17,9 @@ dependencies = [
     # github until neuxml 1.0.0 released
     # "neuxml>=1.0.0",
     "neuxml @ git+https://github.com/Princeton-CDH/neuxml",
-    "viapy>=0.3",
+    # github until next viapy release
+    # "viapy>=0.3",
+    "viapy @ git+https://github.com/Princeton-CDH/viapy@develop",
     "wagtail>=6.4,<6.5",
     "django-autocomplete-light>=3.9",
     "python-dateutil",
