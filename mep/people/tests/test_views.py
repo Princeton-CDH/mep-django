@@ -1794,8 +1794,7 @@ class TestMemberCardDetail(TestCase):
             self.assertContains(response, partialdate(event.partial_start_date))
             self.assertContains(response, event.work.title)
             self.assertContains(response, event.event_type)
-            if event.partial_end_date is not None:
-                self.assertContains(response, partialdate(event.partial_end_date))
+            self.assertContains(response, partialdate(event.partial_end_date))
 
         # links to next/previous pages
         context = response.context
