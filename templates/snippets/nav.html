@@ -21,16 +21,16 @@
         <li>
             <div>
                 <a href="{% url 'people:members-list' %}">
-                    <span class="title">members</span>
-                    <span class="subtitle">Explore the lending library membership.</span>
+                    <span class="title">{{ site.root_page.specific.members_title }}</span>
+                    <span class="subtitle">{{ site.root_page.specific.members_tagline }}</span>
                 </a>
             </div>
         </li>
         <li>
             <div>
                 <a href="{% url 'books:books-list' %}">
-                <span class="title">books</span>
-                <span class="subtitle">Explore the lending library holdings.</span>
+                <span class="title">{{ site.root_page.specific.books_title }}</span>
+                <span class="subtitle">{{ site.root_page.specific.books_tagline }}</span>
                 </a>
             </div>
         </li>
