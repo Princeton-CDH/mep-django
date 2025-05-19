@@ -2,7 +2,7 @@
 <nav id="main-nav" aria-label="header">
     <ul class="corners">
         <li class="home square">
-            <a href="{% slugurl 'home' %}" aria-label="home">
+            <a href="{{ site.root_page.url }}" aria-label="home">
                 <img src="{% static 'img/logo/SCo_logo_graphic.png' %}" alt="Shakespeare & Company">
             </a>
         </li>
@@ -34,23 +34,13 @@
                 </a>
             </div>
         </li>
-        <li>
-            <a href="{% slugurl 'analysis' %}">
-                <span class="title">analysis</span>
-                <span class="subtitle">Analyze the Shakespeare and Company community.</span>
-            </a>
-        </li>
-        <li>
-            <a href="{% slugurl 'sources' %}">
-                <span class="title">sources</span>
-                <span class="subtitle">Learn about the lending library cards, logbooks, and address books.</span>
-            </a>
-        </li>
-        <li>
-            <a href="{% slugurl 'about' %}">
-                <span class="title">about</span>
-                <span class="subtitle">Learn about the Shakespeare and Company Project.</span>
-            </a>
-        </li>
+        {% for menuitem in site.root_page.get_children.live.in_menu %}
+            <li>
+                <a href="{% pageurl menuitem %}">
+                    <span class="title">{{ menuitem.title }}</span>
+                    <span class="subtitle">{{ menuitem.specific.tagline }}</span>
+                </a>
+            </li>
+        {% endfor %}
     </ul>
 </nav>
