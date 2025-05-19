@@ -86,12 +86,14 @@ class TestWorkListView(TestCase):
         assert response.context["works"].count() == works.count()
         for work in works:
             self.assertContains(response, work.title)
-            self.assertContains(response, work.year)
+            if work.year is not None:
+                self.assertContains(response, work.year)
             self.assertContains(
                 response, reverse("books:book-detail", args=[work.slug])
             )
             self.assertContains(response, work.get_absolute_url())
-            self.assertContains(response, work.work_format)
+            if work.work_format is not None:
+                self.assertContains(response, work.work_format)
 
         # item with UNCERTAINTYICON in notes should show text to SRs
         self.assertContains(response, Work.UNCERTAINTY_MESSAGE)
