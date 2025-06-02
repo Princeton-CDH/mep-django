@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+1.9
+---
+
+- bugfix: VIAF Autocomplete Not Working
+- chore: Upgrade the python, Django, wagtail stack for S&Co website
+- chore: Update or replace dependency on LoC django-tabular-export package
+- chore: Migrate settings to django-split-settings
+
 1.8
 ---
 
