@@ -14,12 +14,8 @@ dependencies = [
     "cached_property",
     "django-cas-ng",
     "pucas>=0.8",
-    # github until neuxml 1.0.0 released
-    # "neuxml>=1.0.0",
-    "neuxml @ git+https://github.com/Princeton-CDH/neuxml",
-    # github until next viapy release
-    # "viapy>=0.3",
-    "viapy @ git+https://github.com/Princeton-CDH/viapy@develop",
+    "neuxml>=1.0.0",
+    "viapy>=0.4",
     "wagtail>=6.4,<6.5",
     "django-autocomplete-light>=3.9",
     "python-dateutil",
@@ -33,9 +29,7 @@ dependencies = [
     "pymarc<5.0",
     "progressbar2",
     "rdflib>=7.0",
-    # pin to tag until djiffy 1.0.0 released for django 4 compatibility
-    # "djiffy>=1.0.0",
-    "djiffy @ git+https://github.com/Princeton-CDH/djiffy@1.0.0-rc1",
+    "djiffy>=1.0.0",
     "django-csp",
     "bleach",
     "django-fullurl",
