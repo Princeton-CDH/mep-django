@@ -114,7 +114,7 @@ def test_creator_change(mock_indexitems):
     WorkSignalHandlers.creator_change(Creator, creator)
     assert mock_indexitems.call_count == 1
     # person should be in the queryset; first arg for the last call
-    assert mock_indexitems.called_with([work])
+    mock_indexitems.assert_called_with([work])
 
 
 @pytest.mark.django_db

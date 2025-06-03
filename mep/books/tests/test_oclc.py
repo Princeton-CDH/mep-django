@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
-from eulxml import xmlmap
+from neuxml import xmlmap
 import pymarc
 import pytest
 import rdflib

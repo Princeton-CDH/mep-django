@@ -1,4 +1,5 @@
 from datetime import date
+import re
 
 import bleach
 from django.db import models
@@ -133,7 +134,7 @@ class HomePage(Page):
     # only landingpage subtypes as children
     subpage_types = ["ContentLandingPage", "EssayLandingPage", "ContentPage"]
     #: main page text
-    body = StreamField(BodyContentBlock, use_json_field=True)
+    body = StreamField(BodyContentBlock)
 
     content_panels = Page.content_panels + [
         FieldPanel("body"),
@@ -172,7 +173,7 @@ class LandingPage(RdfPageMixin, Page):
     #: short introductory text shown just below the header, before content
     tagline = models.CharField(max_length=500)
     #: main page text
-    body = StreamField(BodyContentBlock, blank=True, use_json_field=True)
+    body = StreamField(BodyContentBlock, blank=True)
     #: image that will be used for the header
     header_image = models.ForeignKey(
         "wagtailimages.image",
@@ -312,7 +313,8 @@ class PagePreviewDescriptionMixin(models.Model):
             # Iterate over blocks and use content from first paragraph content
             for block in self.body:
                 if block.block_type == "paragraph":
-                    description = block
+                    # strip legacy rich-text div from block
+                    description = re.sub(r'^<div class="rich-text">|</div>$', '', str(block))
                     # stop after the first instead of using last
                     break
 
@@ -394,20 +396,18 @@ class BasePage(RdfPageMixin, Page, PagePreviewDescriptionMixin):
     functionality to be shared across `Page` subtypes."""
 
     #: main page text
-    body = StreamField(BodyContentBlock, use_json_field=True)
+    body = StreamField(BodyContentBlock)
     #: authors - collection of Person snippets
     authors = StreamField(
         [("author", SnippetChooserBlock(Person))],
         blank=True,
-        help_text="Select or create new people to add as authors.", 
-        use_json_field=True
+        help_text="Select or create new people to add as authors.",
     )
     #: editors - collection of Person snippets
     editors = StreamField(
         [("editor", SnippetChooserBlock(Person))],
         blank=True,
         help_text="Select or create new people to add as editors.",
-        use_json_field=True
     )
     #: featured image for tile preview and social media
     featured_image = models.ForeignKey(

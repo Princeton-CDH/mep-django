@@ -2,6 +2,9 @@
 Customize person edit input (dal select2) on account page to generate
 a link to the person edit page based on the selection.
 */
+// alias jquery to $ for convenience
+const $ = jQuery;
+
 $(document).ready(function() {
     // store reference to the form input with the person ids
     var person_select = $('#id_persons');

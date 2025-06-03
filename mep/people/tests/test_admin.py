@@ -102,13 +102,14 @@ class TestPersonAdmin(TestCase):
         person_admin = PersonAdmin(model=Person, admin_site=admin.site)
         with patch.object(person_admin, "tabulate_queryset") as tabulate_queryset:
             # if no queryset provided, should use default queryset
-            people = person_admin.get_queryset(Mock())
-            person_admin.export_to_csv(Mock())
-            assert tabulate_queryset.called_once_with(people)
+            request = Mock()
+            people = person_admin.get_queryset(request)
+            person_admin.export_to_csv(request)
+            self.assertQuerySetEqual(people, tabulate_queryset.call_args.args[0])
             # otherwise should respect the provided queryset
             first_person = Person.objects.all()[:0]
-            person_admin.export_to_csv(Mock(), first_person)
-            assert tabulate_queryset.called_once_with(first_person)
+            person_admin.export_to_csv(request, first_person)
+            self.assertQuerySetEqual(first_person, tabulate_queryset.call_args.args[0])
 
             export_args, export_kwargs = mock_export_to_csv_response.call_args
             # first arg is filename
@@ -304,7 +305,7 @@ class TestPersonTypeListFilter(TestCase):
         assert not foo.is_creator()
         # request only people with accounts (members)
         pfilter = PersonTypeListFilter(
-            None, {"person_type": "member"}, Person, PersonAdmin
+            None, {"person_type": ["member"]}, Person, PersonAdmin
         )
         qs = pfilter.queryset(None, Person.objects.all())
         assert humperdinck in qs
@@ -312,7 +313,7 @@ class TestPersonTypeListFilter(TestCase):
         assert not foo in qs
         # request only people who are creators
         pfilter = PersonTypeListFilter(
-            None, {"person_type": "creator"}, Person, PersonAdmin
+            None, {"person_type": ["creator"]}, Person, PersonAdmin
         )
         qs = pfilter.queryset(None, Person.objects.all())
         assert engelbert in qs
@@ -320,7 +321,7 @@ class TestPersonTypeListFilter(TestCase):
         assert not foo in qs
         # request uncategorized people (neither members nor creators)
         pfilter = PersonTypeListFilter(
-            None, {"person_type": "uncategorized"}, Person, PersonAdmin
+            None, {"person_type": ["uncategorized"]}, Person, PersonAdmin
         )
         qs = pfilter.queryset(None, Person.objects.all())
         assert foo in qs

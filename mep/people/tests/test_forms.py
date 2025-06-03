@@ -7,7 +7,7 @@ from django.template.defaultfilters import date as format_date
 
 from mep.accounts.models import Account, Subscription, Borrow
 from mep.books.models import Work
-from mep.common.forms import RadioSelectWithDisabled
+from mep.common.forms import ChoiceLabel, RadioSelectWithDisabled
 from mep.people.forms import PersonChoiceField, PersonMergeForm, MemberSearchForm
 from mep.people.models import Person
 
@@ -110,7 +110,7 @@ class TestRadioWithDisabled(TestCase):
             """Build a test form use the widget"""
 
             CHOICES = (
-                ("no", {"label": "no select", "disabled": True}),
+                ("no", ChoiceLabel("no select", disabled=True)),
                 ("yes", "yes can select"),
             )
 
@@ -141,26 +141,29 @@ class TestMemberForm(TestCase):
         # has query, relevance enabled but sort disabled
         form = MemberSearchForm(data)
         assert form.fields["sort"].widget.choices[0] == form.SORT_CHOICES[0]
-        assert form.fields["sort"].widget.choices[1] == (
-            "name",
-            {"label": "Name A – Z", "disabled": True},
-        )
+        assert form.fields["sort"].widget.choices[1][0] == "name"
+        label = form.fields["sort"].widget.choices[1][1]
+        assert isinstance(label, ChoiceLabel)
+        assert label.label == "Name A – Z"
+        assert label.disabled == True
 
         # empty query, relevance disabled
         data["query"] = ""
         form = MemberSearchForm(data)
-        assert form.fields["sort"].widget.choices[0] == (
-            "relevance",
-            {"label": "Relevance", "disabled": True},
-        )
+        assert form.fields["sort"].widget.choices[0][0] == "relevance"
+        label = form.fields["sort"].widget.choices[0][1]
+        assert isinstance(label, ChoiceLabel)
+        assert label.label == "Relevance"
+        assert label.disabled == True
 
         # no query, also relevance disabled
         del data["query"]
         form = MemberSearchForm(data)
-        assert form.fields["sort"].widget.choices[0] == (
-            "relevance",
-            {"label": "Relevance", "disabled": True},
-        )
+        assert form.fields["sort"].widget.choices[0][0] == "relevance"
+        label = form.fields["sort"].widget.choices[0][1]
+        assert isinstance(label, ChoiceLabel)
+        assert label.label == "Relevance"
+        assert label.disabled == True
 
         # should call set_range_placeholders with the value of range_minmax
         range_minmax = {"start_year": (1910, 1920)}

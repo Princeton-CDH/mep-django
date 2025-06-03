@@ -8,7 +8,7 @@ import time
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from eulxml import xmlmap
+from neuxml import xmlmap
 from lxml.etree import XMLSyntaxError
 import pymarc
 import rdflib
@@ -76,7 +76,7 @@ class SRWResponse(xmlmap.XmlObject):
 
     #: number of records found for the query
     num_records = xmlmap.IntegerField("srw:numberOfRecords")
-    #: returned records as :class:`~eulxml.xmlmap.XmlObject`
+    #: returned records as :class:`~neuxml.xmlmap.XmlObject`
     records = xmlmap.NodeField("srw:records", xmlmap.XmlObject)
 
     @property
