@@ -2,6 +2,7 @@ from datetime import date
 import re
 
 import bleach
+from django.core.validators import RegexValidator
 from django.db import models
 from django.http import Http404
 from django.template.defaultfilters import striptags, truncatechars_html
@@ -442,10 +443,27 @@ class ContentPage(BasePage):
     subpage_types = []
 
 
+# DOI validation from PPA
+validate_doi = RegexValidator(
+    regex=r"^10[.][0-9]{4,}", message="DOI in short form, starting with 10."
+)
+
+
 class EssayPage(BasePage):
     """A :class:`BasePage` type that appears beneath `EssayLandingPage`s
     in the hierarchy."""
 
+    doi = models.CharField(
+        "DOI",
+        blank=True,
+        max_length=255,
+        help_text="Digital Object Identifier (DOI) if registered, in short form",
+        validators=[validate_doi],
+    )
+
+    content_panels = BasePage.content_panels + [
+        FieldPanel("doi"),
+    ]
     # can only be child of EssayLandingPage
     parent_page_types = ["EssayLandingPage"]
     # no allowed children

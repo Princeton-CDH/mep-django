@@ -17,4 +17,7 @@
         (updated <time datetime="{{ page.latest_revision_created_at|date:'Y-m-d' }}">{{ page.latest_revision_created_at|date:"N j, Y" }}</time>)
         {% endif %}
     </time>
+    {% if page.doi %}
+        <a href="http://doi.org/{{ page.doi }}" rel="alternate" class="doi">doi:{{ page.doi }}</a>
+    {% endif %}
 </div>
