@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "wagtail.admin",
     "wagtail.contrib.legacy.richtext",  # preserve rich-text class behavior after wagtail 2.10
     "wagtail.contrib.settings",
+    "wagtail.search",
     "wagtail",
     "wagtail.embeds",
     "wagtail.contrib.redirects",
