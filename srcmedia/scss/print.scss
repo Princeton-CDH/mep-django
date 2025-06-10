@@ -1,171 +1,174 @@
 // print styles
-@import "variables";
+@import 'variables';
 
 @media print {
-	@page {
-		size: letter;
-		margin: 0.75in 0.2in 0.57in 0.2in;
+    @page {
+        size: letter;
+        margin: 0.75in 0.2in 0.57in 0.2in;
 
-		@top-left {
-			content: string(title);
-			font-weight: 300;
-			font-size: 11px;
-		}
+        @top-left {
+            content: string(title);
+            font-weight: 300;
+            font-size: 11px;
+        }
 
-		@top-right {
-			content: element(page-header);
-			opacity: 1;
-		}
+        @top-right {
+            content: element(page-header);
+            opacity: 1;
+        }
 
-		@bottom-left {
-			content: string(doi);
-			opacity: 1;
-			font-size: 11px;
-			font-weight: 300;
-		}
+        @bottom-left {
+            content: string(doi);
+            opacity: 1;
+            font-size: 11px;
+            font-weight: 300;
+        }
 
-		@bottom-right {
-			content: counter(page);
-			font-size: 11px;
-			font-weight: 300;
-		}
-	}
+        @bottom-right {
+            content: counter(page);
+            font-size: 11px;
+            font-weight: 300;
+        }
+    }
 
-	html,
-	body,
-	main {
-		overflow: visible;
-		height: auto;
-		background: white;
-		margin: 0;
-		padding: 0;
-	}
+    html,
+    body,
+    main {
+        overflow: visible;
+        height: auto;
+        background: white;
+        margin: 0;
+        padding: 0;
+    }
 
-	main,
+    main,
     .main.essay,
     #page-header {
-		margin: auto;
-		padding: 0;
-		width: 6in;
-		background: white;
-	}
+        margin: auto;
+        padding: 0;
+        width: 6in;
+        background: white;
+    }
 
-	/* pdf header/footer content */
-	.print-only {
-	    display: block;
-	    /* hide for pinting in browsers that don't support @page styles */
-	    opacity: 0;
-	    height: 0;
-	    overflow: hidden;
-	}
+    /* pdf header/footer content */
+    .print-only {
+        display: block;
+        /* hide for pinting in browsers that don't support @page styles */
+        opacity: 0;
+        height: 0;
+        overflow: hidden;
+    }
 
+    @page :first {
+        /* don't display article title on top left of first page */
+        @top-left {
+            content: '';
+        }
+    }
 
-	@page :first {
-	    /* don't display article title on top left of first page */
-	    @top-left {
-	        content: '';
-	    }
-	}
-
-
-	#page-header {
-	    img.logotype {
+    #page-header {
+        img.logotype {
             position: running(page-header);
             float: right;
             opacity: 1;
-	    	height: 50px;
-	    }
+            height: 50px;
+        }
         .bookmark,
         .chevron {
             display: none;
         }
         h1 {
-		    margin: 0 auto 4rem;
+            margin: 0 auto 4rem;
             text-align: left;
             font-size: 32px;
             // use text contents for title in header
             string-set: title content();
         }
-	}
+    }
 
+    a.doi {
+        string-set: doi content();
+    }
 
-	a.doi {
-	    string-set: doi content();
-	}
-
-	main, .main.essay p, .main.essay h2, .main.essay h3, .main.essay h4 {
-	    font-size: 18px;
-	}
-    .main.essay h2, .main.essay h3, .main.essay h4 {
+    main,
+    .main.essay p,
+    .main.essay h2,
+    .main.essay h3,
+    .main.essay h4 {
+        font-size: 18px;
+    }
+    .main.essay h2,
+    .main.essay h3,
+    .main.essay h4 {
         margin: 1rem 0;
         font-weight: bold;
     }
     .main.essay figcaption * {
-		font-size: 14px;
+        font-size: 14px;
     }
-    .main.essay ol, .main.essay ul {
+    .main.essay ol,
+    .main.essay ul {
         margin: 1rem;
         li {
             margin-bottom: 0.25rem;
         }
     }
     .main.essay .footnotes * {
-		font-size: 14px;
-	}
+        font-size: 14px;
+    }
 
-	figure {
-		page-break-inside: avoid;
-
-	}
+    figure {
+        page-break-inside: avoid;
+    }
     .main.essay img {
-		max-height: 4in;  /* don't allow images to take too much of the page */
-	}
+        max-height: 4in; /* don't allow images to take too much of the page */
+    }
 
-	// avoid page break beween heading and paragraph that follows immediately after
-	h2 + p,
-	h3 + p,
+    // avoid page break beween heading and paragraph that follows immediately after
+    h2 + p,
+    h3 + p,
     h4 + p {
-		page-break-before: avoid;
-	}
+        page-break-before: avoid;
+    }
 
-	.main.essay .attribution {
-		display: flex;
-		flex-direction: column;
-		flex-basis: auto;
+    .main.essay .attribution {
+        display: flex;
+        flex-direction: column;
+        flex-basis: auto;
 
         .authors,
         .editors,
         .pubdate,
         .update,
         .doi {
-    		font-size: 14px;
+            font-size: 14px;
             font-family: $sans;
         }
 
-		a {
-			text-decoration: none;
-		}
+        a {
+            text-decoration: none;
+        }
 
-		time {
-			&:before {
-   			    // suppress slash used for screen
-				display: none !important;
-			}
-		}
-		.pdf {  // hide link to pdf (since this is used to generate pdf)
-			display: none;
-		}
-	}
+        time {
+            &:before {
+                // suppress slash used for screen
+                display: none !important;
+            }
+        }
+        .pdf {
+            // hide link to pdf (since this is used to generate pdf)
+            display: none;
+        }
+    }
 
-	// suppress main nav, background banner image, footer
-	#main-nav,
-	.banner,
-	#page-footer,
-	.ribbon-box,
+    // suppress main nav, background banner image, footer
+    #main-nav,
+    .banner,
+    #page-footer,
+    .ribbon-box,
     .breadcrumbs {
-		display: none;
-		opacity: 0;
-		height: 0;
-	}
-
+        display: none;
+        opacity: 0;
+        height: 0;
+    }
 }
