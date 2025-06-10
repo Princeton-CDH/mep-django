@@ -1,13 +1,17 @@
 from django.template.defaultfilters import striptags
+from django.template.loader import render_to_string
 from django.test import SimpleTestCase, TestCase
+import pytest
 from wagtail.models import Page, Site
 from wagtail.test.utils import WagtailPageTests
 from mep.pages.models import (
     CaptionedImageBlock,
     ContentLandingPage,
     ContentPage,
+    DocraptorSettings,
     EssayLandingPage,
     EssayPage,
+    GeneratePdfPanel,
     HomePage,
     LinkableSectionBlock,
     SVGImageBlock,
@@ -560,3 +564,56 @@ class TestPerson(TestCase):
             first_name="Henry Wadsworth", last_name="Longfellow"
         )
         assert person.lastname_first == "Longfellow, Henry Wadsworth"
+
+
+@pytest.mark.django_db
+class TestGeneratePdfPanel:
+    # from ppa-django
+    def test_get_context_data(self):
+        # create a new page
+        site = Site.objects.first()
+        parent = site.root_page
+        page = EssayPage(title="Test Page", slug="test-page", live=True)
+        parent.add_child(instance=page)
+
+        # bind panel to EssayPage and get for page instance
+        panel = GeneratePdfPanel()
+        bound_panel = panel.bind_to_model(EssayPage).get_bound_panel(instance=page)
+        context = bound_panel.get_context_data()
+
+        # should use page's URL
+        assert context["url"] == page.full_url
+
+        # make an unpublished change. URL should now be an empty string
+        page.title = "test"
+        rev = page.save_revision()
+        bound_panel = panel.bind_to_model(EssayPage).get_bound_panel(instance=page)
+        context = bound_panel.get_context_data()
+        assert context["url"] == ""
+
+        # publish the change. URL should work again
+        page.publish(rev)
+        page.refresh_from_db()
+        bound_panel = panel.bind_to_model(EssayPage).get_bound_panel(instance=page)
+        context = bound_panel.get_context_data()
+        assert context["url"] == page.full_url
+
+
+class TestDocraptorSettings(TestCase):
+    # from ppa-django
+    def test_docraptor_settings(self):
+        site = Site.objects.first()
+        docraptor_settings = DocraptorSettings.load(site)
+
+        # no api key set: should render message about configuration
+        docraptor_settings.docraptor_api_key = ""
+        pdf_panel = render_to_string("wagtailadmin/panels/pdf_panel.html")
+        self.assertNotIn("Generate a PDF", pdf_panel)
+        self.assertIn("A DocRaptor API key must be configured", pdf_panel)
+
+        # api key set: should render panel
+        docraptor_settings.docraptor_api_key = "fake_key"
+        docraptor_settings.save()
+        pdf_panel = render_to_string("wagtailadmin/panels/pdf_panel.html")
+        self.assertIn("Generate a PDF", pdf_panel)
+        self.assertNotIn("A DocRaptor API key must be configured", pdf_panel)
