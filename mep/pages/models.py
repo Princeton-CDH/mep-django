@@ -137,9 +137,33 @@ class HomePage(Page):
     subpage_types = ["ContentLandingPage", "EssayLandingPage", "ContentPage"]
     #: main page text
     body = StreamField(BodyContentBlock)
+    members_title = models.CharField(
+        max_length=255,
+        default="Members",
+        help_text="Title of the Members page, as it will appear in menus and on the Members search page",
+    )
+    members_tagline = models.CharField(
+        max_length=500,
+        default="Explore the lending library membership.",
+        help_text="Short introductory text for the Members page, in the menu",
+    )
+    books_title = models.CharField(
+        max_length=255,
+        default="Books",
+        help_text="Title of the Books page, as it will appear in menus and on the Books search page",
+    )
+    books_tagline = models.CharField(
+        max_length=500,
+        default="Explore the lending library holdings.",
+        help_text="Short introductory text for the Books page, in the menu",
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel("body"),
+        FieldPanel("members_title"),
+        FieldPanel("members_tagline"),
+        FieldPanel("books_title"),
+        FieldPanel("books_tagline"),
     ]
 
     class Meta:
