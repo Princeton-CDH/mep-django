@@ -58,8 +58,9 @@ Or all together to wipe database and reapply migrations::
 Testing local DocRaptor PDF generation
 --------------------------------------
 
-In order for DocRaptor to read any content, you must open your localhost to the
-public with a service like Cloudflare Tunnel, e.g.::
+In order for DocRaptor to read any content, when testing PDF generation locally
+you must open your localhost to the public with a service like Cloudflare
+Tunnel, e.g.::
 
     npx cloudflared tunnel --url http://localhost:8000
 
@@ -71,5 +72,9 @@ Finally, set your ALLOWED_HOSTS setting to allow traffic via that domain,
 or simply set ``ALLOWED_HOSTS = ["*"]``.
 
 Note that this will not work in Webpack dev mode.
+
+Also, due to the use of licensed fonts, developers will need to get the fonts
+from the shared Google Drive and place them in ``/sitemedia/fonts`` to see
+accurate PDF previews.
 
 When finished, set the default Site back to ``localhost`` and port 8000.
