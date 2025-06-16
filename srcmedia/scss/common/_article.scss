@@ -17,7 +17,9 @@ article.main {
         .authors,
         .editors,
         .pubdate,
-        .update {
+        .update,
+        .doi,
+        .pdf {
             font-size: 0.8rem;
             display: block;
         }
@@ -83,4 +85,8 @@ article.main {
     border-left: 3px solid $green;
     margin-left: -1rem;
     padding-left: 1rem;
+}
+
+.print-only {
+    display: none;
 }

@@ -3,6 +3,14 @@
 Deploy and Upgrade notes
 ========================
 
+1.10
+----
+
+* The search backend has been enabled for the Wagtail CMS, so a single reindex
+  is required to make existing static content searchable::
+
+    python manage.py update_index
+
 1.9
 ---
 
