@@ -9,6 +9,7 @@ from mep.pages.models import (
     EssayLandingPage,
     EssayPage,
     HomePage,
+    LandingPageSetting,
     LinkableSectionBlock,
     SVGImageBlock,
     Person,
@@ -18,6 +19,7 @@ import factory
 from wagtail.rich_text import RichText
 from datetime import timedelta
 from django.utils import timezone
+
 
 class TestLinkableSectionBlock(SimpleTestCase):
     def test_clean(self):
@@ -112,17 +114,21 @@ class TestSVGImageBlock(SimpleTestCase):
 # PAGE FACTORY for tests #
 ##########################
 
+
 class PageFactory(wagtail_factories.PageFactory):
-    title=""
-    slug=""
-    body=wagtail_factories.StreamFieldFactory({
-        "paragraph":factory.SubFactory(wagtail_factories.CharBlockFactory),
-        "footnotes":factory.SubFactory(wagtail_factories.CharBlockFactory)
-    })
+    title = ""
+    slug = ""
+    body = wagtail_factories.StreamFieldFactory(
+        {
+            "paragraph": factory.SubFactory(wagtail_factories.CharBlockFactory),
+            "footnotes": factory.SubFactory(wagtail_factories.CharBlockFactory),
+        }
+    )
     first_published_at = timezone.now() - timedelta(days=365)
 
     class Meta:
         model = Page
+
 
 class PageTester(WagtailPageTests):
     def setUp(self):
@@ -135,53 +141,52 @@ class PageTester(WagtailPageTests):
         self.site.save()
         self.site.refresh_from_db()
 
+
 def assert_page_body_contains(page, paragraph, footnote=""):
     body = page.body
 
     if paragraph and footnote:
         assert len(body) == 2
-        block1,block2 = body
-        type1,type2=block1.block_type, block2.block_type
-        val1,val2=block1.value.source, block2.value.source
-        
-        assert type2 == 'footnotes'
+        block1, block2 = body
+        type1, type2 = block1.block_type, block2.block_type
+        val1, val2 = block1.value.source, block2.value.source
+
+        assert type2 == "footnotes"
         assert val2 == footnote
     else:
         assert len(body) == 1
-        block1, = body
-        type1=block1.block_type
-        val1=block1.value.source
+        (block1,) = body
+        type1 = block1.block_type
+        val1 = block1.value.source
 
-    assert type1 == 'paragraph'
+    assert type1 == "paragraph"
     assert val1 == paragraph
-        
 
 
 ###################
 # HOME PAGE tests #
-################### 
+###################
 
 HOMEPAGE_TITLE = "S&Co."
-HOMEPAGE_SLUG= "newhome"
-HOMEPAGE_PARA="homepage body text"
-HOMEPAGE_FOOT="homepage footnotes"
+HOMEPAGE_SLUG = "newhome"
+HOMEPAGE_PARA = "homepage body text"
+HOMEPAGE_FOOT = "homepage footnotes"
+
 
 class HomePageFactory(PageFactory):
-    title=HOMEPAGE_TITLE
-    slug=HOMEPAGE_SLUG
+    title = HOMEPAGE_TITLE
+    slug = HOMEPAGE_SLUG
+
     class Meta:
         model = HomePage
+
 
 class TestHomePage(PageTester):
     def test_can_create(self):
         self.assertIsNotNone(self.homepage.pk)
         assert self.homepage.title == HOMEPAGE_TITLE
         assert self.homepage.slug == HOMEPAGE_SLUG
-        assert_page_body_contains(
-            self.homepage,
-            HOMEPAGE_PARA,
-            HOMEPAGE_FOOT
-        )
+        assert_page_body_contains(self.homepage, HOMEPAGE_PARA, HOMEPAGE_FOOT)
 
     def test_parent_pages(self):
         self.assertAllowedParentPageTypes(HomePage, [Page])
@@ -198,24 +203,25 @@ class TestHomePage(PageTester):
         self.assertTemplateUsed(response, "pages/home_page.html")
 
 
-
-
 ######################
 # LANDING PAGE tests #
 ######################
 
-LANDINGPAGE_TITLE="My Kinda Landing Page!"
-LANDINGPAGE_SLUG="mylp"
-LANDINGPAGE_TAGLINE="now thats what im talkin about"
-LANDINGPAGE_PARA="this landing page rules"
-LANDINGPAGE_FOOT="footnotes to prove it, baby"
+LANDINGPAGE_TITLE = "My Kinda Landing Page!"
+LANDINGPAGE_SLUG = "mylp"
+LANDINGPAGE_TAGLINE = "now thats what im talkin about"
+LANDINGPAGE_PARA = "this landing page rules"
+LANDINGPAGE_FOOT = "footnotes to prove it, baby"
+
 
 class LandingPageFactory(PageFactory):
-    title=LANDINGPAGE_TITLE
-    slug=LANDINGPAGE_SLUG
-    tagline=LANDINGPAGE_TAGLINE
+    title = LANDINGPAGE_TITLE
+    slug = LANDINGPAGE_SLUG
+    tagline = LANDINGPAGE_TAGLINE
+
     class Meta:
         model = ContentLandingPage
+
 
 class TestLandingPage(PageTester):
     def setUp(self):
@@ -230,33 +236,31 @@ class TestLandingPage(PageTester):
         assert self.page.title == LANDINGPAGE_TITLE
         assert self.page.slug == LANDINGPAGE_SLUG
         assert self.page.tagline == LANDINGPAGE_TAGLINE
-        assert_page_body_contains(
-            self.page,
-            LANDINGPAGE_PARA,
-            LANDINGPAGE_FOOT
-        )
+        assert_page_body_contains(self.page, LANDINGPAGE_PARA, LANDINGPAGE_FOOT)
 
     def test_parent_pages(self):
         self.assertAllowedParentPageTypes(ContentLandingPage, [HomePage])
-
 
 
 ##############################
 # CONTENT LANDING PAGE tests #
 ##############################
 
-CONTENTLANDINGPAGE_TITLE="Sources 2"
-CONTENTLANDINGPAGE_SLUG="sources2"
-CONTENTLANDINGPAGE_TAGLINE="like sources, but better"
-CONTENTLANDINGPAGE_PARA="the new sources landing page"
-CONTENTLANDINGPAGE_FOOT="some landing page footnotes"
+CONTENTLANDINGPAGE_TITLE = "Sources 2"
+CONTENTLANDINGPAGE_SLUG = "sources2"
+CONTENTLANDINGPAGE_TAGLINE = "like sources, but better"
+CONTENTLANDINGPAGE_PARA = "the new sources landing page"
+CONTENTLANDINGPAGE_FOOT = "some landing page footnotes"
+
 
 class ContentLandingPageFactory(PageFactory):
-    title=CONTENTLANDINGPAGE_TITLE
-    slug=CONTENTLANDINGPAGE_SLUG
-    tagline=CONTENTLANDINGPAGE_TAGLINE
+    title = CONTENTLANDINGPAGE_TITLE
+    slug = CONTENTLANDINGPAGE_SLUG
+    tagline = CONTENTLANDINGPAGE_TAGLINE
+
     class Meta:
         model = ContentLandingPage
+
 
 class TestContentLandingPage(PageTester):
     def setUp(self):
@@ -264,7 +268,7 @@ class TestContentLandingPage(PageTester):
         self.page = ContentLandingPageFactory.create(
             body__0__paragraph=RichText(CONTENTLANDINGPAGE_PARA),
             body__1__footnotes=RichText(CONTENTLANDINGPAGE_FOOT),
-            parent=self.homepage
+            parent=self.homepage,
         )
 
     def test_can_create(self):
@@ -273,9 +277,7 @@ class TestContentLandingPage(PageTester):
         assert self.page.slug == CONTENTLANDINGPAGE_SLUG
         assert self.page.tagline == CONTENTLANDINGPAGE_TAGLINE
         assert_page_body_contains(
-            self.page,
-            CONTENTLANDINGPAGE_PARA,
-            CONTENTLANDINGPAGE_FOOT
+            self.page, CONTENTLANDINGPAGE_PARA, CONTENTLANDINGPAGE_FOOT
         )
 
     def test_parent_pages(self):
@@ -292,29 +294,32 @@ class TestContentLandingPage(PageTester):
         self.assertTemplateUsed(response, "pages/content_landing_page.html")
 
 
-
 ############################
 # ESSAY LANDING PAGE tests #
 ############################
 
-ESSAYLANDINGPAGE_TITLE="Analysis 2"
-ESSAYLANDINGPAGE_SLUG="analysis2"
-ESSAYLANDINGPAGE_TAGLINE="do some more analysis"
-ESSAYLANDINGPAGE_PARA="the second analysis landing page"
+ESSAYLANDINGPAGE_TITLE = "Analysis 2"
+ESSAYLANDINGPAGE_SLUG = "analysis2"
+ESSAYLANDINGPAGE_TAGLINE = "do some more analysis"
+ESSAYLANDINGPAGE_PARA = "the second analysis landing page"
 
-ESSAYPAGE_TITLE="Test Analysis"
-ESSAYPAGE_SLUG="test-analysis"
+ESSAYPAGE_TITLE = "Test Analysis"
+ESSAYPAGE_SLUG = "test-analysis"
+
 
 class EssayLandingPageFactory(PageFactory):
-    title=ESSAYLANDINGPAGE_TITLE
-    slug=ESSAYLANDINGPAGE_SLUG
-    tagline=ESSAYLANDINGPAGE_TAGLINE
+    title = ESSAYLANDINGPAGE_TITLE
+    slug = ESSAYLANDINGPAGE_SLUG
+    tagline = ESSAYLANDINGPAGE_TAGLINE
+
     class Meta:
         model = EssayLandingPage
 
+
 class EssayPageFactory(PageFactory):
-    title=ESSAYPAGE_TITLE
-    slug=ESSAYPAGE_SLUG
+    title = ESSAYPAGE_TITLE
+    slug = ESSAYPAGE_SLUG
+
     class Meta:
         model = EssayPage
 
@@ -323,8 +328,7 @@ class TestEssayLandingPage(PageTester):
     def setUp(self):
         super().setUp()
         self.page = EssayLandingPageFactory.create(
-            body__0__paragraph=RichText(ESSAYLANDINGPAGE_PARA),
-            parent=self.homepage
+            body__0__paragraph=RichText(ESSAYLANDINGPAGE_PARA), parent=self.homepage
         )
         self.essay = EssayPageFactory.create(parent=self.page)
 
@@ -367,8 +371,6 @@ class TestEssayLandingPage(PageTester):
         # TODO create some newer essays to test ordering by pub date
 
 
-
-
 ###################
 # BASE PAGE tests #
 ###################
@@ -409,8 +411,10 @@ class TestBasePage(WagtailPageTests):
                 ("image", {"image": '<img src="milton-example.png"/>'}),
                 (
                     "paragraph",
-                    RichText("<p>Prosody today means both the study of "
-                    'and <a href="#">pronunciation</a></p>'),
+                    RichText(
+                        "<p>Prosody today means both the study of "
+                        'and <a href="#">pronunciation</a></p>'
+                    ),
                 ),
                 ("paragraph", RichText("<p>More content here...</p>")),
             ],
@@ -434,22 +438,21 @@ class TestBasePage(WagtailPageTests):
         assert len(striptags(mypage.get_description())) <= mypage.max_length
 
 
-
 ######################
 # CONTENT PAGE tests #
 ######################
 
-CONTENTPAGE_TITLE="More about information"
-CONTENTPAGE_SLUG="new-about"
-CONTENTPAGE_PARA="this page lives right under about"
+CONTENTPAGE_TITLE = "More about information"
+CONTENTPAGE_SLUG = "new-about"
+CONTENTPAGE_PARA = "this page lives right under about"
 
 
 class ContentPageFactory(PageFactory):
-    title=CONTENTPAGE_TITLE
-    slug=CONTENTPAGE_SLUG
+    title = CONTENTPAGE_TITLE
+    slug = CONTENTPAGE_SLUG
+
     class Meta:
         model = ContentPage
-
 
 
 class TestContentPage(PageTester):
@@ -458,7 +461,7 @@ class TestContentPage(PageTester):
         self.landingpage = ContentLandingPageFactory.create(
             body__0__paragraph=RichText(CONTENTLANDINGPAGE_PARA),
             body__1__footnotes=RichText(CONTENTLANDINGPAGE_FOOT),
-            parent=self.homepage
+            parent=self.homepage,
         )
         self.page = ContentPageFactory.create(
             body__0__paragraph=RichText(CONTENTPAGE_PARA),
@@ -488,28 +491,26 @@ class TestContentPage(PageTester):
         self.assertAllowedSubpageTypes(ContentPage, [])
 
 
-
-
 ####################
 # ESSAY PAGE tests #
 ####################
 
-SECONDESSAYPAGE_TITLE="A new analysis esssay"
-SECONDESSAYPAGE_SLUG="new-essay"
-SECONDESSAYPAGE_PARA="this page lives right under analysis"
+SECONDESSAYPAGE_TITLE = "A new analysis esssay"
+SECONDESSAYPAGE_SLUG = "new-essay"
+SECONDESSAYPAGE_PARA = "this page lives right under analysis"
+
 
 class TestEssayPage(PageTester):
     def setUp(self):
         super().setUp()
         self.landingpage = EssayLandingPageFactory.create(
-            body__0__paragraph=RichText(ESSAYLANDINGPAGE_PARA),
-            parent=self.homepage
+            body__0__paragraph=RichText(ESSAYLANDINGPAGE_PARA), parent=self.homepage
         )
         self.page = EssayPageFactory.create(
             title=SECONDESSAYPAGE_TITLE,
             slug=SECONDESSAYPAGE_SLUG,
             body__0__paragraph=RichText(SECONDESSAYPAGE_PARA),
-            parent=self.landingpage
+            parent=self.landingpage,
         )
 
     def test_can_create(self):
@@ -523,7 +524,7 @@ class TestEssayPage(PageTester):
 
     def test_template(self):
         url = self.page.relative_url(self.site)
-        print('getting url:', url)
+        print("getting url:", url)
         response = self.client.get(url)
         self.assertTemplateUsed(response, "base.html")
         self.assertTemplateUsed(response, "pages/base_page.html")
@@ -560,3 +561,10 @@ class TestPerson(TestCase):
             first_name="Henry Wadsworth", last_name="Longfellow"
         )
         assert person.lastname_first == "Longfellow, Henry Wadsworth"
+
+
+class TestLandingPageSetting(TestCase):
+    def test_str(self):
+        lps, _ = LandingPageSetting.objects.get_or_create(page="members")
+        lps.title = "Members"
+        assert str(lps) == lps.title
