@@ -5,8 +5,8 @@ import bleach
 from django.db import models
 from django.http import Http404
 from django.template.defaultfilters import striptags, truncatechars_html
-from django.utils.functional import cached_property
 from django.utils.text import slugify
+from django.utils.safestring import mark_safe
 from wagtail.admin.panels import FieldPanel
 from wagtail import blocks
 from wagtail.fields import RichTextField, StreamField
@@ -126,6 +126,37 @@ class BodyContentBlock(blocks.StreamBlock):
     embed = EmbedBlock()
 
 
+@register_snippet
+class LandingPageSetting(models.Model):
+    """Snippet model for configuring the names and taglines for Django landing pages."""
+
+    # Django pages that cannot otherwise be configured through Wagtail
+    PAGE_OPTIONS = (
+        ("members", "Members"),
+        ("books", "Books"),
+    )
+
+    page = models.CharField(
+        max_length=255,
+        choices=PAGE_OPTIONS,
+        unique=True,  # only allow one instance per page
+        help_text=mark_safe('The landing page to be configured. <br />'
+        '<b>Note</b>: Wagtail content landing pages, e.g. "About" or "Discoveries," '
+        'are configured through parent pages, in the "Pages" section.')
+    )
+    title = models.CharField(
+        max_length=255,
+        help_text="Title of the page, as it will appear in menus and on the search page",
+    )
+    tagline = models.CharField(
+        max_length=500,
+        help_text="Short introductory text for the page, in the menu",
+    )
+
+    def __str__(self):
+        return self.title
+
+
 class HomePage(Page):
     """:class:`wagtail.models.Page` model for S&Co. home page."""
 
@@ -135,34 +166,8 @@ class HomePage(Page):
     subpage_types = ["ContentLandingPage", "EssayLandingPage", "ContentPage"]
     #: main page text
     body = StreamField(BodyContentBlock)
-    members_title = models.CharField(
-        max_length=255,
-        default="Members",
-        help_text="Title of the Members page, as it will appear in menus and on the Members search page",
-    )
-    members_tagline = models.CharField(
-        max_length=500,
-        default="Explore the lending library membership.",
-        help_text="Short introductory text for the Members page, in the menu",
-    )
-    books_title = models.CharField(
-        max_length=255,
-        default="Books",
-        help_text="Title of the Books page, as it will appear in menus and on the Books search page",
-    )
-    books_tagline = models.CharField(
-        max_length=500,
-        default="Explore the lending library holdings.",
-        help_text="Short introductory text for the Books page, in the menu",
-    )
 
-    content_panels = Page.content_panels + [
-        FieldPanel("body"),
-        FieldPanel("members_title"),
-        FieldPanel("members_tagline"),
-        FieldPanel("books_title"),
-        FieldPanel("books_tagline"),
-    ]
+    content_panels = Page.content_panels + [FieldPanel("body")]
 
     class Meta:
         verbose_name = "homepage"

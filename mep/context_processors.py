@@ -1,6 +1,8 @@
 from django.conf import settings
 from wagtail.models import Site
 
+from mep.pages.models import LandingPageSetting
+
 
 def template_settings(request):
     """Template context processor: add selected setting to context
@@ -22,5 +24,9 @@ def template_settings(request):
         "PLAUSIBLE_ANALYTICS_404s": getattr(
             settings, "PLAUSIBLE_ANALYTICS_404s", False
         ),
+        "landing_pages": {
+            lp.page: {"title": lp.title, "tagline": lp.tagline}
+            for lp in LandingPageSetting.objects.all()
+        },
     }
     return context_extras

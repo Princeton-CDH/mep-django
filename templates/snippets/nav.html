@@ -25,16 +25,16 @@
         <li>
             <div>
                 <a href="{% url 'people:members-list' %}">
-                    <span class="title">{{ site.root_page.specific.members_title }}</span>
-                    <span class="subtitle">{{ site.root_page.specific.members_tagline }}</span>
+                    <span class="title">{{ landing_pages|dict_item:"members"|dict_item:"title" }}</span>
+                    <span class="subtitle">{{ landing_pages|dict_item:"members"|dict_item:"tagline" }}</span>
                 </a>
             </div>
         </li>
         <li>
             <div>
                 <a href="{% url 'books:books-list' %}">
-                <span class="title">{{ site.root_page.specific.books_title }}</span>
-                <span class="subtitle">{{ site.root_page.specific.books_tagline }}</span>
+                <span class="title">{{ landing_pages|dict_item:"books"|dict_item:"title" }}</span>
+                <span class="subtitle">{{ landing_pages|dict_item:"books"|dict_item:"tagline" }}</span>
                 </a>
             </div>
         </li>

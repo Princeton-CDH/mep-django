@@ -8,8 +8,8 @@
                     NOTE: Since the following two items are Django views with customizable
                     titles, their titles are pulled from the Wagtail site root page.
                 {% endcomment %}
-                <li><a href="{% url 'people:members-list' %}">{{ site.root_page.specific.members_title }}</a></li>
-                <li><a href="{% url 'books:books-list' %}">{{ site.root_page.specific.books_title }}</a></li>
+                <li><a href="{% url 'people:members-list' %}">{{ landing_pages|dict_item:"members"|dict_item:"title" }}</a></li>
+                <li><a href="{% url 'books:books-list' %}">{{ landing_pages|dict_item:"books"|dict_item:"title" }}</a></li>
                 {# display top-level pages based on wagtail contents #}
                 {% for page in site.root_page.get_children.live.in_menu %}
                     <li><a href="{{ page.url }}">{{ page.title }}</a></li>
