@@ -3,6 +3,13 @@
 Deploy and Upgrade notes
 ========================
 
+1.10
+----
+
+* In order for Books and Members pages to appear in site menus, Link Pages
+  linking to them (``/books`` and ``/members``) must now be created in Wagtail
+  and added to the Home Page, with "Show in menus" checked.
+
 1.9
 ---
 

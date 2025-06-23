@@ -21,6 +21,7 @@ dependencies = [
     # "viapy>=0.3",
     "viapy @ git+https://github.com/Princeton-CDH/viapy@develop",
     "wagtail>=6.4,<6.5",
+    "wagtailmenus",
     "django-autocomplete-light>=3.9",
     "python-dateutil",
     "django-apptemplates",

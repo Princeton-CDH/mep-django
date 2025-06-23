@@ -9,7 +9,7 @@ from mep.pages.models import (
     EssayLandingPage,
     EssayPage,
     HomePage,
-    LandingPageSetting,
+    LinkPage,
     LinkableSectionBlock,
     SVGImageBlock,
     Person,
@@ -193,7 +193,7 @@ class TestHomePage(PageTester):
 
     def test_subpages(self):
         self.assertAllowedSubpageTypes(
-            HomePage, [ContentLandingPage, EssayLandingPage, ContentPage]
+            HomePage, [ContentLandingPage, EssayLandingPage, ContentPage, LinkPage]
         )
 
     def test_template(self):
@@ -561,10 +561,3 @@ class TestPerson(TestCase):
             first_name="Henry Wadsworth", last_name="Longfellow"
         )
         assert person.lastname_first == "Longfellow, Henry Wadsworth"
-
-
-class TestLandingPageSetting(TestCase):
-    def test_str(self):
-        lps, _ = LandingPageSetting.objects.get_or_create(page="members")
-        lps.title = "Members"
-        assert str(lps) == lps.title

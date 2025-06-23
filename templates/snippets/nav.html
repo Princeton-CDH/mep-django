@@ -18,26 +18,6 @@
                 <img src="{% static 'img/icons/Delete.svg' %}" alt="Close main menu">
             </a>
         </li>
-        {% comment %}
-            NOTE: Since the following two items are Django views with customizable titles and
-            taglines, their titles and taglines are pulled from the Wagtail site root page.
-        {% endcomment %}
-        <li>
-            <div>
-                <a href="{% url 'people:members-list' %}">
-                    <span class="title">{{ landing_pages|dict_item:"members"|dict_item:"title" }}</span>
-                    <span class="subtitle">{{ landing_pages|dict_item:"members"|dict_item:"tagline" }}</span>
-                </a>
-            </div>
-        </li>
-        <li>
-            <div>
-                <a href="{% url 'books:books-list' %}">
-                <span class="title">{{ landing_pages|dict_item:"books"|dict_item:"title" }}</span>
-                <span class="subtitle">{{ landing_pages|dict_item:"books"|dict_item:"tagline" }}</span>
-                </a>
-            </div>
-        </li>
         {% for menuitem in site.root_page.get_children.live.in_menu %}
             <li>
                 <a href="{% pageurl menuitem %}">

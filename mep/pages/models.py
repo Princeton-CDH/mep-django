@@ -6,8 +6,12 @@ from django.db import models
 from django.http import Http404
 from django.template.defaultfilters import striptags, truncatechars_html
 from django.utils.text import slugify
-from django.utils.safestring import mark_safe
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import (
+    FieldPanel,
+    MultiFieldPanel,
+    ObjectList,
+    TabbedInterface,
+)
 from wagtail import blocks
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
@@ -16,6 +20,7 @@ from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.snippets.models import register_snippet
+from wagtailmenus.models import AbstractLinkPage
 
 from mep.common.utils import absolutize_url
 from mep.common.views import RdfViewMixin
@@ -126,35 +131,38 @@ class BodyContentBlock(blocks.StreamBlock):
     embed = EmbedBlock()
 
 
-@register_snippet
-class LandingPageSetting(models.Model):
-    """Snippet model for configuring the names and taglines for Django landing pages."""
+class LinkPage(AbstractLinkPage):
+    """Link page for controlling appearance in menus of non-Page content."""
 
-    # Django pages that cannot otherwise be configured through Wagtail
-    PAGE_OPTIONS = (
-        ("members", "Members"),
-        ("books", "Books"),
-    )
-
-    page = models.CharField(
-        max_length=255,
-        choices=PAGE_OPTIONS,
-        unique=True,  # only allow one instance per page
-        help_text=mark_safe('The landing page to be configured. <br />'
-        '<b>Note</b>: Wagtail content landing pages, e.g. "About" or "Discoveries," '
-        'are configured through parent pages, in the "Pages" section.')
-    )
-    title = models.CharField(
-        max_length=255,
-        help_text="Title of the page, as it will appear in menus and on the search page",
-    )
     tagline = models.CharField(
         max_length=500,
-        help_text="Short introductory text for the page, in the menu",
+        help_text="Short introductory text for the page, in the menu.",
     )
 
-    def __str__(self):
-        return self.title
+    # can only be a child of HomePage (i.e. it is a root level menu item)
+    parent_page_types = ["HomePage"]
+
+    # override the panels to only show title, tagline, and link url
+    linkpage_panels = [
+        MultiFieldPanel(
+            [
+                FieldPanel("title", classname="title"),
+                FieldPanel("tagline"),
+                FieldPanel("link_url"),
+            ]
+        )
+    ]
+    linkpage_tab = ObjectList(linkpage_panels, heading="Settings", classname="settings")
+
+    # override the edit handler to include a Promote panel with the "show in menus" checkbox
+    edit_handler = TabbedInterface(
+        [
+            linkpage_tab,
+            ObjectList(
+                (MultiFieldPanel((FieldPanel("show_in_menus"),)),), heading="Promote"
+            ),
+        ]
+    )
 
 
 class HomePage(Page):
@@ -163,7 +171,12 @@ class HomePage(Page):
     # can only be child of Root
     parent_page_types = [Page]
     # only landingpage subtypes as children
-    subpage_types = ["ContentLandingPage", "EssayLandingPage", "ContentPage"]
+    subpage_types = [
+        "ContentLandingPage",
+        "EssayLandingPage",
+        "ContentPage",
+        "LinkPage",
+    ]
     #: main page text
     body = StreamField(BodyContentBlock)
 
