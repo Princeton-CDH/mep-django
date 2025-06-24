@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("pages", "0013_auto_20231018_1421"),
+        ("pages", "0014_docraptorsettings_essaypage_doi_essaypage_pdf"),
         ("wagtailcore", "0094_alter_page_locale"),
     ]
 
