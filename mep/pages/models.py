@@ -2,17 +2,21 @@ from datetime import date
 import re
 
 import bleach
+from django.core.validators import RegexValidator
 from django.db import models
 from django.http import Http404
 from django.template.defaultfilters import striptags, truncatechars_html
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from wagtail.admin.panels import (
     FieldPanel,
     MultiFieldPanel,
     ObjectList,
+    Panel,
     TabbedInterface,
 )
 from wagtail import blocks
+from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
 from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtail.documents.blocks import DocumentChooserBlock
@@ -486,10 +490,92 @@ class ContentPage(BasePage):
     subpage_types = []
 
 
+@register_setting(icon="cog")
+class DocraptorSettings(BaseGenericSetting):
+    # DocRaptor settings panel, from PPA
+    docraptor_api_key = models.CharField(
+        "DocRaptor API key",
+        max_length=255,
+        blank=True,
+        help_text=mark_safe(
+            "API Key for DocRaptor, found on your "
+            '<a href="https://docraptor.com/doc_logs">DocRaptor account page</a>. '
+            "Required to enable PDF generation."
+        ),
+    )
+    docraptor_limit_note = models.TextField(
+        "DocRaptor limit note",
+        default="Limited to 5 PDFs per month.",
+        help_text="A note that will appear in the editor if the API key is present, "
+        "informing users of the document limit. It is 5 per month on the free plan; "
+        "edit here if plan is upgraded.",
+    )
+
+    panels = [
+        FieldPanel("docraptor_api_key"),
+        FieldPanel("docraptor_limit_note"),
+    ]
+
+    class Meta:
+        verbose_name = "DocRaptor Settings"
+
+
+class GeneratePdfPanel(Panel):
+    """Panel for asynchronous PDF generation in JavaScript; must be a
+    Panel subclass to have access to EditoralPage's instance URL.
+    Borrowed from PPA."""
+
+    class BoundPanel(Panel.BoundPanel):
+        template_name = "wagtailadmin/panels/pdf_panel.html"
+
+        def get_context_data(self, parent_context=None):
+            """Override to insert live page URL and docraptor API key"""
+            context = super().get_context_data(parent_context)
+
+            # NOTE: See DEVELOPERNOTES.rst for instructions to test this in
+            # development, under "Testing local DocRaptor PDF generation."
+            url = self.instance.full_url
+
+            # disable if unpublished, or has unpublished changes
+            if (
+                not url
+                or not self.instance.live
+                or self.instance.has_unpublished_changes
+            ):
+                url = ""
+            context.update({"url": url})
+            return context
+
+
+# DOI validation from PPA
+validate_doi = RegexValidator(
+    regex=r"^10[.][0-9]{4,}", message="DOI in short form, starting with 10."
+)
+
+
 class EssayPage(BasePage):
     """A :class:`BasePage` type that appears beneath `EssayLandingPage`s
     in the hierarchy."""
 
+    doi = models.CharField(
+        "DOI",
+        blank=True,
+        max_length=255,
+        help_text="Digital Object Identifier (DOI) if registered, in short form",
+        validators=[validate_doi],
+    )
+    pdf = models.URLField(
+        "PDF URL",
+        blank=True,
+        max_length=255,
+        help_text="URL for a PDF of this article, if available",
+    )
+
+    content_panels = BasePage.content_panels + [
+        FieldPanel("doi"),
+        FieldPanel("pdf"),
+        GeneratePdfPanel(),  # use custom panel for PDF generation
+    ]
     # can only be child of EssayLandingPage
     parent_page_types = ["EssayLandingPage"]
     # no allowed children

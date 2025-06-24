@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     "wagtail.images",
     "wagtail.admin",
     "wagtail.contrib.legacy.richtext",  # preserve rich-text class behavior after wagtail 2.10
+    "wagtail.contrib.settings",
+    "wagtail.search",
     "wagtail",
     "wagtail.embeds",
     "wagtail.contrib.redirects",
@@ -101,6 +103,7 @@ TEMPLATES = [
                 "mep.context_extras",
                 "mep.context_processors.template_settings",
                 "wagtailmenus.context_processors.wagtailmenus",
+                "wagtail.contrib.settings.context_processors.settings",
             ],
             "loaders": [
                 "apptemplates.Loader",

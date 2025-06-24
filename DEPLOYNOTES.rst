@@ -9,6 +9,10 @@ Deploy and Upgrade notes
 * In order for Books and Members pages to appear in site menus, Link Pages
   linking to them (``/books`` and ``/members``) must now be created in Wagtail
   and added to the Home Page, with "Show in menus" checked.
+* The search backend has been enabled for the Wagtail CMS, so a single reindex
+  is required to make existing static content searchable::
+
+    python manage.py update_index
 
 1.9
 ---
@@ -16,6 +20,8 @@ Deploy and Upgrade notes
 * Settings are now configured with django-split-settings as a module;
   ``local_settings.py`` must be moved to ``mep/settings/local_settings.py``,
   and ``import os`` must be included in the file.
+* The minimum required Python version has been bumped to 3.12. Please upgrade to
+  this version before installing updated dependencies.
 
 1.8
 ---
