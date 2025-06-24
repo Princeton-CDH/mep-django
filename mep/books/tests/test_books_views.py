@@ -13,6 +13,7 @@ from mep.books.models import PastWorkSlug, Work
 from mep.books.views import WorkCirculation, WorkCardList, WorkList
 from mep.common.utils import absolutize_url, login_temporarily_required
 from mep.footnotes.models import Footnote
+from mep.pages.models import LinkPage
 
 
 class BooksViews(TestCase):
@@ -197,6 +198,18 @@ class TestWorkListView(TestCase):
         form.cleaned_data = {"sort": "title", "circulation_dates": (1919, 1922)}
         solr_qs = view.get_queryset()
         assert solr_qs.count() == 0
+
+    def test_page_title(self):
+        # should default to WorkList.page_title for title
+        response = self.client.get(self.url)
+        assert response.context.get("page_title") == WorkList.page_title
+
+        # should use /books LinkPage for title if set
+        new_title = "New Title"
+        root = LinkPage.get_first_root_node()
+        root.add_child(instance=LinkPage(title=new_title, tagline="test", link_url="/books"))
+        response = self.client.get(self.url)
+        assert response.context.get("page_title") == new_title
 
     def test_get_page_labels(self):
         # create a mocked form and some fake works to paginate
