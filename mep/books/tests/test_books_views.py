@@ -13,6 +13,7 @@ from mep.books.models import PastWorkSlug, Work
 from mep.books.views import WorkCirculation, WorkCardList, WorkList
 from mep.common.utils import absolutize_url, login_temporarily_required
 from mep.footnotes.models import Footnote
+from mep.pages.models import LinkPage
 
 
 class BooksViews(TestCase):
@@ -86,12 +87,14 @@ class TestWorkListView(TestCase):
         assert response.context["works"].count() == works.count()
         for work in works:
             self.assertContains(response, work.title)
-            self.assertContains(response, work.year)
+            if work.year is not None:
+                self.assertContains(response, work.year)
             self.assertContains(
                 response, reverse("books:book-detail", args=[work.slug])
             )
             self.assertContains(response, work.get_absolute_url())
-            self.assertContains(response, work.work_format)
+            if work.work_format is not None:
+                self.assertContains(response, work.work_format)
 
         # item with UNCERTAINTYICON in notes should show text to SRs
         self.assertContains(response, Work.UNCERTAINTY_MESSAGE)
@@ -195,6 +198,18 @@ class TestWorkListView(TestCase):
         form.cleaned_data = {"sort": "title", "circulation_dates": (1919, 1922)}
         solr_qs = view.get_queryset()
         assert solr_qs.count() == 0
+
+    def test_page_title(self):
+        # should default to WorkList.page_title for title
+        response = self.client.get(self.url)
+        assert response.context.get("page_title") == WorkList.page_title
+
+        # should use /books LinkPage for title if set
+        new_title = "New Title"
+        root = LinkPage.get_first_root_node()
+        root.add_child(instance=LinkPage(title=new_title, tagline="test", link_url="/books"))
+        response = self.client.get(self.url)
+        assert response.context.get("page_title") == new_title
 
     def test_get_page_labels(self):
         # create a mocked form and some fake works to paginate

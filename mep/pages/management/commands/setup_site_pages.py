@@ -7,6 +7,7 @@ Example usage::
 
     python manage.py setup_site_pages
 """
+
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
@@ -14,7 +15,13 @@ from django.core.management.base import BaseCommand
 from wagtail.models import Page
 from wagtail.models import Site as WagtailSite
 
-from mep.pages.models import ContentLandingPage, ContentPage, EssayLandingPage, HomePage
+from mep.pages.models import (
+    ContentLandingPage,
+    ContentPage,
+    EssayLandingPage,
+    HomePage,
+    LinkPage,
+)
 
 
 class Command(BaseCommand):
@@ -27,6 +34,22 @@ class Command(BaseCommand):
     verbosity = v_normal
 
     pages = [
+        {
+            "slug": "books",
+            "title": "Books",
+            "tagline": "Explore the lending library holdings.",
+            "link_url": "/books",
+            "type": LinkPage,
+            "pages": [],
+        },
+        {
+            "slug": "members",
+            "title": "Members",
+            "tagline": "Explore the lending library membership.",
+            "link_url": "/members",
+            "type": LinkPage,
+            "pages": [],
+        },
         {
             "slug": "about",
             "title": "About",
@@ -84,6 +107,9 @@ class Command(BaseCommand):
         for i, page in enumerate(self.pages):
             landing_page = Page.objects.filter(slug=page["slug"]).first()
             if not landing_page:
+                kwargs = {}
+                if page["type"] == LinkPage:
+                    kwargs.update({"link_url": page["link_url"]})
                 landing_page = page["type"].objects.create(
                     title=page["title"],
                     slug=page["slug"],
@@ -92,6 +118,7 @@ class Command(BaseCommand):
                     path="{}{:04d}".format(home.path, i),
                     show_in_menus=True,
                     content_type=ContentType.objects.get_for_model(page["type"]),
+                    **kwargs,
                 )
             # Create subpages for each landing page
             for i_, page_ in enumerate(page["pages"]):

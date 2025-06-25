@@ -8,7 +8,13 @@ from django.http import Http404
 from django.template.defaultfilters import striptags, truncatechars_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-from wagtail.admin.panels import FieldPanel, Panel
+from wagtail.admin.panels import (
+    FieldPanel,
+    MultiFieldPanel,
+    ObjectList,
+    Panel,
+    TabbedInterface,
+)
 from wagtail import blocks
 from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
 from wagtail.fields import RichTextField, StreamField
@@ -18,6 +24,7 @@ from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.snippets.models import register_snippet
+from wagtailmenus.models import AbstractLinkPage
 
 from mep.common.utils import absolutize_url
 from mep.common.views import RdfViewMixin
@@ -128,19 +135,56 @@ class BodyContentBlock(blocks.StreamBlock):
     embed = EmbedBlock()
 
 
+class LinkPage(AbstractLinkPage):
+    """Link page for controlling appearance in menus of non-Page content."""
+
+    tagline = models.CharField(
+        max_length=500,
+        help_text="Short introductory text for the page, in the menu.",
+    )
+
+    # can only be a child of HomePage (i.e. it is a root level menu item)
+    parent_page_types = ["HomePage"]
+
+    # override the panels to only show title, tagline, and link url
+    linkpage_panels = [
+        MultiFieldPanel(
+            [
+                FieldPanel("title", classname="title"),
+                FieldPanel("tagline"),
+                FieldPanel("link_url"),
+            ]
+        )
+    ]
+    linkpage_tab = ObjectList(linkpage_panels, heading="Settings", classname="settings")
+
+    # override the edit handler to include a Promote panel with the "show in menus" checkbox
+    edit_handler = TabbedInterface(
+        [
+            linkpage_tab,
+            ObjectList(
+                (MultiFieldPanel((FieldPanel("show_in_menus"),)),), heading="Promote"
+            ),
+        ]
+    )
+
+
 class HomePage(Page):
     """:class:`wagtail.models.Page` model for S&Co. home page."""
 
     # can only be child of Root
     parent_page_types = [Page]
     # only landingpage subtypes as children
-    subpage_types = ["ContentLandingPage", "EssayLandingPage", "ContentPage"]
+    subpage_types = [
+        "ContentLandingPage",
+        "EssayLandingPage",
+        "ContentPage",
+        "LinkPage",
+    ]
     #: main page text
     body = StreamField(BodyContentBlock)
 
-    content_panels = Page.content_panels + [
-        FieldPanel("body"),
-    ]
+    content_panels = Page.content_panels + [FieldPanel("body")]
 
     class Meta:
         verbose_name = "homepage"

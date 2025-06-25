@@ -29,6 +29,7 @@ from mep.common.views import (
     RdfViewMixin,
     SolrLastModifiedMixin,
 )
+from mep.pages.models import LinkPage
 from mep.people.forms import MemberSearchForm, PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
 from mep.people.models import Country, Location, Person
@@ -217,9 +218,16 @@ class MembersList(
             # if facets are not set, the query errored
             error_message = "Something went wrong."
 
+        # allow page_title override via wagtail
+        try:
+            link_page = LinkPage.objects.get(link_url="/members")
+            page_title = link_page.title
+        except LinkPage.DoesNotExist:
+            page_title = self.page_title
+
         context.update(
             {
-                "page_title": self.page_title,
+                "page_title": page_title,
                 "page_description": self.page_description,
                 "error_message": error_message,
             }

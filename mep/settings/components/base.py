@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "wagtail",
     "wagtail.embeds",
     "wagtail.contrib.redirects",
+    "wagtailmenus",
     "taggit",
     "widget_tweaks",
     "markdownify",
@@ -101,6 +102,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "mep.context_extras",
                 "mep.context_processors.template_settings",
+                "wagtailmenus.context_processors.wagtailmenus",
                 "wagtail.contrib.settings.context_processors.settings",
             ],
             "loaders": [
@@ -197,6 +199,9 @@ WAGTAILEMBEDS_FINDERS = [
     {"class": "mep.pages.embed_finders.GlitchHubEmbedFinder"},
 ]
 
+# disable wagtailmenus settings menu items, since we are only using it for linkpages
+WAGTAILMENUS_FLAT_MENUS_EDITABLE_IN_WAGTAILADMIN = False
+WAGTAILMENUS_MAIN_MENUS_EDITABLE_IN_WAGTAILADMIN = False
 
 # pucas configuration that is not expected to change across deploys
 # and does not reference local server configurations or fields

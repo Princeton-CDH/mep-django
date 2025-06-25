@@ -6,6 +6,9 @@ Deploy and Upgrade notes
 1.10
 ----
 
+* In order for Books and Members pages to appear in site menus, Link Pages
+  linking to them (``/books`` and ``/members``) must now be created in Wagtail
+  and added to the Home Page, with "Show in menus" checked.
 * The search backend has been enabled for the Wagtail CMS, so a single reindex
   is required to make existing static content searchable::
 

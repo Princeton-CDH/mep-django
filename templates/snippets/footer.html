@@ -3,9 +3,7 @@
     <div class="nav-logos">
         <nav aria-label="footer">
             <ul class="primary" aria-label="primary navigation">
-                <li><a href="{% slugurl 'home' %}">Home</a></li>
-                <li><a href="{% url 'people:members-list' %}">Members</a></li>
-                <li><a href="{% url 'books:books-list' %}">Books</a></li>
+                <li><a href="{{ site.root_page.url }}">Home</a></li>
                 {# display top-level pages based on wagtail contents #}
                 {% for page in site.root_page.get_children.live.in_menu %}
                     <li><a href="{{ page.url }}">{{ page.title }}</a></li>
