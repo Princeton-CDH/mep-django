@@ -25,7 +25,9 @@ module.exports = env => ({
         activities: './ts/activities.ts',
         cardSearch: './ts/cards-search.ts',
         landing: './ts/pages/landing.ts',
-        cardViewer: './ts/pages/card-viewer.ts'
+        cardViewer: './ts/pages/card-viewer.ts',
+        pdf: './js/controllers/pdf.js', // wagtail stimulus extension for PDF generation
+        print: './scss/print.scss' // print styles
     },
     output: {
         path: path.resolve(__dirname, 'bundles'), // where to output bundles

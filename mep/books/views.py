@@ -23,6 +23,7 @@ from mep.common.views import (
     SolrLastModifiedMixin,
 )
 from mep.footnotes.models import Footnote
+from mep.pages.models import LinkPage
 
 
 class WorkList(
@@ -176,9 +177,16 @@ class WorkList(
             # if facets are not set, the query errored
             error_message = "Something went wrong."
 
+        # allow page_title override via wagtail
+        try:
+            link_page = LinkPage.objects.get(link_url="/books")
+            page_title = link_page.title
+        except LinkPage.DoesNotExist:
+            page_title = self.page_title
+
         context.update(
             {
-                "page_title": self.page_title,
+                "page_title": page_title,
                 "page_description": self.page_description,
                 "error_message": error_message,
                 "uncertainty_message": Work.UNCERTAINTY_MESSAGE,

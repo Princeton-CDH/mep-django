@@ -56,3 +56,14 @@ class TestCitation(TestCase):
 
         result = strip_tags(self.template.render(self.context))
         assert "Marx, Karl, Friedrich Engels, and John Smith." in result
+
+    def test_doi(self):
+        result = strip_tags(self.template.render(self.context))
+        assert self.context["page"]["get_full_url"] in result
+        doi = "https://doi.org/10.22148/001c.32551"
+        self.context["page"].update({
+            "doi": doi
+        })
+        result = strip_tags(self.template.render(self.context))
+        assert self.context["page"]["get_full_url"] not in result
+        assert doi in result

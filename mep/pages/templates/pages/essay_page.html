@@ -2,8 +2,14 @@
 
 {% block content %}
 {% include 'snippets/breadcrumbs.html' %}
+{#* elements for PDF header & footer; must occur BEFORE content #}
+<section class='print-only'>
+    {% if page.doi %}
+        <a href="http://doi.org/{{ page.doi }}" rel="alternate" class="page-doi">doi:{{ page.doi }}</a>
+    {% endif %}
+</section>
 {# reorder so that creator attribution is at the top #}
-<article class="main">
+<article class="main essay">
     {% include 'pages/snippets/creators.html' %}
     {% include 'pages/snippets/body.html' %}
     {% include 'pages/snippets/citation.html' %}

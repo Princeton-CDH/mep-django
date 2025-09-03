@@ -31,6 +31,7 @@ from mep.books.models import Creator, CreatorType, Edition, Work
 from mep.common.templatetags.mep_tags import partialdate
 from mep.common.utils import absolutize_url
 from mep.footnotes.models import Bibliography, Footnote, SourceType
+from mep.pages.models import LinkPage
 from mep.people.admin import GeoNamesLookupWidget, MapWidget
 from mep.people.forms import PersonMergeForm
 from mep.people.geonames import GeoNamesAPI
@@ -853,6 +854,17 @@ class TestMembersListView(TestCase):
         # without accent
         response = self.client.get(self.members_url, {"query": "rene"})
         self.assertContains(response, rene.sort_name)
+
+    def test_page_title(self):
+        response = self.client.get(self.members_url)
+        assert response.context.get("page_title") == MembersList.page_title
+
+        # should use /members LinkPage for title if set
+        new_title = "New Title"
+        root = LinkPage.get_first_root_node()
+        root.add_child(instance=LinkPage(title=new_title, tagline="test", link_url="/members"))
+        response = self.client.get(self.members_url)
+        assert response.context.get("page_title") == new_title
 
     def test_get_page_labels(self):
         view = MembersList()

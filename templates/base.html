@@ -29,6 +29,7 @@
         {% endif %}
         {% block vendorcss %}{% endblock %}
         {% render_bundle 'main' 'css' %}
+        {% render_bundle 'print' 'css' attrs=' media="print" ' %}
         {% block css %}{% endblock %}
         <!-- scripts -->
         {% render_bundle 'main' 'js' %}

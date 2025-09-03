@@ -16,6 +16,7 @@ webpack-stats.json
 js/test/unit/coverage
 
 # Static files
+static/
 media/
 bundles/
 sitemedia/fonts/
