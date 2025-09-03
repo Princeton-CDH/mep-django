@@ -1,13 +1,23 @@
 CHANGELOG
 =========
 
+1.10
+---
+
+- Site Menus and taglines and Homepage tagline now editable in Wagtail
+- Enhancements to Wagtail editorial essays :
+  - Adds optional DOI and PDF link fields, for inclusion in metadata and display 
+  - DocRaptor integration to generate PDFs for articles
+- Upgraded Wagtail to v7.0 
+
 1.9
 ---
 
-- bugfix: VIAF Autocomplete Not Working
-- chore: Upgrade the python, Django, wagtail stack for S&Co website
-- chore: Update or replace dependency on LoC django-tabular-export package
-- chore: Migrate settings to django-split-settings
+- Upgraded to Django 5.2, Wagtail v6.4 
+- Updated to viapy v0.4 (resolves an issue with VIAF autocomplete)
+- Updated to Python v3.12
+- Updated to django-tabular-export v1.2
+- Migrated settings to use django-split-settings
 
 1.8
 ---
