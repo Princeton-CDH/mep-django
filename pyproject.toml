@@ -35,7 +35,7 @@ dependencies = [
     "bleach",
     "django-fullurl",
     "unidecode",
-    "stop_words",
+    "stop_words==2018.7.23",
     # as of 2024-05-08 django-markdownify==0.9.4 causes an error with bleach
     "django-markdownify==0.9.3",
     "tweepy",
