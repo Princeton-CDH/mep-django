@@ -579,6 +579,26 @@ def test_formfield_selected_filter():
     # form has an invalid link - should be an empty link
     assert not mep_tags.formfield_selected_filter(context, form["nationality"])
 
+    # XSS / invalid range input must produce no link (no reflection)
+    xss_payload = "<script>alert(1)</script>"
+    bad_form = MemberSearchForm(
+        data={"membership_dates_0": xss_payload, "membership_dates_1": 2020}
+    )
+    bad_form.is_valid()
+    querystring = QueryDict(
+        "membership_dates_0=%s&membership_dates_1=2020" % xss_payload
+    )
+    context = {"request": Mock(GET=querystring)}
+    link = mep_tags.formfield_selected_filter(context, bad_form["membership_dates"])
+    assert link == ""
+    assert "<script" not in link
+    # non-numeric range value also rejected
+    bad_form2 = MemberSearchForm(data={"membership_dates_1": "test"})
+    bad_form2.is_valid()
+    querystring = QueryDict("membership_dates_1=test")
+    context = {"request": Mock(GET=querystring)}
+    assert mep_tags.formfield_selected_filter(context, bad_form2["membership_dates"]) == ""
+
 
 class TestCheckboxFieldset(TestCase):
     def test_get_context(self):
