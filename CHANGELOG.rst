@@ -1,8 +1,15 @@
 CHANGELOG
 =========
 
+1.10.1
+------
+
+- fix: address a cross-site scripting vulnerability where member and book search 
+  forms were displaying invalid raw query request values
+
+
 1.10
----
+----
 
 - Site Menus and taglines and Homepage tagline now editable in Wagtail
 - Enhancements to Wagtail editorial essays :
