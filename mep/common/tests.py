@@ -790,6 +790,24 @@ class TestLoginRequiredOr404Mixin(TestCase):
 
 
 def test_range_widget():
+    # value_from_datadict sanitizes non-numeric input
+    widget = RangeWidget()
+    assert widget.value_from_datadict({"r_0": "1920", "r_1": "1940"}, {}, "r") == [
+        "1920",
+        "1940",
+    ]
+    assert widget.value_from_datadict({"r_0": "", "r_1": "1940"}, {}, "r") == [
+        "",
+        "1940",
+    ]
+    assert widget.value_from_datadict(
+        {"r_0": "<script>alert(1)</script>", "r_1": "1940"}, {}, "r"
+    ) == ["", "1940"]
+    assert widget.value_from_datadict({"r_0": "abc", "r_1": "xyz"}, {}, "r") == [
+        "",
+        "",
+    ]
+
     # range widget decompress logic
     assert RangeWidget().decompress((None, None)) == [None, None]
     assert RangeWidget().decompress(None) == [None, None]
