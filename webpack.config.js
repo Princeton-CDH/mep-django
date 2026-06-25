@@ -32,7 +32,7 @@ module.exports = env => ({
     output: {
         path: path.resolve(__dirname, 'bundles'), // where to output bundles
         publicPath: devMode ? 'http://localhost:3000/' : '/static/', // tell Django where to serve bundles from
-        filename: devMode ? 'js/[name].js' : 'js/[name]-[hash].min.js', // append hashes in prod/qa
+        filename: devMode ? 'js/[name].js' : 'js/[name]-[contenthash].min.js', // append hashes in prod/qa
     },
     module: {
         rules: [
@@ -70,7 +70,7 @@ module.exports = env => ({
                 test: /\.(png|jpg|gif|svg)$/,
                 loader: 'file-loader',
                 options: {
-                  name: devMode ? 'img/[name].[ext]' : 'img/[name]-[hash].[ext]', // append hashes in prod/qa
+                  name: devMode ? 'img/[name].[ext]' : 'img/[name]-[contenthash].[ext]', // append hashes in prod/qa
                 }
             }
         ]
@@ -78,7 +78,7 @@ module.exports = env => ({
     plugins: [
         new BundleTracker({ path: __dirname, filename: 'webpack-stats.json' }), // tells Django where to find webpack output
         new MiniCssExtractPlugin({ // extracts CSS to a single file per entrypoint
-            filename: devMode ? 'css/[name].css' : 'css/[name]-[hash].min.css', // append hashes in prod/qa
+            filename: devMode ? 'css/[name].css' : 'css/[name]-[contenthash].min.css', // append hashes in prod/qa
         }),
         ...(devMode ? [] : [new CleanWebpackPlugin({
             cleanOnceBeforeBuildPatterns: [ 'bundles/**'],  // clear out static when rebuilding in prod/qa
