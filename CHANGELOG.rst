@@ -4,8 +4,9 @@ CHANGELOG
 1.10.1
 ------
 
-- fix: address a cross-site scripting vulnerability where member and book search 
-  forms were displaying invalid raw query request values
+- fix: address a cross-site scripting vulnerability where member and book range
+  search inputs were displaying raw query request values even when invalid/unsafe
+- Update webpack config to use `contenthash` for outputs since `hash` is deprecated
 
 
 1.10
