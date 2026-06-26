@@ -43,7 +43,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "core-js": "^3.43.0",
     "css-loader": "^6.8.1",
-    "css-minimizer-webpack-plugin": "^5.0.1",
+    "css-minimizer-webpack-plugin": "^8.0.0",
     "d3-axis": "^3.0.0",
     "d3-scale": "^4.0.2",
     "d3-selection": "^3.0.0",
