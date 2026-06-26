@@ -94,11 +94,20 @@ def querystring_only(context, *keys):
 
 @register.simple_tag(takes_context=True)
 def formfield_selected_filter(context, boundfield):
-    """Generate selected filter remove link(s) for a form field."""
+    """Generate selected filter remove link(s) for a form field.
+
+    Uses cleaned form data so invalid input is never reflected back
+    into the page; fields that failed validation render no link."""
     # default label is field label
     label = boundfield.label
-    value = boundfield.value()
     link = ""
+
+    # skip invalid fields: the filter wasn't applied and the raw value
+    # is unsafe to reflect
+    if boundfield.name in boundfield.form.errors:
+        return ""
+    # use cleaned (typed/validated) value, not raw boundfield.value()
+    value = boundfield.form.cleaned_data.get(boundfield.name)
 
     # get a mutable copy of the current request
     querystring = context["request"].GET.copy()
@@ -114,10 +123,13 @@ def formfield_selected_filter(context, boundfield):
                 label,
             )
     elif isinstance(boundfield.field, RangeField):
-        # list of start, end; display if at least one is set
-        if any(value):
+        # value is a (start, end) tuple of ints/None, or None if unset
+        if value and any(v is not None for v in value):
             start, end = value
-            label += " %s – %s" % (start or "&nbsp;", end or "&nbsp;")
+            label += " %s – %s" % (
+                start if start is not None else "&nbsp;",
+                end if end is not None else "&nbsp;",
+            )
             # stored in querystring as name_0 and name_1
             fieldnames = ["%s_%d" % (boundfield.name, i) for i in range(2)]
             link = '<a data-fieldset="%s" href="?%s">%s</a>' % (
@@ -128,7 +140,7 @@ def formfield_selected_filter(context, boundfield):
     elif isinstance(boundfield.field, FacetChoiceField) and boundfield.field.choices:
         # could have multiple filters active
         links = []
-        for val in value:
+        for val in value or []:
             # use selected value as label
             query_value = {boundfield.name: val}
             # get id for this choice's corresponding input

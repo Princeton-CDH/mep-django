@@ -139,6 +139,11 @@ class RangeWidget(forms.MultiWidget):
         ]
         super().__init__(widgets, *args, **kwargs)
 
+    def value_from_datadict(self, data, files, name):
+        # strip non-numeric values before they reach form fields or templates
+        values = super().value_from_datadict(data, files, name)
+        return [v if v and (isinstance(v, int) or v.isdigit()) else None for v in values]
+
     def decompress(self, value):
         if value:
             return [int(val) if val else None for val in value]
@@ -175,7 +180,6 @@ class RangeField(forms.MultiValueField):
     def compress(self, data_list):
         """Compress into a single value; returns a two-tuple of range end,
         start."""
-
         # If neither values is set, return None
         if not any(data_list):
             return None

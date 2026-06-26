@@ -9,7 +9,6 @@ from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
-from django.db.models import Model
 from django.http import Http404, HttpRequest, JsonResponse, QueryDict
 from django.template.loader import get_template
 from django.test import TestCase, override_settings
@@ -579,6 +578,27 @@ def test_formfield_selected_filter():
     # form has an invalid link - should be an empty link
     assert not mep_tags.formfield_selected_filter(context, form["nationality"])
 
+    # XSS / invalid range input must produce no link (no reflection)
+    xss_payload = "<script>alert(1)</script>"
+    bad_form = MemberSearchForm(
+        data={"membership_dates_0": xss_payload, "membership_dates_1": 2020}
+    )
+    bad_form.is_valid()
+    querystring = QueryDict(
+        "membership_dates_0=%s&membership_dates_1=2020" % xss_payload
+    )
+    context = {"request": Mock(GET=querystring)}
+    # range field now strips out non-numeric values, so only the 2020 is left
+    # this means a link is generated but it does not include the script
+    link = mep_tags.formfield_selected_filter(context, bad_form["membership_dates"])
+    assert "<script" not in link
+    # non-numeric range value also rejected
+    bad_form2 = MemberSearchForm(data={"membership_dates_1": "test"})
+    bad_form2.is_valid()
+    querystring = QueryDict("membership_dates_1=test")
+    context = {"request": Mock(GET=querystring)}
+    assert mep_tags.formfield_selected_filter(context, bad_form2["membership_dates"]) == ""
+
 
 class TestCheckboxFieldset(TestCase):
     def test_get_context(self):
@@ -770,6 +790,24 @@ class TestLoginRequiredOr404Mixin(TestCase):
 
 
 def test_range_widget():
+    # value_from_datadict sanitizes non-numeric input
+    widget = RangeWidget()
+    assert widget.value_from_datadict({"r_0": "1920", "r_1": "1940"}, {}, "r") == [
+        "1920",
+        "1940",
+    ]
+    assert widget.value_from_datadict({"r_0": "", "r_1": "1940"}, {}, "r") == [
+        None,
+        "1940",
+    ]
+    assert widget.value_from_datadict(
+        {"r_0": "<script>alert(1)</script>", "r_1": "1940"}, {}, "r"
+    ) == [None, "1940"]
+    assert widget.value_from_datadict({"r_0": "abc", "r_1": "xyz"}, {}, "r") == [
+        None,
+        None,
+    ]
+
     # range widget decompress logic
     assert RangeWidget().decompress((None, None)) == [None, None]
     assert RangeWidget().decompress(None) == [None, None]

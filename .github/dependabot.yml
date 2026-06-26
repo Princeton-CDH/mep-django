@@ -1,0 +1,38 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+
+multi-ecosystem-groups:
+  # Consolidate version updates into a single PR
+  version-updates:
+    schedule:
+      interval: "monthly"
+    target-branch: "develop"
+
+updates:
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    cooldown:
+      default-days: 7
+    patterns: ["*"]
+    multi-ecosystem-group: "version-updates"
+
+  # Enable version updates for pre-commit hooks
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    cooldown:
+      default-days: 7
+    patterns: ["*"]
+    multi-ecosystem-group: "version-updates"
+
+  # Enable version updates for python
+  - package-ecosystem: "pip"
+    directory: "/"
+    cooldown:
+      default-days: 7
+    patterns: ["*"]
+    multi-ecosystem-group: "version-updates"
