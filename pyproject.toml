@@ -9,25 +9,25 @@ requires-python = ">=3.12"
 license = { text = "Apache-2" }
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
-    "Django>=5.2,<5.3",
+    "Django>=5.2,<6.1",
     "django-grappelli>=3.0",
     "cached_property",
     "django-cas-ng",
     "pucas>=0.8",
     "neuxml>=1.0.0",
     "viapy>=0.4",
-    "wagtail>=7.0,<7.1",
+    "wagtail>=7.0,<7.5",
     "wagtailmenus",
     "django-autocomplete-light>=3.9",
     "python-dateutil",
     "django-apptemplates",
     "py-flags",
     "django-tabular-export>=1.2.0",
-    "django-webpack-loader<=2.0",
+    "django-webpack-loader<=3.2.4",
     "parasolr>=0.9.2",
     "django-widget-tweaks",
     # pymarc api changes significantly in 5.0
-    "pymarc<5.0",
+    "pymarc<6.0",
     "progressbar2",
     "rdflib>=7.0",
     "djiffy>=1.0.0",
@@ -35,15 +35,15 @@ dependencies = [
     "bleach",
     "django-fullurl",
     "unidecode",
-    "stop_words==2018.7.23",
+    "stop_words==2025.11.4",
     # as of 2024-05-08 django-markdownify==0.9.4 causes an error with bleach
-    "django-markdownify==0.9.3",
+    "django-markdownify==0.9.7",
     "tweepy",
     # specify bs4 version to avoid wagtail version conflict
-    "beautifulsoup4<4.9",
+    "beautifulsoup4<4.16",
     "psycopg2-binary",
     # 4.0 is not compatible with django 3.2, so pin to pre 4.0
-    "django-import-export<4.0",
+    "django-import-export<5.0",
     "django-adminlogentries",
     "django-split-settings",
 ]
@@ -63,11 +63,11 @@ dev = [
     "pytest-cov",
     "pytest-ordering",
     # pin to pre 4.4, which forces django 4.2
-    "django-debug-toolbar<=4.4",
+    "django-debug-toolbar<=7.0.0",
     "sphinx",
     "wheel",
     "pre-commit",
-    "wagtail-factories<4.1",
+    "wagtail-factories<4.6",
 ]
 
 [tool.pytest.ini_options]
