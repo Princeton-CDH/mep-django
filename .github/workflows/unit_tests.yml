@@ -22,7 +22,7 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
     - name: Cache node modules
-      uses: actions/cache@c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6
+      uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6
       with:
         path: ~/.npm
         key: npm-${{ hashFiles('package-lock.json') }}
@@ -55,7 +55,7 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
     - name: Cache node modules
-      uses: actions/cache@c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6
+      uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6
       with:
         path: ~/.npm
         key: npm-${{ hashFiles('package-lock.json') }}
@@ -109,12 +109,12 @@ jobs:
         run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_ENV
 
       - name: Setup Python
-        uses: actions/setup-python@vece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Cache pip
-        uses: actions/cache@c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6
         with:
           path: ~/.cache/pip
           key: pip-${{ matrix.python }}-${{ hashFiles('pyproject.toml') }}
