@@ -376,7 +376,11 @@ class Work(TrackChangesModel, Notable, ModelIndexable, EventSetMixin):
         # customize uniqueness validation to ensure new slugs don't
         # conflict with past slugs
         super().validate_unique(exclude)
-        if PastWorkSlug.objects.filter(slug=self.slug).exclude(work__pk=self.pk).count():
+        if (
+            PastWorkSlug.objects.filter(slug=self.slug)
+            .exclude(work__pk=self.pk)
+            .count()
+        ):
             raise ValidationError(
                 "Slug is not unique " + "(conflicts with previously used slugs)"
             )
@@ -554,9 +558,9 @@ class Work(TrackChangesModel, Notable, ModelIndexable, EventSetMixin):
                 "sort_title_isort": self.sort_title,
                 "slug_s": self.slug,
                 "authors_t": [a.name for a in self.authors] if self.authors else None,
-                "sort_authors_t": [str(a) for a in self.authors]
-                if self.authors
-                else None,
+                "sort_authors_t": (
+                    [str(a) for a in self.authors] if self.authors else None
+                ),
                 "sort_authors_isort": self.sort_author_list,
                 "creators_t": self.creator_names,
                 "pub_date_i": self.year,

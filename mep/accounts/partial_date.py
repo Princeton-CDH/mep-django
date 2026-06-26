@@ -71,7 +71,7 @@ class PartialDate:
         """Call :meth:`parse_date` to parse a partial date and set the
         :class:`datetime.date` and :class:`DatePrecision`. If a falsy value was
         passed, set them both to None."""
-        (date_val, date_precision_val) = self.parse_date(val) if val else (None, None)
+        date_val, date_precision_val = self.parse_date(val) if val else (None, None)
         setattr(obj, self.date_field, date_val)
         setattr(obj, self.date_precision_field, date_precision_val)
 

@@ -63,7 +63,5 @@ class TestSetupSitePagesCommand(TestCase):
             EssayLandingPage.objects.count() == 1
         ), "running twice shouldn't create duplicate landing pages"
 
-        assert (
-            ContentPage.objects.count() == 8
-        ), "running twice shouldn't \
+        assert ContentPage.objects.count() == 8, "running twice shouldn't \
             create duplicate content pages"

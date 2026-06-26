@@ -36,3 +36,7 @@ updates:
       default-days: 7
     patterns: ["*"]
     multi-ecosystem-group: "version-updates"
+    ignore:
+    - dependency-name: "stop_words"
+      # Ignore versions of stop_words newer than the pinned version used for book slugs
+      versions: [ ">2018.7.23" ]

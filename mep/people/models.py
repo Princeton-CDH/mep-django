@@ -24,7 +24,6 @@ from mep.common.models import (
 from mep.common.validators import verify_latlon
 from mep.footnotes.models import Footnote
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -571,7 +570,11 @@ class Person(TrackChangesModel, Notable, DateRange, ModelIndexable):
         # customize uniqueness validation to ensure new slugs don't
         # conflict with past slugs
         super().validate_unique(exclude)
-        if PastPersonSlug.objects.filter(slug=self.slug).exclude(person__pk=self.pk).count():
+        if (
+            PastPersonSlug.objects.filter(slug=self.slug)
+            .exclude(person__pk=self.pk)
+            .count()
+        ):
             raise ValidationError(
                 "Slug is not unique " + "(conflicts with previously used slugs)"
             )

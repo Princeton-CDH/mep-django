@@ -13,7 +13,6 @@ import pandas as pd
 
 import requests
 
-
 # published v1 members dataset
 members_v1 = "https://dataspace.princeton.edu/bitstream/88435/dsp0105741v63x/7/SCoData_members_v1_2020-07.csv"
 # local copy of v1.1

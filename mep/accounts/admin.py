@@ -22,7 +22,6 @@ from mep.books.models import Edition
 from mep.common.admin import NamedNotableAdmin, CollapsibleTabularInline
 from mep.footnotes.admin import FootnoteInline, AUTOCOMPLETE as footnote_autocomplete
 
-
 # predefine autocomplete lookups (most are used on more than one form)
 AUTOCOMPLETE = {
     "person": autocomplete.ModelSelect2(

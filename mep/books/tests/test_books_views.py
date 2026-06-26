@@ -207,7 +207,9 @@ class TestWorkListView(TestCase):
         # should use /books LinkPage for title if set
         new_title = "New Title"
         root = LinkPage.get_first_root_node()
-        root.add_child(instance=LinkPage(title=new_title, tagline="test", link_url="/books"))
+        root.add_child(
+            instance=LinkPage(title=new_title, tagline="test", link_url="/books")
+        )
         response = self.client.get(self.url)
         assert response.context.get("page_title") == new_title
 

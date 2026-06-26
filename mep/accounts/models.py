@@ -62,11 +62,15 @@ class Account(models.Model, EventSetMixin):
             return "Account #%s: %s" % (
                 self.pk,
                 "; ".join(
-                    address.name
-                    if address.name
-                    else address.street_address
-                    if address.street_address
-                    else address.city
+                    (
+                        address.name
+                        if address.name
+                        else (
+                            address.street_address
+                            if address.street_address
+                            else address.city
+                        )
+                    )
                     for address in self.locations.all().order_by(
                         "city", "street_address", "name"
                     )

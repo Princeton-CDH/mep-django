@@ -348,9 +348,9 @@ class MemberDetail(
         context["timeline"] = {
             "membership_activities": [
                 {
-                    "startDate": event.start_date.isoformat()
-                    if event.start_date
-                    else "",
+                    "startDate": (
+                        event.start_date.isoformat() if event.start_date else ""
+                    ),
                     "endDate": event.end_date.isoformat() if event.end_date else "",
                     "type": event.event_type,
                 }
@@ -882,14 +882,14 @@ class PersonAutocomplete(autocomplete.Select2QuerySetView):
                         "<strong>{main_string}</strong>"
                         "{mep_id} <br />{type} "
                         "({start_date} – {end_date})".strip(),
-                        **labels
+                        **labels,
                     )
             return format_html("<strong>{main_string}</strong>{mep_id}", **labels)
         # we have some of the information, return it in an interpolated string
         return format_html(
             "<strong>{main_string}{bio_dates}"
             "</strong>{mep_id}<br /> {note_string}".strip(),
-            **labels
+            **labels,
         )
 
     def get_queryset(self):

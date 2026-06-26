@@ -597,7 +597,9 @@ def test_formfield_selected_filter():
     bad_form2.is_valid()
     querystring = QueryDict("membership_dates_1=test")
     context = {"request": Mock(GET=querystring)}
-    assert mep_tags.formfield_selected_filter(context, bad_form2["membership_dates"]) == ""
+    assert (
+        mep_tags.formfield_selected_filter(context, bad_form2["membership_dates"]) == ""
+    )
 
 
 class TestCheckboxFieldset(TestCase):

@@ -227,7 +227,7 @@ def partialdate(val, date_format=None):
 
     # parse partial date back into datetime and precision
     try:
-        (dt, precision) = Event.partial_start_date.parse_date(str(val))
+        dt, precision = Event.partial_start_date.parse_date(str(val))
     except ValidationError:
         # bail out if date couldn't be parsed
         return

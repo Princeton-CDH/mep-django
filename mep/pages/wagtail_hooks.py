@@ -40,6 +40,7 @@ def register_blockquote_feature(features):
         },
     )
 
+
 @hooks.register("insert_editor_js")
 def editor_js():
     """Wagtail hook to include a JS bundle in the page editor, in html script

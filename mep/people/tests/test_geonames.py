@@ -6,7 +6,6 @@ import requests
 
 from mep.people.geonames import GeoNamesAPI, GeoNamesError, GeoNamesUnauthorized
 
-
 # test geonames api username for test (not an actual username)
 GEONAMES_TEST_USER = "test_geonames_user"
 

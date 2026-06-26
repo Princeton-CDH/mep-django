@@ -11,7 +11,6 @@ from django.utils.text import slugify
 import stop_words
 from unidecode import unidecode
 
-
 STOP_WORDS = stop_words.get_stop_words("en") + stop_words.get_stop_words("fr")
 
 

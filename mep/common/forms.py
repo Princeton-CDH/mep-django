@@ -7,7 +7,7 @@ from django.utils.html import mark_safe
 class ChoiceLabel:
     """Custom choice label that can be used to set an option as disabled
     without resulting in extra choices when normalized.
-    
+
     Implementation from ppa-django."""
 
     def __init__(self, label, disabled=False):
@@ -142,7 +142,9 @@ class RangeWidget(forms.MultiWidget):
     def value_from_datadict(self, data, files, name):
         # strip non-numeric values before they reach form fields or templates
         values = super().value_from_datadict(data, files, name)
-        return [v if v and (isinstance(v, int) or v.isdigit()) else None for v in values]
+        return [
+            v if v and (isinstance(v, int) or v.isdigit()) else None for v in values
+        ]
 
     def decompress(self, value):
         if value:

@@ -14,7 +14,7 @@ def split_names(apps, schema_editor):
     everything before that space and last_name to everything after."""
     Person = apps.get_model("pages", "Person")
     for person in Person.objects.all():
-        (person.first_name, _, person.last_name) = person.name.rpartition(" ")
+        person.first_name, _, person.last_name = person.name.rpartition(" ")
         person.save()
 
 

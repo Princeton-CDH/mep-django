@@ -267,7 +267,7 @@ class TestReconcileOCLC(TestCase):
             author__all=str(person),
             year=work.year,
             material_type__exact="book",
-            **default_filters
+            **default_filters,
         )
 
         # search does not include missing fields
@@ -286,7 +286,7 @@ class TestReconcileOCLC(TestCase):
         mock_sru_search.search.assert_called_with(
             title__exact=work.title,
             material_type__exact="periodical",
-            **default_filters
+            **default_filters,
         )
 
         work.notes = ""
@@ -300,7 +300,7 @@ class TestReconcileOCLC(TestCase):
                 title__exact=work.title,
                 year="-1940",
                 material_type__exact="book",
-                **default_filters
+                **default_filters,
             )
 
     def test_oclc_info(self):

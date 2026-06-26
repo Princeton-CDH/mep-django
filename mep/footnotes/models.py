@@ -13,7 +13,6 @@ from parasolr.django.indexing import ModelIndexable
 
 from mep.common.models import Named, Notable
 
-
 logger = logging.getLogger(__name__)
 
 
