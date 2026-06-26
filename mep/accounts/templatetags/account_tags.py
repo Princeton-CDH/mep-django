@@ -6,7 +6,6 @@ from django.template import TemplateSyntaxError
 from django.template.defaulttags import register
 from django.utils.safestring import mark_safe
 
-
 # group consecutive numbers solution from
 # https://stackoverflow.com/questions/2154249/identify-groups-of-continuous-numbers-in-a-list
 # based on python itertools examples

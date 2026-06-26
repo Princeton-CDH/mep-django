@@ -4,7 +4,6 @@ from cached_property import cached_property
 from django.conf import settings
 import requests
 
-
 logger = logging.getLogger(__name__)
 
 # NOTE: geonames code adapted and extended from winthrop project; will need

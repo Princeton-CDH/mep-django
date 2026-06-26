@@ -9,7 +9,6 @@ from djiffy.models import Canvas
 from mep.common.admin import NamedNotableAdmin
 from mep.footnotes.models import Bibliography, Footnote, SourceType
 
-
 AUTOCOMPLETE = {
     "bibliography": autocomplete.ModelSelect2(
         url="footnotes:bibliography-autocomplete",

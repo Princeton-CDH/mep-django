@@ -13,7 +13,6 @@ import pandas as pd
 
 import requests
 
-
 # published v1.1 books dataset
 books_previous = "https://dataspace.princeton.edu/bitstream/88435/dsp016d570067j/2/SCoData_books_v1.1_2021-01.csv"
 # local copy of v1.2 (not yet published)

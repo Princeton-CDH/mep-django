@@ -1,6 +1,5 @@
 from mep.settings import CSP_SCRIPT_SRC, CSP_STYLE_SRC, CSP_CONNECT_SRC
 
-
 DEBUG = True
 
 # ALLOWED_HOSTS = ["*"]

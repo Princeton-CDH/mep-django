@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 from django.contrib.auth.management import create_permissions
 from django.db import migrations
 
-
 new_content_editor_perms = [
     "add_address",
     "change_address",

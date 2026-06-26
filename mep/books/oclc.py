@@ -2,6 +2,7 @@
 Module for collecting OCLC search functionality, particularly SRU style
 searches.
 """
+
 from io import BytesIO
 import logging
 import time
@@ -15,7 +16,6 @@ import rdflib
 import requests
 
 from mep import __version__ as mep_version
-
 
 logger = logging.getLogger(__name__)
 

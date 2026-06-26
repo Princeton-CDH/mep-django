@@ -37,7 +37,6 @@ from mep.people.models import (
     RelationshipType,
 )
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -1,6 +1,7 @@
 """
 mep URL Configuration
 """
+
 from django.conf import settings
 from django.urls import re_path, path, include
 from django.conf.urls.static import serve
@@ -18,7 +19,6 @@ from mep.books import sitemaps as book_sitemaps
 from mep.footnotes import urls as footnote_urls
 from mep.people import sitemaps as member_sitemaps
 from mep.people import urls as people_urls
-
 
 # sitemap configuration for sections of the site
 SITEMAPS = {

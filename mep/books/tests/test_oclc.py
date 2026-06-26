@@ -21,7 +21,6 @@ from mep.books.oclc import (
     SCHEMA_ORG,
 )
 
-
 FIXTURE_DIR = os.path.join("mep", "books", "fixtures")
 
 
